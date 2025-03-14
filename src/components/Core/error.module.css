@@ -1,0 +1,20 @@
+
+.apierror--root {
+    background-color: #1f4662;
+    color: #fff;
+    font-size: 12px;
+}
+
+.apierror--header {
+    background-color: #193549;
+    padding: 5px 10px;
+    font-family: monospace;
+    color: #ffc600;
+}
+
+.apierror--pre {
+    display: block;
+    padding: 10px 30px;
+    margin: 0;
+    overflow: scroll;
+}

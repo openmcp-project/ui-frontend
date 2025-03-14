@@ -1,0 +1,139 @@
+{
+  "Login": {
+    "welcomeMessage": "Welcome to openMCP UI",
+    "description": "Your place to manage your openMCPs, see your installed components and managed resources!",
+    "learnMore": "Learn more in our documentation",
+    "signInButton": "Sign in"
+  },
+  "ComponentList": {
+    "tableComponentHeader": "Component",
+    "tableVersionHeader": "Version"
+  },
+  "FluxList": {
+    "tableNameHeader": "Name",
+    "tableStatusHeader": "Status",
+    "tableCreatedHeader": "Created"
+  },
+  "ProvidersList": {
+    "tableNameHeader": "Name",
+    "tableStatusHeader": "Status",
+    "tableCreatedHeader": "Created"
+  },
+  "ControlPlaneListToolbar": {
+    "buttonText": "Workspace"
+  },
+  "ControlPlaneListWorkspaceGridTile": {
+    "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
+    "permissionErrorMessage": "Not permitted to list mcps in workspace",
+    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "loadingErrorMessage": "Failed to list mcps in workspace"
+  },
+  "ControlPlaneListAllWorkspaces": {
+    "emptyListTitleMessage": "No Workspaces created yet",
+    "emptyListSubtitleMessage": "Create a workspace to get started"
+  },
+  "ConnectButton": {
+    "buttonText": "Connect"
+  },
+  "MCPHealthPopoverButton": {
+    "statusHeader": "Status",
+    "typeHeader": "Type",
+    "messageHeader": "Message",
+    "reasonHeader": "Reason",
+    "transitionHeader": "Last transition time"
+  }, 
+  "CopyKubeconfigButton": {
+    "copiedMessage": "Copied to Clipboard", 
+    "failedMessage": "Failed to copy, Error:",
+    "menuDownload": "Download",
+    "menuCopy": "Copy to clipboard"
+  },
+  "NoManagedControlPlaneBanner": {
+    "titleMessage": "No ManagedControlPlane",
+    "subtitleMessage": "Create a ManagedControlPlane to get started",
+    "helpButton": "Help"
+  },
+  "IntelligentBreadcrumbs": {
+    "homeLabel": "Home"
+  },
+  "NotInLuigiView": {
+    "titleMessage": "Opened outside of Hyperspace Portal",
+    "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
+  },
+  "ShellBar": {
+    "signOutButton": "Sign Out"
+  },
+  "CreateProjectDialog": {
+    "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
+  },
+  "CreateWorkspaceDialog": {
+    "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
+  },
+  "DeleteConfirmationDialog": {
+    "deleteButton": "Delete",
+    "cancelButton": "Cancel",
+    "deleteMessage": "You are about to delete the resource",
+    "deleteMessageType": "Please type",
+    "deleteMessageConfirm": "to confirm deletion!"
+  },
+  "Loading": {
+    "title": "Getting Ready",
+    "subtitle": "Fetching data..."
+  },
+  "MemberTable": {
+    "columnEmailHeader": "Email",
+    "columnRoleHeader": "Role"
+  },
+  "SessionExpiringDialog": {
+    "dialogHeader": "Your session is expiring soon...",
+    "signOutButton": "Sign Out",
+    "stayButton": "Stay Signed In",
+    "sessionText": "Your session expires soon and you will be signed out automatically. To continue working, press 'Stay Signed in'."
+  },
+  "IllustratedError": {
+    "titleText": "Something went wrong",
+    "subtitleText": "Contact admins for help"
+  },
+  "CopyButtonContext": {
+    "errorMessage": "useCopyButton must be used within a CopyButtonProvider"
+  },
+  "CreateProjectWorkspaceDialog": {
+    "learnButton": "Learn how to do this in code",
+    "createButton": "Create",
+    "cancelButton": "Cancel",
+    "chargingTargetLabel": "Charging Target",
+    "displayNameLabel": "Display Name",
+    "nameLabel": "Name",
+    "metadataHeader": "Metadata",
+    "membersHeader": "Members"
+  },
+  "EditMembers": {
+    "addButton": "Add"
+  },
+  "FrontendConfigContext": {
+    "errorMessage": "useFrontendConfig must be used within a FrontendConfigProvider"
+  },
+  "ControlPlaneListView": {
+    "projectHeader": "Project:"
+  },
+  "ProjectsListView": {
+    "pageTitle": "Let's get started",
+    "title": "Projects"
+  },
+  "ControlPlaneView": {
+    "accessError": "Managed Control Plane does not have access information yet"
+  },
+  "ToastContext": {
+    "errorMessage": "useToast must be used within a ToastProvider"
+  },
+  "CopyButton": {
+    "copiedMessage": "Copied To Clipboard",
+    "failedMessage": "Failed to copy"
+  },
+  "App": {
+    "loading": "Loading..."
+  },
+  "main": {
+    "failedMessage": "Failed to load frontend configuration"
+  }
+}

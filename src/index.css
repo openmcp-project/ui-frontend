@@ -1,0 +1,106 @@
+.component-card-container {
+  height: 144px;
+}
+
+.component-card {
+  border-radius: 20px;
+  width: 300px;
+  height: 112px;
+  transition: height 0.3s ease;
+}
+
+.component-card:hover {
+  /* height: 144px; */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.component-card-header {
+  display: flex;
+  flex-direction: column
+}
+
+.component-card-header-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  padding-left: 28px;
+  height: 60px;
+  transition: height 0.3s ease;
+}
+
+.component-card-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.disabled-icon {
+  filter: grayscale(100%);
+}
+
+.component-title {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+}
+
+.component-title-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.component-title-row-text {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: start;
+  padding-left: 24px;
+}
+
+.component-title-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.component-title-description {
+  font-size: 14px;
+  font-weight: regular;
+  color: gray;
+  text-wrap: nowrap;
+}
+
+.component-status {
+  width: "96px";
+  height: "28px";
+  text-align: "center"
+}
+
+.component-card-header-status {
+  width: 300px;
+  height: 28px;
+  margin-left: 210px;
+  margin-top: 12px;
+  margin-bottom: -30px;
+}
+
+.cp-panel-crossplane {
+  background-color: #FFC933;
+}
+
+.cp-panel-gitops {
+  background-color: #D1EFFF;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background-color: var(--sapBackgroundColor);
+}
+
+#root {
+  height: 100%;
+  background-color: var(--sapBackgroundColor);
+}
