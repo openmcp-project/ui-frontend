@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef} from "react";
 import {useApiResourceMutation, useRevalidateApiResource} from "../../lib/api/useApiResource";
 import {ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
 import {APIError} from "../../lib/api/error";
@@ -13,8 +13,21 @@ import {ListWorkspaces} from "../../lib/api/types/crate/listWorkspaces";
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
 import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
-import {InputDomRef} from "@ui5/webcomponents-react";
+
 import {useTranslation} from "react-i18next";
+import {useFormik} from "formik";
+import {z} from "zod";
+import {toFormikValidationSchema} from "zod-formik-adapter";
+
+
+export type CreateDialogProps = {
+  name: string,
+  displayName: string,
+  chargingTarget: string,
+  members: Member[],
+}
+
+
 
 export function CreateWorkspaceDialogContainer({
                                                  isOpen,
@@ -25,27 +38,43 @@ export function CreateWorkspaceDialogContainer({
   setIsOpen: (isOpen: boolean) => void;
   project: string;
 }) {
-  const username = useAuthSubject();
-  const [members, setMembers] = useState<Member[]>([]);
-  const nameInput = useRef<InputDomRef>(null);
-  const displayNameInput = useRef<InputDomRef>(null);
-  const chargingTargetInput = useRef<InputDomRef>(null);
+  const validationSchema = z.object({
+    name: z.string().min(1, "Name is required").regex(/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/, 'Invalid'),
+    displayName: z.string().optional(),
+    chargingTarget: z.string().optional(),
+    members: z.array(z.any()).nonempty()
+  });
+  const formik = useFormik<CreateDialogProps>(
+    {
+    initialValues: {
+      name: "",
+      displayName: "",
+      chargingTarget: "",
+      members: [],
+    },
+      onSubmit: (values, ) => {
+      console.log(values)
+      }
+      ,
+      validationSchema: toFormikValidationSchema(validationSchema),
+      validateOnChange: true,
+      validateOnMount: true
+
+  });
+
+  const username = useAuthSubject()
+
+  console.log('formik xxx')
+  console.log(formik)
   const {t} = useTranslation();
+
   useEffect(() => {
     if (username) {
-      setMembers([{name: username, roles: [MemberRoles.admin], kind: "User"}]);
+      formik.setFieldValue('members', [{name: username, roles: [MemberRoles.admin], kind: "User"}])
     }
     return () => {
-      if (nameInput.current) {
-        nameInput.current.value = "";
-      }
-      if (displayNameInput.current) {
-        displayNameInput.current.value = "";
-      }
-      if (chargingTargetInput.current) {
-        chargingTargetInput.current.value = "";
-      }
-      setMembers([]);
+      formik.resetForm()
+
     };
   }, []);
   const namespace = projectnameToNamespace(project);
@@ -85,34 +114,38 @@ export function CreateWorkspaceDialogContainer({
   };
 
   const handleOnCreate = async () => {
-    if (!nameInput.current || !displayNameInput.current || !chargingTargetInput.current) {
+await formik.validateForm()
+    console.log('errors')
+    console.log(formik.errors)
+console.log("formik.isValid")
+console.log(formik.isValid)
+    if (!formik.isValid) {
       return;
     }
     const successful = await handleProjectCreate({
-      name: nameInput.current.value,
-      displayName: displayNameInput.current.value,
-      chargingTarget: chargingTargetInput.current.value,
-      members: members,
+      name: formik.values.name,
+      displayName: formik.values.displayName,
+      chargingTarget: formik.values.chargingTarget,
+      members: formik.values.members,
     });
     if (successful) {
-      nameInput.current.value = "";
-      displayNameInput.current.value = "";
-      chargingTargetInput.current.value = "";
+      formik.setFieldValue('name', "")
+      formik.setFieldValue('displayName', "")
+      formik.setFieldValue('chargingTarget', "")
     }
   };
 
   return (
     <>
+
       <CreateProjectWorkspaceDialog
+        formik={formik}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         onCreate={handleOnCreate}
         errorDialogRef={errorDialogRef}
         titleText="Create Workspace"
-        members={members} setMembers={setMembers}
-        nameInputRef={nameInput}
-        displayNameInputRef={displayNameInput}
-        chargingTargetInputRef={chargingTargetInput}
+        members={formik.values.members}
       />
     </>
   );

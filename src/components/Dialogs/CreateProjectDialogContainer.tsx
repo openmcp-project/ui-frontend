@@ -9,6 +9,8 @@ import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
 import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
 import {InputDomRef} from "@ui5/webcomponents-react";
 import {useTranslation} from "react-i18next";
+import {useFormik} from "formik";
+import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
 
 
 export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: boolean, setIsOpen: (isOpen: boolean) => void }) {
@@ -66,7 +68,18 @@ export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: bool
       setMembers([]);
     };
   }, []);
-
+  const formik = useFormik<CreateDialogProps>(
+    {
+      initialValues: {
+        name: "",
+        displayName: "",
+        chargingTarget: "",
+        members: [],
+      },
+      onSubmit: (values, ) => {
+        console.log(values)
+      }
+    });
   const handleOnCreate = async () => {
     if (!nameInput.current || !displayNameInput.current || !chargingTargetInput.current) {
       return;
@@ -88,10 +101,10 @@ export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: bool
     <>
       <CreateProjectWorkspaceDialog isOpen={isOpen} setIsOpen={setIsOpen} onCreate={handleOnCreate}
                                     errorDialogRef={errorDialogRef} titleText="Create Project"
-                                    members={members} setMembers={setMembers}
-                                    nameInputRef={nameInput}
-                                    displayNameInputRef={displayNameInput}
-                                    chargingTargetInputRef={chargingTargetInput}
+                                    members={members}
+formik={formik}
+
+
 
       />
     </>

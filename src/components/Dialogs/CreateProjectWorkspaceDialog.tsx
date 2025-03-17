@@ -1,12 +1,14 @@
-import { Bar, Button, Dialog, Form, FormGroup, FormItem, Input, InputDomRef, Label } from "@ui5/webcomponents-react";
+import {Bar, Button, Dialog, Form, FormGroup, FormItem, Input, Label} from "@ui5/webcomponents-react";
 
-import { Member } from "../../lib/api/types/shared/members";
-import { ErrorDialog, ErrorDialogHandle } from "../Shared/ErrorMessageBox.tsx";
+import {Member} from "../../lib/api/types/shared/members";
+import {ErrorDialog, ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
 
-import { EditMembers } from "../Members/EditMembers.tsx";
+import {EditMembers} from "../Members/EditMembers.tsx";
 import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
-import { useFrontendConfig } from "../../context/FrontendConfigContext.tsx";
-import { useTranslation } from "react-i18next";
+import {useFrontendConfig} from "../../context/FrontendConfigContext.tsx";
+import {useTranslation} from "react-i18next";
+import {FormikProps} from "formik";
+import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
 
 export type onCreatePayload = { name: string; displayName: string; chargingTarget: string; members: Member[] };
 
@@ -17,26 +19,24 @@ export interface CreateProjectWorkspaceDialogProps {
   onCreate: () => Promise<void>;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   members: Member[];
-  setMembers: (members: Member[]) => void;
-  nameInputRef: React.RefObject<InputDomRef | null>;
-  displayNameInputRef: React.RefObject<InputDomRef | null>;
-  chargingTargetInputRef: React.RefObject<InputDomRef | null>;
+  formik: FormikProps<CreateDialogProps>
 }
 
 export function CreateProjectWorkspaceDialog({
-  isOpen,
-  setIsOpen,
-  titleText,
-  onCreate,
-  errorDialogRef,
-  members,
-  setMembers,
-  nameInputRef,
-  chargingTargetInputRef,
-  displayNameInputRef
-}: CreateProjectWorkspaceDialogProps) {
-  const { links } = useFrontendConfig();
-  const { t } = useTranslation();
+                                               formik,
+                                               isOpen,
+                                               setIsOpen,
+                                               titleText,
+                                               onCreate,
+                                               errorDialogRef,
+                                               members,
+
+                                             }: CreateProjectWorkspaceDialogProps) {
+  const {links} = useFrontendConfig();
+  const {t} = useTranslation();
+
+  console.log('formik')
+  console.log(formik)
   return (
     <>
       <Dialog
@@ -72,50 +72,76 @@ export function CreateProjectWorkspaceDialog({
         }
       >
         <CreateProjectWorkspaceDialogContent
+          formik={formik}
           members={members}
-          setMembers={setMembers}
-          nameInput={nameInputRef}
-          displayNameInput={displayNameInputRef}
-          chargingTargetInput={chargingTargetInputRef}
         />
       </Dialog>
-      <ErrorDialog ref={errorDialogRef} />
+      <ErrorDialog ref={errorDialogRef}/>
     </>
   );
 }
 
 interface CreateProjectWorkspaceDialogContentProps {
   members: Member[];
-  setMembers: (members: Member[]) => void;
-  nameInput: React.RefObject<InputDomRef | null>;
-  displayNameInput: React.RefObject<InputDomRef | null>;
-  chargingTargetInput: React.RefObject<InputDomRef | null>;
+
+  formik: FormikProps<CreateDialogProps>
 }
 
 function CreateProjectWorkspaceDialogContent({
-  members,
-  setMembers,
-  nameInput,
-  displayNameInput,
-  chargingTargetInput,
-}: CreateProjectWorkspaceDialogContentProps) {
-  const { t } = useTranslation();
+                                               members,
+                                               formik
+                                             }: CreateProjectWorkspaceDialogContentProps) {
+
+  const {t} = useTranslation();
+
+  const setMembers = (members: Member[]) => {
+    formik.setFieldValue('members', members);
+  }
   return (
     <>
       <Form>
         <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
           <FormItem labelContent={<Label required>{t('CreateProjectWorkspaceDialog.nameLabel')}</Label>}>
-            <Input id="project-name-input" placeholder={t('CreateProjectWorkspaceDialog.nameLabel')} ref={nameInput} required></Input>
+            <Input id="name" placeholder={t('CreateProjectWorkspaceDialog.nameLabel')}
+                   value={formik.values.name}
+                   onChange={formik.handleChange}
+                   valueState={(formik.errors.name) ? "Negative" :"None"}
+                   valueStateMessage={<div>
+
+                     <dl>
+                       <dt>Please use:</dt>
+                       <dd>Letters: A through Z (uppercase) and a through z (lowercase)</dd>
+
+                       <dd>Numbers: 0 through 9</dd>
+
+                       <dd>Hyphen: - (dash)</dd>
+
+                       <dd>Period: . (dot, typically as a separator, e.g., in domain names)</dd>
+
+                       <dd>Note that whitespace (spaces, tabs, etc.) is not allowed.</dd>
+
+                     </dl>
+                   </div>}
+                   required></Input>
+
           </FormItem>
           <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>}>
-            <Input id="project-displayname-input" placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')} ref={displayNameInput}></Input>
+            <Input id="displayName"
+                   value={formik.values.displayName}
+                   onChange={formik.handleChange}
+                   placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')}
+                 ></Input>
           </FormItem>
           <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.chargingTargetLabel')}</Label>}>
-            <Input id="project-chargingtarget-input" placeholder={t('CreateProjectWorkspaceDialog.chargingTargetLabel')} ref={chargingTargetInput}></Input>
+            <Input id="chargingTarget"
+                   value={formik.values.chargingTarget}
+                   onChange={formik.handleChange}
+                   placeholder={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}></Input>
           </FormItem>
+
         </FormGroup>
         <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-          <EditMembers members={members} onMemberChanged={setMembers} />
+          <EditMembers members={members} onMemberChanged={setMembers}/>
         </FormGroup>
       </Form>
     </>
