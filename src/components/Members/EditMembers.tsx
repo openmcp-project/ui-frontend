@@ -5,6 +5,7 @@ import { MemberRoleSelect } from "./MemberRoleSelect.tsx";
 import { ValueState } from "../Shared/Ui5ValieState.tsx";
 import { Member, MemberRoles } from "../../lib/api/types/shared/members";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 export interface EditMembersProps {
   members: Member[];
@@ -22,7 +23,8 @@ export function EditMembers({ members = [], onMemberChanged }: EditMembersProps)
       return;
     }
     // Check if the email is already in the list,  highlight as error
-    if (members.find((m) => m.name === emailInput.current!.value)) {
+    if (members.find((m) => m.name === emailInput.current!.value) || !z.string().email("This is not a valid email.").safeParse(emailInput.current!.value).success) {
+      
       setHighlightEmail("Negative");
       return;
     }
@@ -39,10 +41,14 @@ export function EditMembers({ members = [], onMemberChanged }: EditMembersProps)
     setRole(role);
   }
 
+
+
+
+
   return (
     <>
       <div>
-        <Input id="member-email-input" placeholder="Email" ref={emailInput} valueState={highlightEmail}></Input>
+        <Input id="member-email-input" type="Email" placeholder="Email" ref={emailInput} valueState={highlightEmail} ></Input>
         <MemberRoleSelect value={role} onChange={changeSelectedRole} />
         <Button data-testid="add-member-button" onClick={() => addMember()}>{t('EditMembers.addButton')}</Button>
         <MemberTable members={members} onDeleteMember={removeMember} />
