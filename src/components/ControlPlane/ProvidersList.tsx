@@ -5,6 +5,7 @@ import IllustratedError from "../Shared/IllustratedError.tsx";
 import useResource from "../../lib/api/useApiResource";
 import { ListProviders } from "../../lib/api/types/crossplane/listProviders";
 import { useTranslation } from 'react-i18next';
+import { ManagedResources } from './ManagedResources';
 
 export default function ProvidersList() {
   const { data, error, isLoading } = useResource(ListProviders);
@@ -45,11 +46,8 @@ export default function ProvidersList() {
         columns={columns}
         data={[]}
       />
-      <Title level="H4">Resources</Title>
-      <ConfiguredAnalyticstable
-        columns={columns}
-        data={[]}
-      />
+
+      <ManagedResources />
     </>
   );
 }

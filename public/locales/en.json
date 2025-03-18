@@ -19,6 +19,14 @@
     "tableStatusHeader": "Status",
     "tableCreatedHeader": "Created"
   },
+  "ManagedResources": {
+    "headerManagedResources": "Resources",
+    "tableHeaderKind": "Kind",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderSynced": "Synced",
+    "tableHeaderReady": "Ready"
+  },
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace"
   },
