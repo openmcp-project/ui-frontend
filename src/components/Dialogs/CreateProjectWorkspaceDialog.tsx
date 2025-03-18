@@ -7,9 +7,10 @@ import {EditMembers} from "../Members/EditMembers.tsx";
 import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
 import {useFrontendConfig} from "../../context/FrontendConfigContext.tsx";
 import {useTranslation} from "react-i18next";
-import {FormikProps} from "formik";
+
 import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
 import {FormEvent} from "react";
+import {FieldErrors, UseFormRegister, UseFormSetValue} from "react-hook-form";
 
 export type onCreatePayload = { name: string; displayName: string; chargingTarget: string; members: Member[] };
 
@@ -20,24 +21,26 @@ export interface CreateProjectWorkspaceDialogProps {
   onCreate: (e?: FormEvent<HTMLFormElement> | undefined) => void;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   members: Member[];
-  formik: FormikProps<CreateDialogProps>
+  register: UseFormRegister<CreateDialogProps>;
+  errors: FieldErrors<CreateDialogProps>;
+  setValue: UseFormSetValue<CreateDialogProps>;
 }
 
 export function CreateProjectWorkspaceDialog({
-                                               formik,
+
                                                isOpen,
                                                setIsOpen,
                                                titleText,
                                                onCreate,
                                                errorDialogRef,
                                                members,
-
+                                               register,
+                                               errors,
+                                               setValue,
                                              }: CreateProjectWorkspaceDialogProps) {
   const {links} = useFrontendConfig();
   const {t} = useTranslation();
 
-  console.log('formik')
-  console.log(formik)
   return (
     <>
       <Dialog
@@ -73,8 +76,10 @@ export function CreateProjectWorkspaceDialog({
         }
       >
         <CreateProjectWorkspaceDialogContent
-          formik={formik}
           members={members}
+          register={register}
+          errors={errors}
+          setValue={setValue}
         />
       </Dialog>
       <ErrorDialog ref={errorDialogRef}/>
@@ -84,19 +89,23 @@ export function CreateProjectWorkspaceDialog({
 
 interface CreateProjectWorkspaceDialogContentProps {
   members: Member[];
-
-  formik: FormikProps<CreateDialogProps>
+  register: UseFormRegister<CreateDialogProps>;
+  errors: FieldErrors<CreateDialogProps>;
+  setValue: UseFormSetValue<CreateDialogProps>;
 }
 
 function CreateProjectWorkspaceDialogContent({
                                                members,
-                                               formik
+                                               register,
+                                               errors,
+                                               setValue,
                                              }: CreateProjectWorkspaceDialogContentProps) {
 
   const {t} = useTranslation();
 
   const setMembers = (members: Member[]) => {
-    formik.setFieldValue('members', members);
+    setValue
+    ('members', members);
   }
   return (
 
@@ -108,10 +117,9 @@ function CreateProjectWorkspaceDialogContent({
 
           <Input id="name"
 
-                 value={formik.values.name}
-                 onChange={formik.handleChange}
-                 onBlur={formik.handleBlur}
-                 valueState={(formik.errors.name && formik.touched.name) ? "Negative" : "None"}
+                 {...register('name')}
+
+                 valueState={errors.name ? "Negative" : "None"}
                  valueStateMessage={<span>Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.
 
 </span>}
@@ -123,8 +131,7 @@ function CreateProjectWorkspaceDialogContent({
 
 
           <Input id="displayName"
-                 value={formik.values.displayName}
-                 onChange={formik.handleChange}
+                 {...register('displayName')}
 
           ></Input>
 
@@ -133,8 +140,7 @@ function CreateProjectWorkspaceDialogContent({
 
 
           <Input id="chargingTarget"
-                 value={formik.values.chargingTarget}
-                 onChange={formik.handleChange}
+                 {...register('chargingTarget')}
 
 
           >
@@ -144,7 +150,7 @@ function CreateProjectWorkspaceDialogContent({
 
       </FormGroup>
       <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-        <EditMembers members={members} onMemberChanged={setMembers} isValidationError={!!formik.errors.members}/>
+        <EditMembers members={members} onMemberChanged={setMembers} isValidationError={!!errors.members}/>
       </FormGroup>
     </Form>
 

@@ -12,12 +12,14 @@ import {projectnameToNamespace} from "../../utils";
 import {ListWorkspaces} from "../../lib/api/types/crate/listWorkspaces";
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
-import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
+import {Member, MemberRoles, MemberSchema} from "../../lib/api/types/shared/members.ts";
 
 import {useTranslation} from "react-i18next";
-import {useFormik} from "formik";
+
 import {z} from "zod";
-import {toFormikValidationSchema} from "zod-formik-adapter";
+
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
 
 
 export type CreateDialogProps = {
@@ -26,7 +28,6 @@ export type CreateDialogProps = {
   chargingTarget: string,
   members: Member[],
 }
-
 
 
 export function CreateWorkspaceDialogContainer({
@@ -42,33 +43,55 @@ export function CreateWorkspaceDialogContainer({
     name: z.string().min(1, "Name is required").regex(/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/, 'Invalid'),
     displayName: z.string().optional(),
     chargingTarget: z.string().optional(),
-    members: z.array(z.any()).nonempty()
+    members: z.array(MemberSchema).nonempty()
   });
-  const formik = useFormik<CreateDialogProps>(
-    {
-    initialValues: {
+  // const formik = useFormik<CreateDialogProps>(
+  //   {
+  //     initialValues: {
+  //       name: "",
+  //       displayName: "",
+  //       chargingTarget: "",
+  //       members: [],
+  //     },
+  //     onSubmit: async (values, formikHelpers) => {
+  //       const successful = await handleProjectCreate({
+  //         name: values.name,
+  //         displayName: values.displayName,
+  //         chargingTarget: values.chargingTarget,
+  //         members: values.members,
+  //       });
+  //       if (successful) {
+  //         formikHelpers.setFieldValue('name', "")
+  //         formikHelpers.setFieldValue('displayName', "")
+  //         formikHelpers.setFieldValue('chargingTarget', "")
+  //       }
+  //     }
+  //     ,
+  //     validationSchema: toFormikValidationSchema(validationSchema),
+  //     // validateOnChange: true,
+  //
+  //   });
+
+  // });
+
+
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+    watch
+  } = useForm<CreateDialogProps>({
+    // @ts-ignore
+    resolver: zodResolver(validationSchema, ),
+    defaultValues: {
       name: "",
       displayName: "",
       chargingTarget: "",
       members: [],
-    },
-      onSubmit: async (values,formikHelpers) => {
-        const successful = await handleProjectCreate({
-          name: values.name,
-          displayName: values.displayName,
-          chargingTarget: values.chargingTarget,
-          members: values.members,
-        });
-        if (successful) {
-          formikHelpers.setFieldValue('name', "")
-          formikHelpers.setFieldValue('displayName', "")
-          formikHelpers.setFieldValue('chargingTarget', "")
-        }
-      }
-      ,
-      validationSchema: toFormikValidationSchema(validationSchema),
-      // validateOnChange: true,
-
+    }
   });
 
   const username = useAuthSubject()
@@ -77,10 +100,10 @@ export function CreateWorkspaceDialogContainer({
 
   useEffect(() => {
     if (username) {
-      formik.setFieldValue('members', [{name: username, roles: [MemberRoles.admin], kind: "User"}])
+      setValue('members', [{name: username, roles: [MemberRoles.admin], kind: "User"}])
     }
     return () => {
-      formik.resetForm()
+      reset()
 
     };
   }, []);
@@ -121,18 +144,20 @@ export function CreateWorkspaceDialogContainer({
   };
 
 
-
   return (
     <>
 
       <CreateProjectWorkspaceDialog
-        formik={formik}
+
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        onCreate={formik.handleSubmit}
+        onCreate={handleSubmit(handleProjectCreate)}
         errorDialogRef={errorDialogRef}
         titleText="Create Workspace"
-        members={formik.values.members}
+        members={watch('members')}
+        register={register}
+        errors={errors}
+        setValue={setValue}
       />
     </>
   );
