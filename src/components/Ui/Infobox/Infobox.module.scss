@@ -1,5 +1,45 @@
 .infobox {
   display: inline-block;
-  padding: 2rem;
-  border: 1px solid red;
+  border: 1px solid;
+  margin-bottom: 1rem;
+
+  &.size-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  &.size-md {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  &.size-lg {
+    padding: 1.5rem 2rem;
+    font-size: 1.25rem;
+  }
+
+  // Variant variations
+  &.variant-normal {
+    border-color: #ccc;
+    background-color: #f5f5f5;
+    color: #333;
+  }
+
+  &.variant-success {
+    border-color: #2ecc71;
+    background-color: #ecf9f2;
+    color: #27ae60;
+  }
+
+  &.variant-warning {
+    border-color: #f1c40f;
+    background-color: #fef9e7;
+    color: #f39c12;
+  }
+
+  &.variant-danger {
+    border-color: #e74c3c;
+    background-color: #fdedec;
+    color: #c0392b;
+  }
 }

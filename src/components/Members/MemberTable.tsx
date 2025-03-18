@@ -41,7 +41,7 @@ export const MemberTable: FC<MemberTableProps> = ({members, onDeleteMember, isVa
     },)
   }
   if (members.length === 0) {
-    return (<Infobox variant={isValidationError ? 'error' : 'normal'}> You need to have at least one member assigned</Infobox>)
+    return (<Infobox variant={isValidationError ? 'danger' : 'normal'}> You need to have at least one member assigned</Infobox>)
   }
   return (
     <AnalyticalTable

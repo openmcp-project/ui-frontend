@@ -33,11 +33,14 @@ export type CreateDialogProps = {
 export function CreateWorkspaceDialogContainer({
                                                  isOpen,
                                                  setIsOpen,
-                                                 project,
+                                                 project = '',
+  type
                                                }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  project: string;
+  project?: string;
+  type: 'workspace' | 'project'
+
 }) {
   const validationSchema = z.object({
     name: z.string().min(1, "Name is required").regex(/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/, 'Invalid'),
@@ -45,34 +48,7 @@ export function CreateWorkspaceDialogContainer({
     chargingTarget: z.string().optional(),
     members: z.array(MemberSchema).nonempty()
   });
-  // const formik = useFormik<CreateDialogProps>(
-  //   {
-  //     initialValues: {
-  //       name: "",
-  //       displayName: "",
-  //       chargingTarget: "",
-  //       members: [],
-  //     },
-  //     onSubmit: async (values, formikHelpers) => {
-  //       const successful = await handleProjectCreate({
-  //         name: values.name,
-  //         displayName: values.displayName,
-  //         chargingTarget: values.chargingTarget,
-  //         members: values.members,
-  //       });
-  //       if (successful) {
-  //         formikHelpers.setFieldValue('name', "")
-  //         formikHelpers.setFieldValue('displayName', "")
-  //         formikHelpers.setFieldValue('chargingTarget', "")
-  //       }
-  //     }
-  //     ,
-  //     validationSchema: toFormikValidationSchema(validationSchema),
-  //     // validateOnChange: true,
-  //
-  //   });
 
-  // });
 
 
 
@@ -114,7 +90,7 @@ export function CreateWorkspaceDialogContainer({
   const revalidate = useRevalidateApiResource(ListWorkspaces(project));
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const handleProjectCreate = async ({
+  const handleWorkspaceCreate = async ({
                                        name,
                                        displayName,
                                        chargingTarget,
@@ -145,13 +121,12 @@ export function CreateWorkspaceDialogContainer({
 
 
   return (
-    <>
+
 
       <CreateProjectWorkspaceDialog
-
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        onCreate={handleSubmit(handleProjectCreate)}
+        onCreate={handleSubmit(type === "workspace" ? handleWorkspaceCreate : ()=> {})}
         errorDialogRef={errorDialogRef}
         titleText="Create Workspace"
         members={watch('members')}
@@ -159,6 +134,6 @@ export function CreateWorkspaceDialogContainer({
         errors={errors}
         setValue={setValue}
       />
-    </>
+
   );
 }
