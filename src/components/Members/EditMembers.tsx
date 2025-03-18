@@ -1,4 +1,4 @@
-import { useRef, useState} from "react";
+import {FC, useRef, useState} from "react";
 import {Button, Input, InputDomRef} from "@ui5/webcomponents-react";
 import {MemberTable} from "./MemberTable.tsx";
 import {MemberRoleSelect} from "./MemberRoleSelect.tsx";
@@ -10,9 +10,10 @@ import {z} from "zod";
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
+  isValidationError?: boolean
 }
 
-export function EditMembers({members = [], onMemberChanged}: EditMembersProps) {
+export const EditMembers:FC<EditMembersProps> = ({members = [], onMemberChanged, isValidationError = false} ) =>  {
   const emailInput = useRef<InputDomRef>(null);
   const [valueStateMessage, setValueStateMessage] = useState<string>("");
   const [highlightEmail, setHighlightEmail] = useState<ValueState>("None");
@@ -57,7 +58,7 @@ export function EditMembers({members = [], onMemberChanged}: EditMembersProps) {
                valueStateMessage={<span>{valueStateMessage}</span>} onChange={()=>{ setHighlightEmail('None')}}></Input>
         <MemberRoleSelect value={role} onChange={changeSelectedRole}/>
         <Button data-testid="add-member-button" onClick={() => addMember()}>{t('EditMembers.addButton')}</Button>
-        <MemberTable members={members} onDeleteMember={removeMember}/>
+        <MemberTable members={members} onDeleteMember={removeMember} isValidationError={isValidationError}/>
       </div>
     </>
   )

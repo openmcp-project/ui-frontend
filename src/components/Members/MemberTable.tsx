@@ -1,11 +1,15 @@
-import { AnalyticalTable, Button } from "@ui5/webcomponents-react";
-import { Member, MemberRolesDetailed } from "../../lib/api/types/shared/members";
-import { AnalyticalTableColumnDefinition } from "@ui5/webcomponents-react/wrappers";
-import { useTranslation } from "react-i18next";
+import {AnalyticalTable, Button} from "@ui5/webcomponents-react";
+import {Member, MemberRolesDetailed} from "../../lib/api/types/shared/members";
+import {AnalyticalTableColumnDefinition} from "@ui5/webcomponents-react/wrappers";
+import {useTranslation} from "react-i18next";
+import {FC} from "react";
+import {Infobox} from "../Ui/Infobox/Infobox.tsx";
 
-export function MemberTable({ members, onDeleteMember }: { members: Member[], onDeleteMember?: (email: string) => void }) {
-  const { t } = useTranslation();
-  
+type MemberTableProps = { members: Member[]; onDeleteMember?: (email: string) => void, isValidationError?: boolean }
+
+export const MemberTable: FC<MemberTableProps> = ({members, onDeleteMember, isValidationError = false}) => {
+  const {t} = useTranslation();
+
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('MemberTable.columnEmailHeader'),
@@ -36,7 +40,9 @@ export function MemberTable({ members, onDeleteMember }: { members: Member[], on
       ),
     },)
   }
-
+  if (members.length === 0) {
+    return (<Infobox variant={isValidationError ? 'error' : 'normal'}> You need to have at least one member assigned</Infobox>)
+  }
   return (
     <AnalyticalTable
       scaleWidthMode="Smart"

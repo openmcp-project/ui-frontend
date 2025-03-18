@@ -52,20 +52,27 @@ export function CreateWorkspaceDialogContainer({
       chargingTarget: "",
       members: [],
     },
-      onSubmit: (values, ) => {
-      console.log(values)
+      onSubmit: async (values,formikHelpers) => {
+        const successful = await handleProjectCreate({
+          name: values.name,
+          displayName: values.displayName,
+          chargingTarget: values.chargingTarget,
+          members: values.members,
+        });
+        if (successful) {
+          formikHelpers.setFieldValue('name', "")
+          formikHelpers.setFieldValue('displayName', "")
+          formikHelpers.setFieldValue('chargingTarget', "")
+        }
       }
       ,
       validationSchema: toFormikValidationSchema(validationSchema),
-      validateOnChange: true,
-      validateOnMount: true
+      // validateOnChange: true,
 
   });
 
   const username = useAuthSubject()
 
-  console.log('formik xxx')
-  console.log(formik)
   const {t} = useTranslation();
 
   useEffect(() => {
@@ -113,27 +120,7 @@ export function CreateWorkspaceDialogContainer({
     }
   };
 
-  const handleOnCreate = async () => {
-await formik.validateForm()
-    console.log('errors')
-    console.log(formik.errors)
-console.log("formik.isValid")
-console.log(formik.isValid)
-    if (!formik.isValid) {
-      return;
-    }
-    const successful = await handleProjectCreate({
-      name: formik.values.name,
-      displayName: formik.values.displayName,
-      chargingTarget: formik.values.chargingTarget,
-      members: formik.values.members,
-    });
-    if (successful) {
-      formik.setFieldValue('name', "")
-      formik.setFieldValue('displayName', "")
-      formik.setFieldValue('chargingTarget', "")
-    }
-  };
+
 
   return (
     <>
@@ -142,7 +129,7 @@ console.log(formik.isValid)
         formik={formik}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        onCreate={handleOnCreate}
+        onCreate={formik.handleSubmit}
         errorDialogRef={errorDialogRef}
         titleText="Create Workspace"
         members={formik.values.members}
