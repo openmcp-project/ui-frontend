@@ -1,14 +1,29 @@
-import { Bar, Button, Dialog, Form, FormGroup, FormItem, Input, InputDomRef, Label } from "@ui5/webcomponents-react";
+import {
+  Bar,
+  Button,
+  Dialog,
+  Form,
+  FormGroup,
+  FormItem,
+  Input,
+  InputDomRef,
+  Label,
+} from '@ui5/webcomponents-react';
 
-import { Member } from "../../lib/api/types/shared/members";
-import { ErrorDialog, ErrorDialogHandle } from "../Shared/ErrorMessageBox.tsx";
+import { Member } from '../../lib/api/types/shared/members';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { EditMembers } from "../Members/EditMembers.tsx";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
-import { useFrontendConfig } from "../../context/FrontendConfigContext.tsx";
-import { useTranslation } from "react-i18next";
+import { EditMembers } from '../Members/EditMembers.tsx';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+import { useTranslation } from 'react-i18next';
 
-export type onCreatePayload = { name: string; displayName: string; chargingTarget: string; members: Member[] };
+export type onCreatePayload = {
+  name: string;
+  displayName: string;
+  chargingTarget: string;
+  members: Member[];
+};
 
 export interface CreateProjectWorkspaceDialogProps {
   isOpen: boolean;
@@ -33,7 +48,7 @@ export function CreateProjectWorkspaceDialog({
   setMembers,
   nameInputRef,
   chargingTargetInputRef,
-  displayNameInputRef
+  displayNameInputRef,
 }: CreateProjectWorkspaceDialogProps) {
   const { links } = useFrontendConfig();
   const { t } = useTranslation();
@@ -43,7 +58,6 @@ export function CreateProjectWorkspaceDialog({
         stretch={true}
         headerText={titleText}
         open={isOpen}
-        onClose={() => setIsOpen(false)}
         initialFocus="project-name-input"
         footer={
           <Bar
@@ -54,15 +68,15 @@ export function CreateProjectWorkspaceDialog({
                   design={ButtonDesign.Transparent}
                   icon="sap-icon://question-mark"
                   onClick={() => {
-                    window.open(
-                      links.COM_PAGE_GETTING_STARTED,
-                      "_blank"
-                    );
+                    window.open(links.COM_PAGE_GETTING_STARTED, '_blank');
                   }}
                 >
                   {t('CreateProjectWorkspaceDialog.learnButton')}
                 </Button>
-                <Button onClick={() => setIsOpen(false)}> {t('CreateProjectWorkspaceDialog.cancelButton')}</Button>
+                <Button onClick={() => setIsOpen(false)}>
+                  {' '}
+                  {t('CreateProjectWorkspaceDialog.cancelButton')}
+                </Button>
                 <Button design="Emphasized" onClick={() => onCreate()}>
                   {t('CreateProjectWorkspaceDialog.createButton')}
                 </Button>
@@ -70,6 +84,7 @@ export function CreateProjectWorkspaceDialog({
             }
           />
         }
+        onClose={() => setIsOpen(false)}
       >
         <CreateProjectWorkspaceDialogContent
           members={members}
@@ -103,15 +118,50 @@ function CreateProjectWorkspaceDialogContent({
   return (
     <>
       <Form>
-        <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
-          <FormItem labelContent={<Label required>{t('CreateProjectWorkspaceDialog.nameLabel')}</Label>}>
-            <Input id="project-name-input" placeholder={t('CreateProjectWorkspaceDialog.nameLabel')} ref={nameInput} required></Input>
+        <FormGroup
+          headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+        >
+          <FormItem
+            labelContent={
+              <Label required>
+                {t('CreateProjectWorkspaceDialog.nameLabel')}
+              </Label>
+            }
+          >
+            <Input
+              ref={nameInput}
+              id="project-name-input"
+              placeholder={t('CreateProjectWorkspaceDialog.nameLabel')}
+              required
+            />
           </FormItem>
-          <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>}>
-            <Input id="project-displayname-input" placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')} ref={displayNameInput}></Input>
+          <FormItem
+            labelContent={
+              <Label>
+                {t('CreateProjectWorkspaceDialog.displayNameLabel')}
+              </Label>
+            }
+          >
+            <Input
+              ref={displayNameInput}
+              id="project-displayname-input"
+              placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')}
+            />
           </FormItem>
-          <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.chargingTargetLabel')}</Label>}>
-            <Input id="project-chargingtarget-input" placeholder={t('CreateProjectWorkspaceDialog.chargingTargetLabel')} ref={chargingTargetInput}></Input>
+          <FormItem
+            labelContent={
+              <Label>
+                {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+              </Label>
+            }
+          >
+            <Input
+              ref={chargingTargetInput}
+              id="project-chargingtarget-input"
+              placeholder={t(
+                'CreateProjectWorkspaceDialog.chargingTargetLabel',
+              )}
+            />
           </FormItem>
         </FormGroup>
         <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>

@@ -1,6 +1,6 @@
-import { Popover } from "@ui5/webcomponents-react";
-import PopoverPlacement from "@ui5/webcomponents/dist/types/PopoverPlacement.js";
-import React, { useRef, useState } from "react";
+import { Popover } from '@ui5/webcomponents-react';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import React, { useRef, useState } from 'react';
 
 interface TooltipProps {
   tooltipContent: React.ReactNode;
@@ -13,15 +13,19 @@ export function Tooltip(props: TooltipProps) {
 
   const handleMouseEnter = () => {
     setPopoverIsOpen(true);
-  }
+  };
 
   const handleMouseLeave = () => {
     setPopoverIsOpen(false);
-  }
+  };
 
   return (
     <>
-      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} ref={openerRef}>
+      <div
+        ref={openerRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         {props.children}
         <Popover
           opener={openerRef.current!}
@@ -34,8 +38,6 @@ export function Tooltip(props: TooltipProps) {
           {props.tooltipContent}
         </Popover>
       </div>
-
-
     </>
-  )
+  );
 }

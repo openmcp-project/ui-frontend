@@ -1,7 +1,13 @@
-import { Bar, Dialog, Text, Toolbar, ToolbarButton } from "@ui5/webcomponents-react";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
-import { useTranslation } from "react-i18next";
-import { useAuth } from "react-oidc-context";
+import {
+  Bar,
+  Dialog,
+  Text,
+  Toolbar,
+  ToolbarButton,
+} from '@ui5/webcomponents-react';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 
 interface SessionExpiringDialogProps {
   isOpen: boolean;
@@ -34,17 +40,15 @@ export function SessionExpiringDialog({
                     auth.signoutSilent();
                     auth.removeUser();
                   }}
-                >
-                </ToolbarButton>
+                />
                 <ToolbarButton
                   text={t('SessionExpiringDialog.stayButton')}
                   design={ButtonDesign.Emphasized}
                   onClick={() => {
                     setIsOpen(false);
-                    auth.signinSilent()
+                    auth.signinSilent();
                   }}
-                >
-                </ToolbarButton>
+                />
               </Toolbar>
             }
           />

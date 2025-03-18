@@ -1,15 +1,26 @@
-import ConfiguredAnalyticstable from "../Shared/ConfiguredAnalyticsTable.tsx";
-import { AnalyticalTableColumnDefinition, Title } from "@ui5/webcomponents-react";
-import ReactTimeAgo from "react-time-ago";
-import IllustratedError from "../Shared/IllustratedError.tsx";
-import useResource from "../../lib/api/useApiResource";
-import { FluxGitRepo } from "../../lib/api/types/flux/listGitRepo";
-import { FluxKustomization } from "../../lib/api/types/flux/listKustomization";
+import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
+import {
+  AnalyticalTableColumnDefinition,
+  Title,
+} from '@ui5/webcomponents-react';
+import ReactTimeAgo from 'react-time-ago';
+import IllustratedError from '../Shared/IllustratedError.tsx';
+import useResource from '../../lib/api/useApiResource';
+import { FluxGitRepo } from '../../lib/api/types/flux/listGitRepo';
+import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 
 export default function FluxList() {
-  const { data: repoData, error: repoErr, isLoading: repoIsLoading } = useResource(FluxGitRepo); //404 if component not enabled
-  const { data: kustmizationData, error: kustomizationErr, isLoading: kustomizationIsLoading } = useResource(FluxKustomization); //404 if component not enabled
+  const {
+    data: repoData,
+    error: repoErr,
+    isLoading: repoIsLoading,
+  } = useResource(FluxGitRepo); //404 if component not enabled
+  const {
+    data: kustmizationData,
+    error: kustomizationErr,
+    isLoading: kustomizationIsLoading,
+  } = useResource(FluxKustomization); //404 if component not enabled
 
   const { t } = useTranslation();
 
@@ -23,15 +34,15 @@ export default function FluxList() {
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('FluxList.tableNameHeader'),
-      accessor: "metadata.name",
+      accessor: 'metadata.name',
     },
     {
       Header: t('FluxList.tableStatusHeader'),
-      accessor: "status.usages",
+      accessor: 'status.usages',
     },
     {
       Header: t('FluxList.tableCreatedHeader'),
-      accessor: "metadata.creationTimestamp",
+      accessor: 'metadata.creationTimestamp',
       Cell: (props: any) => <ReactTimeAgo date={new Date(props.cell.value)} />,
     },
   ];
