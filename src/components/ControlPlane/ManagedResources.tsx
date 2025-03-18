@@ -10,6 +10,9 @@ import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 interface CellData<T> {
   cell: {
     value: T | null; // null for grouping rows
+    row: {
+      original?: ResourceRow; // missing for grouping rows
+    }
   };
 }
 
@@ -18,7 +21,9 @@ type ResourceRow = {
   name: string
   created: string;
   synced: boolean;
+  syncedTransitionTime: string;
   ready: boolean;
+  readyTransitionTime: string;
 }
 
 export function ManagedResources() {
@@ -44,23 +49,30 @@ export function ManagedResources() {
     {
       Header: t('ManagedResources.tableHeaderSynced'),
       accessor: 'synced',
-      Cell: (cellData: CellData<ResourceRow['synced']>) => <ResourceStatusCell cellData={cellData}/>
+      Cell: (cellData: CellData<ResourceRow['synced']>) => cellData.cell.row.original?.synced != null ? <ResourceStatusCell value={cellData.cell.row.original?.synced} transitionTime={cellData.cell.row.original?.syncedTransitionTime} /> : null
     },
     {
       Header: t('ManagedResources.tableHeaderReady'),
       accessor: 'ready',
-      Cell: (cellData: CellData<ResourceRow['ready']>) => <ResourceStatusCell cellData={cellData}/>
+      Cell: (cellData: CellData<ResourceRow['ready']>) => cellData.cell.row.original?.ready != null ? <ResourceStatusCell value={cellData.cell.row.original?.ready} transitionTime={cellData.cell.row.original?.readyTransitionTime} /> : null
     },
   ];
 
   const rows: ResourceRow[] = managedResources?.flatMap((managedResource) =>
-    managedResource.items?.map((item) => ({
-      kind: item.kind,
-      name: item.metadata.name,
-      created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
-      synced: item.status.conditions?.some((condition) => condition.type === 'Synced') ?? false,
-      ready: item.status.conditions?.some((condition) => condition.type === 'Ready') ?? false,
-    }))
+    managedResource.items?.map((item) => {
+      const conditionSynced = item.status.conditions?.find((condition) => condition.type === 'Synced');
+      const conditionReady = item.status.conditions?.find((condition) => condition.type === 'Ready');
+
+      return {
+        kind: item.kind,
+        name: item.metadata.name,
+        created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        synced: conditionSynced?.status === "True",
+        syncedTransitionTime: conditionSynced?.lastTransitionTime ?? "",
+        ready: conditionReady?.status === "True",
+        readyTransitionTime: conditionReady?.lastTransitionTime ?? "",
+      }
+    })
   ) ?? [];
 
 
@@ -100,19 +112,15 @@ export function ManagedResources() {
 
 
 interface ResourceStatusCellProps {
-  cellData: CellData<boolean>;
+  value: boolean;
+  transitionTime: string;
 }
 
-function ResourceStatusCell({ cellData }: ResourceStatusCellProps) {
-  const { t } = useTranslation();
-
-  if (cellData.cell.value === null) {
-    return null;
-  }
-
+function ResourceStatusCell({ value, transitionTime }: ResourceStatusCellProps) {
   return <Icon
-    design={cellData.cell.value ? 'Positive' : 'Negative'}
-    accessibleName={cellData.cell.value ? t('ManagedResources.iconAriaYes') : t('ManagedResources.iconAriaNo')}
-    name={cellData.cell.value ? 'sys-enter-2' : 'sys-cancel-2'}
+    design={value ? 'Positive' : 'Negative'}
+    name={value ? 'sys-enter-2' : 'sys-cancel-2'}
+    showTooltip={true}
+    accessibleName={timeAgo.format(new Date(transitionTime))}
   />
 }

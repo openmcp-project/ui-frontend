@@ -25,9 +25,7 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderSynced": "Synced",
-    "tableHeaderReady": "Ready",
-    "iconAriaYes": "Yes",
-    "iconAriaNo": "No"
+    "tableHeaderReady": "Ready"
   },
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace"

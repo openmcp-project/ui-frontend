@@ -10,6 +10,8 @@ export type ManagedResourcesResponse = [{
     status: {
       conditions: [{
         type: "Ready" | "Synced" | unknown;
+        status: "True" | "False";
+        lastTransitionTime: string;
       }]
     };
   }];
