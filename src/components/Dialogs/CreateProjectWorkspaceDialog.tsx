@@ -102,26 +102,15 @@ function CreateProjectWorkspaceDialogContent({
       <Form>
         <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
           <FormItem labelContent={<Label required>{t('CreateProjectWorkspaceDialog.nameLabel')}</Label>}>
-            <Input id="name" placeholder={t('CreateProjectWorkspaceDialog.nameLabel')}
+            <Input id="name"
+                   // placeholder={t('CreateProjectWorkspaceDialog.nameLabel')}
                    value={formik.values.name}
                    onChange={formik.handleChange}
-                   valueState={(formik.errors.name) ? "Negative" :"None"}
-                   valueStateMessage={<div>
+                   onBlur={formik.handleBlur}
+                   valueState={(formik.errors.name && formik.touched.name) ? "Negative" :"None"}
+                   valueStateMessage={<span>Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.
 
-                     <dl>
-                       <dt>Please use:</dt>
-                       <dd>Letters: A through Z (uppercase) and a through z (lowercase)</dd>
-
-                       <dd>Numbers: 0 through 9</dd>
-
-                       <dd>Hyphen: - (dash)</dd>
-
-                       <dd>Period: . (dot, typically as a separator, e.g., in domain names)</dd>
-
-                       <dd>Note that whitespace (spaces, tabs, etc.) is not allowed.</dd>
-
-                     </dl>
-                   </div>}
+</span>}
                    required></Input>
 
           </FormItem>
@@ -129,14 +118,18 @@ function CreateProjectWorkspaceDialogContent({
             <Input id="displayName"
                    value={formik.values.displayName}
                    onChange={formik.handleChange}
-                   placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')}
+                   // placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')}
                  ></Input>
           </FormItem>
           <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.chargingTargetLabel')}</Label>}>
             <Input id="chargingTarget"
                    value={formik.values.chargingTarget}
                    onChange={formik.handleChange}
-                   placeholder={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}></Input>
+
+                   // placeholder={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+            >
+
+            </Input>
           </FormItem>
 
         </FormGroup>
