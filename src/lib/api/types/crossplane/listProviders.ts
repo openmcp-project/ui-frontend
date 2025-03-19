@@ -1,7 +1,20 @@
 import { Resource } from '../resource';
 
-//TODO: type any to correct type and adapt the jq query to the required paramters
-export const ListProviders: Resource<any> = {
-  path: '/apis/pkg.crossplane.io/v1/providers',
-  jq: '[.items[]]',
-};
+  export type ProvidersListResponse = {
+    items: [{
+      kind: string;
+      metadata: {
+        name: string;
+        creationTimestamp: string;
+      };
+      status: {
+        conditions: [{
+          type: "Ready" | "Synced" | unknown;
+        }]
+      };
+    }];
+  };
+  
+  export const ProvidersListRequest: Resource<ProvidersListResponse> = {
+    path: "/apis/pkg.crossplane.io/v1/providers",
+  };
