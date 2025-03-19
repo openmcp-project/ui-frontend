@@ -73,7 +73,7 @@ export function Providers() {
         installedTransitionTime: installed?.lastTransitionTime ?? "",
         healthy: healhty?.status === "True",
         healthyTransitionTime: healhty?.lastTransitionTime ?? "",
-        version: item.spec.package.match(/\d+(\.\d+)+/),
+        version: item.spec.package.match(/\d+(\.\d+)+/g),
       }
     })
   ?? [];
