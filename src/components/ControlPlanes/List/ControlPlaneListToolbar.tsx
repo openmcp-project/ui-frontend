@@ -14,7 +14,7 @@ export function ControlPlaneListToolbar({ projectName }: { projectName: string }
       <Toolbar>
         <ToolbarButton icon="add" text={t('ControlPlaneListToolbar.buttonText')} onClick={() => setDialogIsOpen(true)} />
       </Toolbar>
-      <CreateWorkspaceDialogContainer isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} project={projectName} type={'workspace'}/>
+      <CreateWorkspaceDialogContainer isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} project={projectName}/>
     </>
   )
 

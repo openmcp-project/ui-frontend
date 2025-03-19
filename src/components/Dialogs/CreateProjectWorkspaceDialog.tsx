@@ -115,7 +115,7 @@ function CreateProjectWorkspaceDialogContent({
           <Input id="name"
                  {...register('name')}
                  valueState={errors.name ? "Negative" : "None"}
-                 valueStateMessage={<span>Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.</span>}
+                 valueStateMessage={<span>{errors.name?.message}</span>}
                  required></Input>
 
         </FormItem>
