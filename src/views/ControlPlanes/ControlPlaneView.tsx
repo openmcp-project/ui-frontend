@@ -74,22 +74,22 @@ export default function ControlPlaneView() {
             titleText="Components"
             hideTitleText
           >
-            <Panel headerLevel="H2" headerText="Panel" header={<Title level="H3">Components</Title>} noAnimation>
+            <Panel className="cp-panel" headerLevel="H2" headerText="Panel" header={<Title level="H3">Components</Title>} noAnimation>
               <ComponentList mcp={mcp}></ComponentList>
             </Panel>
           </ObjectPageSection>
           <ObjectPageSection
             className="cp-page-section-crossplane"
             id="crossplane"
-            titleText="Crossplane"
+            titleText="Managed Resources"
             hideTitleText
           >
-            <Panel className="cp-panel-crossplane" headerLevel="H3" headerText="Panel" header={<Title level="H3">Crossplane</Title>} noAnimation>
+            <Panel className="cp-panel cp-panel-crossplane" headerLevel="H3" headerText="Panel" header={<Title level="H3">Managed Resources</Title>} noAnimation>
               <ProvidersList />
             </Panel>
           </ObjectPageSection>
           <ObjectPageSection className="cp-page-section-gitops" id="gitops" titleText="GitOps" hideTitleText>
-            <Panel className="cp-panel-gitops" headerLevel="H3" headerText="Panel" header={<Title level="H3">GitOps</Title>} noAnimation>
+            <Panel className="cp-panel cp-panel-gitops" headerLevel="H3" headerText="Panel" header={<Title level="H3">GitOps</Title>} noAnimation>
               <FluxList />
             </Panel>
           </ObjectPageSection>
