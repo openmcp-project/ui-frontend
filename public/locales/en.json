@@ -143,5 +143,10 @@
   },
   "main": {
     "failedMessage": "Failed to load frontend configuration"
+  },
+  "validationErrors": {
+    "required": "This field is required",
+    "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
+    "max25chars": "Max length is 25 characters"
   }
 }

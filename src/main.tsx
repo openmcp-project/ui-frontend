@@ -11,7 +11,7 @@ import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider, LoadFrontendConfig } from "./context/FrontendConfigContext.tsx";
 import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
 import { DarkModeSystemSwitcher } from "./components/Core/DarkModeSystemSwitcher.tsx";
-import ".././i18n";
+import ".././i18n.ts";
 import "./utils/i18n/timeAgo";
 import { useTranslation } from "react-i18next";
 
