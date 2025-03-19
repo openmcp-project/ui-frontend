@@ -4,6 +4,7 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, AnalyticalTableScaleW
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 
+//empty table TBD
 export function ProvidersConfig() {
   const { t } = useTranslation();
 

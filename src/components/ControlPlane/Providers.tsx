@@ -6,48 +6,77 @@ import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
-import ReactTimeAgo from 'react-time-ago';
+import { resourcesInterval } from '../../lib/shared/constants';
+import { timeAgo } from '../../utils/i18n/timeAgo';
+import { StatusCellProps } from '../../lib/shared/interfaces';
 
 interface CellData<T> {
-    cell: {
-      value: T | null;
-    };
-  }
+  cell: {
+    value: T | null; // null for grouping rows
+    row: {
+      original?: providersRow; // missing for grouping rows
+    }
+  };
+}
+
+type providersRow = {
+  name: string
+  version: string;
+  healthy: boolean;
+  healthyTransitionTime: string;
+  installed: boolean;
+  installedTransitionTime: string;
+  created: string;
+}
 
 export function Providers() {
   const { t } = useTranslation();
 
   let {data: providers, error, isLoading} = useResource(ProvidersListRequest, {
-    refreshInterval: 300000
+    refreshInterval: resourcesInterval
   });
 
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('Providers.tableHeaderName'),
-      accessor: 'metadata.name',
+      accessor: 'name',
     },
     {
       Header: t('Providers.tableHeaderVersion'),
-      accessor: 'spec.package',
-      Cell: (cellData: CellData<string>) => cellData.cell.value?.match(/\d+(\.\d+)+/)
+      accessor: 'version',
     },
     {
       Header: t('Providers.tableHeaderInstalled'),
-      accessor: 'status.conditions[1].status',
-      Cell: (cellData: CellData<boolean>) => <ResourceStatusCell cellData={cellData}/>
+      accessor: 'installed',
+      Cell: (cellData: CellData<providersRow['installed']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.installed} transitionTime={cellData.cell.row.original?.installedTransitionTime} /> : null
     },
-    //last.transitiontime on hover
     {
       Header: t('Providers.tableHeaderHealthy'),
-      accessor: 'status.conditions[0].status',
-      Cell: (cellData: CellData<boolean>) => <ResourceStatusCell cellData={cellData}/>
+      accessor: 'healthy',
+      Cell: (cellData: CellData<providersRow['healthy']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.healthy} transitionTime={cellData.cell.row.original?.healthyTransitionTime} /> : null
     },
     {
       Header: t('Providers.tableHeaderCreated'),
-      accessor: 'metadata.creationTimestamp',
-      Cell: (props: any) => <ReactTimeAgo date={new Date(props.cell.value)} />,
+      accessor: 'created',
     },
   ];
+
+  const rows: providersRow[] =
+    providers?.items?.map((item) => {
+      const installed = item.status.conditions?.find((condition) => condition.type === 'Installed');
+      const healhty = item.status.conditions?.find((condition) => condition.type === 'Healthy');
+
+      return {
+        name: item.metadata.name,
+        created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        installed: installed?.status === "True",
+        installedTransitionTime: installed?.lastTransitionTime ?? "",
+        healthy: healhty?.status === "True",
+        healthyTransitionTime: healhty?.lastTransitionTime ?? "",
+        version: item.spec.package.match(/\d+(\.\d+)+/),
+      }
+    })
+  ?? [];
 
   return (
     <>
@@ -58,9 +87,8 @@ export function Providers() {
       {!error &&
         <AnalyticalTable
           columns={columns}
-          data={providers?.items ?? []}
+          data={rows}
           minRows={1}
-          groupBy={['name']}
           scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
           loading={isLoading}
           filterable
@@ -83,20 +111,11 @@ export function Providers() {
   )
 }
 
-interface ResourceStatusCellProps {
-    cellData: CellData<boolean>;
-  }
-
-function ResourceStatusCell({ cellData }: ResourceStatusCellProps) {
-    const { t } = useTranslation();
-  
-    if (cellData.cell.value === null) {
-      return null;
-    }
-  
-    return <Icon
-      design={cellData.cell.value ? 'Positive' : 'Negative'}
-      accessibleName={cellData.cell.value ? t('ManagedResources.iconAriaYes') : t('ManagedResources.iconAriaNo')}
-      name={cellData.cell.value ? 'sys-enter-2' : 'sys-cancel-2'}
-    />
-  }
+function ResourceStatusCell({ value, transitionTime }: StatusCellProps) {
+  return <Icon
+    design={value ? 'Positive' : 'Negative'}
+    name={value ? 'sys-enter-2' : 'sys-cancel-2'}
+    showTooltip={true}
+    accessibleName={timeAgo.format(new Date(transitionTime))}
+  />
+}

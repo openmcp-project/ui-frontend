@@ -2,6 +2,7 @@ import { Resource } from '../resource';
 
   export type ProvidersListResponse = {
     items: [{
+      spec: any;
       kind: string;
       metadata: {
         name: string;
@@ -9,7 +10,9 @@ import { Resource } from '../resource';
       };
       status: {
         conditions: [{
-          type: "Ready" | "Synced" | unknown;
+          type: "Healthy" | "Installed" | unknown;
+          status: "True" | "False";
+          lastTransitionTime: string;
         }]
       };
     }];
