@@ -6,7 +6,7 @@
     "signInButton": "Sign in"
   },
   "ComponentList": {
-    "tableComponentHeader": "Component",
+    "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
   "FluxList": {
