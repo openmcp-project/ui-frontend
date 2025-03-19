@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, {ReactNode} from 'react';
 import cx from 'clsx';
 
 import styles from './Infobox.module.scss';
@@ -8,6 +8,7 @@ interface LabelProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'normal' | 'success' | 'warning' | 'danger';
   children: ReactNode;
+  className?: string;
 }
 
 export const Infobox: React.FC<LabelProps> = ({
@@ -15,6 +16,7 @@ export const Infobox: React.FC<LabelProps> = ({
                                                 size = 'md', // Default to medium size
                                                 variant = 'normal', // Default to normal variant
                                                 children,
+                                                className
                                               }) => {
   const infoboxClasses = cx(styles.infobox, {
     [styles['size-sm']]: size === 'sm',
@@ -24,7 +26,7 @@ export const Infobox: React.FC<LabelProps> = ({
     [styles['variant-success']]: variant === 'success',
     [styles['variant-warning']]: variant === 'warning',
     [styles['variant-danger']]: variant === 'danger',
-  });
+  }, className);
 
   return (
     <span

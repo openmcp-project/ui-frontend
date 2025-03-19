@@ -115,7 +115,7 @@ export function CreateWorkspaceDialogContainer({
         setIsOpen={setIsOpen}
         onCreate={handleSubmit(handleWorkspaceCreate)}
         errorDialogRef={errorDialogRef}
-        titleText="Create Workspace"
+        titleText="Create Project Workspace"
         members={watch('members')}
         register={register}
         errors={errors}
