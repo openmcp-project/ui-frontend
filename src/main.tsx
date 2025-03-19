@@ -5,8 +5,6 @@ import App from "./App";
 import { ThemeProvider } from "@ui5/webcomponents-react";
 import { AuthProvider } from "react-oidc-context";
 import { LoadCrateKubeConfig } from "./lib/oidc/crate.ts";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en";
 import { SWRConfig } from "swr";
 import { ToastProvider } from "./context/ToastContext.tsx";
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
@@ -14,6 +12,7 @@ import { FrontendConfigProvider, LoadFrontendConfig } from "./context/FrontendCo
 import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
 import { DarkModeSystemSwitcher } from "./components/Core/DarkModeSystemSwitcher.tsx";
 import ".././i18n";
+import "./utils/i18n/timeAgo";
 import { useTranslation } from "react-i18next";
 
 (async () => {
@@ -21,7 +20,6 @@ import { useTranslation } from "react-i18next";
     const frontendConfig = await LoadFrontendConfig();
     const authconfig = await LoadCrateKubeConfig(frontendConfig.backendUrl);
 
-    TimeAgo.addDefaultLocale(en);
     ReactDOM.createRoot(document.getElementById("root")!).render(
       <React.StrictMode>
         <FrontendConfigProvider config={frontendConfig}>
