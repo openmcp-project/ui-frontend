@@ -24,9 +24,7 @@ export default function ProjectsListView() {
         />
       }
     >
-      <ObjectPageSection id="projects" titleText={t('ProjectsListView.title')}>
         <ProjectsList />
-      </ObjectPageSection>
     </ObjectPage>
   );
 }

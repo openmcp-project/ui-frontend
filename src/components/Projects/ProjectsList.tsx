@@ -8,6 +8,7 @@ import { projectnameToNamespace } from "../../utils/index"
 import "@ui5/webcomponents-icons/dist/copy"
 import "@ui5/webcomponents-icons/dist/arrow-right"
 import { ListProjectNames } from "../../lib/api/types/crate/listProjectNames";
+import { t } from "i18next";
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
@@ -19,12 +20,13 @@ export default function ProjectsList() {
   return (
     <>
       <AnalyticalTable
+        style={{ margin: "12px" }}
         onRowClick={(e: any) => {
           navigate(`/mcp/projects/${data ? [e.detail.row.values.projectName] : ""}`);
         }}
         columns={[
           {
-            Header: "Projects",
+            Header: t('ProjectsListView.title'),
             accessor: "projectName",
             Cell: (instance: any) => (
               <div style={{
