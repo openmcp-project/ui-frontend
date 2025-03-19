@@ -12,15 +12,11 @@ import {projectnameToNamespace} from "../../utils";
 import {ListWorkspaces} from "../../lib/api/types/crate/listWorkspaces";
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
-import {Member, MemberRoles, MemberSchema} from "../../lib/api/types/shared/members.ts";
-
+import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
 import {useTranslation} from "react-i18next";
-
-import {z} from "zod";
-
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
-
+import {validationSchemaProjectWorkspace} from "../../lib/api/validations/schemas.ts";
 
 export type CreateDialogProps = {
   name: string,
@@ -34,23 +30,14 @@ export function CreateWorkspaceDialogContainer({
                                                  isOpen,
                                                  setIsOpen,
                                                  project = '',
-  type
+
                                                }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   project?: string;
-  type: 'workspace' | 'project'
+
 
 }) {
-  const validationSchema = z.object({
-    name: z.string().min(1, "Name is required").regex(/^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/, 'Invalid'),
-    displayName: z.string().optional(),
-    chargingTarget: z.string().optional(),
-    members: z.array(MemberSchema).nonempty()
-  });
-
-
-
 
   const {
     register,
@@ -61,7 +48,7 @@ export function CreateWorkspaceDialogContainer({
     watch
   } = useForm<CreateDialogProps>({
     // @ts-ignore
-    resolver: zodResolver(validationSchema, ),
+    resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
       name: "",
       displayName: "",
@@ -126,7 +113,7 @@ export function CreateWorkspaceDialogContainer({
       <CreateProjectWorkspaceDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        onCreate={handleSubmit(type === "workspace" ? handleWorkspaceCreate : ()=> {})}
+        onCreate={handleSubmit(handleWorkspaceCreate)}
         errorDialogRef={errorDialogRef}
         titleText="Create Workspace"
         members={watch('members')}

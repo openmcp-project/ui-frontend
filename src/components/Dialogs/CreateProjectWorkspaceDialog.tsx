@@ -1,4 +1,4 @@
-import {Bar, Button, Dialog, FlexBox, Form, FormGroup, FormItem, Input, Label} from "@ui5/webcomponents-react";
+import {Bar, Button, Dialog, Form, FormGroup, FormItem, Input, Label} from "@ui5/webcomponents-react";
 
 import {Member} from "../../lib/api/types/shared/members";
 import {ErrorDialog, ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
@@ -11,7 +11,6 @@ import {useTranslation} from "react-i18next";
 import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
 import {FormEvent} from "react";
 import {FieldErrors, UseFormRegister, UseFormSetValue} from "react-hook-form";
-import {Infobox} from "../Ui/Infobox/Infobox.tsx";
 
 export type onCreatePayload = { name: string; displayName: string; chargingTarget: string; members: Member[] };
 
@@ -114,9 +113,7 @@ function CreateProjectWorkspaceDialogContent({
       <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
         <FormItem  labelContent={<Label required>{t('CreateProjectWorkspaceDialog.nameLabel')}</Label>}>
           <Input id="name"
-
                  {...register('name')}
-
                  valueState={errors.name ? "Negative" : "None"}
                  valueStateMessage={<span>Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.</span>}
                  required></Input>
@@ -131,8 +128,6 @@ function CreateProjectWorkspaceDialogContent({
         <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.chargingTargetLabel')}</Label>}>
           <Input id="chargingTarget"
                  {...register('chargingTarget')}
-
-
           >
           </Input>
         </FormItem>

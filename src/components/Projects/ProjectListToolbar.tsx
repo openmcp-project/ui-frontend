@@ -1,7 +1,8 @@
 import { Toolbar, ToolbarButton } from "@ui5/webcomponents-react";
 import { useState } from "react";
+import {CreateProjectDialogContainer} from "../Dialogs/CreateProjectDialogContainer.tsx";
 
-import {CreateWorkspaceDialogContainer} from "../Dialogs/CreateWorkspaceDialogContainer.tsx";
+
 
 
 export function ProjectListToolbar() {
@@ -11,7 +12,7 @@ export function ProjectListToolbar() {
       <Toolbar>
         <ToolbarButton icon="add" text="Project" onClick={() => setDialogIsOpen(true)} />
       </Toolbar>
-      <CreateWorkspaceDialogContainer project={'Project'} type={'project'} isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} />
+      <CreateProjectDialogContainer  isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} />
     </>
   )
 }
