@@ -35,7 +35,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
 
   return (
     <>
-      <Card key={`${name}--${namespace}`}>
+      <Card style={{ margin: "12px 12px 12px 0" }} key={`${name}--${namespace}`}>
         <div style={{ padding: "20px" }}>
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
