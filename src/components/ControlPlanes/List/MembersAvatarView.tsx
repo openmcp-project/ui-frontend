@@ -1,9 +1,9 @@
-import { Avatar, AvatarGroup, Popover } from "@ui5/webcomponents-react";
-import AvatarGroupType from "@ui5/webcomponents/dist/types/AvatarGroupType.js";
-import PopoverPlacement from "@ui5/webcomponents/dist/types/PopoverPlacement.js";
-import { useRef, useState } from "react";
-import { MemberTable } from "../../Members/MemberTable.tsx";
-import { Member } from "../../../lib/api/types/shared/members";
+import { Avatar, AvatarGroup, Popover } from '@ui5/webcomponents-react';
+import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { useRef, useState } from 'react';
+import { MemberTable } from '../../Members/MemberTable.tsx';
+import { Member } from '../../../lib/api/types/shared/members';
 
 interface Props {
   project?: string;
@@ -18,19 +18,25 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
 
   const handleOnClick = () => {
     setPopoverIsOpen(true);
-  }
-
+  };
 
   for (const member of members) {
     avatars.push(
-      <Avatar key={`project-${project}-ws-${workspace}-${member.name}`} initials={generateInitialsForEmail(member.name)} size="XS" >
-      </Avatar>
+      <Avatar
+        key={`project-${project}-ws-${workspace}-${member.name}`}
+        initials={generateInitialsForEmail(member.name)}
+        size="XS"
+      />,
     );
   }
 
   return (
-    <div style={{ maxWidth: "300px" }}>
-      <AvatarGroup type={AvatarGroupType.Group} onClick={handleOnClick} ref={openerRef}>
+    <div style={{ maxWidth: '300px' }}>
+      <AvatarGroup
+        ref={openerRef}
+        type={AvatarGroupType.Group}
+        onClick={handleOnClick}
+      >
         {avatars}
       </AvatarGroup>
       <Popover
@@ -49,10 +55,14 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
 
 export function generateInitialsForEmail(email: string | undefined): string {
   if (!email) {
-    return "";
+    return '';
   }
-  const [name, _] = email.split("@");
-  const nameParts = name.split(".");
+  const [name, _] = email.split('@');
+  const nameParts = name.split('.');
   // return the first letter of each part of the name up to 3 characters
-  return nameParts.map((part) => part[0]).join("").substring(0, 3).toUpperCase();
+  return nameParts
+    .map((part) => part[0])
+    .join('')
+    .substring(0, 3)
+    .toUpperCase();
 }

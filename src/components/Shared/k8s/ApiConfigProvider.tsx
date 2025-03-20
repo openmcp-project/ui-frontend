@@ -1,5 +1,5 @@
-import  {createContext, ReactNode} from "react";
-import { ApiConfig } from "../../../lib/api/types/apiConfig";
+import { createContext, ReactNode } from 'react';
+import { ApiConfig } from '../../../lib/api/types/apiConfig';
 
 interface Props {
   apiConfig: ApiConfig;
@@ -8,10 +8,10 @@ interface Props {
 
 export const ApiConfigContext = createContext({} as ApiConfig);
 
-export const ApiConfigProvider = ({children, apiConfig}: Props) => {
+export const ApiConfigProvider = ({ children, apiConfig }: Props) => {
   return (
     <ApiConfigContext.Provider value={apiConfig}>
-        {children}
+      {children}
     </ApiConfigContext.Provider>
   );
 };

@@ -1,18 +1,20 @@
-import { Button, ButtonPropTypes } from "@ui5/webcomponents-react";
-import { useToast } from "../../context/ToastContext.tsx";
-import { useId } from "react";
-import { useCopyButton } from "../../context/CopyButtonContext.tsx";
-import { CSSProperties } from "react";
-import { ThemingParameters } from "@ui5/webcomponents-react-base";
-import { useTranslation } from "react-i18next";
-
+import { Button, ButtonPropTypes } from '@ui5/webcomponents-react';
+import { useToast } from '../../context/ToastContext.tsx';
+import { useId, CSSProperties } from 'react';
+import { useCopyButton } from '../../context/CopyButtonContext.tsx';
+import { ThemingParameters } from '@ui5/webcomponents-react-base';
+import { useTranslation } from 'react-i18next';
 
 interface CopyButtonProps extends ButtonPropTypes {
   text: string;
   style?: CSSProperties;
 }
 
-export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps) => {
+export const CopyButton = ({
+  text,
+  style = {},
+  ...buttonProps
+}: CopyButtonProps) => {
   const { show } = useToast();
   const { activeCopyId, setActiveCopyId } = useCopyButton();
   const uniqueId = useId();
@@ -36,10 +38,10 @@ export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps
   return (
     <Button
       icon="copy"
-      design={isCopied ? "Positive" : "Transparent"}
-      onClick={handleCopy}
+      design={isCopied ? 'Positive' : 'Transparent'}
       tooltip="Copy"
       style={{ ...defaultStyle, ...style }}
+      onClick={handleCopy}
       {...buttonProps}
     >
       {isCopied ? t('CopyButton.copiedMessage') : text}

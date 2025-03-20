@@ -1,9 +1,9 @@
-import { VariantItem, VariantManagement } from "@ui5/webcomponents-react";
-import { CopyButton } from "../Shared/CopyButton.tsx";
-import useLuigiNavigate from "../Shared/useLuigiNavigate.tsx";
-import IllustratedError from "../Shared/IllustratedError.tsx";
-import useResource from "../../lib/api/useApiResource";
-import { ListProjectNames } from "../../lib/api/types/crate/listProjectNames";
+import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
+import { CopyButton } from '../Shared/CopyButton.tsx';
+import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import IllustratedError from '../Shared/IllustratedError.tsx';
+import useResource from '../../lib/api/useApiResource';
+import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 
 interface Props {
   currentProjectName: string;
@@ -24,11 +24,13 @@ export default function ProjectChooser({ currentProjectName }: Props) {
         hideSaveAs
         hideManageVariants
         titleText="Select Project"
-        onSelect={(e) => {
-          navigate(`/mcp/projects/${e.detail.selectedVariant.variantItem.innerText}`);
-        }}
         closeOnItemSelect
         placement="Bottom"
+        onSelect={(e) => {
+          navigate(
+            `/mcp/projects/${e.detail.selectedVariant.variantItem.innerText}`,
+          );
+        }}
       >
         {data?.map((p) => (
           <VariantItem key={p} selected={p === currentProjectName}>
@@ -36,8 +38,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
           </VariantItem>
         ))}
       </VariantManagement>
-      <CopyButton text={`project-${currentProjectName}`}>
-      </CopyButton>
+      <CopyButton text={`project-${currentProjectName}`} />
     </>
   );
 }

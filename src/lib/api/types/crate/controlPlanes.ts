@@ -1,4 +1,4 @@
-import { Resource } from "../resource";
+import { Resource } from '../resource';
 
 export type ListControlPlanesType = ControlPlaneType;
 
@@ -8,10 +8,12 @@ export interface Metadata {
 }
 
 export interface ControlPlaneType {
-  metadata: Metadata
-  spec: {
-    components: ControlPlaneComponentsType
-  } | undefined;
+  metadata: Metadata;
+  spec:
+    | {
+        components: ControlPlaneComponentsType;
+      }
+    | undefined;
   status: ControlPlaneStatusType | undefined;
 }
 
@@ -30,13 +32,14 @@ export interface ControlPlaneComponentsSpecType {
 export interface ControlPlaneStatusType {
   status: ReadyStatus;
   conditions: ControlPlaneStatusCondition[];
-  access: {
-    key: string | undefined;
-    name: string | undefined;
-    namespace: string | undefined;
-    kubeconfig: string | undefined;
-  } | undefined;
-
+  access:
+    | {
+        key: string | undefined;
+        name: string | undefined;
+        namespace: string | undefined;
+        kubeconfig: string | undefined;
+      }
+    | undefined;
 }
 
 export interface ControlPlaneStatusCondition {
@@ -44,13 +47,13 @@ export interface ControlPlaneStatusCondition {
   status: boolean;
   reason: string;
   message: string;
-  lastTransitionTime: string
+  lastTransitionTime: string;
 }
 
 export enum ReadyStatus {
-  Ready = "Ready",
-  NotReady = "Not Ready",
-  InDeletion = "Deleting",
+  Ready = 'Ready',
+  NotReady = 'Not Ready',
+  InDeletion = 'Deleting',
 }
 
 export const ListControlPlanes = (
@@ -62,7 +65,7 @@ export const ListControlPlanes = (
       projectName === null
         ? null
         : `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes`,
-    jq: "[.items[] | {metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]",
+    jq: '[.items[] | {metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
   };
 };
 
