@@ -31,7 +31,7 @@ export const EditMembers: FC<EditMembersProps> = ({
     }
     // Check if the email is already in the list,  highlight as error
     if (members.find((m) => m.name === emailInput.current!.value)) {
-      setValueStateMessage('User with this email already exists!');
+      setValueStateMessage(t('validationErrors.userExists'));
       setHighlightEmail('Negative');
       return;
     }
