@@ -1,23 +1,23 @@
-import { Button, Menu, MenuItem } from "@ui5/webcomponents-react";
-import "@ui5/webcomponents-icons/dist/copy";
-import "@ui5/webcomponents-icons/dist/accept";
-import useLuigiNavigate from "../Shared/useLuigiNavigate.tsx";
-import { GetKubeconfig } from "../../lib/api/types/crate/getKubeconfig.ts";
-import yaml from "js-yaml";
-import { useRef, useState } from "react";
-import { DownloadKubeconfig } from "./CopyKubeconfigButton.tsx";
-import useResource from "../../lib/api/useApiResource.ts";
-import { extractWorkspaceNameFromNamespace } from "../../utils/index.ts";
+import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/accept';
+import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import { GetKubeconfig } from '../../lib/api/types/crate/getKubeconfig.ts';
+import yaml from 'js-yaml';
+import { useRef, useState } from 'react';
+import { DownloadKubeconfig } from './CopyKubeconfigButton.tsx';
+import useResource from '../../lib/api/useApiResource.ts';
+import { extractWorkspaceNameFromNamespace } from '../../utils/index.ts';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
-  projectName: string
-  workspaceName: string
-  controlPlaneName: string
-  secretName: string
-  namespace: string
-  secretKey: string
-  disabled?: boolean
+  projectName: string;
+  workspaceName: string;
+  controlPlaneName: string;
+  secretName: string;
+  namespace: string;
+  secretKey: string;
+  disabled?: boolean;
 }
 
 export default function ConnectButton(props: Props) {
@@ -26,7 +26,7 @@ export default function ConnectButton(props: Props) {
   const [open, setOpen] = useState(false);
   const handleOpenerClick = (e: any) => {
     if (popoverRef.current) {
-      const ref = popoverRef.current as any
+      const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
     }
@@ -34,37 +34,58 @@ export default function ConnectButton(props: Props) {
 
   const { t } = useTranslation();
 
-  let res = useResource(GetKubeconfig(props.secretKey, props.secretName, props.namespace));
+  const res = useResource(
+    GetKubeconfig(props.secretKey, props.secretName, props.namespace),
+  );
   if (res.isLoading) {
-    return <></>
+    return <></>;
   }
-  const kubeconfig = yaml.load(res.data as string) as any
+  const kubeconfig = yaml.load(res.data as string) as any;
 
-  let contexts = kubeconfig.contexts as any[]
-  let currentContext = kubeconfig["current-context"]
+  const contexts = kubeconfig.contexts as any[];
+  const currentContext = kubeconfig['current-context'];
   if (!currentContext) {
-    return <></>
+    return <></>;
   }
 
   if (contexts.length === 1) {
-    return <Button disabled={props.disabled} onClick={() =>
-      navigate(`/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(
-        props.workspaceName,
-      )}/mcps/${props.controlPlaneName}/context/${currentContext}`)}>{t('ConnectButton.buttonText')}</Button>
+    return (
+      <Button
+        disabled={props.disabled}
+        onClick={() =>
+          navigate(
+            `/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(
+              props.workspaceName,
+            )}/mcps/${props.controlPlaneName}/context/${currentContext}`,
+          )
+        }
+      >
+        {t('ConnectButton.buttonText')}
+      </Button>
+    );
   }
 
   return (
     <div>
-      <Button disabled={props.disabled} icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>{t('ConnectButton.buttonText')}</Button>
-      <Menu ref={popoverRef} open={open}
+      <Button
+        disabled={props.disabled}
+        icon="slim-arrow-down"
+        icon-end
+        onClick={handleOpenerClick}
+      >
+        {t('ConnectButton.buttonText')}
+      </Button>
+      <Menu
+        ref={popoverRef}
+        open={open}
         onItemClick={(event) => {
-          if (event.detail.item.dataset.action === "download") {
-            event.preventDefault()
+          if (event.detail.item.dataset.action === 'download') {
+            event.preventDefault();
             DownloadKubeconfig(res.data as string, props.controlPlaneName);
           }
-          const target = event.detail?.item?.dataset?.target
+          const target = event.detail?.item?.dataset?.target;
           if (target) {
-            navigate(target)
+            navigate(target);
           }
         }}
       >
@@ -75,15 +96,17 @@ export default function ConnectButton(props: Props) {
             data-target={`/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(
               props.workspaceName,
             )}/mcps/${props.controlPlaneName}/context/${context.name}`}
-            additionalText={(currentContext === context.name ? '(default IdP)' : undefined)}
-          >
-          </MenuItem>
+            additionalText={
+              currentContext === context.name ? '(default IdP)' : undefined
+            }
+          />
         ))}
-        <MenuItem key={"download"} text={"Download Kubeconfig"} data-action="download" >
-        </MenuItem>
+        <MenuItem
+          key={'download'}
+          text={'Download Kubeconfig'}
+          data-action="download"
+        />
       </Menu>
     </div>
-  )
+  );
 }
-
-

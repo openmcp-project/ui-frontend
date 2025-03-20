@@ -1,34 +1,50 @@
-import {useEffect, useRef, useState} from 'react';
-import {useApiResourceMutation} from "../../lib/api/useApiResource";
-import {CreateProject, CreateProjectResource, CreateProjectType} from "../../lib/api/types/crate/createProject";
-import {ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
-import {APIError} from "../../lib/api/error";
-import {CreateProjectWorkspaceDialog, onCreatePayload} from "./CreateProjectWorkspaceDialog.tsx";
-import {useToast} from '../../context/ToastContext.tsx';
-import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
-import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
-import {InputDomRef} from "@ui5/webcomponents-react";
-import {useTranslation} from "react-i18next";
+import { useEffect, useRef, useState } from 'react';
+import { useApiResourceMutation } from '../../lib/api/useApiResource';
+import {
+  CreateProject,
+  CreateProjectResource,
+  CreateProjectType,
+} from '../../lib/api/types/crate/createProject';
+import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { APIError } from '../../lib/api/error';
+import {
+  CreateProjectWorkspaceDialog,
+  onCreatePayload,
+} from './CreateProjectWorkspaceDialog.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
+import { useAuthSubject } from '../../lib/oidc/useUsername.ts';
+import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
+import { InputDomRef } from '@ui5/webcomponents-react';
+import { useTranslation } from 'react-i18next';
 
-
-export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: boolean, setIsOpen: (isOpen: boolean) => void }) {
-  const {trigger} = useApiResourceMutation<CreateProjectType>(CreateProjectResource())
+export function CreateProjectDialogContainer({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}) {
+  const { trigger } = useApiResourceMutation<CreateProjectType>(
+    CreateProjectResource(),
+  );
   const toast = useToast();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleProjectCreate = async ({
-                                       name,
-                                       chargingTarget,
-                                       displayName,
-                                       members
-                                     }: onCreatePayload): Promise<Boolean> => {
+    name,
+    chargingTarget,
+    displayName,
+    members,
+  }: onCreatePayload): Promise<boolean> => {
     try {
-      await trigger(CreateProject(name, {
-        displayName: displayName,
-        chargingTarget: chargingTarget,
-        members: members
-      }));
+      await trigger(
+        CreateProject(name, {
+          displayName: displayName,
+          chargingTarget: chargingTarget,
+          members: members,
+        }),
+      );
       setIsOpen(false);
       toast.show(t('CreateProjectDialog.toastMessage'));
       return true;
@@ -36,12 +52,14 @@ export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: bool
       console.error(e);
       if (e instanceof APIError) {
         if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+          errorDialogRef.current.showErrorDialog(
+            `${e.message}: ${JSON.stringify(e.info)}`,
+          );
         }
       }
       return false;
     }
-  }
+  };
 
   const username = useAuthSubject();
   const [members, setMembers] = useState<Member[]>([]);
@@ -51,24 +69,30 @@ export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: bool
 
   useEffect(() => {
     if (username) {
-      setMembers([{name: username, roles: [MemberRoles.admin], kind: "User"}]);
+      setMembers([
+        { name: username, roles: [MemberRoles.admin], kind: 'User' },
+      ]);
     }
     return () => {
       if (nameInput.current) {
-        nameInput.current.value = "";
+        nameInput.current.value = '';
       }
       if (displayNameInput.current) {
-        displayNameInput.current.value = "";
+        displayNameInput.current.value = '';
       }
       if (chargingTargetInput.current) {
-        chargingTargetInput.current.value = "";
+        chargingTargetInput.current.value = '';
       }
       setMembers([]);
     };
   }, []);
 
   const handleOnCreate = async () => {
-    if (!nameInput.current || !displayNameInput.current || !chargingTargetInput.current) {
+    if (
+      !nameInput.current ||
+      !displayNameInput.current ||
+      !chargingTargetInput.current
+    ) {
       return;
     }
     const successful = await handleProjectCreate({
@@ -78,27 +102,26 @@ export function CreateProjectDialogContainer({isOpen, setIsOpen}: { isOpen: bool
       members: members,
     });
     if (successful) {
-      nameInput.current.value = "";
-      displayNameInput.current.value = "";
-      chargingTargetInput.current.value = "";
+      nameInput.current.value = '';
+      displayNameInput.current.value = '';
+      chargingTargetInput.current.value = '';
     }
   };
 
   return (
     <>
-      <CreateProjectWorkspaceDialog isOpen={isOpen} setIsOpen={setIsOpen} onCreate={handleOnCreate}
-                                    errorDialogRef={errorDialogRef} titleText="Create Project"
-                                    members={members} setMembers={setMembers}
-                                    nameInputRef={nameInput}
-                                    displayNameInputRef={displayNameInput}
-                                    chargingTargetInputRef={chargingTargetInput}
-
+      <CreateProjectWorkspaceDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        errorDialogRef={errorDialogRef}
+        titleText="Create Project"
+        members={members}
+        setMembers={setMembers}
+        nameInputRef={nameInput}
+        displayNameInputRef={displayNameInput}
+        chargingTargetInputRef={chargingTargetInput}
+        onCreate={handleOnCreate}
       />
     </>
-  )
+  );
 }
-
-
-
-
-

@@ -4,9 +4,9 @@ export function inDevMode() {
 
 // example: "project-test--ws-dev" => "dev"
 export const extractWorkspaceNameFromNamespace = (namespace: string) => {
-  return namespace.split("--ws-").pop();
+  return namespace.split('--ws-').pop();
 };
 
 export const projectnameToNamespace = (projectname: string) => {
   return `project-${projectname}`;
-}
+};

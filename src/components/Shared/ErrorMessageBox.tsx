@@ -1,5 +1,5 @@
-import { MessageBox, MessageBoxType } from "@ui5/webcomponents-react";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { MessageBox, MessageBoxType } from '@ui5/webcomponents-react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 
 export interface ErrorDialogHandle {
   showErrorDialog: (message: string) => void;
@@ -13,13 +13,17 @@ export const ErrorDialog = forwardRef<ErrorDialogHandle>((_, ref) => {
     showErrorDialog: (msg: string) => {
       setMessage(msg);
       setOpen(true);
-    }
+    },
   }));
   return (
     <>
-      <MessageBox open={open} type={MessageBoxType.Error} onClose={() => setOpen(false)}>
+      <MessageBox
+        open={open}
+        type={MessageBoxType.Error}
+        onClose={() => setOpen(false)}
+      >
         {message}
       </MessageBox>
     </>
   );
-})
+});
