@@ -12,6 +12,8 @@ import { timeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
+import { resourcesInterval } from '../../lib/shared/constants';
+import { StatusCellProps } from '../../lib/shared/interfaces';
 
 interface CellData<T> {
   cell: {
@@ -40,7 +42,7 @@ export function ManagedResources() {
     error,
     isLoading,
   } = useResource(ManagedResourcesRequest, {
-    refreshInterval: 30000, // Resources are quite expensive to fetch, so we refresh every 30 seconds
+    refreshInterval: resourcesInterval, // Resources are quite expensive to fetch, so we refresh every 30 seconds
   });
 
   const columns: AnalyticalTableColumnDefinition[] = [
@@ -136,15 +138,10 @@ export function ManagedResources() {
   );
 }
 
-interface ResourceStatusCellProps {
-  value: boolean;
-  transitionTime: string;
-}
-
 function ResourceStatusCell({
   value,
   transitionTime,
-}: ResourceStatusCellProps) {
+}: StatusCellProps) {
   return (
     <Icon
       design={value ? 'Positive' : 'Negative'}
