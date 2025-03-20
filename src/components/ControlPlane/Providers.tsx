@@ -14,12 +14,12 @@ interface CellData<T> {
   cell: {
     value: T | null; // null for grouping rows
     row: {
-      original?: providersRow; // missing for grouping rows
+      original?: ProvidersRow; // missing for grouping rows
     }
   };
 }
 
-type providersRow = {
+type ProvidersRow = {
   name: string
   version: string;
   healthy: boolean;
@@ -48,12 +48,12 @@ export function Providers() {
     {
       Header: t('Providers.tableHeaderInstalled'),
       accessor: 'installed',
-      Cell: (cellData: CellData<providersRow['installed']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.installed} transitionTime={cellData.cell.row.original?.installedTransitionTime} /> : null
+      Cell: (cellData: CellData<ProvidersRow['installed']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.installed} transitionTime={cellData.cell.row.original?.installedTransitionTime} /> : null
     },
     {
       Header: t('Providers.tableHeaderHealthy'),
       accessor: 'healthy',
-      Cell: (cellData: CellData<providersRow['healthy']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.healthy} transitionTime={cellData.cell.row.original?.healthyTransitionTime} /> : null
+      Cell: (cellData: CellData<ProvidersRow['healthy']>) => cellData.cell.row.original?.installed != null ? <ResourceStatusCell value={cellData.cell.row.original?.healthy} transitionTime={cellData.cell.row.original?.healthyTransitionTime} /> : null
     },
     {
       Header: t('Providers.tableHeaderCreated'),
@@ -61,19 +61,19 @@ export function Providers() {
     },
   ];
 
-  const rows: providersRow[] =
+  const rows: ProvidersRow[] =
     providers?.items?.map((item) => {
       const installed = item.status.conditions?.find((condition) => condition.type === 'Installed');
-      const healhty = item.status.conditions?.find((condition) => condition.type === 'Healthy');
+      const healthy = item.status.conditions?.find((condition) => condition.type === 'Healthy');
 
       return {
         name: item.metadata.name,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         installed: installed?.status === "True",
         installedTransitionTime: installed?.lastTransitionTime ?? "",
-        healthy: healhty?.status === "True",
-        healthyTransitionTime: healhty?.lastTransitionTime ?? "",
-        version: item.spec.package.match(/\d+(\.\d+)+/g),
+        healthy: healthy?.status === "True",
+        healthyTransitionTime: healthy?.lastTransitionTime ?? "",
+        version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? "",
       }
     })
   ?? [];

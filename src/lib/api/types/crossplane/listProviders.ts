@@ -2,7 +2,9 @@ import { Resource } from '../resource';
 
   export type ProvidersListResponse = {
     items: [{
-      spec: any;
+      spec: {
+        package: string;
+      };
       kind: string;
       metadata: {
         name: string;
