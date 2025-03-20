@@ -23,7 +23,6 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{ spyFormBody?: (data
     formState: { errors },
     watch
   } = useForm<CreateDialogProps>({
-    // @ts-ignore
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
       name: "",

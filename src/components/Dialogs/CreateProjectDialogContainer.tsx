@@ -7,7 +7,7 @@ import {CreateProjectWorkspaceDialog, OnCreatePayload} from "./CreateProjectWork
 
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
-import {Member, MemberRoles, } from "../../lib/api/types/shared/members.ts";
+import { MemberRoles, } from "../../lib/api/types/shared/members.ts";
 
 import {useTranslation} from "react-i18next";
 
@@ -17,14 +17,9 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
 import {CreateProject, CreateProjectResource, CreateProjectType} from "../../lib/api/types/crate/createProject.ts";
 import {validationSchemaProjectWorkspace} from "../../lib/api/validations/schemas.ts";
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
 
-export type CreateDialogProps = {
-  name: string,
-  displayName: string,
-  chargingTarget: string,
-  members: Member[],
-}
 
 
 export function CreateProjectDialogContainer({
@@ -49,7 +44,6 @@ export function CreateProjectDialogContainer({
     formState: { errors },
     watch
   } = useForm<CreateDialogProps>({
-    // @ts-ignore
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
       name: "",
