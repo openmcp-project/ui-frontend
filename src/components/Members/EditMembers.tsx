@@ -5,7 +5,7 @@ import {MemberRoleSelect} from "./MemberRoleSelect.tsx";
 import {ValueState} from "../Shared/Ui5ValieState.tsx";
 import {Member, MemberRoles} from "../../lib/api/types/shared/members";
 import {useTranslation} from "react-i18next";
-import {z} from "zod";
+
 
 export interface EditMembersProps {
   members: Member[];
@@ -32,11 +32,7 @@ export const EditMembers:FC<EditMembersProps> = ({members = [], onMemberChanged,
       setHighlightEmail("Negative");
       return;
     }
-    if (!z.string().email().safeParse(emailInput.current!.value).success) {
-      setValueStateMessage("This is not a valid email.")
-      setHighlightEmail("Negative");
-      return;
-    }
+
     const newMembers = [...members, {name: emailInput.current.value, roles: [role], kind: "User"}]
     onMemberChanged(newMembers);
     emailInput.current!.value = "";

@@ -2,7 +2,7 @@ import {useEffect, useRef} from "react";
 import {useApiResourceMutation, useRevalidateApiResource} from "../../lib/api/useApiResource";
 import {ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
 import {APIError} from "../../lib/api/error";
-import {CreateProjectWorkspaceDialog, onCreatePayload} from "./CreateProjectWorkspaceDialog.tsx";
+import {CreateProjectWorkspaceDialog, OnCreatePayload} from "./CreateProjectWorkspaceDialog.tsx";
 import {
   CreateWorkspace,
   CreateWorkspaceResource,
@@ -12,7 +12,7 @@ import {projectnameToNamespace} from "../../utils";
 import {ListWorkspaces} from "../../lib/api/types/crate/listWorkspaces";
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
-import {Member, MemberRoles} from "../../lib/api/types/shared/members.ts";
+import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import {useTranslation} from "react-i18next";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useForm} from "react-hook-form";
@@ -82,7 +82,7 @@ export function CreateWorkspaceDialogContainer({
                                        displayName,
                                        chargingTarget,
                                        members,
-                                     }: onCreatePayload): Promise<Boolean> => {
+                                     }: OnCreatePayload): Promise<Boolean> => {
     try {
       await trigger(
         CreateWorkspace(name, namespace, {
@@ -115,7 +115,7 @@ export function CreateWorkspaceDialogContainer({
         setIsOpen={setIsOpen}
         onCreate={handleSubmit(handleWorkspaceCreate)}
         errorDialogRef={errorDialogRef}
-        titleText="Create Project Workspace"
+        titleText="Create Workspace"
         members={watch('members')}
         register={register}
         errors={errors}

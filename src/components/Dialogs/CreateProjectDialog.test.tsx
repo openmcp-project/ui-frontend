@@ -1,5 +1,5 @@
 import React, {useState, useRef} from 'react';
-import {CreateProjectWorkspaceDialog, onCreatePayload} from './CreateProjectWorkspaceDialog';
+import {CreateProjectWorkspaceDialog, OnCreatePayload} from './CreateProjectWorkspaceDialog';
 import { MemberRoles} from '../../lib/api/types/shared/members';
 import {ErrorDialogHandle} from '../Shared/ErrorMessageBox';
 
@@ -38,8 +38,8 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{ spyFormBody?: (data
                                 displayName,
                                 chargingTarget,
                                 members,
-                              }: onCreatePayload) => {
-    const payload: onCreatePayload = {
+                              }: OnCreatePayload) => {
+    const payload: OnCreatePayload = {
       name: name,
       displayName: displayName,
       chargingTarget: chargingTarget,
@@ -53,7 +53,7 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{ spyFormBody?: (data
     <CreateProjectWorkspaceDialog
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      titleText="Create Project Workspace"
+      titleText="Create Workspace"
       onCreate={handleSubmit(handleCreate)}
       errorDialogRef={errorDialogRef}
       members={watch('members')}

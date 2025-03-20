@@ -3,7 +3,7 @@ import {useEffect, useRef} from "react";
 import {useApiResourceMutation, } from "../../lib/api/useApiResource";
 import {ErrorDialogHandle} from "../Shared/ErrorMessageBox.tsx";
 import {APIError} from "../../lib/api/error";
-import {CreateProjectWorkspaceDialog, onCreatePayload} from "./CreateProjectWorkspaceDialog.tsx";
+import {CreateProjectWorkspaceDialog, OnCreatePayload} from "./CreateProjectWorkspaceDialog.tsx";
 
 import {useToast} from "../../context/ToastContext.tsx";
 import {useAuthSubject} from "../../lib/oidc/useUsername.ts";
@@ -84,7 +84,7 @@ export function CreateProjectDialogContainer({
                                        chargingTarget,
                                        displayName,
                                        members
-                                     }: onCreatePayload): Promise<Boolean> => {
+                                     }: OnCreatePayload): Promise<Boolean> => {
     try {
       await trigger(CreateProject(name, {
         displayName: displayName,

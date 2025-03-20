@@ -12,7 +12,7 @@ import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
 import {FormEvent} from "react";
 import {FieldErrors, UseFormRegister, UseFormSetValue} from "react-hook-form";
 
-export type onCreatePayload = { name: string; displayName: string; chargingTarget: string; members: Member[] };
+export type OnCreatePayload = { name: string; displayName?: string; chargingTarget?: string; members: Member[] };
 
 export interface CreateProjectWorkspaceDialogProps {
   isOpen: boolean;
