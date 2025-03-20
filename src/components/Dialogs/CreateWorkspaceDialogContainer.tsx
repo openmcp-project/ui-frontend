@@ -20,9 +20,9 @@ import {validationSchemaProjectWorkspace} from "../../lib/api/validations/schema
 
 export type CreateDialogProps = {
   name: string,
-  displayName: string,
-  chargingTarget: string,
-  members: Member[],
+  displayName?: string,
+  chargingTarget?: string,
+  members: [Member, ...Member[]],
 }
 
 
@@ -47,7 +47,6 @@ export function CreateWorkspaceDialogContainer({
     formState: { errors },
     watch
   } = useForm<CreateDialogProps>({
-    // @ts-ignore
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
       name: "",
