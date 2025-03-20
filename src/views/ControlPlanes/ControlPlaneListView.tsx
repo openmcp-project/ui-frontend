@@ -1,4 +1,4 @@
-import { ObjectPage, ObjectPageTitle } from "@ui5/webcomponents-react";
+import { ObjectPage, ObjectPageTitle, Title } from "@ui5/webcomponents-react";
 import ProjectChooser from "../../components/Projects/ProjectChooser.tsx";
 import { useParams } from "react-router-dom";
 import ControlPlaneListAllWorkspaces from "../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx";
@@ -16,7 +16,7 @@ export default function ControlPlaneListView() {
         preserveHeaderStateOnClick={true}
         titleArea={
           <ObjectPageTitle
-            header="Your MCPs"
+            header={<Title>Your <span className="mono-font">ManagedControlPlanes</span></Title>}
             subHeader={
               <div
                 style={{

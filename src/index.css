@@ -104,3 +104,8 @@ body {
   height: 100%;
   background-color: var(--sapBackgroundColor);
 }
+
+.mono-font {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: bold;
+}
