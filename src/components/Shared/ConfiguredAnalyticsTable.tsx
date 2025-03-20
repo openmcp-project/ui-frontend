@@ -2,7 +2,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
-} from "@ui5/webcomponents-react";
+} from '@ui5/webcomponents-react';
 
 interface Props {
   columns: (string | AnalyticalTableColumnDefinition)[];
@@ -15,7 +15,7 @@ export default function ConfiguredAnalyticsTable(props: Props) {
   return (
     <AnalyticalTable
       columns={props.columns.map((c) =>
-        typeof c === "string" ? { Header: c, accessor: c } : c,
+        typeof c === 'string' ? { Header: c, accessor: c } : c,
       )}
       data={props.data}
       minRows={1}

@@ -1,15 +1,19 @@
-import { IllustratedMessage } from "@ui5/webcomponents-react";
-import "@ui5/webcomponents-fiori/dist/illustrations/SimpleError";
-import IllustrationMessageDesign from "@ui5/webcomponents-fiori/dist/types/IllustrationMessageDesign.js";
-import { useTranslation } from "react-i18next";
+import { IllustratedMessage } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
+import IllustrationMessageDesign from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageDesign.js';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
-  title?: string,
-  subtitleText?: string,
-  error?: any,
+  title?: string;
+  subtitleText?: string;
+  error?: any;
 }
 
-export default function IllustratedError({ title, subtitleText, error }: Props) {
+export default function IllustratedError({
+  title,
+  subtitleText,
+  error,
+}: Props) {
   const { t } = useTranslation();
 
   return (

@@ -4,25 +4,33 @@ import {
   ObjectPageSection,
   Panel,
   Title,
-} from "@ui5/webcomponents-react";
-import "@ui5/webcomponents-fiori/dist/illustrations/NoData.js";
-import "@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js";
-import "@ui5/webcomponents-icons/dist/delete";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
-import { CopyButton } from "../../Shared/CopyButton.tsx";
-import { NoManagedControlPlaneBanner } from "../NoManagedControlPlaneBanner.tsx";
-import { ControlPlaneCard } from "../ControlPlaneCard.tsx";
-import { ListWorkspacesType, isWorkspaceReady } from "../../../lib/api/types/crate/listWorkspaces.ts";
-import { useState } from "react";
-import { MembersAvatarView } from "./MembersAvatarView.tsx";
-import { DeleteWorkspaceResource, DeleteWorkspaceType } from "../../../lib/api/types/crate/deleteWorkspace.ts";
-import useApiResource, { useApiResourceMutation } from "../../../lib/api/useApiResource.ts";
-import { DISPLAY_NAME_ANNOTATION } from "../../../lib/api/types/shared/keyNames.ts";
-import { DeleteConfirmationDialog } from "../../Dialogs/DeleteConfirmationDialog.tsx";
-import { useToast } from "../../../context/ToastContext.tsx";
-import { ListControlPlanes } from "../../../lib/api/types/crate/controlPlanes.ts";
-import IllustratedError from "../../Shared/IllustratedError.tsx";
-import { APIError } from "../../../lib/api/error.ts";
+} from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
+import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
+import '@ui5/webcomponents-icons/dist/delete';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import { CopyButton } from '../../Shared/CopyButton.tsx';
+import { NoManagedControlPlaneBanner } from '../NoManagedControlPlaneBanner.tsx';
+import { ControlPlaneCard } from '../ControlPlaneCard.tsx';
+import {
+  ListWorkspacesType,
+  isWorkspaceReady,
+} from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { useState } from 'react';
+import { MembersAvatarView } from './MembersAvatarView.tsx';
+import {
+  DeleteWorkspaceResource,
+  DeleteWorkspaceType,
+} from '../../../lib/api/types/crate/deleteWorkspace.ts';
+import useApiResource, {
+  useApiResourceMutation,
+} from '../../../lib/api/useApiResource.ts';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { useToast } from '../../../context/ToastContext.tsx';
+import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts';
+import IllustratedError from '../../Shared/IllustratedError.tsx';
+import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -30,9 +38,13 @@ interface Props {
   workspace: ListWorkspacesType;
 }
 
-export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Props) {
+export function ControlPlaneListWorkspaceGridTile({
+  projectName,
+  workspace,
+}: Props) {
   const workspaceName = workspace.metadata.name;
-  const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || "";
+  const workspaceDisplayName =
+    workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
   const projectNamespace = workspace.metadata.namespace;
 
@@ -41,19 +53,25 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
   const toast = useToast();
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: controlplanes, error: cpsError } = useApiResource(ListControlPlanes(projectName, workspaceName));
-  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
-    DeleteWorkspaceResource(projectNamespace, workspaceName)
+  const { data: controlplanes, error: cpsError } = useApiResource(
+    ListControlPlanes(projectName, workspaceName),
   );
-  let errorView = createErrorView(cpsError);
+  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
+    DeleteWorkspaceResource(projectNamespace, workspaceName),
+  );
+  const errorView = createErrorView(cpsError);
 
   function createErrorView(error: APIError) {
     if (error) {
       if (error.status == 403) {
         return (
           <IllustratedError
-            title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
-            subtitleText={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
+            title={t(
+              'ControlPlaneListWorkspaceGridTile.permissionErrorMessage',
+            )}
+            subtitleText={t(
+              'ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle',
+            )}
           />
         );
       } else {
@@ -81,24 +99,27 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
           header={
             <div
               style={{
-                width: "100%",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr auto",
-                gap: "1rem",
-                alignItems: "center",
+                width: '100%',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr auto',
+                gap: '1rem',
+                alignItems: 'center',
               }}
             >
               <Title level="H3">
-                {showDisplayName ? workspaceDisplayName : workspaceName}{" "}
-                {!isWorkspaceReady(workspace) ? "(Loading)" : ""}
+                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
               </Title>
 
               <CopyButton
-                text={workspace.status?.namespace || "-"}
-                style={{ justifyContent: "start" }}
-              >
-              </CopyButton>
-              <MembersAvatarView members={workspace.spec.members} project={projectName} workspace={workspaceName}></MembersAvatarView>
+                text={workspace.status?.namespace || '-'}
+                style={{ justifyContent: 'start' }}
+              />
+              <MembersAvatarView
+                members={workspace.spec.members}
+                project={projectName}
+                workspace={workspaceName}
+              />
               <Button
                 design={ButtonDesign.Transparent}
                 icon="delete"
@@ -110,10 +131,10 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
           }
           noAnimation
         >
-          {errorView ?
+          {errorView ? (
             errorView
-            :
-            <Grid defaultSpan="XL4 L4 M7 S12" >
+          ) : (
+            <Grid defaultSpan="XL4 L4 M7 S12">
               {controlplanes?.length === 0 ? (
                 <NoManagedControlPlaneBanner />
               ) : (
@@ -127,17 +148,19 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
                 ))
               )}
             </Grid>
-          }
+          )}
         </Panel>
       </ObjectPageSection>
       <DeleteConfirmationDialog
-        onDeletionConfirmed={async () => {
-          await trigger();
-          toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
-        }}
         resourceName={workspaceName}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
+        onDeletionConfirmed={async () => {
+          await trigger();
+          toast.show(
+            t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'),
+          );
+        }}
       />
     </>
   );
