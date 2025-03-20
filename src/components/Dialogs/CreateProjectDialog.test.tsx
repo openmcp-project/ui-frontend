@@ -1,17 +1,19 @@
-import React, {useState, useRef} from 'react';
-import {CreateProjectWorkspaceDialog, OnCreatePayload} from './CreateProjectWorkspaceDialog';
-import { MemberRoles} from '../../lib/api/types/shared/members';
-import {ErrorDialogHandle} from '../Shared/ErrorMessageBox';
+import React, { useState, useRef } from 'react';
+import {
+  CreateProjectWorkspaceDialog,
+  OnCreatePayload,
+} from './CreateProjectWorkspaceDialog';
+import { MemberRoles } from '../../lib/api/types/shared/members';
+import { ErrorDialogHandle } from '../Shared/ErrorMessageBox';
 
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {validationSchemaProjectWorkspace} from "../../lib/api/validations/schemas.ts";
-import {CreateDialogProps} from "./CreateWorkspaceDialogContainer.tsx";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
-
-
-
-export const CreateProjectWorkspaceDialogWrapper: React.FC<{ spyFormBody?: (data: any) => {} }> = ({spyFormBody}) => {
+export const CreateProjectWorkspaceDialogWrapper: React.FC<{
+  spyFormBody?: (data: any) => {};
+}> = ({ spyFormBody }) => {
   const [isOpen, setIsOpen] = useState(true);
 
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -21,53 +23,51 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{ spyFormBody?: (data
     handleSubmit,
     setValue,
     formState: { errors },
-    watch
+    watch,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
-      name: "",
-      displayName: "",
-      chargingTarget: "",
-      members: [{   name: 'user1@example.com', roles: [MemberRoles.admin], kind: "User"}],
-    }
+      name: '',
+      displayName: '',
+      chargingTarget: '',
+      members: [
+        { name: 'user1@example.com', roles: [MemberRoles.admin], kind: 'User' },
+      ],
+    },
   });
 
   const handleCreate = async ({
-                                name,
-                                displayName,
-                                chargingTarget,
-                                members,
-                              }: OnCreatePayload) => {
+    name,
+    displayName,
+    chargingTarget,
+    members,
+  }: OnCreatePayload) => {
     const payload: OnCreatePayload = {
       name: name,
       displayName: displayName,
       chargingTarget: chargingTarget,
-      members: members
+      members: members,
     };
 
-    spyFormBody?.(payload)
+    spyFormBody?.(payload);
     setIsOpen(false);
-
-  };  return (
+  };
+  return (
     <CreateProjectWorkspaceDialog
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       titleText="Create Workspace"
-      onCreate={handleSubmit(handleCreate)}
       errorDialogRef={errorDialogRef}
       members={watch('members')}
       register={register}
       errors={errors}
       setValue={setValue}
+      onCreate={handleSubmit(handleCreate)}
     />
   );
 };
 
-
-
-
 describe('CreateProjectWorkspaceDialog', () => {
-
   it('checks if there is existing member and delete it', () => {
     cy.mount(<CreateProjectWorkspaceDialogWrapper />, {});
     cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]')
@@ -81,10 +81,10 @@ describe('CreateProjectWorkspaceDialog', () => {
 
   it('should add a new member and display it in the table', () => {
     cy.mount(<CreateProjectWorkspaceDialogWrapper />, {});
-    cy.get('ui5-input[id*="member-email-input"]').find('input[id*="inner"]')
+    cy.get('ui5-input[id*="member-email-input"]')
+      .find('input[id*="inner"]')
       .type('user2@example.com', { force: true });
-    cy.get('ui5-button:contains("Add")')
-      .click({ force: true });
+    cy.get('ui5-button:contains("Add")').click({ force: true });
     cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]')
       .contains('user2@example.com')
       .should('be.visible');
@@ -94,18 +94,20 @@ describe('CreateProjectWorkspaceDialog', () => {
     const stubFn = cy.stub().as('stubFn');
     cy.mount(<CreateProjectWorkspaceDialogWrapper spyFormBody={stubFn} />, {});
 
-    cy.get('ui5-input[id*="name"]').find('input[id*="inner"]')
+    cy.get('ui5-input[id*="name"]')
+      .find('input[id*="inner"]')
       .type('brand--01', { force: true });
-    cy.get('ui5-input[id*="displayName"]').find('input[id*="inner"]')
+    cy.get('ui5-input[id*="displayName"]')
+      .find('input[id*="inner"]')
       .type('Brand new workspace number one', { force: true });
-    cy.get('ui5-input[id*="chargingTarget"]').find('input[id*="inner"]')
+    cy.get('ui5-input[id*="chargingTarget"]')
+      .find('input[id*="inner"]')
       .type('Charging target 1000', { force: true });
-    cy.get('ui5-input[id*="email"]').find('input[id*="inner"]')
+    cy.get('ui5-input[id*="email"]')
+      .find('input[id*="inner"]')
       .type('user2@example.com', { force: true });
-    cy.get('ui5-button:contains("Add")')
-      .click({ force: true });
-    cy.get('ui5-button:contains("Create")')
-      .click({ force: true });
+    cy.get('ui5-button:contains("Add")').click({ force: true });
+    cy.get('ui5-button:contains("Create")').click({ force: true });
 
     cy.get('@stubFn').should('have.been.calledWith', {
       name: 'brand--01',
@@ -115,30 +117,30 @@ describe('CreateProjectWorkspaceDialog', () => {
         {
           name: 'user1@example.com',
           roles: [MemberRoles.admin],
-          kind: 'User'
+          kind: 'User',
         },
         {
           name: 'user2@example.com',
           roles: [MemberRoles.viewer],
-          kind: 'User'
-        }
-      ]
+          kind: 'User',
+        },
+      ],
     });
   });
-  
 
   it('should handle multiple member additions', () => {
     cy.mount(<CreateProjectWorkspaceDialogWrapper />, {});
 
     const newMembers = ['user3@example.com', 'user4@example.com'];
-    newMembers.forEach(email => {
-      cy.get('ui5-input[id*="member-email-input"]').find('input[id*="inner"]')
+    newMembers.forEach((email) => {
+      cy.get('ui5-input[id*="member-email-input"]')
+        .find('input[id*="inner"]')
         .clear({ force: true })
         .type(email, { force: true });
       cy.get('ui5-button:contains("Add")').click({ force: true });
     });
 
-    newMembers.forEach(email => {
+    newMembers.forEach((email) => {
       cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]')
         .contains(email)
         .should('be.visible');
@@ -152,5 +154,4 @@ describe('CreateProjectWorkspaceDialog', () => {
     cy.get('ui5-button:contains("Cancel")').click({ force: true });
     cy.get('ui5-dialog').should('not.be.visible');
   });
-
 });
