@@ -20,7 +20,7 @@ import { ThemeProvider } from '@ui5/webcomponents-react';
 import { mount } from 'cypress/react';
 // Import commands.js using ES2015 syntax:
 import './commands';
-import {FrontendConfigProvider, Landscape} from "../../src/context/FrontendConfigContext";
+import { FrontendConfigProvider, Landscape } from "../../src/context/FrontendConfigContext";
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.

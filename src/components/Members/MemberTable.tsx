@@ -57,7 +57,7 @@ export const MemberTable: FC<MemberTableProps> = ({
         variant={isValidationError ? 'danger' : 'normal'}
         id={'members-error'}
       >
-        You need to have at least one member assigned.
+        {t('validationErrors.atLeastOneUser')}
       </Infobox>
     );
   }
