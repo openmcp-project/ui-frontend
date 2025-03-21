@@ -130,6 +130,7 @@ export function CreateWorkspaceDialogContainer({
         displayNameInputRef={displayNameInput}
         chargingTargetInputRef={chargingTargetInput}
         onCreate={handleOnCreate}
+        projectName={project}
       />
     </>
   );

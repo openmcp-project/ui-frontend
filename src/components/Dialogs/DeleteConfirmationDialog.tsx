@@ -12,11 +12,13 @@ import {
 } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useTranslation } from 'react-i18next';
+import { KubectlDeleteWorkspace } from './KubectlCommandInfo/Controllers/KubectlDeleteWorkspace';
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   resourceName: string;
+  projectName?: string;
   onDeletionConfirmed?: () => void;
   onCanceled?: () => void;
 }
@@ -25,6 +27,7 @@ export function DeleteConfirmationDialog({
   isOpen,
   setIsOpen,
   resourceName,
+  projectName,
   onDeletionConfirmed,
   onCanceled,
 }: DeleteConfirmationDialogProps) {
@@ -111,6 +114,12 @@ export function DeleteConfirmationDialog({
                 id="mcp-name-input"
                 placeholder=""
                 onInput={onConfirmationInputChange}
+              />
+            </FormItem>
+            <FormItem>
+              <KubectlDeleteWorkspace
+                projectName={projectName}
+                resourceName={resourceName}
               />
             </FormItem>
           </FormGroup>

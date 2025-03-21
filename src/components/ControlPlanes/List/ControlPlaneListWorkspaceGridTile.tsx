@@ -153,6 +153,7 @@ export function ControlPlaneListWorkspaceGridTile({
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}
+        projectName={projectName}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {
