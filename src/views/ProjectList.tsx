@@ -1,8 +1,4 @@
-import {
-  ObjectPage,
-  ObjectPageSection,
-  ObjectPageTitle,
-} from '@ui5/webcomponents-react';
+import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
 import IntelligentBreadcrumbs from '../components/Core/IntelligentBreadcrumbs.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
@@ -22,7 +18,7 @@ export default function ProjectsListView() {
         />
       }
     >
-        <ProjectsList />
+      <ProjectsList />
     </ObjectPage>
   );
 }
