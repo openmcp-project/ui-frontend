@@ -144,6 +144,17 @@
   "main": {
     "failedMessage": "Failed to load frontend configuration"
   },
+  "Providers": {
+    "headerProviders": "Providers",
+    "tableHeaderVersion": "Version",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderInstalled": "Installed",
+    "tableHeaderHealthy": "Healthy"
+  },
+  "ProvidersConfig": {
+    "headerProvidersConfig": "Providers Config"
+  },
   "validationErrors": {
     "required": "This field is required!",
     "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
