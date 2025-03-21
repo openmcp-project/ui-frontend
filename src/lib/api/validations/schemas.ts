@@ -17,5 +17,5 @@ export const validationSchemaProjectWorkspace = z.object({
     .max(25, t('validationErrors.max25chars')),
   displayName: z.string().optional(),
   chargingTarget: z.string().optional(),
-  members: z.array(member).nonempty(),
+  members: z.array(member).refine((members) => members?.length > 0),
 });

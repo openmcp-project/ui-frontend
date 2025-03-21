@@ -28,7 +28,7 @@ export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
-  members: [Member, ...Member[]];
+  members: Member[];
 };
 
 export function CreateWorkspaceDialogContainer({
@@ -43,7 +43,7 @@ export function CreateWorkspaceDialogContainer({
   const {
     register,
     handleSubmit,
-    reset,
+    resetField,
     setValue,
     formState: { errors },
     watch,
@@ -67,10 +67,7 @@ export function CreateWorkspaceDialogContainer({
         { name: username, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
-    return () => {
-      reset();
-    };
-  }, []);
+  }, [username]);
   const namespace = projectnameToNamespace(project);
   const toast = useToast();
 
@@ -97,6 +94,9 @@ export function CreateWorkspaceDialogContainer({
       await revalidate();
       setIsOpen(false);
       toast.show(t('CreateWorkspaceDialog.toastMessage'));
+      resetField('name');
+      resetField('chargingTarget');
+      resetField('displayName');
       return true;
     } catch (e) {
       console.error(e);
