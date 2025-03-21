@@ -7,12 +7,12 @@ import {
   ShellBar,
   ShellBarDomRef,
   Ui5CustomEvent,
-} from "@ui5/webcomponents-react";
-import { generateInitialsForEmail } from "../ControlPlanes/List/MembersAvatarView.tsx";
-import { useAuth } from "react-oidc-context";
-import { RefObject, useRef, useState } from "react";
-import { ShellBarProfileClickEventDetail } from "@ui5/webcomponents-fiori/dist/ShellBar.js";
-import PopoverPlacement from "@ui5/webcomponents/dist/types/PopoverPlacement.js";
+} from '@ui5/webcomponents-react';
+import { generateInitialsForEmail } from '../ControlPlanes/List/MembersAvatarView.tsx';
+import { useAuth } from 'react-oidc-context';
+import { RefObject, useRef, useState } from 'react';
+import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
 
 export function ShellBarComponent() {
@@ -20,7 +20,9 @@ export function ShellBarComponent() {
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
 
-  const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
+  const onProfileClick = (
+    e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>,
+  ) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
   };
@@ -30,9 +32,14 @@ export function ShellBarComponent() {
       <ShellBar
         logo={<img src="/logo.png" alt="MCP" />}
         primaryTitle="MCP"
+        profile={
+          <Avatar
+            initials={generateInitialsForEmail(auth.user?.profile.email)}
+            size="XS"
+          />
+        }
         onProfileClick={onProfileClick}
-        profile={<Avatar initials={generateInitialsForEmail(auth.user?.profile.email)} size="XS" />}
-      ></ShellBar>
+      />
       <ProfilePopover
         open={profilePopoverOpen}
         setOpen={(b) => setProfilePopoverOpen(b)}
@@ -60,10 +67,10 @@ const ProfilePopover = ({
         ref={popoverRef}
         placement={PopoverPlacement.Bottom}
         open={open}
+        headerText="Profile"
         onClose={() => {
           setOpen(false);
         }}
-        headerText="Profile"
       >
         <List>
           <ListItemStandard

@@ -1,7 +1,7 @@
-import useApiResource from "../../useApiResource";
-import { ListGraphInstallations } from "./listInstallations";
-import { ListGraphExecutions } from "./listExecutions";
-import { ListGraphDeployItems } from "./listDeployItems";
+import useApiResource from '../../useApiResource';
+import { ListGraphInstallations } from './listInstallations';
+import { ListGraphExecutions } from './listExecutions';
+import { ListGraphDeployItems } from './listDeployItems';
 
 interface GraphLandscaperResourceType {
   kind: string;
@@ -28,22 +28,22 @@ export const useLandscaperGraphResources = () => {
     data: [
       ...(installations.data?.map((m) => {
         return {
-          kind: "Installation",
-          apiVersion: "landscaper.gardener.cloud/v1alpha1",
+          kind: 'Installation',
+          apiVersion: 'landscaper.gardener.cloud/v1alpha1',
           ...m,
         };
       }) ?? []),
       ...(executions.data?.map((m) => {
         return {
-          kind: "Execution",
-          apiVersion: "landscaper.gardener.cloud/v1alpha1",
+          kind: 'Execution',
+          apiVersion: 'landscaper.gardener.cloud/v1alpha1',
           ...m,
         };
       }) ?? []),
       ...(deployItems.data?.map((m) => {
         return {
-          kind: "DeployItem",
-          apiVersion: "landscaper.gardener.cloud/v1alpha1",
+          kind: 'DeployItem',
+          apiVersion: 'landscaper.gardener.cloud/v1alpha1',
           ...m,
         };
       }) ?? []),

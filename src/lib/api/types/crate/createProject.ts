@@ -1,7 +1,9 @@
-import { Resource } from "../resource"
-import { CHARGING_TARGET_LABEL, DISPLAY_NAME_ANNOTATION } from "../shared/keyNames";
-import { Member } from "../shared/members";
-
+import { Resource } from '../resource';
+import {
+  CHARGING_TARGET_LABEL,
+  DISPLAY_NAME_ANNOTATION,
+} from '../shared/keyNames';
+import { Member } from '../shared/members';
 
 export interface CreateProjectType {
   apiVersion: string;
@@ -23,21 +25,21 @@ export interface CreateProjectType {
 export const CreateProject = (
   projectName: string,
   optional?: {
-    displayName?: string,
-    chargingTarget?: string,
-    members?: Member[],
-  }
+    displayName?: string;
+    chargingTarget?: string;
+    members?: Member[];
+  },
 ): CreateProjectType => {
   return {
-    apiVersion: "core.openmcp.cloud/v1alpha1",
-    kind: "Project",
+    apiVersion: 'core.openmcp.cloud/v1alpha1',
+    kind: 'Project',
     metadata: {
       name: projectName,
       annotations: {
-        [DISPLAY_NAME_ANNOTATION]: optional?.displayName ?? "",
+        [DISPLAY_NAME_ANNOTATION]: optional?.displayName ?? '',
       },
       labels: {
-        [CHARGING_TARGET_LABEL]: optional?.chargingTarget ?? "",
+        [CHARGING_TARGET_LABEL]: optional?.chargingTarget ?? '',
       },
     },
     spec: {
@@ -49,9 +51,8 @@ export const CreateProject = (
 export const CreateProjectResource = (): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/projects`,
-    method: "POST",
+    method: 'POST',
     jq: undefined,
     body: undefined,
-  }
+  };
 };
-

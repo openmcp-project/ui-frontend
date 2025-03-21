@@ -1,1 +1,1 @@
-export { ApiConfigProvider, ApiConfigContext } from "./ApiConfigProvider.tsx";
+export { ApiConfigProvider, ApiConfigContext } from './ApiConfigProvider.tsx';
