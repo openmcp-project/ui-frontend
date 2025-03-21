@@ -88,14 +88,18 @@ export default function ControlPlaneView() {
           <ObjectPageSection
             className="cp-page-section-components"
             id="components"
-            titleText="Components"
+            titleText={t('ControlPlaneView.componentsTitle')}
             hideTitleText
           >
             <Panel
               className="cp-panel"
               headerLevel="H2"
               headerText="Panel"
-              header={<Title level="H3">Components</Title>}
+              header={
+                <Title level="H3">
+                  {t('ControlPlaneView.componentsTitle')}
+                </Title>
+              }
               noAnimation
             >
               <ComponentList mcp={mcp} />
@@ -104,14 +108,18 @@ export default function ControlPlaneView() {
           <ObjectPageSection
             className="cp-page-section-crossplane"
             id="crossplane"
-            titleText="Managed Resources"
+            titleText={t('ControlPlaneView.managedResourcesTitle')}
             hideTitleText
           >
             <Panel
               className="cp-panel cp-panel-crossplane"
               headerLevel="H3"
               headerText="Panel"
-              header={<Title level="H3">Managed Resources</Title>}
+              header={
+                <Title level="H3">
+                  {t('ControlPlaneView.managedResourcesTitle')}
+                </Title>
+              }
               noAnimation
             >
               <ProvidersList />
@@ -120,14 +128,16 @@ export default function ControlPlaneView() {
           <ObjectPageSection
             className="cp-page-section-gitops"
             id="gitops"
-            titleText="GitOps"
+            titleText={t('ControlPlaneView.gitOpsTitle')}
             hideTitleText
           >
             <Panel
               className="cp-panel cp-panel-gitops"
               headerLevel="H3"
               headerText="Panel"
-              header={<Title level="H3">GitOps</Title>}
+              header={
+                <Title level="H3">{t('ControlPlaneView.gitOpsTitle')}</Title>
+              }
               noAnimation
             >
               <FluxList />

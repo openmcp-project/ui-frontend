@@ -129,7 +129,10 @@
     "title": "Projects"
   },
   "ControlPlaneView": {
-    "accessError": "Managed Control Plane does not have access information yet"
+    "accessError": "Managed Control Plane does not have access information yet",
+    "componentsTitle": "Components",
+    "managedResourcesTitle": "Managed Resources",
+    "gitOpsTitle": "GitOps"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
