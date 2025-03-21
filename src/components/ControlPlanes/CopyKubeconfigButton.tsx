@@ -1,9 +1,9 @@
-import {Button, Menu, MenuItem} from "@ui5/webcomponents-react";
-import { useToast } from "../../context/ToastContext.tsx";
-import {useRef, useState} from "react";
-import "@ui5/webcomponents-icons/dist/copy";
-import "@ui5/webcomponents-icons/dist/accept";
-import {useMcp} from "../../lib/shared/McpContext.tsx";
+import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+import { useToast } from '../../context/ToastContext.tsx';
+import { useRef, useState } from 'react';
+import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/accept';
+import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useTranslation } from 'react-i18next';
 
 export default function CopyKubeconfigButton() {
@@ -14,7 +14,7 @@ export default function CopyKubeconfigButton() {
 
   const handleOpenerClick = (e: any) => {
     if (popoverRef.current) {
-      const ref = popoverRef.current as any
+      const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
     }
@@ -23,57 +23,57 @@ export default function CopyKubeconfigButton() {
 
   return (
     <>
-      <Button icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>Kubeconfig</Button>
-      <Menu ref={popoverRef} open={open}
-            onItemClick={(event) => {
-              if (event.detail.item.dataset.action === "download") {
-                DownloadKubeconfig(mcp.kubeconfig, mcp.name);
-                return;
-              }
-              if (event.detail.item.dataset.action === "copy") {
-                try {
-                  navigator.clipboard.writeText(mcp.kubeconfig ?? "");
-                  show(t('CopyKubeconfigButton.copiedMessage'))
-                } catch (error) {
-                  //TODO: handle error, show error to user
-                  show(`${t('CopyKubeconfigButton.failedMessage')} ${error}`)
-                  console.error(error)
-                }
-              }
+      <Button icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>
+        Kubeconfig
+      </Button>
+      <Menu
+        ref={popoverRef}
+        open={open}
+        onItemClick={(event) => {
+          if (event.detail.item.dataset.action === 'download') {
+            DownloadKubeconfig(mcp.kubeconfig, mcp.name);
+            return;
+          }
+          if (event.detail.item.dataset.action === 'copy') {
+            try {
+              navigator.clipboard.writeText(mcp.kubeconfig ?? '');
+              show(t('CopyKubeconfigButton.copiedMessage'));
+            } catch (error) {
+              //TODO: handle error, show error to user
+              show(`${t('CopyKubeconfigButton.failedMessage')} ${error}`);
+              console.error(error);
+            }
+          }
 
-              setOpen(false);
-
-            }}
+          setOpen(false);
+        }}
       >
         <MenuItem
-          key={"download"}
+          key={'download'}
           text={t('CopyKubeconfigButton.menuDownload')}
           data-action="download"
           icon="download"
-        >
-        </MenuItem>
+        />
         <MenuItem
-          key={"copy"}
+          key={'copy'}
           text={t('CopyKubeconfigButton.menuCopy')}
           data-action="copy"
           icon="copy"
-        >
-        </MenuItem>
-
+        />
       </Menu>
     </>
   );
 }
 
 export function DownloadKubeconfig(config: any, displayName: string) {
-  let filename = "kubeconfig-" + displayName + ".yaml"
+  const filename = 'kubeconfig-' + displayName + '.yaml';
 
   try {
     const file = new File([config], filename, {
-      type: "application/yaml",
+      type: 'application/yaml',
     });
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     const url = URL.createObjectURL(file);
 
     link.href = url;
@@ -84,7 +84,7 @@ export function DownloadKubeconfig(config: any, displayName: string) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    debugger
+    debugger;
     console.error(error);
   }
   // dynaLeaveAction(id);

@@ -143,5 +143,16 @@
   },
   "main": {
     "failedMessage": "Failed to load frontend configuration"
+  },
+  "Providers": {
+    "headerProviders": "Providers",
+    "tableHeaderVersion": "Version",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderInstalled": "Installed",
+    "tableHeaderHealthy": "Healthy"
+  },
+  "ProvidersConfig": {
+    "headerProvidersConfig": "Providers Config"
   }
 }

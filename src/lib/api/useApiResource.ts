@@ -1,16 +1,14 @@
-import { useContext } from "react";
-import useSWR, { SWRConfiguration, useSWRConfig } from "swr";
-import {
-  fetchApiServerJson,
-} from "./fetch";
-import { ApiConfigContext } from "../../components/Shared/k8s";
-import { APIError } from "./error";
-import { ApiConfig } from "./types/apiConfig";
-import { Resource } from "./types/resource";
-import useSWRMutation, { SWRMutationConfiguration } from "swr/mutation";
-import { MutatorOptions } from "swr/_internal";
+import { useContext } from 'react';
+import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
+import { fetchApiServerJson } from './fetch';
+import { ApiConfigContext } from '../../components/Shared/k8s';
+import { APIError } from './error';
+import { ApiConfig } from './types/apiConfig';
+import { Resource } from './types/resource';
+import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
+import { MutatorOptions } from 'swr/_internal';
 
-export { useApiResource as default }
+export { useApiResource as default };
 
 export const useApiResource = <T>(
   resource: Resource<T>,
@@ -22,16 +20,22 @@ export const useApiResource = <T>(
     resource.path === null
       ? null //TODO: is null a valid key?
       : [resource.path, apiConfig],
-    ([path, apiConfig]) => fetchApiServerJson<T>(path, apiConfig, resource.jq, resource.method, resource.body),
+    ([path, apiConfig]) =>
+      fetchApiServerJson<T>(
+        path,
+        apiConfig,
+        resource.jq,
+        resource.method,
+        resource.body,
+      ),
     config,
   );
-
 
   return {
     data,
     error: error as APIError,
     isLoading: isLoading,
-    isValidating: isValidating
+    isValidating: isValidating,
   };
 };
 
@@ -45,7 +49,14 @@ export const useApiResourceMutation = <T>(
     resource.path === null
       ? null //TODO: is null a valid key?
       : [resource.path, apiConfig],
-    ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) => fetchApiServerJson<T>(path, apiConfig, resource.jq, resource.method, JSON.stringify(arg.arg)),
+    ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) =>
+      fetchApiServerJson<T>(
+        path,
+        apiConfig,
+        resource.jq,
+        resource.method,
+        JSON.stringify(arg.arg),
+      ),
     config,
   );
 
@@ -54,23 +65,23 @@ export const useApiResourceMutation = <T>(
     trigger,
     error: error as APIError,
     reset,
-    isMutating
+    isMutating,
   };
-}
+};
 
 //Reloads this resource (e.g. after a modification was made to the backend)
-export function useRevalidateApiResource<T>(
-  resource: Resource<T>,
-) {
+export function useRevalidateApiResource<T>(resource: Resource<T>) {
   const { mutate } = useSWRConfig();
   const apiConfig = useContext(ApiConfigContext);
 
-  const onRevalidate = (options?: MutatorOptions,
-  ) => {
-    return mutate(resource.path === null
-      ? null //TODO: is null a valid key?
-      : [resource.path, apiConfig],
-      undefined, options);
+  const onRevalidate = (options?: MutatorOptions) => {
+    return mutate(
+      resource.path === null
+        ? null //TODO: is null a valid key?
+        : [resource.path, apiConfig],
+      undefined,
+      options,
+    );
   };
 
   return onRevalidate;
