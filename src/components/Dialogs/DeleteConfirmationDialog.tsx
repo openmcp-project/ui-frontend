@@ -1,6 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import { Bar, Button, Dialog, Form, FormGroup, FormItem, Input, InputDomRef, Label } from "@ui5/webcomponents-react";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
+import { useEffect, useRef, useState } from 'react';
+import {
+  Bar,
+  Button,
+  Dialog,
+  Form,
+  FormGroup,
+  FormItem,
+  Input,
+  InputDomRef,
+  Label,
+} from '@ui5/webcomponents-react';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useTranslation } from 'react-i18next';
 
 interface DeleteConfirmationDialogProps {
@@ -26,9 +36,9 @@ export function DeleteConfirmationDialog({
     return () => {
       setConfirmed(false);
       if (confirmationInput.current) {
-        confirmationInput.current.value = "";
+        confirmationInput.current.value = '';
       }
-    }
+    };
   }, [isOpen]);
 
   const onConfirmationInputChange = (event: any) => {
@@ -37,7 +47,7 @@ export function DeleteConfirmationDialog({
     } else {
       setConfirmed(false);
     }
-  }
+  };
 
   return (
     <>
@@ -74,17 +84,34 @@ export function DeleteConfirmationDialog({
           />
         }
       >
-
-
         <Form layout="S1 M1 L1 XL1">
           <FormGroup>
-            <Label>{t('DeleteConfirmationDialog.deleteMessage')} {resourceName}.</Label>
-            <Label> {t('DeleteConfirmationDialog.deleteMessageType')} <b>{resourceName}</b> {t('DeleteConfirmationDialog.deleteMessageConfirm')}</Label>
+            <Label>
+              {t('DeleteConfirmationDialog.deleteMessage')} {resourceName}.
+            </Label>
+            <Label>
+              {' '}
+              {t('DeleteConfirmationDialog.deleteMessageType')}{' '}
+              <b>{resourceName}</b>{' '}
+              {t('DeleteConfirmationDialog.deleteMessageConfirm')}
+            </Label>
           </FormGroup>
           <FormGroup>
-
-            <FormItem labelContent={<Label>{t('DeleteConfirmationDialog.deleteMessageType')} {resourceName} {t('DeleteConfirmationDialog.deleteMessageConfirm')}</Label>}>
-              <Input id="mcp-name-input" placeholder="" onInput={onConfirmationInputChange} ref={confirmationInput}></Input>
+            <FormItem
+              labelContent={
+                <Label>
+                  {t('DeleteConfirmationDialog.deleteMessageType')}{' '}
+                  {resourceName}{' '}
+                  {t('DeleteConfirmationDialog.deleteMessageConfirm')}
+                </Label>
+              }
+            >
+              <Input
+                ref={confirmationInput}
+                id="mcp-name-input"
+                placeholder=""
+                onInput={onConfirmationInputChange}
+              />
             </FormItem>
           </FormGroup>
         </Form>

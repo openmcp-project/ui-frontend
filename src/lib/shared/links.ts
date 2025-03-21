@@ -9,15 +9,21 @@ export class DocLinkCreator {
   }
 
   public get COMMUNITY_PAGE(): string {
-    return this.createLink("/");
+    return this.createLink('/');
   }
   public get COM_PAGE_GETTING_STARTED(): string {
-    return this.createLink("/docs/managed-control-planes/get-started/get-started-mcp");
+    return this.createLink(
+      '/docs/managed-control-planes/get-started/get-started-mcp',
+    );
   }
   public get COM_PAGE_GETTING_STARTED_WORKSPACE(): string {
-    return this.createLink("/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace");
+    return this.createLink(
+      '/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace',
+    );
   }
   public get COM_PAGE_GETTING_STARTED_MCP(): string {
-    return this.createLink("/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane");
+    return this.createLink(
+      '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
+    );
   }
 }

@@ -1,7 +1,12 @@
-import { Button, FlexBox, FlexBoxAlignItems, Text } from "@ui5/webcomponents-react";
-import "@ui5/webcomponents-icons/dist/copy";
-import { JSX, useState } from "react";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
+import {
+  Button,
+  FlexBox,
+  FlexBoxAlignItems,
+  Text,
+} from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/copy';
+import { JSX, useState } from 'react';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 export function AnimatedHoverTextButton({
   text,
@@ -21,7 +26,7 @@ export function AnimatedHoverTextButton({
       onMouseLeave={() => setHover(false)}
     >
       <FlexBox alignItems={FlexBoxAlignItems.Center}>
-        {hover ? <Text style={{ marginRight: "8px" }}> {text}</Text> : null}
+        {hover ? <Text style={{ marginRight: '8px' }}> {text}</Text> : null}
         {icon}
       </FlexBox>
     </Button>

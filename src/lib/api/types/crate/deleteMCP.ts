@@ -1,5 +1,4 @@
-import { Resource } from "../resource"
-
+import { Resource } from '../resource';
 
 export interface DeleteMCPType {
   name: string;
@@ -9,27 +8,31 @@ export interface DeleteMCPType {
 export const PatchMCPResourceForDeletionBody = {
   metadata: {
     annotations: {
-      "confirmation.openmcp.cloud/deletion": "true"
-    }
-  }
-}
+      'confirmation.openmcp.cloud/deletion': 'true',
+    },
+  },
+};
 
-export const PatchMCPResourceForDeletion = (namespace: string, mcpName: string): Resource<undefined> => {
+export const PatchMCPResourceForDeletion = (
+  namespace: string,
+  mcpName: string,
+): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}?fieldManager=kubectl-annotate`,
-    method: "PATCH",
-    jq: undefined,
-    body: undefined
-  }
-};
-
-
-export const DeleteMCPResource = (namespace: string, mcpName: string): Resource<undefined> => {
-  return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}/`,
-    method: "DELETE",
+    method: 'PATCH',
     jq: undefined,
     body: undefined,
-  }
+  };
 };
 
+export const DeleteMCPResource = (
+  namespace: string,
+  mcpName: string,
+): Resource<undefined> => {
+  return {
+    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}/`,
+    method: 'DELETE',
+    jq: undefined,
+    body: undefined,
+  };
+};
