@@ -1,40 +1,38 @@
-import { APIError } from "./error";
-import { ApiConfig } from "./types/apiConfig";
+import { APIError } from './error';
+import { ApiConfig } from './types/apiConfig';
 
-
-const useCrateClusterHeader = "X-use-crate";
-const projectNameHeader = "X-project";
-const workspaceNameHeader = "X-workspace";
-const mcpNameHeader = "X-mcp";
-const mcpAuthHeader = "X-mcp-authorization";
-const contextHeader = "X-context";
-const jqHeader = "X-jq";
-const authHeader = "Authorization";
-const contentTypeHeader = "Content-Type";
+const useCrateClusterHeader = 'X-use-crate';
+const projectNameHeader = 'X-project';
+const workspaceNameHeader = 'X-workspace';
+const mcpNameHeader = 'X-mcp';
+const mcpAuthHeader = 'X-mcp-authorization';
+const contextHeader = 'X-context';
+const jqHeader = 'X-jq';
+const authHeader = 'Authorization';
+const contentTypeHeader = 'Content-Type';
 
 // fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const fetchApiServer = async (
   path: string,
   config: ApiConfig,
   jq?: string,
-  httpMethod: string = "GET",
+  httpMethod: string = 'GET',
   body?: BodyInit,
 ): Promise<Response> => {
-
   // The default headers used for the fetch request.
   // The Authorization header is required for both the Crate API and the MCP API and the correct token is passed in the config object that is consumed outside this function from the context that has handled the OIDC flow to get a token.
   const headers: { [key: string]: string } = {};
-  if (httpMethod !== "PATCH") {
-    headers[contentTypeHeader] = "application/json";
+  if (httpMethod !== 'PATCH') {
+    headers[contentTypeHeader] = 'application/json';
   } else {
-    headers[contentTypeHeader] = "application/merge-patch+json";
+    headers[contentTypeHeader] = 'application/merge-patch+json';
   }
   headers[authHeader] = config.crateAuthorization;
 
   // Set the jq header to do a jq transformation on the proxy server.
   if (jq) headers[jqHeader] = jq;
 
-  // If the config object has a mcpConfig, it is assumed that the request is for the MCP API server and the necessary headers are set for the backend to get the OIDC kubeconfig without exposing it to the frontend, 
+  // If the config object has a mcpConfig, it is assumed that the request is for the MCP API server and the necessary headers are set for the backend to get the OIDC kubeconfig without exposing it to the frontend,
   // otherwise, the useCrateClusterHeader is set to true to indicate that the request is for the Crate
   if (config.mcpConfig !== undefined) {
     headers[projectNameHeader] = config.mcpConfig.projectName;
@@ -43,7 +41,7 @@ export const fetchApiServer = async (
     headers[contextHeader] = config.mcpConfig.contextName;
     headers[mcpAuthHeader] = config.mcpConfig.mcpAuthorization;
   } else {
-    headers[useCrateClusterHeader] = "true";
+    headers[useCrateClusterHeader] = 'true';
   }
 
   const res = await fetch(`${config.apiProxyUrl}${path}`, {
@@ -53,9 +51,12 @@ export const fetchApiServer = async (
   });
 
   if (!res.ok) {
-    const error = new APIError('An error occurred while fetching the data.', res.status)
-    error.info = await res.json()
-    throw error
+    const error = new APIError(
+      'An error occurred while fetching the data.',
+      res.status,
+    );
+    error.info = await res.json();
+    throw error;
   }
 
   return res;
@@ -65,7 +66,7 @@ export const fetchApiServerJson = async <T>(
   path: string,
   config: ApiConfig,
   jq?: string,
-  httpMethod: string = "GET",
+  httpMethod: string = 'GET',
   body?: BodyInit,
 ): Promise<T> => {
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
@@ -86,4 +87,3 @@ export const fetchApiServerJsonMultiple = (
       ),
   );
 };
-

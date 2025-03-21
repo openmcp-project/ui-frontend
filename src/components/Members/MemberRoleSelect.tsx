@@ -1,16 +1,29 @@
-import { MemberRoles, MemberRolesDetailed } from "../../lib/api/types/shared/members";
-import { Option, Select, SelectDomRef, Ui5CustomEvent } from "@ui5/webcomponents-react";
-import { SelectChangeEventDetail } from "@ui5/webcomponents/dist/Select.js";
-import { useEffect, useRef } from "react";
+import {
+  MemberRoles,
+  MemberRolesDetailed,
+} from '../../lib/api/types/shared/members';
+import {
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
+import { SelectChangeEventDetail } from '@ui5/webcomponents/dist/Select.js';
+import { useEffect, useRef } from 'react';
 
 interface MemberRoleSelectProps {
   value: MemberRoles;
   onChange: (value: MemberRoles) => void;
 }
-export function MemberRoleSelect({ value, onChange: fireOnChangeEventToParent }: MemberRoleSelectProps) {
+export function MemberRoleSelect({
+  value,
+  onChange: fireOnChangeEventToParent,
+}: MemberRoleSelectProps) {
   const ref = useRef<SelectDomRef>(null);
 
-  const handleChange = (event: Ui5CustomEvent<SelectDomRef, SelectChangeEventDetail>) => {
+  const handleChange = (
+    event: Ui5CustomEvent<SelectDomRef, SelectChangeEventDetail>,
+  ) => {
     const newValue = event.detail.selectedOption.dataset.value as MemberRoles;
     fireOnChangeEventToParent(newValue);
   };
@@ -24,7 +37,12 @@ export function MemberRoleSelect({ value, onChange: fireOnChangeEventToParent }:
 
   return (
     <>
-      <Select id="member-role-select" onChange={handleChange} ref={ref} value={value}>
+      <Select
+        ref={ref}
+        id="member-role-select"
+        value={value}
+        onChange={handleChange}
+      >
         {Object.values(MemberRoles)
           .map((r) => MemberRolesDetailed[r])
           .map((role) => (

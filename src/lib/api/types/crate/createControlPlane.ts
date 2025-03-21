@@ -1,5 +1,5 @@
-import { fetchApiServer } from "../../fetch";
-import { ApiConfig } from "../apiConfig";
+import { fetchApiServer } from '../../fetch';
+import { ApiConfig } from '../apiConfig';
 
 export async function createControlPlane(
   projectName: string,
@@ -11,23 +11,23 @@ export async function createControlPlane(
     `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes`,
     apiConfig,
     undefined,
-    "POST",
+    'POST',
     JSON.stringify({
-      apiVersion: "core.openmcp.cloud/v1alpha1",
-      kind: "ControlPlane",
+      apiVersion: 'core.openmcp.cloud/v1alpha1',
+      kind: 'ControlPlane',
       metadata: {
         name: controlPlaneName,
       },
       spec: {
         dataplane: {
-          type: "Gardener",
+          type: 'Gardener',
           gardener: {
-            region: "eu-west-1",
+            region: 'eu-west-1',
           },
         },
         crossplane: {
           enabled: false,
-          version: "1.14.0",
+          version: '1.14.0',
         },
       },
     }),

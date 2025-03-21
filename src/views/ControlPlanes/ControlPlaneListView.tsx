@@ -1,10 +1,10 @@
-import { ObjectPage, ObjectPageTitle, Title } from "@ui5/webcomponents-react";
-import ProjectChooser from "../../components/Projects/ProjectChooser.tsx";
-import { useParams } from "react-router-dom";
-import ControlPlaneListAllWorkspaces from "../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx";
-import IntelligentBreadcrumbs from "../../components/Core/IntelligentBreadcrumbs.tsx";
-import { ControlPlaneListToolbar } from "../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx";
-import { useTranslation } from "react-i18next";
+import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import ProjectChooser from '../../components/Projects/ProjectChooser.tsx';
+import { useParams } from 'react-router-dom';
+import ControlPlaneListAllWorkspaces from '../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
+import IntelligentBreadcrumbs from '../../components/Core/IntelligentBreadcrumbs.tsx';
+import { ControlPlaneListToolbar } from '../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
+import { useTranslation } from 'react-i18next';
 
 export default function ControlPlaneListView() {
   const { projectName } = useParams();
@@ -16,26 +16,34 @@ export default function ControlPlaneListView() {
         preserveHeaderStateOnClick={true}
         titleArea={
           <ObjectPageTitle
-            header={<Title>Your <span className="mono-font">ManagedControlPlanes</span></Title>}
+            header={
+              <Title>
+                Your <span className="mono-font">ManagedControlPlanes</span>
+              </Title>
+            }
             subHeader={
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
                 }}
               >
-                <p style={{ marginRight: "0.5rem" }}>{t('ControlPlaneListView.projectHeader')}</p>
-                <ProjectChooser currentProjectName={projectName ?? ""} />
+                <p style={{ marginRight: '0.5rem' }}>
+                  {t('ControlPlaneListView.projectHeader')}
+                </p>
+                <ProjectChooser currentProjectName={projectName ?? ''} />
               </div>
             }
             breadcrumbs={<IntelligentBreadcrumbs />}
-            actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ""} />}
+            actionsBar={
+              <ControlPlaneListToolbar projectName={projectName ?? ''} />
+            }
           />
         }
-      //TODO: project chooser should be part of the breadcrumb section if possible?
+        //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ControlPlaneListAllWorkspaces projectName={projectName ?? ""} />
+        <ControlPlaneListAllWorkspaces projectName={projectName ?? ''} />
       </ObjectPage>
     </>
   );
