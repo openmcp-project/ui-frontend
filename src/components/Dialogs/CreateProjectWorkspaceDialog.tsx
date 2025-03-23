@@ -12,17 +12,16 @@ import {
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
 import { KubectlWorkspaceDialog } from './KubectlCommandInfo/KubectlWorkspaceDialog.tsx';
 import { KubectlProjectDialog } from './KubectlCommandInfo/KubectlProjectDialog.tsx';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
-import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+// import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FormEvent } from 'react';
 import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 
 export type OnCreatePayload = {
@@ -42,6 +41,7 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
+  projectName?: string;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -54,10 +54,18 @@ export function CreateProjectWorkspaceDialog({
   register,
   errors,
   setValue,
+  projectName,
 }: CreateProjectWorkspaceDialogProps) {
-  const { links } = useFrontendConfig();
+  // const { links } = useFrontendConfig();
   const { t } = useTranslation();
+  const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
 
+  const handleKubectlInfoClick = () => {
+    setIsKubectlDialogOpen(true);
+  };
+  const handleKubectlDialogClose = () => {
+    setIsKubectlDialogOpen(false);
+  };
   return (
     <>
       <Dialog
@@ -72,9 +80,7 @@ export function CreateProjectWorkspaceDialog({
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
-                <KubectlInfoButton
-                  onClick={handleKubectlInfoClick}
-                ></KubectlInfoButton>
+                <KubectlInfoButton onClick={handleKubectlInfoClick} />
                 <Button onClick={() => setIsOpen(false)}>
                   {' '}
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
@@ -99,13 +105,11 @@ export function CreateProjectWorkspaceDialog({
       {isKubectlDialogOpen &&
         (projectName ? (
           <KubectlWorkspaceDialog
-            onClose={handleKubectlDialogClose}
             project={projectName}
-          ></KubectlWorkspaceDialog>
-        ) : (
-          <KubectlProjectDialog
             onClose={handleKubectlDialogClose}
-          ></KubectlProjectDialog>
+          />
+        ) : (
+          <KubectlProjectDialog onClose={handleKubectlDialogClose} />
         ))}
       <ErrorDialog ref={errorDialogRef} />
     </>
