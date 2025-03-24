@@ -2,12 +2,15 @@
   "name": "ui-frontend",
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "^22.0.0",
+    "npm": "^11.0.0"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "tsc && vite build",
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "bun-dev": "bun run dev --mode dev -d",
     "test": "cypress run --component --browser chrome",
     "testE2E": "cypress run --e2e --browser chrome",
     "test:open": "cypress open --component --browser chrome",
