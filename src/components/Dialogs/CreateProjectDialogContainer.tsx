@@ -33,7 +33,7 @@ export function CreateProjectDialogContainer({
   const {
     register,
     handleSubmit,
-    reset,
+    resetField,
     setValue,
     formState: { errors },
     watch,
@@ -57,9 +57,6 @@ export function CreateProjectDialogContainer({
         { name: username, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
-    return () => {
-      reset();
-    };
   }, []);
 
   const toast = useToast();
@@ -86,6 +83,9 @@ export function CreateProjectDialogContainer({
       );
       setIsOpen(false);
       toast.show(t('CreateProjectDialog.toastMessage'));
+      resetField('name');
+      resetField('chargingTarget');
+      resetField('displayName');
       return true;
     } catch (e) {
       console.error(e);
