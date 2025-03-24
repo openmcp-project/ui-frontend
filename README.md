@@ -10,7 +10,7 @@ UI frontend for @openmcp-project
 
 ### Development
 
-1. install dependencies (can also use npm): `bun i`
+1. install dependencies: `npm i`
 
 1. Copy the `frontend-config.json` to `public/frontend-config.json` and adapt the `backendUrl` according to your setup (see section Dynamic Frontend Config).
 
@@ -20,17 +20,17 @@ UI frontend for @openmcp-project
 
 1. Start the application:
 
-   Run `bun run dev`
+   Run `npm run dev`
 
 ### Build
 
 1. Build the application:
 
-   Run `bun run build`
+   Run `npm run build`
 
 2. Serve the application locally:
 
-   Run `bun run preview`
+   Run `npm run preview`
 
 3. For production:
 

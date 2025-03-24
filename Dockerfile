@@ -1,32 +1,22 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1.1.45-alpine AS base
+# Use the latest LTS version of Node.js
+# https://hub.docker.com/_/node
+FROM node:22-alpine3.20 AS build-stage
 WORKDIR /usr/src/app
 
-# install dependencies into temp directory
-# this will cache them and speed up future builds
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lockb /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-# install with --production (exclude devDependencies)
-RUN mkdir -p /temp/prod
-COPY package.json bun.lockb /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+# Install dependencies
+RUN npm ci
 
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
-FROM base AS build-stage
-COPY --from=install /temp/dev/node_modules node_modules
-COPY . .
-
-# [optional] tests & build
+# Build 
 ENV NODE_ENV=production
+COPY . .
+RUN npm run build
 
-RUN bun run build
-
-FROM nginx:1.27.3-alpine-slim
+# Use the latest LTS version of Nginx as the serving image
+# https://hub.docker.com/_/nginx
+FROM nginx:1.27.4-alpine-slim
 
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build-stage /usr/src/app/dist /usr/share/nginx/html
