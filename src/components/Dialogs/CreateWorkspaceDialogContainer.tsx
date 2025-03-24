@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   useApiResourceMutation,
   useRevalidateApiResource,
@@ -61,13 +61,22 @@ export function CreateWorkspaceDialogContainer({
 
   const { t } = useTranslation();
 
+  const clearForm = useCallback(() => {
+    resetField('name');
+    resetField('chargingTarget');
+    resetField('displayName');
+  }, [resetField]);
+
   useEffect(() => {
     if (username) {
       setValue('members', [
         { name: username, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
-  }, [username]);
+    if (!isOpen) {
+      clearForm();
+    }
+  }, [resetField, setValue, username, isOpen, clearForm]);
   const namespace = projectnameToNamespace(project);
   const toast = useToast();
 
@@ -94,9 +103,6 @@ export function CreateWorkspaceDialogContainer({
       await revalidate();
       setIsOpen(false);
       toast.show(t('CreateWorkspaceDialog.toastMessage'));
-      resetField('name');
-      resetField('chargingTarget');
-      resetField('displayName');
       return true;
     } catch (e) {
       console.error(e);
