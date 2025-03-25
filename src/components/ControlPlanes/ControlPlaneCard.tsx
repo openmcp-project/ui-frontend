@@ -54,9 +54,9 @@ export function ControlPlaneCard({
     <>
       <Card
         key={`${name}--${namespace}`}
-        style={{ margin: '12px 12px 12px 0' }}
+        className="sap-margin-begin-small sap-margin-end-small sap-margin-top-small"
       >
-        <div style={{ padding: '20px' }}>
+        <div className="sap-padding">
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
@@ -80,7 +80,7 @@ export function ControlPlaneCard({
               direction="Row"
               justifyContent="SpaceBetween"
               alignItems="Center"
-              style={{ paddingTop: '20px' }}
+              className="sap-margin-top-small"
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
               <ConnectButton

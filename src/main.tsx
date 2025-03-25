@@ -17,6 +17,7 @@ import { DarkModeSystemSwitcher } from './components/Core/DarkModeSystemSwitcher
 import '.././i18n.ts';
 import './utils/i18n/timeAgo';
 import { useTranslation } from 'react-i18next';
+import '@sap-ui/common-css/dist/common-css.css';
 
 (async () => {
   try {
