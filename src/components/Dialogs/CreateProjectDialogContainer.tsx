@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useApiResourceMutation } from '../../lib/api/useApiResource';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
@@ -33,7 +33,7 @@ export function CreateProjectDialogContainer({
   const {
     register,
     handleSubmit,
-    reset,
+    resetField,
     setValue,
     formState: { errors },
     watch,
@@ -51,16 +51,22 @@ export function CreateProjectDialogContainer({
 
   const { t } = useTranslation();
 
+  const clearForm = useCallback(() => {
+    resetField('name');
+    resetField('chargingTarget');
+    resetField('displayName');
+  }, [resetField]);
+
   useEffect(() => {
     if (username) {
       setValue('members', [
         { name: username, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
-    return () => {
-      reset();
-    };
-  }, []);
+    if (!isOpen) {
+      clearForm();
+    }
+  }, [resetField, setValue, username, isOpen, clearForm]);
 
   const toast = useToast();
 
