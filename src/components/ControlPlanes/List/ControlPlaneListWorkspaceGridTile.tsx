@@ -95,13 +95,14 @@ export function ControlPlaneListWorkspaceGridTile({
       >
         <Panel
           headerLevel="H2"
+          style={{ margin: '12px 12px 12px 0' }}
           collapsed={controlplanes?.length === 0}
           header={
             <div
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr auto',
+                gridTemplateColumns: '0.3fr 0.24fr auto 0.05fr',
                 gap: '1rem',
                 alignItems: 'center',
               }}
