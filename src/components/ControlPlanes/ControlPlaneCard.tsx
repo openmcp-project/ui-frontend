@@ -20,6 +20,7 @@ import {
 } from '../../lib/api/types/crate/deleteMCP.ts';
 import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
+import classes from './ControlPlaneCard.module.css';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -52,11 +53,8 @@ export function ControlPlaneCard({
 
   return (
     <>
-      <Card
-        key={`${name}--${namespace}`}
-        style={{ margin: '12px 12px 12px 0' }}
-      >
-        <div style={{ padding: '20px' }}>
+      <Card key={`${name}--${namespace}`} className={classes.card}>
+        <div className={classes.container}>
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
@@ -80,7 +78,7 @@ export function ControlPlaneCard({
               direction="Row"
               justifyContent="SpaceBetween"
               alignItems="Center"
-              style={{ paddingTop: '20px' }}
+              className={classes.row}
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
               <ConnectButton
