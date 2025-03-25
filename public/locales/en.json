@@ -118,9 +118,6 @@
   "EditMembers": {
     "addButton": "Add"
   },
-  "FrontendConfigContext": {
-    "errorMessage": "useFrontendConfig must be used within a FrontendConfigProvider"
-  },
   "ControlPlaneListView": {
     "projectHeader": "Project:"
   },
@@ -140,9 +137,6 @@
   },
   "App": {
     "loading": "Loading..."
-  },
-  "main": {
-    "failedMessage": "Failed to load frontend configuration"
   },
   "Providers": {
     "headerProviders": "Providers",
