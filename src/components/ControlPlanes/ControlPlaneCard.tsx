@@ -52,7 +52,10 @@ export function ControlPlaneCard({
 
   return (
     <>
-      <Card key={`${name}--${namespace}`}>
+      <Card
+        key={`${name}--${namespace}`}
+        style={{ margin: '12px 12px 12px 0' }}
+      >
         <div style={{ padding: '20px' }}>
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
