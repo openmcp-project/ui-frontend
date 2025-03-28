@@ -83,26 +83,28 @@ export function ManagedResources() {
   ];
 
   const rows: ResourceRow[] =
-    managedResources?.flatMap((managedResource) =>
-      managedResource.items?.map((item) => {
-        const conditionSynced = item.status.conditions?.find(
-          (condition) => condition.type === 'Synced',
-        );
-        const conditionReady = item.status.conditions?.find(
-          (condition) => condition.type === 'Ready',
-        );
+    managedResources
+      ?.filter((managedResource) => managedResource.items)
+      .flatMap((managedResource) =>
+        managedResource.items?.map((item) => {
+          const conditionSynced = item.status.conditions?.find(
+            (condition) => condition.type === 'Synced',
+          );
+          const conditionReady = item.status.conditions?.find(
+            (condition) => condition.type === 'Ready',
+          );
 
-        return {
-          kind: item.kind,
-          name: item.metadata.name,
-          created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
-          synced: conditionSynced?.status === 'True',
-          syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
-          ready: conditionReady?.status === 'True',
-          readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
-        };
-      }),
-    ) ?? [];
+          return {
+            kind: item.kind,
+            name: item.metadata.name,
+            created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+            synced: conditionSynced?.status === 'True',
+            syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
+            ready: conditionReady?.status === 'True',
+            readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
+          };
+        }),
+      ) ?? [];
 
   return (
     <>
@@ -139,10 +141,7 @@ export function ManagedResources() {
   );
 }
 
-function ResourceStatusCell({
-  value,
-  transitionTime,
-}: StatusCellProps) {
+function ResourceStatusCell({ value, transitionTime }: StatusCellProps) {
   return (
     <Icon
       design={value ? 'Positive' : 'Negative'}
