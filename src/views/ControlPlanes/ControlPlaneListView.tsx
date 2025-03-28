@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import IntelligentBreadcrumbs from '../../components/Core/IntelligentBreadcrumbs.tsx';
 import { ControlPlaneListToolbar } from '../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export default function ControlPlaneListView() {
   const { projectName } = useParams();
@@ -18,7 +18,10 @@ export default function ControlPlaneListView() {
           <ObjectPageTitle
             header={
               <Title>
-                Your <span className="mono-font">ManagedControlPlanes</span>
+                <Trans
+                  i18nKey="ControlPlaneListView.header"
+                  components={{ span: <span className="mono-font" /> }}
+                />
               </Title>
             }
             subHeader={

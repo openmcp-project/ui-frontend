@@ -119,6 +119,7 @@
     "addButton": "Add"
   },
   "ControlPlaneListView": {
+    "header": "Your instances of <span>Managed Control Plane</span>",
     "projectHeader": "Project:"
   },
   "ProjectsListView": {
