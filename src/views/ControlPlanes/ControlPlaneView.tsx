@@ -108,7 +108,7 @@ export default function ControlPlaneView() {
           <ObjectPageSection
             className="cp-page-section-crossplane"
             id="crossplane"
-            titleText={t('ControlPlaneView.managedResourcesTitle')}
+            titleText={t('ControlPlaneView.crossplaneTitle')}
             hideTitleText
           >
             <Panel
@@ -117,7 +117,7 @@ export default function ControlPlaneView() {
               headerText="Panel"
               header={
                 <Title level="H3">
-                  {t('ControlPlaneView.managedResourcesTitle')}
+                  {t('ControlPlaneView.crossplaneTitle')}
                 </Title>
               }
               noAnimation

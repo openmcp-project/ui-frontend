@@ -12,7 +12,7 @@ export function ProvidersConfig() {
 
   return (
     <>
-      <Title level='H4'>{t('ProvidersConfig.headerProvidersConfig')}</Title>
+      <Title level='H4'>{t('ProvidersConfig.header')}</Title>
         <AnalyticalTable
           columns={columns}
           data={[]}

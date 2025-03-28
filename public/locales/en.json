@@ -20,7 +20,7 @@
     "tableCreatedHeader": "Created"
   },
   "ManagedResources": {
-    "headerManagedResources": "Resources",
+    "header": "Managed Resources",
     "tableHeaderKind": "Kind",
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
@@ -128,7 +128,7 @@
   "ControlPlaneView": {
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
-    "managedResourcesTitle": "Managed Resources",
+    "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps"
   },
   "ToastContext": {
@@ -150,7 +150,7 @@
     "tableHeaderHealthy": "Healthy"
   },
   "ProvidersConfig": {
-    "headerProvidersConfig": "Providers Config"
+    "header": "Provider Configs"
   },
   "validationErrors": {
     "required": "This field is required!",
