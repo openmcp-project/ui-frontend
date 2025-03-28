@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   useApiResourceMutation,
   useRevalidateApiResource,
@@ -7,7 +7,7 @@ import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
 import {
   CreateProjectWorkspaceDialog,
-  onCreatePayload,
+  OnCreatePayload,
 } from './CreateProjectWorkspaceDialog.tsx';
 import {
   CreateWorkspace,
@@ -19,43 +19,64 @@ import { ListWorkspaces } from '../../lib/api/types/crate/listWorkspaces';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthSubject } from '../../lib/oidc/useUsername.ts';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
-import { InputDomRef } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+
+export type CreateDialogProps = {
+  name: string;
+  displayName?: string;
+  chargingTarget?: string;
+  members: Member[];
+};
 
 export function CreateWorkspaceDialogContainer({
   isOpen,
   setIsOpen,
-  project,
+  project = '',
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  project: string;
+  project?: string;
 }) {
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    setValue,
+    formState: { errors },
+    watch,
+  } = useForm<CreateDialogProps>({
+    resolver: zodResolver(validationSchemaProjectWorkspace),
+    defaultValues: {
+      name: '',
+      displayName: '',
+      chargingTarget: '',
+      members: [],
+    },
+  });
+
   const username = useAuthSubject();
-  const [members, setMembers] = useState<Member[]>([]);
-  const nameInput = useRef<InputDomRef>(null);
-  const displayNameInput = useRef<InputDomRef>(null);
-  const chargingTargetInput = useRef<InputDomRef>(null);
+
   const { t } = useTranslation();
+
+  const clearForm = useCallback(() => {
+    resetField('name');
+    resetField('chargingTarget');
+    resetField('displayName');
+  }, [resetField]);
+
   useEffect(() => {
     if (username) {
-      setMembers([
+      setValue('members', [
         { name: username, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
-    return () => {
-      if (nameInput.current) {
-        nameInput.current.value = '';
-      }
-      if (displayNameInput.current) {
-        displayNameInput.current.value = '';
-      }
-      if (chargingTargetInput.current) {
-        chargingTargetInput.current.value = '';
-      }
-      setMembers([]);
-    };
-  }, []);
+    if (!isOpen) {
+      clearForm();
+    }
+  }, [resetField, setValue, username, isOpen, clearForm]);
   const namespace = projectnameToNamespace(project);
   const toast = useToast();
 
@@ -65,12 +86,12 @@ export function CreateWorkspaceDialogContainer({
   const revalidate = useRevalidateApiResource(ListWorkspaces(project));
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const handleProjectCreate = async ({
+  const handleWorkspaceCreate = async ({
     name,
     displayName,
     chargingTarget,
     members,
-  }: onCreatePayload): Promise<boolean> => {
+  }: OnCreatePayload): Promise<boolean> => {
     try {
       await trigger(
         CreateWorkspace(name, namespace, {
@@ -96,41 +117,17 @@ export function CreateWorkspaceDialogContainer({
     }
   };
 
-  const handleOnCreate = async () => {
-    if (
-      !nameInput.current ||
-      !displayNameInput.current ||
-      !chargingTargetInput.current
-    ) {
-      return;
-    }
-    const successful = await handleProjectCreate({
-      name: nameInput.current.value,
-      displayName: displayNameInput.current.value,
-      chargingTarget: chargingTargetInput.current.value,
-      members: members,
-    });
-    if (successful) {
-      nameInput.current.value = '';
-      displayNameInput.current.value = '';
-      chargingTargetInput.current.value = '';
-    }
-  };
-
   return (
-    <>
-      <CreateProjectWorkspaceDialog
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        errorDialogRef={errorDialogRef}
-        titleText="Create Workspace"
-        members={members}
-        setMembers={setMembers}
-        nameInputRef={nameInput}
-        displayNameInputRef={displayNameInput}
-        chargingTargetInputRef={chargingTargetInput}
-        onCreate={handleOnCreate}
-      />
-    </>
+    <CreateProjectWorkspaceDialog
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      errorDialogRef={errorDialogRef}
+      titleText="Create Workspace"
+      members={watch('members')}
+      register={register}
+      errors={errors}
+      setValue={setValue}
+      onCreate={handleSubmit(handleWorkspaceCreate)}
+    />
   );
 }

@@ -5,14 +5,20 @@ import {
 } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
+import { FC } from 'react';
+import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 
-export function MemberTable({
-  members,
-  onDeleteMember,
-}: {
+type MemberTableProps = {
   members: Member[];
   onDeleteMember?: (email: string) => void;
-}) {
+  isValidationError?: boolean;
+};
+
+export const MemberTable: FC<MemberTableProps> = ({
+  members,
+  onDeleteMember,
+  isValidationError = false,
+}) => {
   const { t } = useTranslation();
 
   const columns: AnalyticalTableColumnDefinition[] = [
@@ -44,7 +50,17 @@ export function MemberTable({
       ),
     });
   }
-
+  if (members.length === 0) {
+    return (
+      <Infobox
+        size={'sm'}
+        variant={isValidationError ? 'danger' : 'normal'}
+        id={'members-error'}
+      >
+        {t('validationErrors.atLeastOneUser')}
+      </Infobox>
+    );
+  }
   return (
     <AnalyticalTable
       scaleWidthMode="Smart"
@@ -59,4 +75,4 @@ export function MemberTable({
       })}
     />
   );
-}
+};
