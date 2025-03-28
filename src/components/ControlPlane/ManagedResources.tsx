@@ -106,12 +106,13 @@ export function ManagedResources() {
 
   return (
     <>
-      <Title level="H4">{t('ManagedResources.headerManagedResources')}</Title>
+      <Title level="H4">{t('ManagedResources.header')}</Title>
 
       {error && <IllustratedError error={error} />}
 
       {!error && (
         <AnalyticalTable
+          style={{ margin: '12px' }}
           columns={columns}
           data={rows}
           minRows={1}
