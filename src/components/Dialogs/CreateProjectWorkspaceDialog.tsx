@@ -6,7 +6,6 @@ import {
   FormGroup,
   FormItem,
   Input,
-  InputDomRef,
   Label,
 } from '@ui5/webcomponents-react';
 
@@ -18,10 +17,14 @@ import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useTranslation } from 'react-i18next';
 
-export type onCreatePayload = {
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
+import { FormEvent } from 'react';
+import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+
+export type OnCreatePayload = {
   name: string;
-  displayName: string;
-  chargingTarget: string;
+  displayName?: string;
+  chargingTarget?: string;
   members: Member[];
 };
 
@@ -29,13 +32,12 @@ export interface CreateProjectWorkspaceDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   titleText: string;
-  onCreate: () => Promise<void>;
+  onCreate: (e?: FormEvent<HTMLFormElement> | undefined) => void;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   members: Member[];
-  setMembers: (members: Member[]) => void;
-  nameInputRef: React.RefObject<InputDomRef | null>;
-  displayNameInputRef: React.RefObject<InputDomRef | null>;
-  chargingTargetInputRef: React.RefObject<InputDomRef | null>;
+  register: UseFormRegister<CreateDialogProps>;
+  errors: FieldErrors<CreateDialogProps>;
+  setValue: UseFormSetValue<CreateDialogProps>;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -45,13 +47,13 @@ export function CreateProjectWorkspaceDialog({
   onCreate,
   errorDialogRef,
   members,
-  setMembers,
-  nameInputRef,
-  chargingTargetInputRef,
-  displayNameInputRef,
+  register,
+  errors,
+  setValue,
 }: CreateProjectWorkspaceDialogProps) {
   const { links } = useFrontendConfig();
   const { t } = useTranslation();
+
   return (
     <>
       <Dialog
@@ -88,10 +90,9 @@ export function CreateProjectWorkspaceDialog({
       >
         <CreateProjectWorkspaceDialogContent
           members={members}
-          setMembers={setMembers}
-          nameInput={nameInputRef}
-          displayNameInput={displayNameInputRef}
-          chargingTargetInput={chargingTargetInputRef}
+          register={register}
+          errors={errors}
+          setValue={setValue}
         />
       </Dialog>
       <ErrorDialog ref={errorDialogRef} />
@@ -101,73 +102,65 @@ export function CreateProjectWorkspaceDialog({
 
 interface CreateProjectWorkspaceDialogContentProps {
   members: Member[];
-  setMembers: (members: Member[]) => void;
-  nameInput: React.RefObject<InputDomRef | null>;
-  displayNameInput: React.RefObject<InputDomRef | null>;
-  chargingTargetInput: React.RefObject<InputDomRef | null>;
+  register: UseFormRegister<CreateDialogProps>;
+  errors: FieldErrors<CreateDialogProps>;
+  setValue: UseFormSetValue<CreateDialogProps>;
 }
 
 function CreateProjectWorkspaceDialogContent({
   members,
-  setMembers,
-  nameInput,
-  displayNameInput,
-  chargingTargetInput,
+  register,
+  errors,
+  setValue,
 }: CreateProjectWorkspaceDialogContentProps) {
   const { t } = useTranslation();
+
+  const setMembers = (members: Member[]) => {
+    setValue('members', members);
+  };
   return (
-    <>
-      <Form>
-        <FormGroup
-          headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+    <Form>
+      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
+        <FormItem
+          labelContent={
+            <Label required>
+              {t('CreateProjectWorkspaceDialog.nameLabel')}
+            </Label>
+          }
         >
-          <FormItem
-            labelContent={
-              <Label required>
-                {t('CreateProjectWorkspaceDialog.nameLabel')}
-              </Label>
-            }
-          >
-            <Input
-              ref={nameInput}
-              id="project-name-input"
-              placeholder={t('CreateProjectWorkspaceDialog.nameLabel')}
-              required
-            />
-          </FormItem>
-          <FormItem
-            labelContent={
-              <Label>
-                {t('CreateProjectWorkspaceDialog.displayNameLabel')}
-              </Label>
-            }
-          >
-            <Input
-              ref={displayNameInput}
-              id="project-displayname-input"
-              placeholder={t('CreateProjectWorkspaceDialog.displayNameLabel')}
-            />
-          </FormItem>
-          <FormItem
-            labelContent={
-              <Label>
-                {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-              </Label>
-            }
-          >
-            <Input
-              ref={chargingTargetInput}
-              id="project-chargingtarget-input"
-              placeholder={t(
-                'CreateProjectWorkspaceDialog.chargingTargetLabel',
-              )}
-            />
-          </FormItem>
-        </FormGroup>
-        <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-          <EditMembers members={members} onMemberChanged={setMembers} />
-        </FormGroup>
-      </Form>
-    </>
+          <Input
+            id="name"
+            {...register('name')}
+            valueState={errors.name ? 'Negative' : 'None'}
+            valueStateMessage={<span>{errors.name?.message}</span>}
+            required
+          />
+        </FormItem>
+
+        <FormItem
+          labelContent={
+            <Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
+          }
+        >
+          <Input id="displayName" {...register('displayName')} />
+        </FormItem>
+        <FormItem
+          labelContent={
+            <Label>
+              {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+            </Label>
+          }
+        >
+          <Input id="chargingTarget" {...register('chargingTarget')} />
+        </FormItem>
+      </FormGroup>
+      <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+        <EditMembers
+          members={members}
+          isValidationError={!!errors.members}
+          onMemberChanged={setMembers}
+        />
+      </FormGroup>
+    </Form>
   );
 }

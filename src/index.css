@@ -105,6 +105,15 @@ body {
   background-color: var(--sapBackgroundColor);
 }
 
+ui5-form-item {
+  margin-bottom: 24px;
+}
+
+ui5-toast {
+  width: 50ch;
+  max-width: 100%;
+}
+
 .mono-font {
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;

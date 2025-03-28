@@ -3,7 +3,7 @@ import { GetAuthPropsForCurrentContext } from './shared.ts';
 
 export function LoadCrateKubeConfig(
   backendUrl: string,
-): Promise<AuthProviderProps | void> {
+): Promise<AuthProviderProps> {
   const uri = backendUrl + '/.well-known/openmcp/kubeconfig';
 
   return fetch(uri)
