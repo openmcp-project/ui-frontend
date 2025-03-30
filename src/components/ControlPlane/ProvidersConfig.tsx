@@ -3,23 +3,69 @@ import { useTranslation } from 'react-i18next';
 import { AnalyticalTable, AnalyticalTableColumnDefinition, AnalyticalTableScaleWidthMode, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
+import { useProvidersConfigResource } from '../../lib/api/useApiResource';
+import { timeAgo } from '../../utils/i18n/timeAgo';
 
-//empty table TBD
+type Rows = {
+  parent: string;
+  name: string;
+  usage: string;
+  created: string;
+};
+
 export function ProvidersConfig() {
   const { t } = useTranslation();
+  const rows: Rows[] = [];
 
-  const columns: AnalyticalTableColumnDefinition[] = [];
+  const {
+    data: providerConfigsList,
+    isLoading
+  } = useProvidersConfigResource({
+    refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
+  });
+
+    if (providerConfigsList) {
+      providerConfigsList.forEach(provider => {
+        provider.items.forEach(config => {
+          rows.push({
+            parent: provider.provider,
+            name: config.metadata.name,
+            usage: config.metadata.usage ? config.metadata.usage : "0",
+            created: timeAgo.format(new Date(config.metadata.creationTimestamp)),
+          })
+        });
+      })
+    }
+  
+  const columns: AnalyticalTableColumnDefinition[] = [
+      {
+        Header: t('ProvidersConfig.tableHeaderProvider'),
+        accessor: 'parent',
+      },
+      {
+        Header: t('ProvidersConfig.tableHeaderName'),
+        accessor: 'name',
+      },
+      {
+        Header: t('ProvidersConfig.tableHeaderUsage'),
+        accessor: 'usage',
+      },
+      {
+        Header: t('ProvidersConfig.tableHeaderCreated'),
+        accessor: 'created',
+      }
+    ];
 
   return (
     <>
-      <Title level='H4'>{t('ProvidersConfig.header')}</Title>
+      <Title level='H4'>{t('ProvidersConfig.headerProviderConfigs')}</Title>
         <AnalyticalTable
           columns={columns}
-          data={[]}
+          data={rows ?? []}
           minRows={1}
-          groupBy={['name']}
+          groupBy={['parent']}
           scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-          loading={false}
+          loading={isLoading}
           filterable
           // Prevent the table from resetting when the data changes
           retainColumnWidth
