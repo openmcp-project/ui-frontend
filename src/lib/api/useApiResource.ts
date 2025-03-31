@@ -70,8 +70,12 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
 
   const providerConfigsData: ProviderConfigsData[] =
     crdWithProviderConfig?.map((item) => {
+      const providerName = item.metadata.ownerReferences.find(
+        (x) => x.kind === 'Provider',
+      )?.name;
+
       return {
-        provider: item.metadata.name,
+        provider: providerName ? providerName : '',
         name: item.spec.group,
         versions: item.spec.versions,
       };

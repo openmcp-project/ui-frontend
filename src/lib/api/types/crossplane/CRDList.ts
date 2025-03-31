@@ -6,6 +6,12 @@ export type CRDResponse = {
       metadata: {
         name: string;
         creationTimestamp: string;
+        ownerReferences: [
+          {
+            kind: string;
+            name: string;
+          },
+        ];
       };
       status: {
         conditions: [
