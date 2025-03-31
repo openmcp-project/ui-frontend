@@ -1,6 +1,6 @@
 
 import { useTranslation } from 'react-i18next';
-import { AnalyticalTable, AnalyticalTableColumnDefinition, AnalyticalTableScaleWidthMode, Icon, Title } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, AnalyticalTableScaleWidthMode, Title } from '@ui5/webcomponents-react';
 import useResource from '../../lib/api/useApiResource';
 import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
@@ -8,7 +8,7 @@ import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { timeAgo } from '../../utils/i18n/timeAgo';
-import { StatusCellProps } from '../../lib/shared/interfaces';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
 
 interface CellData<T> {
   cell: {
@@ -109,13 +109,4 @@ export function Providers() {
       }
     </>
   )
-}
-
-function ResourceStatusCell({ value, transitionTime }: StatusCellProps) {
-  return <Icon
-    design={value ? 'Positive' : 'Negative'}
-    name={value ? 'sys-enter-2' : 'sys-cancel-2'}
-    showTooltip={true}
-    accessibleName={timeAgo.format(new Date(transitionTime))}
-  />
 }
