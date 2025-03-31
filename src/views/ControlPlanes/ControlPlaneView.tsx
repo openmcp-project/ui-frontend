@@ -124,9 +124,15 @@ export default function ControlPlaneView() {
               }
               noAnimation
             >
-              <div className='crossplane-table-element'><Providers /></div>
-              <div className='crossplane-table-element'><ProvidersConfig /></div>
-              <div className='crossplane-table-element'><ManagedResources /></div>
+              <div className="crossplane-table-element">
+                <Providers />
+              </div>
+              <div className="crossplane-table-element">
+                <ProvidersConfig />
+              </div>
+              <div className="crossplane-table-element">
+                <ManagedResources />
+              </div>
             </Panel>
           </ObjectPageSection>
           <ObjectPageSection

@@ -8,7 +8,11 @@ import { Resource } from './types/resource';
 import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
-import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
+import {
+  ProviderConfigs,
+  ProviderConfigsData,
+  ProviderConfigsDataForRequest,
+} from '../shared/types';
 
 export { useApiResource as default };
 
@@ -41,9 +45,7 @@ export const useApiResource = <T>(
   };
 };
 
-export const useProvidersConfigResource = (
-  config?: SWRConfiguration,
-) => {
+export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
   const { data, error, isValidating } = useSWR(
     CRDRequest.path === null
@@ -60,91 +62,93 @@ export const useProvidersConfigResource = (
     config,
   );
 
-  let providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
+  const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
 
-  const crdWithProviderConfig = data?.items.filter(x => x.spec.names.kind === "ProviderConfig");
+  const crdWithProviderConfig = data?.items.filter(
+    (x) => x.spec.names.kind === 'ProviderConfig',
+  );
 
-  const providerConfigsData: ProviderConfigsData[] = crdWithProviderConfig?.map((item) => {
+  const providerConfigsData: ProviderConfigsData[] =
+    crdWithProviderConfig?.map((item) => {
       return {
         provider: item.metadata.name,
         name: item.spec.group,
         versions: item.spec.versions,
-      }
+      };
     }) ?? [];
 
   if (providerConfigsData.length > 0) {
-    providerConfigsData.forEach(item => {
-      item.versions.forEach(version => {
+    providerConfigsData.forEach((item) => {
+      item.versions.forEach((version) => {
         providerConfigsDataForRequest.push({
           provider: item.provider,
           url: item.name,
-          version: version.name
-        })
-      })
+          version: version.name,
+        });
+      });
     });
   }
 
-    providerConfigsDataForRequest.forEach(async item => {
-      const data =
-          await fetchApiServerJson<ProviderConfigs>(
-            `/apis/${item.url ?? ""}/${item.version}/providerconfigs`,
-            apiConfig,
-            CRDRequest.jq,
-            CRDRequest.method,
-            CRDRequest.body,
-          )
-      if (data) {
-        providerConfigs.push(data);
-      }
-    })
-    
-    const providerConfigs: ProviderConfigs[] = [];
+  providerConfigsDataForRequest.forEach(async (item) => {
+    const data = await fetchApiServerJson<ProviderConfigs>(
+      `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+      apiConfig,
+      CRDRequest.jq,
+      CRDRequest.method,
+      CRDRequest.body,
+    );
+    if (data) {
+      providerConfigs.push(data);
+    }
+  });
 
-    const fetchProviderConfigs = async () => {
+  const providerConfigs: ProviderConfigs[] = [];
+
+  const fetchProviderConfigs = async () => {
+    try {
+      // Create an array of promises for each fetch call
+      const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
+        const data = await fetchApiServerJson<ProviderConfigs>(
+          `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+          apiConfig,
+          CRDRequest.jq,
+          CRDRequest.method,
+          CRDRequest.body,
+        );
+        data.provider = item.provider;
+        return data; // Return fetched data
+      });
+
+      // Wait for all fetch operations to complete
+      const providerConfigs = await Promise.all(fetchPromises);
+
+      // Filter out any null/undefined values and return the valid data
+      return providerConfigs.filter((config) => config !== null);
+    } catch (error) {
+      console.error('Error fetching provider configs:', error);
+      return []; // Return an empty array in case of error
+    }
+  };
+  const [configs, setConfigs] = useState<ProviderConfigs[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDataAndUpdateState = async () => {
+      setIsLoading(true);
       try {
-        // Create an array of promises for each fetch call
-        const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
-          const data = await fetchApiServerJson<ProviderConfigs>(
-            `/apis/${item.url ?? ""}/${item.version}/providerconfigs`,
-            apiConfig,
-            CRDRequest.jq,
-            CRDRequest.method,
-            CRDRequest.body
-          );
-          data.provider = item.provider
-          return data; // Return fetched data
-        });
-    
-        // Wait for all fetch operations to complete
-        const providerConfigs = await Promise.all(fetchPromises);
-    
-        // Filter out any null/undefined values and return the valid data
-        return providerConfigs.filter(config => config !== null);
-      } catch (error) {
-        console.error('Error fetching provider configs:', error);
-        return []; // Return an empty array in case of error
+        const finalData = await fetchProviderConfigs();
+
+        setConfigs(finalData);
+        if (finalData.length > 0) {
+          setIsLoading(false);
+        }
+      } catch (err) {
+        setIsLoading(false);
       }
     };
-    const [configs, setConfigs] = useState<ProviderConfigs[]>([]); 
-    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-      const fetchDataAndUpdateState = async () => {
-        setIsLoading(true); 
-        try {
-          const finalData = await fetchProviderConfigs();
-
-          setConfigs(finalData);
-          if (finalData.length > 0) {
-            setIsLoading(false); 
-          }
-        } catch (err) {
-          setIsLoading(false); 
-        }
-      };
-  
-      fetchDataAndUpdateState(); 
-    }, [data]); 
+    fetchDataAndUpdateState();
+  }, [data]);
 
   return {
     data: configs,
@@ -152,7 +156,7 @@ export const useProvidersConfigResource = (
     isLoading: isLoading,
     isValidating: isValidating,
   };
-}
+};
 
 export const useApiResourceMutation = <T>(
   resource: Resource<T>,
