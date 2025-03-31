@@ -1,0 +1,8 @@
+/**
+ * This CSS file includes the necessary changes to have UI5 Web Components alongside our own components.
+ * It can be deleted along with the UI5 components.
+ */
+
+*[data-component-name="ObjectPageTitleClickElement"] {
+  z-index: -1;  /* Otherwise a Button in ObjectPageTitle would not be clickable */
+}

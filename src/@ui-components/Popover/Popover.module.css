@@ -1,0 +1,32 @@
+.popover {
+  border: 1px solid var(--mcp-color-default-border);
+  box-shadow: 0 8px 20px rgba(0 0 0 / 0.1);
+  border-radius: 6px;
+  background-color: var(--mcp-color-background);
+  color: var(--mcp-color-text-dark);
+  outline: none;
+  max-width: 250px;
+  transition: transform 200ms, opacity 200ms;
+
+  &[data-entering],
+  &[data-exiting] {
+    transform: var(--origin);
+    opacity: 0;
+  }
+
+  &[data-placement=top] {
+    --origin: translateY(8px);
+  }
+
+  &[data-placement=bottom] {
+    --origin: translateY(-8px);
+  }
+
+  &[data-placement=right] {
+    --origin: translateX(-8px);
+  }
+
+  &[data-placement=left] {
+    --origin: translateX(8px);
+  }
+}

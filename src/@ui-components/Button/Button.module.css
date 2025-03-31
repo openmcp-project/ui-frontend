@@ -1,0 +1,46 @@
+.button {
+  height: 2.25rem;
+
+  border: 1px solid;
+  border-radius: 0.375em;
+  margin: 0;
+  padding: 0.5em 0.75em;
+
+  font-size: var(--mcp-font-size);
+
+  outline: none;
+
+
+  &[data-pressed] {
+    outline: 2px solid var(--mcp-color-outline-focus);
+    outline-offset: -1px;
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--mcp-color-outline-focus);
+    outline-offset: -1px;
+  }
+
+
+  /** Design: Default */
+  &[data-mcp-button-design="default"] {
+    background-color: var(--mcp-color-default);
+    border-color: var(--mcp-color-default-border);
+    color: var(--mcp-color-text-dark);
+
+    &[data-hovered] {
+      background-color: var(--mcp-color-default-hover);
+    }
+  }
+
+  /** Design: Primary */
+  &[data-mcp-button-design="primary"] {
+    background-color: var(--mcp-color-primary);
+    border-color: var(--mcp-color-primary-border);
+    color: var(--mcp-color-white);
+
+    &[data-hovered] {
+      background-color: var(--mcp-color-primary-hover);
+    }
+  }
+}

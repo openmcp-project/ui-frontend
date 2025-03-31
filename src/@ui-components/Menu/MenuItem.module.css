@@ -1,0 +1,20 @@
+.menuItem {
+  margin: 0.25rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  border-radius: 0.25rem;
+
+  cursor: default;
+  align-items: center;
+
+  background-color: var(--mcp-color-background);
+  color: var(--mcp-color-text-dark);
+
+  &[data-hovered] {
+    background-color: var(--mcp-color-background-hover);
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--mcp-color-outline-focus);
+    outline-offset: -1px;
+  }
+}

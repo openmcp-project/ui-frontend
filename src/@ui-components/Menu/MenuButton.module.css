@@ -1,0 +1,13 @@
+.menuButton {
+  display: flex;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 1rem;
+  margin-right: 0.375rem;
+}

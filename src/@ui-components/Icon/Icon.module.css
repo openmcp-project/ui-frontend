@@ -1,0 +1,18 @@
+.svg {
+  width: 1rem;
+  height: 1rem;
+
+  fill: var(--mcp-color-text-dark);
+
+  &[data-mcp-icon-design="warning"] {
+    fill: var(--mcp-color-text-warning);
+  }
+
+  &[data-mcp-icon-design="negative"] {
+    fill: var(--mcp-color-text-negative);
+  }
+
+  &[data-mcp-icon-design="positive"] {
+    fill: var(--mcp-color-text-positive);
+  }
+}

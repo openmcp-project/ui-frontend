@@ -10,9 +10,12 @@ import ControlPlaneListView from './views/ControlPlanes/ControlPlaneListView.tsx
 import GlobalProviderOutlet from './components/Core/ApiConfigWrapper.tsx';
 import { ShellBarComponent } from './components/Core/ShellBar.tsx';
 
+import { ShellBar2 } from './components/Core/ShellBar2.tsx';
+
 function AppRouter() {
   return (
     <>
+      <ShellBar2 />
       <ShellBarComponent />
       <Router>
         <Routes>

@@ -24,6 +24,7 @@ import useResource from '../../lib/api/useApiResource.ts';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import { useTranslation } from 'react-i18next';
+import CopyKubeconfigButton2 from '../../components/ControlPlanes/CopyKubeconfigButton2.tsx';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -79,6 +80,7 @@ export default function ControlPlaneView() {
                   }}
                 >
                   <MCPHealthPopoverButton mcpStatus={mcp.status} />
+                  <CopyKubeconfigButton2 />
                   <CopyKubeconfigButton />
                 </div>
               }

@@ -1,0 +1,9 @@
+.avatar {
+  width: 2rem;
+  height: 2rem;
+
+  padding: 0;
+  border-radius: 50%;
+
+  font-weight: 700;
+}
