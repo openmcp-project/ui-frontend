@@ -6,7 +6,7 @@
     "signInButton": "Sign in"
   },
   "ComponentList": {
-    "tableComponentHeader": "Component",
+    "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
   "FluxList": {
@@ -20,7 +20,7 @@
     "tableCreatedHeader": "Created"
   },
   "ManagedResources": {
-    "headerManagedResources": "Resources",
+    "header": "Managed Resources",
     "tableHeaderKind": "Kind",
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
@@ -119,6 +119,7 @@
     "addButton": "Add"
   },
   "ControlPlaneListView": {
+    "header": "Your instances of <span>ManagedControlPlane</span>",
     "projectHeader": "Project:"
   },
   "ProjectsListView": {
@@ -126,7 +127,10 @@
     "title": "Projects"
   },
   "ControlPlaneView": {
-    "accessError": "Managed Control Plane does not have access information yet"
+    "accessError": "Managed Control Plane does not have access information yet",
+    "componentsTitle": "Components",
+    "crossplaneTitle": "Crossplane",
+    "gitOpsTitle": "GitOps"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -147,7 +151,7 @@
     "tableHeaderHealthy": "Healthy"
   },
   "ProvidersConfig": {
-    "headerProvidersConfig": "Providers Config"
+    "header": "Provider Configs"
   },
   "validationErrors": {
     "required": "This field is required!",
