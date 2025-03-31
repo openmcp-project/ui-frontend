@@ -1,5 +1,6 @@
 import { ReactNode, createContext, use } from 'react';
 import { DocLinkCreator } from '../lib/shared/links';
+import { isInTestingMode } from '../utils';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -19,15 +20,16 @@ const FrontendConfigContext = createContext<FrontendConfigContextProps | null>(
   null,
 );
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
+
+const fetchPromise = fetch(isInTestingMode ? '/__cypress/src/frontend-config.json': '/frontend-config.json').then((res) => res.json());
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
 export function FrontendConfigProvider({
-  children,
-}: FrontendConfigProviderProps) {
+                                         children,
+                                       }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
   const docLinks = new DocLinkCreator(config.documentationBaseUrl);
   const value: FrontendConfigContextProps = {

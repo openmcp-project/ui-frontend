@@ -20,7 +20,8 @@ import { ThemeProvider } from '@ui5/webcomponents-react';
 import { mount } from 'cypress/react';
 // Import commands.js using ES2015 syntax:
 import './commands';
-import { FrontendConfigProvider, Landscape } from "../../src/context/FrontendConfigContext";
+import { FrontendConfigProvider } from "../../src/context/FrontendConfigContext";
+import { AuthProviderOnboarding } from '../../src/context/AuthProviderOnboarding';
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -38,10 +39,7 @@ declare global {
 
 
 Cypress.Commands.add('mount', (component, options) => {
-  return mount(<ThemeProvider><FrontendConfigProvider config={{
-    "backendUrl": "http://localhost:3000",
-    "landscape": "DEV" as Landscape,
-    "documentationBaseUrl": "http://localhost:3000"
-  }}>{component} </FrontendConfigProvider></ThemeProvider>, options);
+  return mount(<ThemeProvider><FrontendConfigProvider >
+    <AuthProviderOnboarding>{component} </AuthProviderOnboarding></FrontendConfigProvider></ThemeProvider>, options);
 });
 
