@@ -39,7 +39,6 @@ declare global {
 
 
 Cypress.Commands.add('mount', (component, options) => {
-  return mount(<ThemeProvider><FrontendConfigProvider >
-    <AuthProviderOnboarding>{component} </AuthProviderOnboarding></FrontendConfigProvider></ThemeProvider>, options);
+  return mount(<ThemeProvider>{component} </ThemeProvider>, options);
 });
 
