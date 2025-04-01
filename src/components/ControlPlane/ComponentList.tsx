@@ -49,6 +49,7 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
         columns={componentTableColumns}
         minRows={0}
         data={data}
+        style={{marginLeft: "12px", marginRight: "12px"}}
       />
     </div>
   );
