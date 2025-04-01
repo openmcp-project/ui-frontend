@@ -25,7 +25,9 @@ jobs:
         run: npm run build
 
       - name: Run Cypress Tests
-        run: npm run test
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run test
 
       - name: Upload Cypress Screenshots
         if: always() # Run this step even if tests fail
