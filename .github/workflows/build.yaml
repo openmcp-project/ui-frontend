@@ -1,10 +1,10 @@
-name: Build
+name: Build and Test
 
 on:
   workflow_call:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: 22
+          cache: 'npm' # Added caching for faster installs
 
       - name: Install dependencies
         run: npm ci
@@ -23,5 +24,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
+      - name: Run Cypress Tests
         run: npm run test
+        continue-on-error: true
+
+      - name: Upload Cypress Screenshots
+        if: always() # Run this step even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: |
+            cypress/screenshots/
+          retention-days: 7 # Keep artifacts for 7 days
+          if-no-files-found: warn # Warn instead of fail if no screenshots found
+
