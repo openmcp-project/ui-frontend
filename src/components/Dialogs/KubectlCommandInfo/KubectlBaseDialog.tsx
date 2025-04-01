@@ -5,12 +5,15 @@ import {
   Link,
   Input,
   Panel,
+  InputDomRef,
+  Ui5CustomEvent,
+  Dialog,
+  Button,
+  Bar,
 } from '@ui5/webcomponents-react';
-import { KubectlDialog } from './KubectlDialog';
 import { KubectlTerminal } from './KubectlTerminal';
 import { useState, useEffect, ReactNode } from 'react';
-import { InputDomRef } from '@ui5/webcomponents-react';
-import { Ui5CustomEvent } from '@ui5/webcomponents-react';
+import { useTranslation, Trans } from 'react-i18next';
 
 export interface FormField {
   id: string;
@@ -27,6 +30,7 @@ export interface CustomCommand {
 
 interface KubectlBaseDialogProps {
   onClose: () => void;
+  open?: boolean;
   title: string;
   introSection: ReactNode[];
   formFields?: FormField[];
@@ -35,11 +39,13 @@ interface KubectlBaseDialogProps {
 
 export const KubectlBaseDialog = ({
   onClose,
+  open,
   title,
   introSection,
   formFields = [],
   customCommands,
 }: KubectlBaseDialogProps) => {
+  const { t } = useTranslation();
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -72,13 +78,24 @@ export const KubectlBaseDialog = ({
   const showFormFields = formFields && formFields.length > 0;
 
   return (
-    <KubectlDialog onClose={onClose} headerText={title}>
+    <Dialog
+      headerText={title}
+      open={open}
+      style={{ width: '550px' }}
+      footer={<Bar endContent={<Button onClick={onClose}>Close</Button>} />}
+      onClose={onClose}
+    >
       <FlexBox direction="Column" style={{ gap: '16px' }}>
-        <Panel headerText="Prerequisites" collapsed>
+        <Panel headerText={t('KubectlBaseDialog.prerequisites')} collapsed>
           <Text>
-            Make sure you have installed <b>kubectl</b> and the <b>kubelogin</b>{' '}
-            plugin. We recommend using <b>krew</b> which is a plugin manager for
-            kubectl.
+            <Trans
+              i18nKey="KubectlBaseDialog.prerequisitesText"
+              components={{
+                bold1: <b />,
+                bold2: <b />,
+                bold3: <b />,
+              }}
+            />
           </Text>
         </Panel>
 
@@ -98,7 +115,12 @@ export const KubectlBaseDialog = ({
         {showFormFields && (
           <>
             <Text>
-              <b>Important:</b> Before executing, modify the commands below:
+              <Trans
+                i18nKey="KubectlBaseDialog.formFieldsNote"
+                components={{
+                  bold1: <b />,
+                }}
+              />
             </Text>
 
             <div
@@ -116,9 +138,9 @@ export const KubectlBaseDialog = ({
                   <Input
                     placeholder={field.placeholder}
                     value={formValues[field.id] || ''}
+                    style={{ width: '100%' }}
                     onChange={handleFieldChange(field.id)}
                     onInput={handleFieldChange(field.id)}
-                    style={{ width: '100%' }}
                   />
                 </div>
               ))}
@@ -138,18 +160,19 @@ export const KubectlBaseDialog = ({
           ))}
 
         <MessageStrip design="Information" hideCloseButton={true}>
-          <Text>
-            You can also use our{' '}
-            <Link
-              href="https://pages.github.tools.sap/cloud-orchestration/docs/managed-control-planes/get-started/get-started-mcp#before-you-begin"
-              target="_blank"
-            >
-              Onboarding Guide
-            </Link>{' '}
-            for more information.
-          </Text>
+          <Trans
+            i18nKey="KubectlBaseDialog.onboardingGuide"
+            components={{
+              link1: (
+                <Link
+                  href="https://pages.github.tools.sap/cloud-orchestration/docs/managed-control-planes/get-started/get-started-mcp"
+                  target="_blank"
+                />
+              ),
+            }}
+          />
         </MessageStrip>
       </FlexBox>
-    </KubectlDialog>
+    </Dialog>
   );
 };

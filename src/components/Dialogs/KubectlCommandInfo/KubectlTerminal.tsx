@@ -75,7 +75,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
               borderRadius: '50%',
               backgroundColor: ThemingParameters.sapErrorColor,
             }}
-          ></div>
+          />
           <div
             style={{
               width: '12px',
@@ -83,7 +83,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
               borderRadius: '50%',
               backgroundColor: ThemingParameters.sapWarningColor,
             }}
-          ></div>
+          />
           <div
             style={{
               width: '12px',
@@ -91,13 +91,13 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
               borderRadius: '50%',
               backgroundColor: ThemingParameters.sapSuccessColor,
             }}
-          ></div>
+          />
         </FlexBox>
         <Button
           icon="copy"
           design="Transparent"
-          onClick={handleCopy}
           tooltip="Copy to clipboard"
+          onClick={handleCopy}
         />
       </FlexBox>
 

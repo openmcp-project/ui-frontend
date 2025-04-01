@@ -1,8 +1,8 @@
 import { Button, ButtonPropTypes } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { CSSProperties } from 'react';
-
-const INNERTEXT = 'Learn how to do this in code';
+import { useTranslation } from 'react-i18next';
+import '@ui5/webcomponents-icons/dist/command-line-interfaces.js';
 
 interface KubectlDialogProps extends ButtonPropTypes {
   style?: CSSProperties;
@@ -12,16 +12,18 @@ export const KubectlInfoButton = ({
   onClick,
   ...buttonProps
 }: KubectlDialogProps) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Button
         design={ButtonDesign.Transparent}
-        icon="sap-icon://command-line-interfaces"
-        onClick={onClick}
+        icon="command-line-interfaces"
         style={{ display: 'inline-block', ...style }}
+        onClick={onClick}
         {...buttonProps}
       >
-        {INNERTEXT}
+        {t('CommonKubectl.learnButton')}
       </Button>
     </>
   );

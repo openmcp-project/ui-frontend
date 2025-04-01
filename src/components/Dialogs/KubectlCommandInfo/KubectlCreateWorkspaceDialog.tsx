@@ -3,16 +3,20 @@ import {
   FormField,
   CustomCommand,
 } from './KubectlBaseDialog';
+import { useTranslation } from 'react-i18next';
 
 interface KubectlWorkspaceDialogProps {
   onClose: () => void;
+  isOpen: boolean;
   project?: string;
 }
 
 export const KubectlWorkspaceDialog = ({
   onClose,
+  isOpen,
   project,
 }: KubectlWorkspaceDialogProps) => {
+  const { t } = useTranslation();
   const randomWorkspaceName = Math.random().toString(36).substring(2, 8);
   const projectName = project || '<Project Namespace>';
   const projectNamespace = `project-${projectName}`;
@@ -20,21 +24,29 @@ export const KubectlWorkspaceDialog = ({
   const formFields: FormField[] = [
     {
       id: 'workspaceName',
-      label: 'Workspace Name',
-      placeholder: 'Enter workspace name',
+      label: t('KubectlWorkspaceDialog.formFields.workspaceName.label'),
+      placeholder: t(
+        'KubectlWorkspaceDialog.formFields.workspaceName.placeholder',
+      ),
       defaultValue: randomWorkspaceName,
     },
     {
       id: 'chargingTargetId',
-      label: 'BTP Global Account ID',
-      placeholder: 'Enter your Global Account ID',
-      defaultValue: '<your-ga-id>',
+      label: t('KubectlWorkspaceDialog.formFields.chargingTargetId.label'),
+      placeholder: t(
+        'KubectlWorkspaceDialog.formFields.chargingTargetId.placeholder',
+      ),
+      defaultValue: t(
+        'KubectlWorkspaceDialog.formFields.chargingTargetId.defaultValue',
+      ),
     },
     {
       id: 'userEmail',
-      label: 'User Email',
-      placeholder: 'Enter your email address',
-      defaultValue: '<youremail@example.com>',
+      label: t('KubectlWorkspaceDialog.formFields.userEmail.label'),
+      placeholder: t('KubectlWorkspaceDialog.formFields.userEmail.placeholder'),
+      defaultValue: t(
+        'KubectlWorkspaceDialog.formFields.userEmail.defaultValue',
+      ),
     },
   ];
 
@@ -57,28 +69,25 @@ export const KubectlWorkspaceDialog = ({
           roles:
           - admin
       ' | kubectl create -f -`,
-      description:
-        'Run this command to create a new workspace in your project:',
+      description: t('KubectlWorkspaceDialog.mainCommandDescription'),
       isMainCommand: true,
     },
     {
       command: `kubectl get workspace \${workspaceName} -n ${projectNamespace}`,
-      description:
-        'To see the result of the workspace creation, run the below command:',
+      description: t('KubectlWorkspaceDialog.resultCommandDescription'),
     },
   ];
 
-  const introSection = [
-    "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive ManagedControlPlanes.",
-  ];
+  const introSection = [t('KubectlWorkspaceDialog.introSection')];
 
   return (
     <KubectlBaseDialog
-      onClose={onClose}
-      title="Create a Workspace"
+      title={t('KubectlWorkspaceDialog.title')}
       introSection={introSection}
       formFields={formFields}
       customCommands={customCommands}
+      open={isOpen}
+      onClose={onClose}
     />
   );
 };

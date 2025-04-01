@@ -1,23 +1,26 @@
-import { DeleteWorkspaceDialog } from '../KubectlDeleteWorkspaceDialog';
+import { DeleteMcpDialog } from '../KubectlDeleteMcpDialog';
 import { KubectlInfoButton } from '../KubectlInfoButton';
 import { useDialog } from '../../UseDialog';
 
-interface KubectlDeleteWorkspaceProps {
+interface KubectlDeleteMcpProps {
   projectName?: string;
+  workspaceName: string;
   resourceName: string;
 }
 
-export const KubectlDeleteWorkspace = ({
+export const KubectlDeleteMcp = ({
   projectName,
+  workspaceName,
   resourceName,
-}: KubectlDeleteWorkspaceProps) => {
+}: KubectlDeleteMcpProps) => {
   const infoDialog = useDialog();
 
   return (
     <>
       <KubectlInfoButton onClick={infoDialog.open} />
-      <DeleteWorkspaceDialog
+      <DeleteMcpDialog
         projectName={projectName}
+        workspaceName={workspaceName}
         resourceName={resourceName}
         isOpen={infoDialog.isOpen}
         onClose={infoDialog.close}

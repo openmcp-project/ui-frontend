@@ -3,33 +3,42 @@ import {
   FormField,
   CustomCommand,
 } from './KubectlBaseDialog';
+import { useTranslation } from 'react-i18next';
 
 interface KubectlProjectDialogProps {
   onClose: () => void;
+  isOpen: boolean;
 }
 
 export const KubectlProjectDialog = ({
   onClose,
+  isOpen,
 }: KubectlProjectDialogProps) => {
+  const { t } = useTranslation();
   const randomProjectName = Math.random().toString(36).substring(2, 8);
+
   const formFields: FormField[] = [
     {
       id: 'projectName',
-      label: 'Project Name',
-      placeholder: 'Enter project name',
+      label: t('KubectlProjectDialog.formFields.projectName.label'),
+      placeholder: t('KubectlProjectDialog.formFields.projectName.placeholder'),
       defaultValue: randomProjectName,
     },
     {
       id: 'chargingTargetId',
-      label: 'BTP Global Account ID',
-      placeholder: 'Enter your Global Account ID',
-      defaultValue: '<your-ga-id>',
+      label: t('KubectlProjectDialog.formFields.chargingTargetId.label'),
+      placeholder: t(
+        'KubectlProjectDialog.formFields.chargingTargetId.placeholder',
+      ),
+      defaultValue: t(
+        'KubectlProjectDialog.formFields.chargingTargetId.defaultValue',
+      ),
     },
     {
       id: 'userEmail',
-      label: 'User Email',
-      placeholder: 'Enter your email address',
-      defaultValue: '<youremail@example.com>',
+      label: t('KubectlProjectDialog.formFields.userEmail.label'),
+      placeholder: t('KubectlProjectDialog.formFields.userEmail.placeholder'),
+      defaultValue: t('KubectlProjectDialog.formFields.userEmail.defaultValue'),
     },
   ];
 
@@ -52,31 +61,29 @@ export const KubectlProjectDialog = ({
           roles:
           - admin
       ' | kubectl create -f -`,
-      description: 'Run this command to create a new project:',
+      description: t('KubectlProjectDialog.mainCommandDescription'),
       isMainCommand: true,
     },
     {
       command: `kubectl get project \${projectName}`,
-      description:
-        'To see the result of the project creation, run the below command:',
+      description: t('KubectlProjectDialog.resultCommandDescription'),
     },
     {
       command: `kubectl get namespace project-\${projectName}`,
-      description: 'A namespace is automatically generated for your project:',
+      description: t('KubectlProjectDialog.namespaceCommandDescription'),
     },
   ];
 
-  const introSection = [
-    'A Project is the starting point to our ManagedControlPlane offering. Projects are usually created for each Organization/Team or similar root setups.',
-  ];
+  const introSection = [t('KubectlProjectDialog.introSection')];
 
   return (
     <KubectlBaseDialog
-      onClose={onClose}
-      title="Create a Project"
+      title={t('KubectlProjectDialog.title')}
       introSection={introSection}
       formFields={formFields}
       customCommands={customCommands}
+      open={isOpen}
+      onClose={onClose}
     />
   );
 };
