@@ -26,7 +26,6 @@ jobs:
 
       - name: Run Cypress Tests
         run: npm run test
-        continue-on-error: true
 
       - name: Upload Cypress Screenshots
         if: always() # Run this step even if tests fail
