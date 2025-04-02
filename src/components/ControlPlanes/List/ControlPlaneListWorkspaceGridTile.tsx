@@ -155,8 +155,7 @@ export function ControlPlaneListWorkspaceGridTile({
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}
-        projectName={projectName}
-        resourceComponent={
+        kubectl={
           <KubectlDeleteWorkspace
             projectName={projectName}
             resourceName={workspaceName}

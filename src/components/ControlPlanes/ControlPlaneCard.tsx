@@ -99,7 +99,7 @@ export function ControlPlaneCard({
       </Card>
       <DeleteConfirmationDialog
         resourceName={controlPlane.metadata.name}
-        resourceComponent={
+        kubectl={
           <KubectlDeleteMcp
             projectName={projectName}
             workspaceName={workspace.metadata.name}

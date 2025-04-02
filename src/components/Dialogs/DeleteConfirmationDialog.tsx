@@ -17,8 +17,7 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   resourceName: string;
-  projectName?: string;
-  resourceComponent: ReactNode;
+  kubectl: ReactNode;
   onDeletionConfirmed?: () => void;
   onCanceled?: () => void;
 }
@@ -29,7 +28,7 @@ export function DeleteConfirmationDialog({
   resourceName,
   onDeletionConfirmed,
   onCanceled,
-  resourceComponent,
+  kubectl,
 }: DeleteConfirmationDialogProps) {
   const [confirmed, setConfirmed] = useState(false);
   const confirmationInput = useRef<InputDomRef>(null);
@@ -116,7 +115,7 @@ export function DeleteConfirmationDialog({
                 onInput={onConfirmationInputChange}
               />
             </FormItem>
-            <FormItem>{resourceComponent}</FormItem>
+            <FormItem>{kubectl}</FormItem>
           </FormGroup>
         </Form>
       </Dialog>

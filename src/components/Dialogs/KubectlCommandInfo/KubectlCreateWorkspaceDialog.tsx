@@ -5,17 +5,17 @@ import {
 } from './KubectlBaseDialog';
 import { useTranslation } from 'react-i18next';
 
-interface KubectlWorkspaceDialogProps {
+interface KubectlCreateWorkspaceDialogProps {
   onClose: () => void;
   isOpen: boolean;
   project?: string;
 }
 
-export const KubectlWorkspaceDialog = ({
+export const KubectlCreateWorkspaceDialog = ({
   onClose,
   isOpen,
   project,
-}: KubectlWorkspaceDialogProps) => {
+}: KubectlCreateWorkspaceDialogProps) => {
   const { t } = useTranslation();
   const randomWorkspaceName = Math.random().toString(36).substring(2, 8);
   const projectName = project || '<Project Namespace>';
@@ -24,28 +24,32 @@ export const KubectlWorkspaceDialog = ({
   const formFields: FormField[] = [
     {
       id: 'workspaceName',
-      label: t('KubectlWorkspaceDialog.formFields.workspaceName.label'),
+      label: t('KubectlCreateWorkspaceDialog.formFields.workspaceName.label'),
       placeholder: t(
-        'KubectlWorkspaceDialog.formFields.workspaceName.placeholder',
+        'KubectlCreateWorkspaceDialog.formFields.workspaceName.placeholder',
       ),
       defaultValue: randomWorkspaceName,
     },
     {
       id: 'chargingTargetId',
-      label: t('KubectlWorkspaceDialog.formFields.chargingTargetId.label'),
+      label: t(
+        'KubectlCreateWorkspaceDialog.formFields.chargingTargetId.label',
+      ),
       placeholder: t(
-        'KubectlWorkspaceDialog.formFields.chargingTargetId.placeholder',
+        'KubectlCreateWorkspaceDialog.formFields.chargingTargetId.placeholder',
       ),
       defaultValue: t(
-        'KubectlWorkspaceDialog.formFields.chargingTargetId.defaultValue',
+        'KubectlCreateWorkspaceDialog.formFields.chargingTargetId.defaultValue',
       ),
     },
     {
       id: 'userEmail',
-      label: t('KubectlWorkspaceDialog.formFields.userEmail.label'),
-      placeholder: t('KubectlWorkspaceDialog.formFields.userEmail.placeholder'),
+      label: t('KubectlCreateWorkspaceDialog.formFields.userEmail.label'),
+      placeholder: t(
+        'KubectlCreateWorkspaceDialog.formFields.userEmail.placeholder',
+      ),
       defaultValue: t(
-        'KubectlWorkspaceDialog.formFields.userEmail.defaultValue',
+        'KubectlCreateWorkspaceDialog.formFields.userEmail.defaultValue',
       ),
     },
   ];
@@ -69,20 +73,20 @@ export const KubectlWorkspaceDialog = ({
           roles:
           - admin
       ' | kubectl create -f -`,
-      description: t('KubectlWorkspaceDialog.mainCommandDescription'),
+      description: t('KubectlCreateWorkspaceDialog.mainCommandDescription'),
       isMainCommand: true,
     },
     {
       command: `kubectl get workspace \${workspaceName} -n ${projectNamespace}`,
-      description: t('KubectlWorkspaceDialog.resultCommandDescription'),
+      description: t('KubectlCreateWorkspaceDialog.resultCommandDescription'),
     },
   ];
 
-  const introSection = [t('KubectlWorkspaceDialog.introSection')];
+  const introSection = [t('KubectlCreateWorkspaceDialog.introSection')];
 
   return (
     <KubectlBaseDialog
-      title={t('KubectlWorkspaceDialog.title')}
+      title={t('KubectlCreateWorkspaceDialog.title')}
       introSection={introSection}
       formFields={formFields}
       customCommands={customCommands}

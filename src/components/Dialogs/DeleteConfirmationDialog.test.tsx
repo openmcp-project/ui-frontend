@@ -8,7 +8,7 @@ describe('DeleteConfirmationDialog', () => {
         isOpen={true}
         setIsOpen={cy.stub().as('setIsOpen')}
         resourceName="test-resource"
-        resourceComponent={<div>Resource Component</div>}
+        kubectl={<div>Resource Component</div>}
         onDeletionConfirmed={cy.stub().as('onDeletionConfirmed')}
         onCanceled={cy.stub().as('onCanceled')}
         {...props}

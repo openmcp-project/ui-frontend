@@ -5,40 +5,46 @@ import {
 } from './KubectlBaseDialog';
 import { useTranslation } from 'react-i18next';
 
-interface KubectlProjectDialogProps {
+interface KubectlCreateProjectDialogProps {
   onClose: () => void;
   isOpen: boolean;
 }
 
-export const KubectlProjectDialog = ({
+export const KubectlCreateProjectDialog = ({
   onClose,
   isOpen,
-}: KubectlProjectDialogProps) => {
+}: KubectlCreateProjectDialogProps) => {
   const { t } = useTranslation();
   const randomProjectName = Math.random().toString(36).substring(2, 8);
 
   const formFields: FormField[] = [
     {
       id: 'projectName',
-      label: t('KubectlProjectDialog.formFields.projectName.label'),
-      placeholder: t('KubectlProjectDialog.formFields.projectName.placeholder'),
+      label: t('KubectlCreateProjectDialog.formFields.projectName.label'),
+      placeholder: t(
+        'KubectlCreateProjectDialog.formFields.projectName.placeholder',
+      ),
       defaultValue: randomProjectName,
     },
     {
       id: 'chargingTargetId',
-      label: t('KubectlProjectDialog.formFields.chargingTargetId.label'),
+      label: t('KubectlCreateProjectDialog.formFields.chargingTargetId.label'),
       placeholder: t(
-        'KubectlProjectDialog.formFields.chargingTargetId.placeholder',
+        'KubectlCreateProjectDialog.formFields.chargingTargetId.placeholder',
       ),
       defaultValue: t(
-        'KubectlProjectDialog.formFields.chargingTargetId.defaultValue',
+        'KubectlCreateProjectDialog.formFields.chargingTargetId.defaultValue',
       ),
     },
     {
       id: 'userEmail',
-      label: t('KubectlProjectDialog.formFields.userEmail.label'),
-      placeholder: t('KubectlProjectDialog.formFields.userEmail.placeholder'),
-      defaultValue: t('KubectlProjectDialog.formFields.userEmail.defaultValue'),
+      label: t('KubectlCreateProjectDialog.formFields.userEmail.label'),
+      placeholder: t(
+        'KubectlCreateProjectDialog.formFields.userEmail.placeholder',
+      ),
+      defaultValue: t(
+        'KubectlCreateProjectDialog.formFields.userEmail.defaultValue',
+      ),
     },
   ];
 
@@ -61,24 +67,24 @@ export const KubectlProjectDialog = ({
           roles:
           - admin
       ' | kubectl create -f -`,
-      description: t('KubectlProjectDialog.mainCommandDescription'),
+      description: t('KubectlCreateProjectDialog.mainCommandDescription'),
       isMainCommand: true,
     },
     {
       command: `kubectl get project \${projectName}`,
-      description: t('KubectlProjectDialog.resultCommandDescription'),
+      description: t('KubectlCreateProjectDialog.resultCommandDescription'),
     },
     {
       command: `kubectl get namespace project-\${projectName}`,
-      description: t('KubectlProjectDialog.namespaceCommandDescription'),
+      description: t('KubectlCreateProjectDialog.namespaceCommandDescription'),
     },
   ];
 
-  const introSection = [t('KubectlProjectDialog.introSection')];
+  const introSection = [t('KubectlCreateProjectDialog.introSection')];
 
   return (
     <KubectlBaseDialog
-      title={t('KubectlProjectDialog.title')}
+      title={t('KubectlCreateProjectDialog.title')}
       introSection={introSection}
       formFields={formFields}
       customCommands={customCommands}

@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import { DeleteWorkspaceDialog } from '../KubectlDeleteWorkspaceDialog';
 import { KubectlInfoButton } from '../KubectlInfoButton';
-import { useDialog } from '../../UseDialog';
 
 interface KubectlDeleteWorkspaceProps {
   projectName?: string;
@@ -11,16 +11,19 @@ export const KubectlDeleteWorkspace = ({
   projectName,
   resourceName,
 }: KubectlDeleteWorkspaceProps) => {
-  const infoDialog = useDialog();
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+
+  const openInfoDialog = () => setIsInfoDialogOpen(true);
+  const closeInfoDialog = () => setIsInfoDialogOpen(false);
 
   return (
     <>
-      <KubectlInfoButton onClick={infoDialog.open} />
+      <KubectlInfoButton onClick={openInfoDialog} />
       <DeleteWorkspaceDialog
         projectName={projectName}
         resourceName={resourceName}
-        isOpen={infoDialog.isOpen}
-        onClose={infoDialog.close}
+        isOpen={isInfoDialogOpen}
+        onClose={closeInfoDialog}
       />
     </>
   );

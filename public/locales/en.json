@@ -145,7 +145,7 @@
     "mainCommandDescription": "Run this command to delete the workspace:",
     "verificationCommandDescription": "To verify the workspace has been deleted, run:"
   },
-  "DeleteMcpDialog": {
+  "KubectlDeleteMcpDialog": {
     "title": "Delete a Managed Control Plane",
     "introSection1": "The below will help you delete the Managed Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
@@ -153,7 +153,7 @@
     "deleteCommand": "Run this command to delete the Managed Control Plane:",
     "verificationCommandDescription": "To verify the MCP has been deleted, run:"
   },
-  "KubectlProjectDialog": {
+  "KubectlCreateProjectDialog": {
     "title": "Create a Project",
     "introSection": "A Project is the starting point to our ManagedControlPlane offering. Projects are usually created for each Organization/Team or similar root setups.",
     "formFields": {
@@ -176,7 +176,7 @@
     "resultCommandDescription": "To see the result of the project creation, run the below command:",
     "namespaceCommandDescription": "A namespace is automatically generated for your project:"
   },
-  "KubectlWorkspaceDialog": {
+  "KubectlCreateWorkspaceDialog": {
     "title": "Create a Workspace",
     "introSection": "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive ManagedControlPlanes.",
     "formFields": {
