@@ -20,7 +20,8 @@ import { ThemeProvider } from '@ui5/webcomponents-react';
 import { mount } from 'cypress/react';
 // Import commands.js using ES2015 syntax:
 import './commands';
-import { FrontendConfigProvider } from '../../src/context/FrontendConfigContext';
+import { FrontendConfigContext } from '../../src/context/FrontendConfigContext';
+import { mockedFrontendConfig } from '../../src/utils/testing';
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -38,9 +39,9 @@ declare global {
 
 Cypress.Commands.add('mount', (component, options) => {
   return mount(<ThemeProvider>
-    <FrontendConfigProvider>
-        {component}
-    </FrontendConfigProvider>
+    <FrontendConfigContext value={mockedFrontendConfig}>
+      {component}
+    </FrontendConfigContext>
   </ThemeProvider>, options);
 });
 

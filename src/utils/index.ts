@@ -11,4 +11,3 @@ export const projectnameToNamespace = (projectname: string) => {
   return `project-${projectname}`;
 };
 
-export const isInTestingMode:Boolean = !!window.Cypress;
