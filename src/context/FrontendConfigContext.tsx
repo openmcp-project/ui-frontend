@@ -6,6 +6,7 @@ export enum Landscape {
   Canary = 'CANARY',
   Staging = 'STAGING',
   Development = 'DEV',
+  Local = 'LOCAL',
 }
 
 interface FrontendConfigContextProps {
@@ -15,9 +16,10 @@ interface FrontendConfigContextProps {
   links: DocLinkCreator;
 }
 
-const FrontendConfigContext = createContext<FrontendConfigContextProps | null>(
+export const FrontendConfigContext = createContext<FrontendConfigContextProps | null>(
   null,
 );
+
 
 const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
 
@@ -25,9 +27,7 @@ interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
-export function FrontendConfigProvider({
-  children,
-}: FrontendConfigProviderProps) {
+export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
   const docLinks = new DocLinkCreator(config.documentationBaseUrl);
   const value: FrontendConfigContextProps = {
