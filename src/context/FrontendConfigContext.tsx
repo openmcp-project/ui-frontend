@@ -1,57 +1,54 @@
-import { FC, ReactNode, createContext, useContext } from 'react';
+import { ReactNode, createContext, use } from 'react';
 import { DocLinkCreator } from '../lib/shared/links';
-import { useTranslation } from 'react-i18next';
 
 export enum Landscape {
   Live = 'LIVE',
   Canary = 'CANARY',
   Staging = 'STAGING',
   Development = 'DEV',
+  Local = 'LOCAL',
 }
 
-export interface FrontendConfig {
+interface FrontendConfigContextProps {
   backendUrl: string;
   landscape?: Landscape;
   documentationBaseUrl: string;
-}
-
-export interface FrontendConfigProviderProps extends FrontendConfig {
   links: DocLinkCreator;
 }
 
-const FrontendConfigContext = createContext<FrontendConfigProviderProps | null>(
+export const FrontendConfigContext = createContext<FrontendConfigContextProps | null>(
   null,
 );
 
-export const useFrontendConfig = () => {
-  const c = useContext(FrontendConfigContext);
-  const { t } = useTranslation();
 
-  if (!c) {
-    throw new Error(t('FrontendConfigContext.errorMessage'));
-  }
-  return c;
-};
+const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
 
-export const FrontendConfigProvider: FC<{
+interface FrontendConfigProviderProps {
   children: ReactNode;
-  config: FrontendConfig;
-}> = ({ children, config }) => {
-  const docLinks = new DocLinkCreator(config.documentationBaseUrl);
-  return (
-    <FrontendConfigContext.Provider
-      value={{
-        links: docLinks,
-        backendUrl: config.backendUrl,
-        landscape: config.landscape,
-        documentationBaseUrl: config.documentationBaseUrl,
-      }}
-    >
-      {children}
-    </FrontendConfigContext.Provider>
-  );
-};
-
-export async function LoadFrontendConfig(): Promise<FrontendConfig> {
-  return fetch('/frontend-config.json').then((res) => res.json());
 }
+
+export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
+  const config = use(fetchPromise);
+  const docLinks = new DocLinkCreator(config.documentationBaseUrl);
+  const value: FrontendConfigContextProps = {
+    links: docLinks,
+    backendUrl: config.backendUrl,
+    landscape: config.landscape,
+    documentationBaseUrl: config.documentationBaseUrl,
+  };
+
+  return (
+    <FrontendConfigContext value={value}>{children}</FrontendConfigContext>
+  );
+}
+
+export const useFrontendConfig = () => {
+  const context = use(FrontendConfigContext);
+
+  if (!context) {
+    throw new Error(
+      'useFrontendConfig must be used within a FrontendConfigProvider.',
+    );
+  }
+  return context;
+};
