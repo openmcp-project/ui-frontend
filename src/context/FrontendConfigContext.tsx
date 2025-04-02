@@ -27,9 +27,7 @@ interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
-export function FrontendConfigProvider({
-                                         children,
-                                       }: FrontendConfigProviderProps) {
+export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
   const docLinks = new DocLinkCreator(config.documentationBaseUrl);
   const value: FrontendConfigContextProps = {
