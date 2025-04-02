@@ -17,7 +17,7 @@
     "testE2E:open": "cypress open --e2e --browser chrome"
   },
   "dependencies": {
-    "@hookform/resolvers": "^4.1.3",
+    "@hookform/resolvers": "^5.0.0",
     "@ui5/webcomponents": "^2.7.2",
     "@ui5/webcomponents-fiori": "^2.7.2",
     "@ui5/webcomponents-icons": "^2.7.2",
