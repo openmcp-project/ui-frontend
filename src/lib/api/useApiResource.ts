@@ -93,18 +93,22 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
     });
   }
 
-  providerConfigsDataForRequest.forEach(async (item) => {
-    const data = await fetchApiServerJson<ProviderConfigs>(
-      `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
-      apiConfig,
-      CRDRequest.jq,
-      CRDRequest.method,
-      CRDRequest.body,
-    );
-    if (data) {
-      providerConfigs.push(data);
-    }
-  });
+  const fetchProviderConfigsData = async () => {
+    const promises = providerConfigsDataForRequest.map(async (item) => {
+      const data = await fetchApiServerJson<ProviderConfigs>(
+        `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+        apiConfig,
+        CRDRequest.jq,
+        CRDRequest.method,
+        CRDRequest.body,
+      );
+      if (data) {
+        providerConfigs.push(data);
+      }
+    });
+
+    await Promise.all(promises);
+  };
 
   const providerConfigs: ProviderConfigs[] = [];
 
@@ -140,6 +144,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
     const fetchDataAndUpdateState = async () => {
       setIsLoading(true);
       try {
+        await fetchProviderConfigsData();
         const finalData = await fetchProviderConfigs();
 
         setConfigs(finalData);
