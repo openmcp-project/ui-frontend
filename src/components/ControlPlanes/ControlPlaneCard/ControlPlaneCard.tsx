@@ -2,25 +2,25 @@ import { Button, Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import ConnectButton from './ConnectButton.tsx';
-import { ListWorkspacesType } from '../../lib/api/types/crate/listWorkspaces.ts';
+import ConnectButton from '../ConnectButton.tsx';
+import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import {
   ListControlPlanesType,
   ReadyStatus,
-} from '../../lib/api/types/crate/controlPlanes.ts';
+} from '../../../lib/api/types/crate/controlPlanes.ts';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useState } from 'react';
-import { useApiResourceMutation } from '../../lib/api/useApiResource.ts';
+import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   DeleteMCPResource,
   DeleteMCPType,
   PatchMCPResourceForDeletion,
   PatchMCPResourceForDeletionBody,
-} from '../../lib/api/types/crate/deleteMCP.ts';
-import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.tsx';
-import MCPHealthPopoverButton from '../ControlPlane/MCPHealthPopoverButton.tsx';
-import classes from './ControlPlaneCard.module.css';
+} from '../../../lib/api/types/crate/deleteMCP.ts';
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import styles from './ControlPlaneCard.module.css';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -53,8 +53,8 @@ export function ControlPlaneCard({
 
   return (
     <>
-      <Card key={`${name}--${namespace}`} className={classes.card}>
-        <div className={classes.container}>
+      <Card key={`${name}--${namespace}`} className={styles.card}>
+        <div className={styles.container}>
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
@@ -78,7 +78,7 @@ export function ControlPlaneCard({
               direction="Row"
               justifyContent="SpaceBetween"
               alignItems="Center"
-              className={classes.row}
+              className={styles.row}
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
               <ConnectButton
