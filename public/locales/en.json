@@ -56,9 +56,9 @@
     "messageHeader": "Message",
     "reasonHeader": "Reason",
     "transitionHeader": "Last transition time"
-  }, 
+  },
   "CopyKubeconfigButton": {
-    "copiedMessage": "Copied to Clipboard", 
+    "copiedMessage": "Copied to Clipboard",
     "failedMessage": "Failed to copy, Error:",
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
@@ -113,7 +113,6 @@
     "errorMessage": "useCopyButton must be used within a CopyButtonProvider"
   },
   "CreateProjectWorkspaceDialog": {
-    "learnButton": "Learn how to do this in code",
     "createButton": "Create",
     "cancelButton": "Cancel",
     "chargingTargetLabel": "Charging Target",
@@ -145,6 +144,79 @@
   "CopyButton": {
     "copiedMessage": "Copied To Clipboard",
     "failedMessage": "Failed to copy"
+  },
+  "DeleteWorkspaceDialog": {
+    "title": "Delete a Workspace",
+    "introSection1": "The below instructions will help you delete the workspace \"{{workspaceName}}\" from project namespace \"{{projectNamespace}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the workspace will be <bold2>permanently deleted</bold2>.",
+    "mainCommandDescription": "Run this command to delete the workspace:",
+    "verificationCommandDescription": "To verify the workspace has been deleted, run:"
+  },
+  "KubectlDeleteMcpDialog": {
+    "title": "Delete a Managed Control Plane",
+    "introSection1": "The below will help you delete the Managed Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
+    "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
+    "deleteCommand": "Run this command to delete the Managed Control Plane:",
+    "verificationCommandDescription": "To verify the MCP has been deleted, run:"
+  },
+  "KubectlCreateProjectDialog": {
+    "title": "Create a Project",
+    "introSection": "A Project is the starting point to our ManagedControlPlane offering. Projects are usually created for each Organization/Team or similar root setups.",
+    "formFields": {
+      "projectName": {
+        "label": "Project Name",
+        "placeholder": "Enter project name"
+      },
+      "chargingTargetId": {
+        "label": "BTP Global Account ID",
+        "placeholder": "Enter your Global Account ID",
+        "defaultValue": "<your-ga-id>"
+      },
+      "userEmail": {
+        "label": "User Email",
+        "placeholder": "Enter your email address",
+        "defaultValue": "<youremail@example.com>"
+      }
+    },
+    "mainCommandDescription": "Run this command to create a new project:",
+    "resultCommandDescription": "To see the result of the project creation, run the below command:",
+    "namespaceCommandDescription": "A namespace is automatically generated for your project:"
+  },
+  "KubectlCreateWorkspaceDialog": {
+    "title": "Create a Workspace",
+    "introSection": "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive ManagedControlPlanes.",
+    "formFields": {
+      "workspaceName": {
+        "label": "Workspace Name",
+        "placeholder": "Enter workspace name"
+      },
+      "chargingTargetId": {
+        "label": "BTP Global Account ID",
+        "placeholder": "Enter your Global Account ID",
+        "defaultValue": "<your-ga-id>"
+      },
+      "userEmail": {
+        "label": "User Email",
+        "placeholder": "Enter your email address",
+        "defaultValue": "<youremail@example.com>"
+      }
+    },
+    "mainCommandDescription": "Run this command to create a new workspace in your project:",
+    "resultCommandDescription": "To see the result of the workspace creation, run the below command:"
+  },
+  "KubectlBaseDialog": {
+    "prerequisites": "Prerequisites",
+    "prerequisitesText": "Make sure you have installed <bold1>kubectl</bold1> and the <bold2>kubelogin</bold2> plugin. We recommend using <bold3>krew</bold3> which is a plugin manager for kubectl.",
+    "formFieldsNote": "<bold1>Important</bold1>: Before executing, modify the commands below:",
+    "onboardingGuide": "You can also use our <link1>Onboarding Guide</link1> for more information."
+  },
+  "CommonKubectl": {
+    "emphasis": {
+      "irreversible": "irreversible",
+      "permanentlyDeleted": "permanently deleted"
+    },
+    "learnButton": "Learn how to do this in code"
   },
   "App": {
     "loading": "Loading..."
