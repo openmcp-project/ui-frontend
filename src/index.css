@@ -94,6 +94,10 @@
   background-color: #FFC933;
 }
 
+.crossplane-table-element {
+  margin-bottom: 25px;
+}
+
 .cp-panel-gitops {
   background-color: #D1EFFF;
 }
