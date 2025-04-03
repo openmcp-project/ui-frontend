@@ -27,6 +27,13 @@
     "tableHeaderSynced": "Synced",
     "tableHeaderReady": "Ready"
   },
+  "ProvidersConfig": {
+    "headerProviderConfigs": "Provider Configs",
+    "tableHeaderProvider": "Provider",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderUsage": "Usage"
+  },
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace"
   },
@@ -221,9 +228,6 @@
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
     "tableHeaderHealthy": "Healthy"
-  },
-  "ProvidersConfig": {
-    "header": "Provider Configs"
   },
   "validationErrors": {
     "required": "This field is required!",

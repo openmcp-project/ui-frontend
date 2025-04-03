@@ -1,7 +1,8 @@
 import { Resource } from '../resource';
 
-  export type ProvidersListResponse = {
-    items: [{
+export type ProvidersListResponse = {
+  items: [
+    {
       spec: {
         package: string;
       };
@@ -11,15 +12,18 @@ import { Resource } from '../resource';
         creationTimestamp: string;
       };
       status: {
-        conditions: [{
-          type: "Healthy" | "Installed" | unknown;
-          status: "True" | "False";
-          lastTransitionTime: string;
-        }]
+        conditions: [
+          {
+            type: 'Healthy' | 'Installed' | unknown;
+            status: 'True' | 'False';
+            lastTransitionTime: string;
+          },
+        ];
       };
-    }];
-  };
-  
-  export const ProvidersListRequest: Resource<ProvidersListResponse> = {
-    path: "/apis/pkg.crossplane.io/v1/providers",
-  };
+    },
+  ];
+};
+
+export const ProvidersListRequest: Resource<ProvidersListResponse> = {
+  path: '/apis/pkg.crossplane.io/v1/providers',
+};
