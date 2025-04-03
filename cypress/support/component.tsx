@@ -36,12 +36,15 @@ declare global {
   }
 }
 
-
 Cypress.Commands.add('mount', (component, options) => {
-  return mount(<ThemeProvider>  <ToastProvider>
-    <FrontendConfigContext value={mockedFrontendConfig}>
-      {component}
-    </FrontendConfigContext></ToastProvider>
-  </ThemeProvider>, options);
+  return mount(
+    <ThemeProvider>
+      <ToastProvider>
+        <FrontendConfigContext value={mockedFrontendConfig}>
+          {component}
+        </FrontendConfigContext>
+      </ToastProvider>
+    </ThemeProvider>,
+    options,
+  );
 });
-
