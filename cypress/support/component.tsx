@@ -22,7 +22,7 @@ import { mount } from 'cypress/react';
 import './commands';
 import { FrontendConfigContext } from '../../src/context/FrontendConfigContext';
 import { mockedFrontendConfig } from '../../src/utils/testing';
-
+import { ToastProvider } from '../../src/context/ToastContext.tsx';
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
 // Alternatively, can be defined in cypress/support/component.d.ts
@@ -38,10 +38,10 @@ declare global {
 
 
 Cypress.Commands.add('mount', (component, options) => {
-  return mount(<ThemeProvider>
+  return mount(<ThemeProvider>  <ToastProvider>
     <FrontendConfigContext value={mockedFrontendConfig}>
       {component}
-    </FrontendConfigContext>
+    </FrontendConfigContext></ToastProvider>
   </ThemeProvider>, options);
 });
 
