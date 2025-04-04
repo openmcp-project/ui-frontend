@@ -21,6 +21,7 @@ import {
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
+import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -96,6 +97,13 @@ export function ControlPlaneCard({
       </Card>
       <DeleteConfirmationDialog
         resourceName={controlPlane.metadata.name}
+        kubectl={
+          <KubectlDeleteMcp
+            projectName={projectName}
+            workspaceName={workspace.metadata.name}
+            resourceName={controlPlane.metadata.name}
+          />
+        }
         isOpen={dialogDeleteMcpIsOpen}
         setIsOpen={setDialogDeleteMcpIsOpen}
         onDeletionConfirmed={async () => {

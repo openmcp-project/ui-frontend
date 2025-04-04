@@ -12,13 +12,16 @@ import {
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
+import { FormEvent, useState } from 'react';
+import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
+import { KubectlCreateWorkspaceDialog } from './KubectlCommandInfo/KubectlCreateWorkspaceDialog.tsx';
+import { KubectlCreateProjectDialog } from './KubectlCommandInfo/KubectlCreateProjectDialog.tsx';
+
 import { EditMembers } from '../Members/EditMembers.tsx';
-import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+// import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FormEvent } from 'react';
 import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 
 export type OnCreatePayload = {
@@ -38,6 +41,7 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
+  projectName?: string;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -50,9 +54,14 @@ export function CreateProjectWorkspaceDialog({
   register,
   errors,
   setValue,
+  projectName,
 }: CreateProjectWorkspaceDialogProps) {
-  const { links } = useFrontendConfig();
+  // const { links } = useFrontendConfig();
   const { t } = useTranslation();
+  const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
+
+  const openKubectlDialog = () => setIsKubectlDialogOpen(true);
+  const closeKubectlDialog = () => setIsKubectlDialogOpen(false);
 
   return (
     <>
@@ -65,16 +74,10 @@ export function CreateProjectWorkspaceDialog({
           <Bar
             design="Footer"
             endContent={
-              <>
-                <Button
-                  design={ButtonDesign.Transparent}
-                  icon="sap-icon://question-mark"
-                  onClick={() => {
-                    window.open(links.COM_PAGE_GETTING_STARTED, '_blank');
-                  }}
-                >
-                  {t('CreateProjectWorkspaceDialog.learnButton')}
-                </Button>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <KubectlInfoButton onClick={openKubectlDialog} />
                 <Button onClick={() => setIsOpen(false)}>
                   {' '}
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
@@ -82,7 +85,7 @@ export function CreateProjectWorkspaceDialog({
                 <Button design="Emphasized" onClick={() => onCreate()}>
                   {t('CreateProjectWorkspaceDialog.createButton')}
                 </Button>
-              </>
+              </div>
             }
           />
         }
@@ -95,6 +98,15 @@ export function CreateProjectWorkspaceDialog({
           setValue={setValue}
         />
       </Dialog>
+      <KubectlCreateWorkspaceDialog
+        project={projectName}
+        isOpen={isKubectlDialogOpen && !!projectName}
+        onClose={closeKubectlDialog}
+      />
+      <KubectlCreateProjectDialog
+        isOpen={isKubectlDialogOpen && !projectName}
+        onClose={closeKubectlDialog}
+      />
       <ErrorDialog ref={errorDialogRef} />
     </>
   );

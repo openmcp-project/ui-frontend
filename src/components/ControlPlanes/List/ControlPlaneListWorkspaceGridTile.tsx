@@ -27,6 +27,7 @@ import useApiResource, {
 } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { KubectlDeleteWorkspace } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteWorkspace.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
@@ -154,6 +155,12 @@ export function ControlPlaneListWorkspaceGridTile({
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}
+        kubectl={
+          <KubectlDeleteWorkspace
+            projectName={projectName}
+            resourceName={workspaceName}
+          />
+        }
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {

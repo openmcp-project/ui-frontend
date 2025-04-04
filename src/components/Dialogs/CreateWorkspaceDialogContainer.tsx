@@ -127,6 +127,7 @@ export function CreateWorkspaceDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      projectName={project}
       onCreate={handleSubmit(handleWorkspaceCreate)}
     />
   );

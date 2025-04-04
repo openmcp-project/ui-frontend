@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Bar,
   Button,
@@ -17,6 +17,7 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   resourceName: string;
+  kubectl: ReactNode;
   onDeletionConfirmed?: () => void;
   onCanceled?: () => void;
 }
@@ -27,6 +28,7 @@ export function DeleteConfirmationDialog({
   resourceName,
   onDeletionConfirmed,
   onCanceled,
+  kubectl,
 }: DeleteConfirmationDialogProps) {
   const [confirmed, setConfirmed] = useState(false);
   const confirmationInput = useRef<InputDomRef>(null);
@@ -113,6 +115,7 @@ export function DeleteConfirmationDialog({
                 onInput={onConfirmationInputChange}
               />
             </FormItem>
+            <FormItem>{kubectl}</FormItem>
           </FormGroup>
         </Form>
       </Dialog>
