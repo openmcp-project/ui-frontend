@@ -26,4 +26,7 @@ export class DocLinkCreator {
       '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
     );
   }
+  public get COM_PAGE_SUPPORT_ISSUE(): string {
+    return this.createLink('/support/issues/new');
+  }
 }

@@ -83,7 +83,12 @@ export function ControlPlaneCard({
               alignItems="Center"
               style={{ paddingTop: '20px' }}
             >
-              <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
+              <MCPHealthPopoverButton
+                mcpStatus={controlPlane.status}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                mcpName={controlPlane.metadata.name}
+              />
               <ConnectButton
                 disabled={controlPlane.status?.status !== ReadyStatus.Ready}
                 controlPlaneName={name}

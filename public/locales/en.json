@@ -55,7 +55,15 @@
     "typeHeader": "Type",
     "messageHeader": "Message",
     "reasonHeader": "Reason",
-    "transitionHeader": "Last transition time"
+    "transitionHeader": "Last transition time",
+    "createSupportTicketButton": "Create Support Ticket",
+    "templateId": "1-mcp_issue.yml",
+    "supportTicketTitle": "Control Plane Not Ready",
+    "supportTicketTitleIssues": "Issues with Control Plane",
+    "clusterIdentifierLabel": "cluster-link",
+    "whatHappenedLabel": "what-happened",
+    "statusDetailsLabel": "MCP Status",
+    "detailsLabel": "Details:"
   },
   "CopyKubeconfigButton": {
     "copiedMessage": "Copied to Clipboard",
