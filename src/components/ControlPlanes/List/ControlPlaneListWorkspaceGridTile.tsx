@@ -11,7 +11,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { NoManagedControlPlaneBanner } from '../NoManagedControlPlaneBanner.tsx';
-import { ControlPlaneCard } from '../ControlPlaneCard.tsx';
+import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import {
   ListWorkspacesType,
   isWorkspaceReady,
