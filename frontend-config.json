@@ -1,5 +1,5 @@
 {
   "backendUrl": "http://localhost:3000",
   "landscape": "LOCAL",
-  "documentationBaseUrl": "https://github.tools.sap/openmcp"
+  "documentationBaseUrl": "http://localhost:3000"
 }
