@@ -12,7 +12,11 @@
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
-    "tableCreatedHeader": "Created"
+    "tableCreatedHeader": "Created",
+    "tableVersionHeader": "Revision",
+    "noFluxError": "Please install flux to view this component",
+    "gitOpsTitle": "GitOps",
+    "kustomizationsTitle": "Kustomizations"
   },
   "ProvidersList": {
     "tableNameHeader": "Name",
