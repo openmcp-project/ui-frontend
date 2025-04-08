@@ -43,7 +43,7 @@ export default function MCPHealthPopoverButton({
     }
   };
 
-  const handleCopyStatusClick = () => {
+  const constructGithubIssuesLink = () => {
     const clusterDetails = `${projectName}/${workspaceName}/${mcpName}`;
 
     const statusDetails = mcpStatus?.conditions
@@ -61,17 +61,17 @@ export default function MCPHealthPopoverButton({
       : '';
 
     const params = new URLSearchParams({
-      template: t('MCPHealthPopoverButton.templateId'),
+      template: '1-mcp_issue.yml',
       title: `[${clusterDetails}]: ${
         mcpStatus?.status === ReadyStatus.NotReady
           ? t('MCPHealthPopoverButton.supportTicketTitle')
-          : t('MCPHealthPopoverButton.supportTicketIssues')
+          : t('MCPHealthPopoverButton.supportTicketTitleIssues')
       }`,
       'cluster-link': clusterDetails,
       'what-happened': statusDetails,
     });
 
-    window.open(`${links.COM_PAGE_SUPPORT_ISSUE}?${params}`, '_blank');
+    return `${links.COM_PAGE_SUPPORT_GITHUB_ISSUE}?${params}`;
   };
 
   const statusTableColumns: AnalyticalTableColumnDefinition[] = [
@@ -122,7 +122,7 @@ export default function MCPHealthPopoverButton({
           <StatusTable
             status={mcpStatus}
             tableColumns={statusTableColumns}
-            onCopyClick={handleCopyStatusClick}
+            githubIssuesLink={constructGithubIssuesLink()}
           />
         }
       </Popover>
@@ -133,15 +133,17 @@ export default function MCPHealthPopoverButton({
 function StatusTable({
   status,
   tableColumns,
-  onCopyClick,
+  githubIssuesLink,
 }: {
   status: ControlPlaneStatusType | undefined;
   tableColumns: AnalyticalTableColumnDefinition[];
-  onCopyClick: () => void;
+  githubIssuesLink: string;
 }) {
   const showSupportButton =
     status?.status === ReadyStatus.NotReady ||
     status?.status === ReadyStatus.InDeletion;
+
+  const { t } = useTranslation();
 
   return (
     <div style={{ width: 600 }}>
@@ -159,7 +161,11 @@ function StatusTable({
           justifyContent={FlexBoxJustifyContent.End}
           style={{ marginTop: '0.5rem' }}
         >
-          <Button onClick={onCopyClick}>Create Support Ticket</Button>
+          <a href={githubIssuesLink} target="_blank" rel="noreferrer">
+            <Button>
+              {t('MCPHealthPopoverButton.createSupportTicketButton')}
+            </Button>
+          </a>
         </FlexBox>
       )}
     </div>

@@ -1,5 +1,5 @@
 import { ReactNode, createContext, use } from 'react';
-import { DocLinkCreator } from '../lib/shared/links';
+import { LinkCreator } from '../lib/shared/links';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -13,13 +13,12 @@ interface FrontendConfigContextProps {
   backendUrl: string;
   landscape?: Landscape;
   documentationBaseUrl: string;
-  links: DocLinkCreator;
+  githubBaseUrl: string;
+  links: LinkCreator;
 }
 
-export const FrontendConfigContext = createContext<FrontendConfigContextProps | null>(
-  null,
-);
-
+export const FrontendConfigContext =
+  createContext<FrontendConfigContextProps | null>(null);
 
 const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
 
@@ -27,14 +26,20 @@ interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
-export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
+export function FrontendConfigProvider({
+  children,
+}: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
-  const docLinks = new DocLinkCreator(config.documentationBaseUrl);
+  const docLinks = new LinkCreator(
+    config.documentationBaseUrl,
+    config.githubBaseUrl,
+  );
   const value: FrontendConfigContextProps = {
     links: docLinks,
     backendUrl: config.backendUrl,
     landscape: config.landscape,
     documentationBaseUrl: config.documentationBaseUrl,
+    githubBaseUrl: config.githubBaseUrl,
   };
 
   return (

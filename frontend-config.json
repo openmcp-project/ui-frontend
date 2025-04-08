@@ -1,5 +1,6 @@
 {
   "backendUrl": "http://localhost:3000",
   "landscape": "LOCAL",
-  "documentationBaseUrl": "http://localhost:3000"
+  "documentationBaseUrl": "http://localhost:3000",
+  "githubBaseUrl": "http://localhost:3000"
 }
