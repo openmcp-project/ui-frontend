@@ -4,6 +4,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton.tsx';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { stringify } from 'yaml';
 import {
   ListControlPlanesType,
   ReadyStatus,
@@ -22,6 +23,7 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
+import { YamlView } from '../../../context/YamlView.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -51,7 +53,7 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
-
+  console.log(stringify(controlPlane));
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
@@ -82,6 +84,7 @@ export function ControlPlaneCard({
               className={styles.row}
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
+              <YamlView content={stringify(controlPlane)} />
               <ConnectButton
                 disabled={controlPlane.status?.status !== ReadyStatus.Ready}
                 controlPlaneName={name}
