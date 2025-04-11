@@ -1,11 +1,11 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose different styles
 import YAML from 'yaml';
+import { Button } from '@ui5/webcomponents-react';
 
 type YamlViewerProps = { yamlString: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
-  // Function to copy YAML to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(yamlString);
     alert('YAML copied to clipboard!');
@@ -22,7 +22,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
     window.URL.revokeObjectURL(url); // Clean up
   };
 
-  // Parse YAML string to ensure it's valid and format it nicely
   let formattedYaml = yamlString;
   try {
     const parsed = YAML.parse(yamlString);
@@ -33,7 +32,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
 
   return (
     <div style={{ position: 'relative', maxWidth: '800px', margin: '20px' }}>
-      <button
+      <Button
         style={{
           position: 'absolute',
           top: '10px',
@@ -49,8 +48,8 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
         onClick={copyToClipboard}
       >
         Copy
-      </button>
-      <button
+      </Button>
+      <Button
         style={{
           position: 'absolute',
           top: '10px',
@@ -66,9 +65,8 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
         onClick={downloadYaml}
       >
         Download
-      </button>
+      </Button>
 
-      {/* YAML Display with Syntax Highlighting */}
       <SyntaxHighlighter
         language="yaml"
         style={vscDarkPlus}

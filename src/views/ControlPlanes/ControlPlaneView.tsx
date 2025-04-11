@@ -16,16 +16,19 @@ import IntelligentBreadcrumbs from '../../components/Core/IntelligentBreadcrumbs
 import {
   McpContextProvider,
   WithinManagedControlPlane,
-} from '../../lib/shared/McpContext.tsx';
+} from '@lib/shared/McpContext.tsx';
 import FluxList from '../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../lib/api/types/crate/controlPlanes.ts';
-import useResource from '../../lib/api/useApiResource.ts';
-import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
-import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
+import useResource from '@lib/api/useApiResource.ts';
+import MCPHealthPopoverButton from '@components/ControlPlane/MCPHealthPopoverButton.tsx';
+import ComponentList from '@components/ControlPlane/ComponentList.tsx';
 import { useTranslation } from 'react-i18next';
-import { ManagedResources } from '../../components/ControlPlane/ManagedResources.tsx';
-import { Providers } from '../../components/ControlPlane/Providers.tsx';
-import { ProvidersConfig } from '../../components/ControlPlane/ProvidersConfig.tsx';
+import { ManagedResources } from '@components/ControlPlane/ManagedResources.tsx';
+import { Providers } from '@components/ControlPlane/Providers.tsx';
+import { ProvidersConfig } from '@components/ControlPlane/ProvidersConfig.tsx';
+
+import { stringify } from 'yaml';
+import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -80,7 +83,13 @@ export default function ControlPlaneView() {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <MCPHealthPopoverButton mcpStatus={mcp.status} />
+                  <MCPHealthPopoverButton mcpStatus={mcp?.status} />
+                  <YamlViewButton
+                    workspaceName={}
+                    projectName={}
+                    resourceType={}
+                    resourceName={}
+                  />
                   <CopyKubeconfigButton />
                 </div>
               }
