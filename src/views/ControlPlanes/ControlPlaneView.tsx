@@ -27,7 +27,6 @@ import { ManagedResources } from '@components/ControlPlane/ManagedResources.tsx'
 import { Providers } from '@components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '@components/ControlPlane/ProvidersConfig.tsx';
 
-import { stringify } from 'yaml';
 import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
 
 export default function ControlPlaneView() {

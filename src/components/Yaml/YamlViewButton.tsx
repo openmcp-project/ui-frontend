@@ -41,6 +41,7 @@ export const YamlViewButton: FC<ResourceProps> = ({
         />
       </Dialog>
       <Button
+        icon="document"
         onClick={() => {
           setIsOpen(true);
         }}

@@ -53,7 +53,7 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
-  console.log(stringify(controlPlane));
+  console.log(controlPlane);
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
@@ -85,10 +85,10 @@ export function ControlPlaneCard({
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
               <YamlViewButton
-                workspaceName={''}
+                workspaceName={controlPlane.metadata.namespace}
                 projectName={''}
-                resourceName={''}
-                resourceType={''}
+                resourceName={name}
+                resourceType={'managedcontrolplane'}
               />
               <ConnectButton
                 disabled={controlPlane.status?.status !== ReadyStatus.Ready}
