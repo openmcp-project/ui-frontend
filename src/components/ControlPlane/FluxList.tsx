@@ -10,7 +10,6 @@ import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
-import { shortenCommitHash } from '../../lib/api/types/shared/helpers.ts';
 
 export default function FluxList() {
   const {
@@ -30,27 +29,22 @@ export default function FluxList() {
     cell: {
       value: T | null; // null for grouping rows
       row: {
-        original?: FluxRows; // missing for grouping rows
+        original?: FluxRow; // missing for grouping rows
       };
     };
   }
 
-  type FluxRows = {
+  type FluxRow = {
     name: string;
     created: string;
     status: boolean;
     statusUptadeTime?: string;
   };
 
-  if (repoErr) {
-    return (
-      <IllustratedError error={repoErr} title={t('FluxList.noFluxError')} />
-    );
-  }
-  if (kustomizationErr) {
+  if (repoErr || kustomizationErr) {
     return (
       <IllustratedError
-        error={kustomizationErr}
+        error={repoErr || kustomizationErr}
         title={t('FluxList.noFluxError')}
       />
     );
@@ -64,7 +58,7 @@ export default function FluxList() {
     {
       Header: t('FluxList.tableStatusHeader'),
       accessor: 'status',
-      Cell: (cellData: CellData<FluxRows['status']>) =>
+      Cell: (cellData: CellData<FluxRow['status']>) =>
         cellData.cell.row.original?.status != null ? (
           <ResourceStatusCell
             value={cellData.cell.row.original?.status}
@@ -94,7 +88,7 @@ export default function FluxList() {
     {
       Header: t('FluxList.tableStatusHeader'),
       accessor: 'status',
-      Cell: (cellData: CellData<FluxRows['status']>) =>
+      Cell: (cellData: CellData<FluxRow['status']>) =>
         cellData.cell.row.original?.status != null ? (
           <ResourceStatusCell
             value={cellData.cell.row.original?.status}
@@ -112,7 +106,19 @@ export default function FluxList() {
     },
   ];
 
-  const gitReposRows: FluxRows[] =
+  function shortenCommitHash(commitHash: string): string {
+    //example hash: master@sha1:b3396adb98a6a0f5eeedd1a600beaf5e954a1f28
+    const match = commitHash.match(/^([a-zA-Z0-9-_]+)@sha1:([a-f0-9]{40})/);
+
+    if (match && match[2]) {
+      return `${match[1]}@${match[2].slice(0, 7)}`;
+    }
+
+    //example output : master@b3396ad
+    return commitHash;
+  }
+
+  const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
       return {
         name: item.metadata.name,
@@ -126,7 +132,7 @@ export default function FluxList() {
       };
     }) ?? [];
 
-  const kustomizationsRows: FluxRows[] =
+  const kustomizationsRows: FluxRow[] =
     kustmizationData?.items?.map((item) => {
       return {
         name: item.metadata.name,
