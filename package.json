@@ -14,15 +14,20 @@
     "test": "cypress run --component --browser chrome",
     "testE2E": "cypress run --e2e --browser chrome",
     "test:open": "cypress open --component --browser chrome",
-    "testE2E:open": "cypress open --e2e --browser chrome"
+    "testE2E:open": "cypress open --e2e --browser chrome",
+    "generate-graphql-types": "graphql-codegen --config graphql.config.yaml",
+    "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch"
   },
   "dependencies": {
+    "@apollo/client": "^3.13.6",
     "@hookform/resolvers": "^5.0.0",
     "@ui5/webcomponents": "^2.7.2",
     "@ui5/webcomponents-fiori": "^2.7.2",
     "@ui5/webcomponents-icons": "^2.7.2",
     "@ui5/webcomponents-react": "^2.7.2",
     "clsx": "^2.1.1",
+    "graphql": "^16.10.0",
+    "graphql-config": "^5.1.3",
     "i18next": "^24.2.2",
     "javascript-time-ago": "^2.5.11",
     "js-yaml": "^4.1.0",
@@ -41,6 +46,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.22.0",
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/client-preset": "^4.8.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
