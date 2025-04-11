@@ -37,8 +37,8 @@ export default function FluxList() {
   type FluxRow = {
     name: string;
     created: string;
-    status: boolean;
-    statusUptadeTime?: string;
+    isReady: boolean;
+    statusUpdateTime?: string;
   };
 
   if (repoErr || kustomizationErr) {
@@ -58,13 +58,13 @@ export default function FluxList() {
     {
       Header: t('FluxList.tableStatusHeader'),
       accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['status']>) =>
-        cellData.cell.row.original?.status != null ? (
+      Cell: (cellData: CellData<FluxRow['isReady']>) =>
+        cellData.cell.row.original?.isReady != null ? (
           <ResourceStatusCell
-            value={cellData.cell.row.original?.status}
+            value={cellData.cell.row.original?.isReady}
             transitionTime={
-              cellData.cell.row.original?.statusUptadeTime
-                ? cellData.cell.row.original?.statusUptadeTime
+              cellData.cell.row.original?.statusUpdateTime
+                ? cellData.cell.row.original?.statusUpdateTime
                 : ''
             }
           />
@@ -88,13 +88,13 @@ export default function FluxList() {
     {
       Header: t('FluxList.tableStatusHeader'),
       accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['status']>) =>
-        cellData.cell.row.original?.status != null ? (
+      Cell: (cellData: CellData<FluxRow['isReady']>) =>
+        cellData.cell.row.original?.isReady != null ? (
           <ResourceStatusCell
-            value={cellData.cell.row.original?.status}
+            value={cellData.cell.row.original?.isReady}
             transitionTime={
-              cellData.cell.row.original?.statusUptadeTime
-                ? cellData.cell.row.original?.statusUptadeTime
+              cellData.cell.row.original?.statusUpdateTime
+                ? cellData.cell.row.original?.statusUpdateTime
                 : ''
             }
           />
@@ -106,26 +106,14 @@ export default function FluxList() {
     },
   ];
 
-  function shortenCommitHash(commitHash: string): string {
-    //example hash: master@sha1:b3396adb98a6a0f5eeedd1a600beaf5e954a1f28
-    const match = commitHash.match(/^([a-zA-Z0-9-_]+)@sha1:([a-f0-9]{40})/);
-
-    if (match && match[2]) {
-      return `${match[1]}@${match[2].slice(0, 7)}`;
-    }
-
-    //example output : master@b3396ad
-    return commitHash;
-  }
-
   const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
       return {
         name: item.metadata.name,
-        status:
+        isReady:
           item.status.conditions.find((x) => x.type === 'Ready')?.status ===
           'True',
-        statusUptadeTime: item.status.conditions.find((x) => x.type === 'Ready')
+        statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
           ?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact.revision),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
@@ -136,10 +124,10 @@ export default function FluxList() {
     kustmizationData?.items?.map((item) => {
       return {
         name: item.metadata.name,
-        status:
+        isReady:
           item.status.conditions.find((x) => x.type === 'Ready')?.status ===
           'True',
-        statusUptadeTime: item.status.conditions.find((x) => x.type === 'Ready')
+        statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
           ?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
       };
@@ -166,4 +154,16 @@ export default function FluxList() {
       </div>
     </>
   );
+}
+
+function shortenCommitHash(commitHash: string): string {
+  //example hash: master@sha1:b3396adb98a6a0f5eeedd1a600beaf5e954a1f28
+  const match = commitHash.match(/^([a-zA-Z0-9-_]+)@sha1:([a-f0-9]{40})/);
+
+  if (match && match[2]) {
+    return `${match[1]}@${match[2].slice(0, 7)}`;
+  }
+
+  //example output : master@b3396ad
+  return commitHash;
 }
