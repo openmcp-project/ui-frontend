@@ -14,6 +14,7 @@ import './utils/i18n/timeAgo';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import IllustratedError from './components/Shared/IllustratedError.tsx';
 import { AuthProviderOnboarding } from './context/AuthProviderOnboarding.tsx';
+import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   return <IllustratedError error={error} />;
@@ -36,7 +37,9 @@ root.render(
                       refreshInterval: 10000,
                     }}
                   >
-                    <App />
+                    <ApolloClientProvider>
+                      <App />
+                    </ApolloClientProvider>
                     <DarkModeSystemSwitcher />
                   </SWRConfig>
                 </CopyButtonProvider>
