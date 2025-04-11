@@ -11,6 +11,7 @@ export enum Landscape {
 
 interface FrontendConfigContextProps {
   backendUrl: string;
+  gatewayUrl: string;
   landscape?: Landscape;
   documentationBaseUrl: string;
   links: DocLinkCreator;
@@ -33,6 +34,7 @@ export function FrontendConfigProvider({ children }: FrontendConfigProviderProps
   const value: FrontendConfigContextProps = {
     links: docLinks,
     backendUrl: config.backendUrl,
+    gatewayUrl: config.gatewayUrl,
     landscape: config.landscape,
     documentationBaseUrl: config.documentationBaseUrl,
   };
