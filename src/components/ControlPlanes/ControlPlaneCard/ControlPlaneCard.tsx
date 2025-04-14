@@ -4,7 +4,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton.tsx';
 import { ListWorkspacesType } from '@lib/api/types/crate/listWorkspaces.ts';
-import { stringify } from 'yaml';
+
 import {
   ListControlPlanesType,
   ReadyStatus,
@@ -53,6 +53,7 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
+  console.log('controlPlane');
   console.log(controlPlane);
   return (
     <>
@@ -86,8 +87,8 @@ export function ControlPlaneCard({
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
               <YamlViewButton
                 workspaceName={controlPlane.metadata.namespace}
-                projectName={''}
-                resourceName={name}
+                projectName={controlPlane.metadata.name}
+                resourceName={controlPlane.metadata.name}
                 resourceType={'managedcontrolplane'}
               />
               <ConnectButton
