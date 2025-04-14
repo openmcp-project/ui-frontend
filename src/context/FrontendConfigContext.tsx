@@ -12,6 +12,7 @@ export enum Landscape {
 
 type FrontendConfig = {
   backendUrl: string;
+  gatewayUrl: string;
   landscape?: Landscape;
   documentationBaseUrl: string;
   oidcConfig: OIDCConfig;
