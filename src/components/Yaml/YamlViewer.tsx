@@ -1,6 +1,9 @@
 import { FC } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose different styles
+import {
+  materialLight,
+  materialDark,
+} from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose different styles
 import YAML from 'yaml';
 import { Button } from '@ui5/webcomponents-react';
 
@@ -31,7 +34,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
   }
 
   return (
-    <div style={{ position: 'relative', maxWidth: '800px', margin: '20px' }}>
+    <div style={{ position: 'relative', width: '80%' }}>
       <Button
         style={{
           position: 'absolute',
@@ -50,18 +53,18 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
         Copy
       </Button>
       <Button
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '90px',
-          padding: '5px 10px',
-          background: '#28a745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          zIndex: 1,
-        }}
+        // style={{
+        //   position: 'absolute',
+        //   top: '10px',
+        //   right: '90px',
+        //   padding: '5px 10px',
+        //   background: '#28a745',
+        //   color: 'white',
+        //   border: 'none',
+        //   borderRadius: '4px',
+        //   cursor: 'pointer',
+        //   zIndex: 1,
+        // }}
         onClick={downloadYaml}
       >
         Download
@@ -69,7 +72,11 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
 
       <SyntaxHighlighter
         language="yaml"
-        style={vscDarkPlus}
+        style={
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? materialDark
+            : materialLight
+        }
         showLineNumbers={true}
         wrapLines={true}
         lineNumberStyle={{
@@ -82,8 +89,8 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
           margin: 0,
           padding: '20px',
           borderRadius: '4px',
-          background: '#1e1e1e',
-          fontSize: '14px',
+          fontSize: '1rem',
+          width: '100%',
         }}
       >
         {formattedYaml}
