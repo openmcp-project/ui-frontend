@@ -1,5 +1,6 @@
 import { ReactNode, createContext, use } from 'react';
 import { DocLinkCreator } from '../lib/shared/links';
+import { z } from 'zod';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -61,41 +62,24 @@ export const useFrontendConfig = () => {
   return context;
 };
 
-function validateAndCastFrontendConfig(config: unknown): FrontendConfig {
-  if (typeof config !== 'object' || config === null) {
-    throw new Error('Invalid frontend config');
-  }
-  const castedConfig = config as FrontendConfig;
-  if (!castedConfig.backendUrl) {
-    throw new Error('Invalid frontend config: missing backendUrl');
-  }
-  if (!castedConfig.gatewayUrl) {
-    throw new Error('Invalid frontend config: missing gatewayUrl');
-  }
-  if (!castedConfig.documentationBaseUrl) {
-    throw new Error('Invalid frontend config: missing documentationBaseUrl');
-  }
-  if (!castedConfig.oidcConfig) {
-    throw new Error('Invalid frontend config: missing oidcConfig');
-  }
-  if (typeof castedConfig.oidcConfig !== 'object' || castedConfig.oidcConfig === null) {
-    throw new Error('Invalid frontend config: oidcConfig is not an object');
-  }
-  if (!castedConfig.oidcConfig.clientId) {
-    throw new Error('Invalid frontend config: missing clientId in oidcConfig');
-  }
-  if (!castedConfig.oidcConfig.issuerUrl) {
-    throw new Error('Invalid frontend config: missing issuerUrl in oidcConfig');
-  }
-  if (!castedConfig.oidcConfig.scopes) {
-    throw new Error('Invalid frontend config: missing scopes in oidcConfig');
-  }
-  if (!Array.isArray(castedConfig.oidcConfig.scopes)) {
-    throw new Error('Invalid frontend config: scopes in oidcConfig is not an array');
-  }
-  if (castedConfig.landscape && !Object.values(Landscape).includes(castedConfig.landscape)) {
-    throw new Error('Invalid frontend config: invalid landscape');
-  }
+const OidcConfigSchema = z.object({
+  clientId: z.string(),
+  issuerUrl: z.string(),
+  scopes: z.array(z.string()),
+});
 
-  return castedConfig;
+const FrontendConfigSchema = z.object({
+  backendUrl: z.string(),
+  gatewayUrl: z.string(),
+  documentationBaseUrl: z.string(),
+  oidcConfig: OidcConfigSchema,
+  landscape: z.optional(z.nativeEnum(Landscape)),
+});
+
+function validateAndCastFrontendConfig(config: unknown): FrontendConfig {
+  try {
+    return FrontendConfigSchema.parse(config);
+  } catch (error) {
+    throw new Error(`Invalid frontend config: ${error}`);
+  }
 }
