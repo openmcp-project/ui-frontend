@@ -27,7 +27,7 @@ export const FrontendConfigContext = createContext<FrontendConfigContextProps | 
 );
 
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => data as FrontendConfig);
+const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => validateAndCastFrontendConfig(data));
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
@@ -55,3 +55,42 @@ export const useFrontendConfig = () => {
   }
   return context;
 };
+
+function validateAndCastFrontendConfig(config: unknown): FrontendConfig {
+  if (typeof config !== 'object' || config === null) {
+    throw new Error('Invalid frontend config');
+  }
+  const castedConfig = config as FrontendConfig;
+  if (!castedConfig.backendUrl) {
+    throw new Error('Invalid frontend config: missing backendUrl');
+  }
+  if (!castedConfig.gatewayUrl) {
+    throw new Error('Invalid frontend config: missing gatewayUrl');
+  }
+  if (!castedConfig.documentationBaseUrl) {
+    throw new Error('Invalid frontend config: missing documentationBaseUrl');
+  }
+  if (!castedConfig.oidcConfig) {
+    throw new Error('Invalid frontend config: missing oidcConfig');
+  }
+  if (typeof castedConfig.oidcConfig !== 'object' || castedConfig.oidcConfig === null) {
+    throw new Error('Invalid frontend config: oidcConfig is not an object');
+  }
+  if (!castedConfig.oidcConfig.clientId) {
+    throw new Error('Invalid frontend config: missing clientId in oidcConfig');
+  }
+  if (!castedConfig.oidcConfig.issuerUrl) {
+    throw new Error('Invalid frontend config: missing issuerUrl in oidcConfig');
+  }
+  if (!castedConfig.oidcConfig.scopes) {
+    throw new Error('Invalid frontend config: missing scopes in oidcConfig');
+  }
+  if (!Array.isArray(castedConfig.oidcConfig.scopes)) {
+    throw new Error('Invalid frontend config: scopes in oidcConfig is not an array');
+  }
+  if (castedConfig.landscape && !Object.values(Landscape).includes(castedConfig.landscape)) {
+    throw new Error('Invalid frontend config: invalid landscape');
+  }
+
+  return castedConfig;
+}
