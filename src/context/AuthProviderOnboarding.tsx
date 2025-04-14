@@ -1,7 +1,9 @@
 import { ReactNode } from 'react';
 import { AuthProvider } from 'react-oidc-context';
-import { useFrontendConfig } from './FrontendConfigContext.tsx';
-import { buildAuthProviderProps } from '../lib/oidc/onboardingApi.ts';
+import { OIDCConfig, useFrontendConfig } from './FrontendConfigContext.tsx';
+import { WebStorageStateStore } from "oidc-client-ts";
+import { AuthProviderProps } from "react-oidc-context";
+
 
 interface AuthProviderOnboardingProps {
   children?: ReactNode;
@@ -12,6 +14,23 @@ export function AuthProviderOnboarding({
 }: AuthProviderOnboardingProps) {
   const { oidcConfig } = useFrontendConfig();
 
-  const authConfig = buildAuthProviderProps(oidcConfig);
+  const authConfig = buildAuthProviderConfig(oidcConfig);
   return <AuthProvider {...authConfig}>{children}</AuthProvider>;
+}
+
+export function buildAuthProviderConfig(oidcConfig: OIDCConfig) {
+  const userStore = new WebStorageStateStore({ store: window.localStorage });
+
+  const props: AuthProviderProps = {
+    authority: oidcConfig.issuerUrl,
+    client_id: oidcConfig.clientId,
+    redirect_uri: window.location.origin,
+    scope: oidcConfig.scopes.join(' '),
+    userStore: userStore,
+    automaticSilentRenew: false, // we show a window instead that asks the user to renew the token
+    onSigninCallback: () => {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    },
+  };
+  return props;
 }
