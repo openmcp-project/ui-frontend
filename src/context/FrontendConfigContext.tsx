@@ -1,5 +1,6 @@
 import { ReactNode, createContext, use } from 'react';
 import { DocLinkCreator } from '../lib/shared/links';
+import { OIDCConfig } from '../lib/oidc/onboardingApi';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -9,10 +10,14 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-interface FrontendConfigContextProps {
+type FrontendConfig = {
   backendUrl: string;
   landscape?: Landscape;
   documentationBaseUrl: string;
+  oidcConfig: OIDCConfig;
+}
+
+interface FrontendConfigContextProps extends FrontendConfig {
   links: DocLinkCreator;
 }
 
@@ -21,7 +26,7 @@ export const FrontendConfigContext = createContext<FrontendConfigContextProps | 
 );
 
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
+const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => data as FrontendConfig);
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
@@ -32,11 +37,8 @@ export function FrontendConfigProvider({ children }: FrontendConfigProviderProps
   const docLinks = new DocLinkCreator(config.documentationBaseUrl);
   const value: FrontendConfigContextProps = {
     links: docLinks,
-    backendUrl: config.backendUrl,
-    landscape: config.landscape,
-    documentationBaseUrl: config.documentationBaseUrl,
+    ...config,
   };
-
   return (
     <FrontendConfigContext value={value}>{children}</FrontendConfigContext>
   );
