@@ -6,8 +6,6 @@
   "oidcConfig": {
     "clientId": "clientId",
     "issuerUrl": "issuer-url",
-    "scopes": [
-      ""
-    ]
+    "scopes": []
   }
 }
