@@ -101,9 +101,7 @@ function StatusTable({
   );
 }
 
-export function getIconForOverallStatus(
-  status: ReadyStatus | undefined,
-): JSX.Element {
+function getIconForOverallStatus(status: ReadyStatus | undefined): JSX.Element {
   switch (status) {
     case ReadyStatus.Ready:
       return <Icon style={{ color: 'green' }} name="sap-icon://sys-enter" />;
