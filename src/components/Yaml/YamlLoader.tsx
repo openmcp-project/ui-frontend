@@ -1,8 +1,10 @@
-import YamlViewer from './YamlViewer.tsx';
 import { ResourceProps } from './YamlViewButton.tsx';
 import { FC } from 'react';
-import { useManagedControlPlaneYamlQuery } from '@/spaces/onboarding/services/YamlServices/YamlService.ts';
 import Loading from '@components/Shared/Loading.tsx';
+import useResource from '@lib/api/useApiResource.ts';
+import { ResourceObject } from '@lib/api/types/crate/resourceObject.ts';
+import { stringify } from 'yaml';
+import YamlViewer from '@components/Yaml/YamlViewer.tsx';
 
 export const YamlLoader: FC<ResourceProps> = ({
   workspaceName,
@@ -10,12 +12,16 @@ export const YamlLoader: FC<ResourceProps> = ({
   resourceType,
   resourceName,
 }) => {
-  const { data, loading } = useManagedControlPlaneYamlQuery(
-    workspaceName,
-    projectName,
+  // const { data, loading } = useManagedControlPlaneYamlQuery(
+  //   workspaceName,
+  //   projectName,
+  // );
+
+  const { isLoading, data } = useResource(
+    ResourceObject(projectName, workspaceName, resourceType, resourceName),
   );
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
   // if (!workspaceName || !projectName || !resourceName || resourceType)
   //   return <div />;
-  return <YamlViewer yamlString={data} />;
+  return <YamlViewer yamlString={stringify(data)} />;
 };

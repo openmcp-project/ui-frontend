@@ -60,7 +60,6 @@ export const ListControlPlanes = (
   projectName: string | null,
   workspaceName: string,
 ): Resource<ListControlPlanesType[]> => {
-  console.log('CP2');
   return {
     path:
       projectName === null

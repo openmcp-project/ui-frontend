@@ -1,7 +1,7 @@
 import { Resource } from '../resource.ts';
 import { ControlPlaneType } from './controlPlanes.ts';
 
-export const ControlPlane = (
+export const ResourceObject = (
   projectName: string,
   workspaceName: string,
   resourceType: string = 'mcp',

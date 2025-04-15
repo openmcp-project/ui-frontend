@@ -32,7 +32,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
   } catch (error) {
     console.error('Invalid YAML:', error);
   }
-
   return (
     <div className={styles.container}>
       <FlexBox
