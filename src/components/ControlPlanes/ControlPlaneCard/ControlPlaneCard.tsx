@@ -85,21 +85,28 @@ export function ControlPlaneCard({
               className={styles.row}
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
-              <YamlViewButton
-                workspaceName={controlPlane.metadata.namespace}
-                projectName={controlPlane.metadata.name}
-                resourceName={controlPlane.metadata.name}
-                resourceType={'managedcontrolplane'}
-              />
-              <ConnectButton
-                disabled={controlPlane.status?.status !== ReadyStatus.Ready}
-                controlPlaneName={name}
-                projectName={projectName}
-                workspaceName={workspace.metadata.name ?? ''}
-                namespace={controlPlane.status?.access?.namespace ?? ''}
-                secretName={controlPlane.status?.access?.name ?? ''}
-                secretKey={controlPlane.status?.access?.key ?? ''}
-              />
+              <FlexBox
+                direction="Row"
+                justifyContent="SpaceBetween"
+                alignItems="Center"
+                gap={10}
+              >
+                <YamlViewButton
+                  workspaceName={controlPlane.metadata.namespace}
+                  projectName={controlPlane.metadata.name}
+                  resourceName={controlPlane.metadata.name}
+                  resourceType={'managedcontrolplane'}
+                />
+                <ConnectButton
+                  disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                  controlPlaneName={name}
+                  projectName={projectName}
+                  workspaceName={workspace.metadata.name ?? ''}
+                  namespace={controlPlane.status?.access?.namespace ?? ''}
+                  secretName={controlPlane.status?.access?.name ?? ''}
+                  secretKey={controlPlane.status?.access?.key ?? ''}
+                />
+              </FlexBox>
             </FlexBox>
           </FlexBox>
         </div>

@@ -5,8 +5,8 @@ import {
   materialDark,
 } from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose different styles
 import YAML from 'yaml';
-import { Button } from '@ui5/webcomponents-react';
-
+import { Button, FlexBox } from '@ui5/webcomponents-react';
+import styles from './YamlViewer.module.css';
 type YamlViewerProps = { yamlString: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
   const copyToClipboard = () => {
@@ -34,42 +34,21 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
   }
 
   return (
-    <div style={{ position: 'relative', width: '80%' }}>
-      <Button
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          padding: '5px 10px',
-          background: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          zIndex: 1,
-        }}
-        onClick={copyToClipboard}
+    <div className={styles.container}>
+      <FlexBox
+        className={styles.buttons}
+        direction="Row"
+        justifyContent="End"
+        alignItems="Baseline"
+        gap={16}
       >
-        Copy
-      </Button>
-      <Button
-        // style={{
-        //   position: 'absolute',
-        //   top: '10px',
-        //   right: '90px',
-        //   padding: '5px 10px',
-        //   background: '#28a745',
-        //   color: 'white',
-        //   border: 'none',
-        //   borderRadius: '4px',
-        //   cursor: 'pointer',
-        //   zIndex: 1,
-        // }}
-        onClick={downloadYaml}
-      >
-        Download
-      </Button>
-
+        <Button icon="copy" onClick={copyToClipboard}>
+          Copy
+        </Button>
+        <Button icon="download" onClick={downloadYaml}>
+          Download
+        </Button>
+      </FlexBox>
       <SyntaxHighlighter
         language="yaml"
         style={
@@ -77,11 +56,11 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
             ? materialDark
             : materialLight
         }
-        showLineNumbers={true}
-        wrapLines={true}
+        showLineNumbers
+        wrapLines
+        wrapLongLines
         lineNumberStyle={{
           paddingRight: '20px',
-          color: '#888',
           minWidth: '40px',
           textAlign: 'right',
         }}
@@ -91,6 +70,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
           borderRadius: '4px',
           fontSize: '1rem',
           width: '100%',
+          background: 'transparent',
         }}
       >
         {formattedYaml}
