@@ -6,7 +6,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import Loading from '../../Shared/Loading.tsx';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
-import useApiResource from '../../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ListWorkspaces } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { useTranslation } from 'react-i18next';

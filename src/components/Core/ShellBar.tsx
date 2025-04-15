@@ -8,12 +8,12 @@ import {
   ShellBarDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { generateInitialsForEmail } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { useAuth } from 'react-oidc-context';
 import { RefObject, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
+import { generateInitialsForEmail } from '../Helper/GenerateInitialsForEmail';
 
 export function ShellBarComponent() {
   const auth = useAuth();

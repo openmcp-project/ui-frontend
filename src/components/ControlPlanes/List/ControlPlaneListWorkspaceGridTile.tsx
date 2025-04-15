@@ -22,8 +22,9 @@ import {
   DeleteWorkspaceResource,
   DeleteWorkspaceType,
 } from '../../../lib/api/types/crate/deleteWorkspace.ts';
-import useApiResource, {
+import {
   useApiResourceMutation,
+  useApiResource,
 } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
@@ -64,7 +65,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   function createErrorView(error: APIError) {
     if (error) {
-      if (error.status == 403) {
+      if (error.status === 403) {
         return (
           <IllustratedError
             title={t(

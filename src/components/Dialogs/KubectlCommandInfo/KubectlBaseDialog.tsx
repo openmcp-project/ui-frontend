@@ -54,7 +54,7 @@ export const KubectlBaseDialog = ({
       initialValues[field.id] = field.defaultValue;
     });
     setFormValues(initialValues);
-  }, []);
+  }, [formFields]);
 
   const handleFieldChange =
     (fieldId: string) => (event: Ui5CustomEvent<InputDomRef>) => {
