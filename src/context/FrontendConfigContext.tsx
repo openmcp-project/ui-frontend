@@ -10,19 +10,7 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-export interface OIDCConfig {
-  clientId: string;
-  issuerUrl: string;
-  scopes: string[];
-}
 
-type FrontendConfig = {
-  backendUrl: string;
-  gatewayUrl: string;
-  landscape?: Landscape;
-  documentationBaseUrl: string;
-  oidcConfig: OIDCConfig;
-}
 
 interface FrontendConfigContextType extends FrontendConfig {
   links: DocLinkCreator;
@@ -67,6 +55,7 @@ const OidcConfigSchema = z.object({
   issuerUrl: z.string(),
   scopes: z.array(z.string()),
 });
+export type OIDCConfig = z.infer<typeof OidcConfigSchema>;
 
 const FrontendConfigSchema = z.object({
   backendUrl: z.string(),
@@ -75,6 +64,7 @@ const FrontendConfigSchema = z.object({
   oidcConfig: OidcConfigSchema,
   landscape: z.optional(z.nativeEnum(Landscape)),
 });
+type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
 
 function validateAndCastFrontendConfig(config: unknown): FrontendConfig {
   try {

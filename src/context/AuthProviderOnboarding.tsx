@@ -18,7 +18,7 @@ export function AuthProviderOnboarding({
   return <AuthProvider {...authConfig}>{children}</AuthProvider>;
 }
 
-export function buildAuthProviderConfig(oidcConfig: OIDCConfig) {
+function buildAuthProviderConfig(oidcConfig: OIDCConfig) {
   const userStore = new WebStorageStateStore({ store: window.localStorage });
 
   const props: AuthProviderProps = {
