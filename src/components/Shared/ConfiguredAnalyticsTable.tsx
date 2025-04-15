@@ -23,7 +23,7 @@ export default function ConfiguredAnalyticsTable(props: Props) {
       scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
       loading={props.isLoading}
       filterable
-      style={{margin: "12px"}}
+      style={{ margin: '12px' }}
     />
   );
 }
