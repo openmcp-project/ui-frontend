@@ -33,6 +33,7 @@ import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
+import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
 
 interface Props {
   projectName: string;
@@ -103,7 +104,7 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.24fr auto 0.05fr',
+                gridTemplateColumns: '0.3fr 0.1fr 0.24fr  auto 0.05fr',
                 gap: '1rem',
                 alignItems: 'center',
               }}
@@ -113,10 +114,17 @@ export function ControlPlaneListWorkspaceGridTile({
                 {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
               </Title>
 
+              <YamlViewButton
+                workspaceName={workspace.metadata.namespace}
+                resourceName={workspaceName}
+                resourceType={'workspaces'}
+              />
+
               <CopyButton
                 text={workspace.status?.namespace || '-'}
                 style={{ justifyContent: 'start' }}
               />
+
               <MembersAvatarView
                 members={workspace.spec.members}
                 project={projectName}
