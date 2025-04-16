@@ -63,6 +63,7 @@ const flat = typescriptEslint.config(
       "@typescript-eslint/no-array-constructor": "warn",
       "no-redeclare": "off",
       "@typescript-eslint/no-redeclare": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
       "no-use-before-define": "off",
       "@typescript-eslint/no-use-before-define": [
         "warn",
@@ -245,6 +246,9 @@ const flatReact = [
   },
   {
     ...reactRefresh.configs.recommended,
+    rules: {
+      "react-refresh/only-export-components": "off",
+    }
   },
   {
     // https://github.com/vitest-dev/eslint-plugin-vitest

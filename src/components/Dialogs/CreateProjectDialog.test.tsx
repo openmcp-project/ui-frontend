@@ -12,7 +12,7 @@ import { validationSchemaProjectWorkspace } from '../../lib/api/validations/sche
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
 export const CreateProjectWorkspaceDialogWrapper: React.FC<{
-  spyFormBody?: (data: any) => {};
+  spyFormBody?: (data: any) => object;
 }> = ({ spyFormBody }) => {
   const [isOpen, setIsOpen] = useState(true);
 

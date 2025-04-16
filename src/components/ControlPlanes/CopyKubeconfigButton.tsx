@@ -84,7 +84,6 @@ export function DownloadKubeconfig(config: any, displayName: string) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    debugger;
     console.error(error);
   }
   // dynaLeaveAction(id);
