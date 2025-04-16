@@ -51,6 +51,7 @@ export default function ConnectButton(props: Props) {
   if (contexts.length === 1) {
     return (
       <Button
+        icon={'disconnected'}
         disabled={props.disabled}
         onClick={() =>
           navigate(
