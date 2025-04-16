@@ -57,7 +57,6 @@ export default function ControlPlaneView() {
     return <IllustratedError error={t('ControlPlaneView.accessError')} />;
   }
 
-  console.log(mcp);
   return (
     <McpContextProvider
       context={{
@@ -86,7 +85,6 @@ export default function ControlPlaneView() {
                   <MCPHealthPopoverButton mcpStatus={mcp?.status} />
                   <YamlViewButton
                     workspaceName={''}
-                    projectName={''}
                     resourceType={''}
                     resourceName={''}
                   />

@@ -235,5 +235,9 @@
     "max25chars": "Max length is 25 characters.",
     "userExists": "User with this email already exists!",
     "atLeastOneUser": "You need to have at least one member assigned."
+  },
+  "common": {
+    "close": "Close",
+    "cannotLoadData": "Cannot load data"
   }
 }

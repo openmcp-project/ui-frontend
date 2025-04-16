@@ -2,13 +2,11 @@ import { Resource } from '../resource.ts';
 import { ControlPlaneType } from './controlPlanes.ts';
 
 export const ResourceObject = (
-  projectName: string,
   workspaceName: string,
-  resourceType: string = 'mcp',
+  resourceType: string,
   resourceName: string,
 ): Resource<ControlPlaneType> => {
-  console.log('CP1');
   return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/${resourceType}/${resourceName}`,
+    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${workspaceName}/${resourceType}/${resourceName}`,
   };
 };

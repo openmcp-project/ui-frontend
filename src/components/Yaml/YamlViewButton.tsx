@@ -1,22 +1,21 @@
 import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
 import { YamlLoader } from './YamlLoader.tsx';
+import { useTranslation } from 'react-i18next';
 
 export type ResourceProps = {
-  projectName: string;
   workspaceName: string;
   resourceType: string;
   resourceName: string;
 };
 
 export const YamlViewButton: FC<ResourceProps> = ({
-  projectName,
   workspaceName,
   resourceType,
   resourceName,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { t } = useTranslation();
   return (
     <>
       <Dialog
@@ -27,7 +26,7 @@ export const YamlViewButton: FC<ResourceProps> = ({
             design="Footer"
             endContent={
               <Button design="Emphasized" onClick={() => setIsOpen(false)}>
-                Close
+                {t('common.close')}
               </Button>
             }
           />
@@ -35,7 +34,6 @@ export const YamlViewButton: FC<ResourceProps> = ({
       >
         <YamlLoader
           workspaceName={workspaceName}
-          projectName={projectName}
           resourceName={resourceName}
           resourceType={resourceType}
         />

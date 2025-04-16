@@ -93,9 +93,8 @@ export function ControlPlaneCard({
               >
                 <YamlViewButton
                   workspaceName={controlPlane.metadata.namespace}
-                  projectName={controlPlane.metadata.name}
                   resourceName={controlPlane.metadata.name}
-                  resourceType={'managedcontrolplane'}
+                  resourceType={'managedcontrolplanes'}
                 />
                 <ConnectButton
                   disabled={controlPlane.status?.status !== ReadyStatus.Ready}
