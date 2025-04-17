@@ -7,6 +7,6 @@ export const ResourceObject = (
   resourceName: string,
 ): Resource<ControlPlaneType> => {
   return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${workspaceName}/${resourceType}/${resourceName}`,
+    path: `/apis/core.openmcp.cloud/v1alpha1/${workspaceName ? `namespaces/${workspaceName}/` : ''}${resourceType}/${resourceName}`,
   };
 };

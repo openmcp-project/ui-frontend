@@ -9,6 +9,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/arrow-right';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
+import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
@@ -18,7 +19,6 @@ export default function ProjectsList() {
   if (error) {
     return <IllustratedError error={error} />;
   }
-
   return (
     <>
       <AnalyticalTable
@@ -37,6 +37,10 @@ export default function ProjectsList() {
                 }}
               >
                 {instance.cell.value}
+                <YamlViewButton
+                  resourceType={'projects'}
+                  resourceName={instance.cell.value}
+                />
               </div>
             ),
           },

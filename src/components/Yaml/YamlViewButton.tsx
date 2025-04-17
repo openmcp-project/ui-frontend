@@ -4,8 +4,8 @@ import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
 
 export type ResourceProps = {
-  workspaceName: string;
-  resourceType: string;
+  workspaceName?: string;
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
 };
 

@@ -14,11 +14,11 @@ export const YamlLoader: FC<ResourceProps> = ({
   resourceName,
 }) => {
   const { isLoading, data, error } = useResource(
-    ResourceObject(workspaceName, resourceType, resourceName),
+    ResourceObject(workspaceName ?? '', resourceType, resourceName),
   );
   const { t } = useTranslation();
   if (isLoading) return <Loading />;
-  if (!workspaceName || !resourceName || !resourceType || error) {
+  if (error) {
     return <IllustratedError error={t('common.cannotLoadData')} />;
   }
 
