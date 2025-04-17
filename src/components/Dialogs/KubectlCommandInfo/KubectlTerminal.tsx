@@ -38,9 +38,9 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
 
       return (
         <>
-          <span>echo '</span>
+          <span>echo &apos;</span>
           <div style={{ marginLeft: '16px' }}>{yamlLines}</div>
-          <span>'</span> | <span>{kubectlPart}</span>
+          <span>&apos;</span> | <span>{kubectlPart}</span>
         </>
       );
     }
