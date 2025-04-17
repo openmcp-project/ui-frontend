@@ -16,10 +16,8 @@ interface FrontendConfigContextType extends FrontendConfig {
   links: DocLinkCreator;
 }
 
-export const FrontendConfigContext = createContext<FrontendConfigContextType | null>(
-  null,
-);
-
+export const FrontendConfigContext =
+  createContext<FrontendConfigContextType | null>(null);
 
 const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => validateAndCastFrontendConfig(data));
 
@@ -27,7 +25,9 @@ interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
-export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
+export function FrontendConfigProvider({
+  children,
+}: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
   const docLinks = new DocLinkCreator(config.documentationBaseUrl);
   const value: FrontendConfigContextType = {
