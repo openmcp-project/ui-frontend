@@ -105,8 +105,9 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.1fr 0.24fr  auto 0.05fr',
+                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
                 gap: '1rem',
+                justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
@@ -114,12 +115,6 @@ export function ControlPlaneListWorkspaceGridTile({
                 {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
                 {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
               </Title>
-
-              <YamlViewButton
-                workspaceName={workspace.metadata.namespace}
-                resourceName={workspaceName}
-                resourceType={'workspaces'}
-              />
 
               <CopyButton
                 text={workspace.status?.namespace || '-'}
@@ -131,13 +126,20 @@ export function ControlPlaneListWorkspaceGridTile({
                 project={projectName}
                 workspace={workspaceName}
               />
-              <Button
-                design={ButtonDesign.Transparent}
-                icon="delete"
-                onClick={async () => {
-                  setDialogDeleteWsIsOpen(true);
-                }}
-              />
+              <span>
+                <YamlViewButton
+                  workspaceName={workspace.metadata.namespace}
+                  resourceName={workspaceName}
+                  resourceType={'workspaces'}
+                />
+                <Button
+                  design={ButtonDesign.Transparent}
+                  icon="delete"
+                  onClick={async () => {
+                    setDialogDeleteWsIsOpen(true);
+                  }}
+                />
+              </span>
             </div>
           }
           noAnimation

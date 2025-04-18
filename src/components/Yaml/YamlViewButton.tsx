@@ -17,7 +17,7 @@ export const YamlViewButton: FC<ResourceProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   return (
-    <>
+    <span>
       <Dialog
         open={isOpen}
         stretch
@@ -40,12 +40,12 @@ export const YamlViewButton: FC<ResourceProps> = ({
       </Dialog>
       <Button
         icon="document"
+        aria-label={'View resource'}
+        title={'View resource'}
         onClick={() => {
           setIsOpen(true);
         }}
-      >
-        Yaml
-      </Button>
-    </>
+      />
+    </span>
   );
 };

@@ -34,6 +34,10 @@ export default function ProjectsList() {
                   width: '100%',
                   color: ThemingParameters.sapLinkColor,
                   fontWeight: 'bold',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '0.5rem',
+                  alignItems: 'baseline',
                 }}
               >
                 {instance.cell.value}
@@ -53,7 +57,7 @@ export default function ProjectsList() {
                   display: 'flex',
                   justifyContent: 'start',
                   gap: '0.5rem',
-                  alignItems: 'center',
+                  alignItems: 'baseline',
                   width: '100%',
                   cursor: 'pointer',
                 }}
