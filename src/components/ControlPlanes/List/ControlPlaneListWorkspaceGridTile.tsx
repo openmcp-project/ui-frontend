@@ -127,17 +127,17 @@ export function ControlPlaneListWorkspaceGridTile({
                 workspace={workspaceName}
               />
               <span>
-                <YamlViewButton
-                  workspaceName={workspace.metadata.namespace}
-                  resourceName={workspaceName}
-                  resourceType={'workspaces'}
-                />
                 <Button
                   design={ButtonDesign.Transparent}
                   icon="delete"
                   onClick={async () => {
                     setDialogDeleteWsIsOpen(true);
                   }}
+                />
+                <YamlViewButton
+                  workspaceName={workspace.metadata.namespace}
+                  resourceName={workspaceName}
+                  resourceType={'workspaces'}
                 />
               </span>
             </div>

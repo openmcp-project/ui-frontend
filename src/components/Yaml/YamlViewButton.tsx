@@ -2,6 +2,7 @@ import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
 import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 export type ResourceProps = {
   workspaceName?: string;
@@ -39,6 +40,7 @@ export const YamlViewButton: FC<ResourceProps> = ({
         />
       </Dialog>
       <Button
+        design={ButtonDesign.Transparent}
         icon="document"
         aria-label={'View resource'}
         title={'View resource'}

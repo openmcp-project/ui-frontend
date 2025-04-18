@@ -27,8 +27,6 @@ import { ManagedResources } from '@components/ControlPlane/ManagedResources.tsx'
 import { Providers } from '@components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '@components/ControlPlane/ProvidersConfig.tsx';
 
-import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
-
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
     useParams();
@@ -85,11 +83,11 @@ export default function ControlPlaneView() {
                   }}
                 >
                   <MCPHealthPopoverButton mcpStatus={mcp?.status} />
-                  <YamlViewButton
-                    workspaceName={mcp?.status?.access?.namespace}
-                    resourceType={'managedcontrolplanes'}
-                    resourceName={controlPlaneName}
-                  />
+                  {/*<YamlViewButton*/}
+                  {/*  workspaceName={mcp?.status?.access?.namespace}*/}
+                  {/*  resourceType={'managedcontrolplanes'}*/}
+                  {/*  resourceName={controlPlaneName}*/}
+                  {/*/>*/}
                   <CopyKubeconfigButton />
                 </div>
               }
