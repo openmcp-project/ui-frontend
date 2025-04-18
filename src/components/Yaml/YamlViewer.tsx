@@ -7,22 +7,24 @@ import {
 import YAML from 'yaml';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
-type YamlViewerProps = { yamlString: string };
-const YamlViewer: FC<YamlViewerProps> = ({ yamlString }) => {
+import { useToast } from '@/context/ToastContext.tsx';
+type YamlViewerProps = { yamlString: string; filename: string };
+const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
+  const toast = useToast();
   const copyToClipboard = () => {
     navigator.clipboard.writeText(yamlString);
-    alert('YAML copied to clipboard!');
+    toast.show('YAML copied to clipboard!');
   };
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'data.yaml'; // Default filename
+    link.download = `${filename}.yaml`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    window.URL.revokeObjectURL(url); // Clean up
+    window.URL.revokeObjectURL(url);
   };
 
   let formattedYaml = yamlString;

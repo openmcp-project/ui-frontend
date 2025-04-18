@@ -22,5 +22,10 @@ export const YamlLoader: FC<ResourceProps> = ({
     return <IllustratedError error={t('common.cannotLoadData')} />;
   }
 
-  return <YamlViewer yamlString={stringify(data)} />;
+  return (
+    <YamlViewer
+      yamlString={stringify(data)}
+      filename={`${workspaceName}_${resourceType}_${resourceName}`}
+    />
+  );
 };
