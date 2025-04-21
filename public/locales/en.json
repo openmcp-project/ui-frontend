@@ -75,6 +75,9 @@
   "IntelligentBreadcrumbs": {
     "homeLabel": "Home"
   },
+  "MCPContext": {
+    "errorMessage": "An unknown error occurred"
+  },
   "NotInLuigiView": {
     "titleMessage": "Opened outside of Hyperspace Portal",
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."

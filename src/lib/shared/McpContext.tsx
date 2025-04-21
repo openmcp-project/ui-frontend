@@ -15,6 +15,7 @@ import {
 } from '../../components/Shared/k8s';
 import useResource from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
+import { useTranslation } from 'react-i18next';
 
 interface McpContext {
   project: string;
@@ -117,6 +118,7 @@ export function WithinManagedControlPlane({
   children?: ReactNode;
 }) {
   const mcp = useContext(McpContext);
+  const { t } = useTranslation();
 
   try {
     const authprops = GetAuthPropsForContextName(mcp.context, mcp.kubeconfig!);
@@ -128,6 +130,16 @@ export function WithinManagedControlPlane({
       </>
     );
   } catch (e) {
-    return <IllustratedError error={e} />;
+    let errorMessage = t('MCPContext.errorMessage');
+
+    if (e instanceof Error) {
+      errorMessage = e.message;
+    } else if (typeof e === 'string') {
+      errorMessage = e;
+    } else if (typeof e === 'object' && e !== null && 'message' in e) {
+      errorMessage = String((e as any).message);
+    }
+
+    return <IllustratedError error={errorMessage} />;
   }
 }

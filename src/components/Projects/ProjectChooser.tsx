@@ -14,7 +14,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
   const navigate = useLuigiNavigate();
 
   if (error) {
-    return <IllustratedError error={error} />;
+    return <IllustratedError error={error.message} />;
   }
 
   return (

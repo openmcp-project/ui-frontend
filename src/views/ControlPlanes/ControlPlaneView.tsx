@@ -46,7 +46,7 @@ export default function ControlPlaneView() {
   }
 
   if (error) {
-    return <IllustratedError error={error} />;
+    return <IllustratedError error={error.message} />;
   }
   if (
     !mcp?.status?.access?.key ||

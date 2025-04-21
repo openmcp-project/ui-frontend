@@ -10,7 +10,6 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
-import { NoManagedControlPlaneBanner } from '../NoManagedControlPlaneBanner.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import {
   ListWorkspacesType,
@@ -35,6 +34,9 @@ import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { IllustrationName } from '../../Shared/IllustratedName.ts';
 
 interface Props {
   projectName: string;
@@ -62,6 +64,8 @@ export function ControlPlaneListWorkspaceGridTile({
   const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
     DeleteWorkspaceResource(projectNamespace, workspaceName),
   );
+
+  const { links } = useFrontendConfig();
   const errorView = createErrorView(cpsError);
 
   function createErrorView(error: APIError) {
@@ -148,7 +152,13 @@ export function ControlPlaneListWorkspaceGridTile({
           ) : (
             <Grid defaultSpan="XL4 L4 M7 S12">
               {controlplanes?.length === 0 ? (
-                <NoManagedControlPlaneBanner />
+                <IllustratedBanner
+                  title={t('NoManagedControlPlaneBanner.titleMessage')}
+                  subtitle={t('NoManagedControlPlaneBanner.subtitleMessage')}
+                  helpButtonText={t('NoManagedControlPlaneBanner.helpButton')}
+                  illustrationName={IllustrationName.NoData}
+                  helpLink={links.COM_PAGE_GETTING_STARTED_MCP}
+                />
               ) : (
                 controlplanes?.map((cp) => (
                   <ControlPlaneCard

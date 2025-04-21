@@ -109,7 +109,7 @@ export function ManagedResources() {
     <>
       <Title level="H4">{t('ManagedResources.header')}</Title>
 
-      {error && <IllustratedError error={error} />}
+      {error && <IllustratedError error={error.message} />}
 
       {!error && (
         <AnalyticalTable

@@ -105,7 +105,7 @@ export function Providers() {
     <>
       <Title level="H4">{t('Providers.headerProviders')}</Title>
 
-      {error && <IllustratedError error={error} />}
+      {error && <IllustratedError error={error.message} />}
 
       {!error && (
         <AnalyticalTable
