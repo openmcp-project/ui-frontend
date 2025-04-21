@@ -37,6 +37,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       Header: '',
       accessor: '.',
       width: 50,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: (instance: any) => (
         <Button
           icon="delete"

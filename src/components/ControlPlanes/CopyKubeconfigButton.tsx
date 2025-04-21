@@ -12,8 +12,10 @@ export default function CopyKubeconfigButton() {
   const { show } = useToast();
   const { t } = useTranslation();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
     if (popoverRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
@@ -65,6 +67,7 @@ export default function CopyKubeconfigButton() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function DownloadKubeconfig(config: any, displayName: string) {
   const filename = 'kubeconfig-' + displayName + '.yaml';
 

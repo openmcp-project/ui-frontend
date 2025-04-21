@@ -24,8 +24,10 @@ export default function ConnectButton(props: Props) {
   const navigate = useLuigiNavigate();
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
     if (popoverRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
@@ -40,8 +42,10 @@ export default function ConnectButton(props: Props) {
   if (res.isLoading) {
     return <></>;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const kubeconfig = yaml.load(res.data as string) as any;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const contexts = kubeconfig.contexts as any[];
   const currentContext = kubeconfig['current-context'];
   if (!currentContext) {
@@ -89,6 +93,7 @@ export default function ConnectButton(props: Props) {
           }
         }}
       >
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any  */}
         {contexts.map((context: any) => (
           <MenuItem
             key={context.name}

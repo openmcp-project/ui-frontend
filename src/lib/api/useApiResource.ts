@@ -169,6 +169,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
 
 export const useApiResourceMutation = <T>(
   resource: Resource<T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config?: SWRMutationConfiguration<T, any, any, any>,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
@@ -177,6 +178,7 @@ export const useApiResourceMutation = <T>(
     resource.path === null
       ? null //TODO: is null a valid key?
       : [resource.path, apiConfig],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) =>
       fetchApiServerJson<T>(
         path,

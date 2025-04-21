@@ -27,6 +27,7 @@ export default function ProjectsList() {
           {
             Header: t('ProjectsListView.title'),
             accessor: 'projectName',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Cell: (instance: any) => (
               <div
                 style={{
@@ -43,6 +44,7 @@ export default function ProjectsList() {
           {
             Header: 'Namespace',
             accessor: 'nameSpace',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Cell: (instance: any) => (
               <div
                 style={{
@@ -67,6 +69,7 @@ export default function ProjectsList() {
             };
           }) ?? []
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRowClick={(e: any) => {
           navigate(
             `/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`,
