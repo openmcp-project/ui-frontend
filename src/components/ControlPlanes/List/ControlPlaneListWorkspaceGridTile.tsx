@@ -8,7 +8,6 @@ import {
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { NoManagedControlPlaneBanner } from '../NoManagedControlPlaneBanner.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
@@ -128,7 +127,6 @@ export function ControlPlaneListWorkspaceGridTile({
               />
               <span>
                 <Button
-                  design={ButtonDesign.Transparent}
                   icon="delete"
                   onClick={async () => {
                     setDialogDeleteWsIsOpen(true);

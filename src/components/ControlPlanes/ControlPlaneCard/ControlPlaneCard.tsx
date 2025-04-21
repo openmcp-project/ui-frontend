@@ -10,7 +10,6 @@ import {
   ReadyStatus,
 } from '@lib/api/types/crate/controlPlanes.ts';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useState } from 'react';
 import { useApiResourceMutation } from '@lib/api/useApiResource.ts';
 import {
@@ -67,7 +66,6 @@ export function ControlPlaneCard({
               </FlexBox>
               <div>
                 <Button
-                  design={ButtonDesign.Transparent}
                   icon="delete"
                   disabled={
                     controlPlane.status?.status === ReadyStatus.InDeletion

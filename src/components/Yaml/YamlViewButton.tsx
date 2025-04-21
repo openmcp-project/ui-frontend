@@ -40,7 +40,6 @@ export const YamlViewButton: FC<ResourceProps> = ({
         />
       </Dialog>
       <Button
-        design={ButtonDesign.Transparent}
         icon="document"
         aria-label={'View resource'}
         title={'View resource'}
