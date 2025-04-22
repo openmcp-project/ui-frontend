@@ -1,4 +1,11 @@
-import { AnalyticalTable } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  Card,
+  Title,
+  Button,
+  Grid,
+  FlexBox,
+} from '@ui5/webcomponents-react';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -10,6 +17,8 @@ import '@ui5/webcomponents-icons/dist/arrow-right';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
 import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import styles from './ProjectsList.module.css';
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
@@ -81,6 +90,57 @@ export default function ProjectsList() {
           );
         }}
       />
+      <Grid defaultSpan="XL4 L4 M6 S12">
+        {data?.map((item) => {
+          const namespace = projectnameToNamespace(item);
+          return (
+            <Card key={item}>
+              <div className={styles.card}>
+                <Button
+                  design={ButtonDesign.Transparent}
+                  onClick={() => {
+                    navigate(`/mcp/projects/${item ?? ''}`);
+                  }}
+                >
+                  <Title level={'H2'} size={'H4'}>
+                    {item}
+                  </Title>
+                </Button>
+
+                <FlexBox
+                  alignItems={'Baseline'}
+                  direction={'Row'}
+                  gap={'16px'}
+                  justifyContent={'SpaceBetween'}
+                >
+                  <CopyButton text={namespace} />
+                  <FlexBox
+                    alignItems={'Center'}
+                    direction={'Row'}
+                    gap={'16px'}
+                    justifyContent={'SpaceBetween'}
+                  >
+                    <YamlViewButton
+                      resourceType={'projects'}
+                      resourceName={item}
+                    />
+                    <Button
+                      endIcon="navigation-right-arrow"
+                      aria-label={t('buttons.viewProject')}
+                      title={t('buttons.viewProject')}
+                      onClick={() => {
+                        navigate(`/mcp/projects/${item ?? ''}`);
+                      }}
+                    >
+                      {t('buttons.viewProject')}
+                    </Button>
+                  </FlexBox>
+                </FlexBox>
+              </div>
+            </Card>
+          );
+        })}
+      </Grid>
     </>
   );
 }

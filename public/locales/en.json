@@ -52,7 +52,7 @@
     "emptyListSubtitleMessage": "Create a workspace to get started"
   },
   "ConnectButton": {
-    "buttonText": "Connect"
+    "buttonText": "Connect to MCP"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -245,6 +245,7 @@
     "cannotLoadData": "Cannot load data"
   },
   "buttons": {
-    "viewResource": "View resource"
+    "viewResource": "View resource",
+    "viewProject": "View project"
   }
 }
