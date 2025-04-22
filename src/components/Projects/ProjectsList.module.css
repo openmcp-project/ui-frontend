@@ -1,3 +1,7 @@
 .card {
+  margin-top: 1rem;
+}
+
+.container {
   padding: 0.75rem;
 }

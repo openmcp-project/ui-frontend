@@ -94,8 +94,8 @@ export default function ProjectsList() {
         {data?.map((item) => {
           const namespace = projectnameToNamespace(item);
           return (
-            <Card key={item}>
-              <div className={styles.card}>
+            <Card key={item} className={styles.card}>
+              <div className={styles.container}>
                 <Button
                   design={ButtonDesign.Transparent}
                   onClick={() => {
