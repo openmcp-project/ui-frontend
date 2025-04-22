@@ -25,7 +25,7 @@ export const YamlLoader: FC<ResourceProps> = ({
   return (
     <YamlViewer
       yamlString={stringify(data)}
-      filename={`${workspaceName}_${resourceType}_${resourceName}`}
+      filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
     />
   );
 };

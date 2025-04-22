@@ -55,8 +55,6 @@ export default function ControlPlaneView() {
     return <IllustratedError error={t('ControlPlaneView.accessError')} />;
   }
 
-  console.log('mcp ---');
-  console.log(mcp);
   return (
     <McpContextProvider
       context={{

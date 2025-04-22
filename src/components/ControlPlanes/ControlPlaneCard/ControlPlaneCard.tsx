@@ -52,8 +52,7 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
-  console.log('controlPlane');
-  console.log(controlPlane);
+
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
