@@ -16,7 +16,7 @@ RUN npm run build
 
 # Use the latest LTS version of Nginx as the serving image
 # https://hub.docker.com/_/nginx
-FROM nginx:1.27.4-alpine-slim@sha256:b05aceb5ec1844435cae920267ff9949887df5b88f70e11d8b2871651a596612
+FROM nginx:1.27.5-alpine-slim@sha256:b947b2630c97622793113555e13332eec85bdc7a0ac6ab697159af78942bb856
 
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build-stage /usr/src/app/dist /usr/share/nginx/html
