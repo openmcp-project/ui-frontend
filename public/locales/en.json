@@ -52,7 +52,7 @@
     "emptyListSubtitleMessage": "Create a workspace to get started"
   },
   "ConnectButton": {
-    "buttonText": "Connect to MCP"
+    "buttonText": "Connect"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",

@@ -97,14 +97,13 @@ export default function ProjectsList() {
             <Card key={item} className={styles.card}>
               <div className={styles.container}>
                 <Button
+                  className={styles.button}
                   design={ButtonDesign.Transparent}
                   onClick={() => {
                     navigate(`/mcp/projects/${item ?? ''}`);
                   }}
                 >
-                  <Title level={'H2'} size={'H4'}>
-                    {item}
-                  </Title>
+                  {item}
                 </Button>
 
                 <FlexBox
