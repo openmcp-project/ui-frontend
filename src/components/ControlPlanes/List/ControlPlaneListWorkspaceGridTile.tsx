@@ -1,5 +1,6 @@
 import {
   Button,
+  FlexBox,
   Grid,
   ObjectPageSection,
   Panel,
@@ -125,7 +126,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 project={projectName}
                 workspace={workspaceName}
               />
-              <span>
+              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <Button
                   icon="delete"
                   onClick={async () => {
@@ -137,7 +138,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
                 />
-              </span>
+              </FlexBox>
             </div>
           }
           noAnimation
