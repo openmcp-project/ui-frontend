@@ -3365,33 +3365,33 @@ export type PriorityLevelConfiguration = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus>;
+  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspec>;
+  status?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatus>;
 };
 
 export type PriorityLevelConfigurationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput>;
+  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspecInput>;
+  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatusInput>;
 };
 
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1 = {
-  __typename?: 'PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1';
+export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3 = {
+  __typename?: 'PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatus>;
+  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec>;
+  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus>;
 };
 
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input = {
+export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatusInput>;
+  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput>;
+  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput>;
 };
 
 export type PrivateNameForMutation = {
@@ -3686,10 +3686,10 @@ export type PrivateNameForSubscription = {
   flowcontrol_apiserver_k8s_io_flowschemas?: Maybe<Array<Maybe<FlowSchema>>>;
   /** Subscribe to changes of PriorityLevelConfiguration */
   flowcontrol_apiserver_k8s_io_prioritylevelconfiguration?: Maybe<PriorityLevelConfiguration>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1 */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1s */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1s?: Maybe<Array<Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>>>;
+  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3 */
+  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
+  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s */
+  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3s?: Maybe<Array<Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>>>;
   /** Subscribe to changes of PriorityLevelConfigurations */
   flowcontrol_apiserver_k8s_io_prioritylevelconfigurations?: Maybe<Array<Maybe<PriorityLevelConfiguration>>>;
   /** Subscribe to changes of Ingress */
@@ -4618,13 +4618,13 @@ export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevel
 };
 
 
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
+export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
   name: Scalars['String']['input'];
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1sArgs = {
+export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8685,15 +8685,15 @@ export type Flowcontrol_Apiserver_K8s_IoMutation = {
   createFlowSchema?: Maybe<FlowSchema>;
   createFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
   createPriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  createPriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
+  createPriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
   deleteFlowSchema?: Maybe<Scalars['Boolean']['output']>;
   deleteFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
   deletePriorityLevelConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  deletePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
+  deletePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<Scalars['Boolean']['output']>;
   updateFlowSchema?: Maybe<FlowSchema>;
   updateFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
   updatePriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  updatePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
+  updatePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
 };
 
 
@@ -8712,8 +8712,8 @@ export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input;
+export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
+  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
 };
 
 
@@ -8732,7 +8732,7 @@ export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
+export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
   name: Scalars['String']['input'];
 };
 
@@ -8755,9 +8755,9 @@ export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
+export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
   name: Scalars['String']['input'];
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input;
+  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
 };
 
 export type Flowcontrol_Apiserver_K8s_IoQuery = {
@@ -8770,9 +8770,9 @@ export type Flowcontrol_Apiserver_K8s_IoQuery = {
   FlowSchemas: Array<FlowSchema>;
   PriorityLevelConfiguration: PriorityLevelConfiguration;
   PriorityLevelConfigurationYaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1;
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1Yaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1s: Array<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3;
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3Yaml: Scalars['String']['output'];
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s: Array<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
   PriorityLevelConfigurations: Array<PriorityLevelConfiguration>;
 };
 
@@ -8819,17 +8819,17 @@ export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationYamlArgs 
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
   name: Scalars['String']['input'];
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1YamlArgs = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3YamlArgs = {
   name: Scalars['String']['input'];
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1sArgs = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
