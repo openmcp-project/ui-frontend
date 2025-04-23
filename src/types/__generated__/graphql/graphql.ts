@@ -2128,47 +2128,6 @@ export type Event = {
   __typename?: 'Event';
   action?: Maybe<Scalars['String']['output']>;
   apiVersion?: Maybe<Scalars['String']['output']>;
-  count?: Maybe<Scalars['Int']['output']>;
-  eventTime?: Maybe<Scalars['String']['output']>;
-  firstTimestamp?: Maybe<Scalars['String']['output']>;
-  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
-  kind?: Maybe<Scalars['String']['output']>;
-  lastTimestamp?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  reason?: Maybe<Scalars['String']['output']>;
-  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingComponent?: Maybe<Scalars['String']['output']>;
-  reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
-  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type EventInput = {
-  action?: InputMaybe<Scalars['String']['input']>;
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  count?: InputMaybe<Scalars['Int']['input']>;
-  eventTime?: InputMaybe<Scalars['String']['input']>;
-  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingComponent?: InputMaybe<Scalars['String']['input']>;
-  reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
-  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Eventevents_K8s_Iov1 = {
-  __typename?: 'Eventevents_k8s_iov1';
-  action?: Maybe<Scalars['String']['output']>;
-  apiVersion?: Maybe<Scalars['String']['output']>;
   deprecatedCount?: Maybe<Scalars['Int']['output']>;
   deprecatedFirstTimestamp?: Maybe<Scalars['String']['output']>;
   deprecatedLastTimestamp?: Maybe<Scalars['String']['output']>;
@@ -2186,7 +2145,7 @@ export type Eventevents_K8s_Iov1 = {
   type?: Maybe<Scalars['String']['output']>;
 };
 
-export type Eventevents_K8s_Iov1Input = {
+export type EventInput = {
   action?: InputMaybe<Scalars['String']['input']>;
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   deprecatedCount?: InputMaybe<Scalars['Int']['input']>;
@@ -2203,6 +2162,47 @@ export type Eventevents_K8s_Iov1Input = {
   reportingController?: InputMaybe<Scalars['String']['input']>;
   reportingInstance?: InputMaybe<Scalars['String']['input']>;
   series?: InputMaybe<Io_K8s_Api_Events_V1_EventSeriesseriesInput>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Eventcorev1 = {
+  __typename?: 'Eventcorev1';
+  action?: Maybe<Scalars['String']['output']>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  count?: Maybe<Scalars['Int']['output']>;
+  eventTime?: Maybe<Scalars['String']['output']>;
+  firstTimestamp?: Maybe<Scalars['String']['output']>;
+  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
+  kind?: Maybe<Scalars['String']['output']>;
+  lastTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  reason?: Maybe<Scalars['String']['output']>;
+  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
+  reportingComponent?: Maybe<Scalars['String']['output']>;
+  reportingInstance?: Maybe<Scalars['String']['output']>;
+  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
+  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type Eventcorev1Input = {
+  action?: InputMaybe<Scalars['String']['input']>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  count?: InputMaybe<Scalars['Int']['input']>;
+  eventTime?: InputMaybe<Scalars['String']['input']>;
+  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
+  reportingComponent?: InputMaybe<Scalars['String']['input']>;
+  reportingInstance?: InputMaybe<Scalars['String']['input']>;
+  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
+  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3365,33 +3365,33 @@ export type PriorityLevelConfiguration = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatus>;
+  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec>;
+  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus>;
 };
 
 export type PriorityLevelConfigurationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatusInput>;
+  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput>;
+  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput>;
 };
 
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3 = {
-  __typename?: 'PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3';
+export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1 = {
+  __typename?: 'PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus>;
+  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspec>;
+  status?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatus>;
 };
 
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input = {
+export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput>;
+  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspecInput>;
+  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatusInput>;
 };
 
 export type PrivateNameForMutation = {
@@ -3556,10 +3556,10 @@ export type PrivateNameForSubscription = {
   core_endpoints?: Maybe<Endpoints>;
   /** Subscribe to changes of Endpointses */
   core_endpointses?: Maybe<Array<Maybe<Endpoints>>>;
-  /** Subscribe to changes of Event */
-  core_event?: Maybe<Event>;
-  /** Subscribe to changes of Events */
-  core_events?: Maybe<Array<Maybe<Event>>>;
+  /** Subscribe to changes of Eventcorev1 */
+  core_eventcorev1?: Maybe<Eventcorev1>;
+  /** Subscribe to changes of Eventcorev1s */
+  core_eventcorev1s?: Maybe<Array<Maybe<Eventcorev1>>>;
   /** Subscribe to changes of LimitRange */
   core_limitrange?: Maybe<LimitRange>;
   /** Subscribe to changes of LimitRanges */
@@ -3672,10 +3672,10 @@ export type PrivateNameForSubscription = {
   dns_gardener_cloud_dnsentry?: Maybe<DnsEntry>;
   /** Subscribe to changes of DNSEntrys */
   dns_gardener_cloud_dnsentrys?: Maybe<Array<Maybe<DnsEntry>>>;
-  /** Subscribe to changes of Eventevents_k8s_iov1 */
-  events_k8s_io_eventevents_k8s_iov1?: Maybe<Eventevents_K8s_Iov1>;
-  /** Subscribe to changes of Eventevents_k8s_iov1s */
-  events_k8s_io_eventevents_k8s_iov1s?: Maybe<Array<Maybe<Eventevents_K8s_Iov1>>>;
+  /** Subscribe to changes of Event */
+  events_k8s_io_event?: Maybe<Event>;
+  /** Subscribe to changes of Events */
+  events_k8s_io_events?: Maybe<Array<Maybe<Event>>>;
   /** Subscribe to changes of FlowSchema */
   flowcontrol_apiserver_k8s_io_flowschema?: Maybe<FlowSchema>;
   /** Subscribe to changes of FlowSchemaflowcontrol_apiserver_k8s_iov1 */
@@ -3686,10 +3686,10 @@ export type PrivateNameForSubscription = {
   flowcontrol_apiserver_k8s_io_flowschemas?: Maybe<Array<Maybe<FlowSchema>>>;
   /** Subscribe to changes of PriorityLevelConfiguration */
   flowcontrol_apiserver_k8s_io_prioritylevelconfiguration?: Maybe<PriorityLevelConfiguration>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3 */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3s?: Maybe<Array<Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>>>;
+  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1 */
+  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
+  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1s */
+  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1s?: Maybe<Array<Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>>>;
   /** Subscribe to changes of PriorityLevelConfigurations */
   flowcontrol_apiserver_k8s_io_prioritylevelconfigurations?: Maybe<Array<Maybe<PriorityLevelConfiguration>>>;
   /** Subscribe to changes of Ingress */
@@ -4152,14 +4152,14 @@ export type PrivateNameForSubscriptionCore_EndpointsesArgs = {
 };
 
 
-export type PrivateNameForSubscriptionCore_EventArgs = {
+export type PrivateNameForSubscriptionCore_Eventcorev1Args = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
-export type PrivateNameForSubscriptionCore_EventsArgs = {
+export type PrivateNameForSubscriptionCore_Eventcorev1sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -4571,14 +4571,14 @@ export type PrivateNameForSubscriptionDns_Gardener_Cloud_DnsentrysArgs = {
 };
 
 
-export type PrivateNameForSubscriptionEvents_K8s_Io_Eventevents_K8s_Iov1Args = {
+export type PrivateNameForSubscriptionEvents_K8s_Io_EventArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
-export type PrivateNameForSubscriptionEvents_K8s_Io_Eventevents_K8s_Iov1sArgs = {
+export type PrivateNameForSubscriptionEvents_K8s_Io_EventsArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -4618,13 +4618,13 @@ export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevel
 };
 
 
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
+export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
   name: Scalars['String']['input'];
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
+export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -7175,7 +7175,7 @@ export type CoreMutation = {
   createConfigMap?: Maybe<ConfigMap>;
   createDeleteOptions?: Maybe<DeleteOptions>;
   createEndpoints?: Maybe<Endpoints>;
-  createEvent?: Maybe<Event>;
+  createEventcorev1?: Maybe<Eventcorev1>;
   createLimitRange?: Maybe<LimitRange>;
   createNamespace?: Maybe<Namespace>;
   createNode?: Maybe<Node>;
@@ -7195,7 +7195,7 @@ export type CoreMutation = {
   deleteConfigMap?: Maybe<Scalars['Boolean']['output']>;
   deleteDeleteOptions?: Maybe<Scalars['Boolean']['output']>;
   deleteEndpoints?: Maybe<Scalars['Boolean']['output']>;
-  deleteEvent?: Maybe<Scalars['Boolean']['output']>;
+  deleteEventcorev1?: Maybe<Scalars['Boolean']['output']>;
   deleteLimitRange?: Maybe<Scalars['Boolean']['output']>;
   deleteNamespace?: Maybe<Scalars['Boolean']['output']>;
   deleteNode?: Maybe<Scalars['Boolean']['output']>;
@@ -7215,7 +7215,7 @@ export type CoreMutation = {
   updateConfigMap?: Maybe<ConfigMap>;
   updateDeleteOptions?: Maybe<DeleteOptions>;
   updateEndpoints?: Maybe<Endpoints>;
-  updateEvent?: Maybe<Event>;
+  updateEventcorev1?: Maybe<Eventcorev1>;
   updateLimitRange?: Maybe<LimitRange>;
   updateNamespace?: Maybe<Namespace>;
   updateNode?: Maybe<Node>;
@@ -7261,9 +7261,9 @@ export type CoreMutationCreateEndpointsArgs = {
 };
 
 
-export type CoreMutationCreateEventArgs = {
+export type CoreMutationCreateEventcorev1Args = {
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: Eventcorev1Input;
 };
 
 
@@ -7374,7 +7374,7 @@ export type CoreMutationDeleteEndpointsArgs = {
 };
 
 
-export type CoreMutationDeleteEventArgs = {
+export type CoreMutationDeleteEventcorev1Args = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
@@ -7492,10 +7492,10 @@ export type CoreMutationUpdateEndpointsArgs = {
 };
 
 
-export type CoreMutationUpdateEventArgs = {
+export type CoreMutationUpdateEventcorev1Args = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: Eventcorev1Input;
 };
 
 
@@ -7608,9 +7608,9 @@ export type CoreQuery = {
   Endpoints: Endpoints;
   EndpointsYaml: Scalars['String']['output'];
   Endpointses: Array<Endpoints>;
-  Event: Event;
-  EventYaml: Scalars['String']['output'];
-  Events: Array<Event>;
+  Eventcorev1: Eventcorev1;
+  Eventcorev1Yaml: Scalars['String']['output'];
+  Eventcorev1s: Array<Eventcorev1>;
   LimitRange: LimitRange;
   LimitRangeYaml: Scalars['String']['output'];
   LimitRanges: Array<LimitRange>;
@@ -7745,19 +7745,19 @@ export type CoreQueryEndpointsesArgs = {
 };
 
 
-export type CoreQueryEventArgs = {
+export type CoreQueryEventcorev1Args = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type CoreQueryEventYamlArgs = {
+export type CoreQueryEventcorev1YamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type CoreQueryEventsArgs = {
+export type CoreQueryEventcorev1sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -8630,51 +8630,51 @@ export type Dns_Gardener_CloudQueryDnsEntrysArgs = {
 
 export type Events_K8s_IoMutation = {
   __typename?: 'events_k8s_ioMutation';
-  createEventevents_k8s_iov1?: Maybe<Eventevents_K8s_Iov1>;
-  deleteEventevents_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
-  updateEventevents_k8s_iov1?: Maybe<Eventevents_K8s_Iov1>;
+  createEvent?: Maybe<Event>;
+  deleteEvent?: Maybe<Scalars['Boolean']['output']>;
+  updateEvent?: Maybe<Event>;
 };
 
 
-export type Events_K8s_IoMutationCreateEventevents_K8s_Iov1Args = {
+export type Events_K8s_IoMutationCreateEventArgs = {
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: Eventevents_K8s_Iov1Input;
+  object: EventInput;
 };
 
 
-export type Events_K8s_IoMutationDeleteEventevents_K8s_Iov1Args = {
+export type Events_K8s_IoMutationDeleteEventArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type Events_K8s_IoMutationUpdateEventevents_K8s_Iov1Args = {
+export type Events_K8s_IoMutationUpdateEventArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: Eventevents_K8s_Iov1Input;
+  object: EventInput;
 };
 
 export type Events_K8s_IoQuery = {
   __typename?: 'events_k8s_ioQuery';
-  Eventevents_k8s_iov1: Eventevents_K8s_Iov1;
-  Eventevents_k8s_iov1Yaml: Scalars['String']['output'];
-  Eventevents_k8s_iov1s: Array<Eventevents_K8s_Iov1>;
+  Event: Event;
+  EventYaml: Scalars['String']['output'];
+  Events: Array<Event>;
 };
 
 
-export type Events_K8s_IoQueryEventevents_K8s_Iov1Args = {
+export type Events_K8s_IoQueryEventArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type Events_K8s_IoQueryEventevents_K8s_Iov1YamlArgs = {
+export type Events_K8s_IoQueryEventYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type Events_K8s_IoQueryEventevents_K8s_Iov1sArgs = {
+export type Events_K8s_IoQueryEventsArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
@@ -8685,15 +8685,15 @@ export type Flowcontrol_Apiserver_K8s_IoMutation = {
   createFlowSchema?: Maybe<FlowSchema>;
   createFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
   createPriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  createPriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
+  createPriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
   deleteFlowSchema?: Maybe<Scalars['Boolean']['output']>;
   deleteFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
   deletePriorityLevelConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  deletePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<Scalars['Boolean']['output']>;
+  deletePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
   updateFlowSchema?: Maybe<FlowSchema>;
   updateFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
   updatePriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  updatePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
+  updatePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
 };
 
 
@@ -8712,8 +8712,8 @@ export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
+export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
+  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input;
 };
 
 
@@ -8732,7 +8732,7 @@ export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
+export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
   name: Scalars['String']['input'];
 };
 
@@ -8755,9 +8755,9 @@ export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfiguration
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
+export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
   name: Scalars['String']['input'];
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
+  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Input;
 };
 
 export type Flowcontrol_Apiserver_K8s_IoQuery = {
@@ -8770,9 +8770,9 @@ export type Flowcontrol_Apiserver_K8s_IoQuery = {
   FlowSchemas: Array<FlowSchema>;
   PriorityLevelConfiguration: PriorityLevelConfiguration;
   PriorityLevelConfigurationYaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3;
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3Yaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s: Array<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1;
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1Yaml: Scalars['String']['output'];
+  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1s: Array<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1>;
   PriorityLevelConfigurations: Array<PriorityLevelConfiguration>;
 };
 
@@ -8819,17 +8819,17 @@ export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationYamlArgs 
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1Args = {
   name: Scalars['String']['input'];
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3YamlArgs = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1YamlArgs = {
   name: Scalars['String']['input'];
 };
 
 
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
+export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1sArgs = {
   labelselector?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
@@ -28220,14 +28220,5 @@ export type GetWorkspacesQueryVariables = Exact<{
 
 export type GetWorkspacesQuery = { __typename?: 'PrivateNameForQuery', core_openmcp_cloud?: { __typename?: 'core_openmcp_cloudQuery', Workspaces: Array<{ __typename?: 'Workspace', metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null } | null }> } | null };
 
-export type GetManagedControlPlaneYamlQueryVariables = Exact<{
-  projectNamespace: Scalars['String']['input'];
-  projectName: Scalars['String']['input'];
-}>;
-
-
-export type GetManagedControlPlaneYamlQuery = { __typename?: 'PrivateNameForQuery', core_openmcp_cloud?: { __typename?: 'core_openmcp_cloudQuery', ManagedControlPlaneYaml: string } | null };
-
 
 export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
-export const GetManagedControlPlaneYamlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetManagedControlPlaneYaml"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ManagedControlPlaneYaml"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectName"}}},{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}]}]}}]}}]} as unknown as DocumentNode<GetManagedControlPlaneYamlQuery, GetManagedControlPlaneYamlQueryVariables>;
