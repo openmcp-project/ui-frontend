@@ -245,7 +245,6 @@
     "cannotLoadData": "Cannot load data"
   },
   "buttons": {
-    "viewResource": "View resource",
-    "viewProject": "View project"
+    "viewResource": "View resource"
   }
 }
