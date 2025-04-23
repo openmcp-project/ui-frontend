@@ -21,8 +21,10 @@ export default function MCPHealthPopoverButton({
 
   const { t } = useTranslation();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
     if (popoverRef.current) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
@@ -34,6 +36,7 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.statusHeader'),
       accessor: 'status',
       width: 50,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: (instance: any) => {
         const isReady = instance.cell.value === 'True';
         return (
@@ -59,6 +62,7 @@ export default function MCPHealthPopoverButton({
     {
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: (instance: any) => {
         return <ReactTimeAgo date={new Date(instance.cell.value)} />;
       },
