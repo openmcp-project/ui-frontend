@@ -1,5 +1,6 @@
 export class APIError extends Error {
   status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info: any;
 
   constructor(message: string, status: number) {

@@ -43,6 +43,7 @@ export function DeleteConfirmationDialog({
     };
   }, [isOpen]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onConfirmationInputChange = (event: any) => {
     if (event.target.value === resourceName) {
       setConfirmed(true);

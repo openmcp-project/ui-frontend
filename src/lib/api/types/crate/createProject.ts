@@ -11,9 +11,11 @@ export interface CreateProjectType {
   metadata: {
     name: string;
     annotations: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [annotation: string]: any;
     };
     labels: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [label: string]: any;
     };
   };

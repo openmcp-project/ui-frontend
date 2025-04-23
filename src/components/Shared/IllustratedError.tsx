@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 interface Props {
   title?: string;
   subtitleText?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error?: any;
 }
 
