@@ -13,19 +13,20 @@ import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../components/Shared/IllustratedError.tsx';
 import IntelligentBreadcrumbs from '../../components/Core/IntelligentBreadcrumbs.tsx';
+
+import FluxList from '../../components/ControlPlane/FluxList.tsx';
+import { ControlPlane as ControlPlaneResource } from '../../lib/api/types/crate/controlPlanes.ts';
+import { useTranslation } from 'react-i18next';
 import {
   McpContextProvider,
   WithinManagedControlPlane,
-} from '@lib/shared/McpContext.tsx';
-import FluxList from '../../components/ControlPlane/FluxList.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../lib/api/types/crate/controlPlanes.ts';
-import useResource from '@lib/api/useApiResource.ts';
-import MCPHealthPopoverButton from '@components/ControlPlane/MCPHealthPopoverButton.tsx';
-import ComponentList from '@components/ControlPlane/ComponentList.tsx';
-import { useTranslation } from 'react-i18next';
-import { ManagedResources } from '@components/ControlPlane/ManagedResources.tsx';
-import { Providers } from '@components/ControlPlane/Providers.tsx';
-import { ProvidersConfig } from '@components/ControlPlane/ProvidersConfig.tsx';
+} from '../../lib/shared/McpContext.tsx';
+import { ManagedResources } from '../../components/ControlPlane/ManagedResources.tsx';
+import { ProvidersConfig } from '../../components/ControlPlane/ProvidersConfig.tsx';
+import { Providers } from '../../components/ControlPlane/Providers.tsx';
+import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
+import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
+import useResource from '../../lib/api/useApiResource';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -81,11 +82,7 @@ export default function ControlPlaneView() {
                   }}
                 >
                   <MCPHealthPopoverButton mcpStatus={mcp?.status} />
-                  {/*<YamlViewButton*/}
-                  {/*  workspaceName={mcp?.status?.access?.namespace}*/}
-                  {/*  resourceType={'managedcontrolplanes'}*/}
-                  {/*  resourceName={controlPlaneName}*/}
-                  {/*/>*/}
+
                   <CopyKubeconfigButton />
                 </div>
               }

@@ -34,7 +34,7 @@ import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
-import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 
 interface Props {
   projectName: string;

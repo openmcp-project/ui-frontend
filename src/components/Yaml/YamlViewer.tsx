@@ -7,7 +7,7 @@ import {
 import YAML from 'yaml';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
-import { useToast } from '@/context/ToastContext.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const toast = useToast();

@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { graphql } from '@/types/__generated__/graphql';
+import { graphql } from '../../../../types/__generated__/graphql';
 
 const GetManagedControlPlaneYamlQuery = graphql(`
   query GetManagedControlPlaneYaml(

@@ -3,26 +3,27 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton.tsx';
-import { ListWorkspacesType } from '@lib/api/types/crate/listWorkspaces.ts';
 
+import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
+import { useState } from 'react';
+
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import styles from './ControlPlaneCard.module.css';
+import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
 import {
   ListControlPlanesType,
   ReadyStatus,
-} from '@lib/api/types/crate/controlPlanes.ts';
-import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState } from 'react';
-import { useApiResourceMutation } from '@lib/api/useApiResource.ts';
+} from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   DeleteMCPResource,
   DeleteMCPType,
   PatchMCPResourceForDeletion,
   PatchMCPResourceForDeletionBody,
-} from '@lib/api/types/crate/deleteMCP.ts';
-import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
-import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
-import { YamlViewButton } from '@components/Yaml/YamlViewButton.tsx';
+} from '../../../lib/api/types/crate/deleteMCP.ts';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
