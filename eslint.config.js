@@ -8,7 +8,6 @@ import jestDom from "eslint-plugin-jest-dom";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
 
 const flat = typescriptEslint.config(
   eslint.configs.recommended,
@@ -242,9 +241,6 @@ const flatReact = [
       ...reactHooks.configs.recommended.rules,
       "react-hooks/rules-of-hooks": "error",
     },
-  },
-  {
-    ...reactRefresh.configs.recommended,
   },
   {
     // https://github.com/vitest-dev/eslint-plugin-vitest

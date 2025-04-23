@@ -2,29 +2,29 @@ import { useEffect } from 'react';
 import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js';
 
 export function DarkModeSystemSwitcher() {
-  if (window.matchMedia) {
-    useEffect(() => {
-      window
-        .matchMedia('(prefers-color-scheme: dark)')
-        .addEventListener('change', (e) =>
-          setTheme(e.matches ? 'sap_horizon_dark' : 'sap_horizon'),
-        );
+  useEffect(() => {
+    if (!window.matchMedia) {
+      console.warn(
+        'Dark mode system switcher is not supported in this browser',
+      );
+      return;
+    }
 
-      const initialMode = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'sap_horizon_dark'
-        : 'sap_horizon';
-      setTheme(initialMode);
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-      return () => {
-        window
-          .matchMedia('(prefers-color-scheme: dark)')
-          .removeEventListener('change', () => {});
-      };
-    }, []);
-  } else {
-    console.warn('Dark mode system switcher is not supported in this browser');
-  }
+    const handleChange = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? 'sap_horizon_dark' : 'sap_horizon');
+    };
 
-  return <></>;
+    mediaQuery.addEventListener('change', handleChange);
+
+    const initialMode = mediaQuery.matches ? 'sap_horizon_dark' : 'sap_horizon';
+    setTheme(initialMode);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  return null; // albo <></>
 }
