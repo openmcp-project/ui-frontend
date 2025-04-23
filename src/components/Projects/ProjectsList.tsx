@@ -48,7 +48,7 @@ export default function ProjectsList() {
                   display: 'flex',
                   justifyContent: 'start',
                   gap: '0.5rem',
-                  alignItems: 'baseline',
+                  alignItems: 'center',
                   width: '100%',
                   cursor: 'pointer',
                 }}

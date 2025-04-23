@@ -8,12 +8,14 @@ import YAML from 'yaml';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
 import { useToast } from '../../context/ToastContext.tsx';
+import { useTranslation } from 'react-i18next';
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const toast = useToast();
+  const { t } = useTranslation();
   const copyToClipboard = () => {
     navigator.clipboard.writeText(yamlString);
-    toast.show('YAML copied to clipboard!');
+    toast.show(t('yaml.copiedToClipboard'));
   };
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });

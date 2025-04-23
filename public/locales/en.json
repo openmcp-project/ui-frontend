@@ -246,5 +246,8 @@
   },
   "buttons": {
     "viewResource": "View resource"
+  },
+  "yaml": {
+    "copiedToClipboard": "YAML copied to clipboard!"
   }
 }
