@@ -10,11 +10,11 @@ import '@ui5/webcomponents-icons/dist/arrow-right';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
 
-import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
-  const { data, error } = useResource(ListProjectNames, {});
+  const { data, error } = useResource(ListProjectNames, {
+    refreshInterval: 3000,
+  });
   if (error) {
     return <IllustratedError error={error} />;
   }
@@ -33,17 +33,9 @@ export default function ProjectsList() {
                   width: '100%',
                   color: ThemingParameters.sapLinkColor,
                   fontWeight: 'bold',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: '0.5rem',
-                  alignItems: 'baseline',
                 }}
               >
                 {instance.cell.value}
-                <YamlViewButton
-                  resourceType={'projects'}
-                  resourceName={instance.cell.value}
-                />
               </div>
             ),
           },
