@@ -22,6 +22,8 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
+import { useToast } from '../../../context/ToastContext.tsx';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -35,6 +37,8 @@ export function ControlPlaneCard({
   projectName,
 }: Props) {
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
+  const toast = useToast();
+  const { t } = useTranslation();
 
   const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
     PatchMCPResourceForDeletion(
@@ -109,6 +113,7 @@ export function ControlPlaneCard({
         onDeletionConfirmed={async () => {
           await patchTrigger(PatchMCPResourceForDeletionBody);
           await deleteTrigger();
+          toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
         }}
       />
     </>
