@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error } = useResource(ListProjectNames, {
-    // refreshInterval: 3000,
+    refreshInterval: 3000,
   });
   const stabilizedData = useMemo(
     () =>
@@ -40,6 +40,10 @@ export default function ProjectsList() {
               width: '100%',
               color: ThemingParameters.sapLinkColor,
               fontWeight: 'bold',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              alignItems: 'center',
             }}
           >
             {instance.cell.value}
