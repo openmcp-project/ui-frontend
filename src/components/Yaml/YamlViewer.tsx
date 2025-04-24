@@ -9,10 +9,12 @@ import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useTranslation } from 'react-i18next';
+import { useThemeMode } from '../../lib/useThemeMode.ts';
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const toast = useToast();
   const { t } = useTranslation();
+  const { isDarkMode } = useThemeMode();
   const copyToClipboard = () => {
     navigator.clipboard.writeText(yamlString);
     toast.show(t('yaml.copiedToClipboard'));
@@ -54,11 +56,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
       </FlexBox>
       <SyntaxHighlighter
         language="yaml"
-        style={
-          window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? materialDark
-            : materialLight
-        }
+        style={isDarkMode ? materialDark : materialLight}
         showLineNumbers
         wrapLines
         wrapLongLines
