@@ -245,7 +245,9 @@
     "cannotLoadData": "Cannot load data"
   },
   "buttons": {
-    "viewResource": "View resource"
+    "viewResource": "View resource",
+    "download": "Download",
+    "copy": "Copy"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!"

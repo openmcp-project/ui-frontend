@@ -48,10 +48,10 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
         gap={16}
       >
         <Button icon="copy" onClick={copyToClipboard}>
-          Copy
+          {t('buttons.copy')}
         </Button>
         <Button icon="download" onClick={downloadYaml}>
-          Download
+          {t('buttons.download')}
         </Button>
       </FlexBox>
       <SyntaxHighlighter
