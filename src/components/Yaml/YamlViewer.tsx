@@ -31,13 +31,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
     window.URL.revokeObjectURL(url);
   };
 
-  let formattedYaml = yamlString;
-  try {
-    const parsed = YAML.parse(yamlString);
-    formattedYaml = YAML.stringify(parsed);
-  } catch (error) {
-    console.error('Invalid YAML:', error);
-  }
   return (
     <div className={styles.container}>
       <FlexBox
@@ -74,7 +67,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           background: 'transparent',
         }}
       >
-        {formattedYaml}
+        {yamlString}
       </SyntaxHighlighter>
     </div>
   );
