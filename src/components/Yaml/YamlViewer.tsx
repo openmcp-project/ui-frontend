@@ -3,8 +3,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import {
   materialLight,
   materialDark,
-} from 'react-syntax-highlighter/dist/esm/styles/prism'; // You can choose different styles
-import YAML from 'yaml';
+} from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
 import { useToast } from '../../context/ToastContext.tsx';
