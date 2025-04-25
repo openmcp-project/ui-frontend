@@ -1,4 +1,4 @@
-import { ResourceProps } from './YamlViewButton.tsx';
+import { YamlViewButtonProps } from './YamlViewButton.tsx';
 import { FC } from 'react';
 
 import { stringify } from 'yaml';
@@ -10,7 +10,7 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 import YamlViewer from './YamlViewer.tsx';
 import useResource from '../../lib/api/useApiResource';
 
-export const YamlLoader: FC<ResourceProps> = ({
+export const YamlLoader: FC<YamlViewButtonProps> = ({
   workspaceName,
   resourceType,
   resourceName,

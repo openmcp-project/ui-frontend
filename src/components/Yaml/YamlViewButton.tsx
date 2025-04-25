@@ -3,13 +3,13 @@ import { FC, useState } from 'react';
 import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
 
-export type ResourceProps = {
+export type YamlViewButtonProps = {
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
 };
 
-export const YamlViewButton: FC<ResourceProps> = ({
+export const YamlViewButton: FC<YamlViewButtonProps> = ({
   workspaceName,
   resourceType,
   resourceName,
@@ -31,12 +31,17 @@ export const YamlViewButton: FC<ResourceProps> = ({
             }
           />
         }
+        onClose={() => {
+          setIsOpen(false);
+        }}
       >
-        <YamlLoader
-          workspaceName={workspaceName}
-          resourceName={resourceName}
-          resourceType={resourceType}
-        />
+        {isOpen && (
+          <YamlLoader
+            workspaceName={workspaceName}
+            resourceName={resourceName}
+            resourceType={resourceType}
+          />
+        )}
       </Dialog>
       <Button
         icon="document"
