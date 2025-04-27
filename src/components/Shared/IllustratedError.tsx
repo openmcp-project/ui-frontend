@@ -1,26 +1,24 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import { useTranslation } from 'react-i18next';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner';
-import { IllustrationName } from './IllustratedName';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 interface Props {
   title?: string;
-  subtitleText?: string;
-  error?: string;
+  details?: string;
 }
 
 export default function IllustratedError({
   title,
-  subtitleText,
-  error,
+  details,
 }: Props) {
   const { t } = useTranslation();
 
   return (
     <IllustratedBanner
-      illustrationName={IllustrationName.SimpleError}
+      illustrationName={IllustrationMessageType.SimpleError}
       title={title ?? t('IllustratedError.titleText')}
-      subtitle={error ?? subtitleText ?? t('IllustratedError.subtitleText')}
+      subtitle={details ?? t('IllustratedError.subtitleText')}
     />
   );
 }

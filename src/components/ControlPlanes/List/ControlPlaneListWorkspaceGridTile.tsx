@@ -36,7 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
-import { IllustrationName } from '../../Shared/IllustratedName.ts';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 interface Props {
   projectName: string;
@@ -76,7 +76,7 @@ export function ControlPlaneListWorkspaceGridTile({
             title={t(
               'ControlPlaneListWorkspaceGridTile.permissionErrorMessage',
             )}
-            subtitleText={t(
+            details={t(
               'ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle',
             )}
           />
@@ -149,26 +149,26 @@ export function ControlPlaneListWorkspaceGridTile({
         >
           {errorView ? (
             errorView
+          ) : controlplanes?.length === 0 ? (
+            <IllustratedBanner
+              title={t('IllustratedBanner.titleMessage')}
+              subtitle={t('IllustratedBanner.subtitleMessage')}
+              illustrationName={IllustrationMessageType.NoData}
+              help={{
+                link: links.COM_PAGE_GETTING_STARTED_MCP,
+                buttonText: t('IllustratedBanner.helpButton'),
+              }}
+            />
           ) : (
             <Grid defaultSpan="XL4 L4 M7 S12">
-              {controlplanes?.length === 0 ? (
-                <IllustratedBanner
-                  title={t('NoManagedControlPlaneBanner.titleMessage')}
-                  subtitle={t('NoManagedControlPlaneBanner.subtitleMessage')}
-                  helpButtonText={t('NoManagedControlPlaneBanner.helpButton')}
-                  illustrationName={IllustrationName.NoData}
-                  helpLink={links.COM_PAGE_GETTING_STARTED_MCP}
+              {controlplanes?.map((cp) => (
+                <ControlPlaneCard
+                  key={`${cp.metadata.name}--${cp.metadata.namespace}`}
+                  controlPlane={cp}
+                  projectName={projectName}
+                  workspace={workspace}
                 />
-              ) : (
-                controlplanes?.map((cp) => (
-                  <ControlPlaneCard
-                    key={`${cp.metadata.name}--${cp.metadata.namespace}`}
-                    controlPlane={cp}
-                    projectName={projectName}
-                    workspace={workspace}
-                  />
-                ))
-              )}
+              ))}
             </Grid>
           )}
         </Panel>

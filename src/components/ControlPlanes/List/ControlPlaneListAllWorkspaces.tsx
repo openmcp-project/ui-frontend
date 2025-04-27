@@ -27,7 +27,7 @@ export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
     return <Loading />;
   }
   if (error) {
-    return <IllustratedError error={error.message} />;
+    return <IllustratedError details={error.message} />;
   }
 
   return (

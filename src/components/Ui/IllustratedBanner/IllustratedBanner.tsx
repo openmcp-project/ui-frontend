@@ -1,25 +1,25 @@
 import IllustrationMessageDesign from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageDesign.js';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { FlexBox, IllustratedMessage, Button } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
-import { IllustrationName } from '../../Shared/IllustratedName';
 
 type InfoBannerProps = {
   title: string;
   subtitle: string;
-  illustrationName?: IllustrationName; // e.g. 'NoData', 'SimpleError', etc.
-  buttonIcon?: string;
-  helpButtonText?: string;
-  helpLink?: string;
+  illustrationName?: IllustrationMessageType // e.g. 'NoData', 'SimpleError', etc.
+  help?: {
+    link: string;
+    buttonText: string;
+    buttonIcon?: string;
+  }
 };
 
 export const IllustratedBanner = ({
   title,
   subtitle,
-  illustrationName = IllustrationName.NoData,
-  buttonIcon = 'sap-icon://question-mark',
-  helpButtonText,
-  helpLink,
+  illustrationName = IllustrationMessageType.NoData,
+  help
 }: InfoBannerProps) => {
   return (
     <FlexBox direction="Column" alignItems="Center">
@@ -29,14 +29,15 @@ export const IllustratedBanner = ({
         titleText={title}
         subtitleText={subtitle}
       />
-      {helpButtonText && helpLink && (
-        <Button
-          design={ButtonDesign.Transparent}
-          icon={buttonIcon}
-          onClick={() => window.open(helpLink, '_blank')}
-        >
-          {helpButtonText}
-        </Button>
+      {help?.buttonText && help.link && (
+        <a href={help.link} target='_blank'>
+          <Button
+            design={ButtonDesign.Transparent}
+            icon={help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'}
+          >
+            {help.buttonIcon}
+          </Button>
+        </a>
       )}
     </FlexBox>
   );

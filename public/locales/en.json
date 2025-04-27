@@ -67,7 +67,7 @@
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
-  "NoManagedControlPlaneBanner": {
+  "IllustratedBanner": {
     "titleMessage": "No ManagedControlPlane",
     "subtitleMessage": "Create a ManagedControlPlane to get started",
     "helpButton": "Help"

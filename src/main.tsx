@@ -16,14 +16,14 @@ import { AuthProviderOnboarding } from './context/AuthProviderOnboarding.tsx';
 import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useTranslation } from 'react-i18next';
-import { IllustrationName } from './components/Shared/IllustratedName.ts';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   const { t } = useTranslation();
 
   return (
     <IllustratedBanner
-      illustrationName={IllustrationName.SimpleError}
+      illustrationName={IllustrationMessageType.SimpleError}
       title={t('IllustratedError.titleText')}
       subtitle={error ? error : t('IllustratedError.subtitleText')}
     />
