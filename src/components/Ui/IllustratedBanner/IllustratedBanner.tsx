@@ -37,7 +37,7 @@ export const IllustratedBanner = ({
               help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'
             }
           >
-            {help.buttonIcon}
+            {help.buttonText}
           </Button>
         </a>
       )}

@@ -29,16 +29,11 @@ describe('<IllustratedBanner />', () => {
     );
   });
 
-  it('opens a new tab when button is clicked', () => {
-    // Stub window.open
-    cy.window().then((win) => {
-      cy.stub(win, 'open').as('windowOpen');
-    });
-
+  it('renders a link with correct attributes', () => {
     cy.mount(
       <IllustratedBanner
         title="Click Test"
-        subtitle="Check window.open"
+        subtitle="Check link attributes"
         help={{
           link: 'https://example.com',
           buttonText: 'Go',
@@ -46,11 +41,11 @@ describe('<IllustratedBanner />', () => {
       />,
     );
 
-    cy.get('ui5-button').contains('Go').click();
-    cy.get('@windowOpen').should(
-      'have.been.calledWith',
-      'https://example.com',
-      '_blank',
-    );
+    cy.get('a')
+      .should('have.attr', 'href', 'https://example.com')
+      .and('have.attr', 'target', '_blank')
+      .and('have.attr', 'rel', 'noreferrer');
+
+    cy.get('a').contains('Go');
   });
 });
