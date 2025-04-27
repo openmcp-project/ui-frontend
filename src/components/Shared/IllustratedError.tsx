@@ -8,10 +8,7 @@ interface Props {
   details?: string;
 }
 
-export default function IllustratedError({
-  title,
-  details,
-}: Props) {
+export default function IllustratedError({ title, details }: Props) {
   const { t } = useTranslation();
 
   return (

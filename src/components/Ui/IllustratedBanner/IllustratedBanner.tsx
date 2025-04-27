@@ -7,19 +7,19 @@ import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
 type InfoBannerProps = {
   title: string;
   subtitle: string;
-  illustrationName?: IllustrationMessageType // e.g. 'NoData', 'SimpleError', etc.
+  illustrationName?: IllustrationMessageType; // e.g. 'NoData', 'SimpleError', etc.
   help?: {
     link: string;
     buttonText: string;
     buttonIcon?: string;
-  }
+  };
 };
 
 export const IllustratedBanner = ({
   title,
   subtitle,
   illustrationName = IllustrationMessageType.NoData,
-  help
+  help,
 }: InfoBannerProps) => {
   return (
     <FlexBox direction="Column" alignItems="Center">
@@ -30,10 +30,12 @@ export const IllustratedBanner = ({
         subtitleText={subtitle}
       />
       {help?.buttonText && help.link && (
-        <a href={help.link} target='_blank'>
+        <a href={help.link} target="_blank" rel="noreferrer">
           <Button
             design={ButtonDesign.Transparent}
-            icon={help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'}
+            icon={
+              help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'
+            }
           >
             {help.buttonIcon}
           </Button>
