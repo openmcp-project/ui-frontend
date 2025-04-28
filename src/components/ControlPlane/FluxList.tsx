@@ -25,6 +25,8 @@ export default function FluxList() {
 
   const { t } = useTranslation();
 
+  console.log('kustmizationData');
+  console.log(kustmizationData);
   interface CellData<T> {
     cell: {
       value: T | null; // null for grouping rows
@@ -135,7 +137,7 @@ export default function FluxList() {
 
   return (
     <>
-      {' '}
+      <h1>Test</h1>{' '}
       <div className="crossplane-table-element">
         <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
         <ConfiguredAnalyticstable

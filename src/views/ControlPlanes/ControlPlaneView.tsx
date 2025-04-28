@@ -27,6 +27,8 @@ import { Providers } from '../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import useResource from '../../lib/api/useApiResource';
+import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
+import { YamlViewButton } from '../../components/Yaml/YamlViewButton.tsx';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -56,6 +58,7 @@ export default function ControlPlaneView() {
     return <IllustratedError error={t('ControlPlaneView.accessError')} />;
   }
 
+  console.log(mcp);
   return (
     <McpContextProvider
       context={{
@@ -82,7 +85,7 @@ export default function ControlPlaneView() {
                   }}
                 >
                   <MCPHealthPopoverButton mcpStatus={mcp?.status} />
-
+                  <YamlViewButton resourceObject={mcp} />
                   <CopyKubeconfigButton />
                 </div>
               }

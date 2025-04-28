@@ -21,7 +21,8 @@ export const useApiResource = <T>(
   config?: SWRConfiguration,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
-
+  console.log('apiConfig');
+  console.log(apiConfig);
   const { data, error, isLoading, isValidating } = useSWR(
     resource.path === null
       ? null //TODO: is null a valid key?

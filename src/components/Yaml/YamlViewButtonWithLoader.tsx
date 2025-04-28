@@ -1,15 +1,19 @@
 import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
-
+import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
-import YamlViewer from './YamlViewer.tsx';
-import { stringify } from 'yaml';
 
 export type YamlViewButtonProps = {
-  resourceObject: unknown;
+  workspaceName?: string;
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceName: string;
 };
 
-export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
+export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
+  workspaceName,
+  resourceType,
+  resourceName,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   return (
@@ -32,9 +36,10 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         }}
       >
         {isOpen && (
-          <YamlViewer
-            yamlString={stringify(resourceObject)}
-            filename={`filename_here`}
+          <YamlLoader
+            workspaceName={workspaceName}
+            resourceName={resourceName}
+            resourceType={resourceType}
           />
         )}
       </Dialog>

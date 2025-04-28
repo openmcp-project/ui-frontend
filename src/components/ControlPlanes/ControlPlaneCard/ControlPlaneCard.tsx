@@ -23,7 +23,7 @@ import {
   PatchMCPResourceForDeletion,
   PatchMCPResourceForDeletionBody,
 } from '../../../lib/api/types/crate/deleteMCP.ts';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -89,7 +89,7 @@ export function ControlPlaneCard({
                 alignItems="Center"
                 gap={10}
               >
-                <YamlViewButton
+                <YamlViewButtonWithLoader
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}

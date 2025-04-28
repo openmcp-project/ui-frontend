@@ -9,7 +9,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/arrow-right';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
-import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
 
 export default function ProjectsList() {
@@ -47,7 +47,7 @@ export default function ProjectsList() {
             }}
           >
             {instance.cell.value}
-            <YamlViewButton
+            <YamlViewButtonWithLoader
               resourceType={'projects'}
               resourceName={instance.cell.value}
             />

@@ -1,4 +1,4 @@
-import { YamlViewButtonProps } from './YamlViewButton.tsx';
+import { YamlViewButtonProps } from './YamlViewButtonWithLoader.tsx';
 import { FC } from 'react';
 
 import { stringify } from 'yaml';

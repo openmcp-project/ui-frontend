@@ -34,7 +34,7 @@ import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 
 interface Props {
   projectName: string;
@@ -133,7 +133,7 @@ export function ControlPlaneListWorkspaceGridTile({
                     setDialogDeleteWsIsOpen(true);
                   }}
                 />
-                <YamlViewButton
+                <YamlViewButtonWithLoader
                   workspaceName={workspace.metadata.namespace}
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
