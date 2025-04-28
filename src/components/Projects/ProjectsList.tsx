@@ -25,7 +25,7 @@ export default function ProjectsList() {
           nameSpace: projectnameToNamespace(projectName),
         };
       }) ?? [],
-    [data, projectnameToNamespace],
+    [data],
   );
   const stabilizedColumns = useMemo(
     () => [
