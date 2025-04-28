@@ -55,6 +55,7 @@ export default function ConnectButton(props: Props) {
   if (contexts.length === 1) {
     return (
       <Button
+        endIcon={'navigation-right-arrow'}
         disabled={props.disabled}
         onClick={() =>
           navigate(
