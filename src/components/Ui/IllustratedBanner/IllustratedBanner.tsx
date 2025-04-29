@@ -7,7 +7,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
 type InfoBannerProps = {
   title: string;
   subtitle: string;
-  illustrationName?: IllustrationMessageType; // e.g. 'NoData', 'SimpleError', etc.
+  illustrationName: IllustrationMessageType; // e.g. 'NoData', 'SimpleError', etc.
   help?: {
     link: string;
     buttonText: string;
@@ -29,7 +29,7 @@ export const IllustratedBanner = ({
         titleText={title}
         subtitleText={subtitle}
       />
-      {help?.buttonText && help.link && (
+      {help && (
         <a href={help.link} target="_blank" rel="noreferrer">
           <Button
             design={ButtonDesign.Transparent}
