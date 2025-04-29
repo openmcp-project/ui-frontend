@@ -1,9 +1,16 @@
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { IllustratedBanner } from './IllustratedBanner';
 import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
 
 describe('<IllustratedBanner />', () => {
   it('renders title and subtitle', () => {
-    cy.mount(<IllustratedBanner title="Test title" subtitle="Test subtitle" />);
+    cy.mount(
+      <IllustratedBanner
+        title="Test title"
+        subtitle="Test subtitle"
+        illustrationName={IllustrationMessageType.NoData}
+      />,
+    );
 
     cy.contains('Test title').should('be.visible');
     cy.contains('Test subtitle').should('be.visible');
@@ -14,6 +21,7 @@ describe('<IllustratedBanner />', () => {
       <IllustratedBanner
         title="With Help"
         subtitle="Subtitle"
+        illustrationName={IllustrationMessageType.NoData}
         help={{
           link: 'https://example.com',
           buttonText: 'Need Help?',
@@ -34,6 +42,7 @@ describe('<IllustratedBanner />', () => {
       <IllustratedBanner
         title="Click Test"
         subtitle="Check link attributes"
+        illustrationName={IllustrationMessageType.NoData}
         help={{
           link: 'https://example.com',
           buttonText: 'Go',

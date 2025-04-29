@@ -18,7 +18,7 @@ type InfoBannerProps = {
 export const IllustratedBanner = ({
   title,
   subtitle,
-  illustrationName = IllustrationMessageType.NoData,
+  illustrationName,
   help,
 }: InfoBannerProps) => {
   return (
