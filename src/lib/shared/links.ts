@@ -1,29 +1,24 @@
-export class DocLinkCreator {
-  private baseUrl: string;
+import { useFrontendConfig } from '../../context/FrontendConfigContext';
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
-  private createLink(path: string) {
-    return `${this.baseUrl}${path}`;
+export function useLink() {
+  const { documentationBaseUrl } = useFrontendConfig();
+
+  if (!documentationBaseUrl) {
+    throw new Error('useLink must be used within a FrontendConfigProvider');
   }
 
-  public get COMMUNITY_PAGE(): string {
-    return this.createLink('/');
-  }
-  public get COM_PAGE_GETTING_STARTED(): string {
-    return this.createLink(
+  const createLink = (path: string) => `${documentationBaseUrl}${path}`;
+
+  return {
+    documentationHomepage: createLink('/'),
+    gettingStartedGuide: createLink(
       '/docs/managed-control-planes/get-started/get-started-mcp',
-    );
-  }
-  public get COM_PAGE_GETTING_STARTED_WORKSPACE(): string {
-    return this.createLink(
+    ),
+    workspaceCreationGuide: createLink(
       '/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace',
-    );
-  }
-  public get COM_PAGE_GETTING_STARTED_MCP(): string {
-    return this.createLink(
+    ),
+    mcpCreationGuide: createLink(
       '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
-    );
-  }
+    ),
+  };
 }
