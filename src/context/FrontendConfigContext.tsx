@@ -9,12 +9,7 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-interface FrontendConfigContextType extends FrontendConfig {
-  links: DocLinkCreator;
-}
-
-export const FrontendConfigContext =
-  createContext<FrontendConfigContextType | null>(null);
+export const FrontendConfigContext = createContext<FrontendConfig | null>(null);
 
 const fetchPromise = fetch('/frontend-config.json')
   .then((res) => res.json())
@@ -58,6 +53,7 @@ const FrontendConfigSchema = z.object({
   backendUrl: z.string(),
   gatewayUrl: z.string(),
   documentationBaseUrl: z.string(),
+  githubBaseUrl: z.string(),
   oidcConfig: OidcConfigSchema,
   landscape: z.optional(z.nativeEnum(Landscape)),
 });
