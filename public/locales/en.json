@@ -68,8 +68,6 @@
     "supportTicketTitleNotReady": "MCP Not Ready",
     "supportTicketTitleDeletion": "MCP in Deletion",
     "supportTicketTitleIssues": "Issues with Control Plane",
-    "clusterIdentifierLabel": "cluster-link",
-    "whatHappenedLabel": "what-happened",
     "statusDetailsLabel": "MCP Status",
     "detailsLabel": "Details:"
   },
