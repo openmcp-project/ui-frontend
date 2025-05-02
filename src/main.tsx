@@ -12,12 +12,22 @@ import { DarkModeSystemSwitcher } from './components/Core/DarkModeSystemSwitcher
 import '.././i18n.ts';
 import './utils/i18n/timeAgo';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import IllustratedError from './components/Shared/IllustratedError.tsx';
 import { AuthProviderOnboarding } from './context/AuthProviderOnboarding.tsx';
 import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
+import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useTranslation } from 'react-i18next';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 const ErrorFallback = ({ error }: FallbackProps) => {
-  return <IllustratedError error={error} />;
+  const { t } = useTranslation();
+
+  return (
+    <IllustratedBanner
+      illustrationName={IllustrationMessageType.SimpleError}
+      title={t('IllustratedError.titleText')}
+      subtitle={error ? error : t('IllustratedError.subtitleText')}
+    />
+  );
 };
 
 const rootElement = document.getElementById('root');
