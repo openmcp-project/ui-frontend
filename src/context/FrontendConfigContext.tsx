@@ -9,7 +9,12 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-export const FrontendConfigContext = createContext<FrontendConfig | null>(null);
+interface FrontendConfigContextType extends FrontendConfig {
+  links: DocLinkCreator;
+}
+
+export const FrontendConfigContext =
+  createContext<FrontendConfigContextType | null>(null);
 
 const fetchPromise = fetch('/frontend-config.json')
   .then((res) => res.json())
