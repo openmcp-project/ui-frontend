@@ -10,8 +10,6 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-
-
 interface FrontendConfigContextType extends FrontendConfig {
   links: DocLinkCreator;
 }
@@ -19,7 +17,9 @@ interface FrontendConfigContextType extends FrontendConfig {
 export const FrontendConfigContext =
   createContext<FrontendConfigContextType | null>(null);
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => validateAndCastFrontendConfig(data));
+const fetchPromise = fetch('/frontend-config.json')
+  .then((res) => res.json())
+  .then((data) => validateAndCastFrontendConfig(data));
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
