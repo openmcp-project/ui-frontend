@@ -8,7 +8,7 @@ import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ListWorkspaces } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useLink } from '../../../lib/shared/links.ts';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
-  const { links } = useFrontendConfig();
+  const { workspaceCreationGuide } = useLink();
   const { data: allWorkspaces, error } = useApiResource(
     ListWorkspaces(projectName),
   );
@@ -45,7 +45,7 @@ export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
             design={ButtonDesign.Emphasized}
             icon="sap-icon://question-mark"
             onClick={() => {
-              window.open(links.COM_PAGE_GETTING_STARTED_WORKSPACE, '_blank');
+              window.open(workspaceCreationGuide, '_blank');
             }}
           >
             Help

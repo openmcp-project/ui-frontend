@@ -14,6 +14,7 @@ import {
 import { KubectlTerminal } from './KubectlTerminal';
 import { useState, useEffect, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
+import { useLink } from '../../../lib/shared/links';
 
 export interface FormField {
   id: string;
@@ -46,6 +47,7 @@ export const KubectlBaseDialog = ({
   customCommands,
 }: KubectlBaseDialogProps) => {
   const { t } = useTranslation();
+  const { gettingStartedGuide } = useLink();
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -163,12 +165,7 @@ export const KubectlBaseDialog = ({
           <Trans
             i18nKey="KubectlBaseDialog.onboardingGuide"
             components={{
-              link1: (
-                <Link
-                  href="https://pages.github.tools.sap/cloud-orchestration/docs/managed-control-planes/get-started/get-started-mcp"
-                  target="_blank"
-                />
-              ),
+              link1: <Link href={gettingStartedGuide} target="_blank" />,
             }}
           />
         </MessageStrip>
