@@ -47,6 +47,9 @@
     "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
     "loadingErrorMessage": "Failed to list mcps in workspace"
   },
+  "ControlPlaneCard": {
+    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed."
+  },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
     "emptyListSubtitleMessage": "Create a workspace to get started"
@@ -76,13 +79,16 @@
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
-  "NoManagedControlPlaneBanner": {
+  "IllustratedBanner": {
     "titleMessage": "No ManagedControlPlane",
     "subtitleMessage": "Create a ManagedControlPlane to get started",
     "helpButton": "Help"
   },
   "IntelligentBreadcrumbs": {
     "homeLabel": "Home"
+  },
+  "MCPContext": {
+    "errorMessage": "An unknown error occurred"
   },
   "NotInLuigiView": {
     "titleMessage": "Opened outside of Hyperspace Portal",
