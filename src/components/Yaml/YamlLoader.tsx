@@ -21,7 +21,7 @@ export const YamlLoader: FC<YamlViewButtonProps> = ({
   const { t } = useTranslation();
   if (isLoading) return <Loading />;
   if (error) {
-    return <IllustratedError error={t('common.cannotLoadData')} />;
+    return <IllustratedError details={t('common.cannotLoadData')} />;
   }
 
   return (
