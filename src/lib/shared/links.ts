@@ -1,11 +1,17 @@
-export class DocLinkCreator {
+export class LinkCreator {
   private baseUrl: string;
+  private githubBaseUrl: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, githubBaseUrl?: string) {
     this.baseUrl = baseUrl;
+    this.githubBaseUrl = githubBaseUrl || baseUrl;
   }
   private createLink(path: string) {
     return `${this.baseUrl}${path}`;
+  }
+
+  private createGithubLink(path: string) {
+    return `${this.githubBaseUrl}${path}`;
   }
 
   public get COMMUNITY_PAGE(): string {
@@ -25,5 +31,8 @@ export class DocLinkCreator {
     return this.createLink(
       '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
     );
+  }
+  public get COM_PAGE_SUPPORT_GITHUB_ISSUE(): string {
+    return this.createGithubLink('/support/issues/new');
   }
 }
