@@ -82,7 +82,12 @@ export function ControlPlaneCard({
               alignItems="Center"
               className={styles.row}
             >
-              <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
+              <MCPHealthPopoverButton
+                mcpStatus={controlPlane.status}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                mcpName={controlPlane.metadata.name}
+              />
               <FlexBox
                 direction="Row"
                 justifyContent="SpaceBetween"

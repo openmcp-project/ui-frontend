@@ -25,9 +25,9 @@ export default function MCPHealthPopoverButton({
   mcpName,
 }: {
   mcpStatus: ControlPlaneStatusType | undefined;
-  projectName?: string;
-  workspaceName?: string;
-  mcpName?: string;
+  projectName: string;
+  workspaceName: string;
+  mcpName: string;
 }) {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -42,6 +42,19 @@ export default function MCPHealthPopoverButton({
       const ref = popoverRef.current as any;
       ref.opener = e.target;
       setOpen((prev) => !prev);
+    }
+  };
+
+  const getTicketTitle = () => {
+    switch (mcpStatus?.status) {
+      case ReadyStatus.Ready:
+        return t('MCPHealthPopoverButton.supportTicketTitleReady');
+      case ReadyStatus.NotReady:
+        return t('MCPHealthPopoverButton.supportTicketTitleNotReady');
+      case ReadyStatus.InDeletion:
+        return t('MCPHealthPopoverButton.supportTicketTitleDeletion');
+      default:
+        return t('MCPHealthPopoverButton.supportTicketTitleIssues');
     }
   };
 
@@ -64,11 +77,7 @@ export default function MCPHealthPopoverButton({
 
     const params = new URLSearchParams({
       template: '1-mcp_issue.yml',
-      title: `[${clusterDetails}]: ${
-        mcpStatus?.status === ReadyStatus.NotReady
-          ? t('MCPHealthPopoverButton.supportTicketTitle')
-          : t('MCPHealthPopoverButton.supportTicketTitleIssues')
-      }`,
+      title: `[${clusterDetails}]: ${getTicketTitle()}`,
       'cluster-link': clusterDetails,
       'what-happened': statusDetails,
     });
@@ -143,10 +152,6 @@ function StatusTable({
   tableColumns: AnalyticalTableColumnDefinition[];
   githubIssuesLink: string;
 }) {
-  const showSupportButton =
-    status?.status === ReadyStatus.NotReady ||
-    status?.status === ReadyStatus.InDeletion;
-
   const { t } = useTranslation();
 
   return (
@@ -160,18 +165,16 @@ function StatusTable({
           }) ?? []
         }
       />
-      {showSupportButton && (
-        <FlexBox
-          justifyContent={FlexBoxJustifyContent.End}
-          style={{ marginTop: '0.5rem' }}
-        >
-          <a href={githubIssuesLink} target="_blank" rel="noreferrer">
-            <Button>
-              {t('MCPHealthPopoverButton.createSupportTicketButton')}
-            </Button>
-          </a>
-        </FlexBox>
-      )}
+      <FlexBox
+        justifyContent={FlexBoxJustifyContent.End}
+        style={{ marginTop: '0.5rem' }}
+      >
+        <a href={githubIssuesLink} target="_blank" rel="noreferrer">
+          <Button>
+            {t('MCPHealthPopoverButton.createSupportTicketButton')}
+          </Button>
+        </a>
+      </FlexBox>
     </div>
   );
 }

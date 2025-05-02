@@ -2,9 +2,9 @@ export class LinkCreator {
   private baseUrl: string;
   private githubBaseUrl: string;
 
-  constructor(baseUrl: string, githubBaseUrl: string) {
+  constructor(baseUrl: string, githubBaseUrl?: string) {
     this.baseUrl = baseUrl;
-    this.githubBaseUrl = githubBaseUrl;
+    this.githubBaseUrl = githubBaseUrl || baseUrl;
   }
   private createLink(path: string) {
     return `${this.baseUrl}${path}`;

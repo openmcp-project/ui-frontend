@@ -81,7 +81,12 @@ export default function ControlPlaneView() {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <MCPHealthPopoverButton mcpStatus={mcp?.status} />
+                  <MCPHealthPopoverButton
+                    mcpStatus={mcp?.status}
+                    projectName={projectName}
+                    workspaceName={workspaceName ?? ''}
+                    mcpName={controlPlaneName}
+                  />
 
                   <CopyKubeconfigButton />
                 </div>
