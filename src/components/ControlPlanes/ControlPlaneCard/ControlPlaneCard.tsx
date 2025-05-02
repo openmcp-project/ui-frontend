@@ -3,14 +3,19 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton.tsx';
-import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+
+import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
+import { useState } from 'react';
+
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import styles from './ControlPlaneCard.module.css';
+import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
 import {
   ListControlPlanesType,
   ReadyStatus,
 } from '../../../lib/api/types/crate/controlPlanes.ts';
-import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useState } from 'react';
+import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   DeleteMCPResource,
@@ -18,12 +23,7 @@ import {
   PatchMCPResourceForDeletion,
   PatchMCPResourceForDeletionBody,
 } from '../../../lib/api/types/crate/deleteMCP.ts';
-import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
-import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
-import { useToast } from '../../../context/ToastContext.tsx';
-import { useTranslation } from 'react-i18next';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -68,7 +68,6 @@ export function ControlPlaneCard({
               </FlexBox>
               <div>
                 <Button
-                  design={ButtonDesign.Transparent}
                   icon="delete"
                   disabled={
                     controlPlane.status?.status === ReadyStatus.InDeletion
@@ -86,15 +85,27 @@ export function ControlPlaneCard({
               className={styles.row}
             >
               <MCPHealthPopoverButton mcpStatus={controlPlane.status} />
-              <ConnectButton
-                disabled={controlPlane.status?.status !== ReadyStatus.Ready}
-                controlPlaneName={name}
-                projectName={projectName}
-                workspaceName={workspace.metadata.name ?? ''}
-                namespace={controlPlane.status?.access?.namespace ?? ''}
-                secretName={controlPlane.status?.access?.name ?? ''}
-                secretKey={controlPlane.status?.access?.key ?? ''}
-              />
+              <FlexBox
+                direction="Row"
+                justifyContent="SpaceBetween"
+                alignItems="Center"
+                gap={10}
+              >
+                <YamlViewButton
+                  workspaceName={controlPlane.metadata.namespace}
+                  resourceName={controlPlane.metadata.name}
+                  resourceType={'managedcontrolplanes'}
+                />
+                <ConnectButton
+                  disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                  controlPlaneName={name}
+                  projectName={projectName}
+                  workspaceName={workspace.metadata.name ?? ''}
+                  namespace={controlPlane.status?.access?.namespace ?? ''}
+                  secretName={controlPlane.status?.access?.name ?? ''}
+                  secretKey={controlPlane.status?.access?.key ?? ''}
+                />
+              </FlexBox>
             </FlexBox>
           </FlexBox>
         </div>
