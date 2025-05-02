@@ -14,6 +14,7 @@ const PREFIX = '/mcp';
 function navigateFromBreadcrumbs(
   navigate: (to: string, options?: NavigateOptions) => void,
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (event: Ui5CustomEvent<BreadcrumbsDomRef, any>) => {
     event.preventDefault();
     // @ts-ignore

@@ -1,0 +1,13 @@
+schema:
+  - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/kubernetes/graphql:
+      headers:
+        Authorization: '<not needed for now>'
+documents: './src/**/*.{ts,tsx}'
+ignoreNoDocuments: true
+extensions:
+  codegen:
+    generates:
+      ./src/types/__generated__/graphql/:
+        preset: client
+        presetConfig:
+          gqlTagName: graphql

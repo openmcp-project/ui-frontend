@@ -7,5 +7,5 @@ export const mockedFrontendConfig = {
   backendUrl: 'http://localhost:3000',
   landscape: Landscape.Local,
   documentationBaseUrl: 'http://localhost:3000',
-  links: new LinkCreator(documentationBaseUrl),
+  links: new DocLinkCreator(documentationBaseUrl),
 };

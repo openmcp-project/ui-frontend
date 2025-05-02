@@ -1,5 +1,6 @@
 import {
   Button,
+  FlexBox,
   Grid,
   ObjectPageSection,
   Panel,
@@ -8,7 +9,6 @@ import {
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { NoManagedControlPlaneBanner } from '../NoManagedControlPlaneBanner.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
@@ -22,8 +22,9 @@ import {
   DeleteWorkspaceResource,
   DeleteWorkspaceType,
 } from '../../../lib/api/types/crate/deleteWorkspace.ts';
-import useApiResource, {
+import {
   useApiResourceMutation,
+  useApiResource,
 } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
@@ -33,6 +34,7 @@ import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 
 interface Props {
   projectName: string;
@@ -64,7 +66,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   function createErrorView(error: APIError) {
     if (error) {
-      if (error.status == 403) {
+      if (error.status === 403) {
         return (
           <IllustratedError
             title={t(
@@ -103,8 +105,9 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.24fr auto 0.05fr',
+                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
                 gap: '1rem',
+                justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
@@ -117,18 +120,25 @@ export function ControlPlaneListWorkspaceGridTile({
                 text={workspace.status?.namespace || '-'}
                 style={{ justifyContent: 'start' }}
               />
+
               <MembersAvatarView
                 members={workspace.spec.members}
                 project={projectName}
                 workspace={workspaceName}
               />
-              <Button
-                design={ButtonDesign.Transparent}
-                icon="delete"
-                onClick={async () => {
-                  setDialogDeleteWsIsOpen(true);
-                }}
-              />
+              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+                <Button
+                  icon="delete"
+                  onClick={async () => {
+                    setDialogDeleteWsIsOpen(true);
+                  }}
+                />
+                <YamlViewButton
+                  workspaceName={workspace.metadata.namespace}
+                  resourceName={workspaceName}
+                  resourceType={'workspaces'}
+                />
+              </FlexBox>
             </div>
           }
           noAnimation

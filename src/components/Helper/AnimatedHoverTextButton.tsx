@@ -15,6 +15,7 @@ export function AnimatedHoverTextButton({
 }: {
   text: string;
   icon: JSX.Element;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick: (e: any) => void;
 }) {
   const [hover, setHover] = useState(false);

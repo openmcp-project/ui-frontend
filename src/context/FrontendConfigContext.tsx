@@ -1,5 +1,6 @@
 import { ReactNode, createContext, use } from 'react';
-import { LinkCreator } from '../lib/shared/links';
+import { DocLinkCreator } from '../lib/shared/links';
+import { z } from 'zod';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -9,18 +10,16 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-interface FrontendConfigContextProps {
-  backendUrl: string;
-  landscape?: Landscape;
-  documentationBaseUrl: string;
-  githubBaseUrl: string;
-  links: LinkCreator;
+interface FrontendConfigContextType extends FrontendConfig {
+  links: DocLinkCreator;
 }
 
 export const FrontendConfigContext =
-  createContext<FrontendConfigContextProps | null>(null);
+  createContext<FrontendConfigContextType | null>(null);
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json());
+const fetchPromise = fetch('/frontend-config.json')
+  .then((res) => res.json())
+  .then((data) => validateAndCastFrontendConfig(data));
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
@@ -30,18 +29,11 @@ export function FrontendConfigProvider({
   children,
 }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
-  const docLinks = new LinkCreator(
-    config.documentationBaseUrl,
-    config.githubBaseUrl,
-  );
-  const value: FrontendConfigContextProps = {
+  const docLinks = new DocLinkCreator(config.documentationBaseUrl);
+  const value: FrontendConfigContextType = {
     links: docLinks,
-    backendUrl: config.backendUrl,
-    landscape: config.landscape,
-    documentationBaseUrl: config.documentationBaseUrl,
-    githubBaseUrl: config.githubBaseUrl,
+    ...config,
   };
-
   return (
     <FrontendConfigContext value={value}>{children}</FrontendConfigContext>
   );
@@ -57,3 +49,27 @@ export const useFrontendConfig = () => {
   }
   return context;
 };
+
+const OidcConfigSchema = z.object({
+  clientId: z.string(),
+  issuerUrl: z.string(),
+  scopes: z.array(z.string()),
+});
+export type OIDCConfig = z.infer<typeof OidcConfigSchema>;
+
+const FrontendConfigSchema = z.object({
+  backendUrl: z.string(),
+  gatewayUrl: z.string(),
+  documentationBaseUrl: z.string(),
+  oidcConfig: OidcConfigSchema,
+  landscape: z.optional(z.nativeEnum(Landscape)),
+});
+type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
+
+function validateAndCastFrontendConfig(config: unknown): FrontendConfig {
+  try {
+    return FrontendConfigSchema.parse(config);
+  } catch (error) {
+    throw new Error(`Invalid frontend config: ${error}`);
+  }
+}

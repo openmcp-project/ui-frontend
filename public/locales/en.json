@@ -12,7 +12,11 @@
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
-    "tableCreatedHeader": "Created"
+    "tableCreatedHeader": "Created",
+    "tableVersionHeader": "Revision",
+    "noFluxError": "Please install flux to view this component",
+    "gitOpsTitle": "GitOps",
+    "kustomizationsTitle": "Kustomizations"
   },
   "ProvidersList": {
     "tableNameHeader": "Name",
@@ -243,5 +247,17 @@
     "max25chars": "Max length is 25 characters.",
     "userExists": "User with this email already exists!",
     "atLeastOneUser": "You need to have at least one member assigned."
+  },
+  "common": {
+    "close": "Close",
+    "cannotLoadData": "Cannot load data"
+  },
+  "buttons": {
+    "viewResource": "View resource",
+    "download": "Download",
+    "copy": "Copy"
+  },
+  "yaml": {
+    "copiedToClipboard": "YAML copied to clipboard!"
   }
 }

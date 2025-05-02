@@ -1,6 +1,11 @@
 {
   "backendUrl": "http://localhost:3000",
+  "gatewayUrl": "https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/kubernetes/graphql",
   "landscape": "LOCAL",
   "documentationBaseUrl": "http://localhost:3000",
-  "githubBaseUrl": "http://localhost:3000"
+  "oidcConfig": {
+    "clientId": "clientId",
+    "issuerUrl": "issuer-url",
+    "scopes": []
+  }
 }

@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 
 // Extract the oidc configuration from the kubeconfig for the current context
 export function GetAuthPropsForCurrentContext(data: string): AuthProviderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const kubeconfig = yaml.load(data as string) as any;
 
   const currentContext = kubeconfig['current-context'];
@@ -19,6 +20,7 @@ export function GetAuthPropsForContextName(
   contextName: string,
   data: string,
 ): AuthProviderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const kubeconfig = yaml.load(data as string) as any;
   const context = LookupContextByName(contextName, kubeconfig);
   return GetAuthPropsForContext(context, kubeconfig);
@@ -27,6 +29,7 @@ export function GetAuthPropsForContextName(
 // Extract the oidc configuration from the kubeconfig for the given context from the users section
 export function GetAuthPropsForContext(
   context: Context,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   kubeconfig: any,
 ): AuthProviderProps {
   if (!kubeconfig.users) {
@@ -79,6 +82,7 @@ export function GetAuthPropsForContext(
   return props;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function LookupContextByName(contextName: string, kubeconfig: any) {
   const contexts = kubeconfig.contexts as Context[];
   for (let i = 0; i < contexts.length; i++) {
@@ -109,6 +113,7 @@ function findArguments(args: string[], key: string): string[] {
   }
   return values;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function lookupUserByName(username: string, kubeconfig: any) {
   const users = kubeconfig.users;
   for (let i = 0; i < users.length; i++) {
@@ -128,6 +133,7 @@ type Context = {
     user: string;
     namespace: string;
     cluster: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extensions: any;
   };
 };
