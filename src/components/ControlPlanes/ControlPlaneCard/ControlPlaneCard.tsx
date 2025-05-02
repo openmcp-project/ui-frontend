@@ -6,6 +6,7 @@ import ConnectButton from '../ConnectButton.tsx';
 
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
@@ -23,7 +24,9 @@ import {
   PatchMCPResourceForDeletion,
   PatchMCPResourceForDeletionBody,
 } from '../../../lib/api/types/crate/deleteMCP.ts';
+
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { useToast } from '../../../context/ToastContext.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
