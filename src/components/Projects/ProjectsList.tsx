@@ -77,7 +77,7 @@ export default function ProjectsList() {
     [],
   );
   if (error) {
-    return <IllustratedError error={error} />;
+    return <IllustratedError details={error.message} />;
   }
 
   return (
