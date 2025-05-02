@@ -1,9 +1,7 @@
 import { ReactNode } from 'react';
-import { AuthProvider } from 'react-oidc-context';
+import { AuthProvider, AuthProviderProps } from 'react-oidc-context';
 import { OIDCConfig, useFrontendConfig } from './FrontendConfigContext.tsx';
-import { WebStorageStateStore } from "oidc-client-ts";
-import { AuthProviderProps } from "react-oidc-context";
-
+import { WebStorageStateStore } from 'oidc-client-ts';
 
 interface AuthProviderOnboardingProps {
   children?: ReactNode;
