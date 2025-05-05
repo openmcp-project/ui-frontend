@@ -8,7 +8,6 @@ import {
 import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/controlPlanes.ts';
 import { GetAuthPropsForContextName } from '../oidc/shared.ts';
 import { AuthProvider, hasAuthParams, useAuth } from 'react-oidc-context';
-import IllustratedError from '../../components/Shared/IllustratedError.tsx';
 import {
   ApiConfigContext,
   ApiConfigProvider,
@@ -118,16 +117,12 @@ export function WithinManagedControlPlane({
 }) {
   const mcp = useContext(McpContext);
 
-  try {
-    const authprops = GetAuthPropsForContextName(mcp.context, mcp.kubeconfig!);
-    return (
-      <>
-        <AuthProvider key={mcp.context} {...authprops}>
-          <RequireDownstreamLogin>{children}</RequireDownstreamLogin>
-        </AuthProvider>
-      </>
-    );
-  } catch (e) {
-    return <IllustratedError error={e} />;
-  }
+  const authprops = GetAuthPropsForContextName(mcp.context, mcp.kubeconfig!);
+  return (
+    <>
+      <AuthProvider key={mcp.context} {...authprops}>
+        <RequireDownstreamLogin>{children}</RequireDownstreamLogin>
+      </AuthProvider>
+    </>
+  );
 }

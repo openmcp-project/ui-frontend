@@ -48,7 +48,7 @@ export default function FluxList() {
   if (repoErr || kustomizationErr) {
     return (
       <IllustratedError
-        error={repoErr || kustomizationErr}
+        details={repoErr.message || kustomizationErr.message}
         title={t('FluxList.noFluxError')}
       />
     );

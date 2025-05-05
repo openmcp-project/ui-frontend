@@ -1,5 +1,5 @@
 import { ReactNode, createContext, use } from 'react';
-import { DocLinkCreator } from '../lib/shared/links';
+import { LinkCreator } from '../lib/shared/links';
 import { z } from 'zod';
 
 export enum Landscape {
@@ -10,16 +10,16 @@ export enum Landscape {
   Local = 'LOCAL',
 }
 
-
-
 interface FrontendConfigContextType extends FrontendConfig {
-  links: DocLinkCreator;
+  links: LinkCreator;
 }
 
 export const FrontendConfigContext =
   createContext<FrontendConfigContextType | null>(null);
 
-const fetchPromise = fetch('/frontend-config.json').then((res) => res.json()).then((data) => validateAndCastFrontendConfig(data));
+const fetchPromise = fetch('/frontend-config.json')
+  .then((res) => res.json())
+  .then((data) => validateAndCastFrontendConfig(data));
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
@@ -29,7 +29,10 @@ export function FrontendConfigProvider({
   children,
 }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
-  const docLinks = new DocLinkCreator(config.documentationBaseUrl);
+  const docLinks = new LinkCreator(
+    config.documentationBaseUrl,
+    config.githubBaseUrl,
+  );
   const value: FrontendConfigContextType = {
     links: docLinks,
     ...config,
@@ -61,6 +64,7 @@ const FrontendConfigSchema = z.object({
   backendUrl: z.string(),
   gatewayUrl: z.string(),
   documentationBaseUrl: z.string(),
+  githubBaseUrl: z.string(),
   oidcConfig: OidcConfigSchema,
   landscape: z.optional(z.nativeEnum(Landscape)),
 });
