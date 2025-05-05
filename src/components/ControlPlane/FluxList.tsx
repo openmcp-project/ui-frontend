@@ -1,6 +1,7 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
 import {
   AnalyticalTableColumnDefinition,
+  FlexBox,
   Title,
 } from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -10,6 +11,7 @@ import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 export default function FluxList() {
   const {
@@ -147,7 +149,10 @@ export default function FluxList() {
         />
       </div>
       <div className="crossplane-table-element">
-        <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
+        <FlexBox justifyContent={'SpaceBetween'} gap={16}>
+          <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
+          <YamlViewButton resourceObject={kustmizationData} />
+        </FlexBox>
         <ConfiguredAnalyticstable
           columns={kustomizationsColumns}
           isLoading={kustomizationIsLoading}
