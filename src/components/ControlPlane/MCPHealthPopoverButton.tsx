@@ -1,4 +1,11 @@
-import { AnalyticalTable, Icon, Popover } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  Icon,
+  Popover,
+  FlexBox,
+  FlexBoxJustifyContent,
+  Button,
+} from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
@@ -10,14 +17,21 @@ import {
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
-
+import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
 export default function MCPHealthPopoverButton({
   mcpStatus,
+  projectName,
+  workspaceName,
+  mcpName,
 }: {
   mcpStatus: ControlPlaneStatusType | undefined;
+  projectName: string;
+  workspaceName: string;
+  mcpName: string;
 }) {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const { links } = useFrontendConfig();
 
   const { t } = useTranslation();
 
@@ -29,6 +43,46 @@ export default function MCPHealthPopoverButton({
       ref.opener = e.target;
       setOpen((prev) => !prev);
     }
+  };
+
+  const getTicketTitle = () => {
+    switch (mcpStatus?.status) {
+      case ReadyStatus.Ready:
+        return t('MCPHealthPopoverButton.supportTicketTitleReady');
+      case ReadyStatus.NotReady:
+        return t('MCPHealthPopoverButton.supportTicketTitleNotReady');
+      case ReadyStatus.InDeletion:
+        return t('MCPHealthPopoverButton.supportTicketTitleDeletion');
+      default:
+        return t('MCPHealthPopoverButton.supportTicketTitleIssues');
+    }
+  };
+
+  const constructGithubIssuesLink = () => {
+    const clusterDetails = `${projectName}/${workspaceName}/${mcpName}`;
+
+    const statusDetails = mcpStatus?.conditions
+      ? `${t('MCPHealthPopoverButton.statusDetailsLabel')}: ${mcpStatus.status}\n\n${t('MCPHealthPopoverButton.detailsLabel')}\n` +
+        mcpStatus.conditions
+          .map((condition) => {
+            let text = `- ${condition.type}: ${condition.status}\n`;
+            if (condition.reason)
+              text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
+            if (condition.message)
+              text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
+            return text;
+          })
+          .join('')
+      : '';
+
+    const params = new URLSearchParams({
+      template: '1-mcp_issue.yml',
+      title: `[${clusterDetails}]: ${getTicketTitle()}`,
+      'cluster-link': clusterDetails,
+      'what-happened': statusDetails,
+    });
+
+    return `${links.COM_PAGE_SUPPORT_GITHUB_ISSUE}?${params}`;
   };
 
   const statusTableColumns: AnalyticalTableColumnDefinition[] = [
@@ -77,7 +131,13 @@ export default function MCPHealthPopoverButton({
         onClick={handleOpenerClick}
       />
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
-        {<StatusTable status={mcpStatus} tableColumns={statusTableColumns} />}
+        {
+          <StatusTable
+            status={mcpStatus}
+            tableColumns={statusTableColumns}
+            githubIssuesLink={constructGithubIssuesLink()}
+          />
+        }
       </Popover>
     </div>
   );
@@ -86,10 +146,14 @@ export default function MCPHealthPopoverButton({
 function StatusTable({
   status,
   tableColumns,
+  githubIssuesLink,
 }: {
   status: ControlPlaneStatusType | undefined;
   tableColumns: AnalyticalTableColumnDefinition[];
+  githubIssuesLink: string;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div style={{ width: 600 }}>
       <AnalyticalTable
@@ -101,6 +165,16 @@ function StatusTable({
           }) ?? []
         }
       />
+      <FlexBox
+        justifyContent={FlexBoxJustifyContent.End}
+        style={{ marginTop: '0.5rem' }}
+      >
+        <a href={githubIssuesLink} target="_blank" rel="noreferrer">
+          <Button>
+            {t('MCPHealthPopoverButton.createSupportTicketButton')}
+          </Button>
+        </a>
+      </FlexBox>
     </div>
   );
 }

@@ -47,6 +47,9 @@
     "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
     "loadingErrorMessage": "Failed to list mcps in workspace"
   },
+  "ControlPlaneCard": {
+    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed."
+  },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
     "emptyListSubtitleMessage": "Create a workspace to get started"
@@ -59,7 +62,14 @@
     "typeHeader": "Type",
     "messageHeader": "Message",
     "reasonHeader": "Reason",
-    "transitionHeader": "Last transition time"
+    "transitionHeader": "Last transition time",
+    "createSupportTicketButton": "Create Support Ticket",
+    "supportTicketTitleReady": "MCP Ready",
+    "supportTicketTitleNotReady": "MCP Not Ready",
+    "supportTicketTitleDeletion": "MCP in Deletion",
+    "supportTicketTitleIssues": "Issues with Control Plane",
+    "statusDetailsLabel": "MCP Status",
+    "detailsLabel": "Details:"
   },
   "CopyKubeconfigButton": {
     "copiedMessage": "Copied to Clipboard",
