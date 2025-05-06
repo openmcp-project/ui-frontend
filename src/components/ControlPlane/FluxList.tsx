@@ -77,8 +77,9 @@ export default function FluxList() {
         accessor: 'created',
       },
       {
-        Header: 'Yaml',
+        Header: '',
         accessor: 'item',
+        hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original} />
         ),
@@ -113,8 +114,9 @@ export default function FluxList() {
         accessor: 'created',
       },
       {
-        Header: 'Yaml',
+        Header: '',
         accessor: 'item',
+        hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original} />
         ),
@@ -164,7 +166,7 @@ export default function FluxList() {
   return (
     <>
       <div className="crossplane-table-element">
-        <FlexBox justifyContent={'SpaceBetween'} gap={16}>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'1em'}>
           <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
           <YamlViewButton resourceObject={gitReposData} />
         </FlexBox>
@@ -175,7 +177,7 @@ export default function FluxList() {
         />
       </div>
       <div className="crossplane-table-element">
-        <FlexBox justifyContent={'SpaceBetween'} gap={16}>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'1em'}>
           <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
           <YamlViewButton resourceObject={kustmizationData} />
         </FlexBox>
