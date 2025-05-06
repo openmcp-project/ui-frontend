@@ -23,7 +23,6 @@ export function FrontendConfigProvider({
   children,
 }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
-
   return (
     <FrontendConfigContext.Provider value={config}>
       {children}
