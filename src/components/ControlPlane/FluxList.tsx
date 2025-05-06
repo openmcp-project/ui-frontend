@@ -7,7 +7,10 @@ import {
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import useResource from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
-import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
+import {
+  FluxKustomization,
+  KustomizationsResponse,
+} from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
@@ -26,7 +29,8 @@ export default function FluxList() {
   } = useResource(FluxKustomization); //404 if component not enabled
 
   const { t } = useTranslation();
-
+  console.log('gitReposData');
+  console.log(gitReposData);
   console.log('kustmizationData');
   console.log(kustmizationData);
   interface CellData<T> {
@@ -82,6 +86,13 @@ export default function FluxList() {
       Header: t('FluxList.tableCreatedHeader'),
       accessor: 'created',
     },
+    {
+      Header: 'Yaml',
+      accessor: 'item',
+      Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
+        <YamlViewButton resourceObject={cellData.cell.row.original} />
+      ),
+    },
   ];
 
   const kustomizationsColumns: AnalyticalTableColumnDefinition[] = [
@@ -108,6 +119,13 @@ export default function FluxList() {
       Header: t('FluxList.tableCreatedHeader'),
       accessor: 'created',
     },
+    {
+      Header: 'Yaml',
+      accessor: 'item',
+      Cell: (cellData: CellData<unknown>) => (
+        <YamlViewButton resourceObject={cellData.cell.row.original} />
+      ),
+    },
   ];
 
   const gitReposRows: FluxRow[] =
@@ -121,6 +139,7 @@ export default function FluxList() {
           ?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact.revision),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        item: item,
       };
     }) ?? [];
 
@@ -134,14 +153,17 @@ export default function FluxList() {
         statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
           ?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        item: item,
       };
     }) ?? [];
 
   return (
     <>
-      <h1>Test</h1>{' '}
       <div className="crossplane-table-element">
-        <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
+        <FlexBox justifyContent={'SpaceBetween'} gap={16}>
+          <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
+          <YamlViewButton resourceObject={gitReposData} />
+        </FlexBox>
         <ConfiguredAnalyticstable
           columns={gitReposColumns}
           isLoading={repoIsLoading}
