@@ -17,7 +17,7 @@ import {
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
-import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+import { useLink } from '../../lib/shared/links.ts';
 export default function MCPHealthPopoverButton({
   mcpStatus,
   projectName,
@@ -31,7 +31,7 @@ export default function MCPHealthPopoverButton({
 }) {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const { links } = useFrontendConfig();
+  const { githubIssuesSupportTicket } = useLink();
 
   const { t } = useTranslation();
 
@@ -82,7 +82,7 @@ export default function MCPHealthPopoverButton({
       'what-happened': statusDetails,
     });
 
-    return `${links.COM_PAGE_SUPPORT_GITHUB_ISSUE}?${params}`;
+    return `${githubIssuesSupportTicket}?${params}`;
   };
 
   const statusTableColumns: AnalyticalTableColumnDefinition[] = [
