@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { useMemo } from 'react';
 
 export default function FluxList() {
   const {
@@ -29,10 +30,7 @@ export default function FluxList() {
   } = useResource(FluxKustomization); //404 if component not enabled
 
   const { t } = useTranslation();
-  console.log('gitReposData');
-  console.log(gitReposData);
-  console.log('kustmizationData');
-  console.log(kustmizationData);
+
   interface CellData<T> {
     cell: {
       value: T | null; // null for grouping rows
@@ -49,6 +47,82 @@ export default function FluxList() {
     statusUpdateTime?: string;
   };
 
+  const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('FluxList.tableNameHeader'),
+        accessor: 'name',
+      },
+      {
+        Header: t('FluxList.tableStatusHeader'),
+        accessor: 'status',
+        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+          cellData.cell.row.original?.isReady != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.isReady}
+              transitionTime={
+                cellData.cell.row.original?.statusUpdateTime
+                  ? cellData.cell.row.original?.statusUpdateTime
+                  : ''
+              }
+            />
+          ) : null,
+      },
+      {
+        Header: t('FluxList.tableVersionHeader'),
+        accessor: 'revision',
+      },
+      {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
+      {
+        Header: 'Yaml',
+        accessor: 'item',
+        Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
+          <YamlViewButton resourceObject={cellData.cell.row.original} />
+        ),
+      },
+    ],
+    [],
+  );
+
+  const kustomizationsColumns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('FluxList.tableNameHeader'),
+        accessor: 'name',
+      },
+      {
+        Header: t('FluxList.tableStatusHeader'),
+        accessor: 'status',
+        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+          cellData.cell.row.original?.isReady != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.isReady}
+              transitionTime={
+                cellData.cell.row.original?.statusUpdateTime
+                  ? cellData.cell.row.original?.statusUpdateTime
+                  : ''
+              }
+            />
+          ) : null,
+      },
+      {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
+      {
+        Header: 'Yaml',
+        accessor: 'item',
+        Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
+          <YamlViewButton resourceObject={cellData.cell.row.original} />
+        ),
+      },
+    ],
+    [],
+  );
+
   if (repoErr || kustomizationErr) {
     return (
       <IllustratedError
@@ -57,76 +131,6 @@ export default function FluxList() {
       />
     );
   }
-
-  const gitReposColumns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('FluxList.tableNameHeader'),
-      accessor: 'name',
-    },
-    {
-      Header: t('FluxList.tableStatusHeader'),
-      accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['isReady']>) =>
-        cellData.cell.row.original?.isReady != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.isReady}
-            transitionTime={
-              cellData.cell.row.original?.statusUpdateTime
-                ? cellData.cell.row.original?.statusUpdateTime
-                : ''
-            }
-          />
-        ) : null,
-    },
-    {
-      Header: t('FluxList.tableVersionHeader'),
-      accessor: 'revision',
-    },
-    {
-      Header: t('FluxList.tableCreatedHeader'),
-      accessor: 'created',
-    },
-    {
-      Header: 'Yaml',
-      accessor: 'item',
-      Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-        <YamlViewButton resourceObject={cellData.cell.row.original} />
-      ),
-    },
-  ];
-
-  const kustomizationsColumns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('FluxList.tableNameHeader'),
-      accessor: 'name',
-    },
-    {
-      Header: t('FluxList.tableStatusHeader'),
-      accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['isReady']>) =>
-        cellData.cell.row.original?.isReady != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.isReady}
-            transitionTime={
-              cellData.cell.row.original?.statusUpdateTime
-                ? cellData.cell.row.original?.statusUpdateTime
-                : ''
-            }
-          />
-        ) : null,
-    },
-    {
-      Header: t('FluxList.tableCreatedHeader'),
-      accessor: 'created',
-    },
-    {
-      Header: 'Yaml',
-      accessor: 'item',
-      Cell: (cellData: CellData<unknown>) => (
-        <YamlViewButton resourceObject={cellData.cell.row.original} />
-      ),
-    },
-  ];
 
   const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
