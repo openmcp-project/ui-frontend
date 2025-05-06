@@ -45,6 +45,7 @@ export default function FluxList() {
     created: string;
     isReady: boolean;
     statusUpdateTime?: string;
+    item: unknown;
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -81,7 +82,7 @@ export default function FluxList() {
         accessor: 'item',
         hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original.item} />
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
       },
     ],
@@ -118,7 +119,7 @@ export default function FluxList() {
         accessor: 'item',
         hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original.item} />
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
       },
     ],
