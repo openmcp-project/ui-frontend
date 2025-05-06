@@ -91,7 +91,7 @@ export function Providers() {
         hAlign: 'End',
         accessor: 'item',
         Cell: (cellData: CellData<ProvidersRow>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original} />
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
       },
     ],

@@ -81,7 +81,7 @@ export default function FluxList() {
         accessor: 'item',
         hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original} />
+          <YamlViewButton resourceObject={cellData.cell.row.original.item} />
         ),
       },
     ],
@@ -118,7 +118,7 @@ export default function FluxList() {
         accessor: 'item',
         hAlign: 'End',
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original} />
+          <YamlViewButton resourceObject={cellData.cell.row.original.item} />
         ),
       },
     ],

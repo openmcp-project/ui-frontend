@@ -37,7 +37,8 @@ export function ProvidersConfig() {
       });
     });
   }
-
+  console.log('providerConfigsList');
+  console.log(providerConfigsList);
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('ProvidersConfig.tableHeaderProvider'),
@@ -54,6 +55,10 @@ export function ProvidersConfig() {
     {
       Header: t('ProvidersConfig.tableHeaderCreated'),
       accessor: 'created',
+    },
+    {
+      Header: '',
+      accessor: 'item',
     },
   ];
 
