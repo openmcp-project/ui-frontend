@@ -48,6 +48,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         icon="document"
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
+        tooltip={t('buttons.viewResource')}
         onClick={() => {
           setIsOpen(true);
         }}
