@@ -41,8 +41,7 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
       accessor: 'version',
     },
   ];
-  console.log('mcp');
-  console.log(mcp);
+
   return (
     <div>
       <AnalyticalTable
