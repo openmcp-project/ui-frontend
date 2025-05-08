@@ -118,7 +118,7 @@ export default function FluxList() {
         Header: '',
         accessor: 'item',
         hAlign: 'End',
-        Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
+        Cell: (cellData: CellData<FluxRow>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
       },

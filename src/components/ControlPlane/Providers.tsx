@@ -106,7 +106,6 @@ export function Providers() {
       const healthy = item.status.conditions?.find(
         (condition) => condition.type === 'Healthy',
       );
-
       return {
         name: item.metadata.name,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
