@@ -70,15 +70,11 @@ export function ControlPlaneCard({
                 <Label>{workspace.metadata.name} </Label>
               </FlexBox>
               <div>
-                <Button
-                  design={'Transparent'}
-                  icon="delete"
-                  disabled={
-                    controlPlane.status?.status === ReadyStatus.InDeletion
-                  }
-                  onClick={() => {
-                    setDialogDeleteMcpIsOpen(true);
-                  }}
+                <MCPHealthPopoverButton
+                  mcpStatus={controlPlane.status}
+                  projectName={projectName}
+                  workspaceName={workspace.metadata.name ?? ''}
+                  mcpName={controlPlane.metadata.name}
                 />
               </div>
             </FlexBox>
@@ -88,11 +84,15 @@ export function ControlPlaneCard({
               alignItems="Center"
               className={styles.row}
             >
-              <MCPHealthPopoverButton
-                mcpStatus={controlPlane.status}
-                projectName={projectName}
-                workspaceName={workspace.metadata.name ?? ''}
-                mcpName={controlPlane.metadata.name}
+              <Button
+                design={'Transparent'}
+                icon="delete"
+                disabled={
+                  controlPlane.status?.status === ReadyStatus.InDeletion
+                }
+                onClick={() => {
+                  setDialogDeleteMcpIsOpen(true);
+                }}
               />
               <FlexBox
                 direction="Row"
