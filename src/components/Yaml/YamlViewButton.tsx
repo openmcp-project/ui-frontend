@@ -1,6 +1,6 @@
 import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
-
+import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
 import YamlViewer from './YamlViewer.tsx';
 import { stringify } from 'yaml';
@@ -12,7 +12,6 @@ import {
 export type YamlViewButtonProps = {
   resourceObject: unknown;
 };
-
 
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,14 +45,23 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         )}
       </Dialog>
       <Button
-        icon="document"
+        className={styles.button}
+        design={'Transparent'}
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
         tooltip={t('buttons.viewResource')}
         onClick={() => {
           setIsOpen(true);
         }}
-      />
+      >
+        <img
+          className="logo"
+          src="/yaml-icon.svg"
+          alt="Yaml icon"
+          width={32}
+          height={16}
+        />
+      </Button>
     </span>
   );
 };

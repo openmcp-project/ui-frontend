@@ -132,6 +132,7 @@ export function ControlPlaneListWorkspaceGridTile({
               />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <Button
+                  design={'Transparent'}
                   icon="delete"
                   onClick={async () => {
                     setDialogDeleteWsIsOpen(true);

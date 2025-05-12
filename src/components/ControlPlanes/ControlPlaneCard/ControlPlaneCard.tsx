@@ -71,6 +71,7 @@ export function ControlPlaneCard({
               </FlexBox>
               <div>
                 <Button
+                  design={'Transparent'}
                   icon="delete"
                   disabled={
                     controlPlane.status?.status === ReadyStatus.InDeletion
