@@ -23,6 +23,7 @@ export default function ProjectsList() {
         return {
           projectName: projectName,
           nameSpace: projectnameToNamespace(projectName),
+          yaml: projectName,
         };
       }) ?? [],
     [data],
@@ -41,16 +42,11 @@ export default function ProjectsList() {
               color: ThemingParameters.sapLinkColor,
               fontWeight: 'bold',
               display: 'flex',
-              justifyContent: 'space-between',
-              gap: '1rem',
+              justifyContent: 'start',
               alignItems: 'center',
             }}
           >
             {instance.cell.value}
-            <YamlViewButtonWithLoader
-              resourceType={'projects'}
-              resourceName={instance.cell.value}
-            />
           </div>
         ),
       },
@@ -70,6 +66,27 @@ export default function ProjectsList() {
             }}
           >
             <CopyButton text={instance.cell.value} />
+          </div>
+        ),
+      },
+      {
+        Header: 'YAML',
+        accessor: 'yaml',
+        width: 85,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Cell: (instance: any) => (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'end',
+              alignItems: 'center',
+            }}
+          >
+            <YamlViewButtonWithLoader
+              resourceType={'projects'}
+              resourceName={instance.cell.value}
+            />
           </div>
         ),
       },
