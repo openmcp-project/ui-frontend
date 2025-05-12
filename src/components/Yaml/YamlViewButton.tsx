@@ -13,6 +13,7 @@ export type YamlViewButtonProps = {
   resourceObject: unknown;
 };
 
+
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
