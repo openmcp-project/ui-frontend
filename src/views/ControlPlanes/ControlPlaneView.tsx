@@ -28,7 +28,6 @@ import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import useResource from '../../lib/api/useApiResource';
 
-import { YamlViewButton } from '../../components/Yaml/YamlViewButton.tsx';
 import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
 
 export default function ControlPlaneView() {
@@ -36,12 +35,6 @@ export default function ControlPlaneView() {
     useParams();
   const { t } = useTranslation();
 
-  console.log('contextName');
-  console.log(contextName);
-  console.log('controlPlaneName');
-  console.log(controlPlaneName);
-  console.log('projectName');
-  console.log(projectName);
   const { data: mcp, error } = useResource(
     ControlPlaneResource(
       projectName ?? '',
@@ -49,8 +42,7 @@ export default function ControlPlaneView() {
       controlPlaneName ?? '',
     ),
   );
-  console.log('mcp');
-  console.log(mcp);
+
   if (!projectName || !workspaceName || !controlPlaneName) {
     return <></>;
   }
