@@ -5,10 +5,8 @@ const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
-const mcpAuthHeader = 'X-mcp-authorization';
 const contextHeader = 'X-context';
 const jqHeader = 'X-jq';
-const authHeader = 'Authorization';
 const contentTypeHeader = 'Content-Type';
 
 // fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
