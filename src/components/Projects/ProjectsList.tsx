@@ -73,7 +73,7 @@ export default function ProjectsList() {
         ),
       },
       {
-        Header: 'YAML',
+        Header: t('yaml.YAML'),
         accessor: 'yaml',
         width: 85,
         hAlign: 'Center',

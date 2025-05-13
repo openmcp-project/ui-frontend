@@ -72,7 +72,7 @@ export function ProvidersConfig() {
         accessor: 'created',
       },
       {
-        Header: 'YAML',
+        Header: t('yaml.YAML'),
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',

@@ -81,6 +81,7 @@ export default function ControlPlaneView() {
                     display: 'flex',
                     flexDirection: 'row',
                     justifyContent: 'space-between',
+                    gap: '0.5rem',
                   }}
                 >
                   <MCPHealthPopoverButton

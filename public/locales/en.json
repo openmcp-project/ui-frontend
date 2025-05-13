@@ -263,6 +263,7 @@
     "copy": "Copy"
   },
   "yaml": {
-    "copiedToClipboard": "YAML copied to clipboard!"
+    "copiedToClipboard": "YAML copied to clipboard!",
+    "YAML": "YAML"
   }
 }
