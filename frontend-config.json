@@ -1,5 +1,5 @@
 {
-  "backendUrl": "http://localhost:3000",
+  "backendUrl": "api.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com",
   "gatewayUrl": "https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/kubernetes/graphql",
   "landscape": "LOCAL",
   "documentationBaseUrl": "http://localhost:3000",
