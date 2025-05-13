@@ -61,6 +61,8 @@ export function Providers() {
       {
         Header: t('Providers.tableHeaderInstalled'),
         accessor: 'installed',
+        hAlign: 'Center',
+        width: 85,
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
@@ -74,6 +76,8 @@ export function Providers() {
       {
         Header: t('Providers.tableHeaderHealthy'),
         accessor: 'healthy',
+        hAlign: 'Center',
+        width: 85,
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell

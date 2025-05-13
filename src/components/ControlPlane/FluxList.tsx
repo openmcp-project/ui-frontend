@@ -58,6 +58,8 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
+        width: 85,
+        hAlign: 'Center',
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
@@ -101,6 +103,8 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
+        width: 85,
+        hAlign: 'Center',
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
