@@ -1,0 +1,3 @@
+ui5-shellbar::part(overflowContainerLeft) {
+  background-color: red !important;
+}
