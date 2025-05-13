@@ -72,9 +72,10 @@ export function ProvidersConfig() {
         accessor: 'created',
       },
       {
-        Header: '',
-        accessor: 'resource',
-        hAlign: 'End',
+        Header: 'YAML',
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
         Cell: (cellData: CellData<Rows>) =>
           cellData.cell.row.original?.resource ? (
             <YamlViewButton

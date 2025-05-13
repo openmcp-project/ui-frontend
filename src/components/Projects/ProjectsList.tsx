@@ -1,4 +1,7 @@
-import { AnalyticalTable } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+} from '@ui5/webcomponents-react';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -28,7 +31,7 @@ export default function ProjectsList() {
       }) ?? [],
     [data],
   );
-  const stabilizedColumns = useMemo(
+  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
@@ -73,6 +76,7 @@ export default function ProjectsList() {
         Header: 'YAML',
         accessor: 'yaml',
         width: 85,
+        hAlign: 'Center',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
           <div
