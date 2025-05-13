@@ -3,6 +3,7 @@ import { FC, useState } from 'react';
 import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
 import styles from './YamlViewer.module.css';
+import { YamlIcon } from './YamlIcon.tsx';
 
 export type YamlViewButtonProps = {
   workspaceName?: string;
@@ -54,13 +55,7 @@ export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
           setIsOpen(true);
         }}
       >
-        <img
-          className="logo"
-          src="/yaml-icon.svg"
-          alt="Yaml icon"
-          width={32}
-          height={16}
-        />
+        <YamlIcon />
       </Button>
     </span>
   );

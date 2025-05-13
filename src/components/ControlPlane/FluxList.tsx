@@ -116,9 +116,10 @@ export default function FluxList() {
         accessor: 'created',
       },
       {
-        Header: '',
-        accessor: 'item',
-        hAlign: 'End',
+        Header: 'YAML',
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
         Cell: (cellData: CellData<FluxRow>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),

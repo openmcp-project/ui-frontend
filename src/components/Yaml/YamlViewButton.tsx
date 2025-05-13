@@ -8,6 +8,7 @@ import {
   removeManagedFieldsProperty,
   Resource,
 } from '../../utils/removeManagedFieldsProperty.ts';
+import { YamlIcon } from './YamlIcon.tsx';
 
 export type YamlViewButtonProps = {
   resourceObject: unknown;
@@ -54,13 +55,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
           setIsOpen(true);
         }}
       >
-        <img
-          className="logo"
-          src="/yaml-icon.svg"
-          alt="Yaml icon"
-          width={32}
-          height={16}
-        />
+        <YamlIcon />
       </Button>
     </span>
   );
