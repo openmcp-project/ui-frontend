@@ -53,6 +53,7 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableNameHeader'),
         accessor: 'name',
+        minWidth: 250,
       },
       {
         Header: t('FluxList.tableStatusHeader'),
@@ -95,6 +96,7 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableNameHeader'),
         accessor: 'name',
+        minWidth: 250,
       },
       {
         Header: t('FluxList.tableStatusHeader'),
@@ -169,7 +171,7 @@ export default function FluxList() {
   return (
     <>
       <div className="crossplane-table-element">
-        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'1em'}>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
           <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
           <YamlViewButton resourceObject={gitReposData} />
         </FlexBox>
@@ -180,7 +182,7 @@ export default function FluxList() {
         />
       </div>
       <div className="crossplane-table-element">
-        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'1em'}>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
           <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
           <YamlViewButton resourceObject={kustmizationData} />
         </FlexBox>
