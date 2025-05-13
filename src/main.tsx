@@ -17,6 +17,7 @@ import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientP
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useTranslation } from 'react-i18next';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { AuthProvider } from './spaces/onboarding/auth/AuthContext.tsx';
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   const { t } = useTranslation();
@@ -37,26 +38,28 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
       <Suspense fallback={<BusyIndicator active />}>
-        <FrontendConfigProvider>
-          <AuthProviderOnboarding>
-            <ThemeProvider>
-              <ToastProvider>
-                <CopyButtonProvider>
-                  <SWRConfig
-                    value={{
-                      refreshInterval: 10000,
-                    }}
-                  >
-                    <ApolloClientProvider>
-                      <App />
-                    </ApolloClientProvider>
-                    <DarkModeSystemSwitcher />
-                  </SWRConfig>
-                </CopyButtonProvider>
-              </ToastProvider>
-            </ThemeProvider>
-          </AuthProviderOnboarding>
-        </FrontendConfigProvider>
+        <AuthProvider>
+          <FrontendConfigProvider>
+            <AuthProviderOnboarding>
+              <ThemeProvider>
+                <ToastProvider>
+                  <CopyButtonProvider>
+                    <SWRConfig
+                      value={{
+                        refreshInterval: 10000,
+                      }}
+                    >
+                      <ApolloClientProvider>
+                        <App />
+                      </ApolloClientProvider>
+                      <DarkModeSystemSwitcher />
+                    </SWRConfig>
+                  </CopyButtonProvider>
+                </ToastProvider>
+              </ThemeProvider>
+            </AuthProviderOnboarding>
+          </FrontendConfigProvider>
+        </AuthProvider>
       </Suspense>
     </ErrorBoundary>
   </React.StrictMode>,

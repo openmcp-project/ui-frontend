@@ -61,7 +61,6 @@ const OidcConfigSchema = z.object({
 export type OIDCConfig = z.infer<typeof OidcConfigSchema>;
 
 const FrontendConfigSchema = z.object({
-  backendUrl: z.string(),
   gatewayUrl: z.string(),
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
