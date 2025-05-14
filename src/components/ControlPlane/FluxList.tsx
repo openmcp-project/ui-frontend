@@ -55,6 +55,15 @@ export default function FluxList() {
         accessor: 'name',
         minWidth: 250,
       },
+
+      {
+        Header: t('FluxList.tableVersionHeader'),
+        accessor: 'revision',
+      },
+      {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
@@ -71,14 +80,6 @@ export default function FluxList() {
               }
             />
           ) : null,
-      },
-      {
-        Header: t('FluxList.tableVersionHeader'),
-        accessor: 'revision',
-      },
-      {
-        Header: t('FluxList.tableCreatedHeader'),
-        accessor: 'created',
       },
       {
         Header: t('yaml.YAML'),
@@ -101,6 +102,10 @@ export default function FluxList() {
         minWidth: 250,
       },
       {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
+      {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
         width: 85,
@@ -117,10 +122,7 @@ export default function FluxList() {
             />
           ) : null,
       },
-      {
-        Header: t('FluxList.tableCreatedHeader'),
-        accessor: 'created',
-      },
+
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',

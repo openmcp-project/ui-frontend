@@ -59,6 +59,10 @@ export function Providers() {
         accessor: 'version',
       },
       {
+        Header: t('Providers.tableHeaderCreated'),
+        accessor: 'created',
+      },
+      {
         Header: t('Providers.tableHeaderInstalled'),
         accessor: 'installed',
         hAlign: 'Center',
@@ -86,10 +90,7 @@ export function Providers() {
             />
           ) : null,
       },
-      {
-        Header: t('Providers.tableHeaderCreated'),
-        accessor: 'created',
-      },
+
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
