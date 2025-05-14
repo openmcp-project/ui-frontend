@@ -55,14 +55,13 @@ export default function FluxList() {
         accessor: 'name',
         minWidth: 250,
       },
-
-      {
-        Header: t('FluxList.tableVersionHeader'),
-        accessor: 'revision',
-      },
       {
         Header: t('FluxList.tableCreatedHeader'),
         accessor: 'created',
+      },
+      {
+        Header: t('FluxList.tableVersionHeader'),
+        accessor: 'revision',
       },
       {
         Header: t('FluxList.tableStatusHeader'),

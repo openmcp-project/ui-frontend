@@ -14,6 +14,7 @@ import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { useMemo } from 'react';
 
 interface CellData<T> {
   cell: {
@@ -46,56 +47,59 @@ export function ManagedResources() {
     refreshInterval: resourcesInterval, // Resources are quite expensive to fetch, so we refresh every 30 seconds
   });
 
-  const columns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('ManagedResources.tableHeaderKind'),
-      accessor: 'kind',
-    },
-    {
-      Header: t('ManagedResources.tableHeaderName'),
-      accessor: 'name',
-    },
-    {
-      Header: t('ManagedResources.tableHeaderCreated'),
-      accessor: 'created',
-    },
-    {
-      Header: t('ManagedResources.tableHeaderSynced'),
-      accessor: 'synced',
-      hAlign: 'Center',
-      width: 85,
-      Cell: (cellData: CellData<ResourceRow['synced']>) =>
-        cellData.cell.row.original?.synced != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.synced}
-            transitionTime={cellData.cell.row.original?.syncedTransitionTime}
-          />
-        ) : null,
-    },
-    {
-      Header: t('ManagedResources.tableHeaderReady'),
-      accessor: 'ready',
-      hAlign: 'Center',
-      width: 85,
-      Cell: (cellData: CellData<ResourceRow['ready']>) =>
-        cellData.cell.row.original?.ready != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.ready}
-            transitionTime={cellData.cell.row.original?.readyTransitionTime}
-          />
-        ) : null,
-    },
-    {
-      Header: t('yaml.YAML'),
-      hAlign: 'Center',
-      width: 85,
-      accessor: 'yaml',
-      Cell: (cellData: CellData<ResourceRow>) =>
-        !!cellData.cell.row.original?.item ? (
-          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
-        ) : undefined,
-    },
-  ];
+  const columns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('ManagedResources.tableHeaderKind'),
+        accessor: 'kind',
+      },
+      {
+        Header: t('ManagedResources.tableHeaderName'),
+        accessor: 'name',
+      },
+      {
+        Header: t('ManagedResources.tableHeaderCreated'),
+        accessor: 'created',
+      },
+      {
+        Header: t('ManagedResources.tableHeaderSynced'),
+        accessor: 'synced',
+        hAlign: 'Center',
+        width: 85,
+        Cell: (cellData: CellData<ResourceRow['synced']>) =>
+          cellData.cell.row.original?.synced != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.synced}
+              transitionTime={cellData.cell.row.original?.syncedTransitionTime}
+            />
+          ) : null,
+      },
+      {
+        Header: t('ManagedResources.tableHeaderReady'),
+        accessor: 'ready',
+        hAlign: 'Center',
+        width: 85,
+        Cell: (cellData: CellData<ResourceRow['ready']>) =>
+          cellData.cell.row.original?.ready != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.ready}
+              transitionTime={cellData.cell.row.original?.readyTransitionTime}
+            />
+          ) : null,
+      },
+      {
+        Header: t('yaml.YAML'),
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
+        Cell: (cellData: CellData<ResourceRow>) =>
+          !!cellData.cell.row.original?.item ? (
+            <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+          ) : undefined,
+      },
+    ],
+    [],
+  );
 
   const rows: ResourceRow[] =
     managedResources
