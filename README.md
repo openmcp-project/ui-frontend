@@ -4,7 +4,11 @@
 
 ## About this project
 
-UI frontend for @openmcp-project
+This repository contains code relevant for the frontend component required in the Managed Control Plane UI (MCP UI), which is part of the @openmcp-project, more info [here](https://github.com/openmcp-project).
+
+The MCP UI enables endusers to work with Managed Control Planes, without having to use kubectl. Note that the current focus of the UI is on displaying information about the various managed resources, as well as the MCP instances themselves. It is also possible to check the status of the resources, and display / copy their YAML representations.
+
+Overall, the UI provides an easy jump-start for everyone interested in checking the status of Managed Control Planes, without having to use kubectl.
 
 ## Requirements and Setup
 
