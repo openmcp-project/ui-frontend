@@ -18,6 +18,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/GenerateInitialsForEmail';
 import styles from './ShellBar.module.css';
+import { ThemingParameters } from '@ui5/webcomponents-react-base';
 
 export function ShellBarComponent() {
   const auth = useAuth();
@@ -64,58 +65,19 @@ export function ShellBarComponent() {
           />
         }
         startButton={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {/* Logo + Tytuł */}
-            <div
-              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-            >
-              <img src="/logo.png" alt="MCP" style={{ height: '1.5rem' }} />
-              <span
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: '1rem',
-                  color: 'var(--sapTextColor)',
-                }}
-              >
-                MCP
-              </span>
+          <div className={styles.container}>
+            <div className={styles.logoWrapper}>
+              <img src="/logo.png" alt="MCP" className={styles.logo} />
+              <span className={styles.logoText}>MCP</span>
             </div>
-
-            {/* BETA Button */}
             <Button
               ref={betaButtonRef}
-              design="Transparent"
-              style={{
-                backgroundColor: '#EAF4FE',
-                color: '#0A6ED1',
-                padding: '4px 10px',
-                borderRadius: '12px',
-                border: '1px solid #D1E8FF',
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                height: '1.75rem',
-                lineHeight: '1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className={styles.betaButton}
               onClick={onBetaClick}
             >
-              <span
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem', // odstęp między ikoną a tekstem
-                }}
-              >
-                <Icon
-                  name="information"
-                  style={{
-                    fontSize: '1rem',
-                    color: '#0A6ED1',
-                  }}
-                />
-                <span style={{ fontSize: '0.875rem' }}>BETA</span>
+              <span className={styles.betaContent}>
+                <Icon name="information" className={styles.betaIcon} />
+                <span className={styles.betaText}>Beta</span>
               </span>
             </Button>
           </div>
@@ -188,7 +150,13 @@ const BetaPopover = ({
       open={open}
       onClose={() => setOpen(false)}
     >
-      <div style={{ padding: '1rem', maxWidth: '250px' }}>
+      <div
+        style={{
+          padding: '1rem',
+          maxWidth: '250px',
+          fontFamily: ThemingParameters.sapFontFamily,
+        }}
+      >
         This web app is currently in Beta, and may not ready for productive use.
         We&apos;re actively improving the experience and would love your
         feedback—your input helps shape the future of the app!

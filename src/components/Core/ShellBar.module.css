@@ -1,3 +1,51 @@
-ui5-shellbar::part(overflowContainerLeft) {
-  background-color: red !important;
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.logo {
+  height: 1.5rem;
+}
+
+.logoText {
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--sapTextColor);
+}
+
+.betaButton {
+  background-color: #FFF3CD;
+  color: #856404;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #FFEB99;
+  font-weight: bold;
+  font-size: 0.75rem;
+  height: 1.75rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.betaContent {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.betaIcon {
+  font-size: 1rem;
+  color: #0A6ED1;
+}
+
+.betaText {
+  font-size: 0.875rem;
 }
