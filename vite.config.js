@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import viteFastify from '@fastify/vite/plugin';
+import { viteFastify } from '@fastify/vite/plugin';
 import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
