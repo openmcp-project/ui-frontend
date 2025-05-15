@@ -158,7 +158,7 @@ const BetaPopover = ({
           fontFamily: ThemingParameters.sapFontFamily,
         }}
       >
-        {t('ShellBar.betaButtonDescription')},
+        {t('ShellBar.betaButtonDescription')}
       </div>
     </Popover>
   );
