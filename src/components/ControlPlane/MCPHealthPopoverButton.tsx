@@ -17,7 +17,7 @@ import {
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
-import { useLink } from '../../lib/shared/links.ts';
+import { useLink } from '../../lib/shared/useLink.ts';
 export default function MCPHealthPopoverButton({
   mcpStatus,
   projectName,

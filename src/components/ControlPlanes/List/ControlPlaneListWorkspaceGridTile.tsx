@@ -35,7 +35,7 @@ import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { useLink } from '../../../lib/shared/links.ts';
+import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 interface Props {

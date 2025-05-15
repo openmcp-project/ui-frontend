@@ -3,7 +3,7 @@ import { Button, Card, FlexBox, Text } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import './login.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
-import { useLink } from '../lib/shared/links';
+import { useLink } from '../lib/shared/useLink.ts';
 import { useTranslation } from 'react-i18next';
 
 export default function LoginView() {

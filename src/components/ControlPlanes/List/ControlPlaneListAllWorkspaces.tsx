@@ -8,7 +8,7 @@ import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ListWorkspaces } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import { useLink } from '../../../lib/shared/links.ts';
+import { useLink } from '../../../lib/shared/useLink.ts';
 import { useTranslation } from 'react-i18next';
 
 interface Props {

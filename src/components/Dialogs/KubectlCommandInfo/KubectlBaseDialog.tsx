@@ -14,7 +14,7 @@ import {
 import { KubectlTerminal } from './KubectlTerminal';
 import { useState, useEffect, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { useLink } from '../../../lib/shared/links';
+import { useLink } from '../../../lib/shared/useLink.ts';
 
 export interface FormField {
   id: string;

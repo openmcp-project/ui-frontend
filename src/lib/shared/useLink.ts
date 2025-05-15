@@ -3,9 +3,6 @@ import { useFrontendConfig } from '../../context/FrontendConfigContext';
 export function useLink() {
   const { documentationBaseUrl, githubBaseUrl } = useFrontendConfig();
 
-  if (!documentationBaseUrl || !githubBaseUrl) {
-    throw new Error('useLink must be used within a FrontendConfigProvider');
-  }
   const createLink = (path: string) => `${documentationBaseUrl}${path}`;
   const createGithubLink = (path: string) => `${githubBaseUrl}${path}`;
 
