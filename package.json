@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node server.js --dev",
     "start": "node server.js",
-    "build": "tsc && vite build --debug",
+    "build": "tsc && vite build",
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "cypress run --component --browser chrome",
