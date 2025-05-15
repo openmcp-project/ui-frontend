@@ -115,7 +115,7 @@ export default function FluxList() {
           'True',
         statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
           ?.lastTransitionTime,
-        revision: shortenCommitHash(item.status.artifact.revision),
+        revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
       };
     }) ?? [];
