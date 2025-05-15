@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react';
-import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { BusyIndicator, ThemeProvider } from '@ui5/webcomponents-react';
@@ -31,36 +30,35 @@ const ErrorFallback = ({ error }: FallbackProps) => {
   );
 };
 
-const rootElement = document.getElementById('root');
-const root = createRoot(rootElement!);
-
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
-      <Suspense fallback={<BusyIndicator active />}>
-        <AuthProvider>
-          <FrontendConfigProvider>
-            <AuthProviderOnboarding>
-              <ThemeProvider>
-                <ToastProvider>
-                  <CopyButtonProvider>
-                    <SWRConfig
-                      value={{
-                        refreshInterval: 10000,
-                      }}
-                    >
-                      <ApolloClientProvider>
-                        <App />
-                      </ApolloClientProvider>
-                      <DarkModeSystemSwitcher />
-                    </SWRConfig>
-                  </CopyButtonProvider>
-                </ToastProvider>
-              </ThemeProvider>
-            </AuthProviderOnboarding>
-          </FrontendConfigProvider>
-        </AuthProvider>
-      </Suspense>
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+export function createApp() {
+  return (
+    <React.StrictMode>
+      <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+        <Suspense fallback={<BusyIndicator active />}>
+          <AuthProvider>
+            <FrontendConfigProvider>
+              <AuthProviderOnboarding>
+                <ThemeProvider>
+                  <ToastProvider>
+                    <CopyButtonProvider>
+                      <SWRConfig
+                        value={{
+                          refreshInterval: 10000,
+                        }}
+                      >
+                        <ApolloClientProvider>
+                          <App />
+                        </ApolloClientProvider>
+                        <DarkModeSystemSwitcher />
+                      </SWRConfig>
+                    </CopyButtonProvider>
+                  </ToastProvider>
+                </ThemeProvider>
+              </AuthProviderOnboarding>
+            </FrontendConfigProvider>
+          </AuthProvider>
+        </Suspense>
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+}
