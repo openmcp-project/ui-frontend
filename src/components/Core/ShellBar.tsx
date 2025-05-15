@@ -26,7 +26,6 @@ export function ShellBarComponent() {
   const betaPopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const [betaPopoverOpen, setBetaPopoverOpen] = useState(false);
-
   const betaButtonRef = useRef<ButtonDomRef>(null);
 
   const onProfileClick = (
@@ -143,6 +142,8 @@ const BetaPopover = ({
   setOpen: (arg0: boolean) => void;
   popoverRef: RefObject<PopoverDomRef | null>;
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Popover
       ref={popoverRef}
@@ -157,9 +158,7 @@ const BetaPopover = ({
           fontFamily: ThemingParameters.sapFontFamily,
         }}
       >
-        This web app is currently in Beta, and may not ready for productive use.
-        We&apos;re actively improving the experience and would love your
-        feedback—your input helps shape the future of the app!
+        {t('ShellBar.betaButtonDescription')},
       </div>
     </Popover>
   );
