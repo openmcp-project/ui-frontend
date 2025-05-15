@@ -29,9 +29,10 @@ fastify.get('/', (req, reply) => {
 });
 
 await fastify.vite.ready();
-await fastify.listen(
+fastify.listen(
   {
     port: 5173,
+    host: '0.0.0.0',
   },
   function (err, address) {
     if (err) {
