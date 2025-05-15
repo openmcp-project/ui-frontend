@@ -19,7 +19,7 @@
     "@fastify/http-proxy": "^11.1.2",
     "@fastify/secure-session": "^8.2.0",
     "@fastify/sensible": "^6.0.3",
-    "fastify": "^5.3.2",
+    "fastify": "^5.3.3",
     "fastify-plugin": "^5.0.1"
   }
 }
