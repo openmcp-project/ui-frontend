@@ -26,7 +26,6 @@ export default function ProjectsList() {
         return {
           projectName: projectName,
           nameSpace: projectnameToNamespace(projectName),
-          yaml: projectName,
         };
       }) ?? [],
     [data],
