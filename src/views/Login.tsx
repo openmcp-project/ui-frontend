@@ -3,12 +3,12 @@ import { Button, Card, FlexBox, Text } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import './login.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
-import { useFrontendConfig } from '../context/FrontendConfigContext';
+import { useLink } from '../lib/shared/useLink.ts';
 import { useTranslation } from 'react-i18next';
 
 export default function LoginView() {
   const auth = useAuth();
-  const { links } = useFrontendConfig();
+  const { documentationHomepage } = useLink();
   const { t } = useTranslation();
 
   return (
@@ -26,7 +26,7 @@ export default function LoginView() {
           <Text>{t('Login.description')}</Text>
           <Text>
             <p>
-              <a href={links.COMMUNITY_PAGE} target="_blank" rel="noreferrer">
+              <a href={documentationHomepage} target="_blank" rel="noreferrer">
                 {t('Login.learnMore')}
               </a>
             </p>

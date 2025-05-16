@@ -35,7 +35,7 @@ import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 interface Props {
@@ -65,7 +65,7 @@ export function ControlPlaneListWorkspaceGridTile({
     DeleteWorkspaceResource(projectNamespace, workspaceName),
   );
 
-  const { links } = useFrontendConfig();
+  const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
 
   function createErrorView(error: APIError) {
@@ -155,7 +155,7 @@ export function ControlPlaneListWorkspaceGridTile({
               subtitle={t('IllustratedBanner.subtitleMessage')}
               illustrationName={IllustrationMessageType.NoData}
               help={{
-                link: links.COM_PAGE_GETTING_STARTED_MCP,
+                link: mcpCreationGuide,
                 buttonText: t('IllustratedBanner.helpButton'),
               }}
             />
