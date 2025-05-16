@@ -1,0 +1,5 @@
+.svg {
+  & path[id="label"] {
+    fill: #004CA3
+  }
+}

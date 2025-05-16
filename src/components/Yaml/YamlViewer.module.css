@@ -8,3 +8,15 @@
   right: 0;
   z-index: 1;
 }
+
+.button {
+  width: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 32px;
+    transform: translateY(1px);
+  }
+}

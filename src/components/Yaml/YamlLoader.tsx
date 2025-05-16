@@ -1,4 +1,4 @@
-import { YamlViewButtonProps } from './YamlViewButton.tsx';
+import { YamlViewButtonProps } from './YamlViewButtonWithLoader.tsx';
 import { FC } from 'react';
 
 import { stringify } from 'yaml';
@@ -9,6 +9,10 @@ import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import YamlViewer from './YamlViewer.tsx';
 import useResource from '../../lib/api/useApiResource';
+import {
+  removeManagedFieldsProperty,
+  Resource,
+} from '../../utils/removeManagedFieldsProperty.ts';
 
 export const YamlLoader: FC<YamlViewButtonProps> = ({
   workspaceName,
@@ -17,6 +21,8 @@ export const YamlLoader: FC<YamlViewButtonProps> = ({
 }) => {
   const { isLoading, data, error } = useResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
+    undefined,
+    true,
   );
   const { t } = useTranslation();
   if (isLoading) return <Loading />;
@@ -26,7 +32,7 @@ export const YamlLoader: FC<YamlViewButtonProps> = ({
 
   return (
     <YamlViewer
-      yamlString={stringify(data)}
+      yamlString={stringify(removeManagedFieldsProperty(data as Resource))}
       filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
     />
   );

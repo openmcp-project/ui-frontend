@@ -28,6 +28,8 @@ import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import useResource from '../../lib/api/useApiResource';
 
+import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
+
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
     useParams();
@@ -79,6 +81,7 @@ export default function ControlPlaneView() {
                     display: 'flex',
                     flexDirection: 'row',
                     justifyContent: 'space-between',
+                    gap: '0.5rem',
                   }}
                 >
                   <MCPHealthPopoverButton
@@ -87,7 +90,11 @@ export default function ControlPlaneView() {
                     workspaceName={workspaceName ?? ''}
                     mcpName={controlPlaneName}
                   />
-
+                  <YamlViewButtonWithLoader
+                    workspaceName={mcp?.status?.access?.namespace}
+                    resourceType={'managedcontrolplanes'}
+                    resourceName={controlPlaneName}
+                  />
                   <CopyKubeconfigButton />
                 </div>
               }

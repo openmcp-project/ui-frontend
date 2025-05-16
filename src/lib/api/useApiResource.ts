@@ -19,6 +19,7 @@ export { useApiResource as default };
 export const useApiResource = <T>(
   resource: Resource<T>,
   config?: SWRConfiguration,
+  excludeMcpConfig?: boolean,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
 
@@ -29,7 +30,7 @@ export const useApiResource = <T>(
     ([path, apiConfig]) =>
       fetchApiServerJson<T>(
         path,
-        apiConfig,
+        excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : apiConfig,
         resource.jq,
         resource.method,
         resource.body,

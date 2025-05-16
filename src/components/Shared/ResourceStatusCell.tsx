@@ -8,7 +8,9 @@ export function ResourceStatusCell({ value, transitionTime }: StatusCellProps) {
       design={value ? 'Positive' : 'Negative'}
       name={value ? 'sys-enter-2' : 'sys-cancel-2'}
       showTooltip={true}
-      accessibleName={timeAgo.format(new Date(transitionTime))}
+      accessibleName={
+        transitionTime ? timeAgo.format(new Date(transitionTime)) : '-'
+      }
     />
   );
 }

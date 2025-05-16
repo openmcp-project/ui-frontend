@@ -14,6 +14,9 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { timeAgo } from '../../utils/i18n/timeAgo';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
 
+import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { useMemo } from 'react';
+
 interface CellData<T> {
   cell: {
     value: T | null; // null for grouping rows
@@ -31,6 +34,7 @@ type ProvidersRow = {
   installed: boolean;
   installedTransitionTime: string;
   created: string;
+  item: unknown;
 };
 
 export function Providers() {
@@ -44,42 +48,61 @@ export function Providers() {
     refreshInterval: resourcesInterval,
   });
 
-  const columns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('Providers.tableHeaderName'),
-      accessor: 'name',
-    },
-    {
-      Header: t('Providers.tableHeaderVersion'),
-      accessor: 'version',
-    },
-    {
-      Header: t('Providers.tableHeaderInstalled'),
-      accessor: 'installed',
-      Cell: (cellData: CellData<ProvidersRow['installed']>) =>
-        cellData.cell.row.original?.installed != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.installed}
-            transitionTime={cellData.cell.row.original?.installedTransitionTime}
-          />
-        ) : null,
-    },
-    {
-      Header: t('Providers.tableHeaderHealthy'),
-      accessor: 'healthy',
-      Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
-        cellData.cell.row.original?.installed != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.healthy}
-            transitionTime={cellData.cell.row.original?.healthyTransitionTime}
-          />
-        ) : null,
-    },
-    {
-      Header: t('Providers.tableHeaderCreated'),
-      accessor: 'created',
-    },
-  ];
+  const columns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('Providers.tableHeaderName'),
+        accessor: 'name',
+      },
+      {
+        Header: t('Providers.tableHeaderVersion'),
+        accessor: 'version',
+      },
+      {
+        Header: t('Providers.tableHeaderCreated'),
+        accessor: 'created',
+      },
+      {
+        Header: t('Providers.tableHeaderInstalled'),
+        accessor: 'installed',
+        hAlign: 'Center',
+        width: 85,
+        Cell: (cellData: CellData<ProvidersRow['installed']>) =>
+          cellData.cell.row.original?.installed != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.installed}
+              transitionTime={
+                cellData.cell.row.original?.installedTransitionTime
+              }
+            />
+          ) : null,
+      },
+      {
+        Header: t('Providers.tableHeaderHealthy'),
+        accessor: 'healthy',
+        hAlign: 'Center',
+        width: 85,
+        Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
+          cellData.cell.row.original?.installed != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.healthy}
+              transitionTime={cellData.cell.row.original?.healthyTransitionTime}
+            />
+          ) : null,
+      },
+
+      {
+        Header: t('yaml.YAML'),
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
+        Cell: (cellData: CellData<ProvidersRow>) => (
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+        ),
+      },
+    ],
+    [],
+  );
 
   const rows: ProvidersRow[] =
     providers?.items?.map((item) => {
@@ -89,7 +112,6 @@ export function Providers() {
       const healthy = item.status.conditions?.find(
         (condition) => condition.type === 'Healthy',
       );
-
       return {
         name: item.metadata.name,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
@@ -98,6 +120,7 @@ export function Providers() {
         healthy: healthy?.status === 'True',
         healthyTransitionTime: healthy?.lastTransitionTime ?? '',
         version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
+        item: item,
       };
     }) ?? [];
 
