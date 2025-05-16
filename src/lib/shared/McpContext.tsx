@@ -1,13 +1,7 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/controlPlanes.ts';
 import { GetAuthPropsForContextName } from '../oidc/shared.ts';
-import { AuthProvider, hasAuthParams, useAuth } from 'react-oidc-context';
+import { AuthProvider } from 'react-oidc-context';
 import {
   ApiConfigContext,
   ApiConfigProvider,
@@ -66,29 +60,9 @@ export const McpContextProvider = ({ children, context }: Props) => {
 };
 
 function RequireDownstreamLogin(props: { children?: ReactNode }) {
-  const auth = useAuth();
   const mcp = useContext(McpContext);
-  const [hasTriedSignin, setHasTriedSignin] = useState(false);
   const parentApiConfig = useContext(ApiConfigContext);
 
-  // automatically sign-in
-  useEffect(() => {
-    if (
-      !hasAuthParams() &&
-      !auth.isAuthenticated &&
-      !auth.activeNavigator &&
-      !auth.isLoading &&
-      !hasTriedSignin
-    ) {
-      auth.signinPopup().then((_) => {
-        setHasTriedSignin(true);
-      });
-    }
-  }, [auth, hasTriedSignin]);
-
-  if (!auth.isAuthenticated || auth.isLoading) {
-    return <>Elevating your permissions</>;
-  }
   return (
     <>
       <ApiConfigProvider
@@ -100,7 +74,6 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
             projectName: mcp.project,
             workspaceName: mcp.workspace,
             controlPlaneName: mcp.name,
-            mcpAuthorization: auth.user?.access_token ?? '',
           },
         }}
       >
