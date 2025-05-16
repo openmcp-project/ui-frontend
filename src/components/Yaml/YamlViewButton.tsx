@@ -17,6 +17,7 @@ export type YamlViewButtonProps = {
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
+  const resource = resourceObject as Resource;
   return (
     <span>
       <Dialog
@@ -38,10 +39,8 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
       >
         {isOpen && (
           <YamlViewer
-            yamlString={stringify(
-              removeManagedFieldsProperty(resourceObject as Resource),
-            )}
-            filename={`filename_here`}
+            yamlString={stringify(removeManagedFieldsProperty(resource))}
+            filename={`${resource.kind ?? ''}${resource.metadata.name ? '_' : ''}${resource.metadata.name ?? ''}`}
           />
         )}
       </Dialog>

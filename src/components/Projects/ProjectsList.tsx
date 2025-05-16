@@ -25,6 +25,7 @@ export default function ProjectsList() {
       data?.map((projectName) => {
         return {
           projectName: projectName,
+          yaml: projectName,
           nameSpace: projectnameToNamespace(projectName),
         };
       }) ?? [],

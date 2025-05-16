@@ -2,10 +2,12 @@ export type Resource = {
   kind: string;
   items?: {
     metadata: {
+      name: string;
       managedFields?: unknown;
     };
   }[];
   metadata: {
+    name: string;
     managedFields?: unknown;
   };
 };
