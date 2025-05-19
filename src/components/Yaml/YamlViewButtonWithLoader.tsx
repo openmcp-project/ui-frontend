@@ -50,7 +50,6 @@ export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
         design={'Transparent'}
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
-        tooltip={t('buttons.viewResource')}
         onClick={() => {
           setIsOpen(true);
         }}
