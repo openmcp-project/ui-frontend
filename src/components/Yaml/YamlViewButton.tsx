@@ -23,6 +23,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
       <Dialog
         open={isOpen}
         stretch
+        onClick={(e) => e.stopPropagation()}
         footer={
           <Bar
             design="Footer"
