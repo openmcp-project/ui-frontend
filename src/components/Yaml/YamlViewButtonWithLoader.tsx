@@ -1,4 +1,4 @@
-import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
+import { Button } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
 import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
