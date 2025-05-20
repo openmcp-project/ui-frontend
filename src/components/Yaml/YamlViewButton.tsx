@@ -27,7 +27,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         dialogContent={
           <YamlViewer
             yamlString={stringify(removeManagedFieldsProperty(resource))}
-            filename={`${resource.kind ?? ''}${resource.metadata.name ? '_' : ''}${resource.metadata.name ?? ''}`}
+            filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
           />
         }
       />
