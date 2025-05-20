@@ -11,7 +11,6 @@ type McpConfig = {
   workspaceName: string;
   controlPlaneName: string;
   contextName: string;
-  mcpAuthorization: string;
 };
 
 //syntax basically combines all the atrributes from the types into one
