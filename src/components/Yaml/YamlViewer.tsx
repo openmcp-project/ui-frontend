@@ -61,7 +61,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           padding: '20px',
           borderRadius: '4px',
           fontSize: '1rem',
-          width: '90%',
           background: 'transparent',
         }}
         codeTagProps={{
