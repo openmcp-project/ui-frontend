@@ -5,7 +5,6 @@ const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
-const mcpAuthHeader = 'X-mcp-authorization';
 const contextHeader = 'X-context';
 const jqHeader = 'X-jq';
 const authHeader = 'Authorization';
@@ -39,7 +38,6 @@ export const fetchApiServer = async (
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
     headers[mcpNameHeader] = config.mcpConfig.controlPlaneName;
     headers[contextHeader] = config.mcpConfig.contextName;
-    headers[mcpAuthHeader] = config.mcpConfig.mcpAuthorization;
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
