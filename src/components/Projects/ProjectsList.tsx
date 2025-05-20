@@ -25,7 +25,6 @@ export default function ProjectsList() {
       data?.map((projectName) => {
         return {
           projectName: projectName,
-          yaml: projectName,
           nameSpace: projectnameToNamespace(projectName),
         };
       }) ?? [],
@@ -89,7 +88,7 @@ export default function ProjectsList() {
           >
             <YamlViewButtonWithLoader
               resourceType={'projects'}
-              resourceName={instance.cell.value}
+              resourceName={instance.cell.row.original?.projectName}
             />
           </div>
         ),
