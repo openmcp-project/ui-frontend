@@ -4,6 +4,7 @@ import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
 import styles from './YamlViewer.module.css';
 import { YamlIcon } from './YamlIcon.tsx';
+import { YamlViewDialog } from './YamlViewDialog.tsx';
 
 export type YamlViewButtonProps = {
   workspaceName?: string;
@@ -20,32 +21,18 @@ export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
   const { t } = useTranslation();
   return (
     <span>
-      <Dialog
-        open={isOpen}
-        stretch
-        onClick={(e) => e.stopPropagation()}
-        footer={
-          <Bar
-            design="Footer"
-            endContent={
-              <Button design="Emphasized" onClick={() => setIsOpen(false)}>
-                {t('common.close')}
-              </Button>
-            }
-          />
-        }
-        onClose={() => {
-          setIsOpen(false);
-        }}
-      >
-        {isOpen && (
+      <YamlViewDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        dialogContent={
           <YamlLoader
             workspaceName={workspaceName}
             resourceName={resourceName}
             resourceType={resourceType}
           />
-        )}
-      </Dialog>
+        }
+      />
+
       <Button
         className={styles.button}
         design={'Transparent'}

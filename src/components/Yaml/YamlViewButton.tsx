@@ -1,4 +1,4 @@
-import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
+import { Button } from '@ui5/webcomponents-react';
 import { FC, useState } from 'react';
 import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import {
   Resource,
 } from '../../utils/removeManagedFieldsProperty.ts';
 import { YamlIcon } from './YamlIcon.tsx';
+import { YamlViewDialog } from './YamlViewDialog.tsx';
 
 export type YamlViewButtonProps = {
   resourceObject: unknown;
@@ -20,31 +21,17 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const resource = resourceObject as Resource;
   return (
     <span>
-      <Dialog
-        open={isOpen}
-        stretch
-        onClick={(e) => e.stopPropagation()}
-        footer={
-          <Bar
-            design="Footer"
-            endContent={
-              <Button design="Emphasized" onClick={() => setIsOpen(false)}>
-                {t('common.close')}
-              </Button>
-            }
-          />
-        }
-        onClose={() => {
-          setIsOpen(false);
-        }}
-      >
-        {isOpen && (
+      <YamlViewDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        dialogContent={
           <YamlViewer
             yamlString={stringify(removeManagedFieldsProperty(resource))}
             filename={`${resource.kind ?? ''}${resource.metadata.name ? '_' : ''}${resource.metadata.name ?? ''}`}
           />
-        )}
-      </Dialog>
+        }
+      />
+
       <Button
         className={styles.button}
         design={'Transparent'}
