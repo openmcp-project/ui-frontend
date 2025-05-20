@@ -1,5 +1,5 @@
 import { Button } from '@ui5/webcomponents-react';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
 import YamlViewer from './YamlViewer.tsx';
@@ -19,6 +19,9 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
+  const yamlString = useMemo(() => {
+    return stringify(removeManagedFieldsProperty(resource));
+  }, [resource]);
   return (
     <span>
       <YamlViewDialog
@@ -26,7 +29,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         setIsOpen={setIsOpen}
         dialogContent={
           <YamlViewer
-            yamlString={stringify(removeManagedFieldsProperty(resource))}
+            yamlString={yamlString}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
           />
         }
