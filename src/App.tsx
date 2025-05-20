@@ -1,17 +1,14 @@
 import AppRouter from './AppRouter';
 import { useAuth } from './spaces/onboarding/auth/AuthContext.tsx';
 import '@ui5/webcomponents-icons/dist/AllIcons.d.ts';
-import { useEffect, useState } from 'react';
-import { SessionExpiringDialog } from './components/Dialogs/SessionExpiringDialog.tsx';
+import { useEffect } from 'react';
 import { useFrontendConfig } from './context/FrontendConfigContext.tsx';
 import { useTranslation } from 'react-i18next';
+import LoginView from './views/Login.tsx';
 
 function App() {
   const auth = useAuth();
-  const [dialogSessionExpiringIsOpen, setDialogSessionExpiringIsOpen] =
-    useState(false);
   const { t } = useTranslation();
-
   const frontendConfig = useFrontendConfig();
 
   useEffect(() => {
@@ -25,27 +22,10 @@ function App() {
   }
 
   if (!auth.isAuthenticated) {
-    return (
-      <>
-        {/**<LoginView />**/}
-        <button onClick={() => auth.login()}>Sign In</button>
-      </>
-    );
+    return <LoginView />;
   }
 
-  return (
-    <>
-      <SessionExpiringDialog
-        isOpen={dialogSessionExpiringIsOpen}
-        setIsOpen={setDialogSessionExpiringIsOpen}
-      />
-      <div>
-        {auth.isAuthenticated ? 'AUTHED' : 'NOT AUTHED'}
-        <button onClick={() => auth.logout()}>Sign Out</button>
-      </div>
-      <AppRouter />
-    </>
-  );
+  return <AppRouter />;
 }
 
 export default App;

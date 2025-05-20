@@ -1,14 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react';
+import { createContext, useState, useEffect, ReactNode, use } from 'react';
+import { MeResponseSchema, User } from './auth.schemas';
 
 interface AuthContextType {
-  isAuthenticated: boolean;
   isLoading: boolean;
+  isAuthenticated: boolean;
+  user: User | null;
   error: Error | null;
   login: () => void;
   logout: () => Promise<void>;
@@ -18,6 +14,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -27,12 +24,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const code = params.get('code');
     const state = params.get('state');
     const iss = params.get('iss');
-    const error = params.get('error');
-    const errorDescription = params.get('error_description');
-
-    if (error) {
-      throw new Error(`Error from IdP: ${error} – ${errorDescription}`);
-    }
 
     if (code && state) {
       // Construct the URL to forward to the BFF
@@ -44,25 +35,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       window.location.href = forwardUrl.toString();
     }
-  }, [location]);
+  }, []);
 
   // Check the authentication status when the component mounts
   useEffect(() => {
-    void checkAuthStatus();
+    // Only run checkAuthStatus if not currently handling a redirect
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('code') && !params.has('error')) {
+      void refreshAuthStatus();
+    }
   }, []);
 
-  async function checkAuthStatus() {
-    try {
-      const response = await fetch('/api/auth/status');
+  async function refreshAuthStatus() {
+    setIsLoading(true);
+    setError(null);
 
+    try {
+      const response = await fetch('/api/auth/me');
       if (!response.ok) {
-        throw new Error('Authentication check failed.');
+        let errorBody;
+        try {
+          errorBody = await response.json();
+        } catch (_) {
+          /* safe to ignore */
+        }
+        throw new Error(
+          errorBody?.message ||
+            `Authentication check failed with status: ${response.status}`,
+        );
       }
 
       const body = await response.json();
-      setIsAuthenticated(body.isAuthenticated);
+      const validationResult = MeResponseSchema.safeParse(body);
+      if (!validationResult.success) {
+        throw new Error(
+          `Auth API response validation failed: ${validationResult.error.flatten()}`,
+        );
+      }
+
+      const { isAuthenticated: apiIsAuthenticated, user: apiUser } =
+        validationResult.data;
+      setUser(apiUser);
+      setIsAuthenticated(apiIsAuthenticated);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Authentication error.'));
+      setUser(null);
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
@@ -75,29 +92,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      const response = await fetch('/api/auth/logout');
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
 
       if (!response.ok) {
-        throw new Error('Logout failed');
+        let errorBody;
+        try {
+          errorBody = await response.json();
+        } catch (_) {
+          /* safe to ignore */
+        }
+        throw new Error(
+          errorBody?.message || `Logout failed with status: ${response.status}`,
+        );
       }
 
-      await checkAuthStatus();
+      await refreshAuthStatus();
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Logout error.'));
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, error, login, logout }}
+    <AuthContext
+      value={{ isLoading, isAuthenticated, user, error, login, logout }}
     >
       {children}
-    </AuthContext.Provider>
+    </AuthContext>
   );
 }
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = use(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider.');
   }

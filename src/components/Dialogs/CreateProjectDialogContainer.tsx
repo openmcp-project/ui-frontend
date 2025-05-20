@@ -8,11 +8,10 @@ import {
 } from './CreateProjectWorkspaceDialog.tsx';
 
 import { useToast } from '../../context/ToastContext.tsx';
-import { useAuthSubject } from '../../lib/oidc/useUsername.ts';
+import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 
 import { useTranslation } from 'react-i18next';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -46,10 +45,10 @@ export function CreateProjectDialogContainer({
       members: [],
     },
   });
-
-  const username = useAuthSubject();
-
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const username = user?.email;
 
   const clearForm = useCallback(() => {
     resetField('name');

@@ -17,7 +17,7 @@ import {
 import { projectnameToNamespace } from '../../utils';
 import { ListWorkspaces } from '../../lib/api/types/crate/listWorkspaces';
 import { useToast } from '../../context/ToastContext.tsx';
-import { useAuthSubject } from '../../lib/oidc/useUsername.ts';
+import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,10 +56,10 @@ export function CreateWorkspaceDialogContainer({
       members: [],
     },
   });
-
-  const username = useAuthSubject();
-
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const username = user?.email;
 
   const clearForm = useCallback(() => {
     resetField('name');

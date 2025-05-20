@@ -1,4 +1,4 @@
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../spaces/onboarding/auth/AuthContext.tsx';
 import { Button, Card, FlexBox, Text } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import './login.css';
@@ -34,7 +34,7 @@ export default function LoginView() {
           <div>
             <Button
               design={ButtonDesign.Emphasized}
-              onClick={() => void auth.signinRedirect()}
+              onClick={() => void auth.login()}
             >
               {t('Login.signInButton')}
             </Button>

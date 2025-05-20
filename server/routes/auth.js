@@ -52,18 +52,17 @@ async function authPlugin(fastify) {
   });
 
 
-  fastify.get("/auth/status", async (req, reply) => {
-    const isAuthenticated = Boolean(req.session.get("accessToken"));
-    reply.send({ isAuthenticated });
+  fastify.get("/auth/me", async (req, reply) => {
+    const accessToken = req.session.get("accessToken");
+    const userInfo = req.session.get("userInfo");
+
+    const isAuthenticated = Boolean(accessToken);
+    const user = isAuthenticated ? userInfo : null;
+    reply.send({ isAuthenticated, user });
   });
 
 
-  fastify.get("/auth/user", async (req, reply) => {
-    reply.send(req.session.get("userInfo"));
-  });
-
-
-  fastify.get("/auth/logout", async (_req, reply) => {
+  fastify.post("/auth/logout", async (_req, reply) => {
     // TODO: Idp sign out flow
     //_req.session.delete();                  // remove payload
     reply.clearCookie(COOKIE_NAME_ONBOARDING, { path: "/" });

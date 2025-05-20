@@ -1,11 +1,5 @@
 {
-  "backendUrl": "http://localhost:3000",
   "gatewayUrl": "http://localhost:3000",
   "landscape": "LOCAL",
-  "documentationBaseUrl": "http://localhost:3000",
-  "oidcConfig": {
-    "clientId": "clientId",
-    "issuerUrl": "issuer-url",
-    "scopes": []
-  }
+  "documentationBaseUrl": "http://localhost:3000"
 }

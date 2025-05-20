@@ -41,19 +41,10 @@ export const useFrontendConfig = () => {
   return context;
 };
 
-const OidcConfigSchema = z.object({
-  clientId: z.string(),
-  issuerUrl: z.string(),
-  scopes: z.array(z.string()),
-});
-export type OIDCConfig = z.infer<typeof OidcConfigSchema>;
-
 const FrontendConfigSchema = z.object({
-  backendUrl: z.string(),
   gatewayUrl: z.string(),
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
-  oidcConfig: OidcConfigSchema,
   landscape: z.optional(z.nativeEnum(Landscape)),
 });
 type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
