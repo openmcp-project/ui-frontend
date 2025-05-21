@@ -117,12 +117,6 @@
     "columnEmailHeader": "Email",
     "columnRoleHeader": "Role"
   },
-  "SessionExpiringDialog": {
-    "dialogHeader": "Your session is expiring soon...",
-    "signOutButton": "Sign Out",
-    "stayButton": "Stay Signed In",
-    "sessionText": "Your session expires soon and you will be signed out automatically. To continue working, press 'Stay Signed in'."
-  },
   "IllustratedError": {
     "titleText": "Something went wrong",
     "subtitleText": "Contact admins for help"

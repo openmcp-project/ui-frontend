@@ -11,7 +11,7 @@ import {
   ShellBarDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -59,7 +59,7 @@ export function ShellBarComponent() {
         className={styles.TestShellbar}
         profile={
           <Avatar
-            initials={generateInitialsForEmail(auth.user?.profile.email)}
+            initials={generateInitialsForEmail(auth.user?.email)}
             size="XS"
           />
         }
@@ -123,7 +123,7 @@ const ProfilePopover = ({
           icon="log"
           onClick={() => {
             setOpen(false);
-            auth.removeUser();
+            void auth.logout();
           }}
         >
           {t('ShellBar.signOutButton')}

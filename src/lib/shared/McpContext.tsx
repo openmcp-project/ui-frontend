@@ -1,11 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react';
 import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/controlPlanes.ts';
-import { GetAuthPropsForContextName } from '../oidc/shared.ts';
-import { AuthProvider } from 'react-oidc-context';
-import {
-  ApiConfigContext,
-  ApiConfigProvider,
-} from '../../components/Shared/k8s';
+import { ApiConfigProvider } from '../../components/Shared/k8s';
 import useResource from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
 
@@ -61,14 +56,11 @@ export const McpContextProvider = ({ children, context }: Props) => {
 
 function RequireDownstreamLogin(props: { children?: ReactNode }) {
   const mcp = useContext(McpContext);
-  const parentApiConfig = useContext(ApiConfigContext);
 
   return (
     <>
       <ApiConfigProvider
         apiConfig={{
-          apiProxyUrl: parentApiConfig.apiProxyUrl,
-          crateAuthorization: parentApiConfig.crateAuthorization,
           mcpConfig: {
             contextName: mcp.context,
             projectName: mcp.project,
@@ -88,14 +80,9 @@ export function WithinManagedControlPlane({
 }: {
   children?: ReactNode;
 }) {
-  const mcp = useContext(McpContext);
-
-  const authprops = GetAuthPropsForContextName(mcp.context, mcp.kubeconfig!);
   return (
     <>
-      <AuthProvider key={mcp.context} {...authprops}>
-        <RequireDownstreamLogin>{children}</RequireDownstreamLogin>
-      </AuthProvider>
+      <RequireDownstreamLogin>{children}</RequireDownstreamLogin>
     </>
   );
 }
