@@ -1,6 +1,6 @@
 # Use the latest LTS version of Node.js
 # https://hub.docker.com/_/node
-FROM node:22-alpine3.20@sha256:224173ad6a700ec322c7117f616836d0dc6cadd8d6baac57703ccc2eb418a73f AS build-stage
+FROM node:22-alpine3.20@sha256:2289fb1fba0f4633b08ec47b94a89c7e20b829fc5679f9b7b298eaa2f1ed8b7e AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # The same image but now only install the production dependencies as the frontend is already built using vite in the build-stage
-FROM node:22-alpine3.20@sha256:224173ad6a700ec322c7117f616836d0dc6cadd8d6baac57703ccc2eb418a73f AS production
+FROM node:22-alpine3.20@sha256:2289fb1fba0f4633b08ec47b94a89c7e20b829fc5679f9b7b298eaa2f1ed8b7e AS production
 
 WORKDIR /usr/src/app
 
