@@ -16,7 +16,8 @@
     "tableVersionHeader": "Revision",
     "noFluxError": "Please install flux to view this component",
     "gitOpsTitle": "GitOps",
-    "kustomizationsTitle": "Kustomizations"
+    "kustomizationsTitle": "Kustomizations",
+    "undefinedError": "Something went wrong"
   },
   "ProvidersList": {
     "tableNameHeader": "Name",
