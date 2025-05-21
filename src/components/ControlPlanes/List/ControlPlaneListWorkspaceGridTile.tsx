@@ -33,7 +33,7 @@ import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
@@ -132,12 +132,13 @@ export function ControlPlaneListWorkspaceGridTile({
               />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <Button
+                  design={'Transparent'}
                   icon="delete"
                   onClick={async () => {
                     setDialogDeleteWsIsOpen(true);
                   }}
                 />
-                <YamlViewButton
+                <YamlViewButtonWithLoader
                   workspaceName={workspace.metadata.namespace}
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
