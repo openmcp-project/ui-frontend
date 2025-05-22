@@ -1,4 +1,7 @@
-import { AnalyticalTable } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+} from '@ui5/webcomponents-react';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -9,7 +12,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/arrow-right';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
-import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
 
 export default function ProjectsList() {
@@ -27,7 +30,7 @@ export default function ProjectsList() {
       }) ?? [],
     [data],
   );
-  const stabilizedColumns = useMemo(
+  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
@@ -41,16 +44,11 @@ export default function ProjectsList() {
               color: ThemingParameters.sapLinkColor,
               fontWeight: 'bold',
               display: 'flex',
-              justifyContent: 'space-between',
-              gap: '1rem',
+              justifyContent: 'start',
               alignItems: 'center',
             }}
           >
             {instance.cell.value}
-            <YamlViewButton
-              resourceType={'projects'}
-              resourceName={instance.cell.value}
-            />
           </div>
         ),
       },
@@ -70,6 +68,28 @@ export default function ProjectsList() {
             }}
           >
             <CopyButton text={instance.cell.value} />
+          </div>
+        ),
+      },
+      {
+        Header: t('yaml.YAML'),
+        accessor: 'yaml',
+        width: 85,
+        hAlign: 'Center',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Cell: (instance: any) => (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'end',
+              alignItems: 'center',
+            }}
+          >
+            <YamlViewButtonWithLoader
+              resourceType={'projects'}
+              resourceName={instance.cell.row.original?.projectName}
+            />
           </div>
         ),
       },

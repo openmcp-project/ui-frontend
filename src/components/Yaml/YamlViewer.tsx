@@ -51,8 +51,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
         language="yaml"
         style={isDarkMode ? materialDark : materialLight}
         showLineNumbers
-        wrapLines
-        wrapLongLines
         lineNumberStyle={{
           paddingRight: '20px',
           minWidth: '40px',
@@ -63,8 +61,12 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           padding: '20px',
           borderRadius: '4px',
           fontSize: '1rem',
-          width: '100%',
           background: 'transparent',
+        }}
+        codeTagProps={{
+          style: {
+            whiteSpace: 'pre-wrap',
+          },
         }}
       >
         {yamlString}

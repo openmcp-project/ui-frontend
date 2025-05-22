@@ -1,6 +1,6 @@
 # Use the latest LTS version of Node.js
 # https://hub.docker.com/_/node
-FROM node:22-alpine3.20@sha256:686b8892b69879ef5bfd6047589666933508f9a5451c67320df3070ba0e9807b AS build-stage
+FROM node:22-alpine3.20@sha256:2289fb1fba0f4633b08ec47b94a89c7e20b829fc5679f9b7b298eaa2f1ed8b7e AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -9,14 +9,26 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Build 
+# Build
 ENV NODE_ENV=production
 COPY . .
 RUN npm run build
 
-# Use the latest LTS version of Nginx as the serving image
-# https://hub.docker.com/_/nginx
-FROM nginx:1.28.0-alpine-slim@sha256:39a9a15e0a81914a96fa9ffa980cdfe08e2e5e73ae3424f341ad1f470147c413
+# The same image but now only install the production dependencies as the frontend is already built using vite in the build-stage
+FROM node:22-alpine3.20@sha256:2289fb1fba0f4633b08ec47b94a89c7e20b829fc5679f9b7b298eaa2f1ed8b7e AS production
 
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-COPY --from=build-stage /usr/src/app/dist /usr/share/nginx/html
+WORKDIR /usr/src/app
+
+# copy over package.json from the origin file system again so it can be done in parallel from docker (if configured)
+COPY package*.json ./
+# install only dependencies which are not marked as dev
+RUN npm ci --omit=dev
+
+# copy over necessary files for the server
+COPY server.js ./
+COPY server server
+
+# copy over precompiled frontend
+COPY --from=build-stage /usr/src/app/dist dist
+
+CMD ["npm", "run", "start"]

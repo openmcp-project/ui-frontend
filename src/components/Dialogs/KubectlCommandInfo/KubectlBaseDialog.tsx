@@ -14,7 +14,7 @@ import {
 import { KubectlTerminal } from './KubectlTerminal';
 import { useState, useEffect, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useLink } from '../../../lib/shared/useLink.ts';
 
 export interface FormField {
   id: string;
@@ -47,7 +47,7 @@ export const KubectlBaseDialog = ({
   customCommands,
 }: KubectlBaseDialogProps) => {
   const { t } = useTranslation();
-  const { links } = useFrontendConfig();
+  const { gettingStartedGuide } = useLink();
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -165,9 +165,7 @@ export const KubectlBaseDialog = ({
           <Trans
             i18nKey="KubectlBaseDialog.onboardingGuide"
             components={{
-              link1: (
-                <Link href={links.COM_PAGE_GETTING_STARTED} target="_blank" />
-              ),
+              link1: <Link href={gettingStartedGuide} target="_blank" />,
             }}
           />
         </MessageStrip>

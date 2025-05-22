@@ -16,7 +16,8 @@
     "tableVersionHeader": "Revision",
     "noFluxError": "Please install flux to view this component",
     "gitOpsTitle": "GitOps",
-    "kustomizationsTitle": "Kustomizations"
+    "kustomizationsTitle": "Kustomizations",
+    "undefinedError": "Something went wrong"
   },
   "ProvidersList": {
     "tableNameHeader": "Name",
@@ -116,12 +117,6 @@
   "MemberTable": {
     "columnEmailHeader": "Email",
     "columnRoleHeader": "Role"
-  },
-  "SessionExpiringDialog": {
-    "dialogHeader": "Your session is expiring soon...",
-    "signOutButton": "Sign Out",
-    "stayButton": "Stay Signed In",
-    "sessionText": "Your session expires soon and you will be signed out automatically. To continue working, press 'Stay Signed in'."
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -264,6 +259,7 @@
     "copy": "Copy"
   },
   "yaml": {
-    "copiedToClipboard": "YAML copied to clipboard!"
+    "copiedToClipboard": "YAML copied to clipboard!",
+    "YAML": "YAML"
   }
 }

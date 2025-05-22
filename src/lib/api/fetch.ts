@@ -5,10 +5,8 @@ const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
-const mcpAuthHeader = 'X-mcp-authorization';
 const contextHeader = 'X-context';
 const jqHeader = 'X-jq';
-const authHeader = 'Authorization';
 const contentTypeHeader = 'Content-Type';
 
 // fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
@@ -27,7 +25,6 @@ export const fetchApiServer = async (
   } else {
     headers[contentTypeHeader] = 'application/merge-patch+json';
   }
-  headers[authHeader] = config.crateAuthorization;
 
   // Set the jq header to do a jq transformation on the proxy server.
   if (jq) headers[jqHeader] = jq;
@@ -39,18 +36,21 @@ export const fetchApiServer = async (
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
     headers[mcpNameHeader] = config.mcpConfig.controlPlaneName;
     headers[contextHeader] = config.mcpConfig.contextName;
-    headers[mcpAuthHeader] = config.mcpConfig.mcpAuthorization;
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
 
-  const res = await fetch(`${config.apiProxyUrl}${path}`, {
+  const res = await fetch(`/api/onboarding${path}`, {
     headers,
     method: httpMethod,
     body,
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      // Unauthorized, redirect to the login page
+      window.location.href = `/api/auth/login`;
+    }
     const error = new APIError(
       'An error occurred while fetching the data.',
       res.status,

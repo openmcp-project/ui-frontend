@@ -1,36 +1,34 @@
 import { Button } from '@ui5/webcomponents-react';
-import { FC, useMemo, useState } from 'react';
-import styles from './YamlViewer.module.css';
+import { FC, useState } from 'react';
+import { YamlLoader } from './YamlLoader.tsx';
 import { useTranslation } from 'react-i18next';
-import YamlViewer from './YamlViewer.tsx';
-import { stringify } from 'yaml';
-import {
-  removeManagedFieldsProperty,
-  Resource,
-} from '../../utils/removeManagedFieldsProperty.ts';
+import styles from './YamlViewer.module.css';
 import { YamlIcon } from './YamlIcon.tsx';
 import { YamlViewDialog } from './YamlViewDialog.tsx';
 
 export type YamlViewButtonProps = {
-  resourceObject: unknown;
+  workspaceName?: string;
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceName: string;
 };
 
-export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
+export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
+  workspaceName,
+  resourceType,
+  resourceName,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
-  const resource = resourceObject as Resource;
-  const yamlString = useMemo(() => {
-    return stringify(removeManagedFieldsProperty(resource));
-  }, [resource]);
   return (
     <span>
       <YamlViewDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         dialogContent={
-          <YamlViewer
-            yamlString={yamlString}
-            filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+          <YamlLoader
+            workspaceName={workspaceName}
+            resourceName={resourceName}
+            resourceType={resourceType}
           />
         }
       />

@@ -1,15 +1,21 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
 import {
   AnalyticalTableColumnDefinition,
+  FlexBox,
   Title,
 } from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import useResource from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
-import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
+import {
+  FluxKustomization,
+  KustomizationsResponse,
+} from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
+import { useMemo } from 'react';
 
 export default function FluxList() {
   const {
@@ -39,72 +45,108 @@ export default function FluxList() {
     created: string;
     isReady: boolean;
     statusUpdateTime?: string;
+    item: unknown;
   };
+
+  const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('FluxList.tableNameHeader'),
+        accessor: 'name',
+        minWidth: 250,
+      },
+      {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
+      {
+        Header: t('FluxList.tableVersionHeader'),
+        accessor: 'revision',
+      },
+      {
+        Header: t('FluxList.tableStatusHeader'),
+        accessor: 'status',
+        width: 85,
+        hAlign: 'Center',
+        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+          cellData.cell.row.original?.isReady != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.isReady}
+              transitionTime={
+                cellData.cell.row.original?.statusUpdateTime
+                  ? cellData.cell.row.original?.statusUpdateTime
+                  : ''
+              }
+            />
+          ) : null,
+      },
+      {
+        Header: t('yaml.YAML'),
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
+        Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+        ),
+      },
+    ],
+    [],
+  );
+
+  const kustomizationsColumns: AnalyticalTableColumnDefinition[] = useMemo(
+    () => [
+      {
+        Header: t('FluxList.tableNameHeader'),
+        accessor: 'name',
+        minWidth: 250,
+      },
+      {
+        Header: t('FluxList.tableCreatedHeader'),
+        accessor: 'created',
+      },
+      {
+        Header: t('FluxList.tableStatusHeader'),
+        accessor: 'status',
+        width: 85,
+        hAlign: 'Center',
+        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+          cellData.cell.row.original?.isReady != null ? (
+            <ResourceStatusCell
+              value={cellData.cell.row.original?.isReady}
+              transitionTime={
+                cellData.cell.row.original?.statusUpdateTime
+                  ? cellData.cell.row.original?.statusUpdateTime
+                  : ''
+              }
+            />
+          ) : null,
+      },
+
+      {
+        Header: t('yaml.YAML'),
+        hAlign: 'Center',
+        width: 85,
+        accessor: 'yaml',
+        Cell: (cellData: CellData<FluxRow>) => (
+          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+        ),
+      },
+    ],
+    [],
+  );
 
   if (repoErr || kustomizationErr) {
     return (
       <IllustratedError
-        details={repoErr.message || kustomizationErr.message}
+        details={
+          repoErr?.message ||
+          kustomizationErr?.message ||
+          t('FluxList.undefinedError')
+        }
         title={t('FluxList.noFluxError')}
       />
     );
   }
-
-  const gitReposColumns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('FluxList.tableNameHeader'),
-      accessor: 'name',
-    },
-    {
-      Header: t('FluxList.tableStatusHeader'),
-      accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['isReady']>) =>
-        cellData.cell.row.original?.isReady != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.isReady}
-            transitionTime={
-              cellData.cell.row.original?.statusUpdateTime
-                ? cellData.cell.row.original?.statusUpdateTime
-                : ''
-            }
-          />
-        ) : null,
-    },
-    {
-      Header: t('FluxList.tableVersionHeader'),
-      accessor: 'revision',
-    },
-    {
-      Header: t('FluxList.tableCreatedHeader'),
-      accessor: 'created',
-    },
-  ];
-
-  const kustomizationsColumns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('FluxList.tableNameHeader'),
-      accessor: 'name',
-    },
-    {
-      Header: t('FluxList.tableStatusHeader'),
-      accessor: 'status',
-      Cell: (cellData: CellData<FluxRow['isReady']>) =>
-        cellData.cell.row.original?.isReady != null ? (
-          <ResourceStatusCell
-            value={cellData.cell.row.original?.isReady}
-            transitionTime={
-              cellData.cell.row.original?.statusUpdateTime
-                ? cellData.cell.row.original?.statusUpdateTime
-                : ''
-            }
-          />
-        ) : null,
-    },
-    {
-      Header: t('FluxList.tableCreatedHeader'),
-      accessor: 'created',
-    },
-  ];
 
   const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
@@ -117,6 +159,7 @@ export default function FluxList() {
           ?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        item: item,
       };
     }) ?? [];
 
@@ -130,14 +173,17 @@ export default function FluxList() {
         statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
           ?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        item: item,
       };
     }) ?? [];
 
   return (
     <>
-      {' '}
       <div className="crossplane-table-element">
-        <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
+          <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
+          <YamlViewButton resourceObject={gitReposData} />
+        </FlexBox>
         <ConfiguredAnalyticstable
           columns={gitReposColumns}
           isLoading={repoIsLoading}
@@ -145,7 +191,10 @@ export default function FluxList() {
         />
       </div>
       <div className="crossplane-table-element">
-        <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
+          <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
+          <YamlViewButton resourceObject={kustmizationData} />
+        </FlexBox>
         <ConfiguredAnalyticstable
           columns={kustomizationsColumns}
           isLoading={kustomizationIsLoading}
