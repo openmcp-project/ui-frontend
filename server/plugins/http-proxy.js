@@ -83,8 +83,7 @@ function proxyPlugin(fastify) {
     replyOptions: {
       rewriteRequestHeaders: (req, headers) => ({
         ...headers,
-        authorization: req.session.get("accessToken"),
-        "X-mcp-authorization": req.session.get("accessToken"), // no support for different MCP IdPs at the moment
+        authorization: req.session.get("accessToken")
       }),
     },
   });
