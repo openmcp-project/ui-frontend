@@ -29,6 +29,7 @@ import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopov
 import useResource from '../../lib/api/useApiResource';
 
 import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
+import { Landscapers } from '../../components/ControlPlane/Landscapers.tsx';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -147,6 +148,26 @@ export default function ControlPlaneView() {
               <div className="crossplane-table-element">
                 <ManagedResources />
               </div>
+            </Panel>
+          </ObjectPageSection>
+          <ObjectPageSection
+            className="cp-page-section-landscapers"
+            id="landscapers"
+            titleText={t('ControlPlaneView.landscapersTitle')}
+            hideTitleText
+          >
+            <Panel
+              className="cp-panel cp-panel-landscapers"
+              headerLevel="H3"
+              headerText="Panel"
+              header={
+                <Title level="H3">
+                  {t('ControlPlaneView.landscapersTitle')}
+                </Title>
+              }
+              noAnimation
+            >
+              <Landscapers />
             </Panel>
           </ObjectPageSection>
           <ObjectPageSection
