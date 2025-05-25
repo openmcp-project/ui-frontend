@@ -22,7 +22,7 @@ export default function FluxList() {
     data: gitReposData,
     error: repoErr,
     isLoading: repoIsLoading,
-  } = useResource(FluxRequest); //404 if component not enabled
+  } = useResource(FluxRequest); //404 if component not enabled`
   const {
     data: kustmizationData,
     error: kustomizationErr,

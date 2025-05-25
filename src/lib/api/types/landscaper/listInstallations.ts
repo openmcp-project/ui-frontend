@@ -18,5 +18,5 @@ interface InstalationsListResponse {
 export const InstalationsRequest = (
   namespace: string,
 ): Resource<InstalationsListResponse> => ({
-  path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/landscaper02/installations`,
+  path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/${namespace}/installations`,
 });

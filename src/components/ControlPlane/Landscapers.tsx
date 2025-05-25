@@ -11,47 +11,46 @@ import useResource from '../../lib/api/useApiResource';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { InstalationsRequest } from '../../lib/api/types/landscaper/listInstallations';
+import { ApiConfigContext } from '../../components/Shared/k8s';
+import { fetchApiServerJson } from '../../lib/api/fetch';
 
 export function Landscapers() {
   const { t } = useTranslation();
+  const apiConfig = useContext(ApiConfigContext);
 
-  // Namespaces z API
-  const { data: namespaces, error: namespacesError } = useResource(
-    ListNamespaces,
-    {
-      refreshInterval: resourcesInterval,
-    },
-  );
+  const { data: namespaces } = useResource(ListNamespaces, {
+    refreshInterval: resourcesInterval,
+  });
 
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
   const [installations, setInstallations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Handler wyboru namespace’ów
   const handleSelectionChange = (e: CustomEvent) => {
     const selectedItems = Array.from(e.detail.items || []);
     const selectedValues = selectedItems.map((item: any) => item.text);
     setSelectedNamespaces(selectedValues);
   };
 
-  // Fetch installations, gdy zmienią się namespace’y
   useEffect(() => {
     const fetchInstallations = async () => {
       if (selectedNamespaces.length === 0) {
         setInstallations([]);
         return;
       }
+
       setLoading(true);
+
       try {
         const paths = selectedNamespaces
           .map((ns) => InstalationsRequest(ns).path)
           .filter((p): p is string => p !== null && p !== undefined);
 
         const allResponses = await Promise.all(
-          paths.map((path) => fetch(path).then((res) => res.json())),
+          paths.map((path) => fetchApiServerJson(path, apiConfig)),
         );
 
         const allItems = allResponses.flatMap((res) => res.items || []);
@@ -65,9 +64,8 @@ export function Landscapers() {
     };
 
     fetchInstallations();
-  }, [selectedNamespaces]);
+  }, [selectedNamespaces, apiConfig]);
 
-  // Definicja kolumn tabeli
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('Namespace'),
