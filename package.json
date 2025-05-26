@@ -21,6 +21,14 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.6",
+    "@fastify/autoload": "^6.3.0",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/env": "^5.0.2",
+    "@fastify/http-proxy": "^11.1.2",
+    "@fastify/secure-session": "^8.2.0",
+    "@fastify/sensible": "^6.0.3",
+    "@fastify/static": "^8.1.1",
+    "@fastify/vite": "^8.1.3",
     "@hookform/resolvers": "^5.0.0",
     "@ui5/webcomponents": "^2.7.2",
     "@ui5/webcomponents-fiori": "^2.7.2",
@@ -30,14 +38,6 @@
     "dotenv": "^16.5.0",
     "fastify": "^5.3.3",
     "fastify-plugin": "^5.0.1",
-    "@fastify/autoload": "^6.3.0",
-    "@fastify/cookie": "^11.0.2",
-    "@fastify/env": "^5.0.2",
-    "@fastify/http-proxy": "^11.1.2",
-    "@fastify/secure-session": "^8.2.0",
-    "@fastify/sensible": "^6.0.3",
-    "@fastify/static": "^8.1.1",
-    "@fastify/vite": "^8.1.3",
     "graphql": "^16.10.0",
     "graphql-config": "^5.1.3",
     "i18next": "^25.0.0",
@@ -82,6 +82,7 @@
     "sass-embedded": "^1.86.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.26.1",
-    "vite": "^6.3.4"
+    "vite": "^6.3.4",
+    "vitest": "^3.1.4"
   }
 }
