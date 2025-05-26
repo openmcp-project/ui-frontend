@@ -34,7 +34,7 @@ jobs:
         with:
           images: ${{env.REGISTRY}}/${{env.IMAGE_NAME}}
           tags: |
-            type=sha,prefix={{branch}}-
+            type=raw,value={{branch}}-{{date 'YYYYMMDDHHmmss'}}
 
       - name: Log in to the Container registry
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
