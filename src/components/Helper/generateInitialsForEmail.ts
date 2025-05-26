@@ -1,4 +1,4 @@
-export function XGenerateInitialsForEmail(email: string | undefined): string {
+export function generateInitialsForEmail(email: string | undefined): string {
   if (!email) {
     return '';
   }
