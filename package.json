@@ -12,8 +12,9 @@
     "build": "tsc && vite build",
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "cypress run --component --browser chrome",
-    "test:open": "cypress open --component --browser chrome",
+    "test:vi": "vitest",
+    "test:cy": "cypress run --component --browser chrome",
+    "test:cy:open": "cypress open --component --browser chrome",
     "generate-graphql-types": "graphql-codegen --config graphql.config.yaml",
     "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch"
   },
