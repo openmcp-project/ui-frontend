@@ -13,9 +13,7 @@
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "cypress run --component --browser chrome",
-    "testE2E": "cypress run --e2e --browser chrome",
     "test:open": "cypress open --component --browser chrome",
-    "testE2E:open": "cypress open --e2e --browser chrome",
     "generate-graphql-types": "graphql-codegen --config graphql.config.yaml",
     "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch"
   },
