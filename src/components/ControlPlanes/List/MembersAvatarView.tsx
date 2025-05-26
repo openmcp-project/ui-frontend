@@ -4,7 +4,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { useRef, useState } from 'react';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
-import { generateInitialsForEmail } from '../../Helper/GenerateInitialsForEmail.ts';
+import { XGenerateInitialsForEmail } from '../../Helper/xGenerateInitialsForEmail.ts';
 
 interface Props {
   project?: string;
@@ -25,7 +25,7 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
     avatars.push(
       <Avatar
         key={`project-${project}-ws-${workspace}-${member.name}`}
-        initials={generateInitialsForEmail(member.name)}
+        initials={XGenerateInitialsForEmail(member.name)}
         size="XS"
       />,
     );

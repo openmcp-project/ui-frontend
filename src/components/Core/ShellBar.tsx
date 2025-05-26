@@ -16,7 +16,7 @@ import { RefObject, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
-import { generateInitialsForEmail } from '../Helper/GenerateInitialsForEmail';
+import { XGenerateInitialsForEmail } from '../Helper/xGenerateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 
@@ -59,7 +59,7 @@ export function ShellBarComponent() {
         className={styles.TestShellbar}
         profile={
           <Avatar
-            initials={generateInitialsForEmail(auth.user?.email)}
+            initials={XGenerateInitialsForEmail(auth.user?.email)}
             size="XS"
           />
         }
