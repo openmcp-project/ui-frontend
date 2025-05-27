@@ -1,0 +1,27 @@
+name: Cleanup main images
+
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io/openmcp-project
+  IMAGE_NAME: mcp-ui-frontend
+  KEEP_X_IMAGES: 5
+
+jobs:
+  clean:
+    name: "Clean main images"
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Delete old main branch images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ env.IMAGE_NAME }}
+          package-type: "container"
+          min-versions-to-keep: ${{ env.KEEP_X_IMAGES }}
+          # Ignore any version that does NOT start with 'main-'
+          ignore-versions: "^(?!main-).*$"
