@@ -18,7 +18,7 @@ jobs:
       packages: write
     steps:
       - name: Delete old main branch images
-        uses: actions/delete-package-versions@v5
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         with:
           package-name: ${{ env.IMAGE_NAME }}
           package-type: "container"
