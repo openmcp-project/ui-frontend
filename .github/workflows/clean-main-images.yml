@@ -2,7 +2,7 @@ name: Cleanup main images
 
 on:
   schedule:
-    - cron: "5 * * * *"
+    - cron: '5 1 * * *'
   workflow_dispatch:
 
 env:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   clean:
-    name: "Clean main images"
+    name: 'Clean main images'
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -21,7 +21,7 @@ jobs:
         uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ env.IMAGE_NAME }}
-          package-type: "container"
+          package-type: 'container'
           min-versions-to-keep: ${{ env.KEEP_X_IMAGES }}
           # Ignore any version that does NOT start with 'main-'
-          ignore-versions: "^(?!main-).*$"
+          ignore-versions: '^(?!main-).*$'
