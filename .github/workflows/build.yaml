@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run Vitest Tests
+        run: npm run test:vi
+
       - name: Build
         run: npm run build
 
@@ -36,4 +39,3 @@ jobs:
             cypress/screenshots/
           retention-days: 7 # Keep artifacts for 7 days
           if-no-files-found: warn # Warn instead of fail if no screenshots found
-
