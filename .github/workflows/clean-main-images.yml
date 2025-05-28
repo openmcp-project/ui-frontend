@@ -30,9 +30,11 @@ jobs:
           echo "Listing images before cleanup:"
           gh api -H "Accept: application/vnd.github+json" \
             /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Delete old main branch images
-        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
+        uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ env.FULL_IMAGE_NAME }}
           package-type: 'container'
@@ -44,3 +46,5 @@ jobs:
           echo "Listing images after cleanup:"
           gh api -H "Accept: application/vnd.github+json" \
             /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
+        env:
+          GH_TOKEN: ${{ github.token }}
