@@ -30,6 +30,7 @@ jobs:
       - name: Delete old ${{ env.TAG_PREFIX }}* tags using GitHub API, keep ${{ env.KEEP_X_IMAGES }}
         run: |
           set -e
+          set -o pipefail
 
           # Get all ${{ env.TAG_PREFIX }}* tags and their version IDs, sorted by tag (descending)
           VERSIONS=$(gh api -H "Accept: application/vnd.github+json" \
