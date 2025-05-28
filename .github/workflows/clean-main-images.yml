@@ -43,6 +43,11 @@ jobs:
           echo "Deleting the following tags:"
           echo "$TO_DELETE" | awk '{print $2}'
 
+          if [ -z "$TO_DELETE" ]; then
+            echo "No tags to delete."
+            exit 0
+          fi
+
           FAILED_DELETIONS=""
           while read -r line; do
             id=$(echo "$line" | awk '{print $1}')
