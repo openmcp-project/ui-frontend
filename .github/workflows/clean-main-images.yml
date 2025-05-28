@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io/openmcp-project
   IMAGE_NAME: mcp-ui-frontend
+  FULL_IMAGE_NAME: openmcp-project/mcp-ui-frontend
   KEEP_X_IMAGES: 5
 
 jobs:
@@ -17,11 +18,29 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List images before cleanup (debug)
+        run: |
+          echo "Listing images before cleanup:"
+          gh api -H "Accept: application/vnd.github+json" \
+            /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
+
       - name: Delete old main branch images
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5
         with:
-          package-name: ${{ env.IMAGE_NAME }}
+          package-name: ${{ env.FULL_IMAGE_NAME }}
           package-type: 'container'
           min-versions-to-keep: ${{ env.KEEP_X_IMAGES }}
-          # Ignore any version that does NOT start with 'main-'
           ignore-versions: '^(?!main-).*$'
+
+      - name: List images after cleanup (debug)
+        run: |
+          echo "Listing images after cleanup:"
+          gh api -H "Accept: application/vnd.github+json" \
+            /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
