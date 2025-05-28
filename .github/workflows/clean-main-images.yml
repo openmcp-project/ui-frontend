@@ -6,10 +6,11 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io/openmcp-project
+  REGISTRY: ghcr.io
+  ORG: openmcp-project
   IMAGE_NAME: mcp-ui-frontend
-  FULL_IMAGE_NAME: openmcp-project/mcp-ui-frontend
   KEEP_X_IMAGES: 5
+  TAG_PREFIX: 'main-'
 
 jobs:
   clean:
@@ -17,34 +18,36 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: List images before cleanup (debug)
+      - name: List all ${{ env.TAG_PREFIX }} tags and their version IDs (debug)
         run: |
-          echo "Listing images before cleanup:"
           gh api -H "Accept: application/vnd.github+json" \
-            /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
-        env:
-          GH_TOKEN: ${{ github.token }}
+            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
 
-      - name: Delete old main branch images
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ env.IMAGE_NAME }}
-          package-type: 'container'
-          min-versions-to-keep: ${{ env.KEEP_X_IMAGES }}
-          ignore-versions: '^(?!main-).*$'
-
-      - name: List images after cleanup (debug)
+      - name: Delete old ${{ env.TAG_PREFIX }}* tags using GitHub API, keep ${{ env.KEEP_X_IMAGES }}
         run: |
-          echo "Listing images after cleanup:"
+          set -e
+
+          # Get all ${{ env.TAG_PREFIX }}* tags and their version IDs, sorted by tag (descending)
+          VERSIONS=$(gh api -H "Accept: application/vnd.github+json" \
+            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r)
+
+          # Get the IDs to delete (skip the first ${{ env.KEEP_X_IMAGES }} versions)
+          IDS_TO_DELETE=$(echo "$VERSIONS" | awk '{print $1}' | sed "1,${{ env.KEEP_X_IMAGES }}d" | sort -u)
+
+          echo "Version IDs to delete: $IDS_TO_DELETE"
+          for id in $IDS_TO_DELETE; do
+            echo "Deleting version ID $id"
+            gh api -X DELETE -H "Accept: application/vnd.github+json" \
+              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id || echo "Failed to delete version $id"
+          done
+
+      - name: List remaining ${{ env.TAG_PREFIX }}* tags and their version IDs (debug)
+        run: |
           gh api -H "Accept: application/vnd.github+json" \
-            /users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions | jq '.[].metadata.container.tags'
-        env:
-          GH_TOKEN: ${{ github.token }}
+            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
