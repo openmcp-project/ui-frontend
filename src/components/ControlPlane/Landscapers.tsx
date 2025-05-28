@@ -1,179 +1,171 @@
 import { useTranslation } from 'react-i18next';
 import {
-  AnalyticalTable,
-  AnalyticalTableColumnDefinition,
-  AnalyticalTableScaleWidthMode,
-  Title,
   MultiComboBox,
+  MultiComboBoxDomRef,
   MultiComboBoxItem,
+  Tree,
+  TreeItem,
+  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import useResource from '../../lib/api/useApiResource';
-import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
-import { useEffect, useState, useContext } from 'react';
+import { useState, JSX } from 'react';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { InstalationsRequest } from '../../lib/api/types/landscaper/listInstallations';
-import { ExecutionsRequest } from '../../lib/api/types/landscaper/listExecutions';
-import { DeployItemsRequest } from '../../lib/api/types/landscaper/listDeployItems';
-import { ApiConfigContext } from '../../components/Shared/k8s';
-import { fetchApiServerJson } from '../../lib/api/fetch';
+import useResource, {
+  useMultipleApiResources,
+} from '../../lib/api/useApiResource';
+import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
+import {
+  Installation,
+  InstalationsRequest,
+} from '../../lib/api/types/landscaper/listInstallations';
+import {
+  Execution,
+  ExecutionsRequest,
+} from '../../lib/api/types/landscaper/listExecutions';
+import {
+  DeployItem,
+  DeployItemsRequest,
+} from '../../lib/api/types/landscaper/listDeployItems';
+
+import { MultiComboBoxSelectionChangeEventDetail } from '@ui5/webcomponents/dist/MultiComboBox.js';
 
 export function Landscapers() {
   const { t } = useTranslation();
-  const apiConfig = useContext(ApiConfigContext);
 
   const { data: namespaces } = useResource(ListNamespaces, {
     refreshInterval: resourcesInterval,
   });
 
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
-  const [installations, setInstallations] = useState<any[]>([]);
-  const [executions, setExecutions] = useState<any[]>([]);
-  const [deployItems, setDeployItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  const handleSelectionChange = (e: CustomEvent) => {
+  const { data: installations = [] } = useMultipleApiResources<Installation>(
+    selectedNamespaces,
+    InstalationsRequest,
+  );
+
+  const { data: executions = [] } = useMultipleApiResources<Execution>(
+    selectedNamespaces,
+    ExecutionsRequest,
+  );
+
+  const { data: deployItems = [] } = useMultipleApiResources<DeployItem>(
+    selectedNamespaces,
+    DeployItemsRequest,
+  );
+
+  const handleSelectionChange = (
+    e: Ui5CustomEvent<
+      MultiComboBoxDomRef,
+      MultiComboBoxSelectionChangeEventDetail
+    >,
+  ) => {
     const selectedItems = Array.from(e.detail.items || []);
-    const selectedValues = selectedItems.map((item: any) => item.text);
+    const selectedValues = selectedItems
+      .map((item) => item.text)
+      .filter((text): text is string => typeof text === 'string');
+
     setSelectedNamespaces(selectedValues);
   };
 
-  useEffect(() => {
-    const fetchAllResources = async () => {
-      if (selectedNamespaces.length === 0) {
-        setInstallations([]);
-        setExecutions([]);
-        setDeployItems([]);
-        return;
-      }
+  const getStatusSymbol = (phase?: string) => {
+    if (!phase) return '⚪';
 
-      setLoading(true);
+    const phaseLower = phase.toLowerCase();
 
-      try {
-        // === INSTALLATIONS ===
-        const installationPaths = selectedNamespaces
-          .map((ns) => InstalationsRequest(ns).path)
-          .filter((p): p is string => p !== null && p !== undefined);
+    if (phaseLower === 'succeeded') {
+      return '✅';
+    } else if (phaseLower === 'failed') {
+      return '❌';
+    }
 
-        const installationResponses = await Promise.all(
-          installationPaths.map((path) => fetchApiServerJson(path, apiConfig)),
-        );
+    return '⚪';
+  };
 
-        const installationsData = installationResponses.flatMap(
-          (res) => res.items || [],
-        );
-        setInstallations(installationsData);
+  const renderTreeItems = (installation: Installation): JSX.Element => {
+    const subInstallations =
+      (installation.status?.subInstCache?.activeSubs
+        ?.map((sub) =>
+          installations.find(
+            (i) =>
+              i.metadata.name === sub.objectName &&
+              i.metadata.namespace === installation.metadata.namespace,
+          ),
+        )
+        .filter(Boolean) as Installation[]) || [];
 
-        // === EXECUTIONS ===
-        const executionPaths = selectedNamespaces
-          .map((ns) => ExecutionsRequest(ns).path)
-          .filter((p): p is string => p !== null && p !== undefined);
-
-        const executionResponses = await Promise.all(
-          executionPaths.map((path) => fetchApiServerJson(path, apiConfig)),
-        );
-
-        const executionsData = executionResponses.flatMap(
-          (res) => res.items || [],
-        );
-        setExecutions(executionsData);
-
-        // === DEPLOY ITEMS ===
-        const deployPaths = selectedNamespaces
-          .map((ns) => DeployItemsRequest(ns).path)
-          .filter((p): p is string => p !== null && p !== undefined);
-
-        const deployResponses = await Promise.all(
-          deployPaths.map((path) => fetchApiServerJson(path, apiConfig)),
-        );
-
-        const deployItemsData = deployResponses.flatMap((res) => res.items || []);
-        setDeployItems(deployItemsData);
-      } catch (error) {
-        console.error(error);
-        setInstallations([]);
-        setExecutions([]);
-        setDeployItems([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllResources();
-  }, [selectedNamespaces, apiConfig]);
-
-  const columns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('Namespace'),
-      accessor: 'metadata.namespace',
-    },
-    {
-      Header: t('Name'),
-      accessor: 'metadata.name',
-    },
-    {
-      Header: t('Phase'),
-      accessor: 'status.phase',
-    },
-    {
-      Header: t('Created At'),
-      accessor: 'metadata.creationTimestamp',
-    },
-  ];
-
-  const renderRowSubComponent = (row: any) => {
-    const installation = row.original;
-
-    const relatedExecutions = executions.filter((execution) =>
-      execution.metadata.ownerReferences?.some(
-        (ref) => ref.uid === installation.metadata.uid,
-      ),
+    const execution = executions.find(
+      (e) =>
+        e.metadata.name === installation.status?.executionRef?.name &&
+        e.metadata.namespace === installation.status?.executionRef?.namespace,
     );
 
-    const relatedDeployItems = deployItems.filter((deploy) =>
-      deploy.metadata.ownerReferences?.some(
-        (ref) => ref.uid === installation.metadata.uid,
-      ),
-    );
+    const relatedDeployItems =
+      (execution?.status?.deployItemCache?.activeDIs
+        ?.map((di) =>
+          deployItems.find(
+            (item) =>
+              item.metadata.name === di.objectName &&
+              item.metadata.namespace === execution.metadata.namespace,
+          ),
+        )
+        .filter(Boolean) as DeployItem[]) || [];
 
     return (
-      <div style={{ padding: '10px', backgroundColor: '#f4f4f4' }}>
-        <h5>{t('Executions')}</h5>
-        {relatedExecutions.length > 0 ? (
-          <ul>
-            {relatedExecutions.map((execution: any) => (
-              <li key={execution.metadata.uid}>
-                {execution.metadata.name} – {execution.status.phase}
-              </li>
-            ))}
-          </ul>
+      <TreeItem
+        key={installation.metadata.uid}
+        text={`${getStatusSymbol(installation.status?.phase)} ${t(
+          'Landscapers.treeInstallation',
+        )}: ${installation.metadata.name} (${installation.status?.phase || '-'})`}
+      >
+        {subInstallations.length > 0 ? (
+          subInstallations.map((sub) => renderTreeItems(sub))
         ) : (
-          <p>{t('No executions found')}</p>
-        )}
+          <>
+            <TreeItem
+              text={`${
+                execution
+                  ? `${getStatusSymbol(execution.status?.phase)} ${t(
+                      'Landscapers.treeExecution',
+                    )}: ${execution.metadata.name} (${execution.status?.phase || '-'})`
+                  : t('Landscapers.noExecutionFound')
+              }`}
+            />
 
-        <h5 style={{ marginTop: '1rem' }}>{t('Deploy Items')}</h5>
-        {relatedDeployItems.length > 0 ? (
-          <ul>
-            {relatedDeployItems.map((deploy: any) => (
-              <li key={deploy.metadata.uid}>
-                {deploy.metadata.name} – {deploy.status.phase}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>{t('No deploy items found')}</p>
+            <TreeItem text={t('Landscapers.deployItems')}>
+              {relatedDeployItems.length > 0 ? (
+                relatedDeployItems.map((di) => (
+                  <TreeItem
+                    key={di.metadata.uid}
+                    text={`${getStatusSymbol(di.status?.phase)} ${t(
+                      'Landscapers.treeDeployItem',
+                    )}: ${di.metadata.name} (${di.status?.phase || '-'})`}
+                  />
+                ))
+              ) : (
+                <TreeItem text={t('Landscapers.noItemsFound')} />
+              )}
+            </TreeItem>
+          </>
         )}
-      </div>
+      </TreeItem>
     );
   };
 
+  const rootInstallations = installations.filter((inst) => {
+    return !installations.some((parent) =>
+      parent.status?.subInstCache?.activeSubs?.some(
+        (sub: { objectName: string }) =>
+          sub.objectName === inst.metadata.name &&
+          parent.metadata.namespace === inst.metadata.namespace,
+      ),
+    );
+  });
+
   return (
     <>
-      <Title level="H4">{t('Providers.headerProviders')}</Title>
-
       {namespaces && (
         <MultiComboBox
-          placeholder={t('Select namespace')}
-          style={{ marginBottom: '1rem', maxWidth: '400px' }}
+          placeholder={t('Landscapers.multiComboBoxPlaceholder')}
+          style={{ marginBottom: '1rem' }}
           onSelectionChange={handleSelectionChange}
         >
           {namespaces.map((ns) => (
@@ -181,29 +173,7 @@ export function Landscapers() {
           ))}
         </MultiComboBox>
       )}
-
-      <AnalyticalTable
-        columns={columns}
-        data={installations}
-        minRows={1}
-        loading={loading}
-        scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-        filterable
-        retainColumnWidth
-        renderRowSubComponent={renderRowSubComponent}
-        subComponentsBehavior="IncludeHeightExpandable"
-        reactTableOptions={{
-          autoResetHiddenColumns: false,
-          autoResetPage: false,
-          autoResetExpanded: false,
-          autoResetGroupBy: false,
-          autoResetSelectedRows: false,
-          autoResetSortBy: false,
-          autoResetFilters: false,
-          autoResetRowState: false,
-          autoResetResize: false,
-        }}
-      />
+      <Tree>{rootInstallations.map((inst) => renderTreeItems(inst))}</Tree>
     </>
   );
 }

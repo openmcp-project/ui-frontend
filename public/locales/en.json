@@ -155,6 +155,16 @@
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
   },
+  "Landscapers": {
+    "headerLandscapers": "Landscapers",
+    "multiComboBoxPlaceholder": "Select namespace",
+    "noItemsFound": "No Deploy items found",
+    "deployItems": "Deploy Items",
+    "treeDeployItem": "Deploy Item",
+    "treeInstallation": "Installation",
+    "treeExecution": "Execution",
+    "noExecutionFound": "No Exeuctions found"
+  },
   "CopyButton": {
     "copiedMessage": "Copied To Clipboard",
     "failedMessage": "Failed to copy"

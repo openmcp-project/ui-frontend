@@ -1,18 +1,28 @@
 import { Resource } from '../resource';
 
-interface InstalationsListResponse {
-  items: [
-    {
-      metadata: {
-        name: string;
-        namespace: string;
-        creationTimestamp: string;
-      };
-      status: {
-        phase: string;
-      };
-    },
-  ];
+export interface Installation {
+  objectName: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    uid: string;
+  };
+  status?: {
+    phase?: string;
+    executionRef?: {
+      name: string;
+      namespace: string;
+    };
+    subInstCache?: {
+      activeSubs?: {
+        objectName: string;
+      }[];
+    };
+  };
+}
+
+export interface InstalationsListResponse {
+  items: Installation[];
 }
 
 export const InstalationsRequest = (

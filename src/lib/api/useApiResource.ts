@@ -217,3 +217,74 @@ export function useRevalidateApiResource<T>(resource: Resource<T>) {
 
   return onRevalidate;
 }
+
+export function useMultipleApiResources<T>(
+  namespaces: string[],
+  getResource: (namespace: string) => { path: string | null },
+) {
+  const apiConfig = useContext(ApiConfigContext);
+  const [data, setData] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (namespaces.length === 0) {
+      setData([]);
+      setError(null);
+      return;
+    }
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const results = await fetchMultipleResources<T>(
+          namespaces,
+          getResource,
+          apiConfig,
+        );
+        setData(results);
+      } catch (err) {
+        setError(err as Error);
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [namespaces, getResource, apiConfig]);
+
+  return { data, isLoading, error };
+}
+
+async function fetchMultipleResources<T>(
+  namespaces: string[],
+  getResource: (namespace: string) => { path: string | null },
+  apiConfig: ApiConfig,
+): Promise<T[]> {
+  const paths = namespaces
+    .map((ns) => getResource(ns).path)
+    .filter((path): path is string => !!path);
+
+  const results = await Promise.allSettled(
+    paths.map((path) => fetchApiServerJson(path, apiConfig)),
+  );
+
+  const data: T[] = [];
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      const res = result.value;
+      if (res && typeof res === 'object' && 'items' in res) {
+        const items = (res as { items?: unknown }).items;
+        if (Array.isArray(items)) {
+          data.push(...(items as T[]));
+        }
+      }
+    }
+  }
+
+  return data;
+}

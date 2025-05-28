@@ -1,21 +1,24 @@
 import { Resource } from '../resource';
 
-interface ExecutionsListResponse {
-  items: [
-    {
-      metadata: {
-        name: string;
-        namespace: string;
-        uid: string;
-        ownerReferences: {
-          uid: string;
-        }[];
-      };
-      status: {
-        phase: string;
-      };
-    },
-  ];
+export interface Execution {
+  objectName: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    uid: string;
+  };
+  status?: {
+    phase?: string;
+    deployItemCache?: {
+      activeDIs?: {
+        objectName: string;
+      }[];
+    };
+  };
+}
+
+export interface ExecutionsListResponse {
+  items: Execution[];
 }
 
 export const ExecutionsRequest = (
