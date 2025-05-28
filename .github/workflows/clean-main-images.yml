@@ -36,15 +36,19 @@ jobs:
             /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
             --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r)
 
-          # Get the IDs to delete (skip the first ${{ env.KEEP_X_IMAGES }} versions)
-          IDS_TO_DELETE=$(echo "$VERSIONS" | awk '{print $1}' | sed "1,${{ env.KEEP_X_IMAGES }}d" | sort -u)
+          # Get the lines to delete (skip the first ${{ env.KEEP_X_IMAGES }} versions)
+          TO_DELETE=$(echo "$VERSIONS" | sed "1,${{ env.KEEP_X_IMAGES }}d")
 
-          echo "Version IDs to delete: $IDS_TO_DELETE"
-          for id in $IDS_TO_DELETE; do
-            echo "Deleting version ID $id"
+          echo "Deleting the following tags:"
+          echo "$TO_DELETE" | awk '{print $2}'
+
+          while read -r line; do
+            id=$(echo "$line" | awk '{print $1}')
+            tag=$(echo "$line" | awk '{print $2}')
+            echo "Deleting tag $tag (version ID $id)"
             gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id || echo "Failed to delete version $id"
-          done
+              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id || echo "Failed to delete version $id ($tag)"
+          done <<< "$TO_DELETE"
 
       - name: List remaining ${{ env.TAG_PREFIX }}* tags and their version IDs (debug)
         run: |
