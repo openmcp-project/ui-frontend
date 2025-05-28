@@ -43,14 +43,25 @@ jobs:
           echo "Deleting the following tags:"
           echo "$TO_DELETE" | awk '{print $2}'
 
+          FAILED_DELETIONS=""
           while read -r line; do
             id=$(echo "$line" | awk '{print $1}')
             tag=$(echo "$line" | awk '{print $2}')
             echo "Deleting tag $tag (version ID $id)"
-            gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id || echo "Failed to delete version $id ($tag)"
+            if ! gh api -X DELETE -H "Accept: application/vnd.github+json" \
+              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id; then
+              echo "Failed to delete version $id ($tag)"
+              FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
+            fi
+              echo "Failed to delete version $id ($tag)"
+              FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
+            fi
           done <<< "$TO_DELETE"
 
+          if [ -n "$FAILED_DELETIONS" ]; then
+            echo -e "The following deletions failed:\n$FAILED_DELETIONS"
+            exit 1
+          fi
       - name: List remaining ${{ env.TAG_PREFIX }}* tags and their version IDs (debug)
         run: |
           gh api -H "Accept: application/vnd.github+json" \
