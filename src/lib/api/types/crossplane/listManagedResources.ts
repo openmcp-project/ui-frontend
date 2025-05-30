@@ -9,8 +9,8 @@ export type ManagedResourcesResponse = [
           name: string;
           creationTimestamp: string;
         };
-        status: {
-          conditions: [
+        status?: {
+          conditions?: [
             {
               type: 'Ready' | 'Synced' | unknown;
               status: 'True' | 'False';

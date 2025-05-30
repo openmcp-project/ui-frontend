@@ -11,8 +11,8 @@ export type ProvidersListResponse = {
         name: string;
         creationTimestamp: string;
       };
-      status: {
-        conditions: [
+      status?: {
+        conditions?: [
           {
             type: 'Healthy' | 'Installed' | unknown;
             status: 'True' | 'False';
