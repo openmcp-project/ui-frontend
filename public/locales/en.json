@@ -158,12 +158,12 @@
   "Landscapers": {
     "headerLandscapers": "Landscapers",
     "multiComboBoxPlaceholder": "Select namespace",
-    "noItemsFound": "No Deploy items found",
+    "noItemsFound": "No Deploy Items found",
     "deployItems": "Deploy Items",
     "treeDeployItem": "Deploy Item",
     "treeInstallation": "Installation",
     "treeExecution": "Execution",
-    "noExecutionFound": "No Exeuctions found"
+    "noExecutionFound": "No Executions found"
   },
   "CopyButton": {
     "copiedMessage": "Copied To Clipboard",

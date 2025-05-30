@@ -15,7 +15,7 @@ import useResource, {
 import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
 import {
   Installation,
-  InstalationsRequest,
+  InstallationsRequest,
 } from '../../lib/api/types/landscaper/listInstallations';
 import {
   Execution,
@@ -39,7 +39,7 @@ export function Landscapers() {
 
   const { data: installations = [] } = useMultipleApiResources<Installation>(
     selectedNamespaces,
-    InstalationsRequest,
+    InstallationsRequest,
   );
 
   const { data: executions = [] } = useMultipleApiResources<Execution>(

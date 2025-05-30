@@ -21,12 +21,12 @@ export interface Installation {
   };
 }
 
-export interface InstalationsListResponse {
+export interface InstallationsListResponse {
   items: Installation[];
 }
 
-export const InstalationsRequest = (
+export const InstallationsRequest = (
   namespace: string,
-): Resource<InstalationsListResponse> => ({
+): Resource<InstallationsListResponse> => ({
   path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/${namespace}/installations`,
 });
