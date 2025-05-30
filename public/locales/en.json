@@ -149,10 +149,21 @@
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
-    "gitOpsTitle": "GitOps"
+    "gitOpsTitle": "GitOps",
+    "landscapersTitle": "Landscapers"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
+  },
+  "Landscapers": {
+    "headerLandscapers": "Landscapers",
+    "multiComboBoxPlaceholder": "Select namespace",
+    "noItemsFound": "No Deploy Items found",
+    "deployItems": "Deploy Items",
+    "treeDeployItem": "Deploy Item",
+    "treeInstallation": "Installation",
+    "treeExecution": "Execution",
+    "noExecutionFound": "No Executions found"
   },
   "CopyButton": {
     "copiedMessage": "Copied To Clipboard",
