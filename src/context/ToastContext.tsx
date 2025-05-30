@@ -35,7 +35,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setTimeout(() => {
       setToastContent({
         text: message,
-        duration: duration || 3000,
+        duration: duration || 8000,
       });
       setToastVisible(true);
     }, 100);
