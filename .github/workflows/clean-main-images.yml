@@ -58,9 +58,6 @@ jobs:
               echo "Failed to delete version $id ($tag)"
               FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
             fi
-              echo "Failed to delete version $id ($tag)"
-              FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
-            fi
           done <<< "$TO_DELETE"
 
           if [ -n "$FAILED_DELETIONS" ]; then
