@@ -1,20 +1,28 @@
 import { Resource } from '../resource';
 
-interface GraphExecutionsType {
+export interface Execution {
+  objectName: string;
   metadata: {
     name: string;
     namespace: string;
     uid: string;
-    ownerReferences: {
-      uid: string;
-    }[];
   };
-  status: {
-    phase: string;
+  status?: {
+    phase?: string;
+    deployItemCache?: {
+      activeDIs?: {
+        objectName: string;
+      }[];
+    };
   };
 }
 
-export const ListGraphExecutions: Resource<GraphExecutionsType[]> = {
-  path: '/apis/landscaper.gardener.cloud/v1alpha1/executions',
-  jq: '[.items[] | {metadata: .metadata | {name, namespace, uid, ownerReferences: (try [{uid: .ownerReferences[].uid}] catch [])}, status: .status | {phase}}]',
-};
+export interface ExecutionsListResponse {
+  items: Execution[];
+}
+
+export const ExecutionsRequest = (
+  namespace: string,
+): Resource<ExecutionsListResponse> => ({
+  path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/${namespace}/executions`,
+});
