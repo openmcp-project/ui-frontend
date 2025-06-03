@@ -13,6 +13,7 @@ type InfoBannerProps = {
     buttonText: string;
     buttonIcon?: string;
   };
+  button?: React.ReactElement;
 };
 
 export const IllustratedBanner = ({
@@ -20,6 +21,7 @@ export const IllustratedBanner = ({
   subtitle,
   illustrationName,
   help,
+  button,
 }: InfoBannerProps) => {
   return (
     <FlexBox direction="Column" alignItems="Center">
@@ -41,6 +43,7 @@ export const IllustratedBanner = ({
           </Button>
         </a>
       )}
+      {button}
     </FlexBox>
   );
 };

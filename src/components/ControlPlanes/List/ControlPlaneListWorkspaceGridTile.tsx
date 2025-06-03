@@ -37,7 +37,7 @@ import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.ts
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import CopyKubeconfigButton from '../CopyKubeconfigButton.tsx';
+
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 
 interface Props {
@@ -105,7 +105,6 @@ export function ControlPlaneListWorkspaceGridTile({
         <Panel
           headerLevel="H2"
           style={{ margin: '12px 12px 12px 0' }}
-          collapsed={controlplanes?.length === 0}
           header={
             <div
               style={{
@@ -162,6 +161,11 @@ export function ControlPlaneListWorkspaceGridTile({
                 link: mcpCreationGuide,
                 buttonText: t('IllustratedBanner.helpButton'),
               }}
+              button={
+                <Button icon={'add'} design={'Emphasized'}>
+                  {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+                </Button>
+              }
             />
           ) : (
             <Grid defaultSpan="XL4 L4 M7 S12">
