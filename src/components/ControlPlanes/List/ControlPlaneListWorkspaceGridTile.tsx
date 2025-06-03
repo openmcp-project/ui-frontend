@@ -37,6 +37,8 @@ import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.ts
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import CopyKubeconfigButton from '../CopyKubeconfigButton.tsx';
+import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 
 interface Props {
   projectName: string;
@@ -143,6 +145,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
                 />
+                <ControlPlanesListMenu />
               </FlexBox>
             </div>
           }

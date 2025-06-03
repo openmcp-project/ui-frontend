@@ -40,7 +40,9 @@
     "tableHeaderUsage": "Usage"
   },
   "ControlPlaneListToolbar": {
-    "buttonText": "Workspace"
+    "buttonText": "Workspace",
+    "deleteWorkspace": "Delete workspace",
+    "createNewManagedControlPlane": "Create new Managed Control Plane"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
