@@ -1,1 +1,1 @@
-export const resourcesInterval = 30000;
+export const resourcesInterval = 100000;
