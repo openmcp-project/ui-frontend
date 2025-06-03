@@ -106,10 +106,10 @@ export function Providers() {
 
   const rows: ProvidersRow[] =
     providers?.items?.map((item) => {
-      const installed = item.status.conditions?.find(
+      const installed = item.status?.conditions?.find(
         (condition) => condition.type === 'Installed',
       );
-      const healthy = item.status.conditions?.find(
+      const healthy = item.status?.conditions?.find(
         (condition) => condition.type === 'Healthy',
       );
       return {

@@ -63,7 +63,7 @@ export default function MCPHealthPopoverButton({
 
     const statusDetails = mcpStatus?.conditions
       ? `${t('MCPHealthPopoverButton.statusDetailsLabel')}: ${mcpStatus.status}\n\n${t('MCPHealthPopoverButton.detailsLabel')}\n` +
-        mcpStatus.conditions
+        mcpStatus?.conditions
           .map((condition) => {
             let text = `- ${condition.type}: ${condition.status}\n`;
             if (condition.reason)
@@ -160,7 +160,7 @@ function StatusTable({
         scaleWidthMode="Smart"
         columns={tableColumns}
         data={
-          status?.conditions.sort((a, b) => {
+          status?.conditions?.sort((a, b) => {
             return a.type < b.type ? -1 : 1;
           }) ?? []
         }
