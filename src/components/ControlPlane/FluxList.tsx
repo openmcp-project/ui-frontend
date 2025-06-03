@@ -153,10 +153,11 @@ export default function FluxList() {
       return {
         name: item.metadata.name,
         isReady:
-          item.status.conditions.find((x) => x.type === 'Ready')?.status ===
+          item?.status?.conditions?.find((x) => x.type === 'Ready')?.status ===
           'True',
-        statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
-          ?.lastTransitionTime,
+        statusUpdateTime: item.status?.conditions?.find(
+          (x) => x.type === 'Ready',
+        )?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
@@ -168,10 +169,11 @@ export default function FluxList() {
       return {
         name: item.metadata.name,
         isReady:
-          item.status.conditions.find((x) => x.type === 'Ready')?.status ===
+          item.status?.conditions?.find((x) => x.type === 'Ready')?.status ===
           'True',
-        statusUpdateTime: item.status.conditions.find((x) => x.type === 'Ready')
-          ?.lastTransitionTime,
+        statusUpdateTime: item.status?.conditions?.find(
+          (x) => x.type === 'Ready',
+        )?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
       };

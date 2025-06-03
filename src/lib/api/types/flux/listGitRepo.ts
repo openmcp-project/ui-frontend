@@ -15,7 +15,7 @@ export type GitReposResponse = {
         artifact: {
           revision: string;
         };
-        conditions: [
+        conditions?: [
           {
             status: string;
             type: string;
