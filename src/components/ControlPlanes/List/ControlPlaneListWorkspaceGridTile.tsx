@@ -39,6 +39,7 @@ import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
+import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlaneWizardContainer.tsx';
 
 interface Props {
   projectName: string;
@@ -49,6 +50,10 @@ export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
 }: Props) {
+  const [
+    isCreateManagedControlPlaneWizardOpen,
+    setIsCreateManagedControlPlaneWizardOpen,
+  ] = useState(false);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName =
     workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
@@ -132,19 +137,17 @@ export function ControlPlaneListWorkspaceGridTile({
                 workspace={workspaceName}
               />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
-                <Button
-                  design={'Transparent'}
-                  icon="delete"
-                  onClick={async () => {
-                    setDialogDeleteWsIsOpen(true);
-                  }}
-                />
                 <YamlViewButtonWithLoader
                   workspaceName={workspace.metadata.namespace}
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
                 />
-                <ControlPlanesListMenu />
+                <ControlPlanesListMenu
+                  setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
+                  setIsCreateManagedControlPlaneWizardOpen={
+                    setIsCreateManagedControlPlaneWizardOpen
+                  }
+                />
               </FlexBox>
             </div>
           }
@@ -162,7 +165,13 @@ export function ControlPlaneListWorkspaceGridTile({
                 buttonText: t('IllustratedBanner.helpButton'),
               }}
               button={
-                <Button icon={'add'} design={'Emphasized'}>
+                <Button
+                  icon={'add'}
+                  design={'Emphasized'}
+                  onClick={() => {
+                    setIsCreateManagedControlPlaneWizardOpen(true);
+                  }}
+                >
                   {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
                 </Button>
               }
@@ -197,6 +206,10 @@ export function ControlPlaneListWorkspaceGridTile({
             t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'),
           );
         }}
+      />
+      <CreateManagedControlPlaneWizardContainer
+        isOpen={isCreateManagedControlPlaneWizardOpen}
+        setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
       />
     </>
   );

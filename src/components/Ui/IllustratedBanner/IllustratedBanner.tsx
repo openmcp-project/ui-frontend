@@ -26,7 +26,7 @@ export const IllustratedBanner = ({
   return (
     <FlexBox direction="Column" alignItems="Center">
       <IllustratedMessage
-        design={IllustrationMessageDesign.Spot}
+        design={IllustrationMessageDesign.Scene}
         name={illustrationName}
         titleText={title}
         subtitleText={subtitle}

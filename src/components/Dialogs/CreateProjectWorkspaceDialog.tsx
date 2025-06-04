@@ -4,21 +4,20 @@ import {
   Dialog,
   Form,
   FormGroup,
-  FormItem,
   Input,
   Label,
 } from '@ui5/webcomponents-react';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-
+import styles from './CreateProjectWorkspaceDialog.module.css';
 import { FormEvent, useState } from 'react';
 import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
 import { KubectlCreateWorkspaceDialog } from './KubectlCommandInfo/KubectlCreateWorkspaceDialog.tsx';
 import { KubectlCreateProjectDialog } from './KubectlCommandInfo/KubectlCreateProjectDialog.tsx';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
-// import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -79,7 +78,6 @@ export function CreateProjectWorkspaceDialog({
               >
                 <KubectlInfoButton onClick={openKubectlDialog} />
                 <Button onClick={() => setIsOpen(false)}>
-                  {' '}
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
                 <Button design="Emphasized" onClick={() => onCreate()}>
@@ -132,39 +130,39 @@ function CreateProjectWorkspaceDialogContent({
   };
   return (
     <Form>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
-        <FormItem
-          labelContent={
-            <Label required>
-              {t('CreateProjectWorkspaceDialog.nameLabel')}
-            </Label>
-          }
-        >
-          <Input
-            id="name"
-            {...register('name')}
-            valueState={errors.name ? 'Negative' : 'None'}
-            valueStateMessage={<span>{errors.name?.message}</span>}
-            required
-          />
-        </FormItem>
+      <FormGroup
+        headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+        columnSpan={12}
+      >
+        <Label for="name" required>
+          {t('CreateProjectWorkspaceDialog.nameLabel')}
+        </Label>
+        <Input
+          className={styles.input}
+          id="name"
+          {...register('name')}
+          valueState={errors.name ? 'Negative' : 'None'}
+          valueStateMessage={<span>{errors.name?.message}</span>}
+          required
+        />
 
-        <FormItem
-          labelContent={
-            <Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
-          }
-        >
-          <Input id="displayName" {...register('displayName')} />
-        </FormItem>
-        <FormItem
-          labelContent={
-            <Label>
-              {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-            </Label>
-          }
-        >
-          <Input id="chargingTarget" {...register('chargingTarget')} />
-        </FormItem>
+        <Label for={'displayName'}>
+          {t('CreateProjectWorkspaceDialog.displayNameLabel')}
+        </Label>
+        <Input
+          id="displayName"
+          {...register('displayName')}
+          className={styles.input}
+        />
+
+        <Label for={'chargingTarget'}>
+          {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+        </Label>
+        <Input
+          id="chargingTarget"
+          {...register('chargingTarget')}
+          className={styles.input}
+        />
       </FormGroup>
       <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
         <EditMembers

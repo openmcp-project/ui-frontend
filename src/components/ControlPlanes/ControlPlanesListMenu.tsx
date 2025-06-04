@@ -1,12 +1,20 @@
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
-import { useRef, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 
 import { useTranslation } from 'react-i18next';
 
-export const ControlPlanesListMenu = () => {
+type ControlPlanesListMenuProps = {
+  setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
+  setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+};
+
+export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
+  setDialogDeleteWsIsOpen,
+  setIsCreateManagedControlPlaneWizardOpen,
+}) => {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
 
@@ -30,8 +38,10 @@ export const ControlPlanesListMenu = () => {
         open={open}
         onItemClick={(event) => {
           if (event.detail.item.dataset.action === 'newManagedControlPlane') {
+            setIsCreateManagedControlPlaneWizardOpen(true);
           }
           if (event.detail.item.dataset.action === 'deleteWorkspace') {
+            setDialogDeleteWsIsOpen(true);
           }
 
           setOpen(false);

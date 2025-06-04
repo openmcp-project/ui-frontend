@@ -81,8 +81,8 @@
     "menuCopy": "Copy to clipboard"
   },
   "IllustratedBanner": {
-    "titleMessage": "No ManagedControlPlane",
-    "subtitleMessage": "Create a ManagedControlPlane to get started",
+    "titleMessage": "You don’t have any Managed Control Planes",
+    "subtitleMessage": "Create a new Managed Control Plane to get started",
     "helpButton": "Help"
   },
   "IntelligentBreadcrumbs": {
