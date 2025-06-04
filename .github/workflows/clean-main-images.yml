@@ -13,59 +13,75 @@ env:
   TAG_PREFIX: 'main-'
 
 jobs:
-  clean:
-    name: 'Clean main images'
+  # clean:
+  #   name: 'Clean main images'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     packages: write
+  #   env:
+  #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - name: List all ${{ env.TAG_PREFIX }} tags and their version IDs (debug)
+  #       run: |
+  #         gh api -H "Accept: application/vnd.github+json" \
+  #           /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+  #           --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
+
+  #     - name: Delete old ${{ env.TAG_PREFIX }}* tags using GitHub API, keep ${{ env.KEEP_X_IMAGES }}
+  #       run: |
+  #         set -e
+  #         set -o pipefail
+
+  #         # Get all ${{ env.TAG_PREFIX }}* tags and their version IDs, sorted by tag (descending)
+  #         VERSIONS=$(gh api -H "Accept: application/vnd.github+json" \
+  #           /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+  #           --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r)
+
+  #         # Get the lines to delete (skip the first ${{ env.KEEP_X_IMAGES }} versions)
+  #         TO_DELETE=$(echo "$VERSIONS" | sed "1,${{ env.KEEP_X_IMAGES }}d")
+
+  #         echo "Deleting the following tags:"
+  #         echo "$TO_DELETE" | awk '{print $2}'
+
+  #         if [ -z "$TO_DELETE" ]; then
+  #           echo "No tags to delete."
+  #           exit 0
+  #         fi
+
+  #         FAILED_DELETIONS=""
+  #         while read -r line; do
+  #           id=$(echo "$line" | awk '{print $1}')
+  #           tag=$(echo "$line" | awk '{print $2}')
+  #           echo "Deleting tag $tag (version ID $id)"
+  #           if ! gh api -X DELETE -H "Accept: application/vnd.github+json" \
+  #             /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id; then
+  #             echo "Failed to delete version $id ($tag)"
+  #             FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
+  #           fi
+  #         done <<< "$TO_DELETE"
+
+  #         if [ -n "$FAILED_DELETIONS" ]; then
+  #           echo -e "The following deletions failed:\n$FAILED_DELETIONS"
+  #           exit 1
+  #         fi
+  #     - name: List remaining ${{ env.TAG_PREFIX }}* tags and their version IDs (debug)
+  #       run: |
+  #         gh api -H "Accept: application/vnd.github+json" \
+  #           /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
+  #           --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
+
+  delete-untagged-images:
+    name: Delete Untagged Images
     runs-on: ubuntu-latest
     permissions:
       packages: write
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: List all ${{ env.TAG_PREFIX }} tags and their version IDs (debug)
-        run: |
-          gh api -H "Accept: application/vnd.github+json" \
-            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
-            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
-
-      - name: Delete old ${{ env.TAG_PREFIX }}* tags using GitHub API, keep ${{ env.KEEP_X_IMAGES }}
-        run: |
-          set -e
-          set -o pipefail
-
-          # Get all ${{ env.TAG_PREFIX }}* tags and their version IDs, sorted by tag (descending)
-          VERSIONS=$(gh api -H "Accept: application/vnd.github+json" \
-            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
-            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r)
-
-          # Get the lines to delete (skip the first ${{ env.KEEP_X_IMAGES }} versions)
-          TO_DELETE=$(echo "$VERSIONS" | sed "1,${{ env.KEEP_X_IMAGES }}d")
-
-          echo "Deleting the following tags:"
-          echo "$TO_DELETE" | awk '{print $2}'
-
-          if [ -z "$TO_DELETE" ]; then
-            echo "No tags to delete."
-            exit 0
-          fi
-
-          FAILED_DELETIONS=""
-          while read -r line; do
-            id=$(echo "$line" | awk '{print $1}')
-            tag=$(echo "$line" | awk '{print $2}')
-            echo "Deleting tag $tag (version ID $id)"
-            if ! gh api -X DELETE -H "Accept: application/vnd.github+json" \
-              /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions/$id; then
-              echo "Failed to delete version $id ($tag)"
-              FAILED_DELETIONS="${FAILED_DELETIONS}\n$id ($tag)"
-            fi
-          done <<< "$TO_DELETE"
-
-          if [ -n "$FAILED_DELETIONS" ]; then
-            echo -e "The following deletions failed:\n$FAILED_DELETIONS"
-            exit 1
-          fi
-      - name: List remaining ${{ env.TAG_PREFIX }}* tags and their version IDs (debug)
-        run: |
-          gh api -H "Accept: application/vnd.github+json" \
-            /orgs/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions \
-            --paginate | jq -r '.[] | select(.metadata.container.tags[] | startswith("${{ env.TAG_PREFIX }}")) | "\(.id) \(.metadata.container.tags[])"' | grep '^.* ${{ env.TAG_PREFIX }}' | sort -k2 -r
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          dry-run: true
+          packages: ${{ env.IMAGE_NAME }}
+          delete-tags: main-*
+          delete-untagged: true
+          keep-n-tagged: ${{ env.KEEP_X_IMAGES }}
+          delete-ghost-images: true
+          delete-partial-images: true
