@@ -12,8 +12,6 @@ on:
         type: 'boolean'
 
 env:
-  REGISTRY: ghcr.io
-  ORG: openmcp-project
   IMAGE_NAME: mcp-ui-frontend
   KEEP_X_IMAGES: 5
   TAG_PREFIX: 'main-'
@@ -29,7 +27,7 @@ jobs:
         with:
           dry-run: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true' }}
           packages: ${{ env.IMAGE_NAME }}
-          delete-tags: main-*
+          delete-tags: ${{ env.TAG_PREFIX }}
           delete-untagged: true
           keep-n-tagged: ${{ env.KEEP_X_IMAGES }}
           delete-ghost-images: true
