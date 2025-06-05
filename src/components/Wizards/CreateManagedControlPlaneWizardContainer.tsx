@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import {
   useApiResourceMutation,
   useRevalidateApiResource,
@@ -22,9 +22,16 @@ import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
 import {
   CreateProjectWorkspaceDialog,
+  CreateProjectWorkspaceDialogContent,
   OnCreatePayload,
 } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
-import { Bar, Button, Dialog } from '@ui5/webcomponents-react';
+import {
+  Bar,
+  Button,
+  Dialog,
+  Wizard,
+  WizardStep,
+} from '@ui5/webcomponents-react';
 import { KubectlInfoButton } from '../Dialogs/KubectlCommandInfo/KubectlInfoButton.tsx';
 
 export type CreateDialogProps = {
@@ -61,7 +68,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   });
   const { t } = useTranslation();
   const { user } = useAuth();
-
+  const [selectedStep, useSelectedStep] = useState(1);
   const username = user?.email;
 
   const clearForm = useCallback(() => {
@@ -108,6 +115,30 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         />
       }
       onClose={() => setIsOpen(false)}
-    ></Dialog>
+    >
+      <Wizard contentLayout={'SingleStep'}>
+        <WizardStep
+          icon={'create-form'}
+          titleText="Metadata"
+          disabled={false}
+          selected={selectedStep === 1}
+          data-step={'1'}
+        >
+          <CreateProjectWorkspaceDialogContent
+            members={watch('members')}
+            register={register}
+            errors={errors}
+            setValue={setValue}
+          />
+        </WizardStep>
+        <WizardStep
+          icon={'activities'}
+          titleText="Summarize"
+          disabled={false}
+          selected={selectedStep === 2}
+          data-step={'2'}
+        ></WizardStep>
+      </Wizard>
+    </Dialog>
   );
 };

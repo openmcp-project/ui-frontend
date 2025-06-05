@@ -117,7 +117,7 @@ interface CreateProjectWorkspaceDialogContentProps {
   setValue: UseFormSetValue<CreateDialogProps>;
 }
 
-function CreateProjectWorkspaceDialogContent({
+export function CreateProjectWorkspaceDialogContent({
   members,
   register,
   errors,
