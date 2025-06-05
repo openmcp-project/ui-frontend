@@ -1,5 +1,4 @@
 import fp from "fastify-plugin";
-import { COOKIE_NAME_ONBOARDING } from "../plugins/secure-session.js";
 import { AuthenticationError } from "../plugins/auth-utils.js";
 
 
@@ -62,10 +61,9 @@ async function authPlugin(fastify) {
   });
 
 
-  fastify.post("/auth/logout", async (_req, reply) => {
+  fastify.post("/auth/logout", async (req, reply) => {
     // TODO: Idp sign out flow
-    //_req.session.delete();                  // remove payload
-    reply.clearCookie(COOKIE_NAME_ONBOARDING, { path: "/" });
+    req.session.destroy();
     reply.send({ message: "Logged out" });
   });
 }

@@ -1,6 +1,5 @@
 import fp from "fastify-plugin";
 import httpProxy from "@fastify/http-proxy";
-import { COOKIE_NAME_ONBOARDING } from "./secure-session.js";
 import { AuthenticationError } from "./auth-utils.js";
 
 function proxyPlugin(fastify) {
@@ -35,8 +34,7 @@ function proxyPlugin(fastify) {
       const refreshToken = request.session.get("refreshToken");
       if (!refreshToken) {
         request.log.error("Missing refresh token; deleting session.");
-        request.session.delete();
-        reply.clearCookie(COOKIE_NAME_ONBOARDING, { path: "/" });
+        request.session.destroy();
         return reply.unauthorized("Session expired without token refresh capability.");
       }
 
@@ -50,8 +48,7 @@ function proxyPlugin(fastify) {
         }, issuerConfiguration.tokenEndpoint);
         if (!refreshedTokenData || !refreshedTokenData.accessToken) {
           request.log.error("Token refresh failed (no access token); deleting session.");
-          request.session.delete();
-          reply.clearCookie(COOKIE_NAME_ONBOARDING, { path: "/" });
+          request.session.destroy();
           return reply.unauthorized("Session expired and token refresh failed.");
         }
 
