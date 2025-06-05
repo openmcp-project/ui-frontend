@@ -89,7 +89,7 @@ export function CreateProjectWorkspaceDialog({
         }
         onClose={() => setIsOpen(false)}
       >
-        <CreateProjectWorkspaceDialogContent
+        <MetadataAndMembersForm
           members={members}
           register={register}
           errors={errors}
@@ -110,19 +110,19 @@ export function CreateProjectWorkspaceDialog({
   );
 }
 
-interface CreateProjectWorkspaceDialogContentProps {
+interface MetadataAndMembersFormProps {
   members: Member[];
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
 }
 
-export function CreateProjectWorkspaceDialogContent({
+export function MetadataAndMembersForm({
   members,
   register,
   errors,
   setValue,
-}: CreateProjectWorkspaceDialogContentProps) {
+}: MetadataAndMembersFormProps) {
   const { t } = useTranslation();
 
   const setMembers = (members: Member[]) => {

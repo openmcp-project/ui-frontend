@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
 import {
   CreateProjectWorkspaceDialog,
-  CreateProjectWorkspaceDialogContent,
+  MetadataAndMembersForm,
   OnCreatePayload,
 } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import {
@@ -124,7 +124,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 1}
           data-step={'1'}
         >
-          <CreateProjectWorkspaceDialogContent
+          <MetadataAndMembersForm
             members={watch('members')}
             register={register}
             errors={errors}
