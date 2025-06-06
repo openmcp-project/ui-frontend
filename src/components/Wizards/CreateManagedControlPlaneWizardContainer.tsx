@@ -4,10 +4,8 @@ import {
   useRevalidateApiResource,
 } from '../../lib/api/useApiResource';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { APIError } from '../../lib/api/error';
 
 import {
-  CreateWorkspace,
   CreateWorkspaceResource,
   CreateWorkspaceType,
 } from '../../lib/api/types/crate/createWorkspace';
@@ -20,19 +18,20 @@ import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
-import {
-  CreateProjectWorkspaceDialog,
-  MetadataAndMembersForm,
-  OnCreatePayload,
-} from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import { MetadataAndMembersForm } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import {
   Bar,
   Button,
   Dialog,
+  Grid,
+  List,
+  ListItemStandard,
+  Text,
   Wizard,
   WizardStep,
 } from '@ui5/webcomponents-react';
-import { KubectlInfoButton } from '../Dialogs/KubectlCommandInfo/KubectlInfoButton.tsx';
+import YamlViewer from '../Yaml/YamlViewer.tsx';
+import { stringify } from 'yaml';
 
 export type CreateDialogProps = {
   name: string;
@@ -55,7 +54,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     handleSubmit,
     resetField,
     setValue,
-    formState: { errors },
+    reset,
+    getValues,
+    formState: { errors, isValid },
     watch,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
@@ -66,9 +67,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       members: [],
     },
   });
-  const { t } = useTranslation();
+  const resetFormAndClose = () => {
+    reset();
+    setSelectedStep(1);
+    setIsOpen(false);
+  };
+  console.log(errors);
+  // const { t } = useTranslation();
   const { user } = useAuth();
-  const [selectedStep, useSelectedStep] = useState(1);
+  const [selectedStep, setSelectedStep] = useState(1);
   const username = user?.email;
 
   const clearForm = useCallback(() => {
@@ -87,15 +94,20 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       clearForm();
     }
   }, [resetField, setValue, username, isOpen, clearForm]);
-  const namespace = projectnameToNamespace(project);
-  const toast = useToast();
 
-  const { trigger } = useApiResourceMutation<CreateWorkspaceType>(
-    CreateWorkspaceResource(namespace),
-  );
-  const revalidate = useRevalidateApiResource(ListWorkspaces(project));
-  const errorDialogRef = useRef<ErrorDialogHandle>(null);
-
+  const onNextClick = () => {
+    console.log('test');
+    handleSubmit(
+      () => {
+        console.log('valid');
+        setSelectedStep(2);
+      },
+      () => {
+        console.log('not valid');
+        console.log(errors);
+      },
+    )();
+  };
   return (
     <Dialog
       stretch={true}
@@ -107,8 +119,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           design="Footer"
           endContent={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Button design="Emphasized" onClick={() => {}}>
-                {t('CreateProjectWorkspaceDialog.createButton')}
+              <Button design={'Negative'} onClick={resetFormAndClose}>
+                Close
+              </Button>
+              <Button design="Emphasized" onClick={onNextClick}>
+                Next
               </Button>
             </div>
           }
@@ -123,6 +138,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={false}
           selected={selectedStep === 1}
           data-step={'1'}
+          onClick={() => {
+            setSelectedStep(1);
+          }}
         >
           <MetadataAndMembersForm
             members={watch('members')}
@@ -134,10 +152,52 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         <WizardStep
           icon={'activities'}
           titleText="Summarize"
-          disabled={false}
+          disabled={!isValid}
           selected={selectedStep === 2}
           data-step={'2'}
-        ></WizardStep>
+          onClick={() => {
+            setSelectedStep(1);
+          }}
+        >
+          <h1>Summarize</h1>
+          <Grid defaultSpan="XL6 L6 M6 S6">
+            <div>
+              <List headerText={'Metadata'}>
+                <ListItemStandard
+                  text={'Name:'}
+                  additionalText={getValues('name')}
+                />
+                <ListItemStandard
+                  title={'Metadata'}
+                  text={'Display name:'}
+                  additionalText={getValues('displayName')}
+                />
+                <ListItemStandard
+                  text={'Charging target:'}
+                  additionalText={getValues('chargingTarget')}
+                />{' '}
+                <ListItemStandard text={'Namespace:'} additionalText={''} />{' '}
+                <ListItemStandard text={'Region:'} additionalText={''} />
+              </List>
+              <br />
+              <List headerText={'Members'}>
+                {getValues('members').map((member) => (
+                  <ListItemStandard
+                    key={member.name}
+                    text={member.name}
+                    additionalText={member.kind}
+                  />
+                ))}
+              </List>
+            </div>
+            <div>
+              <YamlViewer
+                yamlString={stringify(getValues('members'))}
+                filename={'test'}
+              />
+            </div>
+          </Grid>
+        </WizardStep>
       </Wizard>
     </Dialog>
   );
