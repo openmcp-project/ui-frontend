@@ -210,6 +210,8 @@ export function ControlPlaneListWorkspaceGridTile({
       <CreateManagedControlPlaneWizardContainer
         isOpen={isCreateManagedControlPlaneWizardOpen}
         setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+        projectName={projectNamespace}
+        workspaceName={workspaceName}
       />
     </>
   );

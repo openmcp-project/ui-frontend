@@ -42,12 +42,13 @@ export type CreateDialogProps = {
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  project?: string;
+  projectName?: string;
+  workspaceName?: string;
 };
 
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
-> = ({ isOpen, setIsOpen, project = '' }) => {
+> = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
   const {
     register,
     handleSubmit,
@@ -55,6 +56,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     setValue,
     reset,
     getValues,
+
     formState: { errors, isValid },
     watch,
   } = useForm<CreateDialogProps>({
@@ -95,7 +97,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     }
   }, [resetField, setValue, username, isOpen, clearForm]);
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    CreateManagedControlPlaneResource(namespace),
+    CreateManagedControlPlaneResource(projectName, workspaceName),
   );
   const handleCreateManagedControlPlane = async ({
     name,
@@ -105,7 +107,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await trigger(
-        CreateManagedControlPlane(name, namespace, {
+        CreateManagedControlPlane(name, workspaceName, {
           displayName: displayName,
           chargingTarget: chargingTarget,
           members: members,
@@ -130,16 +132,22 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   const onNextClick = () => {
     console.log('test');
-    handleSubmit(
-      () => {
-        console.log('valid');
-        setSelectedStep(2);
-      },
-      () => {
-        console.log('not valid');
-        console.log(errors);
-      },
-    )();
+    console.log(getValues());
+    if (selectedStep === 1) {
+      handleSubmit(
+        () => {
+          console.log('valid');
+          setSelectedStep(2);
+        },
+        () => {
+          console.log('not valid');
+          console.log(errors);
+        },
+      )();
+    }
+    if (selectedStep === 2) {
+      handleCreateManagedControlPlane(getValues());
+    }
   };
   return (
     <Dialog
@@ -156,7 +164,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                 Close
               </Button>
               <Button design="Emphasized" onClick={onNextClick}>
-                Next
+                {selectedStep === 2 ? 'Create' : 'Next'}
               </Button>
             </div>
           }
@@ -189,7 +197,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 2}
           data-step={'2'}
           onClick={() => {
-            setSelectedStep(1);
+            setSelectedStep(2);
           }}
         >
           <h1>Summarize</h1>
