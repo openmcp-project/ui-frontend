@@ -4,7 +4,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { useRef, useState } from 'react';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
-import { generateInitialsForEmail } from '../../Helper/GenerateInitialsForEmail.ts';
+import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
 
 interface Props {
   project?: string;
