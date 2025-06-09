@@ -1,24 +1,16 @@
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import {
-  useApiResourceMutation,
-  useRevalidateApiResource,
-} from '../../lib/api/useApiResource';
-import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useApiResourceMutation } from '../../lib/api/useApiResource';
 
-import {
-  CreateWorkspaceResource,
-  CreateWorkspaceType,
-} from '../../lib/api/types/crate/createWorkspace';
-import { projectnameToNamespace } from '../../utils';
-import { ListWorkspaces } from '../../lib/api/types/crate/listWorkspaces';
-import { useToast } from '../../context/ToastContext.tsx';
 import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
-import { useTranslation } from 'react-i18next';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
-import { MetadataAndMembersForm } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import {
+  MetadataAndMembersForm,
+  OnCreatePayload,
+} from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import {
   Bar,
   Button,
@@ -26,12 +18,19 @@ import {
   Grid,
   List,
   ListItemStandard,
-  Text,
   Wizard,
   WizardStep,
 } from '@ui5/webcomponents-react';
 import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
+import { APIError } from '../../lib/api/error.ts';
+import {
+  CreateManagedControlPlane,
+  CreateManagedControlPlaneResource,
+  CreateManagedControlPlaneType,
+} from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -67,6 +66,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       members: [],
     },
   });
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const resetFormAndClose = () => {
     reset();
     setSelectedStep(1);
@@ -77,7 +77,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const { user } = useAuth();
   const [selectedStep, setSelectedStep] = useState(1);
   const username = user?.email;
-
+  const toast = useToast();
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -94,6 +94,39 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       clearForm();
     }
   }, [resetField, setValue, username, isOpen, clearForm]);
+  const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
+    CreateManagedControlPlaneResource(namespace),
+  );
+  const handleCreateManagedControlPlane = async ({
+    name,
+    displayName,
+    chargingTarget,
+    members,
+  }: OnCreatePayload): Promise<boolean> => {
+    try {
+      await trigger(
+        CreateManagedControlPlane(name, namespace, {
+          displayName: displayName,
+          chargingTarget: chargingTarget,
+          members: members,
+        }),
+      );
+      // await revalidate();
+      setIsOpen(false);
+      toast.show('mcp created');
+      return true;
+    } catch (e) {
+      console.error(e);
+      if (e instanceof APIError) {
+        if (errorDialogRef.current) {
+          errorDialogRef.current.showErrorDialog(
+            `${e.message}: ${JSON.stringify(e.info)}`,
+          );
+        }
+      }
+      return false;
+    }
+  };
 
   const onNextClick = () => {
     console.log('test');
