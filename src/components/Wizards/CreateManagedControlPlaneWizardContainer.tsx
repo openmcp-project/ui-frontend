@@ -107,7 +107,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await trigger(
-        CreateManagedControlPlane(name, workspaceName, {
+        CreateManagedControlPlane(name, `${projectName}--ws-${workspaceName}`, {
           displayName: displayName,
           chargingTarget: chargingTarget,
           members: members,
@@ -149,6 +149,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       handleCreateManagedControlPlane(getValues());
     }
   };
+  console.log('selected');
+  console.log(selectedStep);
   return (
     <Dialog
       stretch={true}
