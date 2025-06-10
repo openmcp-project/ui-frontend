@@ -193,6 +193,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             setValue={setValue}
           />
         </WizardStep>
+        <WizardStep titleText="Members" />
         <WizardStep
           icon={'activities'}
           titleText="Summarize"
