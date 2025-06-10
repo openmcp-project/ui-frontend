@@ -85,6 +85,7 @@ export default function FluxList() {
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',
+        disableFilters: true,
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
@@ -127,6 +128,7 @@ export default function FluxList() {
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',
+        disableFilters: true,
         Cell: (cellData: CellData<FluxRow>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),

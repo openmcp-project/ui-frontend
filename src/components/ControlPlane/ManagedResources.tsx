@@ -92,8 +92,9 @@ export function ManagedResources() {
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',
+        disableFilters: true,
         Cell: (cellData: CellData<ResourceRow>) =>
-          !!cellData.cell.row.original?.item ? (
+          cellData.cell.row.original?.item ? (
             <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
           ) : undefined,
       },
