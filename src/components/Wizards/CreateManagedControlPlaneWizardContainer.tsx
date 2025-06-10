@@ -234,7 +234,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             <div>
               {selectedStep}
               <YamlViewer
-                yamlString={stringify(getValues('members'))}
+                yamlString={stringify(
+                  CreateManagedControlPlane(
+                    getValues('name'),
+                    `${projectName}--ws-${workspaceName}`,
+                    {
+                      displayName: getValues('displayName'),
+                      chargingTarget: getValues('chargingTarget'),
+                      members: getValues('members'),
+                    },
+                  ),
+                )}
                 filename={'test'}
               />
             </div>
