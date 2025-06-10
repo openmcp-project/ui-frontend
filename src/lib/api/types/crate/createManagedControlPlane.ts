@@ -49,16 +49,6 @@ export const CreateManagedControlPlane = (
     },
     spec: {
       members: optional?.members ?? [],
-      // dataplane: {
-      //   type: 'Gardener',
-      //   gardener: {
-      //     region: 'eu-west-1',
-      //   },
-      // },
-      // crossplane: {
-      //   enabled: false,
-      //   version: '1.14.0',
-      // },
     },
   };
 };
@@ -70,7 +60,7 @@ export const CreateManagedControlPlaneResource = (
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${projectName}--ws-${workspaceName}/managedcontrolplanes`,
     method: 'POST',
-    jq: '[.items[] | {metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}], access: .status.components.authentication.access, status: .status.status } }]',
+    jq: undefined,
     body: undefined,
   };
 };

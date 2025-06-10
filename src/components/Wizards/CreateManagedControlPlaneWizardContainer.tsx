@@ -29,7 +29,7 @@ import {
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
 } from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 
 export type CreateDialogProps = {
@@ -71,13 +71,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const resetFormAndClose = () => {
     reset();
-    setSelectedStep(1);
+    setSelectedStep('1');
     setIsOpen(false);
   };
   console.log(errors);
   // const { t } = useTranslation();
   const { user } = useAuth();
-  const [selectedStep, setSelectedStep] = useState(1);
+  const [selectedStep, setSelectedStep] = useState<string>('1');
   const username = user?.email;
   const toast = useToast();
   const clearForm = useCallback(() => {
@@ -99,6 +99,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
+
   const handleCreateManagedControlPlane = async ({
     name,
     displayName,
@@ -129,15 +130,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       return false;
     }
   };
-
+  const handleStepChange = (e: any) => {
+    setSelectedStep(e.detail.step.dataset.step);
+  };
   const onNextClick = () => {
     console.log('test');
     console.log(getValues());
-    if (selectedStep === 1) {
+    if (selectedStep === '1') {
       handleSubmit(
         () => {
           console.log('valid');
-          setSelectedStep(2);
+          setSelectedStep('2');
         },
         () => {
           console.log('not valid');
@@ -145,7 +148,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         },
       )();
     }
-    if (selectedStep === 2) {
+    if (selectedStep === '2') {
       handleCreateManagedControlPlane(getValues());
     }
   };
@@ -166,7 +169,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                 Close
               </Button>
               <Button design="Emphasized" onClick={onNextClick}>
-                {selectedStep === 2 ? 'Create' : 'Next'}
+                {selectedStep === '2' ? 'Create' : 'Next'}
               </Button>
             </div>
           }
@@ -174,17 +177,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       }
       onClose={() => setIsOpen(false)}
     >
-      <Wizard contentLayout={'SingleStep'}>
+      <Wizard contentLayout={'SingleStep'} onStepChange={handleStepChange}>
         <WizardStep
           icon={'create-form'}
           titleText="Metadata"
           disabled={false}
-          selected={selectedStep === 1}
+          selected={selectedStep === '1'}
           data-step={'1'}
-          onClick={() => {
-            setSelectedStep(1);
-          }}
         >
+          {selectedStep}
           <MetadataAndMembersForm
             members={watch('members')}
             register={register}
@@ -195,12 +196,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         <WizardStep
           icon={'activities'}
           titleText="Summarize"
-          disabled={!isValid}
-          selected={selectedStep === 2}
+          disabled={selectedStep === '1' || !isValid}
+          selected={selectedStep === '2'}
           data-step={'2'}
-          onClick={() => {
-            setSelectedStep(2);
-          }}
         >
           <h1>Summarize</h1>
           <Grid defaultSpan="XL6 L6 M6 S6">
@@ -234,6 +232,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
             </div>
             <div>
+              {selectedStep}
               <YamlViewer
                 yamlString={stringify(getValues('members'))}
                 filename={'test'}
@@ -242,6 +241,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           </Grid>
         </WizardStep>
       </Wizard>
+      <ErrorDialog ref={errorDialogRef} />
     </Dialog>
   );
 };
