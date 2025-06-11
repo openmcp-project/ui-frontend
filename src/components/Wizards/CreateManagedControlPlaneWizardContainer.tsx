@@ -170,6 +170,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     }
     if (selectedStep === 'success') {
       setIsOpen(false);
+      clearForm();
+      setSelectedStep('metadata');
     }
   };
   const setMembers = (members: Member[]) => {
@@ -187,9 +189,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           design="Footer"
           endContent={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Button design={'Negative'} onClick={resetFormAndClose}>
-                Close
-              </Button>
+              {selectedStep !== 'success' && (
+                <Button design={'Negative'} onClick={resetFormAndClose}>
+                  {t('buttons.close')}
+                </Button>
+              )}
               <Button design="Emphasized" onClick={onNextClick}>
                 {nextBtText[selectedStep]}
               </Button>
