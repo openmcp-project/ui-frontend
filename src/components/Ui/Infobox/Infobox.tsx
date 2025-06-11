@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import cx from 'clsx';
 
-import styles from './Infobox.module.scss';
+import styles from './Infobox.module.css';
 
 interface LabelProps {
   id?: string;
