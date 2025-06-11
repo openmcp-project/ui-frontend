@@ -3,22 +3,22 @@ import { useApiResourceMutation } from '../../lib/api/useApiResource';
 
 import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
-
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
-import {
-  MetadataAndMembersForm,
-  OnCreatePayload,
-} from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import { OnCreatePayload } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import {
   Bar,
   Button,
   Dialog,
+  FormGroup,
   Grid,
   List,
   ListItemStandard,
+  Ui5CustomEvent,
   Wizard,
+  WizardDomRef,
   WizardStep,
 } from '@ui5/webcomponents-react';
 import YamlViewer from '../Yaml/YamlViewer.tsx';
@@ -31,6 +31,9 @@ import {
 } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
+import { EditMembers } from '../Members/EditMembers.tsx';
+import { useTranslation } from 'react-i18next';
+import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -130,8 +133,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       return false;
     }
   };
-  const handleStepChange = (e: any) => {
-    setSelectedStep(e.detail.step.dataset.step);
+  const handleStepChange = (
+    e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>,
+  ) => {
+    setSelectedStep(e.detail.step.dataset.step ?? '');
   };
   const onNextClick = () => {
     console.log('test');
@@ -152,6 +157,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       handleCreateManagedControlPlane(getValues());
     }
   };
+  const setMembers = (members: Member[]) => {
+    setValue('members', members);
+  };
+  const { t } = useTranslation();
   console.log('selected');
   console.log(selectedStep);
   return (
@@ -185,21 +194,33 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === '1'}
           data-step={'1'}
         >
-          {selectedStep}
-          <MetadataAndMembersForm
-            members={watch('members')}
+          <MetadataForm
             register={register}
             errors={errors}
-            setValue={setValue}
+            sideFormContent={
+              <FormGroup
+                headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
+              >
+                <EditMembers
+                  members={watch('members')}
+                  isValidationError={!!errors.members}
+                  onMemberChanged={setMembers}
+                />
+              </FormGroup>
+            }
           />
         </WizardStep>
-        <WizardStep titleText="Members" />
+        <WizardStep
+          titleText="Members"
+          selected={selectedStep === '2'}
+          data-step={'2'}
+        />
         <WizardStep
           icon={'activities'}
           titleText="Summarize"
-          disabled={selectedStep === '1' || !isValid}
-          selected={selectedStep === '2'}
-          data-step={'2'}
+          disabled={selectedStep === '1' || selectedStep === '2' || !isValid}
+          selected={selectedStep === '3'}
+          data-step={'3'}
         >
           <h1>Summarize</h1>
           <Grid defaultSpan="XL6 L6 M6 S6">
