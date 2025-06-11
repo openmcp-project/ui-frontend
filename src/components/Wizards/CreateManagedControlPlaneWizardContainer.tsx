@@ -80,6 +80,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       members: [],
     },
     mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const nextButtonText = useMemo(
