@@ -82,7 +82,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     mode: 'onChange',
   });
 
-  // Memoize next button text to avoid unnecessary recalculations
   const nextButtonText = useMemo(
     () => ({
       metadata: t('buttons.next'),
@@ -93,21 +92,18 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [t],
   );
 
-  // Helper to reset form and close dialog
   const resetFormAndClose = useCallback(() => {
     reset();
     setSelectedStep('metadata');
     setIsOpen(false);
   }, [reset, setIsOpen]);
 
-  // Helper to clear only the form fields, not the members
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
     resetField('displayName');
   }, [resetField]);
 
-  // Set default member (current user) on open, clear fields on close
   useEffect(() => {
     if (user?.email && isOpen) {
       setValue('members', [
@@ -117,15 +113,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     if (!isOpen) {
       clearFormFields();
     }
-    // Only run when dialog open/close or user changes
   }, [user?.email, isOpen, setValue, clearFormFields]);
 
-  // API mutation hook
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
 
-  // Handles the creation API call and error dialog
   const handleCreateManagedControlPlane = useCallback(
     async ({
       name,
@@ -148,7 +141,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         setSelectedStep('success');
         return true;
       } catch (e) {
-        // Only show error dialog for APIError
         if (e instanceof APIError && errorDialogRef.current) {
           errorDialogRef.current.showErrorDialog(
             `${e.message}: ${JSON.stringify(e.info)}`,
@@ -162,7 +154,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [trigger, projectName, workspaceName],
   );
 
-  // Handles wizard step change (if user clicks on step header)
   const handleStepChange = useCallback(
     (e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
       const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
@@ -171,16 +162,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [],
   );
 
-  // Handles the Next/Create/Close button logic
   const onNextClick = useCallback(() => {
     switch (selectedStep) {
       case 'metadata':
-        handleSubmit(
-          () => setSelectedStep('members'),
-          () => {
-            // Optionally, show a toast or error message here
-          },
-        )();
+        handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
         setSelectedStep('summarize');
@@ -203,7 +188,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     resetFormAndClose,
   ]);
 
-  // Update members in form state
   const setMembers = useCallback(
     (members: Member[]) => {
       setValue('members', members, { shouldValidate: true });
@@ -211,7 +195,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [setValue],
   );
 
-  // Helper to determine if a step should be disabled
   const isStepDisabled = useCallback(
     (step: WizardStepType) => {
       switch (step) {
@@ -226,7 +209,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             !isValid
           );
         case 'success':
-          // Success step should only be enabled when selectedStep is 'success'
           return selectedStep !== 'success';
         default:
           return false;
@@ -235,7 +217,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [selectedStep, isValid],
   );
 
-  // Render
   return (
     <Dialog
       stretch
@@ -269,6 +250,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       data-testid="create-mcp-dialog"
       onClose={resetFormAndClose}
     >
+      <ErrorDialog ref={errorDialogRef} />
       <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
         <WizardStep
           icon="create-form"
@@ -324,10 +306,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   text={t('common.namespace')}
                   additionalText={`${projectName}--ws-${workspaceName}`}
                 />
-                {/* If region is available, show it; otherwise, leave blank */}
+
                 <ListItemStandard
                   text={t('common.region')}
-                  additionalText={''}
+                  additionalText={'🇪🇺'}
                 />
               </List>
               <br />
@@ -373,7 +355,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           />
         </WizardStep>
       </Wizard>
-      <ErrorDialog ref={errorDialogRef} />
     </Dialog>
   );
 };
