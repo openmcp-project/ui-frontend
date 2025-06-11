@@ -264,15 +264,28 @@
   },
   "common": {
     "close": "Close",
-    "cannotLoadData": "Cannot load data"
+    "cannotLoadData": "Cannot load data",
+    "metadata": "Metadata",
+    "members": "Members",
+    "summarize": "Summarize",
+    "namespace": "Namespace",
+    "region": "Region",
+    "success": "Success"
   },
   "buttons": {
     "viewResource": "View resource",
     "download": "Download",
-    "copy": "Copy"
+    "copy": "Copy",
+    "next": "Next",
+    "create": "Create",
+    "close": "Close"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",
     "YAML": "YAML"
+  },
+  "createMCP": {
+    "titleText": "Success",
+    "subtitleText": "Your Managed Control plane is being created and will be ready in few minutes"
   }
 }

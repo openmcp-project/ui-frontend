@@ -1,5 +1,11 @@
 import { FC, useRef, useState } from 'react';
-import { Button, Input, InputDomRef } from '@ui5/webcomponents-react';
+import {
+  Button,
+  FlexBox,
+  Input,
+  InputDomRef,
+  Label,
+} from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
@@ -55,21 +61,25 @@ export const EditMembers: FC<EditMembersProps> = ({
   return (
     <>
       <div>
-        <Input
-          ref={emailInput}
-          id="member-email-input"
-          type="Email"
-          placeholder="Email"
-          valueState={highlightEmail}
-          valueStateMessage={<span>{valueStateMessage}</span>}
-          onChange={() => {
-            setHighlightEmail('None');
-          }}
-        />
-        <MemberRoleSelect value={role} onChange={changeSelectedRole} />
-        <Button data-testid="add-member-button" onClick={() => addMember()}>
-          {t('EditMembers.addButton')}
-        </Button>
+        <FlexBox alignItems={'End'} gap={8}>
+          <FlexBox direction={'Column'}>
+            <Label for={'member-email-input'}>Email</Label>
+            <Input
+              ref={emailInput}
+              id="member-email-input"
+              type="Email"
+              valueState={highlightEmail}
+              valueStateMessage={<span>{valueStateMessage}</span>}
+              onChange={() => {
+                setHighlightEmail('None');
+              }}
+            />
+          </FlexBox>
+          <MemberRoleSelect value={role} onChange={changeSelectedRole} />
+          <Button data-testid="add-member-button" onClick={() => addMember()}>
+            {t('EditMembers.addButton')}
+          </Button>
+        </FlexBox>
         <MemberTable
           members={members}
           isValidationError={isValidationError}

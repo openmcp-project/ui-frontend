@@ -1,6 +1,6 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApiResourceMutation } from '../../lib/api/useApiResource';
-
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
@@ -12,6 +12,7 @@ import {
   Bar,
   Button,
   Dialog,
+  Form,
   FormGroup,
   Grid,
   List,
@@ -30,10 +31,11 @@ import {
   CreateManagedControlPlaneType,
 } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { useToast } from '../../context/ToastContext.tsx';
+
 import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
+import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -48,6 +50,8 @@ type CreateManagedControlPlaneWizardContainerProps = {
   projectName?: string;
   workspaceName?: string;
 };
+
+type WizardStep = 'metadata' | 'members' | 'summarize' | 'success';
 
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
@@ -71,18 +75,28 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       members: [],
     },
   });
+  const { t } = useTranslation();
+  const nextBtText = useMemo(
+    () => ({
+      metadata: t('buttons.next'),
+      members: t('buttons.next'),
+      summarize: t('buttons.create'),
+      success: t('buttons.close'),
+    }),
+    [],
+  );
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const resetFormAndClose = () => {
     reset();
-    setSelectedStep('1');
+    setSelectedStep('metadata');
     setIsOpen(false);
   };
   console.log(errors);
   // const { t } = useTranslation();
   const { user } = useAuth();
-  const [selectedStep, setSelectedStep] = useState<string>('1');
+  const [selectedStep, setSelectedStep] = useState<WizardStep>('metadata');
   const username = user?.email;
-  const toast = useToast();
+
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -117,9 +131,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           members: members,
         }),
       );
-      // await revalidate();
-      setIsOpen(false);
-      toast.show('mcp created');
+
+      setSelectedStep('success');
       return true;
     } catch (e) {
       console.error(e);
@@ -136,33 +149,33 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const handleStepChange = (
     e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>,
   ) => {
-    setSelectedStep(e.detail.step.dataset.step ?? '');
+    setSelectedStep((e.detail.step.dataset.step ?? '') as WizardStep);
   };
   const onNextClick = () => {
-    console.log('test');
-    console.log(getValues());
-    if (selectedStep === '1') {
+    if (selectedStep === 'metadata') {
       handleSubmit(
         () => {
-          console.log('valid');
-          setSelectedStep('2');
+          setSelectedStep('members');
         },
         () => {
-          console.log('not valid');
           console.log(errors);
         },
       )();
     }
-    if (selectedStep === '2') {
+    if (selectedStep === 'members') {
+      setSelectedStep('summarize');
+    }
+    if (selectedStep === 'summarize') {
       handleCreateManagedControlPlane(getValues());
+    }
+    if (selectedStep === 'success') {
+      setIsOpen(false);
     }
   };
   const setMembers = (members: Member[]) => {
     setValue('members', members);
   };
-  const { t } = useTranslation();
-  console.log('selected');
-  console.log(selectedStep);
+
   return (
     <Dialog
       stretch={true}
@@ -178,7 +191,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                 Close
               </Button>
               <Button design="Emphasized" onClick={onNextClick}>
-                {selectedStep === '2' ? 'Create' : 'Next'}
+                {nextBtText[selectedStep]}
               </Button>
             </div>
           }
@@ -189,61 +202,70 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       <Wizard contentLayout={'SingleStep'} onStepChange={handleStepChange}>
         <WizardStep
           icon={'create-form'}
-          titleText="Metadata"
+          titleText={t('common.metadata')}
           disabled={false}
-          selected={selectedStep === '1'}
-          data-step={'1'}
+          selected={selectedStep === 'metadata'}
+          data-step={'metadata'}
         >
-          <MetadataForm
-            register={register}
-            errors={errors}
-            sideFormContent={
-              <FormGroup
-                headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
-              >
-                <EditMembers
-                  members={watch('members')}
-                  isValidationError={!!errors.members}
-                  onMemberChanged={setMembers}
-                />
-              </FormGroup>
-            }
-          />
+          <MetadataForm register={register} errors={errors} />
         </WizardStep>
         <WizardStep
-          titleText="Members"
-          selected={selectedStep === '2'}
-          data-step={'2'}
-        />
+          titleText={t('common.members')}
+          selected={selectedStep === 'members'}
+          data-step={'members'}
+          disabled={selectedStep === 'metadata' || !isValid}
+        >
+          <Form>
+            <FormGroup
+              headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
+            >
+              <EditMembers
+                members={watch('members')}
+                isValidationError={!!errors.members}
+                onMemberChanged={setMembers}
+              />
+            </FormGroup>
+          </Form>
+        </WizardStep>
         <WizardStep
           icon={'activities'}
-          titleText="Summarize"
-          disabled={selectedStep === '1' || selectedStep === '2' || !isValid}
-          selected={selectedStep === '3'}
-          data-step={'3'}
+          titleText={t('common.summarize')}
+          disabled={
+            selectedStep === 'metadata' ||
+            selectedStep === 'members' ||
+            !isValid
+          }
+          selected={selectedStep === 'summarize'}
+          data-step={'summarize'}
         >
-          <h1>Summarize</h1>
+          <h1>{t('common.summarize')}</h1>
           <Grid defaultSpan="XL6 L6 M6 S6">
             <div>
-              <List headerText={'Metadata'}>
+              <List headerText={t('common.members')}>
                 <ListItemStandard
                   text={'Name:'}
                   additionalText={getValues('name')}
                 />
                 <ListItemStandard
-                  title={'Metadata'}
+                  title={t('common.metadata')}
                   text={'Display name:'}
                   additionalText={getValues('displayName')}
                 />
                 <ListItemStandard
-                  text={'Charging target:'}
+                  text={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
                   additionalText={getValues('chargingTarget')}
-                />{' '}
-                <ListItemStandard text={'Namespace:'} additionalText={''} />{' '}
-                <ListItemStandard text={'Region:'} additionalText={''} />
+                />
+                <ListItemStandard
+                  text={t('common.namespace')}
+                  additionalText={''}
+                />
+                <ListItemStandard
+                  text={t('common.region')}
+                  additionalText={''}
+                />
               </List>
               <br />
-              <List headerText={'Members'}>
+              <List headerText={t('common.members')}>
                 {getValues('members').map((member) => (
                   <ListItemStandard
                     key={member.name}
@@ -254,7 +276,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
             </div>
             <div>
-              {selectedStep}
               <YamlViewer
                 yamlString={stringify(
                   CreateManagedControlPlane(
@@ -267,10 +288,23 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                     },
                   ),
                 )}
-                filename={'test'}
+                filename={`mcp_${projectName}--ws-${workspaceName}`}
               />
             </div>
           </Grid>
+        </WizardStep>
+        <WizardStep
+          icon={'activities'}
+          titleText={t('common.success')}
+          disabled={selectedStep !== 'success' || !isValid}
+          selected={selectedStep === 'success'}
+          data-step={'success'}
+        >
+          <IllustratedBanner
+            illustrationName={IllustrationMessageType.SuccessScreen}
+            title={t('createMCP.titleText')}
+            subtitle={t('createMCP.subtitleText')}
+          />
         </WizardStep>
       </Wizard>
       <ErrorDialog ref={errorDialogRef} />
