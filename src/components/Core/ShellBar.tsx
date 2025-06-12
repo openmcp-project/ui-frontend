@@ -38,6 +38,8 @@ import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { ShellBarItemClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBarItem.js';
 import { t } from 'i18next';
 
+type UI5RatingIndicatorElement = HTMLElement & { value: number };
+
 export function ShellBarComponent() {
   const auth = useAuth();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
@@ -49,7 +51,6 @@ export function ShellBarComponent() {
   const [rating, setRating] = useState(0);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
-
   const betaButtonRef = useRef<ButtonDomRef>(null);
 
   const { user } = useAuth();
@@ -277,10 +278,10 @@ const FeedbackPopover = ({
 }) => {
   const { t } = useTranslation();
 
-  const onRatingChange = (event: {
-    detail: { selectedValue: SetStateAction<number> };
-  }) => {
-    setRating(event.detail.selectedValue);
+  const onRatingChange = (
+    event: Event & { target: UI5RatingIndicatorElement },
+  ) => {
+    setRating(event.target.value);
   };
 
   return (
