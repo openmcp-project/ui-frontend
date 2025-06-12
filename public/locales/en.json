@@ -95,7 +95,14 @@
   },
   "ShellBar": {
     "betaButtonDescription": "This web app is currently in Beta, and may not ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
-    "signOutButton": "Sign Out"
+    "signOutButton": "Sign Out",
+    "feedbackMessageLabel": "Message",
+    "feedbackRatingLabel": "Rating",
+    "feedbackHeader": "Your feedback",
+    "feedbackButtonInfo": "Give us your feedback",
+    "feedbackPlaceholder": "Please let us know what you think about our application",
+    "feedbackNotification": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind, please create here.",
+    "feedbackThanks": "Thank you for your feedback!"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
