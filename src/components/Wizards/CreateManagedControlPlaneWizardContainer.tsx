@@ -286,6 +286,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               <EditMembers
                 members={watch('members')}
                 isValidationError={!!errors.members}
+                requireAtLeastOneMember={false}
                 onMemberChanged={setMembers}
               />
             </FormGroup>

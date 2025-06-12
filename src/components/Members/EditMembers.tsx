@@ -16,12 +16,14 @@ export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
   isValidationError?: boolean;
+  requireAtLeastOneMember?: boolean;
 }
 
 export const EditMembers: FC<EditMembersProps> = ({
   members,
   onMemberChanged,
   isValidationError = false,
+  requireAtLeastOneMember = true,
 }) => {
   const emailInputRef = useRef<InputDomRef>(null);
   const [emailState, setEmailState] = useState<ValueState>('None');
@@ -92,6 +94,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         </Button>
       </FlexBox>
       <MemberTable
+        requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}

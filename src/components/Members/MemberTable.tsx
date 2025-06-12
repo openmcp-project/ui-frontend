@@ -17,6 +17,7 @@ type MemberTableProps = {
   members: Member[];
   onDeleteMember?: (email: string) => void;
   isValidationError?: boolean;
+  requireAtLeastOneMember: boolean;
 };
 
 type CellInstance = {
@@ -31,6 +32,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
   isValidationError = false,
+  requireAtLeastOneMember,
 }) => {
   const { t } = useTranslation();
 
@@ -62,7 +64,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     });
   }
 
-  if (members.length === 0) {
+  if (requireAtLeastOneMember && members.length === 0) {
     return (
       <Infobox
         size="sm"
