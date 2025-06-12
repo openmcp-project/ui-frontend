@@ -11,7 +11,7 @@ import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-
+import styles from './Members.module.css';
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
@@ -86,6 +86,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         </FlexBox>
         <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
         <Button
+          className={styles.addButton}
           data-testid="add-member-button"
           design="Emphasized"
           onClick={handleAddMember}

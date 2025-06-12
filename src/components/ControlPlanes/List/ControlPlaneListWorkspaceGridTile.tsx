@@ -37,7 +37,7 @@ import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.ts
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-
+import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlaneWizardContainer.tsx';
 
@@ -166,6 +166,7 @@ export function ControlPlaneListWorkspaceGridTile({
               }}
               button={
                 <Button
+                  className={styles.createButton}
                   icon={'add'}
                   design={'Emphasized'}
                   onClick={() => {
