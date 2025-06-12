@@ -281,7 +281,8 @@
     "copy": "Copy",
     "next": "Next",
     "create": "Create",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",

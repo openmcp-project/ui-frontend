@@ -53,6 +53,13 @@ type CreateManagedControlPlaneWizardContainerProps = {
 
 type WizardStepType = 'metadata' | 'members' | 'summarize' | 'success';
 
+const wizardStepOrder: WizardStepType[] = [
+  'metadata',
+  'members',
+  'summarize',
+  'success',
+];
+
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
 > = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
@@ -80,7 +87,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       members: [],
     },
     mode: 'onChange',
-    reValidateMode: 'onChange',
   });
 
   const nextButtonText = useMemo(
@@ -218,6 +224,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [selectedStep, isValid],
   );
 
+  const onBackClick = useCallback(() => {
+    const currentIndex = wizardStepOrder.indexOf(selectedStep);
+    if (currentIndex > 0) {
+      setSelectedStep(wizardStepOrder[currentIndex - 1]);
+    }
+  }, [selectedStep]);
+
   return (
     <Dialog
       stretch
@@ -229,19 +242,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           design="Footer"
           endContent={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {selectedStep !== 'success' && (
-                <Button design="Negative" onClick={resetFormAndClose}>
-                  {t('buttons.close')}
-                </Button>
-              )}
-              <Button
-                design="Emphasized"
-                disabled={
-                  (selectedStep === 'metadata' && !isValid) ||
-                  (selectedStep === 'summarize' && !isValid)
-                }
-                onClick={onNextClick}
-              >
+              {selectedStep !== 'success' &&
+                (selectedStep === 'metadata' ? (
+                  <Button design="Negative" onClick={resetFormAndClose}>
+                    {t('buttons.close')}
+                  </Button>
+                ) : (
+                  <Button design="Negative" onClick={onBackClick}>
+                    {t('buttons.back')}
+                  </Button>
+                ))}
+              <Button design="Emphasized" onClick={onNextClick}>
                 {nextButtonText[selectedStep]}
               </Button>
             </div>
