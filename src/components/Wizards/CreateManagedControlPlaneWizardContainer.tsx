@@ -6,7 +6,7 @@ import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+import { validationSchemaCreateManagedControlPlane } from '../../lib/api/validations/schemas.ts';
 import { OnCreatePayload } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import {
   Bar,
@@ -72,7 +72,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     formState: { errors, isValid },
     watch,
   } = useForm<CreateDialogProps>({
-    resolver: zodResolver(validationSchemaProjectWorkspace),
+    resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
       name: '',
       displayName: '',
