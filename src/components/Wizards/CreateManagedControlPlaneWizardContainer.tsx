@@ -244,13 +244,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {selectedStep !== 'success' &&
                 (selectedStep === 'metadata' ? (
-                  <Button design="Negative" onClick={resetFormAndClose}>
+                  <Button onClick={resetFormAndClose}>
                     {t('buttons.close')}
                   </Button>
                 ) : (
-                  <Button design="Negative" onClick={onBackClick}>
-                    {t('buttons.back')}
-                  </Button>
+                  <Button onClick={onBackClick}>{t('buttons.back')}</Button>
                 ))}
               <Button design="Emphasized" onClick={onNextClick}>
                 {nextButtonText[selectedStep]}
@@ -319,11 +317,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   text={t('common.namespace')}
                   additionalText={`${projectName}--ws-${workspaceName}`}
                 />
-
-                {/*<ListItemStandard*/}
-                {/*  text={t('common.region')}*/}
-                {/*  additionalText={'🇪🇺'}*/}
-                {/*/>*/}
               </List>
               <br />
               <List headerText={t('common.members')}>
