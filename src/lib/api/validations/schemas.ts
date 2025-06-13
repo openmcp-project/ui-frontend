@@ -1,15 +1,14 @@
 import { z } from 'zod';
 import { Member } from '../types/shared/members.ts';
 import i18n from '../../../../i18n.ts';
+import {
+  managedControlPlaneNameRegex,
+  projectWorkspaceNameRegex,
+} from './regex.ts';
 
 const { t } = i18n;
 
 const member = z.custom<Member>();
-
-export const projectWorkspaceNameRegex =
-  /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/;
-export const managedControlPlaneNameRegex =
-  /^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
 
 export const validationSchemaProjectWorkspace = z.object({
   name: z
