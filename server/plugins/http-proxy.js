@@ -12,15 +12,21 @@ function proxyPlugin(fastify) {
     preHandler: async (request, reply) => {
       request.log.info("Entering HTTP proxy preHandler.");
 
+      const useCrate = request.headers["x-use-crate"];
+
+      const keyAccessToken = useCrate ? "onboarding_accessToken" : "mcp_accessToken";
+      const keyTokenExpiresAt = useCrate ? "onboarding_tokenExpiresAt" : "mcp_tokenExpiresAt";
+      const keyRefreshToken = useCrate ? "onboarding_refreshToken" : "mcp_refreshToken";
+
       // Check if there is an access token
-      const accessToken = request.session.get("accessToken");
+      const accessToken = request.session.get(keyAccessToken);
       if (!accessToken) {
         request.log.error("Missing access token.");
         return reply.unauthorized("Missing access token.");
       }
 
       // Check if the access token is expired or about to expire
-      const expiresAt = request.session.get("tokenExpiresAt");
+      const expiresAt = request.session.get(keyTokenExpiresAt);
       const now = Date.now();
       const REFRESH_BUFFER_SECONDS = 20; // to allow for network latency
       if (!expiresAt || now < expiresAt - REFRESH_BUFFER_SECONDS) {
@@ -31,7 +37,7 @@ function proxyPlugin(fastify) {
       request.log.info({ expiresAt: new Date(expiresAt).toISOString() }, "Access token is expired or about to expire; attempting refresh.");
 
       // Check if there is a refresh token
-      const refreshToken = request.session.get("refreshToken");
+      const refreshToken = request.session.get(keyRefreshToken);
       if (!refreshToken) {
         request.log.error("Missing refresh token; deleting session.");
         request.session.destroy();
@@ -54,17 +60,17 @@ function proxyPlugin(fastify) {
 
         request.log.info("Token refresh successful; updating the session.");
 
-        request.session.set("accessToken", refreshedTokenData.accessToken);
+        request.session.set(keyAccessToken, refreshedTokenData.accessToken);
         if (refreshedTokenData.refreshToken) {
-          request.session.set("refreshToken", refreshedTokenData.refreshToken);
+          request.session.set(keyRefreshToken, refreshedTokenData.refreshToken);
         } else {
-          request.session.delete("refreshToken");
+          request.session.delete(keyRefreshToken);
         }
         if (refreshedTokenData.expiresIn) {
           const newExpiresAt = Date.now() + (refreshedTokenData.expiresIn * 1000);
-          request.session.set("tokenExpiresAt", newExpiresAt);
+          request.session.set(keyTokenExpiresAt, newExpiresAt);
         } else {
-          request.session.delete("tokenExpiresAt");
+          request.session.delete(keyTokenExpiresAt);
         }
 
         request.log.info("Token refresh successful and session updated; continuing with the HTTP request.");
@@ -78,10 +84,15 @@ function proxyPlugin(fastify) {
       }
     },
     replyOptions: {
-      rewriteRequestHeaders: (req, headers) => ({
-        ...headers,
-        authorization: req.session.get("accessToken")
-      }),
+      rewriteRequestHeaders: (req, headers) => {
+        const useCrate = req.headers["x-use-crate"];
+        const accessToken = useCrate ? req.session.get("onboarding_accessToken") : `${req.session.get("onboarding_accessToken")},${req.session.get("mcp_accessToken")}`;
+
+        return {
+          ...headers,
+          authorization: accessToken,
+        }
+      },
     },
   });
 }

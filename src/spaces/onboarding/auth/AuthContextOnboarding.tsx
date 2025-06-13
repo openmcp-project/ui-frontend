@@ -1,7 +1,8 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
+import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
 
-interface AuthContextType {
+interface AuthContextOnboardingType {
   isLoading: boolean;
   isAuthenticated: boolean;
   user: User | null;
@@ -10,40 +11,19 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(
+  null,
+);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Handle the redirect from the IdP
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-    const iss = params.get('iss');
-
-    if (code && state) {
-      // Construct the URL to forward to the BFF
-      const forwardUrl = new URL('/api/auth/callback', window.location.origin);
-      forwardUrl.searchParams.append('code', code);
-      forwardUrl.searchParams.append('state', state);
-      if (iss) {
-        forwardUrl.searchParams.append('iss', iss);
-      }
-      window.location.href = forwardUrl.toString();
-    }
-  }, []);
-
   // Check the authentication status when the component mounts
   useEffect(() => {
-    // Only run checkAuthStatus if not currently handling a redirect
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has('code') && !params.has('error')) {
-      void refreshAuthStatus();
-    }
+    void refreshAuthStatus();
   }, []);
 
   async function refreshAuthStatus() {
@@ -51,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('/api/auth/onboarding/me');
       if (!response.ok) {
         let errorBody;
         try {
@@ -87,7 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const login = () => {
-    window.location.href = `/api/auth/login`;
+    sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
+
+    window.location.href = `/api/auth/onboarding/login?redirectTo=${encodeURIComponent(window.location.hash)}`;
   };
 
   const logout = async () => {
@@ -115,18 +97,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext
+    <AuthContextOnboarding
       value={{ isLoading, isAuthenticated, user, error, login, logout }}
     >
       {children}
-    </AuthContext>
+    </AuthContextOnboarding>
   );
 }
 
-export const useAuth = () => {
-  const context = use(AuthContext);
+export const useAuthOnboarding = () => {
+  const context = use(AuthContextOnboarding);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider.');
+    throw new Error(
+      'useAuthOnboarding must be used within an AuthProviderOnboarding.',
+    );
   }
   return context;
 };

@@ -11,7 +11,7 @@ import {
   ShellBarDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -21,7 +21,7 @@ import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 
 export function ShellBarComponent() {
-  const auth = useAuth();
+  const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const betaPopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
@@ -107,7 +107,7 @@ const ProfilePopover = ({
   setOpen: (arg0: boolean) => void;
   popoverRef: RefObject<PopoverDomRef | null>;
 }) => {
-  const auth = useAuth();
+  const auth = useAuthOnboarding();
   const { t } = useTranslation();
 
   return (

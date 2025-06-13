@@ -242,9 +242,6 @@
     },
     "learnButton": "Learn how to do this in code"
   },
-  "App": {
-    "loading": "Loading..."
-  },
   "Providers": {
     "headerProviders": "Providers",
     "tableHeaderVersion": "Version",
