@@ -1,5 +1,12 @@
-import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
-
+import {
+  Button,
+  ButtonDomRef,
+  Menu,
+  MenuItem,
+  Ui5CustomEvent,
+  MenuDomRef,
+} from '@ui5/webcomponents-react';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
@@ -15,32 +22,32 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setIsCreateManagedControlPlaneWizardOpen,
 }) => {
-  const popoverRef = useRef(null);
+  const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
   const { t } = useTranslation();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleOpenerClick = (e: any) => {
-    if (popoverRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ref = popoverRef.current as any;
-      ref.opener = e.target;
+  const handleOpenerClick = (
+    e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>,
+  ) => {
+    if (popoverRef.current && e.currentTarget) {
+      popoverRef.current.opener = e.currentTarget as HTMLElement;
       setOpen((prev) => !prev);
     }
   };
 
   return (
     <>
-      <Button icon="overflow" icon-end onClick={handleOpenerClick}></Button>
+      <Button icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
         ref={popoverRef}
         open={open}
         onItemClick={(event) => {
-          if (event.detail.item.dataset.action === 'newManagedControlPlane') {
+          const action = (event.detail.item as HTMLElement).dataset.action;
+          if (action === 'newManagedControlPlane') {
             setIsCreateManagedControlPlaneWizardOpen(true);
           }
-          if (event.detail.item.dataset.action === 'deleteWorkspace') {
+          if (action === 'deleteWorkspace') {
             setDialogDeleteWsIsOpen(true);
           }
 
