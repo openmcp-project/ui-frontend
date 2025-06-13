@@ -289,6 +289,7 @@
     "YAML": "YAML"
   },
   "createMCP": {
+    "dialogTitle": "Create Managed Control Plane",
     "titleText": "Managed Control Plane Created Successfully!",
     "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
   }

@@ -320,10 +320,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   additionalText={`${projectName}--ws-${workspaceName}`}
                 />
 
-                <ListItemStandard
-                  text={t('common.region')}
-                  additionalText={'🇪🇺'}
-                />
+                {/*<ListItemStandard*/}
+                {/*  text={t('common.region')}*/}
+                {/*  additionalText={'🇪🇺'}*/}
+                {/*/>*/}
               </List>
               <br />
               <List headerText={t('common.members')}>
