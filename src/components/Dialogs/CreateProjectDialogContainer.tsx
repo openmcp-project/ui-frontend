@@ -8,7 +8,7 @@ import {
 } from './CreateProjectWorkspaceDialog.tsx';
 
 import { useToast } from '../../context/ToastContext.tsx';
-import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 
 import { useTranslation } from 'react-i18next';
@@ -46,7 +46,7 @@ export function CreateProjectDialogContainer({
     },
   });
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user } = useAuthOnboarding();
 
   const username = user?.email;
 

@@ -76,6 +76,9 @@ async function authUtilsPlugin(fastify) {
   fastify.decorate("prepareOidcLoginRedirect", (request, oidcConfig, authorizationEndpoint) => {
     request.log.info("Preparing OIDC login redirect.");
 
+    const { redirectTo } = request.query;
+    request.session.set("postLoginRedirectRoute", redirectTo);
+
     const { clientId, redirectUri, scopes } = oidcConfig;
 
     const state = crypto.randomBytes(16).toString("hex");
@@ -143,6 +146,7 @@ async function authUtilsPlugin(fastify) {
       refreshToken: tokens.refresh_token,
       expiresAt: null,
       userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
+      postLoginRedirectRoute: request.session.get("postLoginRedirectRoute") || "",
     };
 
     if (tokens.expires_in && typeof tokens.expires_in === "number") {
