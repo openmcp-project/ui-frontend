@@ -6,14 +6,16 @@ const { t } = i18n;
 
 const member = z.custom<Member>();
 
+export const projectWorkspaceNameRegex =
+  /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/;
+export const managedControlPlaneNameRegex =
+  /^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
+
 export const validationSchemaProjectWorkspace = z.object({
   name: z
     .string()
     .min(1, t('validationErrors.required'))
-    .regex(
-      /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/,
-      t('validationErrors.properFormatting'),
-    )
+    .regex(projectWorkspaceNameRegex, t('validationErrors.properFormatting'))
     .max(25, t('validationErrors.max25chars')),
   displayName: z.string().optional(),
   chargingTarget: z.string().optional(),
@@ -24,7 +26,7 @@ export const validationSchemaCreateManagedControlPlane = z.object({
     .string()
     .min(1, t('validationErrors.required'))
     .regex(
-      /^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/,
+      managedControlPlaneNameRegex,
       t('validationErrors.properFormattingLowercase'),
     )
     .max(25, t('validationErrors.max25chars')),
