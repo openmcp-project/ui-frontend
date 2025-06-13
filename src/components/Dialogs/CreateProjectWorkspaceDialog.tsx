@@ -1,13 +1,4 @@
-import {
-  Bar,
-  Button,
-  Dialog,
-  Form,
-  FormGroup,
-  FormItem,
-  Input,
-  Label,
-} from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, FormGroup } from '@ui5/webcomponents-react';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
@@ -18,11 +9,12 @@ import { KubectlCreateWorkspaceDialog } from './KubectlCommandInfo/KubectlCreate
 import { KubectlCreateProjectDialog } from './KubectlCommandInfo/KubectlCreateProjectDialog.tsx';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
-// import { useFrontendConfig } from '../../context/FrontendConfigContext.tsx';
+
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { MetadataForm } from './MetadataForm.tsx';
 
 export type OnCreatePayload = {
   name: string;
@@ -56,12 +48,14 @@ export function CreateProjectWorkspaceDialog({
   setValue,
   projectName,
 }: CreateProjectWorkspaceDialogProps) {
-  // const { links } = useFrontendConfig();
   const { t } = useTranslation();
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
 
   const openKubectlDialog = () => setIsKubectlDialogOpen(true);
   const closeKubectlDialog = () => setIsKubectlDialogOpen(false);
+  const setMembers = (members: Member[]) => {
+    setValue('members', members);
+  };
 
   return (
     <>
@@ -79,7 +73,6 @@ export function CreateProjectWorkspaceDialog({
               >
                 <KubectlInfoButton onClick={openKubectlDialog} />
                 <Button onClick={() => setIsOpen(false)}>
-                  {' '}
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
                 <Button design="Emphasized" onClick={() => onCreate()}>
@@ -91,11 +84,20 @@ export function CreateProjectWorkspaceDialog({
         }
         onClose={() => setIsOpen(false)}
       >
-        <CreateProjectWorkspaceDialogContent
-          members={members}
+        <MetadataForm
           register={register}
           errors={errors}
-          setValue={setValue}
+          sideFormContent={
+            <FormGroup
+              headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
+            >
+              <EditMembers
+                members={members}
+                isValidationError={!!errors.members}
+                onMemberChanged={setMembers}
+              />
+            </FormGroup>
+          }
         />
       </Dialog>
       <KubectlCreateWorkspaceDialog
@@ -109,70 +111,5 @@ export function CreateProjectWorkspaceDialog({
       />
       <ErrorDialog ref={errorDialogRef} />
     </>
-  );
-}
-
-interface CreateProjectWorkspaceDialogContentProps {
-  members: Member[];
-  register: UseFormRegister<CreateDialogProps>;
-  errors: FieldErrors<CreateDialogProps>;
-  setValue: UseFormSetValue<CreateDialogProps>;
-}
-
-function CreateProjectWorkspaceDialogContent({
-  members,
-  register,
-  errors,
-  setValue,
-}: CreateProjectWorkspaceDialogContentProps) {
-  const { t } = useTranslation();
-
-  const setMembers = (members: Member[]) => {
-    setValue('members', members);
-  };
-  return (
-    <Form>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}>
-        <FormItem
-          labelContent={
-            <Label required>
-              {t('CreateProjectWorkspaceDialog.nameLabel')}
-            </Label>
-          }
-        >
-          <Input
-            id="name"
-            {...register('name')}
-            valueState={errors.name ? 'Negative' : 'None'}
-            valueStateMessage={<span>{errors.name?.message}</span>}
-            required
-          />
-        </FormItem>
-
-        <FormItem
-          labelContent={
-            <Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
-          }
-        >
-          <Input id="displayName" {...register('displayName')} />
-        </FormItem>
-        <FormItem
-          labelContent={
-            <Label>
-              {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-            </Label>
-          }
-        >
-          <Input id="chargingTarget" {...register('chargingTarget')} />
-        </FormItem>
-      </FormGroup>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-        <EditMembers
-          members={members}
-          isValidationError={!!errors.members}
-          onMemberChanged={setMembers}
-        />
-      </FormGroup>
-    </Form>
   );
 }

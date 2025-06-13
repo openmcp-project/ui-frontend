@@ -8,16 +8,31 @@ import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 
+type MemberTableRow = {
+  email: string;
+  role: string;
+};
+
 type MemberTableProps = {
   members: Member[];
   onDeleteMember?: (email: string) => void;
   isValidationError?: boolean;
+  requireAtLeastOneMember: boolean;
+};
+
+type CellInstance = {
+  cell: {
+    row: {
+      original: MemberTableRow;
+    };
+  };
 };
 
 export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
   isValidationError = false,
+  requireAtLeastOneMember,
 }) => {
   const { t } = useTranslation();
 
@@ -37,43 +52,36 @@ export const MemberTable: FC<MemberTableProps> = ({
       Header: '',
       accessor: '.',
       width: 50,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => (
+      Cell: (instance: CellInstance) => (
         <Button
           icon="delete"
           onClick={() => {
             const selectedMemberEmail = instance.cell.row.original.email;
-            if (onDeleteMember) {
-              onDeleteMember(selectedMemberEmail);
-            }
+            onDeleteMember(selectedMemberEmail);
           }}
         />
       ),
     });
   }
-  if (members.length === 0) {
+
+  if (requireAtLeastOneMember && members.length === 0) {
     return (
       <Infobox
-        size={'sm'}
+        size="sm"
         variant={isValidationError ? 'danger' : 'normal'}
-        id={'members-error'}
+        id="members-error"
       >
         {t('validationErrors.atLeastOneUser')}
       </Infobox>
     );
   }
+
+  const data: MemberTableRow[] = members.map((m) => ({
+    email: m.name,
+    role: m.roles.map((r) => MemberRolesDetailed[r].displayValue).join(', '),
+  }));
+
   return (
-    <AnalyticalTable
-      scaleWidthMode="Smart"
-      columns={columns}
-      data={members.map((m) => {
-        return {
-          email: m.name,
-          role: m.roles
-            .map((r) => MemberRolesDetailed[r].displayValue)
-            .join(', '),
-        };
-      })}
-    />
+    <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />
   );
 };

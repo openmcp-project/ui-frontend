@@ -3,6 +3,8 @@ import {
   MemberRolesDetailed,
 } from '../../lib/api/types/shared/members';
 import {
+  FlexBox,
+  Label,
   Option,
   Select,
   SelectDomRef,
@@ -36,7 +38,8 @@ export function MemberRoleSelect({
   }, [value]);
 
   return (
-    <>
+    <FlexBox direction={'Column'}>
+      <Label for={'member-role-select'}>Role</Label>
       <Select
         ref={ref}
         id="member-role-select"
@@ -51,6 +54,6 @@ export function MemberRoleSelect({
             </Option>
           ))}
       </Select>
-    </>
+    </FlexBox>
   );
 }
