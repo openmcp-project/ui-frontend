@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # The same image but now only install the production dependencies as the frontend is already built using vite in the build-stage
-FROM gcr.io/distroless/nodejs22-debian12@sha256:d028bfd3111bb0e2a75ef5e2232fa91cb826f9121a66a2242962b1c52398a237 AS production
+FROM gcr.io/distroless/nodejs22-debian12@sha256:3bbb76acb752a4ed1275fd337d005e37cd35706a4f97f916ee1d65a30b486915 AS production
 
 WORKDIR /usr/src/app
 
