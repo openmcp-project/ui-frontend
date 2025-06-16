@@ -331,7 +331,7 @@ const FeedbackPopover = ({
                 </FormItem>
                 <FormItem>
                   <Button design="Emphasized" onClick={() => onFeedbackSent()}>
-                    Send Feedback
+                    {t('ShellBar.feedbackButton')}
                   </Button>
                 </FormItem>
                 <FormItem>
