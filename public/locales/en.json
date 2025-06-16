@@ -40,7 +40,9 @@
     "tableHeaderUsage": "Usage"
   },
   "ControlPlaneListToolbar": {
-    "buttonText": "Workspace"
+    "buttonText": "Workspace",
+    "deleteWorkspace": "Delete workspace",
+    "createNewManagedControlPlane": "Create new Managed Control Plane"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
@@ -79,8 +81,8 @@
     "menuCopy": "Copy to clipboard"
   },
   "IllustratedBanner": {
-    "titleMessage": "No ManagedControlPlane",
-    "subtitleMessage": "Create a ManagedControlPlane to get started",
+    "titleMessage": "No Managed Control Planes found",
+    "subtitleMessage": "Get started by creating your first Managed Control Plane.",
     "helpButton": "Help"
   },
   "IntelligentBreadcrumbs": {
@@ -95,7 +97,15 @@
   },
   "ShellBar": {
     "betaButtonDescription": "This web app is currently in Beta, and may not ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
-    "signOutButton": "Sign Out"
+    "signOutButton": "Sign Out",
+    "feedbackMessageLabel": "Message",
+    "feedbackRatingLabel": "Rating",
+    "feedbackHeader": "Your feedback",
+    "feedbackButton": "Send feedback",
+    "feedbackButtonInfo": "Give us your feedback",
+    "feedbackPlaceholder": "Please let us know what you think about our application",
+    "feedbackNotification": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind, please create here.",
+    "feedbackThanks": "Thank you for your feedback!"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -256,21 +266,39 @@
   "validationErrors": {
     "required": "This field is required!",
     "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
+    "properFormattingLowercase": "Use lowercase a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "max25chars": "Max length is 25 characters.",
     "userExists": "User with this email already exists!",
     "atLeastOneUser": "You need to have at least one member assigned."
   },
   "common": {
     "close": "Close",
-    "cannotLoadData": "Cannot load data"
+    "cannotLoadData": "Cannot load data",
+    "metadata": "Metadata",
+    "members": "Members",
+    "summarize": "Summarize",
+    "namespace": "Namespace",
+    "region": "Region",
+    "success": "Success",
+    "displayName": "Display Name",
+    "name": "Name"
   },
   "buttons": {
     "viewResource": "View resource",
     "download": "Download",
-    "copy": "Copy"
+    "copy": "Copy",
+    "next": "Next",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",
     "YAML": "YAML"
+  },
+  "createMCP": {
+    "dialogTitle": "Create Managed Control Plane",
+    "titleText": "Managed Control Plane Created Successfully!",
+    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
   }
 }

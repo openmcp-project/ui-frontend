@@ -49,7 +49,7 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
           setPopoverIsOpen(false);
         }}
       >
-        <MemberTable members={members} />
+        <MemberTable members={members} requireAtLeastOneMember={false} />
       </Popover>
     </div>
   );
