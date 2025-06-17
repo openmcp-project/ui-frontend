@@ -17,7 +17,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
-import StatusFilter from '../Shared/StatusFilter.tsx';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 
 interface CellData<T> {
   cell: {

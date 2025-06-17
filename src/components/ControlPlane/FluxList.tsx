@@ -16,7 +16,7 @@ import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
-import StatusFilter from '../Shared/StatusFilter.tsx';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 
 export default function FluxList() {
   const {

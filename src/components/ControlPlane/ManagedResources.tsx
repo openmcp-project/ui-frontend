@@ -15,7 +15,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
-import StatusFilter from '../Shared/StatusFilter.tsx';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 
 interface CellData<T> {
   cell: {
