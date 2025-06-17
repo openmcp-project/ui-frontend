@@ -5,9 +5,6 @@ import {
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
   Title,
-  Select,
-  Option,
-  Icon,
 } from '@ui5/webcomponents-react';
 
 import useResource from '../../lib/api/useApiResource';
@@ -20,6 +17,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
+import StatusFilter from '../Shared/StatusFilter.tsx';
 
 interface CellData<T> {
   cell: {
@@ -71,41 +69,7 @@ export function Providers() {
         accessor: 'installed',
         hAlign: 'Center',
         width: 85,
-        Filter: ({ column }) => (
-          <Select
-            onChange={(e) => {
-              const selectedOption = e.detail.selectedOption;
-              if (!selectedOption || !column.setFilter) return;
-
-              const val = selectedOption.dataset?.value;
-              column.setFilter(val === 'all' ? undefined : val);
-            }}
-          >
-            <Option
-              data-value="all"
-              selected={column.filterValue === undefined}
-            >
-              {t('all')}
-            </Option>
-            <Option data-value="true" selected={column.filterValue === 'true'}>
-              <Icon
-                name="sys-enter-2"
-                style={{ marginRight: 6, color: 'green' }}
-              />
-              {t('yes')}
-            </Option>
-            <Option
-              data-value="false"
-              selected={column.filterValue === 'false'}
-            >
-              <Icon
-                name="sys-cancel-2"
-                style={{ marginRight: 6, color: 'red' }}
-              />
-              {t('no')}
-            </Option>
-          </Select>
-        ),
+        Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
@@ -122,41 +86,7 @@ export function Providers() {
         accessor: 'healthy',
         hAlign: 'Center',
         width: 85,
-        Filter: ({ column }) => (
-          <Select
-            onChange={(e) => {
-              const selectedOption = e.detail.selectedOption;
-              if (!selectedOption || !column.setFilter) return;
-
-              const val = selectedOption.dataset?.value;
-              column.setFilter(val === 'all' ? undefined : val);
-            }}
-          >
-            <Option
-              data-value="all"
-              selected={column.filterValue === undefined}
-            >
-              {t('all')}
-            </Option>
-            <Option data-value="true" selected={column.filterValue === 'true'}>
-              <Icon
-                name="sys-enter-2"
-                style={{ marginRight: 6, color: 'green' }}
-              />
-              {t('yes')}
-            </Option>
-            <Option
-              data-value="false"
-              selected={column.filterValue === 'false'}
-            >
-              <Icon
-                name="sys-cancel-2"
-                style={{ marginRight: 6, color: 'red' }}
-              />
-              {t('no')}
-            </Option>
-          </Select>
-        ),
+        Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (

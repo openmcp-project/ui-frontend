@@ -16,6 +16,7 @@ import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
+import StatusFilter from '../Shared/StatusFilter.tsx';
 
 export default function FluxList() {
   const {
@@ -68,6 +69,7 @@ export default function FluxList() {
         accessor: 'status',
         width: 85,
         hAlign: 'Center',
+        Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
@@ -110,6 +112,7 @@ export default function FluxList() {
         accessor: 'status',
         width: 85,
         hAlign: 'Center',
+        Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
