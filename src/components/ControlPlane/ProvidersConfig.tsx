@@ -76,6 +76,7 @@ export function ProvidersConfig() {
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',
+        disableFilters: true,
         Cell: (cellData: CellData<Rows>) =>
           cellData.cell.row.original?.resource ? (
             <YamlViewButton
