@@ -1,11 +1,12 @@
-import { Icon, Option, Select } from '@ui5/webcomponents-react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './StatusFilter.module.css';
+import { Select } from '@ui5/webcomponents-react';
+import RenderOption from './RenderOption';
 
 interface StatusFilterProps {
   column: {
     filterValue?: string;
-    setFilter?: (value?: string | undefined) => void;
+    setFilter?: (value?: string) => void;
   };
 }
 
@@ -42,23 +43,21 @@ const StatusFilter: React.FC<StatusFilterProps> = ({ column }) => {
     column.setFilter?.(value === 'all' ? undefined : value);
   };
 
-  const renderOption = ({ value, iconName, color, labelKey }: OptionConfig) => (
-    <Option
-      key={value}
-      data-value={value}
-      selected={
-        column.filterValue === value || (value === 'all' && !column.filterValue)
-      }
-      className={styles.option}
-    >
-      <div className={styles.container}>
-        <Icon name={iconName} style={{ color }} className={styles.icon} />
-        <span className={styles.label}>{t(labelKey)}</span>
-      </div>
-    </Option>
+  return (
+    <Select onChange={handleChange}>
+      {options.map((option) => (
+        <RenderOption
+          key={option.value}
+          {...option}
+          t={t}
+          isSelected={
+            column.filterValue === option.value ||
+            (option.value === 'all' && !column.filterValue)
+          }
+        />
+      ))}
+    </Select>
   );
-
-  return <Select onChange={handleChange}>{options.map(renderOption)}</Select>;
 };
 
 export default StatusFilter;
