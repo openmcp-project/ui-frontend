@@ -36,6 +36,7 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { ComponentsSelection } from '../ComponentsSelection/ComponentsSelection.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -51,11 +52,17 @@ type CreateManagedControlPlaneWizardContainerProps = {
   workspaceName?: string;
 };
 
-type WizardStepType = 'metadata' | 'members' | 'summarize' | 'success';
+type WizardStepType =
+  | 'metadata'
+  | 'members'
+  | 'componentSelection'
+  | 'summarize'
+  | 'success';
 
 const wizardStepOrder: WizardStepType[] = [
   'metadata',
   'members',
+  'componentSelection',
   'summarize',
   'success',
 ];
@@ -93,6 +100,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     () => ({
       metadata: t('buttons.next'),
       members: t('buttons.next'),
+      componentSelection: t('buttons.next'),
       summarize: t('buttons.create'),
       success: t('buttons.close'),
     }),
@@ -175,7 +183,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
-        setSelectedStep('summarize');
+        setSelectedStep('componentSelection');
+        break;
+      case 'componentSelection':
+        setSelectedStep('componentSelection');
         break;
       case 'summarize':
         handleCreateManagedControlPlane(getValues());
@@ -289,6 +300,19 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               />
             </FormGroup>
           </Form>
+        </WizardStep>
+        <WizardStep
+          titleText={t('common.componentSelection')}
+          selected={selectedStep === 'componentSelection'}
+          data-step="componentSelection"
+          disabled={isStepDisabled('componentSelection')}
+        >
+          <ComponentsSelection
+            items={[
+              { name: 'Component 1', versions: ['1.0.0', '0.8.0'] },
+              { name: 'Component 2', versions: ['2.0.0', '1.7.0', '0.9.0'] },
+            ]}
+          />
         </WizardStep>
         <WizardStep
           icon="activities"
