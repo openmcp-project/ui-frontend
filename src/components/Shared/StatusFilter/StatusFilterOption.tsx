@@ -1,8 +1,8 @@
 import React from 'react';
 import { Option, Icon } from '@ui5/webcomponents-react';
-import styles from './StatusFilter.module.css';
+import styles from './StatusFilterOption.module.css';
 
-interface RenderOptionProps {
+export interface StatusFilterOptionProps {
   value: string;
   iconName: string;
   color: string;
@@ -11,7 +11,7 @@ interface RenderOptionProps {
   isSelected: boolean;
 }
 
-const RenderOption: React.FC<RenderOptionProps> = ({
+const RenderOption: React.FC<StatusFilterOptionProps> = ({
   value,
   iconName,
   color,

@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Select } from '@ui5/webcomponents-react';
-import RenderOption from './RenderOption';
+import StatusFilterOption, {
+  StatusFilterOptionProps,
+} from './StatusFilterOption';
 
 interface StatusFilterProps {
   column: {
@@ -10,31 +12,27 @@ interface StatusFilterProps {
   };
 }
 
-interface OptionConfig {
-  value: string;
-  iconName: string;
-  color: string;
-  labelKey: string;
-}
+const options: Pick<
+  StatusFilterOptionProps,
+  'value' | 'iconName' | 'color' | 'labelKey'
+>[] = [
+  { value: 'all', iconName: 'filter', color: 'gray', labelKey: 'All' },
+  {
+    value: 'true',
+    iconName: 'sys-enter-2',
+    color: 'green',
+    labelKey: 'Enabled',
+  },
+  {
+    value: 'false',
+    iconName: 'sys-cancel-2',
+    color: 'red',
+    labelKey: 'Disabled',
+  },
+];
 
 const StatusFilter: React.FC<StatusFilterProps> = ({ column }) => {
   const { t } = useTranslation();
-
-  const options: OptionConfig[] = [
-    { value: 'all', iconName: 'filter', color: 'gray', labelKey: 'All' },
-    {
-      value: 'true',
-      iconName: 'sys-enter-2',
-      color: 'green',
-      labelKey: 'Enabled',
-    },
-    {
-      value: 'false',
-      iconName: 'sys-cancel-2',
-      color: 'red',
-      labelKey: 'Disabled',
-    },
-  ];
 
   const handleChange = (
     e: CustomEvent<{ selectedOption: { dataset?: { value?: string } } }>,
@@ -46,7 +44,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({ column }) => {
   return (
     <Select onChange={handleChange}>
       {options.map((option) => (
-        <RenderOption
+        <StatusFilterOption
           key={option.value}
           {...option}
           t={t}
