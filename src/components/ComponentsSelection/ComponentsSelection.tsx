@@ -1,7 +1,17 @@
 import React from 'react';
-import { CheckBox, Select, Option, FlexBox } from '@ui5/webcomponents-react';
+import {
+  CheckBox,
+  Select,
+  Option,
+  FlexBox,
+  Title,
+  Text,
+  Label,
+  Input,
+  Button,
+} from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
-import cx from 'clsx';
+
 export interface ComponentItem {
   name: string;
   versions: string[];
@@ -19,23 +29,41 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   };
   return (
     <div>
-      {components.map((component, idx) => (
-        <FlexBox
-          key={component.name}
-          className={cx(styles.row, idx % 2 === 1 ? styles.oddRow : '')}
-          gap={10}
-          justifyContent={'SpaceBetween'}
-        >
-          <CheckBox valueState={'None'} text={component.name} />
-          <Select onChange={onChange}>
-            {component.versions.map((version) => (
-              <Option key={version} data-id={version}>
-                {version}
-              </Option>
-            ))}
-          </Select>
-        </FlexBox>
-      ))}
+      <Title>Select components</Title>
+      <Text>
+        Please select components that you would like to have assigned to your
+        Managed Control Plane{' '}
+      </Text>
+      <Label for={'search'}>Search</Label>
+      <Input id={'search'} />
+      <Button design={'Transparent'}>Show selected only</Button>
+      <Button design={'Transparent'}>Show all</Button>
+      <div>
+        {components.map((component) => (
+          <FlexBox
+            key={component.name}
+            className={styles.row}
+            gap={10}
+            justifyContent={'SpaceBetween'}
+          >
+            <CheckBox valueState={'None'} text={component.name} />
+            <FlexBox
+              gap={10}
+              justifyContent={'SpaceBetween'}
+              alignItems={'Baseline'}
+            >
+              <Button design={'Transparent'}>Documentation</Button>
+              <Select onChange={onChange}>
+                {component.versions.map((version) => (
+                  <Option key={version} data-id={version}>
+                    {version}
+                  </Option>
+                ))}
+              </Select>
+            </FlexBox>
+          </FlexBox>
+        ))}
+      </div>
     </div>
   );
 };
