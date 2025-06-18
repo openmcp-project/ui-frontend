@@ -1,32 +1,34 @@
 import React from 'react';
 import { CheckBox, Select, Option, FlexBox } from '@ui5/webcomponents-react';
-
-interface ComponentItem {
+import styles from './ComponentsSelection.module.css';
+import cx from 'clsx';
+export interface ComponentItem {
   name: string;
   versions: string[];
 }
 
-interface ComponentsSelectionProps {
+export interface ComponentsSelectionProps {
   items: ComponentItem[];
 }
 
 export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
-  items,
+  items: components,
 }) => {
   const onChange = (event: any) => {
-    // event.detail.selectedOption is a reference to the selected HTML Element
-    // dataset contains all attributes that were passed with the data- prefix.
     console.log(event.detail.selectedOption.dataset.id);
   };
   return (
     <div>
-      {items.map((item, idx) => (
-        <FlexBox key={idx} gap={10} justifyContent={'SpaceBetween'}>
-          <CheckBox valueState={'None'} text={'test'}>
-            {item.name}
-          </CheckBox>
+      {components.map((component, idx) => (
+        <FlexBox
+          key={component.name}
+          className={cx(styles.row, idx % 2 === 1 ? styles.oddRow : '')}
+          gap={10}
+          justifyContent={'SpaceBetween'}
+        >
+          <CheckBox valueState={'None'} text={component.name} />
           <Select onChange={onChange}>
-            {item.versions.map((version) => (
+            {component.versions.map((version) => (
               <Option key={version} data-id={version}>
                 {version}
               </Option>

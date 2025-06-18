@@ -1,0 +1,6 @@
+.row {
+  padding: 1rem;
+}
+.oddRow {
+  background-color: rgba(0, 0, 20, 0.05);
+}

@@ -8,6 +8,33 @@ import { Member } from '../shared/members';
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
 
+interface RoleBinding {
+  role: string; // The name of the role being bound
+  subjects: Subject[]; // A list of subjects the role is bound to
+}
+interface Subject {
+  kind: 'User' | 'Group' | 'ServiceAccount'; // The type of subject
+  name: string; // The name of the subject
+}
+interface Spec {
+  // desiredRegion: {
+  //   name: string;
+  //   direction: string;
+  // };
+  authentication: {
+    enableSystemIdentityProvider: boolean;
+  };
+  authorization: {
+    roleBindings: RoleBinding[];
+  };
+  // components: Components;
+}
+interface Components {
+  [key: string]: {
+    type: string;
+  };
+}
+
 export interface CreateManagedControlPlaneType {
   apiVersion: string;
   kind: string;
@@ -17,9 +44,7 @@ export interface CreateManagedControlPlaneType {
     annotations: Annotations;
     labels: Labels;
   };
-  spec: {
-    members: Member[];
-  };
+  spec: Spec;
 }
 
 export const CreateManagedControlPlane = (
@@ -30,7 +55,9 @@ export const CreateManagedControlPlane = (
     chargingTarget?: string;
     members?: Member[];
   },
+  idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
+  console.log(optional);
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
     kind: 'ManagedControlPlane',
@@ -45,11 +72,29 @@ export const CreateManagedControlPlane = (
       },
     },
     spec: {
-      members: optional?.members ?? [],
+      authentication: { enableSystemIdentityProvider: true },
+      //   members:
+      //     optional?.members?.map((member) => ({
+      //       ...member,
+      //       name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
+      //     })) ?? [],
+      // },
+      // components: {test: {type: 'version'},
+      authorization: {
+        roleBindings:
+          optional?.members?.map((member) => ({
+            role: member.roles[0], // this is wrong should be admin/view
+            subjects: [
+              {
+                kind: 'User',
+                name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
+              },
+            ],
+          })) ?? [],
+      },
     },
   };
 };
-
 export const CreateManagedControlPlaneResource = (
   projectName: string,
   workspaceName: string,
