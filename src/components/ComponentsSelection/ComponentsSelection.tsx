@@ -11,6 +11,7 @@ import {
   Button,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
+import { sortVersions } from '../../utils/testVersions.ts';
 
 export interface ComponentItem {
   name: string;
@@ -54,7 +55,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
             >
               <Button design={'Transparent'}>Documentation</Button>
               <Select onChange={onChange}>
-                {component.versions.map((version) => (
+                {sortVersions(component.versions).map((version) => (
                   <Option key={version} data-id={version}>
                     {version}
                   </Option>
