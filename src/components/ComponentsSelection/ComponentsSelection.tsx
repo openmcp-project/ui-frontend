@@ -11,7 +11,7 @@ import {
   Button,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
-import { sortVersions } from '../../utils/testVersions.ts';
+import { sortVersions } from '../../utils/componentsVersions.ts';
 
 export interface ComponentItem {
   name: string;

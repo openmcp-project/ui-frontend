@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sortVersions } from './testVersions';
+import { sortVersions } from './componentsVersions.ts';
 
 describe('sortVersions', () => {
   it('sorts versions in descending order (latest first)', () => {
