@@ -2,6 +2,7 @@ import secureSession from "@fastify/secure-session";
 import fp from "fastify-plugin";
 import fastifyCookie from "@fastify/cookie";
 import fastifySession from '@fastify/session';
+import crypto from "node:crypto"
 
 
 
@@ -50,19 +51,25 @@ async function encryptedSession(fastify) {
 
   fastify.addHook('onRequest', (request, _reply, next) => {
     //we use secure-session cookie to get the encryption key and decrypt the store
-    if (request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY) === undefined) {
+    if (!request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY)) {
       console.log("encryption key not found, creating new one");
 
-      //TODO: create a new encrpytion key and set it in the secure session cookie
-      request[SECURE_SESSION_NAME].set(SECURE_COOKIE_KEY_ENCRYPTION_KEY, "TODO_SHOULD_BE_RANDOM");
+      let newEncryptionKey = generateSecureEncryptionKey();
+      request[SECURE_SESSION_NAME].set(SECURE_COOKIE_KEY_ENCRYPTION_KEY, newEncryptionKey.toString('base64'));
       request[REQUEST_DECORATOR] = new Session()
+      newEncryptionKey = undefined
     } else {
       console.log("encryption key found, using existing one");
+
+      const loadedEncryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
+
       const encryptedStore = request.session.get("encryptedStore");
       if (encryptedStore) {
         try {
-          //TODO: add decrypted step
-          const decryptedStore = JSON.parse(encryptedStore);
+          const { cipherText, iv, tag } = encryptedStore;
+
+          const decryptedCypherText = decryptSymetric(cipherText, iv, tag, loadedEncryptionKey);
+          const decryptedStore = JSON.parse(decryptedCypherText);
           request[REQUEST_DECORATOR] = new Session(decryptedStore);
         } catch (error) {
           console.error("Failed to parse encrypted store:", error);
@@ -87,15 +94,23 @@ async function encryptedSession(fastify) {
     //on send we will encrypt the store and set it in the backend-side session store
     console.log("Encrypted store that will be set in session:", JSON.stringify(request[REQUEST_DECORATOR].data()));
 
-    //TODO: encrypt the data here. 
+    const encyrptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
+
+
     //we store everything in one value in the session, that might be problematic for future redis with expiration times per key. we might want to split this
-    const encryptedData = JSON.stringify(request[REQUEST_DECORATOR].data())
+    const stringifiedData = JSON.stringify(request[REQUEST_DECORATOR].data())
+    const { cipherText, iv, tag } = encryptSymetric(stringifiedData, encyrptionKey);
 
     //remove unencrypted data from memory
     delete request[REQUEST_DECORATOR];
     request[REQUEST_DECORATOR] = null;
 
-    request.session.encryptedStore = encryptedData;
+    request.session.encryptedStore = {
+      cipherText,
+      iv,
+      tag,
+    };
+    console.log("Encrypted store set in session:", request.session.encryptedStore);
     next()
   })
 
@@ -152,4 +167,94 @@ class Session {
 
     return copy
   }
+}
+
+// generates a secure encryption key for aes-256-gcm.
+// Returns a buffer of 32 bytes (256 bits).
+function generateSecureEncryptionKey() {
+  // Generates a secure random encryption key of 32 bytes (256 bits)
+  return crypto.randomBytes(32);
+}
+
+// uses authenticated symetric encryption (aes-256-gcm) to encrypt the plaintext with the key.
+// If no adequate key is given, it throws an error
+// The key needs to be 32bytes (256bits) as type buffer. Needs to be cryptographically secure random generated e.g. with `crypto.randomBytes(32)`
+// it outputs cipherText (bas64 encoded string), the initialisation vector (iv) (hex string) and the authentication tag (hex string).
+function encryptSymetric(plaintext, key) {
+  if (key == undefined) {
+    throw new Error("Key must be provided");
+  }
+  if (key.length < 32) {
+    throw new Error("Key must be at least 32bye = 256 bits long");
+  }
+
+  if (!(key instanceof Buffer)) {
+    throw new Error("Key must be a Buffer");
+  }
+
+  if (plaintext == undefined) {
+    throw new Error("Plaintext must be provided");
+  }
+
+  if (typeof plaintext !== "string") {
+    throw new Error("Plaintext must be a string utf8 encoded");
+  }
+
+  if (!crypto.getCiphers().includes("aes-256-gcm")) {
+    throw new Error("Cipher suite aes-256-gcm is not available");
+  }
+
+  // initialisation vector. Needs to be stored along the cipherText.
+  // MUST NOT be reused and MUST be randomly generated for EVERY encryption operation. Otherwise using the same key would be insecure.
+  const iv = crypto.randomBytes(12);
+
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+  let cipherText = cipher.update(plaintext, 'utf8', 'base64');
+  cipherText += cipher.final('base64');
+
+  // the authentication tag is used to verify the integrity of the ciphertext (that it has not been tampered with).
+  // stored alongside the ciphertext and iv as it can only be changed with the secret key
+  const tag = cipher.getAuthTag();
+
+  return {
+    cipherText,
+    iv: iv.toString('base64'),
+    tag: tag.toString('base64'),
+  }
+}
+
+// uses authenticated symetric encryption (aes-256-gcm) to decrypt the ciphertext with the key.
+// requires the ciphertext, the initialisation vector (iv)(hex string), the authentication tag (tag) (hex string)  and the key (buffer) to be provided.
+//it thows an error if the decryption or tag verification fails
+function decryptSymetric(cipherText, iv, tag, key) {
+  if (key == undefined) {
+    throw new Error("Key must be provided");
+  }
+  if (key.length < 32) {
+    throw new Error("Key must be at least 32bye = 256 bits long");
+  }
+
+  if (!(key instanceof Buffer)) {
+    throw new Error("Key must be a Buffer");
+  }
+
+  if (cipherText == undefined) {
+    throw new Error("Ciphertext must be provided");
+  }
+
+  if (typeof cipherText !== "string") {
+    throw new Error("Ciphertext must be a string utf8 encoded");
+  }
+
+  if (!crypto.getCiphers().includes("aes-256-gcm")) {
+    throw new Error("Cipher suite aes-256-gcm is not available");
+  }
+
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(iv, 'base64'));
+  decipher.setAuthTag(Buffer.from(tag, 'base64'));
+
+  let decrypted = decipher.update(cipherText, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+
+  return decrypted;
 }

@@ -37,11 +37,11 @@ function testRoute(fastify, opts) {
     // we use the encrypted session api with get/set like the normal session api
     const previousValue = request.encryptedSession.get("testFromClient");
 
+    console.log("value stored before request is processed:", request.encryptedSession.data());
+
     if (query.test) {
       request.encryptedSession.set("testFromClient", query.test);
     }
-
-    console.log("value stored before in request:", request.encryptedSession.data());
 
     request.encryptedSession.set("testKey", "testValue");
 
