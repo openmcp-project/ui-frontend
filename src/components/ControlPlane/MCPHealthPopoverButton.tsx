@@ -18,6 +18,7 @@ import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
+import TooltipCell from '../Shared/TooltipCell.tsx';
 export default function MCPHealthPopoverButton({
   mcpStatus,
   projectName,
@@ -104,21 +105,45 @@ export default function MCPHealthPopoverButton({
     {
       Header: t('MCPHealthPopoverButton.typeHeader'),
       accessor: 'type',
+      width: 150,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Cell: (instance: any) => {
+        return <TooltipCell>{instance.cell.value}</TooltipCell>;
+      },
     },
     {
       Header: t('MCPHealthPopoverButton.messageHeader'),
       accessor: 'message',
+      width: 350,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Cell: (instance: any) => {
+        return <TooltipCell>{instance.cell.value}</TooltipCell>;
+      },
     },
     {
       Header: t('MCPHealthPopoverButton.reasonHeader'),
       accessor: 'reason',
+      width: 100,
+      headerTooltip: 'sgs',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Cell: (instance: any) => {
+        return <TooltipCell>{instance.cell.value}</TooltipCell>;
+      },
     },
     {
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
+      width: 110,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: (instance: any) => {
-        return <ReactTimeAgo date={new Date(instance.cell.value)} />;
+        const rawDate = instance.cell.value;
+        const date = new Date(rawDate);
+
+        return (
+          <TooltipCell>
+            <ReactTimeAgo date={date} />
+          </TooltipCell>
+        );
       },
     },
   ];
@@ -155,9 +180,9 @@ function StatusTable({
   const { t } = useTranslation();
 
   return (
-    <div style={{ width: 600 }}>
+    <div style={{ width: 760 }}>
       <AnalyticalTable
-        scaleWidthMode="Smart"
+        scaleWidthMode="Default"
         columns={tableColumns}
         data={
           status?.conditions?.sort((a, b) => {

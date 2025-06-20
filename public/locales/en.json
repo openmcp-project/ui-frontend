@@ -65,7 +65,7 @@
     "typeHeader": "Type",
     "messageHeader": "Message",
     "reasonHeader": "Reason",
-    "transitionHeader": "Last transition time",
+    "transitionHeader": "Last change",
     "createSupportTicketButton": "Create Support Ticket",
     "supportTicketTitleReady": "MCP Ready",
     "supportTicketTitleNotReady": "MCP Not Ready",
