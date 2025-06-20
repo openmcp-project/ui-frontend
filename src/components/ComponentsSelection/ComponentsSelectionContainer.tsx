@@ -1,5 +1,11 @@
-import React from 'react';
-import { ComponentsSelection } from '../ComponentsSelection/ComponentsSelection.tsx';
+import React, { useEffect, useState } from 'react';
+import {
+  ComponentSelectionItem,
+  ComponentsSelection,
+} from './ComponentsSelection.tsx';
+
+import IllustratedError from '../Shared/IllustratedError.tsx';
+import { sortVersions } from '../../utils/componentsVersions.ts';
 
 export interface ComponentItem {
   name: string;
@@ -87,5 +93,35 @@ export const ComponentsSelectionContainer: React.FC<
     },
     { name: 'velero', versions: ['7.1.0'] },
   ];
-  return <ComponentsSelection items={mockedItems} />;
+
+  const [selectedComponents, setSelectedComponents] = useState<
+    ComponentSelectionItem[]
+  >([]);
+  useEffect(() => {
+    if (mockedItems.length === 0) return;
+
+    setSelectedComponents(
+      mockedItems.map((item) => {
+        const versions = sortVersions(item.versions);
+        return {
+          name: item.name,
+          versions: versions,
+          selectedVersion: versions[0],
+          isSelected: false,
+        };
+      }),
+    );
+  }, []);
+  return (
+    <>
+      {selectedComponents.length > 0 ? (
+        <ComponentsSelection
+          components={selectedComponents}
+          setSelectedComponents={setSelectedComponents}
+        />
+      ) : (
+        <IllustratedError title={'Cannot load components list'} />
+      )}
+    </>
+  );
 };
