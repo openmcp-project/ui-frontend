@@ -1,4 +1,5 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
+
 import {
   CheckBox,
   Select,
@@ -13,6 +14,10 @@ import {
   List,
   ListItemStandard,
   Icon,
+  CheckBoxDomRef,
+  SelectDomRef,
+  InputDomRef,
+  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
 
@@ -35,35 +40,42 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   setSelectedComponents,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const onChangeSelection = (event: any) => {
-    console.log('event.detail.selectedOption.dataset.id');
-    console.log(event.target?.id);
-    console.log(event);
+
+  const onChangeSelection = (
+    event: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
+  ) => {
+    const id = event.target?.id;
     setSelectedComponents(
       components.map((component) =>
-        component.name === event.target?.id
+        component.name === id
           ? { ...component, isSelected: !component.isSelected }
           : component,
       ),
     );
   };
 
-  const handleSearch = (event) => {
+  const handleSearch = (event: Ui5CustomEvent<InputDomRef, never>) => {
     setSearchTerm(event.target.value.trim());
   };
-  const onChangeVersion = (event: any) => {
-    console.log(event.detail.selectedOption.dataset.id);
+
+  const onChangeVersion = (
+    event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
+  ) => {
+    const selectedOption = event.detail.selectedOption as HTMLElement;
+    const name = selectedOption.dataset.name;
+    const version = selectedOption.dataset.version;
     setSelectedComponents(
       components.map((component) =>
-        component.name === event.detail.selectedOption.dataset.name
+        component.name === name
           ? {
               ...component,
-              selectedVersion: event.detail.selectedOption.dataset.version,
+              selectedVersion: version || '',
             }
           : component,
       ),
     );
   };
+
   return (
     <div>
       <Title>Select components</Title>
