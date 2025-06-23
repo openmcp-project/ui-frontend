@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AnalyticalTable,
@@ -5,23 +6,24 @@ import {
   AnalyticalTableScaleWidthMode,
   Title,
 } from '@ui5/webcomponents-react';
+
 import useResource from '../../lib/api/useApiResource';
 import IllustratedError from '../Shared/IllustratedError';
-import '@ui5/webcomponents-icons/dist/sys-enter-2';
-import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { timeAgo } from '../../utils/i18n/timeAgo';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
-
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo } from 'react';
+
+import '@ui5/webcomponents-icons/dist/sys-enter-2';
+import '@ui5/webcomponents-icons/dist/sys-cancel-2';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 
 interface CellData<T> {
   cell: {
-    value: T | null; // null for grouping rows
+    value: T | null;
     row: {
-      original?: ProvidersRow; // missing for grouping rows
+      original?: ProvidersRow;
     };
   };
 }
@@ -29,9 +31,9 @@ interface CellData<T> {
 type ProvidersRow = {
   name: string;
   version: string;
-  healthy: boolean;
+  healthy: string;
   healthyTransitionTime: string;
-  installed: boolean;
+  installed: string;
   installedTransitionTime: string;
   created: string;
   item: unknown;
@@ -67,10 +69,12 @@ export function Providers() {
         accessor: 'installed',
         hAlign: 'Center',
         width: 85,
+        Filter: ({ column }) => <StatusFilter column={column} />,
+        filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.installed}
+              value={cellData.cell.row.original?.installed === 'true'}
               transitionTime={
                 cellData.cell.row.original?.installedTransitionTime
               }
@@ -82,26 +86,28 @@ export function Providers() {
         accessor: 'healthy',
         hAlign: 'Center',
         width: 85,
+        Filter: ({ column }) => <StatusFilter column={column} />,
+        filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.healthy}
+              value={cellData.cell.row.original?.healthy === 'true'}
               transitionTime={cellData.cell.row.original?.healthyTransitionTime}
             />
           ) : null,
       },
-
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
         width: 85,
         accessor: 'yaml',
+        disableFilters: true,
         Cell: (cellData: CellData<ProvidersRow>) => (
           <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
         ),
       },
     ],
-    [],
+    [t],
   );
 
   const rows: ProvidersRow[] =
@@ -115,9 +121,9 @@ export function Providers() {
       return {
         name: item.metadata.name,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
-        installed: installed?.status === 'True',
+        installed: installed?.status === 'True' ? 'true' : 'false',
         installedTransitionTime: installed?.lastTransitionTime ?? '',
-        healthy: healthy?.status === 'True',
+        healthy: healthy?.status === 'True' ? 'true' : 'false',
         healthyTransitionTime: healthy?.lastTransitionTime ?? '',
         version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
         item: item,
@@ -138,7 +144,6 @@ export function Providers() {
           scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
           loading={isLoading}
           filterable
-          // Prevent the table from resetting when the data changes
           retainColumnWidth
           reactTableOptions={{
             autoResetHiddenColumns: false,
