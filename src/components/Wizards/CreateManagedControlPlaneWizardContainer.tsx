@@ -353,7 +353,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   <ListItemStandard
                     key={member.name}
                     text={member.name}
-                    additionalText={member.kind}
+                    additionalText={member.roles[0]}
                   />
                 ))}
               </List>
