@@ -52,14 +52,14 @@ async function encryptedSession(fastify) {
   fastify.addHook('onRequest', (request, _reply, next) => {
     //we use secure-session cookie to get the encryption key and decrypt the store
     if (!request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY)) {
-      console.log("encryption key not found, creating new one");
+      request.log.info({ "plugin": "encrypted-session" }, "user-side encryption key not found, creating new one");
 
       let newEncryptionKey = generateSecureEncryptionKey();
       request[SECURE_SESSION_NAME].set(SECURE_COOKIE_KEY_ENCRYPTION_KEY, newEncryptionKey.toString('base64'));
-      request[REQUEST_DECORATOR] = new Session()
+      request[REQUEST_DECORATOR] = createStore()
       newEncryptionKey = undefined
     } else {
-      console.log("encryption key found, using existing one");
+      request.log.info({ "plugin": "encrypted-session" }, "user-side encryption key found, using existing one");
 
       const loadedEncryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
 
@@ -70,15 +70,15 @@ async function encryptedSession(fastify) {
 
           const decryptedCypherText = decryptSymetric(cipherText, iv, tag, loadedEncryptionKey);
           const decryptedStore = JSON.parse(decryptedCypherText);
-          request[REQUEST_DECORATOR] = new Session(decryptedStore);
+          request[REQUEST_DECORATOR] = createStore(decryptedStore);
         } catch (error) {
-          console.error("Failed to parse encrypted store:", error);
-          request[REQUEST_DECORATOR] = new Session();
+          request.log.error({ "plugin": "encrypted-session" }, "Failed to parse encrypted session store", error);
+          request[REQUEST_DECORATOR] = createStore();
         }
       } else {
         // we could not parse the encrypted store, so we create a new one and it would overwrite the previously stored store.
-        console.log("No encrypted store found, creating new session");
-        request[REQUEST_DECORATOR] = new Session();
+        request.log.info({ "plugin": "encrypted-session" }, "No encrypted store found, creating new empty store");
+        request[REQUEST_DECORATOR] = createStore();
       }
     }
 
@@ -89,28 +89,33 @@ async function encryptedSession(fastify) {
   // onSend is called before the response is send. Here we take encrypt the Session object and store it in the fastify-session.
   // Then we also want to make sure the unencrypted object is removed from memory
   fastify.addHook('onSend', (request, reply, _payload, next) => {
-    console.log("onSend hook called", request[REQUEST_DECORATOR].data());
+    console.log("onSend hook called", request[REQUEST_DECORATOR].stringify());
 
     //on send we will encrypt the store and set it in the backend-side session store
-    console.log("Encrypted store that will be set in session:", JSON.stringify(request[REQUEST_DECORATOR].data()));
+    console.log("Encrypted store that will be set in session:", request[REQUEST_DECORATOR].stringify());
 
     const encyrptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
-
+    if (!encyrptionKey) {
+      // if no encryption key is found in the secure session, we cannot encrypt the store. This should not happen since an encrption key is generated when the request arrived
+      request.log.error({ "plugin": "encrypted-session" }, "No encryption key found in secure session, cannot encrypt store");
+      throw new Error("No encryption key found in secure session, cannot encrypt store");
+    }
 
     //we store everything in one value in the session, that might be problematic for future redis with expiration times per key. we might want to split this
-    const stringifiedData = JSON.stringify(request[REQUEST_DECORATOR].data())
+    const stringifiedData = request[REQUEST_DECORATOR].stringify();
     const { cipherText, iv, tag } = encryptSymetric(stringifiedData, encyrptionKey);
 
     //remove unencrypted data from memory
     delete request[REQUEST_DECORATOR];
     request[REQUEST_DECORATOR] = null;
 
-    request.session.encryptedStore = {
+    request.session.set("encryptedStore", {
       cipherText,
       iv,
       tag,
-    };
+    });
     console.log("Encrypted store set in session:", request.session.encryptedStore);
+    request.log.info("store encrypted and set into request.session.encryptedStore");
     next()
   })
 
@@ -119,54 +124,29 @@ async function encryptedSession(fastify) {
 
 export default fp(encryptedSession);
 
-// maybe use a closure to encapsulate the session data so noone can reference it and we are the only ones keeping a reference
-function createEncryptedSession(previousValue) {
-  let encryptedStore = {}; // Private variable
+// use a closure to encapsulate the session data so noone can reference it and we are the only ones keeping a reference
+function createStore(previousValue) {
+  let unencryptedStore = {}; // Private variable
   if (previousValue) {
-    encryptedStore = previousValue;
+    unencryptedStore = previousValue;
   }
   return {
     set(key, value) {
-      encryptedStore[key] = value;
+      unencryptedStore[key] = value;
     },
     get(key) {
-      return encryptedStore[key];
+      return unencryptedStore[key];
     },
     delete(key) {
-      delete encryptedStore[key];
+      delete unencryptedStore[key];
+    },
+    stringify() {
+      return JSON.stringify(unencryptedStore);
     },
     clear() {
-      encryptedStore = {}; // Clear all data
+      unencryptedStore = {}; // Clear all data
     },
   };
-}
-
-class Session {
-  #data;
-
-  constructor(obj) {
-    this.#data = obj || {}
-  }
-
-  get(key) {
-    return this.#data[key]
-  }
-
-  set(key, value) {
-    this.#data[key] = value
-  }
-
-  delete(key) {
-    this.#data[key] = undefined
-  }
-
-  data() {
-    const copy = {
-      ...this.#data
-    }
-
-    return copy
-  }
 }
 
 // generates a secure encryption key for aes-256-gcm.
