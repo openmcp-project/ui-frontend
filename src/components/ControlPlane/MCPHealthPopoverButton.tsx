@@ -124,7 +124,6 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.reasonHeader'),
       accessor: 'reason',
       width: 100,
-      headerTooltip: 'sgs',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: (instance: any) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
@@ -180,7 +179,7 @@ function StatusTable({
   const { t } = useTranslation();
 
   return (
-    <div style={{ width: 760 }}>
+    <div style={{ width: 770 }}>
       <AnalyticalTable
         scaleWidthMode="Default"
         columns={tableColumns}

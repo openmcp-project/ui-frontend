@@ -9,7 +9,7 @@ const TooltipCell: React.FC<TooltipCellProps> = ({ children, title }) => {
   const resolvedTitle =
     typeof children === 'string' || typeof children === 'number'
       ? String(children)
-      : title;
+      : (title ?? '');
 
   return (
     <div
