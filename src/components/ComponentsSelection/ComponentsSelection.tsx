@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
-
+import React, { useState } from 'react';
 import {
   CheckBox,
   Select,
@@ -14,13 +13,12 @@ import {
   List,
   ListItemStandard,
   Icon,
+  Ui5CustomEvent,
   CheckBoxDomRef,
   SelectDomRef,
   InputDomRef,
-  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
-
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 
 export interface ComponentSelectionItem {
@@ -32,7 +30,9 @@ export interface ComponentSelectionItem {
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];
-  setSelectedComponents: Dispatch<SetStateAction<ComponentSelectionItem[]>>;
+  setSelectedComponents: React.Dispatch<
+    React.SetStateAction<ComponentSelectionItem[]>
+  >;
 }
 
 export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
@@ -41,12 +41,12 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const onChangeSelection = (
-    event: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
+  const handleSelectionChange = (
+    e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
-    const id = event.target?.id;
-    setSelectedComponents(
-      components.map((component) =>
+    const id = e.target?.id;
+    setSelectedComponents((prev) =>
+      prev.map((component) =>
         component.name === id
           ? { ...component, isSelected: !component.isSelected }
           : component,
@@ -54,91 +54,93 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     );
   };
 
-  const handleSearch = (event: Ui5CustomEvent<InputDomRef, never>) => {
-    setSearchTerm(event.target.value.trim());
+  const handleSearch = (e: Ui5CustomEvent<InputDomRef, never>) => {
+    setSearchTerm(e.target.value.trim());
   };
 
-  const onChangeVersion = (
-    event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
+  const handleVersionChange = (
+    e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
   ) => {
-    const selectedOption = event.detail.selectedOption as HTMLElement;
+    const selectedOption = e.detail.selectedOption as HTMLElement;
     const name = selectedOption.dataset.name;
     const version = selectedOption.dataset.version;
-    setSelectedComponents(
-      components.map((component) =>
+    setSelectedComponents((prev) =>
+      prev.map((component) =>
         component.name === name
-          ? {
-              ...component,
-              selectedVersion: version || '',
-            }
+          ? { ...component, selectedVersion: version || '' }
           : component,
       ),
     );
   };
 
+  const filteredComponents = components.filter(({ name }) =>
+    name.includes(searchTerm),
+  );
+  const selectedComponents = components.filter(
+    (component) => component.isSelected,
+  );
+
   return (
     <div>
       <Title>Select components</Title>
-
-      <Label for={'search'}>Search</Label>
+      <Label for="search">Search</Label>
       <Input
-        id={'search'}
+        id="search"
         showClearIcon
-        icon={<Icon name={'search'} />}
+        icon={<Icon name="search" />}
         onInput={handleSearch}
       />
-
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
-          {components
-            .filter(({ name }) => name.includes(searchTerm))
-            .map((component) => (
+          {filteredComponents.map((component) => (
+            <FlexBox
+              key={component.name}
+              className={styles.row}
+              gap={10}
+              justifyContent="SpaceBetween"
+            >
+              <CheckBox
+                valueState="None"
+                text={component.name}
+                id={component.name}
+                checked={component.isSelected}
+                onChange={handleSelectionChange}
+              />
               <FlexBox
-                key={component.name}
-                className={styles.row}
                 gap={10}
-                justifyContent={'SpaceBetween'}
+                justifyContent="SpaceBetween"
+                alignItems="Baseline"
               >
-                <CheckBox
-                  valueState={'None'}
-                  text={component.name}
-                  id={component.name}
-                  checked={component.isSelected}
-                  onChange={onChangeSelection}
-                />
-                <FlexBox
-                  gap={10}
-                  justifyContent={'SpaceBetween'}
-                  alignItems={'Baseline'}
+                <Button design="Transparent">Documentation</Button>
+                <Select
+                  value={component.selectedVersion}
+                  onChange={handleVersionChange}
                 >
-                  <Button design={'Transparent'}>Documentation</Button>
-                  <Select onChange={onChangeVersion}>
-                    {component.versions.map((version) => (
-                      <Option
-                        key={version}
-                        data-version={version}
-                        data-name={component.name}
-                      >
-                        {version}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
+                  {component.versions.map((version) => (
+                    <Option
+                      key={version}
+                      data-version={version}
+                      data-name={component.name}
+                      selected={component.selectedVersion === version}
+                    >
+                      {version}
+                    </Option>
+                  ))}
+                </Select>
               </FlexBox>
-            ))}
+            </FlexBox>
+          ))}
         </div>
         <div data-layout-span="XL4 L4 M4 S4">
-          {components.filter((component) => component.isSelected).length > 0 ? (
-            <List headerText={'Selected components'}>
-              {components
-                .filter((component) => component.isSelected)
-                .map((component) => (
-                  <ListItemStandard
-                    key={component.name}
-                    text={component.name}
-                    additionalText={component.selectedVersion}
-                  />
-                ))}
+          {selectedComponents.length > 0 ? (
+            <List headerText="Selected components">
+              {selectedComponents.map((component) => (
+                <ListItemStandard
+                  key={component.name}
+                  text={component.name}
+                  additionalText={component.selectedVersion}
+                />
+              ))}
             </List>
           ) : (
             <Infobox fullWidth>
