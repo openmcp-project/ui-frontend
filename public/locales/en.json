@@ -281,7 +281,8 @@
     "region": "Region",
     "success": "Success",
     "displayName": "Display Name",
-    "name": "Name"
+    "name": "Name",
+    "componentSelection":"Component Selection"
   },
   "buttons": {
     "viewResource": "View resource",
