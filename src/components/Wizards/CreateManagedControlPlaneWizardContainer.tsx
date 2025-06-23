@@ -37,6 +37,7 @@ import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import { ComponentSelectionItem } from '../ComponentsSelection/ComponentsSelection.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -77,7 +78,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-
+  const [selectedComponents, setSelectedComponents] = useState<
+    ComponentSelectionItem[]
+  >([]);
   const {
     register,
     handleSubmit,
@@ -152,6 +155,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               displayName,
               chargingTarget,
               members,
+              selectedComponents,
             },
             idpPrefix,
           ),
@@ -310,7 +314,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           data-step="componentSelection"
           disabled={isStepDisabled('componentSelection')}
         >
-          <ComponentsSelectionContainer />
+          <ComponentsSelectionContainer
+            selectedComponents={selectedComponents}
+            setSelectedComponents={setSelectedComponents}
+          />
         </WizardStep>
         <WizardStep
           icon="activities"
@@ -361,6 +368,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       displayName: getValues('displayName'),
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
+                      selectedComponents: selectedComponents,
                     },
                   ),
                 )}

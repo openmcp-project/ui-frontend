@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
   ComponentSelectionItem,
   ComponentsSelection,
@@ -12,10 +12,15 @@ export interface ComponentItem {
   versions: string[];
 }
 
-export interface ComponentsSelectionProps {}
+export interface ComponentsSelectionProps {
+  selectedComponents: ComponentSelectionItem[];
+  setSelectedComponents: React.Dispatch<
+    React.SetStateAction<ComponentSelectionItem[]>
+  >;
+}
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
-> = () => {
+> = ({ setSelectedComponents, selectedComponents }) => {
   const mockedItems: ComponentItem[] = [
     { name: 'cert-manager', versions: ['1.13.1', '1.16.1'] },
     {
@@ -94,9 +99,6 @@ export const ComponentsSelectionContainer: React.FC<
     { name: 'velero', versions: ['7.1.0'] },
   ];
 
-  const [selectedComponents, setSelectedComponents] = useState<
-    ComponentSelectionItem[]
-  >([]);
   useEffect(() => {
     if (mockedItems.length === 0) return;
 

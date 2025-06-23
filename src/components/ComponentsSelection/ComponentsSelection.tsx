@@ -20,6 +20,7 @@ import {
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
+import { useTranslation } from 'react-i18next';
 
 export interface ComponentSelectionItem {
   name: string;
@@ -40,7 +41,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   setSelectedComponents,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-
+  const { t } = useTranslation();
   const handleSelectionChange = (
     e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
@@ -83,13 +84,15 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   return (
     <div>
       <Title>Select components</Title>
-      <Label for="search">Search</Label>
-      <Input
-        id="search"
-        showClearIcon
-        icon={<Icon name="search" />}
-        onInput={handleSearch}
-      />
+      <FlexBox direction="Column">
+        <Label for="search">{t('common.search')}</Label>
+        <Input
+          id="search"
+          showClearIcon
+          icon={<Icon name="search" />}
+          onInput={handleSearch}
+        />
+      </FlexBox>
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
           {filteredComponents.map((component) => (

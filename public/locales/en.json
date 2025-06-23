@@ -282,7 +282,8 @@
     "success": "Success",
     "displayName": "Display Name",
     "name": "Name",
-    "componentSelection":"Component Selection"
+    "componentSelection":"Component Selection",
+    "search": "Search"
   },
   "buttons": {
     "viewResource": "View resource",
