@@ -173,7 +173,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         return false;
       }
     },
-    [trigger, projectName, workspaceName],
+    [trigger, projectName, workspaceName, selectedComponents],
   );
 
   const handleStepChange = useCallback(
@@ -370,6 +370,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       members: getValues('members'),
                       selectedComponents: selectedComponents,
                     },
+                    idpPrefix,
                   ),
                 )}
                 filename={`mcp_${projectName}--ws-${workspaceName}`}
