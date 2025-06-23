@@ -61,8 +61,7 @@ export const CreateManagedControlPlane = (
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  console.log('optional');
-  console.log(optional);
+  console.log('components');
   const componentsObject: Components =
     optional?.selectedComponents
       ?.filter((component) => component.isSelected)
@@ -86,16 +85,7 @@ export const CreateManagedControlPlane = (
     },
     spec: {
       authentication: { enableSystemIdentityProvider: true },
-      //   members:
-      //     optional?.members?.map((member) => ({
-      //       ...member,
-      //       name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
-      //     })) ?? [],
-      // },
-      components: {
-        ...componentsObject,
-        apiServer: { type: 'GardenerDedicated' },
-      },
+
       authorization: {
         roleBindings:
           optional?.members?.map((member) => ({
@@ -107,6 +97,10 @@ export const CreateManagedControlPlane = (
               },
             ],
           })) ?? [],
+      },
+      components: {
+        apiServer: { type: 'GardenerDedicated' },
+        ...componentsObject,
       },
     },
   };

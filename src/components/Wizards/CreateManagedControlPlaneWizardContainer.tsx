@@ -139,27 +139,22 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
 
-  const handleCreateManagedControlPlane = useCallback(
-    async ({
-      name,
-      displayName,
-      chargingTarget,
-      members,
-    }: OnCreatePayload): Promise<boolean> => {
+  const createManagedControlPlaneObject = CreateManagedControlPlane(
+    getValues('name'),
+    `${projectName}--ws-${workspaceName}`,
+    {
+      displayName: getValues('displayName'),
+      chargingTarget: getValues('chargingTarget'),
+      members: getValues('members'),
+      selectedComponents: selectedComponents,
+    },
+    idpPrefix,
+  );
+
+  const handleCreateManagedControlPlane =
+    useCallback(async (): Promise<boolean> => {
       try {
-        await trigger(
-          CreateManagedControlPlane(
-            name,
-            `${projectName}--ws-${workspaceName}`,
-            {
-              displayName,
-              chargingTarget,
-              members,
-              selectedComponents,
-            },
-            idpPrefix,
-          ),
-        );
+        await trigger(createManagedControlPlaneObject);
         setSelectedStep('success');
         return true;
       } catch (e) {
@@ -172,9 +167,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         }
         return false;
       }
-    },
-    [trigger, projectName, workspaceName],
-  );
+    }, [trigger, projectName, workspaceName]);
 
   const handleStepChange = useCallback(
     (e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
@@ -196,7 +189,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(getValues());
+        handleCreateManagedControlPlane();
         break;
       case 'success':
         resetFormAndClose();
@@ -360,18 +353,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             </div>
             <div>
               <YamlViewer
-                yamlString={stringify(
-                  CreateManagedControlPlane(
-                    getValues('name'),
-                    `${projectName}--ws-${workspaceName}`,
-                    {
-                      displayName: getValues('displayName'),
-                      chargingTarget: getValues('chargingTarget'),
-                      members: getValues('members'),
-                      selectedComponents: selectedComponents,
-                    },
-                  ),
-                )}
+                yamlString={stringify(createManagedControlPlaneObject)}
                 filename={`mcp_${projectName}--ws-${workspaceName}`}
               />
             </div>
