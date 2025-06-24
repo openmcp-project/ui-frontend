@@ -13,6 +13,8 @@ env:
 jobs:
   run-build:
     uses: ./.github/workflows/build.yaml
+    permissions:
+      contents: read
 
   build:
     name: Build
