@@ -18,7 +18,7 @@ export const SECURE_COOKIE_KEY_ENCRYPTION_KEY = "encryptionKey";
 export const REQUEST_DECORATOR = "encryptedSession";
 
 async function encryptedSession(fastify) {
-  const { COOKIE_SECRET, NODE_ENV } = fastify.config;
+  const { COOKIE_SECRET, SESSION_SECRET, NODE_ENV } = fastify.config;
 
   await fastify.register(fastifyCookie);
 
@@ -37,7 +37,7 @@ async function encryptedSession(fastify) {
 
 
   fastify.register(fastifySession, {
-    secret: "test-secret-32-char-or-longerasdasdasdasdasdasdasdasdasdasd",
+    secret: SESSION_SECRET,
     cookieName: COOKIE_NAME_SESSION,
     // sessionName: UNDERLYING_SESSION_NAME, //NOT POSSIBLE to change the name it is decorated on the request object
     cookie: {
@@ -89,11 +89,6 @@ async function encryptedSession(fastify) {
   // onSend is called before the response is send. Here we take encrypt the Session object and store it in the fastify-session.
   // Then we also want to make sure the unencrypted object is removed from memory
   fastify.addHook('onSend', (request, reply, _payload, next) => {
-    console.log("onSend hook called", request[REQUEST_DECORATOR].stringify());
-
-    //on send we will encrypt the store and set it in the backend-side session store
-    console.log("Encrypted store that will be set in session:", request[REQUEST_DECORATOR].stringify());
-
     const encyrptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
     if (!encyrptionKey) {
       // if no encryption key is found in the secure session, we cannot encrypt the store. This should not happen since an encrption key is generated when the request arrived
@@ -114,7 +109,6 @@ async function encryptedSession(fastify) {
       iv,
       tag,
     });
-    console.log("Encrypted store set in session:", request.session.encryptedStore);
     request.log.info("store encrypted and set into request.session.encryptedStore");
     next()
   })

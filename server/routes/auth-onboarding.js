@@ -29,14 +29,14 @@ async function authPlugin(fastify) {
         redirectUri: OIDC_REDIRECT_URI,
       }, issuerConfiguration.tokenEndpoint);
 
-      req.session.set("onboarding_accessToken", callbackResult.accessToken);
-      req.session.set("onboarding_refreshToken", callbackResult.refreshToken);
-      req.session.set("onboarding_userInfo", callbackResult.userInfo);
+      req.encryptedSession.set("onboarding_accessToken", callbackResult.accessToken);
+      req.encryptedSession.set("onboarding_refreshToken", callbackResult.refreshToken);
+      req.encryptedSession.set("onboarding_userInfo", callbackResult.userInfo);
 
       if (callbackResult.expiresAt) {
-        req.session.set("onboarding_tokenExpiresAt", callbackResult.expiresAt);
+        req.encryptedSession.set("onboarding_tokenExpiresAt", callbackResult.expiresAt);
       } else {
-        req.session.delete("onboarding_tokenExpiresAt");
+        req.encryptedSession.delete("onboarding_tokenExpiresAt");
       }
 
       reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
@@ -52,8 +52,8 @@ async function authPlugin(fastify) {
 
 
   fastify.get("/auth/onboarding/me", async (req, reply) => {
-    const accessToken = req.session.get("onboarding_accessToken");
-    const userInfo = req.session.get("onboarding_userInfo");
+    const accessToken = req.encryptedSession.get("onboarding_accessToken");
+    const userInfo = req.encryptedSession.get("onboarding_userInfo");
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
@@ -62,7 +62,7 @@ async function authPlugin(fastify) {
 
   fastify.post("/auth/logout", async (req, reply) => {
     // TODO: Idp sign out flow
-    req.session.destroy();
+    req.encryptedSession.clear();
     reply.send({ message: "Logged out" });
   });
 }

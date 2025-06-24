@@ -11,6 +11,7 @@ const schema = {
     'OIDC_SCOPES',
     'POST_LOGIN_REDIRECT',
     'COOKIE_SECRET',
+    'SESSION_SECRET',
     'API_BACKEND_URL',
   ],
   properties: {
@@ -22,6 +23,7 @@ const schema = {
     OIDC_SCOPES: { type: 'string' },
     POST_LOGIN_REDIRECT: { type: 'string' },
     COOKIE_SECRET: { type: 'string' },
+    SESSION_SECRET: { type: 'string' },
     API_BACKEND_URL: { type: 'string' },
 
     // System variables
