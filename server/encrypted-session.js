@@ -89,8 +89,8 @@ async function encryptedSession(fastify) {
   // onSend is called before the response is send. Here we take encrypt the Session object and store it in the fastify-session.
   // Then we also want to make sure the unencrypted object is removed from memory
   fastify.addHook('onSend', (request, reply, _payload, next) => {
-    const encyrptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
-    if (!encyrptionKey) {
+    const encryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
+    if (!encryptionKey) {
       // if no encryption key is found in the secure session, we cannot encrypt the store. This should not happen since an encrption key is generated when the request arrived
       request.log.error({ "plugin": "encrypted-session" }, "No encryption key found in secure session, cannot encrypt store");
       throw new Error("No encryption key found in secure session, cannot encrypt store");
@@ -98,7 +98,7 @@ async function encryptedSession(fastify) {
 
     //we store everything in one value in the session, that might be problematic for future redis with expiration times per key. we might want to split this
     const stringifiedData = request[REQUEST_DECORATOR].stringify();
-    const { cipherText, iv, tag } = encryptSymetric(stringifiedData, encyrptionKey);
+    const { cipherText, iv, tag } = encryptSymetric(stringifiedData, encryptionKey);
 
     //remove unencrypted data from memory
     delete request[REQUEST_DECORATOR];
