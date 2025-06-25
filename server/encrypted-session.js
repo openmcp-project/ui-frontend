@@ -159,7 +159,7 @@ function encryptSymetric(plaintext, key) {
     throw new Error("Key must be provided");
   }
   if (key.length < 32) {
-    throw new Error("Key must be at least 32bye = 256 bits long");
+    throw new Error("Key must be at least 32 byte = 256 bits long");
   }
 
   if (!(key instanceof Buffer)) {
