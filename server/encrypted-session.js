@@ -6,7 +6,7 @@ import crypto from "node:crypto"
 
 
 
-export const COOKIE_NAME_ENCRYPTION_KEY = "session_encrpytion_key";
+export const COOKIE_NAME_ENCRYPTION_KEY = "session_encryption_key";
 export const COOKIE_NAME_SESSION = "session-cookie";
 
 export const SECURE_SESSION_NAME = "encryptedSessionInternal";
