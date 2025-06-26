@@ -88,7 +88,7 @@ async function encryptedSession(fastify) {
   //TODO maybe move to onResponse after res is send. Lifecycle Doc https://fastify.dev/docs/latest/Reference/Lifecycle/
   // onSend is called before the response is send. Here we take encrypt the Session object and store it in the fastify-session.
   // Then we also want to make sure the unencrypted object is removed from memory
-  fastify.addHook('onSend', (request, reply, _payload, next) => {
+  fastify.addHook('onSend', async (request, reply, _payload) => {
     const encryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
     if (!encryptionKey) {
       // if no encryption key is found in the secure session, we cannot encrypt the store. This should not happen since an encrption key is generated when the request arrived
@@ -109,11 +109,9 @@ async function encryptedSession(fastify) {
       iv,
       tag,
     });
+    await request.session.save()
     request.log.info("store encrypted and set into request.session.encryptedStore");
-    next()
   })
-
-
 }
 
 export default fp(encryptedSession);
