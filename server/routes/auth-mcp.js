@@ -27,13 +27,13 @@ async function authPlugin(fastify) {
         redirectUri: OIDC_REDIRECT_URI,
       }, mcpIssuerConfiguration.tokenEndpoint);
 
-      req.session.set("mcp_accessToken", callbackResult.accessToken);
-      req.session.set("mcp_refreshToken", callbackResult.refreshToken);
+      req.encryptedSession.set("mcp_accessToken", callbackResult.accessToken);
+      req.encryptedSession.set("mcp_refreshToken", callbackResult.refreshToken);
 
       if (callbackResult.expiresAt) {
-        req.session.set("mcp_tokenExpiresAt", callbackResult.expiresAt);
+        req.encryptedSession.set("mcp_tokenExpiresAt", callbackResult.expiresAt);
       } else {
-        req.session.delete("mcp_tokenExpiresAt");
+        req.encryptedSession.delete("mcp_tokenExpiresAt");
       }
 
       reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
@@ -48,7 +48,7 @@ async function authPlugin(fastify) {
   });
 
   fastify.get("/auth/mcp/me", async (req, reply) => {
-    const accessToken = req.session.get("mcp_accessToken");
+    const accessToken = req.encryptedSession.get("mcp_accessToken");
 
     const isAuthenticated = Boolean(accessToken);
     reply.send({ isAuthenticated });

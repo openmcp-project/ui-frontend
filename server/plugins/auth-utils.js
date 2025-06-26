@@ -77,7 +77,7 @@ async function authUtilsPlugin(fastify) {
     request.log.info("Preparing OIDC login redirect.");
 
     const { redirectTo } = request.query;
-    request.session.set("postLoginRedirectRoute", redirectTo);
+    request.encryptedSession.set("postLoginRedirectRoute", redirectTo);
 
     const { clientId, redirectUri, scopes } = oidcConfig;
 
@@ -85,12 +85,12 @@ async function authUtilsPlugin(fastify) {
     const codeVerifier = crypto.randomBytes(32).toString("base64url");
     const codeChallenge = crypto.createHash("sha256").update(codeVerifier).digest("base64url");
 
-    request.session.set("oauthState", state);
-    request.session.set("codeVerifier", codeVerifier);
+    request.encryptedSession.set("oauthState", state);
+    request.encryptedSession.set("codeVerifier", codeVerifier);
     request.log.info({
       stateSet: Boolean(state),
       verifierSet: Boolean(codeVerifier),
-    }, "OAuth state and code verifier set in session.");
+    }, "OAuth state and code verifier set in encryptedSession.");
 
     const url = new URL(authorizationEndpoint);
     url.searchParams.set("response_type", "code");
@@ -116,7 +116,7 @@ async function authUtilsPlugin(fastify) {
       request.log.error("Missing authorization code in callback.");
       throw new AuthenticationError("Missing code in callback.");
     }
-    if (state !== request.session.get("oauthState")) {
+    if (state !== request.encryptedSession.get("oauthState")) {
       request.log.error("Invalid state in callback.");
       throw new AuthenticationError("Invalid state in callback.");
     }
@@ -126,7 +126,7 @@ async function authUtilsPlugin(fastify) {
       code,
       redirect_uri: redirectUri,
       client_id: clientId,
-      code_verifier: request.session.get("codeVerifier"),
+      code_verifier: request.encryptedSession.get("codeVerifier"),
     });
 
     const response = await fetch(tokenEndpoint, {
@@ -146,7 +146,7 @@ async function authUtilsPlugin(fastify) {
       refreshToken: tokens.refresh_token,
       expiresAt: null,
       userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
-      postLoginRedirectRoute: request.session.get("postLoginRedirectRoute") || "",
+      postLoginRedirectRoute: request.encryptedSession.get("postLoginRedirectRoute") || "",
     };
 
     if (tokens.expires_in && typeof tokens.expires_in === "number") {
