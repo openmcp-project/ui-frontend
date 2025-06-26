@@ -75,6 +75,7 @@ export default function ProjectsList() {
         Header: t('yaml.YAML'),
         accessor: 'yaml',
         width: 85,
+        disableFilters: true,
         hAlign: 'Center',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
