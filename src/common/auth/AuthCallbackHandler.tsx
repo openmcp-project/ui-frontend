@@ -47,7 +47,7 @@ function useAuthCallback() {
     }
 
     sessionStorage.removeItem(AUTH_FLOW_SESSION_KEY);
-    window.location.href = forwardUrl.toString();
+    window.location.replace(forwardUrl.toString());
   }, [isCallbackInProgress, potentialAuthFlow, code, state, iss]);
 
   return {

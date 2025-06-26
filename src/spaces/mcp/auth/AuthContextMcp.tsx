@@ -61,7 +61,9 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const login = () => {
     sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'mcp');
 
-    window.location.href = `/api/auth/mcp/login?redirectTo=${encodeURIComponent(window.location.hash)}`;
+    window.location.replace(
+      `/api/auth/mcp/login?redirectTo=${encodeURIComponent(window.location.hash)}`,
+    );
   };
 
   return (
