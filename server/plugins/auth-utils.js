@@ -20,6 +20,12 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
   return res.json();
 }
 
+function isAllowedRedirectTo(value) {
+  if (!value) return true;
+  const first = value.charAt(0);
+  return first === "/" || first === "#";
+}
+
 
 async function authUtilsPlugin(fastify) {
   fastify.decorate("discoverIssuerConfiguration", async (issuerBaseUrl) => {
@@ -77,6 +83,10 @@ async function authUtilsPlugin(fastify) {
     request.log.info("Preparing OIDC login redirect.");
 
     const { redirectTo } = request.query;
+    if (!isAllowedRedirectTo(redirectTo)) {
+      request.log.error(`Invalid redirectTo: "${redirectTo}".`);
+      throw new AuthenticationError("Invalid redirectTo.");
+    }
     request.encryptedSession.set("postLoginRedirectRoute", redirectTo);
 
     const { clientId, redirectUri, scopes } = oidcConfig;
