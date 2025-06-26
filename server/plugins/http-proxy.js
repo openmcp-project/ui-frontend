@@ -28,8 +28,8 @@ function proxyPlugin(fastify) {
       // Check if the access token is expired or about to expire
       const expiresAt = request.encryptedSession.get(keyTokenExpiresAt);
       const now = Date.now();
-      const REFRESH_BUFFER_SECONDS = 20 * 1000; // to allow for network latency
-      if (!expiresAt || now < expiresAt - REFRESH_BUFFER_SECONDS) {
+      const REFRESH_BUFFER_MILLISECONDS = 20 * 1000; // to allow for network latency
+      if (!expiresAt || now < expiresAt - REFRESH_BUFFER_MILLISECONDS) {
         request.log.info("Access token is still valid; no refresh needed.");
         return;
       }
