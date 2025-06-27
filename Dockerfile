@@ -1,6 +1,6 @@
 # Use the latest LTS version of Node.js
 # https://hub.docker.com/_/node
-FROM node:22@sha256:71bcbb3b215b3fa84b5b167585675072f4c270855e37a599803f1a58141a0716 AS build-stage
+FROM node:22@sha256:0c0734eb7051babbb3e95cd74e684f940552b31472152edf0bb23e54ab44a0d7 AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
