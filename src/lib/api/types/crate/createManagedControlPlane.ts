@@ -57,8 +57,6 @@ export const CreateManagedControlPlane = (
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  console.log('optional');
-  console.log(optional);
   const componentsObject: Components =
     optional?.selectedComponents
       ?.filter((component) => component.isSelected)
