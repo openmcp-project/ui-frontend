@@ -17,6 +17,7 @@ import {
   Grid,
   List,
   ListItemStandard,
+  Title,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
@@ -333,7 +334,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'summarize'}
           data-step="summarize"
         >
-          <h1>{t('common.summarize')}</h1>
+          <Title>{t('common.summarize')}</Title>
           <Grid defaultSpan="XL6 L6 M6 S6">
             <div>
               <List headerText={t('common.metadata')}>

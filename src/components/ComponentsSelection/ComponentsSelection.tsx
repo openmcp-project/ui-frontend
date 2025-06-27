@@ -6,7 +6,6 @@ import {
   FlexBox,
   Title,
   Text,
-  Label,
   Input,
   Button,
   Grid,
