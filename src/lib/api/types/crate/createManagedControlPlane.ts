@@ -4,10 +4,17 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../shared/keyNames';
 import { Member } from '../shared/members';
-import { ComponentSelectionItem } from '../../../../components/ComponentsSelection/ComponentsSelection.tsx';
 
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
+
+export interface ComponentSelectionItem {
+  name: string;
+  versions: string[];
+  isSelected: boolean;
+  selectedVersion: string;
+  documentationUrl: string;
+}
 
 interface RoleBinding {
   role: string;

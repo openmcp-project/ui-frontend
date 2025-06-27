@@ -20,14 +20,7 @@ import {
 import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
-
-export interface ComponentSelectionItem {
-  name: string;
-  versions: string[];
-  isSelected: boolean;
-  selectedVersion: string;
-  documentationUrl: string;
-}
+import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];
