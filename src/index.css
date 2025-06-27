@@ -86,10 +86,6 @@
   margin-bottom: -30px;
 }
 
-.cp-panel {
-  margin: 12px;
-}
-
 .cp-panel-crossplane {
   background-color: #FFC933;
 }
@@ -126,4 +122,3 @@ ui5-toast {
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
 }
-
