@@ -1,0 +1,5 @@
+.row {
+  padding: 1rem;
+  background: var(--sapBackgroundColor);
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}

@@ -8,6 +8,39 @@ import { Member } from '../shared/members';
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
 
+export interface ComponentSelectionItem {
+  name: string;
+  versions: string[];
+  isSelected: boolean;
+  selectedVersion: string;
+  documentationUrl: string;
+}
+
+interface RoleBinding {
+  role: string;
+  subjects: Subject[];
+}
+interface Subject {
+  kind: 'User' | 'Group' | 'ServiceAccount';
+  name: string;
+}
+interface Spec {
+  authentication: {
+    enableSystemIdentityProvider: boolean;
+  };
+  authorization: {
+    roleBindings: RoleBinding[];
+  };
+  components: Components;
+}
+interface Components {
+  [key: string]:
+    | {
+        version: string;
+      }
+    | { type: 'GardenerDedicated' };
+}
+
 export interface CreateManagedControlPlaneType {
   apiVersion: string;
   kind: string;
@@ -17,9 +50,7 @@ export interface CreateManagedControlPlaneType {
     annotations: Annotations;
     labels: Labels;
   };
-  spec: {
-    members: Member[];
-  };
+  spec: Spec;
 }
 
 export const CreateManagedControlPlane = (
@@ -29,8 +60,18 @@ export const CreateManagedControlPlane = (
     displayName?: string;
     chargingTarget?: string;
     members?: Member[];
+    selectedComponents?: ComponentSelectionItem[];
   },
+  idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
+  const componentsObject: Components =
+    optional?.selectedComponents
+      ?.filter((component) => component.isSelected)
+      .reduce((acc, item) => {
+        acc[item.name] = { version: item.selectedVersion };
+        return acc;
+      }, {} as Components) ?? {};
+
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
     kind: 'ManagedControlPlane',
@@ -45,11 +86,26 @@ export const CreateManagedControlPlane = (
       },
     },
     spec: {
-      members: optional?.members ?? [],
+      authentication: { enableSystemIdentityProvider: true },
+      components: {
+        ...componentsObject,
+        apiServer: { type: 'GardenerDedicated' },
+      },
+      authorization: {
+        roleBindings:
+          optional?.members?.map((member) => ({
+            role: member.roles[0],
+            subjects: [
+              {
+                kind: 'User',
+                name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
+              },
+            ],
+          })) ?? [],
+      },
     },
   };
 };
-
 export const CreateManagedControlPlaneResource = (
   projectName: string,
   workspaceName: string,

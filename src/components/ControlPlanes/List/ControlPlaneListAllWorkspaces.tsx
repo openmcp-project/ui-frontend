@@ -48,7 +48,7 @@ export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
               window.open(workspaceCreationGuide, '_blank');
             }}
           >
-            Help
+            {t('IllustratedBanner.helpButton')}
           </Button>
         </FlexBox>
       ) : (
