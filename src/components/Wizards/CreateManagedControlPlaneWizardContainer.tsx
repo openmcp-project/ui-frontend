@@ -257,7 +257,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     }
   }, [selectedStep]);
 
-  return (
+  return isOpen ? (
     <Dialog
       stretch
       headerText={t('createMCP.dialogTitle') || 'Create Managed Control Plane'}
@@ -413,5 +413,5 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         </WizardStep>
       </Wizard>
     </Dialog>
-  );
+  ) : null;
 };
