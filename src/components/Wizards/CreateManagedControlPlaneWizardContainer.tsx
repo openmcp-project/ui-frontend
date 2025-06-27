@@ -27,6 +27,7 @@ import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { APIError } from '../../lib/api/error.ts';
 import {
+  ComponentSelectionItem,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
@@ -38,7 +39,6 @@ import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
-import { ComponentSelectionItem } from '../ComponentsSelection/ComponentsSelection.tsx';
 
 export type CreateDialogProps = {
   name: string;

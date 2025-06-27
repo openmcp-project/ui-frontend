@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ComponentSelectionItem,
-  ComponentsSelection,
-} from './ComponentsSelection.tsx';
+import { ComponentsSelection } from './ComponentsSelection.tsx';
 
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { sortVersions } from '../../utils/componentsVersions.ts';
@@ -10,6 +7,7 @@ import { sortVersions } from '../../utils/componentsVersions.ts';
 import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
 import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
+import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export interface ComponentItem {
   name: string;
