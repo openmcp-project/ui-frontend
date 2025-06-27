@@ -364,6 +364,18 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   />
                 ))}
               </List>
+              <br />
+              <List headerText={t('common.components')}>
+                {selectedComponents
+                  .filter(({ isSelected }) => isSelected)
+                  .map((component) => (
+                    <ListItemStandard
+                      key={component.name}
+                      text={component.name}
+                      additionalText={component.selectedVersion}
+                    />
+                  ))}
+              </List>
             </div>
             <div>
               <YamlViewer

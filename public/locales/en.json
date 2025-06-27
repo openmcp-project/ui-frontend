@@ -283,7 +283,8 @@
     "displayName": "Display Name",
     "name": "Name",
     "componentSelection":"Component Selection",
-    "search": "Search"
+    "search": "Search",
+    "components": "Components"
   },
   "buttons": {
     "viewResource": "View resource",
