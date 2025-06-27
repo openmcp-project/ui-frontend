@@ -29,14 +29,12 @@ describe('sortVersions', () => {
 
   it('falls back to string comparison for invalid version formats', () => {
     const input = ['1.2.3', 'foo', '2.0.0', '1.2', 'bar', '1.2.10'];
-    // 'foo' and 'bar' should be sorted in reverse lex order, then valid versions sorted numerically
     const expected = ['foo', 'bar', '2.0.0', '1.2.10', '1.2.3', '1.2'];
     expect(sortVersions(input)).toEqual(expected);
   });
 
   it('handles all invalid version strings', () => {
     const input = ['foo', 'bar', 'baz'];
-    // Should sort in reverse lex order
     const expected = ['foo', 'baz', 'bar'];
     expect(sortVersions(input)).toEqual(expected);
   });
@@ -51,7 +49,6 @@ describe('sortVersions', () => {
 
   it('handles versions with non-numeric parts', () => {
     const input = ['1.2.3', '1.2.x', '1.2.10'];
-    // '1.2.x' is invalid, so it should be sorted by string (reverse lex), then valid versions numerically
     const expected = ['1.2.x', '1.2.10', '1.2.3'];
     expect(sortVersions(input)).toEqual(expected);
   });
