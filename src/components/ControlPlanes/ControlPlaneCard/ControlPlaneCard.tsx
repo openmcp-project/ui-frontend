@@ -69,7 +69,9 @@ export function ControlPlaneCard({
       'AuthorizationHealthy',
     ].every((type) =>
       conditions.some(
-        (condition) => condition.type === type && condition.status === true,
+        (condition) =>
+          condition.type === type &&
+          String(condition.status).toLowerCase() === 'true',
       ),
     );
   };
@@ -123,7 +125,7 @@ export function ControlPlaneCard({
                   resourceType={'managedcontrolplanes'}
                 />
                 <ConnectButton
-                  disabled={isConnectButtonEnabled}
+                  disabled={!isConnectButtonEnabled}
                   controlPlaneName={name}
                   projectName={projectName}
                   workspaceName={workspace.metadata.name ?? ''}
