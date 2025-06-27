@@ -298,6 +298,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           <MetadataForm register={register} errors={errors} />
         </WizardStep>
         <WizardStep
+          icon={'user-edit'}
           titleText={t('common.members')}
           selected={selectedStep === 'members'}
           data-step="members"
@@ -317,6 +318,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           </Form>
         </WizardStep>
         <WizardStep
+          icon={'add-product'}
           titleText={t('common.componentSelection')}
           selected={selectedStep === 'componentSelection'}
           data-step="componentSelection"
