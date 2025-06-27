@@ -147,7 +147,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               ))}
             </List>
           ) : (
-            <Infobox fullWidth>
+            <Infobox fullWidth variant={'success'}>
               <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
             </Infobox>
           )}

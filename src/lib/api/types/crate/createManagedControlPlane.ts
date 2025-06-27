@@ -10,18 +10,14 @@ export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
 
 interface RoleBinding {
-  role: string; // The name of the role being bound
-  subjects: Subject[]; // A list of subjects the role is bound to
+  role: string;
+  subjects: Subject[];
 }
 interface Subject {
-  kind: 'User' | 'Group' | 'ServiceAccount'; // The type of subject
-  name: string; // The name of the subject
+  kind: 'User' | 'Group' | 'ServiceAccount';
+  name: string;
 }
 interface Spec {
-  // desiredRegion: {
-  //   name: string;
-  //   direction: string;
-  // };
   authentication: {
     enableSystemIdentityProvider: boolean;
   };
@@ -86,12 +82,6 @@ export const CreateManagedControlPlane = (
     },
     spec: {
       authentication: { enableSystemIdentityProvider: true },
-      //   members:
-      //     optional?.members?.map((member) => ({
-      //       ...member,
-      //       name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
-      //     })) ?? [],
-      // },
       components: {
         ...componentsObject,
         apiServer: { type: 'GardenerDedicated' },
