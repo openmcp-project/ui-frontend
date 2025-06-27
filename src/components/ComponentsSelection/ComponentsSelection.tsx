@@ -83,16 +83,16 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
   return (
     <div>
-      <Title>Select components</Title>
-      <FlexBox direction="Column">
-        <Label for="search">{t('common.search')}</Label>
-        <Input
-          id="search"
-          showClearIcon
-          icon={<Icon name="search" />}
-          onInput={handleSearch}
-        />
-      </FlexBox>
+      <Title>{t('componentsSelection.selectComponents')}</Title>
+
+      <Input
+        placeholder={t('common.search')}
+        id="search"
+        showClearIcon
+        icon={<Icon name="search" />}
+        onInput={handleSearch}
+      />
+
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
           {filteredComponents.map((component) => (
@@ -114,7 +114,9 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                 justifyContent="SpaceBetween"
                 alignItems="Baseline"
               >
-                <Button design="Transparent">Documentation</Button>
+                <Button design="Transparent">
+                  {t('common.documentation')}
+                </Button>
                 <Select
                   value={component.selectedVersion}
                   onChange={handleVersionChange}
@@ -136,7 +138,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
         </div>
         <div data-layout-span="XL4 L4 M4 S4">
           {selectedComponents.length > 0 ? (
-            <List headerText="Selected components">
+            <List headerText={t('componentsSelection.selectedComponents')}>
               {selectedComponents.map((component) => (
                 <ListItemStandard
                   key={component.name}
@@ -147,10 +149,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
             </List>
           ) : (
             <Infobox fullWidth>
-              <Text>
-                Please select components that you would like to have assigned to
-                your Managed Control Plane
-              </Text>
+              <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
             </Infobox>
           )}
         </div>
