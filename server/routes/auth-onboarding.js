@@ -1,5 +1,4 @@
 import fp from "fastify-plugin";
-import { COOKIE_NAME_ONBOARDING } from "../plugins/secure-session.js";
 import { AuthenticationError } from "../plugins/auth-utils.js";
 
 
@@ -12,7 +11,7 @@ async function authPlugin(fastify) {
   fastify.decorate("issuerConfiguration", issuerConfiguration);
 
 
-  fastify.get("/auth/login", async (req, reply) => {
+  fastify.get("/auth/onboarding/login", async (req, reply) => {
     const redirectUri = fastify.prepareOidcLoginRedirect(req, {
       clientId: OIDC_CLIENT_ID,
       redirectUri: OIDC_REDIRECT_URI,
@@ -23,22 +22,24 @@ async function authPlugin(fastify) {
   });
 
 
-  fastify.get("/auth/callback", async (req, reply) => {
+  fastify.get("/auth/onboarding/callback", async (req, reply) => {
     try {
       const callbackResult = await fastify.handleOidcCallback(req, {
         clientId: OIDC_CLIENT_ID,
         redirectUri: OIDC_REDIRECT_URI,
       }, issuerConfiguration.tokenEndpoint);
 
-      req.session.set("accessToken", callbackResult.accessToken);
-      req.session.set("refreshToken", callbackResult.refreshToken);
-      req.session.set("userInfo", callbackResult.userInfo);
+      req.encryptedSession.set("onboarding_accessToken", callbackResult.accessToken);
+      req.encryptedSession.set("onboarding_refreshToken", callbackResult.refreshToken);
+      req.encryptedSession.set("onboarding_userInfo", callbackResult.userInfo);
 
       if (callbackResult.expiresAt) {
-        req.session.set("tokenExpiresAt", callbackResult.expiresAt);
+        req.encryptedSession.set("onboarding_tokenExpiresAt", callbackResult.expiresAt);
       } else {
-        req.session.delete("tokenExpiresAt");
+        req.encryptedSession.delete("onboarding_tokenExpiresAt");
       }
+
+      reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
     } catch (error) {
       if (error instanceof AuthenticationError) {
         req.log.error("AuthenticationError during OIDC callback: %s", error);
@@ -47,25 +48,21 @@ async function authPlugin(fastify) {
         throw error;
       }
     }
-
-    reply.redirect(POST_LOGIN_REDIRECT);
   });
 
 
-  fastify.get("/auth/me", async (req, reply) => {
-    const accessToken = req.session.get("accessToken");
-    const userInfo = req.session.get("userInfo");
+  fastify.get("/auth/onboarding/me", async (req, reply) => {
+    const accessToken = req.encryptedSession.get("onboarding_accessToken");
+    const userInfo = req.encryptedSession.get("onboarding_userInfo");
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
     reply.send({ isAuthenticated, user });
   });
 
-
-  fastify.post("/auth/logout", async (_req, reply) => {
+  fastify.post("/auth/logout", async (req, reply) => {
     // TODO: Idp sign out flow
-    //_req.session.delete();                  // remove payload
-    reply.clearCookie(COOKIE_NAME_ONBOARDING, { path: "/" });
+    req.encryptedSession.clear();
     reply.send({ message: "Logged out" });
   });
 }

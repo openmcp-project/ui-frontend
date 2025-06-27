@@ -3,6 +3,8 @@ import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import useResource from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { BusyIndicator } from '@ui5/webcomponents-react';
 
 interface McpContext {
   project: string;
@@ -80,6 +82,17 @@ export function WithinManagedControlPlane({
 }: {
   children?: ReactNode;
 }) {
+  const auth = useAuthMcp();
+
+  if (auth.isLoading) {
+    return <BusyIndicator active />;
+  }
+
+  if (!auth.isAuthenticated) {
+    auth.login();
+    return null;
+  }
+
   return (
     <>
       <RequireDownstreamLogin>{children}</RequireDownstreamLogin>

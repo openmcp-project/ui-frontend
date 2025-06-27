@@ -1,14 +1,13 @@
 import AppRouter from './AppRouter';
-import { useAuth } from './spaces/onboarding/auth/AuthContext.tsx';
+import { useAuthOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import '@ui5/webcomponents-icons/dist/AllIcons.d.ts';
 import { useEffect } from 'react';
 import { useFrontendConfig } from './context/FrontendConfigContext.tsx';
-import { useTranslation } from 'react-i18next';
 import LoginView from './views/Login.tsx';
+import { BusyIndicator } from '@ui5/webcomponents-react';
 
 function App() {
-  const auth = useAuth();
-  const { t } = useTranslation();
+  const auth = useAuthOnboarding();
   const frontendConfig = useFrontendConfig();
 
   useEffect(() => {
@@ -18,7 +17,7 @@ function App() {
   }, []);
 
   if (auth.isLoading) {
-    return <div>{t('App.loading')}</div>;
+    return <BusyIndicator active />;
   }
 
   if (!auth.isAuthenticated) {
