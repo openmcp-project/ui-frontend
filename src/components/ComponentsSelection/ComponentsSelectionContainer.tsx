@@ -47,6 +47,7 @@ export const ComponentsSelectionContainer: React.FC<
           versions: versions,
           selectedVersion: versions[0],
           isSelected: false,
+          documentationUrl: '',
         };
       }) ?? [],
     );
