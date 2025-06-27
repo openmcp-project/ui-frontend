@@ -26,6 +26,7 @@ export interface ComponentSelectionItem {
   versions: string[];
   isSelected: boolean;
   selectedVersion: string;
+  documentationUrl: string;
 }
 
 export interface ComponentsSelectionProps {
@@ -113,9 +114,12 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                 justifyContent="SpaceBetween"
                 alignItems="Baseline"
               >
-                <Button design="Transparent">
-                  {t('common.documentation')}
-                </Button>
+                {/*This button will be implemented later*/}
+                {component.documentationUrl && (
+                  <Button design="Transparent">
+                    {t('common.documentation')}
+                  </Button>
+                )}
                 <Select
                   value={component.selectedVersion}
                   onChange={handleVersionChange}
