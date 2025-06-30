@@ -5,17 +5,20 @@ import fastifySession from '@fastify/session';
 import crypto from "node:crypto"
 
 
-
-export const COOKIE_NAME_ENCRYPTION_KEY = "session_encryption_key";
-export const COOKIE_NAME_SESSION = "session-cookie";
-
-export const SECURE_SESSION_NAME = "encryptedSessionInternal";
-export const UNDERLYING_SESSION_NAME = "underlyingSessionNotPerUserEncrypted";
-
-// This is the key used to store the encryption key in the secure session cookie
-export const SECURE_COOKIE_KEY_ENCRYPTION_KEY = "encryptionKey";
-
+// name of the request decorator this plugin exposes. Using request.encryptedSession can be used with set, get, clear delete 
+// functions and the encryption will then be handled in this plugin.
 export const REQUEST_DECORATOR = "encryptedSession";
+// name of the request decorator of the secure-session library that stores its session data in an encrypted cookie on user side.
+export const ENCRYPTED_COOKIE_REQUEST_DECORATOR = "encryptedSessionInternal";
+// name of the request decorator of the session library that is used as underlying store for this library.
+export const UNDERLYING_SESSION_NAME_REQUEST_DECORATOR = "underlyingSessionNotPerUserEncrypted";
+
+// name of the secure-session cookie that stores the encryption key on user side.
+export const ENCRYPTION_KEY_COOKIE_NAME = "session_encryption_key";
+// the key used to store the encryption key in the secure-session cookie on user side.
+export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = "encryptionKey";
+// name of the cookie that stores the session identifier on user side.
+export const SESSION_COOKIE_NAME = "session-cookie";
 
 async function encryptedSession(fastify) {
   const { COOKIE_SECRET, SESSION_SECRET, NODE_ENV } = fastify.config;
@@ -24,8 +27,8 @@ async function encryptedSession(fastify) {
 
   fastify.register(secureSession, {
     secret: Buffer.from(COOKIE_SECRET, "hex"),
-    cookieName: COOKIE_NAME_ENCRYPTION_KEY,
-    sessionName: SECURE_SESSION_NAME,
+    cookieName: ENCRYPTION_KEY_COOKIE_NAME,
+    sessionName: ENCRYPTED_COOKIE_REQUEST_DECORATOR,
     cookie: {
       path: "/",
       httpOnly: true,
@@ -34,11 +37,9 @@ async function encryptedSession(fastify) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
   });
-
-
   fastify.register(fastifySession, {
     secret: SESSION_SECRET,
-    cookieName: COOKIE_NAME_SESSION,
+    cookieName: SESSION_COOKIE_NAME,
     // sessionName: UNDERLYING_SESSION_NAME, //NOT POSSIBLE to change the name it is decorated on the request object
     cookie: {
       path: "/",
@@ -50,18 +51,18 @@ async function encryptedSession(fastify) {
   });
 
   fastify.addHook('onRequest', (request, _reply, next) => {
-    //we use secure-session cookie to get the encryption key and decrypt the store
-    if (!request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY)) {
+    const userEncryptionKey = getUserEncryptionKeyFromUserCookie(request);
+    if (!userEncryptionKey) {
       request.log.info({ "plugin": "encrypted-session" }, "user-side encryption key not found, creating new one");
 
       let newEncryptionKey = generateSecureEncryptionKey();
-      request[SECURE_SESSION_NAME].set(SECURE_COOKIE_KEY_ENCRYPTION_KEY, newEncryptionKey.toString('base64'));
+      setUserEncryptionKeyIntoUserCookie(request, newEncryptionKey);
       request[REQUEST_DECORATOR] = createStore()
       newEncryptionKey = undefined
     } else {
       request.log.info({ "plugin": "encrypted-session" }, "user-side encryption key found, using existing one");
 
-      const loadedEncryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
+      const loadedEncryptionKey = Buffer.from(userEncryptionKey, "base64");
 
       const encryptedStore = request.session.get("encryptedStore");
       if (encryptedStore) {
@@ -89,7 +90,7 @@ async function encryptedSession(fastify) {
   // onSend is called before the response is send. Here we take encrypt the Session object and store it in the fastify-session.
   // Then we also want to make sure the unencrypted object is removed from memory
   fastify.addHook('onSend', async (request, reply, _payload) => {
-    const encryptionKey = Buffer.from(request[SECURE_SESSION_NAME].get(SECURE_COOKIE_KEY_ENCRYPTION_KEY), "base64");
+    const encryptionKey = Buffer.from(getUserEncryptionKeyFromUserCookie(request), "base64");
     if (!encryptionKey) {
       // if no encryption key is found in the secure session, we cannot encrypt the store. This should not happen since an encrption key is generated when the request arrived
       request.log.error({ "plugin": "encrypted-session" }, "No encryption key found in secure session, cannot encrypt store");
@@ -112,6 +113,14 @@ async function encryptedSession(fastify) {
     await request.session.save()
     request.log.info("store encrypted and set into request.session.encryptedStore");
   })
+
+  function getUserEncryptionKeyFromUserCookie(request) {
+    return request[ENCRYPTED_COOKIE_REQUEST_DECORATOR].get(ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY)
+  }
+
+  function setUserEncryptionKeyIntoUserCookie(request, key) {
+    request[ENCRYPTED_COOKIE_REQUEST_DECORATOR].set(ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY, key.toString('base64'));
+  }
 }
 
 export default fp(encryptedSession);
