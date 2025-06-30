@@ -2,6 +2,11 @@
   height: 144px;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 .component-card {
   border-radius: 20px;
   width: 300px;
