@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import { idpPrefix } from '../../utils/idpPrefix.ts';
 
 export type CreateDialogProps = {
   name: string;
@@ -68,8 +69,6 @@ const wizardStepOrder: WizardStepType[] = [
   'summarize',
   'success',
 ];
-
-const idpPrefix = 'openmcp';
 
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
