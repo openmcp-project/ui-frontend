@@ -13,7 +13,6 @@ import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.ts
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
 import {
-  ControlPlaneType,
   ListControlPlanesType,
   ReadyStatus,
 } from '../../../lib/api/types/crate/controlPlanes.ts';
@@ -28,6 +27,7 @@ import {
 
 import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
+import { canConnectToMCP } from '../controlPlanes.ts';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -59,22 +59,6 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
-
-  const canConnectToMCP = (controlPlane: ControlPlaneType): boolean => {
-    const conditions = controlPlane.status?.conditions ?? [];
-
-    return [
-      'APIServerHealthy',
-      'AuthenticationHealthy',
-      'AuthorizationHealthy',
-    ].every((type) =>
-      conditions.some(
-        (condition) =>
-          condition.type === type &&
-          String(condition.status).toLowerCase() === 'true',
-      ),
-    );
-  };
 
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
