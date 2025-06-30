@@ -44,7 +44,7 @@ export interface ControlPlaneStatusType {
 
 export interface ControlPlaneStatusCondition {
   type: string;
-  status: boolean;
+  status: boolean | string;
   reason: string;
   message: string;
   lastTransitionTime: string;
