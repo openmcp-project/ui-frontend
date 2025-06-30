@@ -90,16 +90,8 @@
   margin: 12px;
 }
 
-.cp-panel-crossplane {
-  background-color: #FFC933;
-}
-
 .crossplane-table-element {
   margin-bottom: 25px;
-}
-
-.cp-panel-gitops {
-  background-color: #D1EFFF;
 }
 
 body {
@@ -126,4 +118,3 @@ ui5-toast {
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
 }
-
