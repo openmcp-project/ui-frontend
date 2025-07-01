@@ -27,6 +27,7 @@ import {
 
 import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
+import { canConnectToMCP } from '../controlPlanes.ts';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -58,6 +59,8 @@ export function ControlPlaneCard({
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
+
+  const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   return (
     <>
@@ -106,7 +109,7 @@ export function ControlPlaneCard({
                   resourceType={'managedcontrolplanes'}
                 />
                 <ConnectButton
-                  disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                  disabled={!isConnectButtonEnabled}
                   controlPlaneName={name}
                   projectName={projectName}
                   workspaceName={workspace.metadata.name ?? ''}
