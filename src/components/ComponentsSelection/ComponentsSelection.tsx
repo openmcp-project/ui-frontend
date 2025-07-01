@@ -115,7 +115,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                 )}
                 <Select
                   value={component.selectedVersion}
-                  disabled={component.isSelected}
+                  disabled={!component.isSelected}
                   onChange={handleVersionChange}
                 >
                   {component.versions.map((version) => (
