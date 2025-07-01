@@ -237,6 +237,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           return (
             selectedStep === 'metadata' ||
             selectedStep === 'members' ||
+            selectedStep === 'componentSelection' ||
             !isValid
           );
 
