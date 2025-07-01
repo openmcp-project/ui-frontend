@@ -9,11 +9,6 @@ import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
 import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
-export interface ComponentItem {
-  name: string;
-  versions: string[];
-}
-
 export interface ComponentsSelectionProps {
   selectedComponents: ComponentSelectionItem[];
   setSelectedComponents: React.Dispatch<
