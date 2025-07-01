@@ -68,7 +68,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   };
 
   const filteredComponents = components.filter(({ name }) =>
-    name.includes(searchTerm),
+    name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   const selectedComponents = components.filter(
     (component) => component.isSelected,
@@ -115,6 +115,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                 )}
                 <Select
                   value={component.selectedVersion}
+                  disabled={component.isSelected}
                   onChange={handleVersionChange}
                 >
                   {component.versions.map((version) => (
