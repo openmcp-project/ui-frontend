@@ -7,17 +7,21 @@ import { sortVersions } from '../../utils/componentsVersions.ts';
 import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
 import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
-import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import {
+  ManagedComponent,
+  SelectedComponent,
+} from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export interface ComponentsSelectionProps {
-  selectedComponents: ComponentSelectionItem[];
+  selectedComponents: SelectedComponent[];
   setSelectedComponents: React.Dispatch<
-    React.SetStateAction<ComponentSelectionItem[]>
+    React.SetStateAction<SelectedComponent[]>
   >;
 }
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
 > = ({ setSelectedComponents, selectedComponents }) => {
+  const [allComponents, setAllComponents] = useState<ManagedComponent[]>([]);
   const {
     data: allManagedComponents,
     error,
@@ -32,7 +36,7 @@ export const ComponentsSelectionContainer: React.FC<
     )
       return;
 
-    setSelectedComponents(
+    setAllComponents(
       allManagedComponents?.items?.map((item) => {
         const versions = sortVersions(item.status.versions);
         return {
@@ -45,7 +49,7 @@ export const ComponentsSelectionContainer: React.FC<
       }) ?? [],
     );
     setIsReady(true);
-  }, [allManagedComponents, isReady, setSelectedComponents]);
+  }, [allManagedComponents, isReady, setAllComponents]);
   if (isLoading) {
     return <Loading />;
   }
@@ -54,7 +58,8 @@ export const ComponentsSelectionContainer: React.FC<
     <>
       {selectedComponents.length > 0 ? (
         <ComponentsSelection
-          components={selectedComponents}
+          allComponents={allComponents}
+          selectedComponents={selectedComponents}
           setSelectedComponents={setSelectedComponents}
         />
       ) : (

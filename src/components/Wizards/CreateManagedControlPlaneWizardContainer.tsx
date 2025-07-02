@@ -27,10 +27,11 @@ import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { APIError } from '../../lib/api/error.ts';
 import {
-  ComponentSelectionItem,
+  ManagedComponent,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
+  SelectedComponent,
 } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
@@ -79,7 +80,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
   const [selectedComponents, setSelectedComponents] = useState<
-    ComponentSelectionItem[]
+    SelectedComponent[]
   >([]);
   const {
     register,
