@@ -44,6 +44,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
     const id = e.target?.id;
+    const isChecked = e.target.checked;
     // setSelectedComponents((prev) =>
     //   prev.map((component) =>
     //     component.name === id
@@ -51,6 +52,14 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     //       : component,
     //   ),
     // );
+    if (isChecked && !selectedComponents.find(({ name }) => name === id)) {
+      setSelectedComponents((prev) => [
+        ...prev,
+        { name: id, selectedVersion: '' },
+      ]);
+    } else {
+    }
+    console.log(isChecked, id);
     console.log(e);
     console.log(id);
   };
