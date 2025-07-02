@@ -11,9 +11,7 @@ import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedC
 
 export interface ComponentsSelectionProps {
   selectedComponents: ComponentSelectionItem[];
-  setSelectedComponents: React.Dispatch<
-    React.SetStateAction<ComponentSelectionItem[]>
-  >;
+  setSelectedComponents: (components: ComponentSelectionItem[]) => void;
 }
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps

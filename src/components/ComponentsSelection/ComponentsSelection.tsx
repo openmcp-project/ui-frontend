@@ -24,9 +24,7 @@ import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedC
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];
-  setSelectedComponents: React.Dispatch<
-    React.SetStateAction<ComponentSelectionItem[]>
-  >;
+  setSelectedComponents: (components: ComponentSelectionItem[]) => void;
 }
 
 export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
@@ -39,8 +37,8 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
     const id = e.target?.id;
-    setSelectedComponents((prev) =>
-      prev.map((component) =>
+    setSelectedComponents(
+      components.map((component) =>
         component.name === id
           ? { ...component, isSelected: !component.isSelected }
           : component,
@@ -58,8 +56,8 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     const selectedOption = e.detail.selectedOption as HTMLElement;
     const name = selectedOption.dataset.name;
     const version = selectedOption.dataset.version;
-    setSelectedComponents((prev) =>
-      prev.map((component) =>
+    setSelectedComponents(
+      components.map((component) =>
         component.name === name
           ? { ...component, selectedVersion: version || '' }
           : component,

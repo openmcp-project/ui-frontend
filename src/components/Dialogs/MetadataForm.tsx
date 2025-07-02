@@ -14,7 +14,6 @@ export interface MetadataFormProps {
 export function MetadataForm({
   register,
   errors,
-
   sideFormContent,
 }: MetadataFormProps) {
   const { t } = useTranslation();

@@ -40,13 +40,7 @@ import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { idpPrefix } from '../../utils/idpPrefix.ts';
-
-export type CreateDialogProps = {
-  name: string;
-  displayName?: string;
-  chargingTarget?: string;
-  members: Member[];
-};
+import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -78,9 +72,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-  const [selectedComponents, setSelectedComponents] = useState<
-    ComponentSelectionItem[]
-  >([]);
+  // const [selectedComponents, setSelectedComponents] = useState<
+  //   ComponentSelectionItem[]
+  // >([]);
   const {
     register,
     handleSubmit,
@@ -97,6 +91,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       displayName: '',
       chargingTarget: '',
       members: [],
+      selectedComponents: [],
     },
     mode: 'onChange',
   });
@@ -138,7 +133,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
-
+  const selectedComponents = watch('selectedComponents');
   const handleCreateManagedControlPlane = useCallback(
     async ({
       name,
@@ -216,6 +211,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const setMembers = useCallback(
     (members: Member[]) => {
       setValue('members', members, { shouldValidate: true });
+    },
+    [setValue],
+  );
+
+  const setSelectedComponents = useCallback(
+    (components: ComponentSelectionItem[]) => {
+      setValue('selectedComponents', components, { shouldValidate: false });
     },
     [setValue],
   );
@@ -325,7 +327,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('componentSelection')}
         >
           <ComponentsSelectionContainer
-            selectedComponents={selectedComponents}
+            selectedComponents={selectedComponents ?? []}
             setSelectedComponents={setSelectedComponents}
           />
         </WizardStep>

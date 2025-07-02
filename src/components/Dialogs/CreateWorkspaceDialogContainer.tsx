@@ -23,12 +23,14 @@ import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
   members: Member[];
+  selectedComponents?: ComponentSelectionItem[];
 };
 
 export function CreateWorkspaceDialogContainer({
