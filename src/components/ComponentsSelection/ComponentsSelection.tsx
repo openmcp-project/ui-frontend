@@ -44,13 +44,15 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
     const id = e.target?.id;
-    setSelectedComponents((prev) =>
-      prev.map((component) =>
-        component.name === id
-          ? { ...component, isSelected: !component.isSelected }
-          : component,
-      ),
-    );
+    // setSelectedComponents((prev) =>
+    //   prev.map((component) =>
+    //     component.name === id
+    //       ? { ...component, isSelected: !component.isSelected }
+    //       : component,
+    //   ),
+    // );
+    console.log(e);
+    console.log(id);
   };
 
   const handleSearch = (e: Ui5CustomEvent<InputDomRef, never>) => {

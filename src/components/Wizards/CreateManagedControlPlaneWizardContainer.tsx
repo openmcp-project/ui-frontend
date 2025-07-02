@@ -27,7 +27,6 @@ import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { APIError } from '../../lib/api/error.ts';
 import {
-  ManagedComponent,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
@@ -370,15 +369,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
               <br />
               <List headerText={t('common.components')}>
-                {selectedComponents
-                  .filter(({ isSelected }) => isSelected)
-                  .map((component) => (
-                    <ListItemStandard
-                      key={component.name}
-                      text={component.name}
-                      additionalText={component.selectedVersion}
-                    />
-                  ))}
+                {selectedComponents.map((component) => (
+                  <ListItemStandard
+                    key={component.name}
+                    text={component.name}
+                    additionalText={component.selectedVersion}
+                  />
+                ))}
               </List>
             </div>
             <div>

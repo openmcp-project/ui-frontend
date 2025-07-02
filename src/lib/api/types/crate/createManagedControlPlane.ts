@@ -65,17 +65,15 @@ export const CreateManagedControlPlane = (
     displayName?: string;
     chargingTarget?: string;
     members?: Member[];
-    selectedComponents?: ManagedComponent[];
+    selectedComponents?: SelectedComponent[];
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
   const componentsObject: Components =
-    optional?.selectedComponents
-      ?.filter((component) => component.isSelected)
-      .reduce((acc, item) => {
-        acc[item.name] = { version: item.selectedVersion };
-        return acc;
-      }, {} as Components) ?? {};
+    optional?.selectedComponents?.reduce((acc, item) => {
+      acc[item.name] = { version: item.selectedVersion };
+      return acc;
+    }, {} as Components) ?? {};
 
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
