@@ -64,6 +64,19 @@ const wizardStepOrder: WizardStepType[] = [
   'success',
 ];
 
+export const filterSelectedComponents = (
+  components: ComponentSelectionItem[],
+) =>
+  components.filter(
+    (component) =>
+      component.isSelected &&
+      !(
+        component.name?.includes('provider') &&
+        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
+          false
+      ),
+  );
+
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
 > = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
@@ -371,15 +384,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
               <br />
               <List headerText={t('common.components')}>
-                {selectedComponents
-                  .filter(({ isSelected }) => isSelected)
-                  .map((component) => (
+                {filterSelectedComponents(selectedComponents ?? []).map(
+                  (component) => (
                     <ListItemStandard
                       key={component.name}
                       text={component.name}
                       additionalText={component.selectedVersion}
                     />
-                  ))}
+                  ),
+                )}
               </List>
             </div>
             <div>

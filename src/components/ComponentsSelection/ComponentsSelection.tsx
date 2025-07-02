@@ -21,6 +21,7 @@ import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
 import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { filterSelectedComponents } from '../Wizards/CreateManagedControlPlaneWizardContainer.tsx';
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];
@@ -68,15 +69,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   const filteredComponents = components.filter(({ name }) =>
     name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const selectedComponents = components.filter(
-    (component) =>
-      component.isSelected &&
-      !(
-        component.name?.includes('provider') &&
-        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
-          false
-      ),
-  );
+  const selectedComponents = filterSelectedComponents(components);
 
   return (
     <div>
