@@ -69,7 +69,13 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   const selectedComponents = components.filter(
-    (component) => component.isSelected,
+    (component) =>
+      component.isSelected &&
+      !(
+        component.name?.includes('provider') &&
+        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
+          false
+      ),
   );
 
   return (
@@ -86,50 +92,57 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
-          {filteredComponents.map((component) => (
-            <FlexBox
-              key={component.name}
-              className={styles.row}
-              gap={10}
-              justifyContent="SpaceBetween"
-            >
-              <CheckBox
-                valueState="None"
-                text={component.name}
-                id={component.name}
-                checked={component.isSelected}
-                onChange={handleSelectionChange}
-              />
+          {filteredComponents.map((component) => {
+            const isProviderDisabled =
+              component.name?.includes('provider') &&
+              components?.find(({ name }) => name === 'crossplane')
+                ?.isSelected === false;
+            return (
               <FlexBox
+                key={component.name}
+                className={styles.row}
                 gap={10}
                 justifyContent="SpaceBetween"
-                alignItems="Baseline"
               >
-                {/*This button will be implemented later*/}
-                {component.documentationUrl && (
-                  <Button design="Transparent">
-                    {t('common.documentation')}
-                  </Button>
-                )}
-                <Select
-                  value={component.selectedVersion}
-                  disabled={!component.isSelected}
-                  onChange={handleVersionChange}
+                <CheckBox
+                  valueState="None"
+                  text={component.name}
+                  id={component.name}
+                  checked={component.isSelected}
+                  disabled={isProviderDisabled}
+                  onChange={handleSelectionChange}
+                />
+                <FlexBox
+                  gap={10}
+                  justifyContent="SpaceBetween"
+                  alignItems="Baseline"
                 >
-                  {component.versions.map((version) => (
-                    <Option
-                      key={version}
-                      data-version={version}
-                      data-name={component.name}
-                      selected={component.selectedVersion === version}
-                    >
-                      {version}
-                    </Option>
-                  ))}
-                </Select>
+                  {/*This button will be implemented later*/}
+                  {component.documentationUrl && (
+                    <Button design="Transparent">
+                      {t('common.documentation')}
+                    </Button>
+                  )}
+                  <Select
+                    value={component.selectedVersion}
+                    disabled={!component.isSelected || isProviderDisabled}
+                    onChange={handleVersionChange}
+                  >
+                    {component.versions.map((version) => (
+                      <Option
+                        key={version}
+                        data-version={version}
+                        data-name={component.name}
+                        selected={component.selectedVersion === version}
+                      >
+                        {version}
+                      </Option>
+                    ))}
+                  </Select>
+                </FlexBox>
               </FlexBox>
-            </FlexBox>
-          ))}
+            );
+          })}
         </div>
         <div data-layout-span="XL4 L4 M4 S4">
           {selectedComponents.length > 0 ? (
