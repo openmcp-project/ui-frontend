@@ -12,6 +12,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { SelectChangeEventDetail } from '@ui5/webcomponents/dist/Select.js';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface MemberRoleSelectProps {
   value: MemberRoles;
@@ -36,10 +37,12 @@ export function MemberRoleSelect({
       return;
     }
   }, [value]);
-
+  const { t } = useTranslation();
   return (
     <FlexBox direction={'Column'}>
-      <Label for={'member-role-select'}>Role</Label>
+      <Label for={'member-role-select'}>
+        {t('MemberTable.columnRoleHeader')}
+      </Label>
       <Select
         ref={ref}
         id="member-role-select"

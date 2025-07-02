@@ -8,6 +8,7 @@ interface LabelProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'normal' | 'success' | 'warning' | 'danger';
   children: ReactNode;
+  fullWidth?: boolean;
   className?: string;
 }
 
@@ -16,6 +17,7 @@ export const Infobox: React.FC<LabelProps> = ({
   size = 'md', // Default to medium size
   variant = 'normal', // Default to normal variant
   children,
+  fullWidth = false,
   className,
 }) => {
   const infoboxClasses = cx(
@@ -28,6 +30,7 @@ export const Infobox: React.FC<LabelProps> = ({
       [styles['variant-success']]: variant === 'success',
       [styles['variant-warning']]: variant === 'warning',
       [styles['variant-danger']]: variant === 'danger',
+      [styles['full-width']]: fullWidth,
     },
     className,
   );

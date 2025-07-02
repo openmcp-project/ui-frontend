@@ -4,6 +4,11 @@
   margin: 1rem 0;
 }
 
+.full-width {
+  display: block;
+  margin: 0;
+}
+
 .size-sm {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;

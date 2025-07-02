@@ -111,7 +111,6 @@ export default function ControlPlaneView() {
               hideTitleText
             >
               <Panel
-                className="cp-panel"
                 headerLevel="H2"
                 headerText="Panel"
                 header={
@@ -131,7 +130,6 @@ export default function ControlPlaneView() {
               hideTitleText
             >
               <Panel
-                className="cp-panel cp-panel-crossplane"
                 headerLevel="H3"
                 headerText="Panel"
                 header={
@@ -159,7 +157,6 @@ export default function ControlPlaneView() {
               hideTitleText
             >
               <Panel
-                className="cp-panel cp-panel-landscapers"
                 headerLevel="H3"
                 headerText="Panel"
                 header={
@@ -179,7 +176,6 @@ export default function ControlPlaneView() {
               hideTitleText
             >
               <Panel
-                className="cp-panel cp-panel-gitops"
                 headerLevel="H3"
                 headerText="Panel"
                 header={

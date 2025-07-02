@@ -17,6 +17,7 @@ import {
   Grid,
   List,
   ListItemStandard,
+  Title,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
@@ -26,6 +27,7 @@ import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { APIError } from '../../lib/api/error.ts';
 import {
+  ComponentSelectionItem,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
@@ -36,6 +38,8 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import { idpPrefix } from '../../utils/idpPrefix.ts';
 
 export type CreateDialogProps = {
   name: string;
@@ -51,11 +55,17 @@ type CreateManagedControlPlaneWizardContainerProps = {
   workspaceName?: string;
 };
 
-type WizardStepType = 'metadata' | 'members' | 'summarize' | 'success';
+type WizardStepType =
+  | 'metadata'
+  | 'members'
+  | 'componentSelection'
+  | 'summarize'
+  | 'success';
 
 const wizardStepOrder: WizardStepType[] = [
   'metadata',
   'members',
+  'componentSelection',
   'summarize',
   'success',
 ];
@@ -68,7 +78,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-
+  const [selectedComponents, setSelectedComponents] = useState<
+    ComponentSelectionItem[]
+  >([]);
   const {
     register,
     handleSubmit,
@@ -93,6 +105,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     () => ({
       metadata: t('buttons.next'),
       members: t('buttons.next'),
+      componentSelection: t('buttons.next'),
       summarize: t('buttons.create'),
       success: t('buttons.close'),
     }),
@@ -142,7 +155,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               displayName,
               chargingTarget,
               members,
+              selectedComponents,
             },
+            idpPrefix,
           ),
         );
         setSelectedStep('success');
@@ -158,7 +173,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         return false;
       }
     },
-    [trigger, projectName, workspaceName],
+    [trigger, projectName, workspaceName, selectedComponents],
   );
 
   const handleStepChange = useCallback(
@@ -175,6 +190,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
+        setSelectedStep('componentSelection');
+        break;
+      case 'componentSelection':
         setSelectedStep('summarize');
         break;
       case 'summarize':
@@ -209,12 +227,19 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           return false;
         case 'members':
           return selectedStep === 'metadata' || !isValid;
+        case 'componentSelection':
+          return (
+            selectedStep === 'metadata' ||
+            selectedStep === 'members' ||
+            !isValid
+          );
         case 'summarize':
           return (
             selectedStep === 'metadata' ||
             selectedStep === 'members' ||
             !isValid
           );
+
         case 'success':
           return selectedStep !== 'success';
         default:
@@ -231,7 +256,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     }
   }, [selectedStep]);
 
-  return (
+  return isOpen ? (
     <Dialog
       stretch
       headerText={t('createMCP.dialogTitle') || 'Create Managed Control Plane'}
@@ -272,6 +297,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           <MetadataForm register={register} errors={errors} />
         </WizardStep>
         <WizardStep
+          icon={'user-edit'}
           titleText={t('common.members')}
           selected={selectedStep === 'members'}
           data-step="members"
@@ -291,13 +317,25 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           </Form>
         </WizardStep>
         <WizardStep
+          icon={'add-product'}
+          titleText={t('common.componentSelection')}
+          selected={selectedStep === 'componentSelection'}
+          data-step="componentSelection"
+          disabled={isStepDisabled('componentSelection')}
+        >
+          <ComponentsSelectionContainer
+            selectedComponents={selectedComponents}
+            setSelectedComponents={setSelectedComponents}
+          />
+        </WizardStep>
+        <WizardStep
           icon="activities"
           titleText={t('common.summarize')}
           disabled={isStepDisabled('summarize')}
           selected={selectedStep === 'summarize'}
           data-step="summarize"
         >
-          <h1>{t('common.summarize')}</h1>
+          <Title>{t('common.summarize')}</Title>
           <Grid defaultSpan="XL6 L6 M6 S6">
             <div>
               <List headerText={t('common.metadata')}>
@@ -324,9 +362,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                   <ListItemStandard
                     key={member.name}
                     text={member.name}
-                    additionalText={member.kind}
+                    additionalText={member.roles[0]}
                   />
                 ))}
+              </List>
+              <br />
+              <List headerText={t('common.components')}>
+                {selectedComponents
+                  .filter(({ isSelected }) => isSelected)
+                  .map((component) => (
+                    <ListItemStandard
+                      key={component.name}
+                      text={component.name}
+                      additionalText={component.selectedVersion}
+                    />
+                  ))}
               </List>
             </div>
             <div>
@@ -339,7 +389,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       displayName: getValues('displayName'),
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
+                      selectedComponents: selectedComponents,
                     },
+                    idpPrefix,
                   ),
                 )}
                 filename={`mcp_${projectName}--ws-${workspaceName}`}
@@ -362,5 +414,5 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         </WizardStep>
       </Wizard>
     </Dialog>
-  );
+  ) : null;
 };

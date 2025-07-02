@@ -269,6 +269,7 @@
     "atLeastOneUser": "You need to have at least one member assigned."
   },
   "common": {
+    "documentation": "Documentation",
     "close": "Close",
     "cannotLoadData": "Cannot load data",
     "metadata": "Metadata",
@@ -278,7 +279,10 @@
     "region": "Region",
     "success": "Success",
     "displayName": "Display Name",
-    "name": "Name"
+    "name": "Name",
+    "componentSelection": "Component Selection",
+    "search": "Search",
+    "components": "Components"
   },
   "buttons": {
     "viewResource": "View resource",
@@ -297,5 +301,10 @@
     "dialogTitle": "Create Managed Control Plane",
     "titleText": "Managed Control Plane Created Successfully!",
     "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
+  },
+  "componentsSelection": {
+    "selectComponents": "Select Components",
+    "selectedComponents": "Selected Components",
+    "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane."
   }
 }
