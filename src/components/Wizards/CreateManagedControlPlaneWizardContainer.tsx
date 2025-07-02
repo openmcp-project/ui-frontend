@@ -85,9 +85,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-  // const [selectedComponents, setSelectedComponents] = useState<
-  //   ComponentSelectionItem[]
-  // >([]);
+
   const {
     register,
     handleSubmit,
@@ -405,7 +403,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       displayName: getValues('displayName'),
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
-                      selectedComponents: selectedComponents,
+                      selectedComponents: filterSelectedComponents(
+                        selectedComponents ?? [],
+                      ),
                     },
                     idpPrefix,
                   ),
