@@ -20,7 +20,7 @@ import {
   TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import {
   Dispatch,
   RefObject,
@@ -41,7 +41,7 @@ import { t } from 'i18next';
 type UI5RatingIndicatorElement = HTMLElement & { value: number };
 
 export function ShellBarComponent() {
-  const auth = useAuth();
+  const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const betaPopoverRef = useRef<PopoverDomRef>(null);
   const feedbackPopoverRef = useRef<PopoverDomRef>(null);
@@ -53,7 +53,7 @@ export function ShellBarComponent() {
   const [feedbackSent, setFeedbackSent] = useState(false);
   const betaButtonRef = useRef<ButtonDomRef>(null);
 
-  const { user } = useAuth();
+  const { user } = useAuthOnboarding();
 
   const onProfileClick = (
     e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>,
@@ -190,7 +190,7 @@ const ProfilePopover = ({
   setOpen: (arg0: boolean) => void;
   popoverRef: RefObject<PopoverDomRef | null>;
 }) => {
-  const auth = useAuth();
+  const auth = useAuthOnboarding();
   const { t } = useTranslation();
 
   return (

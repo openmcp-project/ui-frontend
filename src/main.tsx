@@ -15,7 +15,8 @@ import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientP
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useTranslation } from 'react-i18next';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import { AuthProvider } from './spaces/onboarding/auth/AuthContext.tsx';
+import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   const { t } = useTranslation();
@@ -35,24 +36,26 @@ export function createApp() {
       <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
-            <AuthProvider>
-              <ThemeProvider>
-                <ToastProvider>
-                  <CopyButtonProvider>
-                    <SWRConfig
-                      value={{
-                        refreshInterval: 10000,
-                      }}
-                    >
-                      <ApolloClientProvider>
-                        <App />
-                      </ApolloClientProvider>
-                      <DarkModeSystemSwitcher />
-                    </SWRConfig>
-                  </CopyButtonProvider>
-                </ToastProvider>
-              </ThemeProvider>
-            </AuthProvider>
+            <AuthCallbackHandler>
+              <AuthProviderOnboarding>
+                <ThemeProvider>
+                  <ToastProvider>
+                    <CopyButtonProvider>
+                      <SWRConfig
+                        value={{
+                          refreshInterval: 10000,
+                        }}
+                      >
+                        <ApolloClientProvider>
+                          <App />
+                        </ApolloClientProvider>
+                        <DarkModeSystemSwitcher />
+                      </SWRConfig>
+                    </CopyButtonProvider>
+                  </ToastProvider>
+                </ThemeProvider>
+              </AuthProviderOnboarding>
+            </AuthCallbackHandler>
           </FrontendConfigProvider>
         </Suspense>
       </ErrorBoundary>

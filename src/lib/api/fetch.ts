@@ -49,7 +49,7 @@ export const fetchApiServer = async (
   if (!res.ok) {
     if (res.status === 401) {
       // Unauthorized, redirect to the login page
-      window.location.href = `/api/auth/login`;
+      window.location.replace('/api/auth/onboarding/login');
     }
     const error = new APIError(
       'An error occurred while fetching the data.',

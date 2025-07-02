@@ -30,6 +30,7 @@ import useResource from '../../lib/api/useApiResource';
 
 import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { Landscapers } from '../../components/ControlPlane/Landscapers.tsx';
+import { AuthProviderMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } =
@@ -68,124 +69,126 @@ export default function ControlPlaneView() {
         context: contextName!,
       }}
     >
-      <WithinManagedControlPlane>
-        <ObjectPage
-          preserveHeaderStateOnClick={true}
-          titleArea={
-            <ObjectPageTitle
-              header={controlPlaneName}
-              breadcrumbs={<IntelligentBreadcrumbs />}
-              //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
-              actionsBar={
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    gap: '0.5rem',
-                  }}
-                >
-                  <MCPHealthPopoverButton
-                    mcpStatus={mcp?.status}
-                    projectName={projectName}
-                    workspaceName={workspaceName ?? ''}
-                    mcpName={controlPlaneName}
-                  />
-                  <YamlViewButtonWithLoader
-                    workspaceName={mcp?.status?.access?.namespace}
-                    resourceType={'managedcontrolplanes'}
-                    resourceName={controlPlaneName}
-                  />
-                  <CopyKubeconfigButton />
+      <AuthProviderMcp>
+        <WithinManagedControlPlane>
+          <ObjectPage
+            preserveHeaderStateOnClick={true}
+            titleArea={
+              <ObjectPageTitle
+                header={controlPlaneName}
+                breadcrumbs={<IntelligentBreadcrumbs />}
+                //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
+                actionsBar={
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <MCPHealthPopoverButton
+                      mcpStatus={mcp?.status}
+                      projectName={projectName}
+                      workspaceName={workspaceName ?? ''}
+                      mcpName={controlPlaneName}
+                    />
+                    <YamlViewButtonWithLoader
+                      workspaceName={mcp?.status?.access?.namespace}
+                      resourceType={'managedcontrolplanes'}
+                      resourceName={controlPlaneName}
+                    />
+                    <CopyKubeconfigButton />
+                  </div>
+                }
+              />
+            }
+          >
+            <ObjectPageSection
+              className="cp-page-section-components"
+              id="components"
+              titleText={t('ControlPlaneView.componentsTitle')}
+              hideTitleText
+            >
+              <Panel
+                headerLevel="H2"
+                headerText="Panel"
+                header={
+                  <Title level="H3">
+                    {t('ControlPlaneView.componentsTitle')}
+                  </Title>
+                }
+                noAnimation
+              >
+                <ComponentList mcp={mcp} />
+              </Panel>
+            </ObjectPageSection>
+            <ObjectPageSection
+              className="cp-page-section-crossplane"
+              id="crossplane"
+              titleText={t('ControlPlaneView.crossplaneTitle')}
+              hideTitleText
+            >
+              <Panel
+                headerLevel="H3"
+                headerText="Panel"
+                header={
+                  <Title level="H3">
+                    {t('ControlPlaneView.crossplaneTitle')}
+                  </Title>
+                }
+                noAnimation
+              >
+                <div className="crossplane-table-element">
+                  <Providers />
                 </div>
-              }
-            />
-          }
-        >
-          <ObjectPageSection
-            className="cp-page-section-components"
-            id="components"
-            titleText={t('ControlPlaneView.componentsTitle')}
-            hideTitleText
-          >
-            <Panel
-              headerLevel="H2"
-              headerText="Panel"
-              header={
-                <Title level="H3">
-                  {t('ControlPlaneView.componentsTitle')}
-                </Title>
-              }
-              noAnimation
+                <div className="crossplane-table-element">
+                  <ProvidersConfig />
+                </div>
+                <div className="crossplane-table-element">
+                  <ManagedResources />
+                </div>
+              </Panel>
+            </ObjectPageSection>
+            <ObjectPageSection
+              className="cp-page-section-landscapers"
+              id="landscapers"
+              titleText={t('ControlPlaneView.landscapersTitle')}
+              hideTitleText
             >
-              <ComponentList mcp={mcp} />
-            </Panel>
-          </ObjectPageSection>
-          <ObjectPageSection
-            className="cp-page-section-crossplane"
-            id="crossplane"
-            titleText={t('ControlPlaneView.crossplaneTitle')}
-            hideTitleText
-          >
-            <Panel
-              headerLevel="H3"
-              headerText="Panel"
-              header={
-                <Title level="H3">
-                  {t('ControlPlaneView.crossplaneTitle')}
-                </Title>
-              }
-              noAnimation
+              <Panel
+                headerLevel="H3"
+                headerText="Panel"
+                header={
+                  <Title level="H3">
+                    {t('ControlPlaneView.landscapersTitle')}
+                  </Title>
+                }
+                noAnimation
+              >
+                <Landscapers />
+              </Panel>
+            </ObjectPageSection>
+            <ObjectPageSection
+              className="cp-page-section-gitops"
+              id="gitops"
+              titleText={t('ControlPlaneView.gitOpsTitle')}
+              hideTitleText
             >
-              <div className="crossplane-table-element">
-                <Providers />
-              </div>
-              <div className="crossplane-table-element">
-                <ProvidersConfig />
-              </div>
-              <div className="crossplane-table-element">
-                <ManagedResources />
-              </div>
-            </Panel>
-          </ObjectPageSection>
-          <ObjectPageSection
-            className="cp-page-section-landscapers"
-            id="landscapers"
-            titleText={t('ControlPlaneView.landscapersTitle')}
-            hideTitleText
-          >
-            <Panel
-              headerLevel="H3"
-              headerText="Panel"
-              header={
-                <Title level="H3">
-                  {t('ControlPlaneView.landscapersTitle')}
-                </Title>
-              }
-              noAnimation
-            >
-              <Landscapers />
-            </Panel>
-          </ObjectPageSection>
-          <ObjectPageSection
-            className="cp-page-section-gitops"
-            id="gitops"
-            titleText={t('ControlPlaneView.gitOpsTitle')}
-            hideTitleText
-          >
-            <Panel
-              headerLevel="H3"
-              headerText="Panel"
-              header={
-                <Title level="H3">{t('ControlPlaneView.gitOpsTitle')}</Title>
-              }
-              noAnimation
-            >
-              <FluxList />
-            </Panel>
-          </ObjectPageSection>
-        </ObjectPage>
-      </WithinManagedControlPlane>
+              <Panel
+                headerLevel="H3"
+                headerText="Panel"
+                header={
+                  <Title level="H3">{t('ControlPlaneView.gitOpsTitle')}</Title>
+                }
+                noAnimation
+              >
+                <FluxList />
+              </Panel>
+            </ObjectPageSection>
+          </ObjectPage>
+        </WithinManagedControlPlane>
+      </AuthProviderMcp>
     </McpContextProvider>
   );
 }
