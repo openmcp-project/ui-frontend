@@ -68,19 +68,12 @@ export function MetadataForm({
           {...register('displayName')}
           className={styles.input}
         />
-        <Label for={'chargingTarget'} required>
-          {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-        </Label>
-        <Input
-          id="chargingTarget"
-          {...register('chargingTarget')}
-          className={styles.input}
-        />
         <Label for={'chargingTargetType'} required>
           {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
         </Label>
         <Select
           id={'chargingTargetType'}
+          className={styles.input}
           onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
@@ -89,6 +82,14 @@ export function MetadataForm({
             </Option>
           ))}
         </Select>
+        <Label for={'chargingTarget'} required>
+          {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+        </Label>
+        <Input
+          id="chargingTarget"
+          {...register('chargingTarget')}
+          className={styles.input}
+        />
       </FormGroup>
 
       {sideFormContent ? sideFormContent : null}
