@@ -294,7 +294,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm register={register} errors={errors} />
+          <MetadataForm
+            setValue={setValue}
+            register={register}
+            errors={errors}
+          />
         </WizardStep>
         <WizardStep
           icon={'user-edit'}

@@ -28,6 +28,7 @@ export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
+  chargingTargetType?: string;
   members: Member[];
 };
 
@@ -47,6 +48,7 @@ export function CreateWorkspaceDialogContainer({
     setValue,
     formState: { errors },
     watch,
+    getValues,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
@@ -54,13 +56,14 @@ export function CreateWorkspaceDialogContainer({
       displayName: '',
       chargingTarget: '',
       members: [],
+      chargingTargetType: '',
     },
   });
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
-
+  console.log(getValues('chargingTargetType'));
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');

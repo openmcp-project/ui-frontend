@@ -20,6 +20,7 @@ export type OnCreatePayload = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
+  chargingTargetType?: string;
   members: Member[];
 };
 
@@ -87,6 +88,7 @@ export function CreateProjectWorkspaceDialog({
         <MetadataForm
           register={register}
           errors={errors}
+          setValue={setValue}
           sideFormContent={
             <FormGroup
               headerText={t('CreateProjectWorkspaceDialog.membersHeader')}

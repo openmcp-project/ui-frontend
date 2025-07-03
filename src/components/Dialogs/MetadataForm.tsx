@@ -1,24 +1,42 @@
-import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useTranslation } from 'react-i18next';
-import { Form, FormGroup, Input, Label } from '@ui5/webcomponents-react';
+import {
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
 import styles from './CreateProjectWorkspaceDialog.module.css';
+import React from 'react';
 
 export interface MetadataFormProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
-
+  setValue: UseFormSetValue<CreateDialogProps>;
   sideFormContent?: React.ReactNode;
 }
+
+const chargingTypes = ['', 'btp'];
 
 export function MetadataForm({
   register,
   errors,
-
+  setValue,
   sideFormContent,
 }: MetadataFormProps) {
   const { t } = useTranslation();
-
+  const handleChargingTargetTypeChange = (
+    event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
+  ) => {
+    const selectedOption = event.detail.selectedOption as HTMLElement;
+    console.log('type', selectedOption.dataset.value);
+    setValue('chargingTargetType', selectedOption.dataset.value);
+  };
   return (
     <Form>
       <FormGroup
@@ -36,7 +54,6 @@ export function MetadataForm({
           valueStateMessage={<span>{errors.name?.message}</span>}
           required
         />
-
         <Label for={'displayName'}>
           {t('CreateProjectWorkspaceDialog.displayNameLabel')}
         </Label>
@@ -45,7 +62,6 @@ export function MetadataForm({
           {...register('displayName')}
           className={styles.input}
         />
-
         <Label for={'chargingTarget'}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
@@ -54,7 +70,21 @@ export function MetadataForm({
           {...register('chargingTarget')}
           className={styles.input}
         />
+        <Label for={'chargingTargetType'}>
+          {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
+        </Label>
+        <Select
+          id={'chargingTargetType'}
+          onChange={handleChargingTargetTypeChange}
+        >
+          {chargingTypes.map((type) => (
+            <Option key={type} data-value={type} value={type}>
+              {type}
+            </Option>
+          ))}
+        </Select>
       </FormGroup>
+
       {sideFormContent ? sideFormContent : null}
     </Form>
   );

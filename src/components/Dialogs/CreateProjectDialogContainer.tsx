@@ -34,6 +34,7 @@ export function CreateProjectDialogContainer({
     handleSubmit,
     resetField,
     setValue,
+    getValues,
     formState: { errors },
     watch,
   } = useForm<CreateDialogProps>({
@@ -42,6 +43,7 @@ export function CreateProjectDialogContainer({
       name: '',
       displayName: '',
       chargingTarget: '',
+      chargingTargetType: '',
       members: [],
     },
   });
@@ -49,7 +51,7 @@ export function CreateProjectDialogContainer({
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
-
+  console.log(getValues('chargingTargetType'));
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -79,6 +81,7 @@ export function CreateProjectDialogContainer({
     name,
     chargingTarget,
     displayName,
+    chargingTargetType,
     members,
   }: OnCreatePayload): Promise<boolean> => {
     try {
@@ -87,6 +90,7 @@ export function CreateProjectDialogContainer({
           displayName: displayName,
           chargingTarget: chargingTarget,
           members: members,
+          chargingTargetType: chargingTargetType,
         }),
       );
       setIsOpen(false);
