@@ -24,6 +24,11 @@ interface Subject {
   kind: 'User' | 'Group' | 'ServiceAccount';
   name: string;
 }
+
+interface Provider {
+  name: string;
+  version: string;
+}
 interface Spec {
   authentication: {
     enableSystemIdentityProvider: boolean;
@@ -38,7 +43,8 @@ interface Components {
     | {
         version: string;
       }
-    | { type: 'GardenerDedicated' };
+    | { type: 'GardenerDedicated' }
+    | { version: string; providers: Provider[] };
 }
 
 export interface CreateManagedControlPlaneType {
@@ -66,11 +72,26 @@ export const CreateManagedControlPlane = (
 ): CreateManagedControlPlaneType => {
   const componentsObject: Components =
     optional?.selectedComponents
-      ?.filter((component) => component.isSelected)
+      ?.filter(
+        (component) =>
+          component.isSelected &&
+          !component.name.includes('provider') &&
+          !component.name.includes('crossplane'),
+      )
       .reduce((acc, item) => {
         acc[item.name] = { version: item.selectedVersion };
         return acc;
       }, {} as Components) ?? {};
+  const crossplane: Components = optional?.selectedComponents?.find(
+    ({ name }) => name === 'crossplane',
+  );
+  const providers: Provider[] = optional?.selectedComponents
+    ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
+    .map(({ name, selectedVersion }) => ({
+      name: name,
+      version: selectedVersion,
+    }));
+  const providersObject = 
 
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -90,6 +111,7 @@ export const CreateManagedControlPlane = (
       components: {
         ...componentsObject,
         apiServer: { type: 'GardenerDedicated' },
+        // ...{crossplane ? { crossplane: { version: '', providers: [] } } : {}},
       },
       authorization: {
         roleBindings:
