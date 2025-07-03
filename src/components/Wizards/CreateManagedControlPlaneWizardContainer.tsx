@@ -45,6 +45,7 @@ export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
+  chargingTargetType?: string;
   members: Member[];
 };
 
@@ -96,6 +97,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       name: '',
       displayName: '',
       chargingTarget: '',
+      chargingTargetType: '',
       members: [],
     },
     mode: 'onChange',
@@ -121,6 +123,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
+    resetField('chargingTargetType');
     resetField('displayName');
   }, [resetField]);
 

@@ -21,7 +21,14 @@ export interface MetadataFormProps {
   sideFormContent?: React.ReactNode;
 }
 
-const chargingTypes = ['', 'btp'];
+interface SelectOption {
+  label: string;
+  value: string;
+}
+const chargingTypes: SelectOption[] = [
+  { label: 'None', value: '' },
+  { label: 'SAP Business Technology Platform', value: 'btp' },
+];
 
 export function MetadataForm({
   register,
@@ -34,7 +41,6 @@ export function MetadataForm({
     event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
   ) => {
     const selectedOption = event.detail.selectedOption as HTMLElement;
-    console.log('type', selectedOption.dataset.value);
     setValue('chargingTargetType', selectedOption.dataset.value);
   };
   return (
@@ -62,7 +68,7 @@ export function MetadataForm({
           {...register('displayName')}
           className={styles.input}
         />
-        <Label for={'chargingTarget'}>
+        <Label for={'chargingTarget'} required>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
         <Input
@@ -70,16 +76,16 @@ export function MetadataForm({
           {...register('chargingTarget')}
           className={styles.input}
         />
-        <Label for={'chargingTargetType'}>
+        <Label for={'chargingTargetType'} required>
           {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
         </Label>
         <Select
           id={'chargingTargetType'}
           onChange={handleChargingTargetTypeChange}
         >
-          {chargingTypes.map((type) => (
-            <Option key={type} data-value={type} value={type}>
-              {type}
+          {chargingTypes.map((option) => (
+            <Option key={option.value} data-value={option.value}>
+              {option.label}
             </Option>
           ))}
         </Select>
