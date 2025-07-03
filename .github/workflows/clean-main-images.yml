@@ -14,7 +14,7 @@ on:
 env:
   IMAGE_NAME: mcp-ui-frontend
   KEEP_X_IMAGES: 5
-  TAG_PREFIX: 'main-'
+  TAG_PREFIX: 'main-*'
 
 jobs:
   clean:
