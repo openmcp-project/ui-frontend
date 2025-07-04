@@ -1,4 +1,9 @@
-import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import {
+  FieldErrors,
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch,
+} from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,6 +25,7 @@ export interface MetadataFormProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
+  watch: UseFormWatch<CreateDialogProps>;
 }
 
 interface SelectOption {
@@ -33,6 +39,7 @@ export function MetadataForm({
   setValue,
   sideFormContent,
   requireChargingTarget = false,
+  watch,
 }: MetadataFormProps) {
   const { t } = useTranslation();
   const handleChargingTargetTypeChange = (
