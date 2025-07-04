@@ -19,22 +19,20 @@ export interface MetadataFormProps {
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
   sideFormContent?: React.ReactNode;
+  requireChargingTarget?: boolean;
 }
 
 interface SelectOption {
   label: string;
   value: string;
 }
-const chargingTypes: SelectOption[] = [
-  { label: 'None', value: '' },
-  { label: 'SAP Business Technology Platform', value: 'btp' },
-];
 
 export function MetadataForm({
   register,
   errors,
   setValue,
   sideFormContent,
+  requireChargingTarget = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
   const handleChargingTargetTypeChange = (
@@ -43,6 +41,12 @@ export function MetadataForm({
     const selectedOption = event.detail.selectedOption as HTMLElement;
     setValue('chargingTargetType', selectedOption.dataset.value);
   };
+  const chargingTypes: SelectOption[] = [
+    ...(!requireChargingTarget
+      ? [{ label: t('common.notSelected'), value: '' }]
+      : []),
+    { label: t('common.btp'), value: 'btp' },
+  ];
   return (
     <Form>
       <FormGroup
@@ -68,7 +72,7 @@ export function MetadataForm({
           {...register('displayName')}
           className={styles.input}
         />
-        <Label for={'chargingTargetType'} required>
+        <Label for={'chargingTargetType'} required={requireChargingTarget}>
           {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
         </Label>
         <Select
@@ -82,7 +86,7 @@ export function MetadataForm({
             </Option>
           ))}
         </Select>
-        <Label for={'chargingTarget'} required>
+        <Label for={'chargingTarget'} required={requireChargingTarget}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
         <Input

@@ -283,7 +283,9 @@
     "name": "Name",
     "componentSelection": "Component Selection",
     "search": "Search",
-    "components": "Components"
+    "components": "Components",
+    "notSelected": "Not selected",
+    "btp": "BTP"
   },
   "buttons": {
     "viewResource": "View resource",

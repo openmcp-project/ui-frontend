@@ -42,7 +42,7 @@ export function CreateProjectDialogContainer({
       name: '',
       displayName: '',
       chargingTarget: '',
-      chargingTargetType: '',
+      chargingTargetType: 'btp',
       members: [],
     },
   });
@@ -118,6 +118,7 @@ export function CreateProjectDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      type={'project'}
       onCreate={handleSubmit(handleProjectCreate)}
     />
   );

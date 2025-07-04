@@ -35,6 +35,7 @@ export interface CreateProjectWorkspaceDialogProps {
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
   projectName?: string;
+  type: 'workspace' | 'project';
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -48,6 +49,7 @@ export function CreateProjectWorkspaceDialog({
   errors,
   setValue,
   projectName,
+  type,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
@@ -89,6 +91,7 @@ export function CreateProjectWorkspaceDialog({
           register={register}
           errors={errors}
           setValue={setValue}
+          requireChargingTarget={type === 'project'}
           sideFormContent={
             <FormGroup
               headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
