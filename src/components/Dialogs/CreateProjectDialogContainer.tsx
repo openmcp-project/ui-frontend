@@ -110,7 +110,6 @@ export function CreateProjectDialogContainer({
 
   return (
     <CreateProjectWorkspaceDialog
-      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}

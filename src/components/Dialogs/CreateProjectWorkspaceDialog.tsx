@@ -13,12 +13,7 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import {
-  FieldErrors,
-  UseFormRegister,
-  UseFormSetValue,
-  UseFormWatch,
-} from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
 
 export type OnCreatePayload = {
@@ -41,7 +36,6 @@ export interface CreateProjectWorkspaceDialogProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project';
-  watch: UseFormWatch<CreateDialogProps>;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -56,7 +50,6 @@ export function CreateProjectWorkspaceDialog({
   setValue,
   projectName,
   type,
-  watch,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
@@ -95,7 +88,6 @@ export function CreateProjectWorkspaceDialog({
         onClose={() => setIsOpen(false)}
       >
         <MetadataForm
-          watch={watch}
           register={register}
           errors={errors}
           setValue={setValue}

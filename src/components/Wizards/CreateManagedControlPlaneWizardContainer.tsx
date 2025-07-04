@@ -301,7 +301,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             setValue={setValue}
             register={register}
             errors={errors}
-            watch={watch}
           />
         </WizardStep>
         <WizardStep
