@@ -1,6 +1,7 @@
 import { Resource } from '../resource';
 import {
   CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../shared/keyNames';
 import { Member } from '../shared/members';
@@ -29,6 +30,7 @@ export const CreateProject = (
   optional?: {
     displayName?: string;
     chargingTarget?: string;
+    chargingTargetType?: string;
     members?: Member[];
   },
 ): CreateProjectType => {
@@ -41,6 +43,7 @@ export const CreateProject = (
         [DISPLAY_NAME_ANNOTATION]: optional?.displayName ?? '',
       },
       labels: {
+        [CHARGING_TARGET_TYPE_LABEL]: optional?.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: optional?.chargingTarget ?? '',
       },
     },

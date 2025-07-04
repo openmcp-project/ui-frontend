@@ -28,6 +28,7 @@ export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
+  chargingTargetType?: string;
   members: Member[];
 };
 
@@ -54,17 +55,18 @@ export function CreateWorkspaceDialogContainer({
       displayName: '',
       chargingTarget: '',
       members: [],
+      chargingTargetType: '',
     },
   });
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
-
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
     resetField('displayName');
+    resetField('chargingTargetType');
   }, [resetField]);
 
   useEffect(() => {
@@ -127,6 +129,7 @@ export function CreateWorkspaceDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      type={'workspace'}
       projectName={project}
       onCreate={handleSubmit(handleWorkspaceCreate)}
     />

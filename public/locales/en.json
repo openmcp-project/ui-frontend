@@ -139,6 +139,7 @@
     "createButton": "Create",
     "cancelButton": "Cancel",
     "chargingTargetLabel": "Charging Target",
+    "chargingTargetTypeLabel": "Charging Target Type",
     "displayNameLabel": "Display Name",
     "nameLabel": "Name",
     "metadataHeader": "Metadata",
@@ -282,7 +283,9 @@
     "name": "Name",
     "componentSelection": "Component Selection",
     "search": "Search",
-    "components": "Components"
+    "components": "Components",
+    "notSelected": "Not selected",
+    "btp": "BTP"
   },
   "buttons": {
     "viewResource": "View resource",

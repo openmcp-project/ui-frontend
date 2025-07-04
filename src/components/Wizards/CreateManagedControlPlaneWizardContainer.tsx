@@ -45,6 +45,7 @@ export type CreateDialogProps = {
   name: string;
   displayName?: string;
   chargingTarget?: string;
+  chargingTargetType?: string;
   members: Member[];
 };
 
@@ -96,6 +97,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       name: '',
       displayName: '',
       chargingTarget: '',
+      chargingTargetType: '',
       members: [],
     },
     mode: 'onChange',
@@ -121,6 +123,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
+    resetField('chargingTargetType');
     resetField('displayName');
   }, [resetField]);
 
@@ -294,7 +297,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm register={register} errors={errors} />
+          <MetadataForm
+            setValue={setValue}
+            register={register}
+            errors={errors}
+          />
         </WizardStep>
         <WizardStep
           icon={'user-edit'}
