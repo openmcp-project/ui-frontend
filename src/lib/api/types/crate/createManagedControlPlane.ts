@@ -82,16 +82,25 @@ export const CreateManagedControlPlane = (
         acc[item.name] = { version: item.selectedVersion };
         return acc;
       }, {} as Components) ?? {};
-  const crossplane: Components = optional?.selectedComponents?.find(
-    ({ name }) => name === 'crossplane',
+  const crossplane = optional?.selectedComponents?.find(
+    ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
-  const providers: Provider[] = optional?.selectedComponents
-    ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
-    .map(({ name, selectedVersion }) => ({
-      name: name,
-      version: selectedVersion,
-    }));
-  const providersObject = 
+
+  const providers: Provider[] =
+    optional?.selectedComponents
+      ?.filter(
+        ({ name, isSelected }) => name.includes('provider') && isSelected,
+      )
+      .map(({ name, selectedVersion }) => ({
+        name: name,
+        version: selectedVersion,
+      })) ?? [];
+  const providersObject = {
+    crossplane: {
+      version: crossplane?.selectedVersion ?? '',
+      providers: providers,
+    },
+  };
 
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -111,7 +120,7 @@ export const CreateManagedControlPlane = (
       components: {
         ...componentsObject,
         apiServer: { type: 'GardenerDedicated' },
-        // ...{crossplane ? { crossplane: { version: '', providers: [] } } : {}},
+        ...(crossplane ? providersObject : {}),
       },
       authorization: {
         roleBindings:
