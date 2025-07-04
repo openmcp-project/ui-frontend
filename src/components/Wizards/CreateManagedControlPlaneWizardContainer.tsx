@@ -1,7 +1,7 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApiResourceMutation } from '../../lib/api/useApiResource';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import { useAuth } from '../../spaces/onboarding/auth/AuthContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -81,7 +81,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
 > = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
