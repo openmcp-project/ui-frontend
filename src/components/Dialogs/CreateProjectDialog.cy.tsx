@@ -55,6 +55,7 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{
   };
   return (
     <CreateProjectWorkspaceDialog
+      type={'workspace'}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       titleText="Create Workspace"
