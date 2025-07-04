@@ -78,6 +78,7 @@ export function MetadataForm({
         <Select
           id={'chargingTargetType'}
           className={styles.input}
+          value={watch('chargingTargetType')}
           onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
