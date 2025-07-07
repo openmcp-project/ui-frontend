@@ -9,7 +9,7 @@ import { Member } from '../shared/members';
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
 
-export interface ComponentSelectionItem {
+export interface ComponentsListItem {
   name: string;
   versions: string[];
   isSelected: boolean;
@@ -68,7 +68,7 @@ export const CreateManagedControlPlane = (
     chargingTarget?: string;
     chargingTargetType?: string;
     members?: Member[];
-    selectedComponents?: ComponentSelectionItem[];
+    selectedComponents?: ComponentsListItem[];
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {

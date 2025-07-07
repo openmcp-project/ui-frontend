@@ -20,17 +20,17 @@ import {
 import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
-import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { getSelectedComponents } from './ComponentsSelectionContainer.tsx';
 
 export interface ComponentsSelectionProps {
-  components: ComponentSelectionItem[];
-  setSelectedComponents: (components: ComponentSelectionItem[]) => void;
+  componentsList: ComponentsListItem[];
+  setComponentsList: (components: ComponentsListItem[]) => void;
 }
 
 export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
-  components,
-  setSelectedComponents,
+  componentsList,
+  setComponentsList,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
@@ -38,8 +38,8 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
   ) => {
     const id = e.target?.id;
-    setSelectedComponents(
-      components.map((component) =>
+    setComponentsList(
+      componentsList.map((component) =>
         component.name === id
           ? { ...component, isSelected: !component.isSelected }
           : component,
@@ -57,8 +57,8 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     const selectedOption = e.detail.selectedOption as HTMLElement;
     const name = selectedOption.dataset.name;
     const version = selectedOption.dataset.version;
-    setSelectedComponents(
-      components.map((component) =>
+    setComponentsList(
+      componentsList.map((component) =>
         component.name === name
           ? { ...component, selectedVersion: version || '' }
           : component,
@@ -66,10 +66,10 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     );
   };
 
-  const searchResults = components.filter(({ name }) =>
+  const searchResults = componentsList.filter(({ name }) =>
     name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const selectedComponents = getSelectedComponents(components);
+  const selectedComponents = getSelectedComponents(componentsList);
 
   return (
     <div>
@@ -88,7 +88,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
           {searchResults.map((component) => {
             const isProviderDisabled =
               component.name?.includes('provider') &&
-              components?.find(({ name }) => name === 'crossplane')
+              componentsList?.find(({ name }) => name === 'crossplane')
                 ?.isSelected === false;
             return (
               <FlexBox

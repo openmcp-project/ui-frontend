@@ -27,7 +27,7 @@ import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { APIError } from '../../lib/api/error.ts';
 import {
-  ComponentSelectionItem,
+  ComponentsListItem,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
@@ -137,7 +137,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
-  const selectedComponents = watch('selectedComponents');
+  const componentsList = watch('selectedComponents');
   const handleCreateManagedControlPlane = useCallback(
     async ({
       name,
@@ -154,7 +154,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               displayName,
               chargingTarget,
               members,
-              selectedComponents,
+              selectedComponents: componentsList,
             },
             idpPrefix,
           ),
@@ -172,7 +172,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         return false;
       }
     },
-    [trigger, projectName, workspaceName, selectedComponents],
+    [trigger, projectName, workspaceName, componentsList],
   );
 
   const handleStepChange = useCallback(
@@ -219,8 +219,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [setValue],
   );
 
-  const setSelectedComponents = useCallback(
-    (components: ComponentSelectionItem[]) => {
+  const setComponentsList = useCallback(
+    (components: ComponentsListItem[]) => {
       setValue('selectedComponents', components, { shouldValidate: false });
     },
     [setValue],
@@ -335,8 +335,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('componentSelection')}
         >
           <ComponentsSelectionContainer
-            selectedComponents={selectedComponents ?? []}
-            setSelectedComponents={setSelectedComponents}
+            componentsList={componentsList ?? []}
+            setComponentsList={setComponentsList}
           />
         </WizardStep>
         <WizardStep
@@ -379,7 +379,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
               <br />
               <List headerText={t('common.components')}>
-                {getSelectedComponents(selectedComponents ?? []).map(
+                {getSelectedComponents(componentsList ?? []).map(
                   (component) => (
                     <ListItemStandard
                       key={component.name}
@@ -401,7 +401,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
                       selectedComponents: getSelectedComponents(
-                        selectedComponents ?? [],
+                        componentsList ?? [],
                       ),
                     },
                     idpPrefix,

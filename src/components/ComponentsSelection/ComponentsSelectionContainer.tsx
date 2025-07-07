@@ -7,15 +7,16 @@ import { sortVersions } from '../../utils/componentsVersions.ts';
 import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
 import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
-import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { useTranslation } from 'react-i18next';
 
 export interface ComponentsSelectionProps {
-  selectedComponents: ComponentSelectionItem[];
-  setSelectedComponents: (components: ComponentSelectionItem[]) => void;
+  componentsList: ComponentsListItem[];
+  setComponentsList: (components: ComponentsListItem[]) => void;
 }
 
 // get selected components and when Crossplane is selected then also providers
-export const getSelectedComponents = (components: ComponentSelectionItem[]) =>
+export const getSelectedComponents = (components: ComponentsListItem[]) =>
   components.filter(
     (component) =>
       component.isSelected &&
@@ -28,13 +29,14 @@ export const getSelectedComponents = (components: ComponentSelectionItem[]) =>
 
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
-> = ({ setSelectedComponents, selectedComponents }) => {
+> = ({ setComponentsList, componentsList }) => {
   const {
     data: availableManagedComponentsListData,
     error,
     isLoading,
   } = useApiResource(ListManagedComponents());
   const [isReady, setIsReady] = useState(false);
+  const { t } = useTranslation();
   useEffect(() => {
     if (
       availableManagedComponentsListData?.items.length === 0 ||
@@ -43,7 +45,7 @@ export const ComponentsSelectionContainer: React.FC<
     )
       return;
 
-    setSelectedComponents(
+    setComponentsList(
       availableManagedComponentsListData?.items?.map((item) => {
         const versions = sortVersions(item.status.versions);
         return {
@@ -56,20 +58,20 @@ export const ComponentsSelectionContainer: React.FC<
       }) ?? [],
     );
     setIsReady(true);
-  }, [availableManagedComponentsListData, isReady, setSelectedComponents]);
+  }, [availableManagedComponentsListData, isReady, setComponentsList]);
   if (isLoading) {
     return <Loading />;
   }
   if (error) return <IllustratedError />;
   return (
     <>
-      {selectedComponents.length > 0 ? (
+      {componentsList.length > 0 ? (
         <ComponentsSelection
-          components={selectedComponents}
-          setSelectedComponents={setSelectedComponents}
+          componentsList={componentsList}
+          setComponentsList={setComponentsList}
         />
       ) : (
-        <IllustratedError title={'Cannot load components list'} />
+        <IllustratedError title={t('componentsSelection.cannotLoad')} />
       )}
     </>
   );
