@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ComponentsSelection } from './ComponentsSelection.tsx';
 
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -15,17 +15,22 @@ export interface ComponentsSelectionProps {
   setComponentsList: (components: ComponentsListItem[]) => void;
 }
 
-// get selected components and when Crossplane is selected then also providers
-export const getSelectedComponents = (components: ComponentsListItem[]) =>
-  components.filter(
-    (component) =>
-      component.isSelected &&
-      !(
-        component.name?.includes('provider') &&
-        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
-          false
-      ),
+/**
+ * Returns the selected components. If Crossplane is not selected,
+ * provider components are excluded.
+ */
+export const getSelectedComponents = (components: ComponentsListItem[]) => {
+  const isCrossplaneSelected = components.some(
+    ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
+  return components.filter((component) => {
+    if (!component.isSelected) return false;
+    if (component.name?.includes('provider') && !isCrossplaneSelected) {
+      return false;
+    }
+    return true;
+  });
+};
 
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
@@ -35,44 +40,52 @@ export const ComponentsSelectionContainer: React.FC<
     error,
     isLoading,
   } = useApiResource(ListManagedComponents());
-  const [isReady, setIsReady] = useState(false);
   const { t } = useTranslation();
+  const initialized = useRef(false);
+
   useEffect(() => {
     if (
-      availableManagedComponentsListData?.items.length === 0 ||
+      initialized.current ||
       !availableManagedComponentsListData?.items ||
-      isReady
-    )
+      availableManagedComponentsListData.items.length === 0
+    ) {
       return;
+    }
 
-    setComponentsList(
-      availableManagedComponentsListData?.items?.map((item) => {
+    const newComponentsList = availableManagedComponentsListData.items.map(
+      (item) => {
         const versions = sortVersions(item.status.versions);
         return {
           name: item.metadata.name,
-          versions: versions,
-          selectedVersion: versions[0],
+          versions,
+          selectedVersion: versions[0] ?? '',
           isSelected: false,
           documentationUrl: '',
         };
-      }) ?? [],
+      },
     );
-    setIsReady(true);
-  }, [availableManagedComponentsListData, isReady, setComponentsList]);
+
+    setComponentsList(newComponentsList);
+    initialized.current = true;
+  }, [availableManagedComponentsListData, setComponentsList]);
+
   if (isLoading) {
     return <Loading />;
   }
-  if (error) return <IllustratedError />;
+
+  if (error) {
+    return <IllustratedError />;
+  }
+
+  // Defensive: If the API returned no items, show error
+  if (!componentsList || componentsList.length === 0) {
+    return <IllustratedError title={t('componentsSelection.cannotLoad')} />;
+  }
+
   return (
-    <>
-      {componentsList.length > 0 ? (
-        <ComponentsSelection
-          componentsList={componentsList}
-          setComponentsList={setComponentsList}
-        />
-      ) : (
-        <IllustratedError title={t('componentsSelection.cannotLoad')} />
-      )}
-    </>
+    <ComponentsSelection
+      componentsList={componentsList}
+      setComponentsList={setComponentsList}
+    />
   );
 };

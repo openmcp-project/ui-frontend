@@ -33,7 +33,6 @@ import {
   CreateManagedControlPlaneType,
 } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-
 import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
@@ -43,7 +42,6 @@ import {
   getSelectedComponents,
 } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
-
 import { idpPrefix } from '../../utils/idpPrefix.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
@@ -138,6 +136,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
   const componentsList = watch('selectedComponents');
+
   const handleCreateManagedControlPlane = useCallback(
     async ({
       name,
@@ -263,7 +262,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     }
   }, [selectedStep]);
 
-  return isOpen ? (
+  if (!isOpen) return null;
+
+  return (
     <Dialog
       stretch
       headerText={t('createMCP.dialogTitle') || 'Create Managed Control Plane'}
@@ -308,7 +309,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           />
         </WizardStep>
         <WizardStep
-          icon={'user-edit'}
+          icon="user-edit"
           titleText={t('common.members')}
           selected={selectedStep === 'members'}
           data-step="members"
@@ -328,7 +329,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           </Form>
         </WizardStep>
         <WizardStep
-          icon={'add-product'}
+          icon="add-product"
           titleText={t('common.componentSelection')}
           selected={selectedStep === 'componentSelection'}
           data-step="componentSelection"
@@ -427,5 +428,5 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         </WizardStep>
       </Wizard>
     </Dialog>
-  ) : null;
+  );
 };
