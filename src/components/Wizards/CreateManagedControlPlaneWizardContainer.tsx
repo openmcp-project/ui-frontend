@@ -40,7 +40,7 @@ import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import {
   ComponentsSelectionContainer,
-  filterSelectedComponents,
+  getSelectedComponents,
 } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
@@ -379,7 +379,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               </List>
               <br />
               <List headerText={t('common.components')}>
-                {filterSelectedComponents(selectedComponents ?? []).map(
+                {getSelectedComponents(selectedComponents ?? []).map(
                   (component) => (
                     <ListItemStandard
                       key={component.name}
@@ -400,7 +400,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       displayName: getValues('displayName'),
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
-                      selectedComponents: filterSelectedComponents(
+                      selectedComponents: getSelectedComponents(
                         selectedComponents ?? [],
                       ),
                     },

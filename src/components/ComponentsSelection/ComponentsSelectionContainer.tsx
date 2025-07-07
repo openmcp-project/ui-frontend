@@ -14,9 +14,8 @@ export interface ComponentsSelectionProps {
   setSelectedComponents: (components: ComponentSelectionItem[]) => void;
 }
 
-export const filterSelectedComponents = (
-  components: ComponentSelectionItem[],
-) =>
+// get selected components and when Crossplane is selected then also providers
+export const getSelectedComponents = (components: ComponentSelectionItem[]) =>
   components.filter(
     (component) =>
       component.isSelected &&

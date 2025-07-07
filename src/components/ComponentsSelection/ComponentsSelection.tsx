@@ -21,7 +21,7 @@ import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
 import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { filterSelectedComponents } from './ComponentsSelectionContainer.tsx';
+import { getSelectedComponents } from './ComponentsSelectionContainer.tsx';
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];
@@ -66,10 +66,10 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     );
   };
 
-  const filteredComponents = components.filter(({ name }) =>
+  const searchResults = components.filter(({ name }) =>
     name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const selectedComponents = filterSelectedComponents(components);
+  const selectedComponents = getSelectedComponents(components);
 
   return (
     <div>
@@ -85,7 +85,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
-          {filteredComponents.map((component) => {
+          {searchResults.map((component) => {
             const isProviderDisabled =
               component.name?.includes('provider') &&
               components?.find(({ name }) => name === 'crossplane')
