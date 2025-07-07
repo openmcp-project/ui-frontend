@@ -45,13 +45,6 @@ import {
 import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 import { idpPrefix } from '../../utils/idpPrefix.ts';
-export type CreateDialogProps = {
-  name: string;
-  displayName?: string;
-  chargingTarget?: string;
-  chargingTargetType?: string;
-  members: Member[];
-};
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
