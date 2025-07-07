@@ -17,21 +17,21 @@ export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
 > = ({ setSelectedComponents, selectedComponents }) => {
   const {
-    data: allManagedComponents,
+    data: availableManagedComponentsListData,
     error,
     isLoading,
   } = useApiResource(ListManagedComponents());
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
     if (
-      allManagedComponents?.items.length === 0 ||
-      !allManagedComponents?.items ||
+      availableManagedComponentsListData?.items.length === 0 ||
+      !availableManagedComponentsListData?.items ||
       isReady
     )
       return;
 
     setSelectedComponents(
-      allManagedComponents?.items?.map((item) => {
+      availableManagedComponentsListData?.items?.map((item) => {
         const versions = sortVersions(item.status.versions);
         return {
           name: item.metadata.name,
@@ -43,7 +43,7 @@ export const ComponentsSelectionContainer: React.FC<
       }) ?? [],
     );
     setIsReady(true);
-  }, [allManagedComponents, isReady, setSelectedComponents]);
+  }, [availableManagedComponentsListData, isReady, setSelectedComponents]);
   if (isLoading) {
     return <Loading />;
   }

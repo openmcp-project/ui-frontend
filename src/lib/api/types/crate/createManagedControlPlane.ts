@@ -70,7 +70,7 @@ export const CreateManagedControlPlane = (
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  const componentsObject: Components =
+  const selectedComponentsListObject: Components =
     optional?.selectedComponents
       ?.filter(
         (component) =>
@@ -82,11 +82,11 @@ export const CreateManagedControlPlane = (
         acc[item.name] = { version: item.selectedVersion };
         return acc;
       }, {} as Components) ?? {};
-  const crossplane = optional?.selectedComponents?.find(
+  const crossplaneComponent = optional?.selectedComponents?.find(
     ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
 
-  const providers: Provider[] =
+  const providersListObject: Provider[] =
     optional?.selectedComponents
       ?.filter(
         ({ name, isSelected }) => name.includes('provider') && isSelected,
@@ -95,10 +95,10 @@ export const CreateManagedControlPlane = (
         name: name,
         version: selectedVersion,
       })) ?? [];
-  const providersObject = {
+  const crossplaneWithProvidersListObject = {
     crossplane: {
-      version: crossplane?.selectedVersion ?? '',
-      providers: providers,
+      version: crossplaneComponent?.selectedVersion ?? '',
+      providers: providersListObject,
     },
   };
 
@@ -118,9 +118,9 @@ export const CreateManagedControlPlane = (
     spec: {
       authentication: { enableSystemIdentityProvider: true },
       components: {
-        ...componentsObject,
+        ...selectedComponentsListObject,
         apiServer: { type: 'GardenerDedicated' },
-        ...(crossplane ? providersObject : {}),
+        ...(crossplaneComponent ? crossplaneWithProvidersListObject : {}),
       },
       authorization: {
         roleBindings:
