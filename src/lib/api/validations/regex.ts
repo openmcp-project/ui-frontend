@@ -5,3 +5,6 @@ export const projectWorkspaceNameRegex =
 // Matches managed control plane names: 1-63 chars per segment, lowercase alphanum/dash, dot-separated, no leading/trailing dash.
 export const managedControlPlaneNameRegex =
   /^(?!-)[a-z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-z0-9-]{1,63}(?<!-))*$/;
+
+export const btpChargingTargetRegex =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

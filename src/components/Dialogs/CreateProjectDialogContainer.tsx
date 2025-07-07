@@ -42,6 +42,7 @@ export function CreateProjectDialogContainer({
       name: '',
       displayName: '',
       chargingTarget: '',
+      chargingTargetType: 'btp',
       members: [],
     },
   });
@@ -49,11 +50,11 @@ export function CreateProjectDialogContainer({
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
-
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
     resetField('displayName');
+    resetField('chargingTargetType');
   }, [resetField]);
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export function CreateProjectDialogContainer({
     name,
     chargingTarget,
     displayName,
+    chargingTargetType,
     members,
   }: OnCreatePayload): Promise<boolean> => {
     try {
@@ -87,6 +89,7 @@ export function CreateProjectDialogContainer({
           displayName: displayName,
           chargingTarget: chargingTarget,
           members: members,
+          chargingTargetType: chargingTargetType,
         }),
       );
       setIsOpen(false);
@@ -115,6 +118,7 @@ export function CreateProjectDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      type={'project'}
       onCreate={handleSubmit(handleProjectCreate)}
     />
   );

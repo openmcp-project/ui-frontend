@@ -42,8 +42,16 @@ import {
   ComponentsSelectionContainer,
   filterSelectedComponents,
 } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
-import { idpPrefix } from '../../utils/idpPrefix.ts';
 import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
+
+import { idpPrefix } from '../../utils/idpPrefix.ts';
+export type CreateDialogProps = {
+  name: string;
+  displayName?: string;
+  chargingTarget?: string;
+  chargingTargetType?: string;
+  members: Member[];
+};
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -91,6 +99,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       name: '',
       displayName: '',
       chargingTarget: '',
+      chargingTargetType: '',
       members: [],
       selectedComponents: [],
     },
@@ -117,6 +126,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
+    resetField('chargingTargetType');
     resetField('displayName');
   }, [resetField]);
 
@@ -298,7 +308,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm register={register} errors={errors} />
+          <MetadataForm
+            setValue={setValue}
+            register={register}
+            errors={errors}
+          />
         </WizardStep>
         <WizardStep
           icon={'user-edit'}
