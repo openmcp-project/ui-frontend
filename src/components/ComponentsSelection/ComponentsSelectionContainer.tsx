@@ -13,6 +13,20 @@ export interface ComponentsSelectionProps {
   selectedComponents: ComponentSelectionItem[];
   setSelectedComponents: (components: ComponentSelectionItem[]) => void;
 }
+
+export const filterSelectedComponents = (
+  components: ComponentSelectionItem[],
+) =>
+  components.filter(
+    (component) =>
+      component.isSelected &&
+      !(
+        component.name?.includes('provider') &&
+        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
+          false
+      ),
+  );
+
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
 > = ({ setSelectedComponents, selectedComponents }) => {

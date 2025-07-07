@@ -21,7 +21,7 @@ import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
 import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { filterSelectedComponents } from '../Wizards/CreateManagedControlPlaneWizardContainer.tsx';
+import { filterSelectedComponents } from './ComponentsSelectionContainer.tsx';
 
 export interface ComponentsSelectionProps {
   components: ComponentSelectionItem[];

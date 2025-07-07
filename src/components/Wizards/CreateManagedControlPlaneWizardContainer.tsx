@@ -38,7 +38,10 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { ComponentsSelectionContainer } from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import {
+  ComponentsSelectionContainer,
+  filterSelectedComponents,
+} from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { idpPrefix } from '../../utils/idpPrefix.ts';
 import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
@@ -63,19 +66,6 @@ const wizardStepOrder: WizardStepType[] = [
   'summarize',
   'success',
 ];
-
-export const filterSelectedComponents = (
-  components: ComponentSelectionItem[],
-) =>
-  components.filter(
-    (component) =>
-      component.isSelected &&
-      !(
-        component.name?.includes('provider') &&
-        components?.find(({ name }) => name === 'crossplane')?.isSelected ===
-          false
-      ),
-  );
 
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
