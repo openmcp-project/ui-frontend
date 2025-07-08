@@ -31,7 +31,7 @@ export type CreateDialogProps = {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
-  selectedComponents?: ComponentsListItem[];
+  componentsList?: ComponentsListItem[];
 };
 
 export function CreateWorkspaceDialogContainer({

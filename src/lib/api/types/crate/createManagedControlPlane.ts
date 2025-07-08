@@ -68,12 +68,12 @@ export const CreateManagedControlPlane = (
     chargingTarget?: string;
     chargingTargetType?: string;
     members?: Member[];
-    selectedComponents?: ComponentsListItem[];
+    componentsList?: ComponentsListItem[];
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
   const selectedComponentsListObject: Components =
-    optional?.selectedComponents
+    optional?.componentsList
       ?.filter(
         (component) =>
           component.isSelected &&
@@ -84,12 +84,12 @@ export const CreateManagedControlPlane = (
         acc[item.name] = { version: item.selectedVersion };
         return acc;
       }, {} as Components) ?? {};
-  const crossplaneComponent = optional?.selectedComponents?.find(
+  const crossplaneComponent = optional?.componentsList?.find(
     ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
 
   const providersListObject: Provider[] =
-    optional?.selectedComponents
+    optional?.componentsList
       ?.filter(
         ({ name, isSelected }) => name.includes('provider') && isSelected,
       )

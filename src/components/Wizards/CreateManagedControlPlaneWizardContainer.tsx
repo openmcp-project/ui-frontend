@@ -92,7 +92,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       chargingTarget: '',
       chargingTargetType: '',
       members: [],
-      selectedComponents: [],
+      componentsList: [],
     },
     mode: 'onChange',
   });
@@ -135,7 +135,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
-  const componentsList = watch('selectedComponents');
+  const componentsList = watch('componentsList');
 
   const handleCreateManagedControlPlane = useCallback(
     async ({
@@ -153,7 +153,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
               displayName,
               chargingTarget,
               members,
-              selectedComponents: componentsList,
+              componentsList,
             },
             idpPrefix,
           ),
@@ -220,7 +220,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   const setComponentsList = useCallback(
     (components: ComponentsListItem[]) => {
-      setValue('selectedComponents', components, { shouldValidate: false });
+      setValue('componentsList', components, { shouldValidate: false });
     },
     [setValue],
   );
@@ -401,9 +401,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
                       displayName: getValues('displayName'),
                       chargingTarget: getValues('chargingTarget'),
                       members: getValues('members'),
-                      selectedComponents: getSelectedComponents(
-                        componentsList ?? [],
-                      ),
+                      componentsList: componentsList ?? [],
                     },
                     idpPrefix,
                   ),
