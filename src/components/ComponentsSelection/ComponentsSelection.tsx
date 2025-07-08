@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   CheckBox,
   Select,
@@ -20,58 +20,78 @@ import {
 import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
-import { ComponentSelectionItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { getSelectedComponents } from './ComponentsSelectionContainer.tsx';
 
 export interface ComponentsSelectionProps {
-  components: ComponentSelectionItem[];
-  setSelectedComponents: React.Dispatch<
-    React.SetStateAction<ComponentSelectionItem[]>
-  >;
+  componentsList: ComponentsListItem[];
+  setComponentsList: (components: ComponentsListItem[]) => void;
 }
 
 export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
-  components,
-  setSelectedComponents,
+  componentsList,
+  setComponentsList,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
-  const handleSelectionChange = (
-    e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>,
-  ) => {
-    const id = e.target?.id;
-    setSelectedComponents((prev) =>
-      prev.map((component) =>
-        component.name === id
-          ? { ...component, isSelected: !component.isSelected }
-          : component,
-      ),
-    );
-  };
 
-  const handleSearch = (e: Ui5CustomEvent<InputDomRef, never>) => {
-    setSearchTerm(e.target.value.trim());
-  };
-
-  const handleVersionChange = (
-    e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
-  ) => {
-    const selectedOption = e.detail.selectedOption as HTMLElement;
-    const name = selectedOption.dataset.name;
-    const version = selectedOption.dataset.version;
-    setSelectedComponents((prev) =>
-      prev.map((component) =>
-        component.name === name
-          ? { ...component, selectedVersion: version || '' }
-          : component,
-      ),
-    );
-  };
-
-  const filteredComponents = components.filter(({ name }) =>
-    name.includes(searchTerm),
+  const selectedComponents = useMemo(
+    () => getSelectedComponents(componentsList),
+    [componentsList],
   );
-  const selectedComponents = components.filter(
-    (component) => component.isSelected,
+
+  const searchResults = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
+    return componentsList.filter(({ name }) =>
+      name.toLowerCase().includes(lowerSearch),
+    );
+  }, [componentsList, searchTerm]);
+
+  const handleSelectionChange = useCallback(
+    (e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) => {
+      const id = e.target?.id;
+      if (!id) return;
+      setComponentsList(
+        componentsList.map((component) =>
+          component.name === id
+            ? { ...component, isSelected: !component.isSelected }
+            : component,
+        ),
+      );
+    },
+    [componentsList, setComponentsList],
+  );
+
+  const handleSearch = useCallback((e: Ui5CustomEvent<InputDomRef, never>) => {
+    setSearchTerm(e.target.value.trim());
+  }, []);
+
+  const handleVersionChange = useCallback(
+    (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
+      const selectedOption = e.detail.selectedOption as HTMLElement;
+      const name = selectedOption.dataset.name;
+      const version = selectedOption.dataset.version;
+      if (!name) return;
+      setComponentsList(
+        componentsList.map((component) =>
+          component.name === name
+            ? { ...component, selectedVersion: version || '' }
+            : component,
+        ),
+      );
+    },
+    [componentsList, setComponentsList],
+  );
+
+  const isProviderDisabled = useCallback(
+    (component: ComponentsListItem) => {
+      if (!component.name?.includes('provider')) return false;
+      const crossplane = componentsList.find(
+        ({ name }) => name === 'crossplane',
+      );
+      return crossplane?.isSelected === false;
+    },
+    [componentsList],
   );
 
   return (
@@ -83,54 +103,75 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
         id="search"
         showClearIcon
         icon={<Icon name="search" />}
+        value={searchTerm}
+        aria-label={t('common.search')}
         onInput={handleSearch}
       />
 
       <Grid>
         <div data-layout-span="XL8 L8 M8 S8">
-          {filteredComponents.map((component) => (
-            <FlexBox
-              key={component.name}
-              className={styles.row}
-              gap={10}
-              justifyContent="SpaceBetween"
-            >
-              <CheckBox
-                valueState="None"
-                text={component.name}
-                id={component.name}
-                checked={component.isSelected}
-                onChange={handleSelectionChange}
-              />
-              <FlexBox
-                gap={10}
-                justifyContent="SpaceBetween"
-                alignItems="Baseline"
-              >
-                {/*This button will be implemented later*/}
-                {component.documentationUrl && (
-                  <Button design="Transparent">
-                    {t('common.documentation')}
-                  </Button>
-                )}
-                <Select
-                  value={component.selectedVersion}
-                  onChange={handleVersionChange}
+          {searchResults.length > 0 ? (
+            searchResults.map((component) => {
+              const providerDisabled = isProviderDisabled(component);
+              return (
+                <FlexBox
+                  key={component.name}
+                  className={styles.row}
+                  gap={10}
+                  justifyContent="SpaceBetween"
+                  data-testid={`component-row-${component.name}`}
                 >
-                  {component.versions.map((version) => (
-                    <Option
-                      key={version}
-                      data-version={version}
-                      data-name={component.name}
-                      selected={component.selectedVersion === version}
+                  <CheckBox
+                    valueState="None"
+                    text={component.name}
+                    id={component.name}
+                    checked={component.isSelected}
+                    disabled={providerDisabled}
+                    aria-label={component.name}
+                    onChange={handleSelectionChange}
+                  />
+                  <FlexBox
+                    gap={10}
+                    justifyContent="SpaceBetween"
+                    alignItems="Baseline"
+                  >
+                    {/* TODO: Add documentation link */}
+                    {component.documentationUrl && (
+                      <Button
+                        design="Transparent"
+                        rel="noopener noreferrer"
+                        aria-label={t('common.documentation')}
+                        tabIndex={0}
+                      >
+                        {t('common.documentation')}
+                      </Button>
+                    )}
+                    <Select
+                      value={component.selectedVersion}
+                      disabled={!component.isSelected || providerDisabled}
+                      aria-label={`${component.name} version`}
+                      onChange={handleVersionChange}
                     >
-                      {version}
-                    </Option>
-                  ))}
-                </Select>
-              </FlexBox>
-            </FlexBox>
-          ))}
+                      {component.versions.map((version) => (
+                        <Option
+                          key={version}
+                          data-version={version}
+                          data-name={component.name}
+                          selected={component.selectedVersion === version}
+                        >
+                          {version}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FlexBox>
+                </FlexBox>
+              );
+            })
+          ) : (
+            <Infobox fullWidth variant="success">
+              <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
+            </Infobox>
+          )}
         </div>
         <div data-layout-span="XL4 L4 M4 S4">
           {selectedComponents.length > 0 ? (
@@ -144,7 +185,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               ))}
             </List>
           ) : (
-            <Infobox fullWidth variant={'success'}>
+            <Infobox fullWidth variant="success">
               <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
             </Infobox>
           )}

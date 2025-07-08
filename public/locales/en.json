@@ -308,6 +308,7 @@
   "componentsSelection": {
     "selectComponents": "Select Components",
     "selectedComponents": "Selected Components",
-    "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane."
+    "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
+    "cannotLoad": "Cannot load components list"
   }
 }

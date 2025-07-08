@@ -9,7 +9,7 @@ import { Member } from '../shared/members';
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
 
-export interface ComponentSelectionItem {
+export interface ComponentsListItem {
   name: string;
   versions: string[];
   isSelected: boolean;
@@ -25,6 +25,11 @@ interface Subject {
   kind: 'User' | 'Group' | 'ServiceAccount';
   name: string;
 }
+
+interface Provider {
+  name: string;
+  version: string;
+}
 interface Spec {
   authentication: {
     enableSystemIdentityProvider: boolean;
@@ -39,7 +44,8 @@ interface Components {
     | {
         version: string;
       }
-    | { type: 'GardenerDedicated' };
+    | { type: 'GardenerDedicated' }
+    | { version: string; providers: Provider[] };
 }
 
 export interface CreateManagedControlPlaneType {
@@ -62,17 +68,41 @@ export const CreateManagedControlPlane = (
     chargingTarget?: string;
     chargingTargetType?: string;
     members?: Member[];
-    selectedComponents?: ComponentSelectionItem[];
+    componentsList?: ComponentsListItem[];
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  const componentsObject: Components =
-    optional?.selectedComponents
-      ?.filter((component) => component.isSelected)
+  const selectedComponentsListObject: Components =
+    optional?.componentsList
+      ?.filter(
+        (component) =>
+          component.isSelected &&
+          !component.name.includes('provider') &&
+          !component.name.includes('crossplane'),
+      )
       .reduce((acc, item) => {
         acc[item.name] = { version: item.selectedVersion };
         return acc;
       }, {} as Components) ?? {};
+  const crossplaneComponent = optional?.componentsList?.find(
+    ({ name, isSelected }) => name === 'crossplane' && isSelected,
+  );
+
+  const providersListObject: Provider[] =
+    optional?.componentsList
+      ?.filter(
+        ({ name, isSelected }) => name.includes('provider') && isSelected,
+      )
+      .map(({ name, selectedVersion }) => ({
+        name: name,
+        version: selectedVersion,
+      })) ?? [];
+  const crossplaneWithProvidersListObject = {
+    crossplane: {
+      version: crossplaneComponent?.selectedVersion ?? '',
+      providers: providersListObject,
+    },
+  };
 
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -91,8 +121,9 @@ export const CreateManagedControlPlane = (
     spec: {
       authentication: { enableSystemIdentityProvider: true },
       components: {
-        ...componentsObject,
+        ...selectedComponentsListObject,
         apiServer: { type: 'GardenerDedicated' },
+        ...(crossplaneComponent ? crossplaneWithProvidersListObject : {}),
       },
       authorization: {
         roleBindings:
