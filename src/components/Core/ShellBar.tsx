@@ -31,7 +31,7 @@ import {
 } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
@@ -151,7 +151,9 @@ export function ShellBarComponent() {
       >
         <ShellBarItem
           icon="feedback"
-          text={t('ShellBar.feedbackNotification')}
+          text={t('ShellBar.feedbackNotification', {
+            url: 'https://github.com/openmcp-project/ui-frontend/issues/new/choose',
+          })}
           onClick={onFeedbackClick}
         />
       </ShellBar>
@@ -336,7 +338,14 @@ const FeedbackPopover = ({
                 </FormItem>
                 <FormItem>
                   <Label style={{ color: 'gray' }}>
-                    {t('ShellBar.feedbackNotification')}
+                    {t('ShellBar.feedbackNotificationText')}
+                    <a
+                      href="https://github.com/openmcp-project/ui-frontend/issues/new/choose"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t('ShellBar.feedbackNotificationAction')}
+                    </a>
                   </Label>
                 </FormItem>
               </FormGroup>

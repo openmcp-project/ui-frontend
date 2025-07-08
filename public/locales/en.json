@@ -104,7 +104,8 @@
     "feedbackButton": "Send feedback",
     "feedbackButtonInfo": "Give us your feedback",
     "feedbackPlaceholder": "Please let us know what you think about our application",
-    "feedbackNotification": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind, please create here.",
+    "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
+    "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!"
   },
   "CreateProjectDialog": {
