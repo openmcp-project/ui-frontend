@@ -26,7 +26,9 @@ import { validationSchemaProjectWorkspace } from '../../lib/api/validations/sche
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export type CreateDialogProps = {
+  namePrefix?: string;
   name: string;
+  nameSuffix?: string;
   displayName?: string;
   chargingTarget?: string;
   chargingTargetType?: string;

@@ -3,3 +3,10 @@
   margin-bottom: 2rem;
   max-width: 40ch;
 }
+
+.inputSmall {
+  width: 100%;
+  margin-bottom: 2rem;
+  max-width: 15ch;
+  display: flex;
+}

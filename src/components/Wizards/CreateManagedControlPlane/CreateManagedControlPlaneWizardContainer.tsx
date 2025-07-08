@@ -86,6 +86,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
+      namePrefix: 'prefix-',
+      nameSuffix: 'suffix-',
       name: '',
       displayName: '',
       chargingTarget: '',
@@ -305,6 +307,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             setValue={setValue}
             register={register}
             errors={errors}
+            getValues={getValues}
           />
         </WizardStep>
         <WizardStep
