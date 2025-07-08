@@ -39,7 +39,7 @@ import { useLink } from '../../../lib/shared/useLink.ts';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
-import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlaneWizardContainer.tsx';
+import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 
 interface Props {
   projectName: string;

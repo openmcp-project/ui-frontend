@@ -1,48 +1,47 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useApiResourceMutation } from '../../lib/api/useApiResource';
+
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
+
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { validationSchemaCreateManagedControlPlane } from '../../lib/api/validations/schemas.ts';
-import { OnCreatePayload } from '../Dialogs/CreateProjectWorkspaceDialog.tsx';
+
 import {
   Bar,
   Button,
   Dialog,
   Form,
   FormGroup,
-  Grid,
-  List,
-  ListItemStandard,
-  Title,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
   WizardStep,
 } from '@ui5/webcomponents-react';
-import YamlViewer from '../Yaml/YamlViewer.tsx';
-import { stringify } from 'yaml';
-import { APIError } from '../../lib/api/error.ts';
+
+import { SummarizeStep } from './SummarizeStep.tsx';
+import { useTranslation } from 'react-i18next';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import {
+  ErrorDialog,
+  ErrorDialogHandle,
+} from '../../Shared/ErrorMessageBox.tsx';
+import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
+import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
+import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
+import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   ComponentsListItem,
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
-} from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { EditMembers } from '../Members/EditMembers.tsx';
-import { useTranslation } from 'react-i18next';
-import { MetadataForm } from '../Dialogs/MetadataForm.tsx';
-import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import {
-  ComponentsSelectionContainer,
-  getSelectedComponents,
-} from '../ComponentsSelection/ComponentsSelectionContainer.tsx';
-import { CreateDialogProps } from '../Dialogs/CreateWorkspaceDialogContainer.tsx';
-import { idpPrefix } from '../../utils/idpPrefix.ts';
+} from '../../../lib/api/types/crate/createManagedControlPlane.ts';
+import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import { idpPrefix } from '../../../utils/idpPrefix.ts';
+import { APIError } from '../../../lib/api/error.ts';
+import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
+import { EditMembers } from '../../Members/EditMembers.tsx';
+import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -347,69 +346,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'summarize'}
           data-step="summarize"
         >
-          <Title>{t('common.summarize')}</Title>
-          <Grid defaultSpan="XL6 L6 M6 S6">
-            <div>
-              <List headerText={t('common.metadata')}>
-                <ListItemStandard
-                  text={t('common.name')}
-                  additionalText={getValues('name')}
-                />
-                <ListItemStandard
-                  text={t('common.displayName')}
-                  additionalText={getValues('displayName')}
-                />
-                <ListItemStandard
-                  text={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-                  additionalText={getValues('chargingTarget')}
-                />
-                <ListItemStandard
-                  text={t('common.namespace')}
-                  additionalText={`${projectName}--ws-${workspaceName}`}
-                />
-              </List>
-              <br />
-              <List headerText={t('common.members')}>
-                {getValues('members').map((member) => (
-                  <ListItemStandard
-                    key={member.name}
-                    text={member.name}
-                    additionalText={member.roles[0]}
-                  />
-                ))}
-              </List>
-              <br />
-              <List headerText={t('common.components')}>
-                {getSelectedComponents(componentsList ?? []).map(
-                  (component) => (
-                    <ListItemStandard
-                      key={component.name}
-                      text={component.name}
-                      additionalText={component.selectedVersion}
-                    />
-                  ),
-                )}
-              </List>
-            </div>
-            <div>
-              <YamlViewer
-                yamlString={stringify(
-                  CreateManagedControlPlane(
-                    getValues('name'),
-                    `${projectName}--ws-${workspaceName}`,
-                    {
-                      displayName: getValues('displayName'),
-                      chargingTarget: getValues('chargingTarget'),
-                      members: getValues('members'),
-                      componentsList: componentsList ?? [],
-                    },
-                    idpPrefix,
-                  ),
-                )}
-                filename={`mcp_${projectName}--ws-${workspaceName}`}
-              />
-            </div>
-          </Grid>
+          <SummarizeStep
+            getValues={getValues}
+            workspaceName={workspaceName}
+            projectName={projectName}
+            componentsList={componentsList}
+          />
         </WizardStep>
         <WizardStep
           icon="activities"
