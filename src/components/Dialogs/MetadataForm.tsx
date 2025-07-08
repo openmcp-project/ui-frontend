@@ -42,7 +42,6 @@ const PrefixSuffixInput: React.FC<{
   value?: string;
   registerName: keyof CreateDialogProps;
   register: UseFormRegister<CreateDialogProps>;
-  error?: string;
   extraWidth?: number;
   disabled?: boolean;
 }> = ({
@@ -50,7 +49,6 @@ const PrefixSuffixInput: React.FC<{
   value,
   registerName,
   register,
-  error,
   extraWidth = 1,
   disabled = false,
 }) =>
@@ -61,8 +59,6 @@ const PrefixSuffixInput: React.FC<{
         style={{ width: getInputWidth(value, extraWidth) }}
         id={id}
         {...register(registerName)}
-        valueState={error ? 'Negative' : 'None'}
-        valueStateMessage={error ? <span>{error}</span> : undefined}
         value={value}
         disabled={disabled}
       />
@@ -112,7 +108,6 @@ export function MetadataForm({
             value={getValues?.('namePrefix')}
             registerName="namePrefix"
             register={register}
-            error={nameError}
             extraWidth={1}
             disabled
           />
@@ -133,7 +128,6 @@ export function MetadataForm({
             value={getValues?.('nameSuffix')}
             registerName="nameSuffix"
             register={register}
-            error={nameError}
             extraWidth={3}
             disabled
           />
@@ -149,7 +143,6 @@ export function MetadataForm({
             value={getValues?.('displayNamePrefix')}
             registerName="displayNamePrefix"
             register={register}
-            error={nameError}
             extraWidth={1}
             disabled
           />
@@ -165,7 +158,6 @@ export function MetadataForm({
             value={getValues?.('displayNameSuffix')}
             registerName="displayNameSuffix"
             register={register}
-            error={nameError}
             extraWidth={3}
             disabled
           />
