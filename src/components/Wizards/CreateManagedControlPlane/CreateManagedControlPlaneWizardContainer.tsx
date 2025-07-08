@@ -86,10 +86,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
-      namePrefix: 'prefix-',
-      nameSuffix: 'suffix-',
+      namePrefix: 'hackaton-',
+      nameSuffix: '-2025',
       name: '',
+      displayNamePrefix: '[Hackaton] ',
       displayName: '',
+      displayNameSuffix: '(2025)',
       chargingTarget: '',
       chargingTargetType: '',
       members: [],

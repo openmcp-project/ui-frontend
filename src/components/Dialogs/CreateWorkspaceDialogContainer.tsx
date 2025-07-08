@@ -29,7 +29,9 @@ export type CreateDialogProps = {
   namePrefix?: string;
   name: string;
   nameSuffix?: string;
+  displayNamePrefix?: string;
   displayName?: string;
+  displayNameSuffix?: string;
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
