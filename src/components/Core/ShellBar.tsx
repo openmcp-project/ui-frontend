@@ -31,7 +31,7 @@ import {
 } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
@@ -149,13 +149,7 @@ export function ShellBarComponent() {
         }
         onProfileClick={onProfileClick}
       >
-        <ShellBarItem
-          icon="feedback"
-          text={t('ShellBar.feedbackNotification', {
-            url: 'https://github.com/openmcp-project/ui-frontend/issues/new/choose',
-          })}
-          onClick={onFeedbackClick}
-        />
+        <ShellBarItem icon="feedback" onClick={onFeedbackClick} />
       </ShellBar>
 
       <ProfilePopover
