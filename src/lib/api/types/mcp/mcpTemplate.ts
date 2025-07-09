@@ -77,7 +77,7 @@ type SpecSpec = {
   components?: ComponentsSpec;
 };
 
-type ManagedControlPlaneTemplate = {
+export type ManagedControlPlaneTemplate = {
   kind: 'ManagedControlPlaneTemplate';
   meta: {
     name: string;
@@ -135,21 +135,21 @@ export const managedControlPlaneTemplate: ManagedControlPlaneTemplate = {
       authorization: {
         default: [
           {
-            name: 'openmcp:alice.admin@sap.com',
+            name: 'alice.admin@sap.com',
             removable: false,
           },
           {
-            name: 'openmcp:bob.viewer@sap.com',
+            name: 'bob.viewer@sap.com',
             removable: true,
           },
         ],
         allowAdd: true,
         allow: [
-          'openmcp:alice.admin@sap.com',
-          'openmcp:bob.viewer@sap.com',
-          'openmcp:carol.dev@sap.com',
+          'alice.admin@sap.com',
+          'bob.viewer@sap.com',
+          'carol.dev@sap.com',
         ],
-        deny: ['openmcp:eve.blocked@sap.com'],
+        deny: ['eve.blocked@sap.com'],
       },
       components: {
         default: [

@@ -42,7 +42,7 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
+import { ManagedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
 
 export type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -50,6 +50,7 @@ export type CreateManagedControlPlaneWizardContainerProps = {
   isWithTemplate: boolean;
   projectName?: string;
   workspaceName?: string;
+  managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
 };
 
 type WizardStepType =
@@ -75,6 +76,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   projectName = '',
   workspaceName = '',
   isWithTemplate,
+  managedControlPlaneTemplate,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -106,7 +108,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
       chargingTargetType:
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
-      members: [],
+      members: managedControlPlaneTemplate?.spec?.spec?.authorization?.default
+        ? managedControlPlaneTemplate?.spec?.spec?.authorization?.default?.map(
+            (member) => ({
+              name: member.name,
+              kind: 'User',
+              roles: [],
+            }),
+          )
+        : [],
       componentsList: [],
     },
     mode: 'onChange',
