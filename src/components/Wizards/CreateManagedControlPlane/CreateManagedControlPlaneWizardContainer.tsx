@@ -27,7 +27,11 @@ import {
 } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
-import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
+import {
+  Member,
+  MemberRoles,
+  MemberRolesDetailed,
+} from '../../../lib/api/types/shared/members.ts';
 import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   ComponentsListItem,
@@ -83,7 +87,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-
+  const preloadedMembers =
+    managedControlPlaneTemplate?.spec?.spec?.authorization?.default ?? [];
   const {
     register,
     handleSubmit,
@@ -108,20 +113,19 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
       chargingTargetType:
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
-      members: managedControlPlaneTemplate?.spec?.spec?.authorization?.default
-        ? managedControlPlaneTemplate?.spec?.spec?.authorization?.default?.map(
-            (member) => ({
-              name: member.name,
-              kind: 'User',
-              roles: [],
-            }),
-          )
+      members: preloadedMembers.length
+        ? (preloadedMembers.map((member) => ({
+            name: member.name ?? '',
+            kind: 'User',
+            roles: ['admin'],
+          })) as any)
         : [],
       componentsList: [],
     },
     mode: 'onChange',
   });
 
+  console.log(watch('members'));
   const nextButtonText = useMemo(
     () => ({
       metadata: t('buttons.next'),
