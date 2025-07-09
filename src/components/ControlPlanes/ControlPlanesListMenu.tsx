@@ -16,11 +16,15 @@ import { useTranslation } from 'react-i18next';
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  setIsCreateManagedControlPlaneWizardForTemplate: Dispatch<
+    SetStateAction<boolean>
+  >;
 };
 
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setIsCreateManagedControlPlaneWizardOpen,
+  setIsCreateManagedControlPlaneWizardForTemplate,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
@@ -47,6 +51,10 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           if (action === 'newManagedControlPlane') {
             setIsCreateManagedControlPlaneWizardOpen(true);
           }
+          if (action === 'newManagedControlPlaneWithTemplate') {
+            setIsCreateManagedControlPlaneWizardOpen(true);
+            setIsCreateManagedControlPlaneWizardForTemplate(true);
+          }
           if (action === 'deleteWorkspace') {
             setDialogDeleteWsIsOpen(true);
           }
@@ -59,6 +67,14 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           data-action="newManagedControlPlane"
           icon="add"
+        />
+        <MenuItem
+          key={'add'}
+          text={t(
+            'ControlPlaneListToolbar.createNewManagedControlPlaneWithTemplate',
+          )}
+          data-action="newManagedControlPlaneWithTemplate"
+          icon="add-document"
         />
         <MenuItem
           key={'delete'}

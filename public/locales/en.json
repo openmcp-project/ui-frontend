@@ -42,7 +42,8 @@
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
-    "createNewManagedControlPlane": "Create new Managed Control Plane"
+    "createNewManagedControlPlane": "Create new Managed Control Plane",
+    "createNewManagedControlPlaneWithTemplate": "Create new Managed Control Plane - Template POC"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",

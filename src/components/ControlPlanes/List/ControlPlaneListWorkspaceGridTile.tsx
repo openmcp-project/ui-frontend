@@ -54,6 +54,12 @@ export function ControlPlaneListWorkspaceGridTile({
     isCreateManagedControlPlaneWizardOpen,
     setIsCreateManagedControlPlaneWizardOpen,
   ] = useState(false);
+
+  const [
+    isCreateManagedControlPlaneWithTemplate,
+    setIsCreateManagedControlPlaneWithTemplate,
+  ] = useState(false);
+
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName =
     workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
@@ -147,6 +153,9 @@ export function ControlPlaneListWorkspaceGridTile({
                   setIsCreateManagedControlPlaneWizardOpen={
                     setIsCreateManagedControlPlaneWizardOpen
                   }
+                  setIsCreateManagedControlPlaneWizardForTemplate={
+                    setIsCreateManagedControlPlaneWithTemplate
+                  }
                 />
               </FlexBox>
             </div>
@@ -211,6 +220,7 @@ export function ControlPlaneListWorkspaceGridTile({
       <CreateManagedControlPlaneWizardContainer
         isOpen={isCreateManagedControlPlaneWizardOpen}
         setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+        isWithTemplate={isCreateManagedControlPlaneWithTemplate}
         projectName={projectNamespace}
         workspaceName={workspaceName}
       />

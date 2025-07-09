@@ -42,10 +42,12 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { MCPTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  isWithTemplate: boolean;
   projectName?: string;
   workspaceName?: string;
 };
@@ -67,12 +69,92 @@ const wizardStepOrder: WizardStepType[] = [
 
 export const CreateManagedControlPlaneWizardContainer: FC<
   CreateManagedControlPlaneWizardContainerProps
-> = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
+> = ({
+  isOpen,
+  setIsOpen,
+  projectName = '',
+  workspaceName = '',
+  isWithTemplate,
+}) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
+
+  const exampleMCPTemplate: MCPTemplate = {
+    metaData: {
+      name: 'example-template',
+      namespace: 'default',
+    },
+    spec: {
+      metaData: {
+        name: {
+          prefix: 'mcp-',
+          sufix: '-001',
+          validationRegex: '^[a-z0-9-]+$',
+          validationMessage:
+            'Name must be lowercase, alphanumeric and may contain hyphens',
+        },
+        displayName: {
+          prefix: 'MCP ',
+          sufix: ' Template',
+          validationRegex: '^MCP .+ Template$',
+          validationMessage:
+            "Display name must start with 'MCP ' and end with ' Template'",
+        },
+        chargingTarget: {
+          type: 'percentage',
+          value: '75',
+        },
+      },
+      spec: {
+        authentication: {
+          allowAdd: true,
+          system: {
+            enabled: true,
+            changeable: false,
+          },
+          customIDPs: [
+            {
+              removable: true,
+            },
+          ],
+        },
+        authorization: {
+          default: {
+            name: 'default-role',
+            removable: true,
+          },
+          allowAdd: true,
+          allow: ['viewer'],
+          deny: ['banned-user'],
+        },
+        components: {
+          default: [
+            {
+              name: 'nginx',
+              version: '1.21.0',
+              removable: false,
+              versionChangeable: true,
+            },
+          ],
+          allow: [
+            {
+              name: 'redis',
+              version: ['6.2', '7.0'],
+            },
+          ],
+          deny: [
+            {
+              name: 'mongodb',
+              version: ['4.0', '4.2'],
+            },
+          ],
+        },
+      },
+    },
+  };
 
   const {
     register,
