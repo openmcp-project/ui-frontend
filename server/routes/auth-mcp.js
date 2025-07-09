@@ -62,9 +62,7 @@ async function authPlugin(fastify) {
     const accessToken = req.encryptedSession.get('mcp_accessToken');
 
     const isAuthenticated = Boolean(accessToken);
-    reply.send({ isAuthenticated });
-
-    return reply;
+    return reply.send({ isAuthenticated });
   });
 }
 
