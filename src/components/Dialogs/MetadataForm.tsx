@@ -95,18 +95,18 @@ export function MetadataForm({
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
-        <FlexBox>
+        <FlexBox className={styles.autoWidth} justifyContent={'SpaceBetween'}>
           <PrefixSuffixInput
             id="namePrefix"
             value={getValues?.('namePrefix')}
             registerName="namePrefix"
             register={register}
-            extraWidth={1}
+            extraWidth={2}
             disabled
           />
-          <div>
+          <div className={styles.fullWidth}>
             <Input
-              className={styles.input}
+              className={styles.fullWidth}
               id="name"
               {...register('name')}
               valueState={errors.name ? 'Negative' : 'None'}
@@ -121,7 +121,7 @@ export function MetadataForm({
             value={getValues?.('nameSuffix')}
             registerName="nameSuffix"
             register={register}
-            extraWidth={3}
+            extraWidth={2}
             disabled
           />
         </FlexBox>
@@ -130,20 +130,20 @@ export function MetadataForm({
         <Label for="displayName">
           {t('CreateProjectWorkspaceDialog.displayNameLabel')}
         </Label>
-        <FlexBox>
+        <FlexBox className={styles.autoWidth} justifyContent={'SpaceBetween'}>
           <PrefixSuffixInput
             id="displayNamePrefix"
             value={getValues?.('displayNamePrefix')}
             registerName="displayNamePrefix"
             register={register}
-            extraWidth={1}
+            extraWidth={2}
             disabled
           />
-          <div>
+          <div className={styles.fullWidth}>
             <Input
+              className={styles.fullWidth}
               id="displayName"
               {...register('displayName')}
-              className={styles.inputSmall}
             />
           </div>
           <PrefixSuffixInput
@@ -151,7 +151,7 @@ export function MetadataForm({
             value={getValues?.('displayNameSuffix')}
             registerName="displayNameSuffix"
             register={register}
-            extraWidth={3}
+            extraWidth={2}
             disabled
           />
         </FlexBox>

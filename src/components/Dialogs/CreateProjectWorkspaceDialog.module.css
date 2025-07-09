@@ -4,6 +4,15 @@
   max-width: 40ch;
 }
 
+.autoWidth {
+  width: 100%;
+  max-width: 40ch;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
 .inputSmall {
   width: 100%;
   margin-bottom: 2rem;
