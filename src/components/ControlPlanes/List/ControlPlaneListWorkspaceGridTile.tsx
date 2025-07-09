@@ -40,6 +40,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { CreateManagedControlPlaneWizardTemplateLoader } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardTemplateLoader.tsx';
 
 interface Props {
   projectName: string;
@@ -217,7 +218,7 @@ export function ControlPlaneListWorkspaceGridTile({
           );
         }}
       />
-      <CreateManagedControlPlaneWizardContainer
+      <CreateManagedControlPlaneWizardTemplateLoader
         isOpen={isCreateManagedControlPlaneWizardOpen}
         setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
         isWithTemplate={isCreateManagedControlPlaneWithTemplate}

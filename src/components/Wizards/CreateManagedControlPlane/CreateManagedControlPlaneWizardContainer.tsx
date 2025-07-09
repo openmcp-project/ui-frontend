@@ -44,7 +44,7 @@ import { ComponentsSelectionContainer } from '../../ComponentsSelection/Componen
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
 
-type CreateManagedControlPlaneWizardContainerProps = {
+export type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   isWithTemplate: boolean;
@@ -102,8 +102,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       displayName: '',
       displayNameSuffix:
         managedControlPlaneTemplate?.spec?.meta?.displayName?.suffix ?? '',
-      chargingTarget: '',
-      chargingTargetType: '',
+      chargingTarget:
+        managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
+      chargingTargetType:
+        managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
     },
