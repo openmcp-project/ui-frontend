@@ -7,6 +7,7 @@ import {
   FormItem,
   Icon,
   Label,
+  Link,
   List,
   ListItemStandard,
   Popover,
@@ -36,7 +37,6 @@ import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts'
 import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { ShellBarItemClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBarItem.js';
-import { t } from 'i18next';
 
 type UI5RatingIndicatorElement = HTMLElement & { value: number };
 
@@ -333,13 +333,13 @@ const FeedbackPopover = ({
                 <FormItem>
                   <Label style={{ color: 'gray' }}>
                     {t('ShellBar.feedbackNotificationText')}
-                    <a
+                    <Link
                       href="https://github.com/openmcp-project/ui-frontend/issues/new/choose"
                       target="_blank"
                       rel="noreferrer"
                     >
                       {t('ShellBar.feedbackNotificationAction')}
-                    </a>
+                    </Link>
                   </Label>
                 </FormItem>
               </FormGroup>
