@@ -45,6 +45,12 @@ type Meta = {
   };
 };
 
+// Extend: ChargingTarget type and add to metadata
+export type ChargingTarget = {
+  type: string;
+  value: string;
+};
+
 type ManagedControlPlaneTemplateSpec = {
   meta: Meta;
   spec: {
@@ -76,6 +82,7 @@ export type ManagedControlPlaneTemplate = {
     namespace: string;
     resourceVersion: string;
     uid: string;
+    chargingTarget?: ChargingTarget; // <-- Added here
   };
   spec: ManagedControlPlaneTemplateSpec;
   status: ManagedControlPlaneTemplateStatus;
@@ -119,6 +126,7 @@ export const managedControlPlaneTemplate: ManagedControlPlaneTemplateList = {
         namespace: 'project-webapp-playground',
         resourceVersion: '39231946',
         uid: 'e761cc38-56d3-4fbe-add7-d31a0157c072',
+        chargingTarget: { type: 'btp', value: '2319843191984831741' }, // Now valid
       },
       spec: {
         meta: {
