@@ -44,14 +44,7 @@ const PrefixSuffixInput: React.FC<{
   register: UseFormRegister<CreateDialogProps>;
   extraWidth?: number;
   disabled?: boolean;
-}> = ({
-  id,
-  value,
-  registerName,
-  register,
-  extraWidth = 1,
-  disabled = false,
-}) =>
+}> = ({ id, value, registerName, register, extraWidth = 1 }) =>
   value ? (
     <div>
       <Input
@@ -60,7 +53,7 @@ const PrefixSuffixInput: React.FC<{
         id={id}
         {...register(registerName)}
         value={value}
-        disabled={disabled}
+        readonly
       />
     </div>
   ) : null;
