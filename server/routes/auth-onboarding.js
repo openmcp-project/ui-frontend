@@ -19,7 +19,7 @@ async function authPlugin(fastify) {
       issuerConfiguration.authorizationEndpoint,
     );
 
-    reply.redirect(redirectUri);
+    return reply.redirect(redirectUri);
   });
 
   fastify.get('/auth/onboarding/callback', async (req, reply) => {
