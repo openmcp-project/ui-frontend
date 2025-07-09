@@ -192,3 +192,14 @@ export const managedControlPlaneTemplate: ManagedControlPlaneTemplate = {
     },
   },
 };
+
+type MCPTemplateMeta = {
+  title: string;
+  iconUrl: string;
+  docsUrl: string;
+};
+
+export const MCPTemplayesList: MCPTemplateMeta[] = [
+  { title: 'MCPTitle', iconUrl: 'add-document', docsUrl: 'docsurl' },
+  { title: 'MCPTitle2', iconUrl: 'address-book', docsUrl: 'docsurl2' },
+];
