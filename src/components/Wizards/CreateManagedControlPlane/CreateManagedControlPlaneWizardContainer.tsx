@@ -27,11 +27,7 @@ import {
 } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
-import {
-  Member,
-  MemberRoles,
-  MemberRolesDetailed,
-} from '../../../lib/api/types/shared/members.ts';
+import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   ComponentsListItem,
@@ -367,6 +363,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('componentSelection')}
         >
           <ComponentsSelectionContainer
+            managedControlPlaneTemplate={managedControlPlaneTemplate}
             componentsList={componentsList ?? []}
             setComponentsList={setComponentsList}
           />

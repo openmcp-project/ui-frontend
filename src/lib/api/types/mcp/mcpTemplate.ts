@@ -155,19 +155,19 @@ export const managedControlPlaneTemplate: ManagedControlPlaneTemplate = {
         default: [
           {
             name: 'crossplane',
-            version: 'v1.12.0',
+            version: '1.18.0',
             removable: false,
             versionChangeable: false,
           },
           {
-            name: 'provider-aws',
-            version: 'v0.27.0',
+            name: 'provider-avs',
+            version: '0.4.0',
             removable: true,
             versionChangeable: true,
           },
           {
             name: 'external-secrets',
-            version: 'v0.8.0',
+            version: '0.8.0',
             removable: true,
             versionChangeable: true,
           },

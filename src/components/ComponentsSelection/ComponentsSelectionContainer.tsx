@@ -9,10 +9,12 @@ import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
+import { ManagedControlPlaneTemplate } from '../../lib/api/types/mcp/mcpTemplate.ts';
 
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
 }
 
 /**
@@ -34,7 +36,7 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
 
 export const ComponentsSelectionContainer: React.FC<
   ComponentsSelectionProps
-> = ({ setComponentsList, componentsList }) => {
+> = ({ setComponentsList, componentsList, managedControlPlaneTemplate }) => {
   const {
     data: availableManagedComponentsListData,
     error,
@@ -42,6 +44,8 @@ export const ComponentsSelectionContainer: React.FC<
   } = useApiResource(ListManagedComponents());
   const { t } = useTranslation();
   const initialized = useRef(false);
+  const defaultComponents =
+    managedControlPlaneTemplate?.spec?.spec?.components?.default ?? [];
 
   useEffect(() => {
     if (
@@ -59,7 +63,9 @@ export const ComponentsSelectionContainer: React.FC<
           name: item.metadata.name,
           versions,
           selectedVersion: versions[0] ?? '',
-          isSelected: false,
+          isSelected: !!defaultComponents.find(
+            ({ name }) => name === item.metadata.name,
+          ),
           documentationUrl: '',
         };
       },
