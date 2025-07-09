@@ -1,135 +1,194 @@
-export interface MCPTemplate {
-  metaData: {
+// TypeScript types
+
+type NameMeta = {
+  prefix?: string;
+  suffix?: string;
+  validationRegex?: string;
+  validationMessage?: string;
+};
+
+type DisplayNameMeta = {
+  prefix?: string;
+  suffix?: string;
+  validationRegex?: string;
+  validationMessage?: string;
+};
+
+type ChargingTargetMeta = {
+  type?: string;
+  value?: string;
+};
+
+type MetaSpec = {
+  name?: NameMeta;
+  displayName?: DisplayNameMeta;
+  chargingTarget?: ChargingTargetMeta;
+};
+
+type AuthenticationSystem = {
+  enabled?: boolean;
+  changeable?: boolean;
+};
+
+type CustomIDP = {
+  removable?: boolean;
+  // ...other possible fields
+};
+
+type AuthenticationSpec = {
+  allowAdd?: boolean;
+  system?: AuthenticationSystem;
+  customIDPs?: Record<string, CustomIDP>;
+};
+
+type AuthorizationDefault = {
+  name: string;
+  removable?: boolean;
+};
+
+type AuthorizationSpec = {
+  default?: AuthorizationDefault[];
+  allowAdd?: boolean;
+  allow?: string[];
+  deny?: string[];
+};
+
+type ComponentDefault = {
+  name: string;
+  version: string;
+  removable?: boolean;
+  versionChangeable?: boolean;
+};
+
+type ComponentAllowDeny = {
+  name: string;
+  version: string[];
+};
+
+type ComponentsSpec = {
+  default?: ComponentDefault[];
+  allow?: ComponentAllowDeny[];
+  deny?: ComponentAllowDeny[];
+};
+
+type SpecSpec = {
+  authentication?: AuthenticationSpec;
+  authorization?: AuthorizationSpec;
+  components?: ComponentsSpec;
+};
+
+type ManagedControlPlaneTemplate = {
+  kind: 'ManagedControlPlaneTemplate';
+  meta: {
     name: string;
     namespace: string;
   };
   spec: {
-    metaData: {
+    meta?: MetaSpec;
+    spec?: SpecSpec;
+  };
+};
+
+export const managedControlPlaneTemplate: ManagedControlPlaneTemplate = {
+  kind: 'ManagedControlPlaneTemplate',
+  meta: {
+    name: 'managed-control-plane-template-sap-dev',
+    namespace: 'project-sap-dev',
+    // namespace: 'project-sap-dev--ws-ml-platform'
+  },
+  spec: {
+    meta: {
       name: {
-        prefix?: string;
-        sufix?: string;
-        validationRegex?: string;
-        validationMessage?: string;
-      };
+        prefix: 'mcp-',
+        suffix: '-dev',
+        validationRegex: '^[a-z0-9-]{3,30}$',
+        validationMessage:
+          'Name must be 3-30 characters, lowercase letters, numbers, and dashes only.',
+      },
       displayName: {
-        prefix?: string;
-        sufix?: string;
-        validationRegex?: string;
-        validationMessage?: string;
-      };
+        prefix: '[MCP]',
+        suffix: ' (Dev)',
+        validationRegex: '^.{3,50}$',
+        validationMessage: 'Display name must be between 3 and 50 characters.',
+      },
       chargingTarget: {
-        type?: string;
-        value?: string;
-      };
-    };
+        type: 'cost-center',
+        value: 'CC-123456',
+      },
+    },
     spec: {
       authentication: {
-        allowAdd?: boolean;
+        allowAdd: false,
         system: {
-          enabled?: boolean;
-          changeable?: boolean;
-        };
-        customIDPs: [
-          {
-            removable?: boolean;
+          enabled: true,
+          changeable: false,
+        },
+        customIDPs: {
+          'sap-idp': {
+            removable: false,
           },
-        ];
-      };
+          github: {
+            removable: true,
+          },
+        },
+      },
       authorization: {
-        default: {
-          name: string;
-          removable?: boolean;
-        };
-        allowAdd: boolean;
-        allow: string[];
-        deny: string[];
-      };
+        default: [
+          {
+            name: 'openmcp:alice.admin@sap.com',
+            removable: false,
+          },
+          {
+            name: 'openmcp:bob.viewer@sap.com',
+            removable: true,
+          },
+        ],
+        allowAdd: true,
+        allow: [
+          'openmcp:alice.admin@sap.com',
+          'openmcp:bob.viewer@sap.com',
+          'openmcp:carol.dev@sap.com',
+        ],
+        deny: ['openmcp:eve.blocked@sap.com'],
+      },
       components: {
         default: [
           {
-            name: string;
-            version: string;
-            removable?: boolean;
-            versionChangeable?: boolean;
+            name: 'crossplane',
+            version: 'v1.12.0',
+            removable: false,
+            versionChangeable: false,
           },
-        ];
+          {
+            name: 'provider-aws',
+            version: 'v0.27.0',
+            removable: true,
+            versionChangeable: true,
+          },
+          {
+            name: 'external-secrets',
+            version: 'v0.8.0',
+            removable: true,
+            versionChangeable: true,
+          },
+        ],
         allow: [
           {
-            name: string;
-            version: string[];
+            name: 'crossplane',
+            version: ['v1.10.0', 'v1.11.0', 'v1.12.0'],
           },
-        ];
+          {
+            name: 'provider-aws',
+            version: ['v0.25.0', 'v0.26.0', 'v0.27.0'],
+          },
+        ],
         deny: [
           {
-            name: string;
-            version: string[];
+            name: 'provider-azure',
+            version: ['<v0.20.0'],
           },
-        ];
-      };
-    };
-  };
-}
-
-// kind: ManagedControlPlaneTemplate
-// meta:
-//   name: hahfaljf
-//   namespace: project-PROJECTNAME
-//   # namespace: project-PROJECTNAME--ws-WORKSPACENAME
-// spec:
-//   meta:
-//     name:
-//       prefix: optional
-//       suffix: optional
-//       validationRegex: optional
-//       validationMessage: optional # required in combination with regex
-//     displayName:
-//       prefix: optional
-//       suffix: optional
-//       validationRegex: optional
-//       validationMessage: optional # required in combination with regex
-//     chargingTarget:
-//       type: optional # overrides the forms, make it disabled
-//       value: optional # overrides the forms, make it disabled
-//   spec:
-//     authentication:
-//       allowAdd: true # optional, default=true
-//       system: # maybe: openmcp
-//         enabled: true # optional, is the predefined value
-//         changeable: true # optional, default=true
-//       customIDPs:
-//         custom1:
-//           removable: true # optional, default=false
-//         custom2:
-//           ...
-//     authorization:
-//       default:
-//         - name: openmcp:maria.musterfrau@sap.com
-//           removable: true # optional, default=false
-//       allowAdd: true # optional, default=true
-//       allow:
-//         - openmcp:maria.musterfrau@sap.com
-//       deny:
-//         - openmcp:max.mustermann@sap.com
-//     components:
-//       default:
-//         - name: crossplane
-//           version: v0.4.0
-//           removable: true # optional, default=true
-//           versionChangeable: true # optional, default=true
-//         - name: provider-btp
-//           version: v0.4.0
-//           removable: true # optional, default=true
-//           versionChangeable: true # optional, default=true
-//         - name: external-secrets
-//           version: v0.4.0
-//           removable: true # optional, default=true
-//           versionChangeable: true # optional, default=true
-//       allow:
-//         - name: crossplane
-//           version:
-//             - "v0.2.0 < v0.3.0"
-//             - "v0.4.0"
-//       deny:
-//         - name: provider-btp
-//           version:
-//             - ">v0.2.0"
+        ],
+      },
+    },
+  },
+};

@@ -42,7 +42,7 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { MCPTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
+import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -82,80 +82,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
 
-  const exampleMCPTemplate: MCPTemplate = {
-    metaData: {
-      name: 'example-template',
-      namespace: 'default',
-    },
-    spec: {
-      metaData: {
-        name: {
-          prefix: 'mcp-',
-          sufix: '-001',
-          validationRegex: '^[a-z0-9-]+$',
-          validationMessage:
-            'Name must be lowercase, alphanumeric and may contain hyphens',
-        },
-        displayName: {
-          prefix: 'MCP ',
-          sufix: ' Template',
-          validationRegex: '^MCP .+ Template$',
-          validationMessage:
-            "Display name must start with 'MCP ' and end with ' Template'",
-        },
-        chargingTarget: {
-          type: 'percentage',
-          value: '75',
-        },
-      },
-      spec: {
-        authentication: {
-          allowAdd: true,
-          system: {
-            enabled: true,
-            changeable: false,
-          },
-          customIDPs: [
-            {
-              removable: true,
-            },
-          ],
-        },
-        authorization: {
-          default: {
-            name: 'default-role',
-            removable: true,
-          },
-          allowAdd: true,
-          allow: ['viewer'],
-          deny: ['banned-user'],
-        },
-        components: {
-          default: [
-            {
-              name: 'nginx',
-              version: '1.21.0',
-              removable: false,
-              versionChangeable: true,
-            },
-          ],
-          allow: [
-            {
-              name: 'redis',
-              version: ['6.2', '7.0'],
-            },
-          ],
-          deny: [
-            {
-              name: 'mongodb',
-              version: ['4.0', '4.2'],
-            },
-          ],
-        },
-      },
-    },
-  };
-
   const {
     register,
     handleSubmit,
@@ -168,12 +94,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
-      namePrefix: 'hackaton-',
-      nameSuffix: '-2025',
+      namePrefix: managedControlPlaneTemplate?.spec?.meta?.name?.prefix ?? '',
+      nameSuffix: managedControlPlaneTemplate?.spec?.meta?.name?.suffix ?? '',
       name: '',
-      displayNamePrefix: '[Hackaton] ',
+      displayNamePrefix:
+        managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
-      displayNameSuffix: '(2025)',
+      displayNameSuffix:
+        managedControlPlaneTemplate?.spec?.meta?.displayName?.suffix ?? '',
       chargingTarget: '',
       chargingTargetType: '',
       members: [],
