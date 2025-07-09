@@ -1,5 +1,21 @@
 .input {
   width: 100%;
   margin-bottom: 2rem;
+  max-width: 45ch;
+}
+
+.autoWidth {
+  width: 100%;
   max-width: 40ch;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.inputSmall {
+  width: 100%;
+  margin-bottom: 2rem;
+  max-width: 15ch;
+  display: flex;
 }
