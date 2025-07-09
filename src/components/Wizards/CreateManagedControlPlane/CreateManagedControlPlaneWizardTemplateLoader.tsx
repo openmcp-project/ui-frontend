@@ -8,7 +8,7 @@ import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTempl
 export const CreateManagedControlPlaneWizardTemplateLoader: FC<
   CreateManagedControlPlaneWizardContainerProps
 > = (props) => {
-  const template = managedControlPlaneTemplate;
+  const template = managedControlPlaneTemplate.items[0];
   return (
     <CreateManagedControlPlaneWizardContainer
       {...props}

@@ -84,7 +84,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
   const preloadedMembers =
-    managedControlPlaneTemplate?.spec?.spec?.authorization?.default ?? [];
+    managedControlPlaneTemplate?.spec?.spec?.authorization?.defaultMembers ??
+    [];
   const {
     register,
     handleSubmit,
@@ -98,17 +99,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
       namePrefix: managedControlPlaneTemplate?.spec?.meta?.name?.prefix ?? '',
-      nameSuffix: managedControlPlaneTemplate?.spec?.meta?.name?.suffix ?? '',
+      nameSuffix: '',
       name: '',
       displayNamePrefix:
         managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
-      displayNameSuffix:
-        managedControlPlaneTemplate?.spec?.meta?.displayName?.suffix ?? '',
-      chargingTarget:
-        managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
-      chargingTargetType:
-        managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
+      displayNameSuffix: '',
+      chargingTarget: '',
+      // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
+      chargingTargetType: '',
+      // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
     },
