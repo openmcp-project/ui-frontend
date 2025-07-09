@@ -113,13 +113,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
       chargingTargetType:
         managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
-      members: preloadedMembers.length
-        ? (preloadedMembers.map((member) => ({
-            name: member.name ?? '',
-            kind: 'User',
-            roles: ['admin'],
-          })) as any)
-        : [],
+      members: [],
       componentsList: [],
     },
     mode: 'onChange',
@@ -153,6 +147,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   useEffect(() => {
     if (user?.email && isOpen) {
       setValue('members', [
+        ...(preloadedMembers.length
+          ? (preloadedMembers.map((member) => ({
+              name: member.name ?? '',
+              kind: 'User',
+              roles: ['admin'],
+            })) as any)
+          : []),
         { name: user.email, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
