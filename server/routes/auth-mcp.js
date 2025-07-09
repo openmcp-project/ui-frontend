@@ -20,9 +20,7 @@ async function authPlugin(fastify) {
       mcpIssuerConfiguration.authorizationEndpoint,
     );
 
-    reply.redirect(redirectUri);
-
-    return reply;
+    return reply.redirect(redirectUri);
   });
 
   fastify.get('/auth/mcp/callback', async (req, reply) => {
@@ -45,7 +43,7 @@ async function authPlugin(fastify) {
         req.encryptedSession.delete('mcp_tokenExpiresAt');
       }
 
-      reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
+      return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
     } catch (error) {
       if (error instanceof AuthenticationError) {
         req.log.error('AuthenticationError during OIDC callback: %s', error);
@@ -54,8 +52,6 @@ async function authPlugin(fastify) {
         throw error;
       }
     }
-
-    return reply;
   });
 
   fastify.get('/auth/mcp/me', async (req, reply) => {

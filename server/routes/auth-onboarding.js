@@ -43,7 +43,7 @@ async function authPlugin(fastify) {
         req.encryptedSession.delete('onboarding_tokenExpiresAt');
       }
 
-      reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
+      return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
     } catch (error) {
       if (error instanceof AuthenticationError) {
         req.log.error('AuthenticationError during OIDC callback: %s', error);
@@ -52,8 +52,6 @@ async function authPlugin(fastify) {
         throw error;
       }
     }
-
-    return reply;
   });
 
   fastify.get('/auth/onboarding/me', async (req, reply) => {
@@ -62,17 +60,13 @@ async function authPlugin(fastify) {
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
-    reply.send({ isAuthenticated, user });
-
-    return reply;
+    return reply.send({ isAuthenticated, user });
   });
 
   fastify.post('/auth/logout', async (req, reply) => {
     // TODO: Idp sign out flow
     req.encryptedSession.clear();
-    reply.send({ message: 'Logged out' });
-
-    return reply;
+    return reply.send({ message: 'Logged out' });
   });
 }
 
