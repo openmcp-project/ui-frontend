@@ -64,8 +64,7 @@ export function ControlPlaneCard({
   const namespace = controlPlane.metadata.namespace;
 
   const isSystemIdentityProviderEnabled =
-    !!controlPlane.spec?.authentication
-      ?.enableSystemIdentityProvider;
+    Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
 
   const isConnectButtonEnabled =
     canConnectToMCP(controlPlane) &&
