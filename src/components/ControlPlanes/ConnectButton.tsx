@@ -103,11 +103,11 @@ export default function ConnectButton(props: Props) {
               props.workspaceName,
             )}/mcps/${props.controlPlaneName}/context/${context.name}`}
             additionalText={`(${
-              currentContext === context.name
+              context.context.user === 'openmcp'
                 ? t('ConnectButton.defaultIdP')
                 : t('ConnectButton.unsupportedIdP')
             })`}
-            disabled={currentContext !== context.name}
+            disabled={context.context.user !== 'openmcp'}
           />
         ))}
         <MenuItem

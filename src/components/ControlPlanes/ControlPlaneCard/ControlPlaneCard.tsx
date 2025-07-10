@@ -17,7 +17,9 @@ import {
   ReadyStatus,
 } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
+import useResource, {
+  useApiResourceMutation,
+} from '../../../lib/api/useApiResource.ts';
 import {
   DeleteMCPResource,
   DeleteMCPType,
@@ -28,6 +30,8 @@ import {
 import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
+import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
+import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -60,7 +64,29 @@ export function ControlPlaneCard({
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
 
-  const isConnectButtonEnabled = canConnectToMCP(controlPlane);
+  // Disable the Connect button if the system IdP is disabled
+  const controlPlaneConfig = useResource(
+    ResourceObject(
+      controlPlane.metadata.namespace,
+      'managedcontrolplanes',
+      controlPlane.metadata.name,
+    ),
+    undefined,
+    true,
+  );
+
+  const isSystemIdentityProviderEnabled =
+    // @ts-ignore
+    !!controlPlaneConfig.data?.spec?.authentication
+      ?.enableSystemIdentityProvider;
+
+  const isConnectButtonEnabled =
+    canConnectToMCP(controlPlane) &&
+    isSystemIdentityProviderEnabled &&
+    !controlPlaneConfig.isLoading;
+
+  const showWarningBecauseOfDisabledSystemIdentityProvider =
+    !controlPlaneConfig.isLoading && !isSystemIdentityProviderEnabled;
 
   return (
     <>
@@ -108,6 +134,11 @@ export function ControlPlaneCard({
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}
                 />
+                {showWarningBecauseOfDisabledSystemIdentityProvider && (
+                  <Infobox size="sm" variant="warning">
+                    {t('ConnectButton.unsupportedIdP')}
+                  </Infobox>
+                )}
                 <ConnectButton
                   disabled={!isConnectButtonEnabled}
                   controlPlaneName={name}
