@@ -17,7 +17,7 @@ import {
   ReadyStatus,
 } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import useResource, {
+import {
   useApiResourceMutation,
 } from '../../../lib/api/useApiResource.ts';
 import {
@@ -30,7 +30,6 @@ import {
 import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
-import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 interface Props {
@@ -64,29 +63,15 @@ export function ControlPlaneCard({
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
 
-  // Disable the Connect button if the system IdP is disabled
-  const controlPlaneConfig = useResource(
-    ResourceObject(
-      controlPlane.metadata.namespace,
-      'managedcontrolplanes',
-      controlPlane.metadata.name,
-    ),
-    undefined,
-    true,
-  );
-
   const isSystemIdentityProviderEnabled =
-    // @ts-ignore
-    !!controlPlaneConfig.data?.spec?.authentication
-      ?.enableSystemIdentityProvider;
+    Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
 
   const isConnectButtonEnabled =
     canConnectToMCP(controlPlane) &&
-    isSystemIdentityProviderEnabled &&
-    !controlPlaneConfig.isLoading;
+    isSystemIdentityProviderEnabled
 
   const showWarningBecauseOfDisabledSystemIdentityProvider =
-    !controlPlaneConfig.isLoading && !isSystemIdentityProviderEnabled;
+    !isSystemIdentityProviderEnabled;
 
   return (
     <>
