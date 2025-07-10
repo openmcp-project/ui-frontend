@@ -9,7 +9,7 @@ async function authPlugin(fastify) {
   const mcpIssuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('mcpIssuerConfiguration', mcpIssuerConfiguration);
 
-  fastify.get('/auth/mcp/login', async (req, reply) => {
+  fastify.get('/auth/mcp/login', async function (req, reply) {
     const redirectUri = fastify.prepareOidcLoginRedirect(
       req,
       {
@@ -23,7 +23,7 @@ async function authPlugin(fastify) {
     return reply.redirect(redirectUri);
   });
 
-  fastify.get('/auth/mcp/callback', async (req, reply) => {
+  fastify.get('/auth/mcp/callback', async function (req, reply) {
     try {
       const callbackResult = await fastify.handleOidcCallback(
         req,
@@ -54,11 +54,11 @@ async function authPlugin(fastify) {
     }
   });
 
-  fastify.get('/auth/mcp/me', async (req, reply) => {
+  fastify.get('/auth/mcp/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('mcp_accessToken');
 
     const isAuthenticated = Boolean(accessToken);
-    return reply.send({ isAuthenticated });
+    reply.send({ isAuthenticated });
   });
 }
 

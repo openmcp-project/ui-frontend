@@ -8,7 +8,7 @@ async function authPlugin(fastify) {
   const issuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('issuerConfiguration', issuerConfiguration);
 
-  fastify.get('/auth/onboarding/login', async (req, reply) => {
+  fastify.get('/auth/onboarding/login', async function (req, reply) {
     const redirectUri = fastify.prepareOidcLoginRedirect(
       req,
       {
@@ -22,7 +22,7 @@ async function authPlugin(fastify) {
     return reply.redirect(redirectUri);
   });
 
-  fastify.get('/auth/onboarding/callback', async (req, reply) => {
+  fastify.get('/auth/onboarding/callback', async function (req, reply) {
     try {
       const callbackResult = await fastify.handleOidcCallback(
         req,
@@ -54,19 +54,20 @@ async function authPlugin(fastify) {
     }
   });
 
-  fastify.get('/auth/onboarding/me', async (req, reply) => {
+  fastify.get('/auth/onboarding/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('onboarding_accessToken');
     const userInfo = req.encryptedSession.get('onboarding_userInfo');
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
-    return reply.send({ isAuthenticated, user });
+
+    reply.send({ isAuthenticated, user });
   });
 
-  fastify.post('/auth/logout', async (req, reply) => {
+  fastify.post('/auth/logout', async function (req, reply) {
     // TODO: Idp sign out flow
     req.encryptedSession.clear();
-    return reply.send({ message: 'Logged out' });
+    reply.send({ message: 'Logged out' });
   });
 }
 
