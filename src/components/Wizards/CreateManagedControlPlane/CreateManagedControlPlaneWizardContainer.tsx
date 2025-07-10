@@ -86,8 +86,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       displayNamePrefix: managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
       displayNameSuffix: '',
-      chargingTarget: managedControlPlaneTemplate?.metadata.chargingTarget?.value ?? '',
-      chargingTargetType: managedControlPlaneTemplate?.metadata.chargingTarget?.type ?? '',
+      chargingTarget: managedControlPlaneTemplate?.spec.meta.chargingTarget?.value ?? '',
+      chargingTargetType: managedControlPlaneTemplate?.spec.meta.chargingTarget?.type ?? '',
       // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
@@ -288,8 +288,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         >
           <MetadataForm
             isPreselected={
-              !!managedControlPlaneTemplate?.metadata.chargingTarget?.value &&
-              !!managedControlPlaneTemplate?.metadata.chargingTarget?.type
+              !!managedControlPlaneTemplate?.spec.meta.chargingTarget?.value &&
+              !!managedControlPlaneTemplate?.spec.meta.chargingTarget?.type
             }
             setValue={setValue}
             register={register}
