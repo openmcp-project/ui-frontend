@@ -1,15 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
-import {
-  ControlPlaneType,
-  ControlPlaneStatusCondition,
-  ReadyStatus,
-} from '../../lib/api/types/crate/controlPlanes';
+import { ControlPlaneType, ControlPlaneStatusCondition, ReadyStatus } from '../../lib/api/types/crate/controlPlanes';
 import { canConnectToMCP } from './controlPlanes';
 
-const createCondition = (
-  overrides: Partial<ControlPlaneStatusCondition>,
-): ControlPlaneStatusCondition => ({
+const createCondition = (overrides: Partial<ControlPlaneStatusCondition>): ControlPlaneStatusCondition => ({
   type: 'Unknown',
   status: false,
   reason: 'DefaultReason',
@@ -18,14 +12,15 @@ const createCondition = (
   ...overrides,
 });
 
-const createControlPlane = (
-  conditions: ControlPlaneStatusCondition[],
-): ControlPlaneType => ({
+const createControlPlane = (conditions: ControlPlaneStatusCondition[]): ControlPlaneType => ({
   metadata: {
     name: '',
     namespace: '',
   },
   spec: {
+    authentication: {
+      enableSystemIdentityProvider: true,
+    },
     components: {
       crossplane: undefined,
       btpServiceOperator: undefined,
