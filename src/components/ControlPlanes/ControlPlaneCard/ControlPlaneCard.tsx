@@ -64,29 +64,16 @@ export function ControlPlaneCard({
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
 
-  // Disable the Connect button if the system IdP is disabled
-  const controlPlaneConfig = useResource(
-    ResourceObject(
-      controlPlane.metadata.namespace,
-      'managedcontrolplanes',
-      controlPlane.metadata.name,
-    ),
-    undefined,
-    true,
-  );
-
   const isSystemIdentityProviderEnabled =
-    // @ts-ignore
-    !!controlPlaneConfig.data?.spec?.authentication
+    !!controlPlane.spec?.authentication
       ?.enableSystemIdentityProvider;
 
   const isConnectButtonEnabled =
     canConnectToMCP(controlPlane) &&
-    isSystemIdentityProviderEnabled &&
-    !controlPlaneConfig.isLoading;
+    isSystemIdentityProviderEnabled
 
   const showWarningBecauseOfDisabledSystemIdentityProvider =
-    !controlPlaneConfig.isLoading && !isSystemIdentityProviderEnabled;
+    !isSystemIdentityProviderEnabled;
 
   return (
     <>

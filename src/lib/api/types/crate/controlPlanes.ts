@@ -10,10 +10,13 @@ export interface Metadata {
 export interface ControlPlaneType {
   metadata: Metadata;
   spec:
-    | {
-        components: ControlPlaneComponentsType;
-      }
-    | undefined;
+  | {
+    authentication: {
+      enableSystemIdentityProvider?: boolean;
+    };
+    components: ControlPlaneComponentsType;
+  }
+  | undefined;
   status: ControlPlaneStatusType | undefined;
 }
 
@@ -33,13 +36,13 @@ export interface ControlPlaneStatusType {
   status: ReadyStatus;
   conditions: ControlPlaneStatusCondition[];
   access:
-    | {
-        key: string | undefined;
-        name: string | undefined;
-        namespace: string | undefined;
-        kubeconfig: string | undefined;
-      }
-    | undefined;
+  | {
+    key: string | undefined;
+    name: string | undefined;
+    namespace: string | undefined;
+    kubeconfig: string | undefined;
+  }
+  | undefined;
 }
 
 export interface ControlPlaneStatusCondition {
@@ -65,7 +68,7 @@ export const ListControlPlanes = (
       projectName === null
         ? null
         : `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes`,
-    jq: '[.items[] | {metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
+    jq: '[.items[] |{ spec: .spec | {authentication} }, {metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
   };
 };
 
