@@ -1,195 +1,192 @@
-// TypeScript types
-
-type NameMeta = {
-  prefix?: string;
-  suffix?: string;
-  validationRegex?: string;
-  validationMessage?: string;
+type Condition = {
+  lastTransitionTime: string;
+  message: string;
+  observedGeneration: number;
+  reason: string;
+  status: string;
+  type: string;
 };
 
-type DisplayNameMeta = {
-  prefix?: string;
-  suffix?: string;
-  validationRegex?: string;
-  validationMessage?: string;
+type DefaultMember = {
+  name: string;
+  removable: boolean;
 };
 
-type ChargingTargetMeta = {
-  type?: string;
-  value?: string;
-};
-
-type MetaSpec = {
-  name?: NameMeta;
-  displayName?: DisplayNameMeta;
-  chargingTarget?: ChargingTargetMeta;
-};
-
-type AuthenticationSystem = {
-  enabled?: boolean;
-  changeable?: boolean;
-};
-
-type CustomIDP = {
-  removable?: boolean;
-  // ...other possible fields
-};
-
-type AuthenticationSpec = {
-  allowAdd?: boolean;
-  system?: AuthenticationSystem;
-  customIDPs?: Record<string, CustomIDP>;
-};
-
-type AuthorizationDefault = {
+type DefaultComponent = {
   name: string;
   removable?: boolean;
-};
-
-type AuthorizationSpec = {
-  default?: AuthorizationDefault[];
-  allowAdd?: boolean;
-  allow?: string[];
-  deny?: string[];
-};
-
-type ComponentDefault = {
-  name: string;
   version: string;
-  removable?: boolean;
   versionChangeable?: boolean;
 };
 
-type ComponentAllowDeny = {
-  name: string;
-  version: string[];
+type Components = {
+  defaultComponents: DefaultComponent[];
 };
 
-type ComponentsSpec = {
-  default?: ComponentDefault[];
-  allow?: ComponentAllowDeny[];
-  deny?: ComponentAllowDeny[];
+type Authorization = {
+  allowAddMembers?: boolean;
+  defaultMembers: DefaultMember[];
 };
 
-type SpecSpec = {
-  authentication?: AuthenticationSpec;
-  authorization?: AuthorizationSpec;
-  components?: ComponentsSpec;
+type Authentication = {
+  allowAdd?: boolean;
+  system: {
+    changeable: boolean;
+    enabled: boolean;
+  };
 };
 
-type ManagedControlPlaneTemplate = {
-  kind: 'ManagedControlPlaneTemplate';
-  meta: {
+type Meta = {
+  displayName: {
+    prefix: string;
+  };
+  name: {
+    prefix: string;
+  };
+};
+
+// Extend: ChargingTarget type and add to metadata
+export type ChargingTarget = {
+  type: string;
+  value: string;
+};
+
+type ManagedControlPlaneTemplateSpec = {
+  meta: Meta;
+  spec: {
+    authentication: Authentication;
+    authorization: Authorization;
+    components: Components;
+  };
+};
+
+type ManagedControlPlaneTemplateStatus = {
+  conditions: Condition[];
+  state: string;
+};
+
+export type ManagedControlPlaneTemplate = {
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    annotations: {
+      [key: string]: string;
+    };
+    creationTimestamp: string;
+    finalizers: string[];
+    generation: number;
+    labels: {
+      [key: string]: string;
+    };
     name: string;
     namespace: string;
+    resourceVersion: string;
+    uid: string;
+    chargingTarget?: ChargingTarget; // <-- Added here
   };
-  spec: {
-    meta?: MetaSpec;
-    spec?: SpecSpec;
-  };
+  spec: ManagedControlPlaneTemplateSpec;
+  status: ManagedControlPlaneTemplateStatus;
 };
 
-export const managedControlPlaneTemplate: ManagedControlPlaneTemplate = {
-  kind: 'ManagedControlPlaneTemplate',
-  meta: {
-    name: 'managed-control-plane-template-sap-dev',
-    namespace: 'project-sap-dev',
-    // namespace: 'project-sap-dev--ws-ml-platform'
-  },
-  spec: {
-    meta: {
-      name: {
-        prefix: 'mcp-',
-        suffix: '-dev',
-        validationRegex: '^[a-z0-9-]{3,30}$',
-        validationMessage:
-          'Name must be 3-30 characters, lowercase letters, numbers, and dashes only.',
+type ListMetadata = {
+  resourceVersion: string;
+};
+
+export type ManagedControlPlaneTemplateList = {
+  apiVersion: string;
+  kind: string;
+  items: ManagedControlPlaneTemplate[];
+  metadata: ListMetadata;
+};
+
+export const managedControlPlaneTemplate: ManagedControlPlaneTemplateList = {
+  apiVersion: 'v1',
+  kind: 'List',
+  items: [
+    {
+      apiVersion: 'kro.run/v1alpha1',
+      kind: 'ManagedControlPlaneTemplate',
+      metadata: {
+        annotations: {
+          'kubectl.kubernetes.io/last-applied-configuration': `{"apiVersion":"kro.run/v1alpha1","kind":"ManagedControlPlaneTemplate","metadata":{"annotations":{"openmcp.cloud/displayName":"Webapp Test Template"},"name":"testtemplate","namespace":"project-webapp-playground"},"spec":{"meta":{"displayName":{"prefix":"Webapp "},"name":{"prefix":"webapp-"}},"spec":{"authentication":{"system":{"changeable":false,"enabled":true}},"authorization":{"defaultMembers":[{"name":"openmcp:moritz.reich@sap.com","removable":false},{"name":"openmcp:johannes.ott@sap.com","removable":true}]},"components":{"defaultComponents":[{"name":"crossplane","version":"1.19.0"}]}}}}`,
+          'openmcp.cloud/displayName': 'Webapp Test Template',
+        },
+        creationTimestamp: '2025-07-09T14:56:45Z',
+        finalizers: ['kro.run/finalizer'],
+        generation: 2,
+        labels: {
+          'kro.run/kro-version': 'devel',
+          'kro.run/owned': 'true',
+          'kro.run/resource-graph-definition-id':
+            '31987a49-8a07-4898-abaa-4f50c8d189f0',
+          'kro.run/resource-graph-definition-name':
+            'managedcontrolplanetemplate',
+        },
+        name: 'testtemplate',
+        namespace: 'project-webapp-playground',
+        resourceVersion: '39231946',
+        uid: 'e761cc38-56d3-4fbe-add7-d31a0157c072',
+        chargingTarget: { type: 'btp', value: '2319843191984831741' }, // Now valid
       },
-      displayName: {
-        prefix: '[MCP]',
-        suffix: ' (Dev)',
-        validationRegex: '^.{3,50}$',
-        validationMessage: 'Display name must be between 3 and 50 characters.',
+      spec: {
+        meta: {
+          displayName: {
+            prefix: 'Webapp ',
+          },
+          name: {
+            prefix: 'webapp-',
+          },
+        },
+        spec: {
+          authentication: {
+            allowAdd: true,
+            system: {
+              changeable: false,
+              enabled: true,
+            },
+          },
+          authorization: {
+            allowAddMembers: true,
+            defaultMembers: [
+              {
+                name: 'openmcp:moritz.reich@sap.com',
+                removable: false,
+              },
+              {
+                name: 'openmcp:johannes.ott@sap.com',
+                removable: true,
+              },
+            ],
+          },
+          components: {
+            defaultComponents: [
+              {
+                name: 'crossplane',
+                removable: true,
+                version: '1.19.0',
+                versionChangeable: true,
+              },
+            ],
+          },
+        },
       },
-      chargingTarget: {
-        type: 'cost-center',
-        value: 'CC-123456',
+      status: {
+        conditions: [
+          {
+            lastTransitionTime: '2025-07-09T16:57:46+02:00',
+            message: 'Instance reconciled successfully',
+            observedGeneration: 2,
+            reason: 'ReconciliationSucceeded',
+            status: 'True',
+            type: 'InstanceSynced',
+          },
+        ],
+        state: 'ACTIVE',
       },
     },
-    spec: {
-      authentication: {
-        allowAdd: false,
-        system: {
-          enabled: true,
-          changeable: false,
-        },
-        customIDPs: {
-          'sap-idp': {
-            removable: false,
-          },
-          github: {
-            removable: true,
-          },
-        },
-      },
-      authorization: {
-        default: [
-          {
-            name: 'openmcp:alice.admin@sap.com',
-            removable: false,
-          },
-          {
-            name: 'openmcp:bob.viewer@sap.com',
-            removable: true,
-          },
-        ],
-        allowAdd: true,
-        allow: [
-          'openmcp:alice.admin@sap.com',
-          'openmcp:bob.viewer@sap.com',
-          'openmcp:carol.dev@sap.com',
-        ],
-        deny: ['openmcp:eve.blocked@sap.com'],
-      },
-      components: {
-        default: [
-          {
-            name: 'crossplane',
-            version: 'v1.12.0',
-            removable: false,
-            versionChangeable: false,
-          },
-          {
-            name: 'provider-aws',
-            version: 'v0.27.0',
-            removable: true,
-            versionChangeable: true,
-          },
-          {
-            name: 'external-secrets',
-            version: 'v0.8.0',
-            removable: true,
-            versionChangeable: true,
-          },
-        ],
-        allow: [
-          {
-            name: 'crossplane',
-            version: ['v1.10.0', 'v1.11.0', 'v1.12.0'],
-          },
-          {
-            name: 'provider-aws',
-            version: ['v0.25.0', 'v0.26.0', 'v0.27.0'],
-          },
-        ],
-        deny: [
-          {
-            name: 'provider-azure',
-            version: ['<v0.20.0'],
-          },
-        ],
-      },
-    },
+  ],
+  metadata: {
+    resourceVersion: '',
   },
 };
 

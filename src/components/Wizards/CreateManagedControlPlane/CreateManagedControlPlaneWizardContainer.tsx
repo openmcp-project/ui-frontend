@@ -42,14 +42,15 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
+import { ManagedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
 
-type CreateManagedControlPlaneWizardContainerProps = {
+export type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   isWithTemplate: boolean;
   projectName?: string;
   workspaceName?: string;
+  managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
 };
 
 type WizardStepType =
@@ -75,13 +76,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   projectName = '',
   workspaceName = '',
   isWithTemplate,
+  managedControlPlaneTemplate,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-
+  const preloadedMembers =
+    managedControlPlaneTemplate?.spec?.spec?.authorization?.defaultMembers ??
+    [];
   const {
     register,
     handleSubmit,
@@ -95,21 +99,23 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
       namePrefix: managedControlPlaneTemplate?.spec?.meta?.name?.prefix ?? '',
-      nameSuffix: managedControlPlaneTemplate?.spec?.meta?.name?.suffix ?? '',
+      nameSuffix: '',
       name: '',
       displayNamePrefix:
         managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
-      displayNameSuffix:
-        managedControlPlaneTemplate?.spec?.meta?.displayName?.suffix ?? '',
+      displayNameSuffix: '',
       chargingTarget: '',
+      // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
       chargingTargetType: '',
+      // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
     },
     mode: 'onChange',
   });
 
+  console.log(watch('members'));
   const nextButtonText = useMemo(
     () => ({
       metadata: t('buttons.next'),
@@ -137,6 +143,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   useEffect(() => {
     if (user?.email && isOpen) {
       setValue('members', [
+        ...(preloadedMembers.length
+          ? (preloadedMembers.map((member) => ({
+              name: member.name ?? '',
+              kind: 'User',
+              roles: ['admin'],
+            })) as any)
+          : []),
         { name: user.email, roles: [MemberRoles.admin], kind: 'User' },
       ]);
     }
@@ -350,6 +363,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('componentSelection')}
         >
           <ComponentsSelectionContainer
+            managedControlPlaneTemplate={managedControlPlaneTemplate}
             componentsList={componentsList ?? []}
             setComponentsList={setComponentsList}
           />
