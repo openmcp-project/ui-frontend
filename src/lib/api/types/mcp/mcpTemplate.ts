@@ -197,6 +197,6 @@ type MCPTemplateMeta = {
 };
 
 export const MCPTemplayesList: MCPTemplateMeta[] = [
-  { title: 'MCPTitle', iconUrl: 'add-document', docsUrl: 'docsurl' },
-  { title: 'MCPTitle2', iconUrl: 'address-book', docsUrl: 'docsurl2' },
+  { title: 'MCP Template 1', iconUrl: 'add-document', docsUrl: 'docsurl' },
+  { title: 'MCP Template 2', iconUrl: 'address-book', docsUrl: 'docsurl2' },
 ];
