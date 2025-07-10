@@ -31,41 +31,24 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
       <Grid defaultSpan="XL6 L6 M6 S6">
         <div>
           <List headerText={t('common.metadata')}>
-            <ListItemStandard
-              text={t('common.name')}
-              additionalText={getValues('name')}
-            />
-            <ListItemStandard
-              text={t('common.displayName')}
-              additionalText={getValues('displayName')}
-            />
+            <ListItemStandard text={t('common.name')} additionalText={getValues('name')} />
+            <ListItemStandard text={t('common.displayName')} additionalText={getValues('displayName')} />
             <ListItemStandard
               text={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
               additionalText={getValues('chargingTarget')}
             />
-            <ListItemStandard
-              text={t('common.namespace')}
-              additionalText={`${projectName}--ws-${workspaceName}`}
-            />
+            <ListItemStandard text={t('common.namespace')} additionalText={`${projectName}--ws-${workspaceName}`} />
           </List>
           <br />
           <List headerText={t('common.members')}>
             {getValues('members').map((member) => (
-              <ListItemStandard
-                key={member.name}
-                text={member.name}
-                additionalText={member.roles[0]}
-              />
+              <ListItemStandard key={member.name} text={member.name} additionalText={member.roles[0]} />
             ))}
           </List>
           <br />
           <List headerText={t('common.components')}>
             {getSelectedComponents(componentsList ?? []).map((component) => (
-              <ListItemStandard
-                key={component.name}
-                text={component.name}
-                additionalText={component.selectedVersion}
-              />
+              <ListItemStandard key={component.name} text={component.name} additionalText={component.selectedVersion} />
             ))}
           </List>
         </div>
@@ -73,10 +56,10 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
           <YamlViewer
             yamlString={stringify(
               CreateManagedControlPlane(
-                getValues('name'),
+                `${getValues('namePrefix') ?? ''}${getValues('name')}`,
                 `${projectName}--ws-${workspaceName}`,
                 {
-                  displayName: getValues('displayName'),
+                  displayName: `${getValues('displayNamePrefix') ?? ''}${getValues('displayName')}`,
                   chargingTarget: getValues('chargingTarget'),
                   members: getValues('members'),
                   componentsList: componentsList ?? [],
