@@ -22,9 +22,7 @@ export interface ComponentsSelectionProps {
  * provider components are excluded.
  */
 export const getSelectedComponents = (components: ComponentsListItem[]) => {
-  const isCrossplaneSelected = components.some(
-    ({ name, isSelected }) => name === 'crossplane' && isSelected,
-  );
+  const isCrossplaneSelected = components.some(({ name, isSelected }) => name === 'crossplane' && isSelected);
   return components.filter((component) => {
     if (!component.isSelected) return false;
     if (component.name?.includes('provider') && !isCrossplaneSelected) {
@@ -34,19 +32,15 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
   });
 };
 
-export const ComponentsSelectionContainer: React.FC<
-  ComponentsSelectionProps
-> = ({ setComponentsList, componentsList, managedControlPlaneTemplate }) => {
-  const {
-    data: availableManagedComponentsListData,
-    error,
-    isLoading,
-  } = useApiResource(ListManagedComponents());
+export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({
+  setComponentsList,
+  componentsList,
+  managedControlPlaneTemplate,
+}) => {
+  const { data: availableManagedComponentsListData, error, isLoading } = useApiResource(ListManagedComponents());
   const { t } = useTranslation();
   const initialized = useRef(false);
-  const defaultComponents =
-    managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ??
-    [];
+  const defaultComponents = managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [];
 
   useEffect(() => {
     if (
@@ -57,20 +51,16 @@ export const ComponentsSelectionContainer: React.FC<
       return;
     }
 
-    const newComponentsList = availableManagedComponentsListData.items.map(
-      (item) => {
-        const versions = sortVersions(item.status.versions);
-        return {
-          name: item.metadata.name,
-          versions,
-          selectedVersion: versions[0] ?? '',
-          isSelected: !!defaultComponents.find(
-            ({ name }) => name === item.metadata.name,
-          ),
-          documentationUrl: '',
-        };
-      },
-    );
+    const newComponentsList = availableManagedComponentsListData.items.map((item) => {
+      const versions = sortVersions(item.status.versions);
+      return {
+        name: item.metadata.name,
+        versions,
+        selectedVersion: versions[0] ?? '',
+        isSelected: !!defaultComponents.find(({ name }) => name === item.metadata.name),
+        documentationUrl: '',
+      };
+    });
 
     setComponentsList(newComponentsList);
     initialized.current = true;
@@ -89,10 +79,5 @@ export const ComponentsSelectionContainer: React.FC<
     return <IllustratedError title={t('componentsSelection.cannotLoad')} />;
   }
 
-  return (
-    <ComponentsSelection
-      componentsList={componentsList}
-      setComponentsList={setComponentsList}
-    />
-  );
+  return <ComponentsSelection componentsList={componentsList} setComponentsList={setComponentsList} />;
 };

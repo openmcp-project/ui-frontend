@@ -3,16 +3,16 @@ import {
   CreateManagedControlPlaneWizardContainer,
   CreateManagedControlPlaneWizardContainerProps,
 } from './CreateManagedControlPlaneWizardContainer.tsx';
-import { managedControlPlaneTemplate } from '../../../lib/api/types/mcp/mcpTemplate.ts';
+import useApiResource from '../../../lib/api/useApiResource.ts';
+import { GetMCPTemplate } from '../../../lib/api/types/crate/getMCPTemplate.ts';
 
-export const CreateManagedControlPlaneWizardTemplateLoader: FC<
-  CreateManagedControlPlaneWizardContainerProps
-> = (props) => {
-  const template = managedControlPlaneTemplate.items[0];
-  return (
-    <CreateManagedControlPlaneWizardContainer
-      {...props}
-      managedControlPlaneTemplate={template}
-    />
-  );
+export const CreateManagedControlPlaneWizardTemplateLoader: FC<CreateManagedControlPlaneWizardContainerProps> = (
+  props,
+) => {
+  const { data, error, isLoading } = useApiResource(GetMCPTemplate());
+
+  console.log(data);
+
+  const template = data;
+  return <CreateManagedControlPlaneWizardContainer {...props} managedControlPlaneTemplate={template} />;
 };

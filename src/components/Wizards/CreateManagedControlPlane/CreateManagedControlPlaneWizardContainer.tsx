@@ -116,7 +116,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     mode: 'onChange',
   });
 
-  console.log(watch('members'));
   const nextButtonText = useMemo(
     () => ({
       metadata: t('buttons.next'),
