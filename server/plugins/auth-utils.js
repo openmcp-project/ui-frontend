@@ -1,18 +1,17 @@
-import fp from "fastify-plugin";
-import crypto from "node:crypto";
-
+import fp from 'fastify-plugin';
+import crypto from 'node:crypto';
 
 export class AuthenticationError extends Error {
   constructor(message) {
     super(message);
     this.name = this.constructor.name;
-    this.code = "ERR_AUTHENTICATION";
+    this.code = 'ERR_AUTHENTICATION';
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
-  const url = new URL("/.well-known/openid-configuration", issuerBaseUrl).toString();
+  const url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
   const res = await fetch(url);
   if (!res.ok) {
     throw new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
@@ -23,13 +22,12 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
 function isAllowedRedirectTo(value) {
   if (!value) return true;
   const first = value.charAt(0);
-  return first === "/" || first === "#";
+  return first === '/' || first === '#';
 }
 
-
 async function authUtilsPlugin(fastify) {
-  fastify.decorate("discoverIssuerConfiguration", async (issuerBaseUrl) => {
-    fastify.log.info({ issuer: issuerBaseUrl }, "Discovering OpenId configuration.");
+  fastify.decorate('discoverIssuerConfiguration', async (issuerBaseUrl) => {
+    fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
 
     const remoteConfiguration = await getRemoteOpenIdConfiguration(issuerBaseUrl);
 
@@ -38,39 +36,39 @@ async function authUtilsPlugin(fastify) {
       tokenEndpoint: remoteConfiguration.token_endpoint,
     };
 
-    fastify.log.info({ issuer: issuerBaseUrl, requiredConfiguration }, "OpenId configuration discovered.");
+    fastify.log.info({ issuer: issuerBaseUrl, requiredConfiguration }, 'OpenId configuration discovered.');
 
     return requiredConfiguration;
   });
 
-  fastify.decorate("refreshAuthTokens", async (currentRefreshToken, oidcConfig, tokenEndpoint) => {
-    fastify.log.info("Refreshing tokens.");
+  fastify.decorate('refreshAuthTokens', async (currentRefreshToken, oidcConfig, tokenEndpoint) => {
+    fastify.log.info('Refreshing tokens.');
 
     const { clientId, scopes } = oidcConfig;
 
     const body = new URLSearchParams({
-      grant_type: "refresh_token",
+      grant_type: 'refresh_token',
       refresh_token: currentRefreshToken,
       client_id: clientId,
       scope: scopes,
     });
 
     const response = await fetch(tokenEndpoint, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
       },
       body: body.toString(),
     });
     const responseBodyText = await response.text();
     if (!response.ok) {
-      fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, "Token refresh failed.");
-      throw new AuthenticationError("Token refresh failed.");
+      fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, 'Token refresh failed.');
+      throw new AuthenticationError('Token refresh failed.');
     }
 
     const newTokens = JSON.parse(responseBodyText);
-    fastify.log.info("Token refresh successful; received new tokens.");
+    fastify.log.info('Token refresh successful; received new tokens.');
 
     return {
       accessToken: newTokens.access_token,
@@ -79,74 +77,77 @@ async function authUtilsPlugin(fastify) {
     };
   });
 
-  fastify.decorate("prepareOidcLoginRedirect", (request, oidcConfig, authorizationEndpoint) => {
-    request.log.info("Preparing OIDC login redirect.");
+  fastify.decorate('prepareOidcLoginRedirect', (request, oidcConfig, authorizationEndpoint) => {
+    request.log.info('Preparing OIDC login redirect.');
 
     const { redirectTo } = request.query;
     if (!isAllowedRedirectTo(redirectTo)) {
       request.log.error(`Invalid redirectTo: "${redirectTo}".`);
-      throw new AuthenticationError("Invalid redirectTo.");
+      throw new AuthenticationError('Invalid redirectTo.');
     }
-    request.encryptedSession.set("postLoginRedirectRoute", redirectTo);
+    request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
 
     const { clientId, redirectUri, scopes } = oidcConfig;
 
-    const state = crypto.randomBytes(16).toString("hex");
-    const codeVerifier = crypto.randomBytes(32).toString("base64url");
-    const codeChallenge = crypto.createHash("sha256").update(codeVerifier).digest("base64url");
+    const state = crypto.randomBytes(16).toString('hex');
+    const codeVerifier = crypto.randomBytes(32).toString('base64url');
+    const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
 
-    request.encryptedSession.set("oauthState", state);
-    request.encryptedSession.set("codeVerifier", codeVerifier);
-    request.log.info({
-      stateSet: Boolean(state),
-      verifierSet: Boolean(codeVerifier),
-    }, "OAuth state and code verifier set in encryptedSession.");
+    request.encryptedSession.set('oauthState', state);
+    request.encryptedSession.set('codeVerifier', codeVerifier);
+    request.log.info(
+      {
+        stateSet: Boolean(state),
+        verifierSet: Boolean(codeVerifier),
+      },
+      'OAuth state and code verifier set in encryptedSession.',
+    );
 
     const url = new URL(authorizationEndpoint);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", clientId);
-    url.searchParams.set("redirect_uri", redirectUri);
-    url.searchParams.set("scope", scopes);
-    url.searchParams.set("state", state);
-    url.searchParams.set("code_challenge", codeChallenge);
-    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('redirect_uri', redirectUri);
+    url.searchParams.set('scope', scopes);
+    url.searchParams.set('state', state);
+    url.searchParams.set('code_challenge', codeChallenge);
+    url.searchParams.set('code_challenge_method', 'S256');
 
-    request.log.info("Prepared OIDC login redirect.");
+    request.log.info('Prepared OIDC login redirect.');
 
     return url.toString();
   });
 
-  fastify.decorate("handleOidcCallback", async (request, oidcConfig, tokenEndpoint) => {
-    request.log.info("Handling OIDC callback to retrieve the tokens.");
+  fastify.decorate('handleOidcCallback', async (request, oidcConfig, tokenEndpoint) => {
+    request.log.info('Handling OIDC callback to retrieve the tokens.');
 
     const { clientId, redirectUri } = oidcConfig;
 
     const { code, state } = request.query;
     if (!code) {
-      request.log.error("Missing authorization code in callback.");
-      throw new AuthenticationError("Missing code in callback.");
+      request.log.error('Missing authorization code in callback.');
+      throw new AuthenticationError('Missing code in callback.');
     }
-    if (state !== request.encryptedSession.get("oauthState")) {
-      request.log.error("Invalid state in callback.");
-      throw new AuthenticationError("Invalid state in callback.");
+    if (state !== request.encryptedSession.get('oauthState')) {
+      request.log.error('Invalid state in callback.');
+      throw new AuthenticationError('Invalid state in callback.');
     }
 
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       code,
       redirect_uri: redirectUri,
       client_id: clientId,
-      code_verifier: request.encryptedSession.get("codeVerifier"),
+      code_verifier: request.encryptedSession.get('codeVerifier'),
     });
 
     const response = await fetch(tokenEndpoint, {
-      method: "POST",
-      headers: { "content-type": "application/x-www-form-urlencoded" },
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body,
     });
     if (!response.ok) {
-      request.log.error({ status: response.status, body: await response.text() }, "Token exchange failed.");
-      throw new AuthenticationError("Token exchange failed.");
+      request.log.error({ status: response.status, body: await response.text() }, 'Token exchange failed.');
+      throw new AuthenticationError('Token exchange failed.');
     }
 
     const tokens = await response.json();
@@ -156,35 +157,34 @@ async function authUtilsPlugin(fastify) {
       refreshToken: tokens.refresh_token,
       expiresAt: null,
       userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
-      postLoginRedirectRoute: request.encryptedSession.get("postLoginRedirectRoute") || "",
+      postLoginRedirectRoute: request.encryptedSession.get('postLoginRedirectRoute') || '',
     };
 
-    if (tokens.expires_in && typeof tokens.expires_in === "number") {
-      const expiresAt = Date.now() + (tokens.expires_in * 1000);
+    if (tokens.expires_in && typeof tokens.expires_in === 'number') {
+      const expiresAt = Date.now() + tokens.expires_in * 1000;
       result.expiresAt = expiresAt;
     }
 
-    request.log.info("OIDC callback succeeded; tokens retrieved.");
+    request.log.info('OIDC callback succeeded; tokens retrieved.');
     return result;
   });
-
 }
 
 function extractUserInfoFromIdToken(request, idToken) {
-  request.log.info("Extracting user info from ID token.");
+  request.log.info('Extracting user info from ID token.');
 
   if (!idToken) {
-    request.log.warn("No ID token provided.");
+    request.log.warn('No ID token provided.');
     return null;
   }
 
   const payloadBase64 = idToken.split('.')[1];
   const decodedPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
 
-  request.log.info("User info extracted from ID token.");
+  request.log.info('User info extracted from ID token.');
   return {
     email: decodedPayload.email,
-  }
+  };
 }
 
 export default fp(authUtilsPlugin);
