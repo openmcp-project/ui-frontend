@@ -12,7 +12,9 @@ export const CreateManagedControlPlaneWizardTemplateLoader: FC<CreateManagedCont
   const { data, error, isLoading } = useApiResource(GetMCPTemplate());
 
   console.log(data);
-
+  if (isLoading) {
+    return <span />;
+  }
   const template = data;
   return <CreateManagedControlPlaneWizardContainer {...props} managedControlPlaneTemplate={template} />;
 };
