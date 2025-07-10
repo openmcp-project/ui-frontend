@@ -12,20 +12,11 @@ const isDev = process.argv.includes('--dev');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendConfigLocation = isDev
-  ? 'public/frontend-config.json'
-  : 'dist/client/frontend-config.json';
+const frontendConfigLocation = isDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 
-if (
-  process.env.FRONTEND_CONFIG_PATH !== undefined &&
-  process.env.FRONTEND_CONFIG_PATH.length > 0
-) {
-  console.log(
-    'FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.',
-  );
-  console.log(
-    `  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`,
-  );
+if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
+  console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
+  console.log(`  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`);
   copyFileSync(process.env.FRONTEND_CONFIG_PATH, frontendConfigLocation);
 }
 
@@ -43,7 +34,7 @@ await fastify.register(FastifyVite, {
   spa: true,
 });
 
-fastify.get('/', (req, reply) => {
+fastify.get('/', function (req, reply) {
   return reply.html();
 });
 
