@@ -9,6 +9,7 @@ import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
+import { ManagedControlPlaneTemplate } from '../../lib/api/types/mcp/mcpTemplate.ts';
 
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
@@ -44,7 +45,8 @@ export const ComponentsSelectionContainer: React.FC<
   const { t } = useTranslation();
   const initialized = useRef(false);
   const defaultComponents =
-    managedControlPlaneTemplate?.spec?.spec?.components?.default ?? [];
+    managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ??
+    [];
 
   useEffect(() => {
     if (

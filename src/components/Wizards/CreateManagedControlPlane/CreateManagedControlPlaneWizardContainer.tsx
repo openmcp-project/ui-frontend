@@ -105,9 +105,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
       displayNameSuffix: '',
-      chargingTarget: '',
-      // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.value ?? '',
-      chargingTargetType: '',
+      chargingTarget:
+        managedControlPlaneTemplate?.metadata.chargingTarget?.value ?? '',
+      chargingTargetType:
+        managedControlPlaneTemplate?.metadata.chargingTarget?.type ?? '',
       // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
@@ -145,7 +146,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       setValue('members', [
         ...(preloadedMembers.length
           ? (preloadedMembers.map((member) => ({
-              name: member.name ?? '',
+              name: member.name.replace('openmcp:', '') ?? '',
               kind: 'User',
               roles: ['admin'],
             })) as any)
@@ -329,6 +330,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           data-step="metadata"
         >
           <MetadataForm
+            isPreselected={
+              !!managedControlPlaneTemplate?.metadata.chargingTarget?.value &&
+              !!managedControlPlaneTemplate?.metadata.chargingTarget?.type
+            }
             setValue={setValue}
             register={register}
             errors={errors}

@@ -27,6 +27,7 @@ export interface MetadataFormProps {
   sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
   getValues?: UseFormGetValues<CreateDialogProps>;
+  isPreselected?: boolean;
 }
 
 interface SelectOption {
@@ -65,6 +66,7 @@ export function MetadataForm({
   getValues,
   sideFormContent,
   requireChargingTarget = false,
+  isPreselected = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
 
@@ -80,6 +82,10 @@ export function MetadataForm({
       ? [{ label: t('common.notSelected'), value: '' }]
       : []),
     { label: t('common.btp'), value: 'btp' },
+    {
+      label: getValues?.('chargingTargetType') ?? '',
+      value: getValues?.('chargingTargetType') ?? '',
+    },
   ];
 
   // Helper to get error message for name field
@@ -161,8 +167,10 @@ export function MetadataForm({
           {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
         </Label>
         <Select
+          value={getValues?.('chargingTargetType')}
           id="chargingTargetType"
           className={styles.input}
+          readonly={isPreselected}
           onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
@@ -180,6 +188,8 @@ export function MetadataForm({
           id="chargingTarget"
           {...register('chargingTarget')}
           className={styles.input}
+          value={getValues?.('chargingTarget')}
+          readonly={isPreselected}
         />
       </FormGroup>
 
