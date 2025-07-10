@@ -21,10 +21,7 @@ import {
 import { SummarizeStep } from './SummarizeStep.tsx';
 import { useTranslation } from 'react-i18next';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import {
-  ErrorDialog,
-  ErrorDialogHandle,
-} from '../../Shared/ErrorMessageBox.tsx';
+import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
@@ -53,24 +50,11 @@ export type CreateManagedControlPlaneWizardContainerProps = {
   managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
 };
 
-type WizardStepType =
-  | 'metadata'
-  | 'members'
-  | 'componentSelection'
-  | 'summarize'
-  | 'success';
+type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = [
-  'metadata',
-  'members',
-  'componentSelection',
-  'summarize',
-  'success',
-];
+const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
 
-export const CreateManagedControlPlaneWizardContainer: FC<
-  CreateManagedControlPlaneWizardContainerProps
-> = ({
+export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPlaneWizardContainerProps> = ({
   isOpen,
   setIsOpen,
   projectName = '',
@@ -83,9 +67,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
-  const preloadedMembers =
-    managedControlPlaneTemplate?.spec?.spec?.authorization?.defaultMembers ??
-    [];
+  const preloadedMembers = managedControlPlaneTemplate?.spec?.spec?.authorization?.defaultMembers ?? [];
   const {
     register,
     handleSubmit,
@@ -101,14 +83,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       namePrefix: managedControlPlaneTemplate?.spec?.meta?.name?.prefix ?? '',
       nameSuffix: '',
       name: '',
-      displayNamePrefix:
-        managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
+      displayNamePrefix: managedControlPlaneTemplate?.spec?.meta?.displayName?.prefix ?? '',
       displayName: '',
       displayNameSuffix: '',
-      chargingTarget:
-        managedControlPlaneTemplate?.metadata.chargingTarget?.value ?? '',
-      chargingTargetType:
-        managedControlPlaneTemplate?.metadata.chargingTarget?.type ?? '',
+      chargingTarget: managedControlPlaneTemplate?.metadata.chargingTarget?.value ?? '',
+      chargingTargetType: managedControlPlaneTemplate?.metadata.chargingTarget?.type ?? '',
       // managedControlPlaneTemplate?.spec?.meta?.chargingTarget?.type ?? '',
       members: [],
       componentsList: [],
@@ -144,11 +123,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     if (user?.email && isOpen) {
       setValue('members', [
         ...(preloadedMembers.length
-          ? (preloadedMembers.map((member) => ({
-              name: member.name.replace('openmcp:', '') ?? '',
-              kind: 'User',
-              roles: ['admin'],
-            })) as any)
+          ? preloadedMembers.map(
+              (member): Member => ({
+                name: member.name.replace('openmcp:', '') ?? '',
+                kind: 'User',
+                roles: [MemberRoles.admin],
+              }),
+            )
           : []),
         { name: user.email, roles: [MemberRoles.admin], kind: 'User' },
       ]);
@@ -156,7 +137,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     if (!isOpen) {
       clearFormFields();
     }
-  }, [user?.email, isOpen, setValue, clearFormFields]);
+  }, [user?.email, isOpen, setValue, clearFormFields, preloadedMembers]);
 
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
@@ -164,12 +145,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const componentsList = watch('componentsList');
 
   const handleCreateManagedControlPlane = useCallback(
-    async ({
-      name,
-      displayName,
-      chargingTarget,
-      members,
-    }: OnCreatePayload): Promise<boolean> => {
+    async ({ name, displayName, chargingTarget, members }: OnCreatePayload): Promise<boolean> => {
       try {
         await trigger(
           CreateManagedControlPlane(
@@ -188,9 +164,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         return true;
       } catch (e) {
         if (e instanceof APIError && errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(
-            `${e.message}: ${JSON.stringify(e.info)}`,
-          );
+          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
         } else {
           console.error(e);
         }
@@ -200,13 +174,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [trigger, projectName, workspaceName, componentsList],
   );
 
-  const handleStepChange = useCallback(
-    (e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
-      const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
-      setSelectedStep(step);
-    },
-    [],
-  );
+  const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
+    const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
+    setSelectedStep(step);
+  }, []);
 
   const onNextClick = useCallback(() => {
     switch (selectedStep) {
@@ -228,14 +199,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       default:
         break;
     }
-  }, [
-    selectedStep,
-    handleSubmit,
-    setSelectedStep,
-    handleCreateManagedControlPlane,
-    getValues,
-    resetFormAndClose,
-  ]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, getValues, resetFormAndClose]);
 
   const setMembers = useCallback(
     (members: Member[]) => {
@@ -259,11 +223,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         case 'members':
           return selectedStep === 'metadata' || !isValid;
         case 'componentSelection':
-          return (
-            selectedStep === 'metadata' ||
-            selectedStep === 'members' ||
-            !isValid
-          );
+          return selectedStep === 'metadata' || selectedStep === 'members' || !isValid;
         case 'summarize':
           return (
             selectedStep === 'metadata' ||
@@ -293,7 +253,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   return (
     <Dialog
       stretch
-      headerText={t('createMCP.dialogTitle') || 'Create Managed Control Plane'}
+      headerText={`Create Managed Control Plane using ${managedControlPlaneTemplate?.metadata.name}`}
       open={isOpen}
       initialFocus="project-name-input"
       footer={
@@ -303,9 +263,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {selectedStep !== 'success' &&
                 (selectedStep === 'metadata' ? (
-                  <Button onClick={resetFormAndClose}>
-                    {t('buttons.close')}
-                  </Button>
+                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
                 ) : (
                   <Button onClick={onBackClick}>{t('buttons.back')}</Button>
                 ))}
@@ -347,9 +305,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('members')}
         >
           <Form>
-            <FormGroup
-              headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
-            >
+            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
               <EditMembers
                 members={watch('members')}
                 isValidationError={!!errors.members}
