@@ -43,7 +43,7 @@ function proxyPlugin(fastify) {
       const refreshToken = request.encryptedSession.get(keyRefreshToken);
       if (!refreshToken) {
         request.log.error('Missing refresh token; deleting encryptedSession.');
-        request.encryptedSession.clear(); //TODO: also clear user encrpytion key?
+        await request.encryptedSession.clear(); //TODO: also clear user encrpytion key?
         return reply.unauthorized('Session expired without token refresh capability.');
       }
 
@@ -61,23 +61,23 @@ function proxyPlugin(fastify) {
         );
         if (!refreshedTokenData || !refreshedTokenData.accessToken) {
           request.log.error('Token refresh failed (no access token); deleting session.');
-          request.encryptedSession.clear(); //TODO: also clear user encrpytion key?
+          await request.encryptedSession.clear(); //TODO: also clear user encrpytion key?
           return reply.unauthorized('Session expired and token refresh failed.');
         }
 
         request.log.info('Token refresh successful; updating the session.');
 
-        request.encryptedSession.set(keyAccessToken, refreshedTokenData.accessToken);
+        await request.encryptedSession.set(keyAccessToken, refreshedTokenData.accessToken);
         if (refreshedTokenData.refreshToken) {
-          request.encryptedSession.set(keyRefreshToken, refreshedTokenData.refreshToken);
+          await request.encryptedSession.set(keyRefreshToken, refreshedTokenData.refreshToken);
         } else {
-          request.encryptedSession.delete(keyRefreshToken);
+          await request.encryptedSession.delete(keyRefreshToken);
         }
         if (refreshedTokenData.expiresIn) {
           const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
-          request.encryptedSession.set(keyTokenExpiresAt, newExpiresAt);
+          await request.encryptedSession.set(keyTokenExpiresAt, newExpiresAt);
         } else {
-          request.encryptedSession.delete(keyTokenExpiresAt);
+          await request.encryptedSession.delete(keyTokenExpiresAt);
         }
 
         request.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
