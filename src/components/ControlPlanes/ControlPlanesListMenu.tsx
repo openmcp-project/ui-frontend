@@ -12,6 +12,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 
 import { useTranslation } from 'react-i18next';
+import { MCPTemplayesList } from '../../lib/api/types/mcp/mcpTemplate';
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -68,14 +69,14 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           data-action="newManagedControlPlane"
           icon="add"
         />
-        <MenuItem
-          key={'add'}
-          text={t(
-            'ControlPlaneListToolbar.createNewManagedControlPlaneWithTemplate',
-          )}
-          data-action="newManagedControlPlaneWithTemplate"
-          icon="add-document"
-        />
+        {MCPTemplayesList.map((template) => (
+          <MenuItem
+            key={'add'}
+            text={template.title}
+            data-action="newManagedControlPlaneWithTemplate"
+            icon={template.iconUrl}
+          />
+        ))}
         <MenuItem
           key={'delete'}
           text={t('ControlPlaneListToolbar.deleteWorkspace')}

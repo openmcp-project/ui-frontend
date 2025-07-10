@@ -189,3 +189,14 @@ export const managedControlPlaneTemplate: ManagedControlPlaneTemplateList = {
     resourceVersion: '',
   },
 };
+
+type MCPTemplateMeta = {
+  title: string;
+  iconUrl: string;
+  docsUrl: string;
+};
+
+export const MCPTemplayesList: MCPTemplateMeta[] = [
+  { title: 'MCP Template 1', iconUrl: 'add-document', docsUrl: 'docsurl' },
+  { title: 'MCP Template 2', iconUrl: 'address-book', docsUrl: 'docsurl2' },
+];
