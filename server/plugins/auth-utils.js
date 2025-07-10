@@ -77,7 +77,7 @@ async function authUtilsPlugin(fastify) {
     };
   });
 
-  fastify.decorate('prepareOidcLoginRedirect', (request, oidcConfig, authorizationEndpoint, stateKey) => {
+  fastify.decorate('prepareOidcLoginRedirect', async (request, oidcConfig, authorizationEndpoint, stateKey) => {
     if (stateKey === undefined) {
       stateKey = 'oauthState';
     }
@@ -88,7 +88,7 @@ async function authUtilsPlugin(fastify) {
       request.log.error(`Invalid redirectTo: "${redirectTo}".`);
       throw new AuthenticationError('Invalid redirectTo.');
     }
-    request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
+    await request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
 
     const { clientId, redirectUri, scopes } = oidcConfig;
 
@@ -96,8 +96,8 @@ async function authUtilsPlugin(fastify) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
 
-    request.encryptedSession.set(stateKey, state);
-    request.encryptedSession.set('codeVerifier', codeVerifier);
+    await request.encryptedSession.set(stateKey, state);
+    await request.encryptedSession.set('codeVerifier', codeVerifier);
     request.log.info(
       {
         stateSet: Boolean(state),

@@ -12,7 +12,7 @@ async function authPlugin(fastify) {
   fastify.decorate('mcpIssuerConfiguration', mcpIssuerConfiguration);
 
   fastify.get('/auth/mcp/login', async function (req, reply) {
-    const redirectUri = fastify.prepareOidcLoginRedirect(
+    const redirectUri = await fastify.prepareOidcLoginRedirect(
       req,
       {
         clientId: OIDC_CLIENT_ID_MCP,
@@ -38,13 +38,13 @@ async function authPlugin(fastify) {
         stateSessionKey,
       );
 
-      req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
-      req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
+      await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
+      await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
 
       if (callbackResult.expiresAt) {
-        req.encryptedSession.set('mcp_tokenExpiresAt', callbackResult.expiresAt);
+        await req.encryptedSession.set('mcp_tokenExpiresAt', callbackResult.expiresAt);
       } else {
-        req.encryptedSession.delete('mcp_tokenExpiresAt');
+        await req.encryptedSession.delete('mcp_tokenExpiresAt');
       }
 
       return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
@@ -62,7 +62,7 @@ async function authPlugin(fastify) {
     const accessToken = req.encryptedSession.get('mcp_accessToken');
 
     const isAuthenticated = Boolean(accessToken);
-    reply.send({ isAuthenticated });
+    return reply.send({ isAuthenticated });
   });
 }
 
