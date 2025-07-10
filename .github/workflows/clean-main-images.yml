@@ -32,3 +32,4 @@ jobs:
           keep-n-tagged: ${{ env.KEEP_X_IMAGES }}
           delete-ghost-images: true
           delete-partial-images: true
+          exclude-tags: 'main'
