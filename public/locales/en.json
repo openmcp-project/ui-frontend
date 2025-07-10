@@ -98,7 +98,7 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
-    "betaButtonDescription": "This web app is currently in Beta, and may not ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
+    "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "signOutButton": "Sign Out",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
