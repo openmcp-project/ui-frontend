@@ -59,7 +59,9 @@
     "emptyListSubtitleMessage": "Create a workspace to get started"
   },
   "ConnectButton": {
-    "buttonText": "Connect"
+    "buttonText": "Connect",
+    "defaultIdP": "default IdP",
+    "unsupportedIdP": "non-default IdP not supported"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",

@@ -77,7 +77,10 @@ async function authUtilsPlugin(fastify) {
     };
   });
 
-  fastify.decorate('prepareOidcLoginRedirect', (request, oidcConfig, authorizationEndpoint) => {
+  fastify.decorate('prepareOidcLoginRedirect', async (request, oidcConfig, authorizationEndpoint, stateKey) => {
+    if (stateKey === undefined) {
+      stateKey = 'oauthState';
+    }
     request.log.info('Preparing OIDC login redirect.');
 
     const { redirectTo } = request.query;
@@ -85,7 +88,7 @@ async function authUtilsPlugin(fastify) {
       request.log.error(`Invalid redirectTo: "${redirectTo}".`);
       throw new AuthenticationError('Invalid redirectTo.');
     }
-    request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
+    await request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
 
     const { clientId, redirectUri, scopes } = oidcConfig;
 
@@ -93,8 +96,8 @@ async function authUtilsPlugin(fastify) {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto.createHash('sha256').update(codeVerifier).digest('base64url');
 
-    request.encryptedSession.set('oauthState', state);
-    request.encryptedSession.set('codeVerifier', codeVerifier);
+    await request.encryptedSession.set(stateKey, state);
+    await request.encryptedSession.set('codeVerifier', codeVerifier);
     request.log.info(
       {
         stateSet: Boolean(state),
@@ -117,7 +120,10 @@ async function authUtilsPlugin(fastify) {
     return url.toString();
   });
 
-  fastify.decorate('handleOidcCallback', async (request, oidcConfig, tokenEndpoint) => {
+  fastify.decorate('handleOidcCallback', async (request, oidcConfig, tokenEndpoint, stateKey) => {
+    if (stateKey === undefined) {
+      stateKey = 'oauthState';
+    }
     request.log.info('Handling OIDC callback to retrieve the tokens.');
 
     const { clientId, redirectUri } = oidcConfig;
@@ -127,7 +133,7 @@ async function authUtilsPlugin(fastify) {
       request.log.error('Missing authorization code in callback.');
       throw new AuthenticationError('Missing code in callback.');
     }
-    if (state !== request.encryptedSession.get('oauthState')) {
+    if (state !== request.encryptedSession.get(stateKey)) {
       request.log.error('Invalid state in callback.');
       throw new AuthenticationError('Invalid state in callback.');
     }

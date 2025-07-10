@@ -7,7 +7,7 @@ import { sortVersions } from '../../utils/componentsVersions.ts';
 import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
 import useApiResource from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
-import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem, removeComponents } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneTemplate } from '../../lib/api/types/mcp/mcpTemplate.ts';
 
@@ -60,7 +60,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
         isSelected: !!defaultComponents.find(({ name }) => name === item.metadata.name),
         documentationUrl: '',
       };
-    });
+    })      .filter((component) => !removeComponents.find((item) => item === component.name));
 
     setComponentsList(newComponentsList);
     initialized.current = true;
