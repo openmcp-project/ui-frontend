@@ -102,9 +102,12 @@ export default function ConnectButton(props: Props) {
             data-target={`/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(
               props.workspaceName,
             )}/mcps/${props.controlPlaneName}/context/${context.name}`}
-            additionalText={
-              currentContext === context.name ? '(default IdP)' : undefined
-            }
+            additionalText={`(${
+              context.context.user === 'openmcp'
+                ? t('ConnectButton.defaultIdP')
+                : t('ConnectButton.unsupportedIdP')
+            })`}
+            disabled={context.context.user !== 'openmcp'}
           />
         ))}
         <MenuItem
