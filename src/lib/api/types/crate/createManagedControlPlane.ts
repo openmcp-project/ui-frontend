@@ -1,9 +1,5 @@
 import { Resource } from '../resource';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
 
 export type Annotations = Record<string, string>;
@@ -60,6 +56,14 @@ export interface CreateManagedControlPlaneType {
   spec: Spec;
 }
 
+// rename is used to make creation of MCP working properly
+const replaceComponentsName = {
+  'sap-btp-service-operator': 'btpServiceOperator',
+  'external-secrets': 'externalSecretsOperator',
+};
+
+export const removeComponents = ['cert-manager'];
+
 export const CreateManagedControlPlane = (
   name: string,
   namespace: string,
@@ -76,10 +80,12 @@ export const CreateManagedControlPlane = (
     optional?.componentsList
       ?.filter(
         (component) =>
-          component.isSelected &&
-          !component.name.includes('provider') &&
-          !component.name.includes('crossplane'),
+          component.isSelected && !component.name.includes('provider') && !component.name.includes('crossplane'),
       )
+      .map((component) => ({
+        ...component,
+        name: replaceComponentsName[component.name] ?? component.name,
+      }))
       .reduce((acc, item) => {
         acc[item.name] = { version: item.selectedVersion };
         return acc;
@@ -90,9 +96,7 @@ export const CreateManagedControlPlane = (
 
   const providersListObject: Provider[] =
     optional?.componentsList
-      ?.filter(
-        ({ name, isSelected }) => name.includes('provider') && isSelected,
-      )
+      ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
@@ -140,10 +144,7 @@ export const CreateManagedControlPlane = (
     },
   };
 };
-export const CreateManagedControlPlaneResource = (
-  projectName: string,
-  workspaceName: string,
-): Resource<undefined> => {
+export const CreateManagedControlPlaneResource = (projectName: string, workspaceName: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${projectName}--ws-${workspaceName}/managedcontrolplanes`,
     method: 'POST',
