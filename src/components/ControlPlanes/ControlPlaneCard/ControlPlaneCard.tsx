@@ -17,7 +17,7 @@ import {
   ReadyStatus,
 } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import useResource, {
+import {
   useApiResourceMutation,
 } from '../../../lib/api/useApiResource.ts';
 import {
@@ -30,7 +30,6 @@ import {
 import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
-import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 interface Props {
