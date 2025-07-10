@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import fp from "fastify-plugin";
+import fp from 'fastify-plugin';
 
 async function feedbackRoute(fastify) {
   const { FEEDBACK_SLACK_URL } = fastify.config;
@@ -23,7 +23,7 @@ async function feedbackRoute(fastify) {
       if (!res.ok) {
         return reply.status(500).send({ error: 'Slack API error' });
       }
-      return reply.send({ message: res, });
+      return reply.send({ message: res });
     } catch (err) {
       fastify.log.error('Slack error:', err);
       return reply.status(500).send({ error: 'Request failed' });
@@ -32,4 +32,3 @@ async function feedbackRoute(fastify) {
 }
 
 export default fp(feedbackRoute);
-
