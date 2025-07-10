@@ -1,6 +1,8 @@
 import fp from 'fastify-plugin';
 import { AuthenticationError } from '../plugins/auth-utils.js';
 
+const stateSessionKey = 'oauthStateOnboarding';
+
 async function authPlugin(fastify) {
   const { OIDC_ISSUER, OIDC_CLIENT_ID, OIDC_REDIRECT_URI, OIDC_SCOPES, POST_LOGIN_REDIRECT } = fastify.config;
 
@@ -17,6 +19,7 @@ async function authPlugin(fastify) {
         scopes: OIDC_SCOPES,
       },
       issuerConfiguration.authorizationEndpoint,
+      stateSessionKey,
     );
 
     return reply.redirect(redirectUri);
@@ -31,6 +34,7 @@ async function authPlugin(fastify) {
           redirectUri: OIDC_REDIRECT_URI,
         },
         issuerConfiguration.tokenEndpoint,
+        stateSessionKey,
       );
 
       req.encryptedSession.set('onboarding_accessToken', callbackResult.accessToken);

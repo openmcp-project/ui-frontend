@@ -1,6 +1,8 @@
 import fp from 'fastify-plugin';
 import { AuthenticationError } from '../plugins/auth-utils.js';
 
+const stateSessionKey = 'oauthStateMCP';
+
 async function authPlugin(fastify) {
   const { OIDC_ISSUER, OIDC_CLIENT_ID_MCP, OIDC_REDIRECT_URI, OIDC_SCOPES, POST_LOGIN_REDIRECT } = fastify.config;
 
@@ -18,6 +20,7 @@ async function authPlugin(fastify) {
         scopes: OIDC_SCOPES,
       },
       mcpIssuerConfiguration.authorizationEndpoint,
+      stateSessionKey,
     );
 
     return reply.redirect(redirectUri);
@@ -32,6 +35,7 @@ async function authPlugin(fastify) {
           redirectUri: OIDC_REDIRECT_URI,
         },
         mcpIssuerConfiguration.tokenEndpoint,
+        stateSessionKey,
       );
 
       req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
