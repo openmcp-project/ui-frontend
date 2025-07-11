@@ -22,7 +22,7 @@ async function feedbackRoute(fastify) {
 
       if (!res.ok) {
         return reply.status(500).send({
-          error: 'Slack API error. Status: ' + res.status + ' message: ' + res.message + ' error: ' + res.error,
+          error: `Slack API error. Status: ${res.status}${res.message ? ` | Message: ${res.message}` : ''}${res.error ? ` | Error: ${res.error}` : ''}`,
         });
       }
       return reply.send({ message: res });
