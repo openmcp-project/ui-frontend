@@ -21,7 +21,7 @@ async function feedbackRoute(fastify) {
       });
 
       if (!res.ok) {
-        return reply.status(500).send({ error: 'Slack API error' });
+        return reply.status(500).send({ error: 'Slack API error: ' + res.text + FEEDBACK_SLACK_URL });
       }
       return reply.send({ message: res });
     } catch (err) {
