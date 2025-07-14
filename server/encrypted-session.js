@@ -20,7 +20,7 @@ export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = 'encryptionKey';
 export const SESSION_COOKIE_NAME = 'session-cookie';
 
 async function encryptedSession(fastify) {
-  const { COOKIE_SECRET, SESSION_SECRET, NODE_ENV } = fastify.config;
+  const { COOKIE_SECRET, SESSION_SECRET } = fastify.config;
 
   await fastify.register(fastifyCookie);
 
@@ -31,8 +31,9 @@ async function encryptedSession(fastify) {
     cookie: {
       path: '/',
       httpOnly: true,
-      sameSite: 'lax',
-      secure: NODE_ENV === 'production',
+      sameSite: "None", // cross-site cookies are needed for the session to work when embedded. By setting CORS to None and CSP.frame-anchestors we restrict the api calls from the browser that contain the cookies to originating from our site only.
+      partioned: true, // use for modern isolation of third party cookies when embedded, every embedded iframe (or not embedded) gets its own cookie partition
+      secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
   });
@@ -43,8 +44,9 @@ async function encryptedSession(fastify) {
     cookie: {
       path: '/',
       httpOnly: true,
-      sameSite: 'lax',
-      secure: NODE_ENV === 'production',
+      sameSite: "None", // see secureSession cookie for explanation
+      partioned: true, // see secureSession cookie for explanation
+      secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
   });
