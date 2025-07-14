@@ -13,7 +13,7 @@ const schema = {
     'COOKIE_SECRET',
     'SESSION_SECRET',
     'API_BACKEND_URL',
-    'FRAME_ANCHESTORS',
+    'FRAME_ANCESTORS',
   ],
   properties: {
     // Application variables (.env)
@@ -28,7 +28,7 @@ const schema = {
     API_BACKEND_URL: { type: 'string' },
     FEEDBACK_SLACK_URL: { type: 'string' },
     FEEDBACK_URL_LINK: { type: 'string' },
-    FRAME_ANCHESTORS: { type: 'string' },
+    FRAME_ANCESTORS: { type: 'string' },
 
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },

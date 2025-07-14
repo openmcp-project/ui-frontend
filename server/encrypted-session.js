@@ -32,7 +32,7 @@ async function encryptedSession(fastify) {
       path: '/',
       httpOnly: true,
       sameSite: "None", // cross-site cookies are needed for the session to work when embedded. By setting CORS to None and CSP.frame-anchestors we restrict the api calls from the browser that contain the cookies to originating from our site only.
-      partioned: true, // use for modern isolation of third party cookies when embedded, every embedded iframe (or not embedded) gets its own cookie partition
+      partitioned: true, // use for modern isolation of third party cookies when embedded, every embedded iframe (or not embedded) gets its own cookie partition
       secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },
@@ -45,7 +45,7 @@ async function encryptedSession(fastify) {
       path: '/',
       httpOnly: true,
       sameSite: "None", // see secureSession cookie for explanation
-      partioned: true, // see secureSession cookie for explanation
+      partitioned: true, // see secureSession cookie for explanation
       secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
     },

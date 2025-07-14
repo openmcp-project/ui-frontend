@@ -37,7 +37,7 @@ fastify.register(
       directives: {
         "connect-src": ["'self'", "sdk.openui5.org"],
         "script-src": isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
-        "frame-ancestors": [fastify.config.FRAME_ANCHESTORS]
+        "frame-ancestors": [fastify.config.FRAME_ANCESTORS]
       },
     }
   }
