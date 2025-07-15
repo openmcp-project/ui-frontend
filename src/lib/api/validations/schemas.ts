@@ -15,12 +15,18 @@ export const validationSchemaProjectWorkspace = z
       .regex(projectWorkspaceNameRegex, t('validationErrors.properFormatting'))
       .max(25, t('validationErrors.max25chars')),
     displayName: z.string().optional(),
-    chargingTarget: z.string(),
+    chargingTarget: z.string().optional(),
     chargingTargetType: z.string().optional(),
     members: z.array(member).refine((members) => members?.length > 0),
   })
   .superRefine((data, ctx) => {
-    if (data.chargingTargetType && !data.chargingTarget) {
+    if (data.chargingTargetType && data.chargingTarget && !btpChargingTargetRegex.test(data.chargingTarget ?? '')) {
+      ctx.addIssue({
+        path: ['chargingTarget'],
+        code: z.ZodIssueCode.custom,
+        message: t('validationErrors.notValidChargingTargetFormat'),
+      });
+    } else if (data.chargingTargetType && !data.chargingTarget) {
       ctx.addIssue({
         path: ['chargingTarget'],
         code: z.ZodIssueCode.custom,

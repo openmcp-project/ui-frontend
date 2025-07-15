@@ -31,7 +31,6 @@ export function MetadataForm({
   const handleChargingTargetTypeChange = (event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
     const selectedOption = event.detail.selectedOption as HTMLElement;
     setValue('chargingTargetType', selectedOption.dataset.value);
-    // alert('now');
   };
   const chargingTypes: SelectOption[] = [
     ...(!requireChargingTarget ? [{ label: t('common.notSelected'), value: '' }] : []),
@@ -71,6 +70,7 @@ export function MetadataForm({
           className={styles.input}
           valueState={errors.chargingTarget ? 'Negative' : 'None'}
           valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
+          disabled={!getValues?.('chargingTargetType')}
         />
       </FormGroup>
 
