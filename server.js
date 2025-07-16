@@ -14,6 +14,7 @@ Sentry.init({
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   sendDefaultPii: true,
+  environment: process.env.VITE_ENVIRONMENT,
 });
 
 const isDev = process.argv.includes('--dev');
