@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
+import * as Sentry from '@sentry/react';
 
 interface AuthContextOnboardingType {
   isLoading: boolean;

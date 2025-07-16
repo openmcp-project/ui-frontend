@@ -1,4 +1,4 @@
-import { HashRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import { HashRouter as Router, Navigate, Route } from 'react-router-dom';
 import ControlPlaneView from './views/ControlPlanes/ControlPlaneView.tsx';
 import ProjectListView from './views/ProjectList';
 import ControlPlaneListView from './views/ControlPlanes/ControlPlaneListView.tsx';

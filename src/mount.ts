@@ -2,15 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { createApp } from './main.tsx';
 import * as Sentry from '@sentry/react';
 import React from 'react';
-import {
-  Routes,
-  Route,
-  BrowserRouter,
-  useLocation,
-  useNavigationType,
-  createRoutesFromChildren,
-  matchRoutes,
-} from 'react-router-dom';
+import { Routes, useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
 
 let sentryRoutes = Routes;
 if (import.meta.env.VITE_SENTRY_DSN.length > 0) {
