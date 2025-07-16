@@ -52,7 +52,10 @@ export function MetadataForm({
         />
         <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
         <Input id="displayName" {...register('displayName')} className={styles.input} />
-        <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
+
+        <div>
+          <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
+        </div>
         <Select id={'chargingTargetType'} className={styles.input} onChange={handleChargingTargetTypeChange}>
           {chargingTypes.map((option) => (
             <Option key={option.value} data-value={option.value}>
