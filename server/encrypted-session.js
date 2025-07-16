@@ -68,7 +68,7 @@ function createStore(request) {
   if (!userEncryptionKey) {
     request.log.info({ plugin: 'encrypted-session' }, 'user-side encryption key not found, creating new one');
 
-    userEncryptionKey = generateSecureEncryptionKey();
+    userEncryptionKey = generateSecureEncryptionKey().toString('base64');
     setUserEncryptionKeyIntoUserCookie(request, userEncryptionKey);
   }
 
