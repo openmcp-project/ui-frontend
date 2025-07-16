@@ -1,9 +1,4 @@
-import {
-  HashRouter as Router,
-  Navigate,
-  Route,
-  Routes,
-} from 'react-router-dom';
+import { HashRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import ControlPlaneView from './views/ControlPlanes/ControlPlaneView.tsx';
 import ProjectListView from './views/ProjectList';
 import ControlPlaneListView from './views/ControlPlanes/ControlPlaneListView.tsx';
@@ -18,10 +13,7 @@ function AppRouter() {
         <Routes>
           <Route path="/mcp" element={<GlobalProviderOutlet />}>
             <Route path="projects" element={<ProjectListView />} />
-            <Route
-              path="projects/:projectName"
-              element={<ControlPlaneListView />}
-            />
+            <Route path="projects/:projectName" element={<ControlPlaneListView />} />
             <Route
               path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName/context/:contextName"
               element={<ControlPlaneView />}

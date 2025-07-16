@@ -14,7 +14,7 @@ function App() {
     if (frontendConfig && frontendConfig.landscape) {
       document.title = `[${frontendConfig.landscape}] MCP`;
     }
-  }, []);
+  }, [frontendConfig]);
 
   if (auth.isLoading) {
     return <BusyIndicator active />;
