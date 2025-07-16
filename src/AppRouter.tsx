@@ -4,13 +4,14 @@ import ProjectListView from './views/ProjectList';
 import ControlPlaneListView from './views/ControlPlanes/ControlPlaneListView.tsx';
 import GlobalProviderOutlet from './components/Core/ApiConfigWrapper.tsx';
 import { ShellBarComponent } from './components/Core/ShellBar.tsx';
+import { SentryRoutes } from './mount.ts';
 
 function AppRouter() {
   return (
     <>
       <ShellBarComponent />
       <Router>
-        <Routes>
+        <SentryRoutes>
           <Route path="/mcp" element={<GlobalProviderOutlet />}>
             <Route path="projects" element={<ProjectListView />} />
             <Route path="projects/:projectName" element={<ControlPlaneListView />} />
@@ -20,7 +21,7 @@ function AppRouter() {
             />
           </Route>
           <Route path="/" element={<Navigate to="/mcp/projects" />} />
-        </Routes>
+        </SentryRoutes>
       </Router>
     </>
   );

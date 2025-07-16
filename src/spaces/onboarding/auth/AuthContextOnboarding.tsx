@@ -57,6 +57,12 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         validationResult.data;
       setUser(apiUser);
       setIsAuthenticated(apiIsAuthenticated);
+
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Authenticated user ' + apiUser?.email,
+        level: 'info',
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Authentication error.'));
       setUser(null);

@@ -5,11 +5,18 @@ import './login.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { useLink } from '../lib/shared/useLink.ts';
 import { useTranslation } from 'react-i18next';
+import * as Sentry from '@sentry/react';
 
 export default function LoginView() {
   const auth = useAuthOnboarding();
   const { documentationHomepage } = useLink();
   const { t } = useTranslation();
+
+  Sentry.addBreadcrumb({
+    category: 'auth',
+    message: 'Visit Login Page',
+    level: 'info',
+  });
 
   return (
     <FlexBox
