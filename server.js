@@ -5,8 +5,16 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import proxy from './server/app.js';
 import { copyFileSync } from 'node:fs';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
+
+Sentry.init({
+  dsn: process.env.BFF_SENTRY_DSN,
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+});
 
 const isDev = process.argv.includes('--dev');
 
@@ -23,6 +31,8 @@ if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFI
 const fastify = Fastify({
   logger: true,
 });
+
+Sentry.setupFastifyErrorHandler(fastify);
 
 fastify.register(proxy, {
   prefix: '/api',

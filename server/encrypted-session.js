@@ -52,7 +52,7 @@ async function encryptedSession(fastify) {
   await fastify.decorateRequest(REQUEST_DECORATOR, {
     getter() {
       return createStore(this);
-    }
+    },
   });
 }
 
@@ -103,7 +103,7 @@ function createStore(request) {
   return {
     async set(key, value) {
       unencryptedStore[key] = value;
-      await save()
+      await save();
     },
     get(key) {
       return unencryptedStore[key];
