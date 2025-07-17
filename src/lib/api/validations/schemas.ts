@@ -7,6 +7,26 @@ const { t } = i18n;
 
 const member = z.custom<Member>();
 
+// Shared superRefine helper for charging target validation
+function validateChargingTarget<T extends { chargingTargetType?: string; chargingTarget?: string }>(
+  data: T,
+  ctx: z.RefinementCtx,
+) {
+  if (data.chargingTargetType && data.chargingTarget && !btpChargingTargetRegex.test(data.chargingTarget ?? '')) {
+    ctx.addIssue({
+      path: ['chargingTarget'],
+      code: z.ZodIssueCode.custom,
+      message: t('validationErrors.notValidChargingTargetFormat'),
+    });
+  } else if (data.chargingTargetType && !data.chargingTarget) {
+    ctx.addIssue({
+      path: ['chargingTarget'],
+      code: z.ZodIssueCode.custom,
+      message: t('validationErrors.required'),
+    });
+  }
+}
+
 export const validationSchemaProjectWorkspace = z
   .object({
     name: z
@@ -19,21 +39,7 @@ export const validationSchemaProjectWorkspace = z
     chargingTargetType: z.string().optional(),
     members: z.array(member).refine((members) => members?.length > 0),
   })
-  .superRefine((data, ctx) => {
-    if (data.chargingTargetType && data.chargingTarget && !btpChargingTargetRegex.test(data.chargingTarget ?? '')) {
-      ctx.addIssue({
-        path: ['chargingTarget'],
-        code: z.ZodIssueCode.custom,
-        message: t('validationErrors.notValidChargingTargetFormat'),
-      });
-    } else if (data.chargingTargetType && !data.chargingTarget) {
-      ctx.addIssue({
-        path: ['chargingTarget'],
-        code: z.ZodIssueCode.custom,
-        message: t('validationErrors.required'),
-      });
-    }
-  });
+  .superRefine(validateChargingTarget);
 
 export const validationSchemaCreateManagedControlPlane = z
   .object({
@@ -47,18 +53,4 @@ export const validationSchemaCreateManagedControlPlane = z
     chargingTargetType: z.string().optional(),
     members: z.array(member),
   })
-  .superRefine((data, ctx) => {
-    if (data.chargingTargetType && data.chargingTarget && !btpChargingTargetRegex.test(data.chargingTarget ?? '')) {
-      ctx.addIssue({
-        path: ['chargingTarget'],
-        code: z.ZodIssueCode.custom,
-        message: t('validationErrors.notValidChargingTargetFormat'),
-      });
-    } else if (data.chargingTargetType && !data.chargingTarget) {
-      ctx.addIssue({
-        path: ['chargingTarget'],
-        code: z.ZodIssueCode.custom,
-        message: t('validationErrors.required'),
-      });
-    }
-  });
+  .superRefine(validateChargingTarget);
