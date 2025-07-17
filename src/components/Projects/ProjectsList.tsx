@@ -1,7 +1,4 @@
-import {
-  AnalyticalTable,
-  AnalyticalTableColumnDefinition,
-} from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -14,6 +11,7 @@ import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
 import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
+import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
@@ -94,6 +92,26 @@ export default function ProjectsList() {
           </div>
         ),
       },
+      {
+        Header: t('common.options'),
+        accessor: 'options',
+        width: 85,
+        disableFilters: true,
+        hAlign: 'Center',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Cell: (instance: any) => (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'end',
+              alignItems: 'center',
+            }}
+          >
+            <ProjectsListItemMenu setDialogDeleteProjectIsOpen={() => {}} />
+          </div>
+        ),
+      },
     ],
     [],
   );
@@ -109,9 +127,7 @@ export default function ProjectsList() {
         data={stabilizedData}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRowClick={(e: any) => {
-          navigate(
-            `/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`,
-          );
+          navigate(`/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`);
         }}
       />
     </>
