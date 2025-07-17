@@ -1,4 +1,4 @@
-import { FieldErrors, UseFormGetValues, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormGetValues, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useTranslation } from 'react-i18next';
 import { Form, FormGroup, Input, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
@@ -11,7 +11,7 @@ export interface MetadataFormProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
-  getValues: UseFormGetValues<CreateDialogProps>;
+  watch: UseFormWatch<CreateDialogProps>;
 }
 
 interface SelectOption {
@@ -20,7 +20,7 @@ interface SelectOption {
 }
 
 export function MetadataForm({
-  getValues,
+  watch,
   register,
   errors,
   setValue,
@@ -64,7 +64,7 @@ export function MetadataForm({
           ))}
         </Select>
 
-        <Label for={'chargingTarget'} required={!!getValues?.('chargingTargetType')}>
+        <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
         <Input
@@ -73,7 +73,7 @@ export function MetadataForm({
           className={styles.input}
           valueState={errors.chargingTarget ? 'Negative' : 'None'}
           valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
-          disabled={!getValues?.('chargingTargetType')}
+          disabled={!watch?.('chargingTargetType')}
         />
       </FormGroup>
 

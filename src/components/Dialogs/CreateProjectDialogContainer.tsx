@@ -23,13 +23,12 @@ export function CreateProjectDialogContainer({
   setIsOpen: (isOpen: boolean) => void;
 }) {
   const {
-    getValues,
+    watch,
     register,
     handleSubmit,
     resetField,
     setValue,
     formState: { errors },
-    watch,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
@@ -98,7 +97,7 @@ export function CreateProjectDialogContainer({
 
   return (
     <CreateProjectWorkspaceDialog
-      getValues={getValues}
+      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}

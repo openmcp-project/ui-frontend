@@ -69,9 +69,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     resetField,
     setValue,
     reset,
-    getValues,
-    formState: { errors, isValid },
     watch,
+    formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
@@ -170,7 +169,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(getValues());
+        handleCreateManagedControlPlane(watch());
         break;
       case 'success':
         resetFormAndClose();
@@ -178,7 +177,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       default:
         break;
     }
-  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, getValues, resetFormAndClose]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose]);
 
   const setMembers = useCallback(
     (members: Member[]) => {
@@ -265,7 +264,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm getValues={getValues} setValue={setValue} register={register} errors={errors} />
+          <MetadataForm watch={watch} setValue={setValue} register={register} errors={errors} />
         </WizardStep>
         <WizardStep
           icon="user-edit"
@@ -302,7 +301,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           data-step="summarize"
         >
           <SummarizeStep
-            getValues={getValues}
+            watch={watch}
             workspaceName={workspaceName}
             projectName={projectName}
             componentsList={componentsList}

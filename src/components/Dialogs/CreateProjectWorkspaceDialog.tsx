@@ -36,7 +36,7 @@ export interface CreateProjectWorkspaceDialogProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project';
-  getValues: UseFormGetValues<CreateDialogProps>;
+  watch: UseFormGetValues<CreateDialogProps>;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -51,7 +51,7 @@ export function CreateProjectWorkspaceDialog({
   setValue,
   projectName,
   type,
-  getValues,
+  watch,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
@@ -86,7 +86,7 @@ export function CreateProjectWorkspaceDialog({
         onClose={() => setIsOpen(false)}
       >
         <MetadataForm
-          getValues={getValues}
+          watch={watch}
           register={register}
           errors={errors}
           setValue={setValue}
