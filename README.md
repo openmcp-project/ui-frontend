@@ -2,7 +2,7 @@
 
 # ui-frontend
 
-## About this project
+## About This Project
 
 This repository contains code relevant for the frontend component required in the Managed Control Plane UI (MCP UI), which is part of the @openmcp-project, more info [here](https://github.com/openmcp-project).
 
@@ -10,36 +10,64 @@ The MCP UI enables endusers to work with Managed Control Planes, without having 
 
 Overall, the UI provides an easy jump-start for everyone interested in checking the status of Managed Control Planes, without having to use kubectl.
 
-## Requirements and Setup
+## Getting Started
 
-### Development
+### Development Setup
 
-1. install dependencies: `npm i`
+#### Install Dependencies
 
-1. Copy the `frontend-config.json` to `public/frontend-config.json` and adapt the `backendUrl` according to your setup (see section Dynamic Frontend Config).
+```bash
+npm i
+```
 
-1. Connect to the ui-backend server
-   **Run it locally**:
-    - See `https://github.com/openmcp-project/ui-backend`
+#### Configure Frontend
 
-1. Start the application:
+- Copy `frontend-config.json` to `public/frontend-config.json` and adapt the `backendUrl` according to your setup (see section Dynamic Frontend Config).
+- Copy `.env.template` to `.env` and fill in the missing values.
 
-   Run `npm run dev`
+#### Run the Application
 
-### Build
+```bash
+npm run dev
+```
 
-1. Build the application:
+The UI will be served on http://localhost:5173.
 
-   Run `npm run build`
 
-2. Serve the application locally:
+#### Safari Support
 
-   Run `npm run preview`
+**Note:** The frontend is currently incompatible with Safari when running locally on `localhost`.
 
-3. For production:
+To enable local development with Safari, follow these steps on your local machine:
 
-   Use the docker image which uses nginx for best performance and small bundle size.
-   `docker build -t my-label .`
+1. **Update Cookie Settings:**  
+   In [`server/encrypted-session.js`](server/encrypted-session.js), set the `secure` property to `false` in both occurrences.
+
+2. **Disable Helmet Registration:**  
+   In [`server.js`](server.js), comment out or remove the registration of `helmet`.
+
+
+### Build & Production
+
+#### Build the Application
+
+```bash
+npm run build
+```
+
+#### Serve the Production Build Locally
+
+```bash
+npm run preview
+```
+
+#### Production Deployment
+
+Use the docker image which uses nginx for best performance and small bundle size.
+
+```bash
+docker build -t my-label .
+```
 
 ### Dynamic FrontendConfig
 
@@ -50,11 +78,11 @@ An example docker run command would be
 docker run -p 5001:80 -e BACKEND_CONFIG="$(cat frontend-config.json)"  -t ui-test
 ```
 
-## Support, Feedback, Contributing
+## Support & Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/openmcp-project/ui-frontend/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
 
-## Security / Disclosure
+## Security & Disclosure
 If you find any bug that may be a security problem, please follow our instructions at [in our security policy](https://github.com/openmcp-project/ui-frontend/security/policy) on how to report it. Please do not create GitHub issues for security-related doubts or problems.
 
 ## Code of Conduct
@@ -64,3 +92,7 @@ We as members, contributors, and leaders pledge to make participation in our com
 ## Licensing
 
 Copyright 2025 SAP SE or an SAP affiliate company and ui-frontend contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/openmcp-project/ui-frontend).
+
+---
+
+**Happy contributing! 🚀**
