@@ -1,15 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import {
-  Bar,
-  Button,
-  Dialog,
-  Form,
-  FormGroup,
-  FormItem,
-  Input,
-  InputDomRef,
-  Label,
-} from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, Form, FormGroup, FormItem, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useTranslation } from 'react-i18next';
 
@@ -74,7 +64,7 @@ export function DeleteConfirmationDialog({
                 </Button>
                 <Button
                   design={ButtonDesign.Negative}
-                  disabled={confirmed === false}
+                  disabled={!confirmed}
                   onClick={() => {
                     setIsOpen(false);
                     onDeletionConfirmed && onDeletionConfirmed();
@@ -94,8 +84,7 @@ export function DeleteConfirmationDialog({
             </Label>
             <Label>
               {' '}
-              {t('DeleteConfirmationDialog.deleteMessageType')}{' '}
-              <b>{resourceName}</b>{' '}
+              {t('DeleteConfirmationDialog.deleteMessageType')} <b>{resourceName}</b>{' '}
               {t('DeleteConfirmationDialog.deleteMessageConfirm')}
             </Label>
           </FormGroup>
@@ -103,18 +92,12 @@ export function DeleteConfirmationDialog({
             <FormItem
               labelContent={
                 <Label>
-                  {t('DeleteConfirmationDialog.deleteMessageType')}{' '}
-                  {resourceName}{' '}
+                  {t('DeleteConfirmationDialog.deleteMessageType')} {resourceName}{' '}
                   {t('DeleteConfirmationDialog.deleteMessageConfirm')}
                 </Label>
               }
             >
-              <Input
-                ref={confirmationInput}
-                id="mcp-name-input"
-                placeholder=""
-                onInput={onConfirmationInputChange}
-              />
+              <Input ref={confirmationInput} id="mcp-name-input" placeholder="" onInput={onConfirmationInputChange} />
             </FormItem>
             <FormItem>{kubectl}</FormItem>
           </FormGroup>

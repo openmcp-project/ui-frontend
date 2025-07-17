@@ -12,11 +12,7 @@ export type YamlViewButtonProps = {
   resourceName: string;
 };
 
-export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
-  workspaceName,
-  resourceType,
-  resourceName,
-}) => {
+export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   return (
@@ -25,11 +21,7 @@ export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         dialogContent={
-          <YamlLoader
-            workspaceName={workspaceName}
-            resourceName={resourceName}
-            resourceType={resourceType}
-          />
+          <YamlLoader workspaceName={workspaceName} resourceName={resourceName} resourceType={resourceType} />
         }
       />
 

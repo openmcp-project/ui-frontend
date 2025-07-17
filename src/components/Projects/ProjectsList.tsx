@@ -108,7 +108,7 @@ export default function ProjectsList() {
               alignItems: 'center',
             }}
           >
-            <ProjectsListItemMenu setDialogDeleteProjectIsOpen={() => {}} />
+            <ProjectsListItemMenu projectName={instance.cell.row.original?.projectName ?? ''} />
           </div>
         ),
       },
@@ -127,7 +127,7 @@ export default function ProjectsList() {
         data={stabilizedData}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onRowClick={(e: any) => {
-          navigate(`/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`);
+          // navigate(`/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`);
         }}
       />
     </>

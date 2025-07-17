@@ -157,7 +157,9 @@
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
-    "title": "Projects"
+    "title": "Projects",
+    "deleteProject": "Delete project",
+   "deleteConfirmationDialog": "Project deleted"
   },
   "ControlPlaneView": {
     "accessError": "Managed Control Plane does not have access information yet",
@@ -288,7 +290,8 @@
     "search": "Search",
     "components": "Components",
     "notSelected": "Not selected",
-    "btp": "BTP"
+    "btp": "BTP",
+    "options": "Options"
   },
   "buttons": {
     "viewResource": "View resource",
