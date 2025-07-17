@@ -13,7 +13,7 @@ export const validationSchemaProjectWorkspace = z
       .string()
       .min(1, t('validationErrors.required'))
       .regex(projectWorkspaceNameRegex, t('validationErrors.properFormatting'))
-      .max(25, t('validationErrors.max25chars')),
+      .max(25, t('validationErrors.maxChars', { maxLength: 25 })),
     displayName: z.string().optional(),
     chargingTarget: z.string().optional(),
     chargingTargetType: z.string().optional(),
@@ -41,7 +41,7 @@ export const validationSchemaCreateManagedControlPlane = z
       .string()
       .min(1, t('validationErrors.required'))
       .regex(managedControlPlaneNameRegex, t('validationErrors.properFormattingLowercase'))
-      .max(25, t('validationErrors.max25chars')),
+      .max(36, t('validationErrors.maxChars', { maxLength: 36 })),
     displayName: z.string().optional(),
     chargingTarget: z.string().optional(),
     chargingTargetType: z.string().optional(),
