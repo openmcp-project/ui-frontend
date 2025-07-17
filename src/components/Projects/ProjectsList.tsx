@@ -36,16 +36,12 @@ export default function ProjectsList() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
           <Link
-            // design={'Transparent'}
+            design={'Emphasized'}
             style={{
-              // cursor: 'pointer',
               width: '100%',
               textAlign: 'left',
-              // color: ThemingParameters.sapLinkColor,
-              // fontWeight: 'bold',
-              // display: 'flex',
-              // justifyContent: 'flex-start',
-              // alignItems: 'center',
+              paddingTop: '0.5rem',
+              paddingBottom: '0.5rem',
             }}
             onClick={() => {
               navigate(`/mcp/projects/${instance.cell.row.original?.projectName}`);
@@ -58,7 +54,7 @@ export default function ProjectsList() {
       {
         Header: 'Namespace',
         accessor: 'nameSpace',
-
+        width: 340,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
           <div
@@ -68,6 +64,7 @@ export default function ProjectsList() {
               gap: '0.5rem',
               alignItems: 'center',
               width: '100%',
+
               cursor: 'pointer',
             }}
           >
@@ -99,9 +96,9 @@ export default function ProjectsList() {
         ),
       },
       {
-        Header: t('common.options'),
+        Header: '',
         accessor: 'options',
-        width: 85,
+        width: 60,
         disableFilters: true,
         hAlign: 'Center',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -110,7 +107,7 @@ export default function ProjectsList() {
             style={{
               width: '100%',
               display: 'flex',
-              justifyContent: 'end',
+              justifyContent: 'center',
               alignItems: 'center',
             }}
           >
