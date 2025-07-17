@@ -8,11 +8,11 @@ import {
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import YamlViewer from '../../Yaml/YamlViewer.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
-import { UseFormGetValues } from 'react-hook-form';
+import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 interface SummarizeStepProps {
-  watch: UseFormGetValues<CreateDialogProps>;
+  watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
   workspaceName: string;
   componentsList?: ComponentsListItem[];

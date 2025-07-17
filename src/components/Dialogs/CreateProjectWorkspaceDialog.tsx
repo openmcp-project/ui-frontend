@@ -13,7 +13,7 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FieldErrors, UseFormGetValues, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
 
 export type OnCreatePayload = {
@@ -36,7 +36,7 @@ export interface CreateProjectWorkspaceDialogProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project';
-  watch: UseFormGetValues<CreateDialogProps>;
+  watch: UseFormWatch<CreateDialogProps>;
 }
 
 export function CreateProjectWorkspaceDialog({
