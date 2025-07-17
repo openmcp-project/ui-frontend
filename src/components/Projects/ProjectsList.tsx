@@ -1,4 +1,4 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, Button, Link } from '@ui5/webcomponents-react';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -35,24 +35,30 @@ export default function ProjectsList() {
         accessor: 'projectName',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
-          <div
+          <Link
+            // design={'Transparent'}
             style={{
-              cursor: 'pointer',
+              // cursor: 'pointer',
               width: '100%',
-              color: ThemingParameters.sapLinkColor,
-              fontWeight: 'bold',
-              display: 'flex',
-              justifyContent: 'start',
-              alignItems: 'center',
+              textAlign: 'left',
+              // color: ThemingParameters.sapLinkColor,
+              // fontWeight: 'bold',
+              // display: 'flex',
+              // justifyContent: 'flex-start',
+              // alignItems: 'center',
+            }}
+            onClick={() => {
+              navigate(`/mcp/projects/${instance.cell.row.original?.projectName}`);
             }}
           >
             {instance.cell.value}
-          </div>
+          </Link>
         ),
       },
       {
         Header: 'Namespace',
         accessor: 'nameSpace',
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
           <div
@@ -121,15 +127,7 @@ export default function ProjectsList() {
 
   return (
     <>
-      <AnalyticalTable
-        style={{ margin: '12px' }}
-        columns={stabilizedColumns}
-        data={stabilizedData}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRowClick={(e: any) => {
-          // navigate(`/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`);
-        }}
-      />
+      <AnalyticalTable style={{ margin: '12px' }} columns={stabilizedColumns} data={stabilizedData} />
     </>
   );
 }
