@@ -1,8 +1,5 @@
-import {
-  AnalyticalTable,
-  AnalyticalTableColumnDefinition,
-} from '@ui5/webcomponents-react';
-import { ThemingParameters } from '@ui5/webcomponents-react-base';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -14,6 +11,7 @@ import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { t } from 'i18next';
 import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
+import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
@@ -37,24 +35,26 @@ export default function ProjectsList() {
         accessor: 'projectName',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
-          <div
+          <Link
+            design={'Emphasized'}
             style={{
-              cursor: 'pointer',
               width: '100%',
-              color: ThemingParameters.sapLinkColor,
-              fontWeight: 'bold',
-              display: 'flex',
-              justifyContent: 'start',
-              alignItems: 'center',
+              textAlign: 'left',
+              paddingTop: '0.5rem',
+              paddingBottom: '0.5rem',
+            }}
+            onClick={() => {
+              navigate(`/mcp/projects/${instance.cell.row.original?.projectName}`);
             }}
           >
             {instance.cell.value}
-          </div>
+          </Link>
         ),
       },
       {
         Header: 'Namespace',
         accessor: 'nameSpace',
+        width: 340,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (instance: any) => (
           <div
@@ -64,6 +64,7 @@ export default function ProjectsList() {
               gap: '0.5rem',
               alignItems: 'center',
               width: '100%',
+
               cursor: 'pointer',
             }}
           >
@@ -94,6 +95,26 @@ export default function ProjectsList() {
           </div>
         ),
       },
+      {
+        Header: '',
+        accessor: 'options',
+        width: 60,
+        disableFilters: true,
+        hAlign: 'Center',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Cell: (instance: any) => (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <ProjectsListItemMenu projectName={instance.cell.row.original?.projectName ?? ''} />
+          </div>
+        ),
+      },
     ],
     [],
   );
@@ -103,17 +124,7 @@ export default function ProjectsList() {
 
   return (
     <>
-      <AnalyticalTable
-        style={{ margin: '12px' }}
-        columns={stabilizedColumns}
-        data={stabilizedData}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onRowClick={(e: any) => {
-          navigate(
-            `/mcp/projects/${data ? [e.detail.row.values.projectName] : ''}`,
-          );
-        }}
-      />
+      <AnalyticalTable style={{ margin: '12px' }} columns={stabilizedColumns} data={stabilizedData} />
     </>
   );
 }
