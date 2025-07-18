@@ -5,19 +5,26 @@ import { Fragment } from 'react/jsx-runtime';
 
 interface DeleteWorkspaceDialogProps {
   onClose: () => void;
+  resourceName?: string;
   projectName?: string;
   isOpen: boolean;
 }
 
-export const DeleteWorkspaceDialog = ({ onClose, projectName, isOpen }: DeleteWorkspaceDialogProps) => {
+export const DeleteWorkspaceDialog = ({ onClose, resourceName, projectName, isOpen }: DeleteWorkspaceDialogProps) => {
   const { t } = useTranslation();
 
-  const projectNamespace = projectName ?? '<project-name>"';
+  const projectNamespace = projectName ? `project-${projectName}` : '<project-namespace>"';
+  const workspaceName = resourceName || '<workspace-name>';
 
   const customCommands: CustomCommand[] = [
     {
-      command: `kubectl delete project ${projectName}`,
+      command: `kubectl delete workspace ${resourceName} -n ${projectNamespace}`,
       description: t('DeleteWorkspaceDialog.mainCommandDescription'),
+      isMainCommand: true,
+    },
+    {
+      command: `kubectl get workspace -n ${projectNamespace}`,
+      description: t('DeleteWorkspaceDialog.verificationCommandDescription'),
       isMainCommand: true,
     },
   ];
@@ -26,6 +33,7 @@ export const DeleteWorkspaceDialog = ({ onClose, projectName, isOpen }: DeleteWo
     <Fragment key="intro-1">
       <Text>
         {t('DeleteWorkspaceDialog.introSection1', {
+          workspaceName,
           projectNamespace,
         })}
       </Text>
