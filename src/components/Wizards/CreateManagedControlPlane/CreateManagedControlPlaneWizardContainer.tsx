@@ -123,7 +123,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const componentsList = watch('componentsList');
 
   const handleCreateManagedControlPlane = useCallback(
-    async ({ name, displayName, chargingTarget, members }: OnCreatePayload): Promise<boolean> => {
+    async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
         await trigger(
           CreateManagedControlPlane(
@@ -132,6 +132,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             {
               displayName,
               chargingTarget,
+              chargingTargetType,
               members,
               componentsList,
             },

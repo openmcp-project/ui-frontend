@@ -58,6 +58,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({ watch, projectName
                   chargingTarget: watch('chargingTarget'),
                   members: watch('members'),
                   componentsList: componentsList ?? [],
+                  chargingTargetType: watch('chargingTargetType'),
                 },
                 idpPrefix,
               ),
