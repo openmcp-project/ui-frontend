@@ -42,10 +42,15 @@ const fastify = Fastify({
 Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
+let sentryHost = null;
+if (fastify.config.BFF_SENTRY_DSN && fastify.config.BFF_SENTRY_DSN.length > 0) {
+  sentryHost = new URL(fastify.config.BFF_SENTRY_DSN).hostname;
+}
+
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
-      'connect-src': ["'self'", 'sdk.openui5.org', 'o1240783.ingest.us.sentry.io'],
+      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost],
       'script-src': isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
       'frame-ancestors': [fastify.config.FRAME_ANCESTORS],
     },
