@@ -1,9 +1,11 @@
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
+import helmet from '@fastify/helmet';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import proxy from './server/app.js';
+import envPlugin from "./server/config/env.js";
 import { copyFileSync } from 'node:fs';
 import * as Sentry from '@sentry/node';
 
@@ -17,11 +19,13 @@ Sentry.init({
   environment: process.env.VITE_ENVIRONMENT,
 });
 
-const isDev = process.argv.includes('--dev');
+const isLocalDev = process.argv.includes('--local-dev');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendConfigLocation = isDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
+const frontendConfigLocation = isLocalDev
+  ? 'public/frontend-config.json'
+  : 'dist/client/frontend-config.json';
 
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
   console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
@@ -34,6 +38,20 @@ const fastify = Fastify({
 });
 
 Sentry.setupFastifyErrorHandler(fastify);
+await fastify.register(envPlugin);
+
+fastify.register(
+  helmet,
+  {
+    contentSecurityPolicy: {
+      directives: {
+        "connect-src": ["'self'", "sdk.openui5.org"],
+        "script-src": isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+        "frame-ancestors": [fastify.config.FRAME_ANCESTORS]
+      },
+    }
+  }
+)
 
 fastify.register(proxy, {
   prefix: '/api',
@@ -41,7 +59,7 @@ fastify.register(proxy, {
 
 await fastify.register(FastifyVite, {
   root: __dirname,
-  dev: isDev,
+  dev: isLocalDev,
   spa: true,
 });
 
