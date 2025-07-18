@@ -2,10 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useApiResourceMutation } from '../../lib/api/useApiResource';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
-import {
-  CreateProjectWorkspaceDialog,
-  OnCreatePayload,
-} from './CreateProjectWorkspaceDialog.tsx';
+import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -14,11 +11,7 @@ import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-  CreateProject,
-  CreateProjectResource,
-  CreateProjectType,
-} from '../../lib/api/types/crate/createProject.ts';
+import { CreateProject, CreateProjectResource, CreateProjectType } from '../../lib/api/types/crate/createProject.ts';
 import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
@@ -30,12 +23,12 @@ export function CreateProjectDialogContainer({
   setIsOpen: (isOpen: boolean) => void;
 }) {
   const {
+    watch,
     register,
     handleSubmit,
     resetField,
     setValue,
     formState: { errors },
-    watch,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
@@ -59,9 +52,7 @@ export function CreateProjectDialogContainer({
 
   useEffect(() => {
     if (username) {
-      setValue('members', [
-        { name: username, roles: [MemberRoles.admin], kind: 'User' },
-      ]);
+      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }]);
     }
     if (!isOpen) {
       clearForm();
@@ -70,9 +61,7 @@ export function CreateProjectDialogContainer({
 
   const toast = useToast();
 
-  const { trigger } = useApiResourceMutation<CreateProjectType>(
-    CreateProjectResource(),
-  );
+  const { trigger } = useApiResourceMutation<CreateProjectType>(CreateProjectResource());
 
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
@@ -99,9 +88,7 @@ export function CreateProjectDialogContainer({
       console.error(e);
       if (e instanceof APIError) {
         if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(
-            `${e.message}: ${JSON.stringify(e.info)}`,
-          );
+          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
         }
       }
       return false;
@@ -110,6 +97,7 @@ export function CreateProjectDialogContainer({
 
   return (
     <CreateProjectWorkspaceDialog
+      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}

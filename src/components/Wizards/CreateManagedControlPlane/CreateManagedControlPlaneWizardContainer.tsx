@@ -21,10 +21,7 @@ import {
 import { SummarizeStep } from './SummarizeStep.tsx';
 import { useTranslation } from 'react-i18next';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import {
-  ErrorDialog,
-  ErrorDialogHandle,
-} from '../../Shared/ErrorMessageBox.tsx';
+import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
@@ -50,24 +47,16 @@ type CreateManagedControlPlaneWizardContainerProps = {
   workspaceName?: string;
 };
 
-type WizardStepType =
-  | 'metadata'
-  | 'members'
-  | 'componentSelection'
-  | 'summarize'
-  | 'success';
+type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = [
-  'metadata',
-  'members',
-  'componentSelection',
-  'summarize',
-  'success',
-];
+const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
 
-export const CreateManagedControlPlaneWizardContainer: FC<
-  CreateManagedControlPlaneWizardContainerProps
-> = ({ isOpen, setIsOpen, projectName = '', workspaceName = '' }) => {
+export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPlaneWizardContainerProps> = ({
+  isOpen,
+  setIsOpen,
+  projectName = '',
+  workspaceName = '',
+}) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -80,9 +69,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     resetField,
     setValue,
     reset,
-    getValues,
-    formState: { errors, isValid },
     watch,
+    formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
@@ -122,9 +110,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
 
   useEffect(() => {
     if (user?.email && isOpen) {
-      setValue('members', [
-        { name: user.email, roles: [MemberRoles.admin], kind: 'User' },
-      ]);
+      setValue('members', [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }]);
     }
     if (!isOpen) {
       clearFormFields();
@@ -137,12 +123,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
   const componentsList = watch('componentsList');
 
   const handleCreateManagedControlPlane = useCallback(
-    async ({
-      name,
-      displayName,
-      chargingTarget,
-      members,
-    }: OnCreatePayload): Promise<boolean> => {
+    async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
         await trigger(
           CreateManagedControlPlane(
@@ -151,6 +132,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             {
               displayName,
               chargingTarget,
+              chargingTargetType,
               members,
               componentsList,
             },
@@ -161,9 +143,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         return true;
       } catch (e) {
         if (e instanceof APIError && errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(
-            `${e.message}: ${JSON.stringify(e.info)}`,
-          );
+          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
         } else {
           console.error(e);
         }
@@ -173,13 +153,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<
     [trigger, projectName, workspaceName, componentsList],
   );
 
-  const handleStepChange = useCallback(
-    (e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
-      const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
-      setSelectedStep(step);
-    },
-    [],
-  );
+  const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
+    const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
+    setSelectedStep(step);
+  }, []);
 
   const onNextClick = useCallback(() => {
     switch (selectedStep) {
@@ -193,7 +170,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(getValues());
+        handleCreateManagedControlPlane(watch());
         break;
       case 'success':
         resetFormAndClose();
@@ -201,14 +178,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
       default:
         break;
     }
-  }, [
-    selectedStep,
-    handleSubmit,
-    setSelectedStep,
-    handleCreateManagedControlPlane,
-    getValues,
-    resetFormAndClose,
-  ]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose]);
 
   const setMembers = useCallback(
     (members: Member[]) => {
@@ -232,11 +202,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
         case 'members':
           return selectedStep === 'metadata' || !isValid;
         case 'componentSelection':
-          return (
-            selectedStep === 'metadata' ||
-            selectedStep === 'members' ||
-            !isValid
-          );
+          return selectedStep === 'metadata' || selectedStep === 'members' || !isValid;
         case 'summarize':
           return (
             selectedStep === 'metadata' ||
@@ -276,9 +242,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {selectedStep !== 'success' &&
                 (selectedStep === 'metadata' ? (
-                  <Button onClick={resetFormAndClose}>
-                    {t('buttons.close')}
-                  </Button>
+                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
                 ) : (
                   <Button onClick={onBackClick}>{t('buttons.back')}</Button>
                 ))}
@@ -301,11 +265,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm
-            setValue={setValue}
-            register={register}
-            errors={errors}
-          />
+          <MetadataForm watch={watch} setValue={setValue} register={register} errors={errors} />
         </WizardStep>
         <WizardStep
           icon="user-edit"
@@ -315,9 +275,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           disabled={isStepDisabled('members')}
         >
           <Form>
-            <FormGroup
-              headerText={t('CreateProjectWorkspaceDialog.membersHeader')}
-            >
+            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
               <EditMembers
                 members={watch('members')}
                 isValidationError={!!errors.members}
@@ -334,10 +292,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           data-step="componentSelection"
           disabled={isStepDisabled('componentSelection')}
         >
-          <ComponentsSelectionContainer
-            componentsList={componentsList ?? []}
-            setComponentsList={setComponentsList}
-          />
+          <ComponentsSelectionContainer componentsList={componentsList ?? []} setComponentsList={setComponentsList} />
         </WizardStep>
         <WizardStep
           icon="activities"
@@ -347,7 +302,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<
           data-step="summarize"
         >
           <SummarizeStep
-            getValues={getValues}
+            watch={watch}
             workspaceName={workspaceName}
             projectName={projectName}
             componentsList={componentsList}

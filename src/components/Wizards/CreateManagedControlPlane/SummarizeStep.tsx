@@ -8,22 +8,17 @@ import {
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import YamlViewer from '../../Yaml/YamlViewer.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
-import { UseFormGetValues } from 'react-hook-form';
+import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 interface SummarizeStepProps {
-  getValues: UseFormGetValues<CreateDialogProps>;
+  watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
   workspaceName: string;
   componentsList?: ComponentsListItem[];
 }
 
-export const SummarizeStep: React.FC<SummarizeStepProps> = ({
-  getValues,
-  projectName,
-  workspaceName,
-  componentsList,
-}) => {
+export const SummarizeStep: React.FC<SummarizeStepProps> = ({ watch, projectName, workspaceName, componentsList }) => {
   const { t } = useTranslation();
   return (
     <>
@@ -31,41 +26,24 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
       <Grid defaultSpan="XL6 L6 M6 S6">
         <div>
           <List headerText={t('common.metadata')}>
-            <ListItemStandard
-              text={t('common.name')}
-              additionalText={getValues('name')}
-            />
-            <ListItemStandard
-              text={t('common.displayName')}
-              additionalText={getValues('displayName')}
-            />
+            <ListItemStandard text={t('common.name')} additionalText={watch('name')} />
+            <ListItemStandard text={t('common.displayName')} additionalText={watch('displayName')} />
             <ListItemStandard
               text={t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-              additionalText={getValues('chargingTarget')}
+              additionalText={watch('chargingTarget')}
             />
-            <ListItemStandard
-              text={t('common.namespace')}
-              additionalText={`${projectName}--ws-${workspaceName}`}
-            />
+            <ListItemStandard text={t('common.namespace')} additionalText={`${projectName}--ws-${workspaceName}`} />
           </List>
           <br />
           <List headerText={t('common.members')}>
-            {getValues('members').map((member) => (
-              <ListItemStandard
-                key={member.name}
-                text={member.name}
-                additionalText={member.roles[0]}
-              />
+            {watch('members').map((member) => (
+              <ListItemStandard key={member.name} text={member.name} additionalText={member.roles[0]} />
             ))}
           </List>
           <br />
           <List headerText={t('common.components')}>
             {getSelectedComponents(componentsList ?? []).map((component) => (
-              <ListItemStandard
-                key={component.name}
-                text={component.name}
-                additionalText={component.selectedVersion}
-              />
+              <ListItemStandard key={component.name} text={component.name} additionalText={component.selectedVersion} />
             ))}
           </List>
         </div>
@@ -73,13 +51,14 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
           <YamlViewer
             yamlString={stringify(
               CreateManagedControlPlane(
-                getValues('name'),
+                watch('name'),
                 `${projectName}--ws-${workspaceName}`,
                 {
-                  displayName: getValues('displayName'),
-                  chargingTarget: getValues('chargingTarget'),
-                  members: getValues('members'),
+                  displayName: watch('displayName'),
+                  chargingTarget: watch('chargingTarget'),
+                  members: watch('members'),
                   componentsList: componentsList ?? [],
+                  chargingTargetType: watch('chargingTargetType'),
                 },
                 idpPrefix,
               ),

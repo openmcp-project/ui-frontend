@@ -270,7 +270,8 @@
     "properFormattingLowercase": "Use lowercase a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this email already exists!",
-    "atLeastOneUser": "You need to have at least one member assigned."
+    "atLeastOneUser": "You need to have at least one member assigned.",
+    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
   "common": {
     "documentation": "Documentation",
