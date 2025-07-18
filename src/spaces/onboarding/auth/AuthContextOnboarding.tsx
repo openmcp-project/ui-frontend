@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
+import * as Sentry from '@sentry/react';
 
 interface AuthContextOnboardingType {
   isLoading: boolean;
@@ -57,6 +58,12 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         validationResult.data;
       setUser(apiUser);
       setIsAuthenticated(apiIsAuthenticated);
+
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Authenticated user ' + apiUser?.email,
+        level: 'info',
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Authentication error.'));
       setUser(null);
