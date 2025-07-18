@@ -12,7 +12,7 @@ export default defineConfig({
     viteFastify({ spa: true }),
     react(),
     sentryVitePlugin({
-      org: 'sap',
+      org: process.env.SENTRY_ORG,
       project: 'ui-frontend',
       reactComponentAnnotation: {
         enabled: true,
