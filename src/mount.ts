@@ -5,7 +5,7 @@ import React from 'react';
 import { Routes, useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
 
 let sentryRoutes = Routes;
-if (import.meta.env.VITE_SENTRY_DSN.length > 0) {
+if (import.meta.env.VITE_SENTRY_DSN && import.meta.env.VITE_SENTRY_DSN.length > 0) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     // Setting this option to true will send default PII data to Sentry.
