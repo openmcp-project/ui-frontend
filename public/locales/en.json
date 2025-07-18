@@ -159,7 +159,7 @@
     "pageTitle": "Let's get started",
     "title": "Projects",
     "deleteProject": "Delete project",
-   "deleteConfirmationDialog": "Project deleted"
+    "deleteConfirmationDialog": "Project deleted"
   },
   "ControlPlaneView": {
     "accessError": "Managed Control Plane does not have access information yet",
@@ -191,6 +191,12 @@
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the workspace will be <bold2>permanently deleted</bold2>.",
     "mainCommandDescription": "Run this command to delete the workspace:",
     "verificationCommandDescription": "To verify the workspace has been deleted, run:"
+  },
+  "DeleteProjectDialog": {
+    "title": "Delete a Project",
+    "introSection1": "The below instructions will help you delete the project named \"{{projectName}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the project will be <bold2>permanently deleted</bold2>.",
+    "mainCommandDescription": "Run this command to delete the project:"
   },
   "KubectlDeleteMcpDialog": {
     "title": "Delete a Managed Control Plane",

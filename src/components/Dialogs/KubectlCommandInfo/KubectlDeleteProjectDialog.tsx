@@ -3,21 +3,22 @@ import { Text } from '@ui5/webcomponents-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Fragment } from 'react/jsx-runtime';
 
-interface DeleteWorkspaceDialogProps {
+interface DeleteProjectDialogProps {
   onClose: () => void;
+  resourceName?: string;
   projectName?: string;
   isOpen: boolean;
 }
 
-export const DeleteWorkspaceDialog = ({ onClose, projectName, isOpen }: DeleteWorkspaceDialogProps) => {
+export const DeleteProjectDialog = ({ onClose, projectName, isOpen }: DeleteProjectDialogProps) => {
   const { t } = useTranslation();
 
-  const projectNamespace = projectName ?? '<project-name>"';
+  const projectNamespace = projectName ?? '<project-names>"';
 
   const customCommands: CustomCommand[] = [
     {
-      command: `kubectl delete project ${projectName}`,
-      description: t('DeleteWorkspaceDialog.mainCommandDescription'),
+      command: `kubectl delete project  ${projectNamespace}`,
+      description: t('DeleteProjectDialog.mainCommandDescription'),
       isMainCommand: true,
     },
   ];
@@ -25,13 +26,13 @@ export const DeleteWorkspaceDialog = ({ onClose, projectName, isOpen }: DeleteWo
   const introSection = [
     <Fragment key="intro-1">
       <Text>
-        {t('DeleteWorkspaceDialog.introSection1', {
-          projectNamespace,
+        {t('DeleteProjectDialog.introSection1', {
+          projectName,
         })}
       </Text>
       <Text>
         <Trans
-          i18nKey="DeleteWorkspaceDialog.introSection2"
+          i18nKey={t('DeleteProjectDialog.introSection2')}
           components={{
             bold1: <b />,
             bold2: <b />,
@@ -43,7 +44,7 @@ export const DeleteWorkspaceDialog = ({ onClose, projectName, isOpen }: DeleteWo
 
   return (
     <KubectlBaseDialog
-      title={t('DeleteWorkspaceDialog.title')}
+      title={t('DeleteProjectDialog.title')}
       introSection={introSection}
       customCommands={customCommands}
       open={isOpen}

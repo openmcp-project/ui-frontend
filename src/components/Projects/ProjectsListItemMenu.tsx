@@ -11,6 +11,7 @@ import { useToast } from '../../context/ToastContext.tsx';
 import { useApiResourceMutation } from '../../lib/api/useApiResource.ts';
 import { DeleteWorkspaceType } from '../../lib/api/types/crate/deleteWorkspace.ts';
 import { DeleteProjectResource } from '../../lib/api/types/crate/deleteProject.ts';
+import { KubectlDeleteProject } from '../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteProject.tsx';
 
 type ProjectsListItemMenuProps = {
   projectName: string;
@@ -55,10 +56,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({ projectNam
       {dialogDeleteProjectIsOpen && (
         <DeleteConfirmationDialog
           resourceName={projectName}
-          kubectl={
-            // <KubectlDeleteWorkspace projectName={projectName} resourceName={workspaceName} />
-            <div />
-          }
+          kubectl={<KubectlDeleteProject projectName={projectName} />}
           isOpen={dialogDeleteProjectIsOpen}
           setIsOpen={setDialogDeleteProjectIsOpen}
           onDeletionConfirmed={async () => {
