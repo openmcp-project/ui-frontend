@@ -13,11 +13,11 @@ export const ENCRYPTED_COOKIE_REQUEST_DECORATOR = 'encryptedSessionInternal';
 export const UNDERLYING_SESSION_NAME_REQUEST_DECORATOR = 'underlyingSessionNotPerUserEncrypted';
 
 // name of the secure-session cookie that stores the encryption key on user side.
-export const ENCRYPTION_KEY_COOKIE_NAME = 'session_encryption_key';
+export const ENCRYPTION_KEY_COOKIE_NAME = 'session-encryption-key';
 // the key used to store the encryption key in the secure-session cookie on user side.
 export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = 'encryptionKey';
 // name of the cookie that stores the session identifier on user side.
-export const SESSION_COOKIE_NAME = 'session-cookie';
+export const SESSION_COOKIE_NAME = 'session';
 
 async function encryptedSession(fastify) {
   const { COOKIE_SECRET, SESSION_SECRET } = fastify.config;
@@ -31,7 +31,7 @@ async function encryptedSession(fastify) {
     cookie: {
       path: '/',
       httpOnly: true,
-      sameSite: "None", // cross-site cookies are needed for the session to work when embedded. By setting CORS to None and CSP.frame-anchestors we restrict the api calls from the browser that contain the cookies to originating from our site only.
+      sameSite: 'None', // cross-site cookies are needed for the session to work when embedded. By setting CORS to None and CSP.frame-anchestors we restrict the api calls from the browser that contain the cookies to originating from our site only.
       partitioned: true, // use for modern isolation of third party cookies when embedded, every embedded iframe (or not embedded) gets its own cookie partition
       secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -44,7 +44,7 @@ async function encryptedSession(fastify) {
     cookie: {
       path: '/',
       httpOnly: true,
-      sameSite: "None", // see secureSession cookie for explanation
+      sameSite: 'None', // see secureSession cookie for explanation
       partitioned: true, // see secureSession cookie for explanation
       secure: true,
       maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -54,7 +54,7 @@ async function encryptedSession(fastify) {
   await fastify.decorateRequest(REQUEST_DECORATOR, {
     getter() {
       return createStore(this);
-    }
+    },
   });
 }
 
@@ -105,21 +105,18 @@ function createStore(request) {
   return {
     async set(key, value) {
       unencryptedStore[key] = value;
-      await save()
+      await save();
     },
     get(key) {
       return unencryptedStore[key];
     },
     async delete(key) {
       delete unencryptedStore[key];
-      await save()
-    },
-    print() {
-      console.log("printing", unencryptedStore)
+      await save();
     },
     async clear() {
       unencryptedStore = {}; // Clear all data
-      await save()
+      await save();
     },
   };
 }
