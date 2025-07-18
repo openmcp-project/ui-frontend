@@ -31,6 +31,9 @@ export function MetadataForm({
   const handleChargingTargetTypeChange = (event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
     const selectedOption = event.detail.selectedOption as HTMLElement;
     setValue('chargingTargetType', selectedOption.dataset.value);
+    if (selectedOption.dataset.value === '') {
+      setValue('chargingTarget', '');
+    }
   };
   const chargingTypes: SelectOption[] = [
     ...(!requireChargingTarget ? [{ label: t('common.notSelected'), value: '' }] : []),
