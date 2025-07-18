@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { Member } from '../types/shared/members.ts';
 import i18n from '../../../../i18n.ts';
-import {
-  managedControlPlaneNameRegex,
-  projectWorkspaceNameRegex,
-} from './regex.ts';
+import { managedControlPlaneNameRegex, projectWorkspaceNameRegex } from './regex.ts';
 
 const { t } = i18n;
 
@@ -15,7 +12,7 @@ export const validationSchemaProjectWorkspace = z.object({
     .string()
     .min(1, t('validationErrors.required'))
     .regex(projectWorkspaceNameRegex, t('validationErrors.properFormatting'))
-    .max(25, t('validationErrors.max25chars')),
+    .max(25, t('validationErrors.maxChars', { maxLength: 25 })),
   displayName: z.string().optional(),
   chargingTarget: z.string().optional(),
   chargingTargetType: z.string().optional(),
@@ -25,11 +22,8 @@ export const validationSchemaCreateManagedControlPlane = z.object({
   name: z
     .string()
     .min(1, t('validationErrors.required'))
-    .regex(
-      managedControlPlaneNameRegex,
-      t('validationErrors.properFormattingLowercase'),
-    )
-    .max(25, t('validationErrors.max25chars')),
+    .regex(managedControlPlaneNameRegex, t('validationErrors.properFormattingLowercase'))
+    .max(36, t('validationErrors.maxChars', { maxLength: 36 })),
   displayName: z.string().optional(),
   chargingTarget: z.string().optional(),
   chargingTargetType: z.string().optional(),
