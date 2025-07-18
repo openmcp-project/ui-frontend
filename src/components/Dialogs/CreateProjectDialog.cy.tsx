@@ -22,7 +22,6 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{
     setValue,
     formState: { errors },
     watch,
-    watch,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
