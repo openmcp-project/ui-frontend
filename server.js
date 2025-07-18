@@ -20,6 +20,15 @@ if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
     // For example, automatic IP address collection on events
     sendDefaultPii: true,
     environment: process.env.VITE_ENVIRONMENT,
+    beforeSend(event) {
+      if (event.request && event.request.cookies) {
+        event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
+          acc[key] = '';
+          return acc;
+        }, {});
+      }
+      return event;
+    },
   });
 }
 
