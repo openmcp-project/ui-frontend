@@ -114,9 +114,6 @@ function createStore(request) {
       delete unencryptedStore[key];
       await save();
     },
-    print() {
-      console.log('printing', unencryptedStore);
-    },
     async clear() {
       unencryptedStore = {}; // Clear all data
       await save();
