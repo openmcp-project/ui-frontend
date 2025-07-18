@@ -11,13 +11,17 @@ import * as Sentry from '@sentry/node';
 
 dotenv.config();
 
-Sentry.init({
-  dsn: process.env.BFF_SENTRY_DSN,
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true,
-  environment: process.env.VITE_ENVIRONMENT,
-});
+if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
+  console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
+} else {
+  Sentry.init({
+    dsn: process.env.BFF_SENTRY_DSN,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+    environment: process.env.VITE_ENVIRONMENT,
+  });
+}
 
 const isLocalDev = process.argv.includes('--local-dev');
 
