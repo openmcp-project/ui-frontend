@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
     sentryVitePlugin({
       org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT || 'ui-frontend',
+      project: process.env.SENTRY_PROJECT,
       reactComponentAnnotation: {
         enabled: true,
       },
