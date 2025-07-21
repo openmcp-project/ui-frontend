@@ -11,7 +11,7 @@ if (import.meta.env.VITE_SENTRY_DSN && import.meta.env.VITE_SENTRY_DSN.length > 
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
     sendDefaultPii: true,
-    environment: import.meta.env.VITE_ENVIRONMENT,
+    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
     integrations: [
       Sentry.reactRouterV7BrowserTracingIntegration({
         useEffect: React.useEffect,

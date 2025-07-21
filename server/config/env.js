@@ -31,7 +31,7 @@ const schema = {
     FRAME_ANCESTORS: { type: 'string' },
     BFF_SENTRY_DSN: { type: 'string' },
     VITE_SENTRY_DSN: { type: 'string' },
-    VITE_ENVIRONMENT: { type: 'string' },
+    VITE_SENTRY_ENVIRONMENT: { type: 'string' },
 
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },

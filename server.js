@@ -19,7 +19,7 @@ if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
     // Setting this option to true will send default PII data to Sentry.
     // For example, automatic IP address collection on events
     sendDefaultPii: true,
-    environment: process.env.VITE_ENVIRONMENT,
+    environment: process.env.VITE_SENTRY_ENVIRONMENT,
     beforeSend(event) {
       if (event.request && event.request.cookies) {
         event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
@@ -51,9 +51,14 @@ const fastify = Fastify({
 Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
-let sentryHost = null;
+let sentryHost = '';
 if (fastify.config.BFF_SENTRY_DSN && fastify.config.BFF_SENTRY_DSN.length > 0) {
-  sentryHost = new URL(fastify.config.BFF_SENTRY_DSN).hostname;
+  try {
+    sentryHost = new URL(fastify.config.BFF_SENTRY_DSN).hostname;
+  } catch {
+    console.log('BFF_SENTRY_DSN is not a valid URL');
+    sentryHost = '';
+  }
 }
 
 fastify.register(helmet, {
