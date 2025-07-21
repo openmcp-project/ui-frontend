@@ -119,9 +119,9 @@
   "DeleteConfirmationDialog": {
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
-    "deleteMessage": "You are about to delete the resource",
-    "deleteMessageType": "Please type",
-    "deleteMessageConfirm": "to confirm deletion!"
+    "header": "Delete {{resourceName}}",
+    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
+    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -296,8 +296,7 @@
     "search": "Search",
     "components": "Components",
     "notSelected": "Not selected",
-    "btp": "BTP",
-    "options": "Options"
+    "btp": "BTP"
   },
   "buttons": {
     "viewResource": "View resource",

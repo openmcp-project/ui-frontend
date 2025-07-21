@@ -1,10 +1,5 @@
 import { Resource } from '../resource';
 
-export interface DeleteProjectType {
-  name: string;
-  namespace: string;
-}
-
 export const DeleteProjectResource = (projectName: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/projects/${projectName}`,

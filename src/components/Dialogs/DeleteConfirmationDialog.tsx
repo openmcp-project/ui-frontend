@@ -1,7 +1,10 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Bar, Button, Dialog, Form, FormGroup, FormItem, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
+import { ReactNode, useState } from 'react';
+import { Bar, Button, Dialog, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+
+import styles from './DeleteConfirmationDialog.module.css';
+import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -20,89 +23,70 @@ export function DeleteConfirmationDialog({
   onCanceled,
   kubectl,
 }: DeleteConfirmationDialogProps) {
-  const [confirmed, setConfirmed] = useState(false);
-  const confirmationInput = useRef<InputDomRef>(null);
+  const [confirmationText, setConfirmationText] = useState('');
   const { t } = useTranslation();
 
-  useEffect(() => {
-    return () => {
-      setConfirmed(false);
-      if (confirmationInput.current) {
-        confirmationInput.current.value = '';
-      }
-    };
-  }, [isOpen]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onConfirmationInputChange = (event: any) => {
-    if (event.target.value === resourceName) {
-      setConfirmed(true);
-    } else {
-      setConfirmed(false);
-    }
+  const onConfirmationInputChange = (event: Ui5CustomEvent<InputDomRef>) => {
+    setConfirmationText(event.target.value);
   };
 
+  const isConfirmed = confirmationText === resourceName;
+
   return (
-    <>
-      <Dialog
-        stretch={false}
-        headerText="Confirm deletion"
-        open={isOpen}
-        footer={
-          <Bar
-            design="Footer"
-            endContent={
-              <>
-                <Button
-                  design={ButtonDesign.Transparent}
-                  onClick={() => {
-                    setIsOpen(false);
-                    onCanceled && onCanceled();
-                  }}
-                >
-                  {t('DeleteConfirmationDialog.cancelButton')}
-                </Button>
-                <Button
-                  design={ButtonDesign.Negative}
-                  disabled={!confirmed}
-                  onClick={() => {
-                    setIsOpen(false);
-                    onDeletionConfirmed && onDeletionConfirmed();
-                  }}
-                >
-                  {t('DeleteConfirmationDialog.deleteButton')}
-                </Button>
-              </>
-            }
+    <Dialog
+      stretch={false}
+      headerText={t('DeleteConfirmationDialog.header', { resourceName })}
+      open={isOpen}
+      footer={
+        <Bar
+          design="Footer"
+          endContent={
+            <>
+              <Button
+                design={ButtonDesign.Transparent}
+                onClick={() => {
+                  setIsOpen(false);
+                  onCanceled && onCanceled();
+                }}
+              >
+                {t('DeleteConfirmationDialog.cancelButton')}
+              </Button>
+              <Button
+                design={ButtonDesign.Negative}
+                disabled={!isConfirmed}
+                onClick={() => {
+                  setIsOpen(false);
+                  onDeletionConfirmed && onDeletionConfirmed();
+                }}
+              >
+                {t('DeleteConfirmationDialog.deleteButton')}
+              </Button>
+              {kubectl}
+            </>
+          }
+        />
+      }
+    >
+      <div className={styles.dialogContent}>
+        <span className={styles.message}>
+          <Trans
+            i18nKey="DeleteConfirmationDialog.deleteMessage"
+            values={{ resourceName }}
+            components={{
+              b: <b />,
+            }}
           />
-        }
-      >
-        <Form layout="S1 M1 L1 XL1">
-          <FormGroup>
-            <Label>
-              {t('DeleteConfirmationDialog.deleteMessage')} {resourceName}.
-            </Label>
-            <Label>
-              {' '}
-              {t('DeleteConfirmationDialog.deleteMessageType')} <b>{resourceName}</b>{' '}
-              {t('DeleteConfirmationDialog.deleteMessageConfirm')}
-            </Label>
-          </FormGroup>
-          <FormGroup>
-            <FormItem
-              labelContent={
-                <Label>
-                  {t('DeleteConfirmationDialog.deleteMessageType')} {resourceName}{' '}
-                  {t('DeleteConfirmationDialog.deleteMessageConfirm')}
-                </Label>
-              }
-            >
-              <Input ref={confirmationInput} id="mcp-name-input" placeholder="" onInput={onConfirmationInputChange} />
-            </FormItem>
-            <FormItem>{kubectl}</FormItem>
-          </FormGroup>
-        </Form>
-      </Dialog>
-    </>
+        </span>
+        <Label className={styles.confirmLabel} for="mcp-name-input">
+          {t('DeleteConfirmationDialog.deleteConfirmation', { resourceName })}
+        </Label>
+        <Input
+          id="mcp-name-input"
+          value={confirmationText}
+          className={styles.confirmationInput}
+          onInput={onConfirmationInputChange}
+        />
+      </div>
+    </Dialog>
   );
 }

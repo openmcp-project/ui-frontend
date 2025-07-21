@@ -3,14 +3,14 @@ import { Text } from '@ui5/webcomponents-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Fragment } from 'react/jsx-runtime';
 
-interface DeleteProjectDialogProps {
+interface KubectlDeleteProjectDialogProps {
   onClose: () => void;
   resourceName?: string;
   projectName?: string;
   isOpen: boolean;
 }
 
-export const DeleteProjectDialog = ({ onClose, projectName, isOpen }: DeleteProjectDialogProps) => {
+export const KubectlDeleteProjectDialog = ({ onClose, projectName, isOpen }: KubectlDeleteProjectDialogProps) => {
   const { t } = useTranslation();
 
   const projectNamespace = projectName ?? '<project-names>"';
@@ -32,7 +32,7 @@ export const DeleteProjectDialog = ({ onClose, projectName, isOpen }: DeleteProj
       </Text>
       <Text>
         <Trans
-          i18nKey={t('DeleteProjectDialog.introSection2')}
+          i18nKey="DeleteProjectDialog.introSection2"
           components={{
             bold1: <b />,
             bold2: <b />,
