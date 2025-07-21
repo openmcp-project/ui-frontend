@@ -5,18 +5,38 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import proxy from './server/app.js';
-import envPlugin from "./server/config/env.js";
+import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
+
+if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
+  console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
+} else {
+  Sentry.init({
+    dsn: process.env.BFF_SENTRY_DSN,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+    environment: process.env.VITE_SENTRY_ENVIRONMENT,
+    beforeSend(event) {
+      if (event.request && event.request.cookies) {
+        event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
+          acc[key] = '';
+          return acc;
+        }, {});
+      }
+      return event;
+    },
+  });
+}
 
 const isLocalDev = process.argv.includes('--local-dev');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendConfigLocation = isLocalDev
-  ? 'public/frontend-config.json'
-  : 'dist/client/frontend-config.json';
+const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
   console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
@@ -28,20 +48,28 @@ const fastify = Fastify({
   logger: true,
 });
 
+Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
-fastify.register(
-  helmet,
-  {
-    contentSecurityPolicy: {
-      directives: {
-        "connect-src": ["'self'", "sdk.openui5.org"],
-        "script-src": isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
-        "frame-ancestors": [fastify.config.FRAME_ANCESTORS]
-      },
-    }
+let sentryHost = '';
+if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0) {
+  try {
+    sentryHost = new URL(fastify.config.VITE_SENTRY_DSN).hostname;
+  } catch {
+    console.log('VITE_SENTRY_DSN is not a valid URL');
+    sentryHost = '';
   }
-)
+}
+
+fastify.register(helmet, {
+  contentSecurityPolicy: {
+    directives: {
+      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost],
+      'script-src': isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+      'frame-ancestors': [fastify.config.FRAME_ANCESTORS],
+    },
+  },
+});
 
 fastify.register(proxy, {
   prefix: '/api',

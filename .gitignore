@@ -30,3 +30,6 @@ notes.md
 tmp/
 
 public/frontend-config.json
+
+# Sentry Config File
+.env.sentry-build-plugin
