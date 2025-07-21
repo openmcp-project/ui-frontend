@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin';
 import crypto from 'node:crypto';
+import * as Sentry from '@sentry/node';
 
 export class AuthenticationError extends Error {
   constructor(message) {
@@ -170,6 +171,12 @@ async function authUtilsPlugin(fastify) {
       const expiresAt = Date.now() + tokens.expires_in * 1000;
       result.expiresAt = expiresAt;
     }
+
+    Sentry.addBreadcrumb({
+      category: 'auth',
+      message: 'Successfully authenticated user: ' + result.userInfo.email,
+      level: 'info',
+    });
 
     request.log.info('OIDC callback succeeded; tokens retrieved.');
     return result;
