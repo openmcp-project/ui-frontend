@@ -52,11 +52,11 @@ Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
 let sentryHost = '';
-if (fastify.config.BFF_SENTRY_DSN && fastify.config.BFF_SENTRY_DSN.length > 0) {
+if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0) {
   try {
-    sentryHost = new URL(fastify.config.BFF_SENTRY_DSN).hostname;
+    sentryHost = new URL(fastify.config.VITE_SENTRY_DSN).hostname;
   } catch {
-    console.log('BFF_SENTRY_DSN is not a valid URL');
+    console.log('VITE_SENTRY_DSN is not a valid URL');
     sentryHost = '';
   }
 }
