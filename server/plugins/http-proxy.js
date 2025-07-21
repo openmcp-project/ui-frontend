@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import httpProxy from '@fastify/http-proxy';
 import { AuthenticationError } from './auth-utils.js';
+import * as Sentry from '@sentry/node';
 
 function proxyPlugin(fastify) {
   const { API_BACKEND_URL } = fastify.config;
@@ -13,6 +14,7 @@ function proxyPlugin(fastify) {
       request.log.info('Entering HTTP proxy preHandler.');
 
       const useCrate = request.headers['x-use-crate'];
+      Sentry.setTag('useCrate', useCrate);
 
       const keyAccessToken = useCrate ? 'onboarding_accessToken' : 'mcp_accessToken';
       const keyTokenExpiresAt = useCrate ? 'onboarding_tokenExpiresAt' : 'mcp_tokenExpiresAt';
@@ -33,6 +35,15 @@ function proxyPlugin(fastify) {
         request.log.info('Access token is still valid; no refresh needed.');
         return;
       }
+
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Attempt token refresh',
+        level: 'info',
+        data: {
+          expiresAt,
+        },
+      });
 
       request.log.info(
         { expiresAt: new Date(expiresAt).toISOString() },
