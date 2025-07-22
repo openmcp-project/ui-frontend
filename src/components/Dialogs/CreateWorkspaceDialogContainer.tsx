@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
-import {
-  useApiResourceMutation,
-  useRevalidateApiResource,
-} from '../../lib/api/useApiResource';
+import { useApiResourceMutation, useRevalidateApiResource } from '../../lib/api/useApiResource';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
-import {
-  CreateProjectWorkspaceDialog,
-  OnCreatePayload,
-} from './CreateProjectWorkspaceDialog.tsx';
+import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import {
   CreateWorkspace,
   CreateWorkspaceResource,
@@ -73,9 +67,7 @@ export function CreateWorkspaceDialogContainer({
 
   useEffect(() => {
     if (username) {
-      setValue('members', [
-        { name: username, roles: [MemberRoles.admin], kind: 'User' },
-      ]);
+      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }]);
     }
     if (!isOpen) {
       clearForm();
@@ -84,9 +76,7 @@ export function CreateWorkspaceDialogContainer({
   const namespace = projectnameToNamespace(project);
   const toast = useToast();
 
-  const { trigger } = useApiResourceMutation<CreateWorkspaceType>(
-    CreateWorkspaceResource(namespace),
-  );
+  const { trigger } = useApiResourceMutation<CreateWorkspaceType>(CreateWorkspaceResource(namespace));
   const revalidate = useRevalidateApiResource(ListWorkspaces(project));
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
@@ -112,9 +102,7 @@ export function CreateWorkspaceDialogContainer({
       console.error(e);
       if (e instanceof APIError) {
         if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(
-            `${e.message}: ${JSON.stringify(e.info)}`,
-          );
+          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
         }
       }
       return false;
@@ -123,6 +111,7 @@ export function CreateWorkspaceDialogContainer({
 
   return (
     <CreateProjectWorkspaceDialog
+      watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}

@@ -1,8 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  CreateProjectWorkspaceDialog,
-  OnCreatePayload,
-} from './CreateProjectWorkspaceDialog';
+import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog';
 import { MemberRoles } from '../../lib/api/types/shared/members';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox';
 
@@ -31,18 +28,12 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{
       name: '',
       displayName: '',
       chargingTarget: '',
-      members: [
-        { name: 'user1@example.com', roles: [MemberRoles.admin], kind: 'User' },
-      ],
+      members: [{ name: 'user1@example.com', roles: [MemberRoles.admin], kind: 'User' }],
+      chargingTargetType: 'btp',
     },
   });
 
-  const handleCreate = async ({
-    name,
-    displayName,
-    chargingTarget,
-    members,
-  }: OnCreatePayload) => {
+  const handleCreate = async ({ name, displayName, chargingTarget, members }: OnCreatePayload) => {
     const payload: OnCreatePayload = {
       name: name,
       displayName: displayName,
@@ -55,6 +46,7 @@ export const CreateProjectWorkspaceDialogWrapper: React.FC<{
   };
   return (
     <CreateProjectWorkspaceDialog
+      watch={watch}
       type={'workspace'}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
@@ -76,16 +68,12 @@ describe('CreateProjectWorkspaceDialog', () => {
       .contains('user1@example.com')
       .should('be.visible');
     cy.get('ui5-button[icon="delete"]').find('button').click({ force: true });
-    cy.get('span[id="members-error"]')
-      .contains('You need to have at least one member assigned.')
-      .should('be.visible');
+    cy.get('span[id="members-error"]').contains('You need to have at least one member assigned.').should('be.visible');
   });
 
   it('should add a new member and display it in the table', () => {
     cy.mount(<CreateProjectWorkspaceDialogWrapper />, {});
-    cy.get('ui5-input[id*="member-email-input"]')
-      .find('input[id*="inner"]')
-      .type('user2@example.com', { force: true });
+    cy.get('ui5-input[id*="member-email-input"]').find('input[id*="inner"]').type('user2@example.com', { force: true });
     cy.get('ui5-button:contains("Add")').click({ force: true });
     cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]')
       .contains('user2@example.com')
@@ -96,25 +84,21 @@ describe('CreateProjectWorkspaceDialog', () => {
     const stubFn = cy.stub().as('stubFn');
     cy.mount(<CreateProjectWorkspaceDialogWrapper spyFormBody={stubFn} />, {});
 
-    cy.get('ui5-input[id*="name"]')
-      .find('input[id*="inner"]')
-      .type('brand--01', { force: true });
+    cy.get('ui5-input[id*="name"]').find('input[id*="inner"]').type('brand--01', { force: true });
     cy.get('ui5-input[id*="displayName"]')
       .find('input[id*="inner"]')
       .type('Brand new workspace number one', { force: true });
     cy.get('ui5-input[id*="chargingTarget"]')
       .find('input[id*="inner"]')
-      .type('Charging target 1000', { force: true });
-    cy.get('ui5-input[id*="email"]')
-      .find('input[id*="inner"]')
-      .type('user2@example.com', { force: true });
+      .type('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', { force: true });
+    cy.get('ui5-input[id*="email"]').find('input[id*="inner"]').type('user2@example.com', { force: true });
     cy.get('ui5-button:contains("Add")').click({ force: true });
     cy.get('ui5-button:contains("Create")').click({ force: true });
 
     cy.get('@stubFn').should('have.been.calledWith', {
       name: 'brand--01',
       displayName: 'Brand new workspace number one',
-      chargingTarget: 'Charging target 1000',
+      chargingTarget: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
       members: [
         {
           name: 'user1@example.com',
@@ -143,9 +127,7 @@ describe('CreateProjectWorkspaceDialog', () => {
     });
 
     newMembers.forEach((email) => {
-      cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]')
-        .contains(email)
-        .should('be.visible');
+      cy.get('div[data-component-name="AnalyticalTableContainerWithScrollbar"]').contains(email).should('be.visible');
     });
   });
 

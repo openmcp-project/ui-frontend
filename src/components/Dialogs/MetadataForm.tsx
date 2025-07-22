@@ -1,16 +1,7 @@
-import { FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useTranslation } from 'react-i18next';
-import {
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  Option,
-  Select,
-  SelectDomRef,
-  Ui5CustomEvent,
-} from '@ui5/webcomponents-react';
+import { Form, FormGroup, Input, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import styles from './CreateProjectWorkspaceDialog.module.css';
 import React from 'react';
 
@@ -20,6 +11,7 @@ export interface MetadataFormProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
+  watch: UseFormWatch<CreateDialogProps>;
 }
 
 interface SelectOption {
@@ -28,6 +20,7 @@ interface SelectOption {
 }
 
 export function MetadataForm({
+  watch,
   register,
   errors,
   setValue,
@@ -35,24 +28,20 @@ export function MetadataForm({
   requireChargingTarget = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
-  const handleChargingTargetTypeChange = (
-    event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>,
-  ) => {
+  const handleChargingTargetTypeChange = (event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
     const selectedOption = event.detail.selectedOption as HTMLElement;
     setValue('chargingTargetType', selectedOption.dataset.value);
+    if (selectedOption.dataset.value === '') {
+      setValue('chargingTarget', '');
+    }
   };
   const chargingTypes: SelectOption[] = [
-    ...(!requireChargingTarget
-      ? [{ label: t('common.notSelected'), value: '' }]
-      : []),
+    ...(!requireChargingTarget ? [{ label: t('common.notSelected'), value: '' }] : []),
     { label: t('common.btp'), value: 'btp' },
   ];
   return (
     <Form>
-      <FormGroup
-        headerText={t('CreateProjectWorkspaceDialog.metadataHeader')}
-        columnSpan={12}
-      >
+      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')} columnSpan={12}>
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
@@ -64,35 +53,30 @@ export function MetadataForm({
           valueStateMessage={<span>{errors.name?.message}</span>}
           required
         />
-        <Label for={'displayName'}>
-          {t('CreateProjectWorkspaceDialog.displayNameLabel')}
-        </Label>
-        <Input
-          id="displayName"
-          {...register('displayName')}
-          className={styles.input}
-        />
-        <Label for={'chargingTargetType'} required={requireChargingTarget}>
-          {t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}
-        </Label>
-        <Select
-          id={'chargingTargetType'}
-          className={styles.input}
-          onChange={handleChargingTargetTypeChange}
-        >
+        <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
+        <Input id="displayName" {...register('displayName')} className={styles.input} />
+
+        <div>
+          <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
+        </div>
+        <Select id={'chargingTargetType'} className={styles.input} onChange={handleChargingTargetTypeChange}>
           {chargingTypes.map((option) => (
             <Option key={option.value} data-value={option.value}>
               {option.label}
             </Option>
           ))}
         </Select>
-        <Label for={'chargingTarget'} required={requireChargingTarget}>
+
+        <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
         <Input
           id="chargingTarget"
           {...register('chargingTarget')}
           className={styles.input}
+          valueState={errors.chargingTarget ? 'Negative' : 'None'}
+          valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
+          disabled={!watch?.('chargingTargetType')}
         />
       </FormGroup>
 
