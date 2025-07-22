@@ -119,9 +119,9 @@
   "DeleteConfirmationDialog": {
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
-    "deleteMessage": "You are about to delete the resource",
-    "deleteMessageType": "Please type",
-    "deleteMessageConfirm": "to confirm deletion!"
+    "header": "Delete {{resourceName}}",
+    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
+    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -157,7 +157,9 @@
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
-    "title": "Projects"
+    "title": "Projects",
+    "deleteProject": "Delete project",
+    "deleteConfirmationDialog": "Project deleted"
   },
   "ControlPlaneView": {
     "accessError": "Managed Control Plane does not have access information yet",
@@ -189,6 +191,12 @@
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the workspace will be <bold2>permanently deleted</bold2>.",
     "mainCommandDescription": "Run this command to delete the workspace:",
     "verificationCommandDescription": "To verify the workspace has been deleted, run:"
+  },
+  "DeleteProjectDialog": {
+    "title": "Delete a Project",
+    "introSection1": "The below instructions will help you delete the project named \"{{projectName}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the project will be <bold2>permanently deleted</bold2>.",
+    "mainCommandDescription": "Run this command to delete the project:"
   },
   "KubectlDeleteMcpDialog": {
     "title": "Delete a Managed Control Plane",

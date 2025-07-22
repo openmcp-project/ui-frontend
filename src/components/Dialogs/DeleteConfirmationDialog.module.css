@@ -1,0 +1,20 @@
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+  margin-block-end: 1rem;
+  align-items: flex-start;
+}
+
+.message {
+  color: var(--sapContent_LabelColor);
+}
+
+.confirmLabel {
+  margin-block-start: 1rem;
+  font-weight: bold;
+}
+
+.confirmationInput {
+  width: 100%;
+}
+

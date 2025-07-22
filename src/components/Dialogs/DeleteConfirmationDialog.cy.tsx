@@ -22,11 +22,9 @@ describe('DeleteConfirmationDialog', () => {
 
     cy.get('ui5-dialog').should('be.visible').should('have.attr', 'open');
 
-    cy.contains('Confirm deletion').should('be.visible');
+    cy.contains('Delete test-resource').should('be.visible');
 
-    cy.contains('You are about to delete the resource test-resource').should(
-      'be.visible',
-    );
+    cy.contains('You are about to delete the resource test-resource').should('be.visible');
   });
 
   it('should not be visible when isOpen is false', () => {
@@ -44,9 +42,7 @@ describe('DeleteConfirmationDialog', () => {
   it('should enable Delete button when correct resource name is typed', () => {
     mountDialog();
 
-    cy.get('ui5-input[id*="mcp-name-input"]')
-      .find(' input[id*="inner"]')
-      .type('test-resource', { force: true });
+    cy.get('ui5-input[id*="mcp-name-input"]').find(' input[id*="inner"]').type('test-resource', { force: true });
 
     cy.get('ui5-button').contains('Delete').should('not.have.attr', 'disabled');
   });
@@ -54,9 +50,7 @@ describe('DeleteConfirmationDialog', () => {
   it('should keep Delete button disabled when incorrect name is typed', () => {
     mountDialog();
 
-    cy.get('ui5-input[id*="mcp-name-input"]')
-      .find(' input[id*="inner"]')
-      .type('wrong-name', { force: true });
+    cy.get('ui5-input[id*="mcp-name-input"]').find(' input[id*="inner"]').type('wrong-name', { force: true });
 
     cy.get('ui5-button').contains('Delete').should('have.attr', 'disabled');
   });
@@ -74,9 +68,7 @@ describe('DeleteConfirmationDialog', () => {
   it('should call onDeletionConfirmed and setIsOpen when Delete is confirmed', () => {
     mountDialog();
 
-    cy.get('ui5-input[id*="mcp-name-input"]')
-      .find(' input[id*="inner"]')
-      .type('test-resource');
+    cy.get('ui5-input[id*="mcp-name-input"]').find(' input[id*="inner"]').type('test-resource');
 
     cy.get('ui5-button').contains('Delete').click();
 
@@ -90,9 +82,7 @@ describe('DeleteConfirmationDialog', () => {
     mountDialog();
 
     // Type something
-    cy.get('ui5-input[id*="mcp-name-input"]')
-      .find(' input[id*="inner"]')
-      .type('test-resource', { force: true });
+    cy.get('ui5-input[id*="mcp-name-input"]').find(' input[id*="inner"]').type('test-resource', { force: true });
 
     // Close dialog
     cy.get('ui5-button').contains('Cancel').click();
@@ -100,20 +90,14 @@ describe('DeleteConfirmationDialog', () => {
     // Reopen dialog
     mountDialog();
 
-    cy.get('ui5-input[id*="mcp-name-input"]')
-      .find(' input[id*="inner"]')
-      .should('have.value', '');
+    cy.get('ui5-input[id*="mcp-name-input"]').find(' input[id*="inner"]').should('have.value', '');
   });
 
   it('should display correct resource name in all labels', () => {
     mountDialog({ resourceName: 'custom-resource' });
 
-    cy.contains('You are about to delete the resource custom-resource.').should(
-      'be.visible',
-    );
+    cy.contains('You are about to delete the resource custom-resource.').should('be.visible');
 
-    cy.contains('Please type custom-resource to confirm deletion!').should(
-      'be.visible',
-    );
+    cy.contains('To confirm, type “custom-resource” in the box below').should('be.visible');
   });
 });
