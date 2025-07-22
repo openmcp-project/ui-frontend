@@ -3,28 +3,22 @@ import { Text } from '@ui5/webcomponents-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Fragment } from 'react/jsx-runtime';
 
-interface DeleteWorkspaceDialogProps {
+interface KubectlDeleteProjectDialogProps {
   onClose: () => void;
   resourceName?: string;
   projectName?: string;
   isOpen: boolean;
 }
 
-export const DeleteWorkspaceDialog = ({ onClose, resourceName, projectName, isOpen }: DeleteWorkspaceDialogProps) => {
+export const KubectlDeleteProjectDialog = ({ onClose, projectName, isOpen }: KubectlDeleteProjectDialogProps) => {
   const { t } = useTranslation();
 
-  const projectNamespace = projectName ? `project-${projectName}` : '<project-namespace>"';
-  const workspaceName = resourceName || '<workspace-name>';
+  const projectNamespace = projectName ?? '<project-names>"';
 
   const customCommands: CustomCommand[] = [
     {
-      command: `kubectl delete workspace ${resourceName} -n ${projectNamespace}`,
-      description: t('DeleteWorkspaceDialog.mainCommandDescription'),
-      isMainCommand: true,
-    },
-    {
-      command: `kubectl get workspace -n ${projectNamespace}`,
-      description: t('DeleteWorkspaceDialog.verificationCommandDescription'),
+      command: `kubectl delete project  ${projectNamespace}`,
+      description: t('DeleteProjectDialog.mainCommandDescription'),
       isMainCommand: true,
     },
   ];
@@ -32,14 +26,13 @@ export const DeleteWorkspaceDialog = ({ onClose, resourceName, projectName, isOp
   const introSection = [
     <Fragment key="intro-1">
       <Text>
-        {t('DeleteWorkspaceDialog.introSection1', {
-          workspaceName,
-          projectNamespace,
+        {t('DeleteProjectDialog.introSection1', {
+          projectName,
         })}
       </Text>
       <Text>
         <Trans
-          i18nKey="DeleteWorkspaceDialog.introSection2"
+          i18nKey="DeleteProjectDialog.introSection2"
           components={{
             bold1: <b />,
             bold2: <b />,
@@ -51,7 +44,7 @@ export const DeleteWorkspaceDialog = ({ onClose, resourceName, projectName, isOp
 
   return (
     <KubectlBaseDialog
-      title={t('DeleteWorkspaceDialog.title')}
+      title={t('DeleteProjectDialog.title')}
       introSection={introSection}
       customCommands={customCommands}
       open={isOpen}
