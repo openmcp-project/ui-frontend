@@ -44,7 +44,7 @@ export default function McpPage() {
   }
 
   if (error || !mcp) {
-    return <IllustratedError details={error.message} />;
+    return <IllustratedError details={error?.message} />;
   }
 
   return (
