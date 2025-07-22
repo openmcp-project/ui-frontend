@@ -1,0 +1,9 @@
+.subtitleContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  margin-inline: auto;
+  margin-block: 2rem;
+}
