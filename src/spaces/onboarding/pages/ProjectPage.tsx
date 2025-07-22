@@ -26,7 +26,7 @@ export default function ProjectPage() {
   }
 
   if (error || !workspaces || !projectName) {
-    return <IllustratedError details={error.message} />;
+    return <IllustratedError details={error?.message} />;
   }
 
   return (
