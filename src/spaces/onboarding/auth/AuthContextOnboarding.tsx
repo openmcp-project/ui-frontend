@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
 import * as Sentry from '@sentry/react';
+import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 
 interface AuthContextOnboardingType {
   isLoading: boolean;
@@ -67,10 +68,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
   const login = () => {
     sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
-    // The query parameters and hash fragments need to be preserved, e.g. /?sap-theme=sap_horizon#/mcp/projects
-    const { search, hash } = window.location;
-    const redirectTo = (search ? `/${search}` : '') + hash;
-    window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+    window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
   };
 
   const logout = async () => {
