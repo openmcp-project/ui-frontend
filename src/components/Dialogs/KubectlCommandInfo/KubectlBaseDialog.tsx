@@ -56,6 +56,7 @@ export const KubectlBaseDialog = ({
       initialValues[field.id] = field.defaultValue;
     });
     setFormValues(initialValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFieldChange = (fieldId: string) => (event: Ui5CustomEvent<InputDomRef>) => {

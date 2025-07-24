@@ -83,7 +83,7 @@ export function ProvidersConfig() {
           ) : undefined,
       },
     ],
-    [],
+    [t],
   );
 
   return (

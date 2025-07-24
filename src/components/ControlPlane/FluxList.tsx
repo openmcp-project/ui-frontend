@@ -1,7 +1,7 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
 import { AnalyticalTableColumnDefinition, FlexBox, Title } from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { FluxKustomization, KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +12,12 @@ import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 
 export default function FluxList() {
-  const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useResource(FluxRequest); //404 if component not enabled
+  const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
   const {
     data: kustmizationData,
     error: kustomizationErr,
     isLoading: kustomizationIsLoading,
-  } = useResource(FluxKustomization); //404 if component not enabled
+  } = useApiResource(FluxKustomization); //404 if component not enabled
 
   const { t } = useTranslation();
 
@@ -80,7 +80,7 @@ export default function FluxList() {
         ),
       },
     ],
-    [],
+    [t],
   );
 
   const kustomizationsColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -120,7 +120,7 @@ export default function FluxList() {
         Cell: (cellData: CellData<FluxRow>) => <YamlViewButton resourceObject={cellData.cell.row.original?.item} />,
       },
     ],
-    [],
+    [t],
   );
 
   if (repoErr || kustomizationErr) {

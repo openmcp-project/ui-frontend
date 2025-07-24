@@ -9,7 +9,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { useState, JSX } from 'react';
 import { resourcesInterval } from '../../lib/shared/constants';
-import useResource, { useMultipleApiResources } from '../../lib/api/useApiResource';
+import { useApiResource, useMultipleApiResources } from '../../lib/api/useApiResource';
 import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
 import { Installation, InstallationsRequest } from '../../lib/api/types/landscaper/listInstallations';
 import { Execution, ExecutionsRequest } from '../../lib/api/types/landscaper/listExecutions';
@@ -20,7 +20,7 @@ import { MultiComboBoxSelectionChangeEventDetail } from '@ui5/webcomponents/dist
 export function Landscapers() {
   const { t } = useTranslation();
 
-  const { data: namespaces } = useResource(ListNamespaces, {
+  const { data: namespaces } = useApiResource(ListNamespaces, {
     refreshInterval: resourcesInterval,
   });
 

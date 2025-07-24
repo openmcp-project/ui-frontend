@@ -7,7 +7,7 @@ import {
   Title,
 } from '@ui5/webcomponents-react';
 
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import IllustratedError from '../Shared/IllustratedError';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
@@ -46,7 +46,7 @@ export function Providers() {
     data: providers,
     error,
     isLoading,
-  } = useResource(ProvidersListRequest, {
+  } = useApiResource(ProvidersListRequest, {
     refreshInterval: resourcesInterval,
   });
 

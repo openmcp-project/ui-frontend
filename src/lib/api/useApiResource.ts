@@ -10,8 +10,6 @@ import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
 import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
 
-export { useApiResource as default };
-
 export const useApiResource = <T>(resource: Resource<T>, config?: SWRConfiguration, excludeMcpConfig?: boolean) => {
   const apiConfig = useContext(ApiConfigContext);
 
@@ -134,12 +132,13 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
         if (finalData.length > 0) {
           setIsLoading(false);
         }
-      } catch (err) {
+      } catch (_) {
         setIsLoading(false);
       }
     };
 
     fetchDataAndUpdateState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return {

@@ -8,11 +8,11 @@ import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
 import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import YamlViewer from './YamlViewer.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
 
 export const YamlLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
-  const { isLoading, data, error } = useResource(
+  const { isLoading, data, error } = useApiResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,
     true,

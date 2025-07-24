@@ -6,7 +6,7 @@ import { GetKubeconfig } from '../../lib/api/types/crate/getKubeconfig.ts';
 import yaml from 'js-yaml';
 import { useRef, useState } from 'react';
 import { DownloadKubeconfig } from './CopyKubeconfigButton.tsx';
-import useResource from '../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../lib/api/useApiResource.ts';
 import { extractWorkspaceNameFromNamespace } from '../../utils/index.ts';
 import { useTranslation } from 'react-i18next';
 
@@ -36,7 +36,7 @@ export default function ConnectButton(props: Props) {
 
   const { t } = useTranslation();
 
-  const res = useResource(GetKubeconfig(props.secretKey, props.secretName, props.namespace));
+  const res = useApiResource(GetKubeconfig(props.secretKey, props.secretName, props.namespace));
   if (res.isLoading) {
     return <></>;
   }

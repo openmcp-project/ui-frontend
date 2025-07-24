@@ -3,7 +3,7 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/web
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import { projectnameToNamespace } from '../../utils';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/arrow-right';
@@ -15,7 +15,7 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
-  const { data, error } = useResource(ListProjectNames, {
+  const { data, error } = useApiResource(ListProjectNames, {
     refreshInterval: 3000,
   });
   const stabilizedData = useMemo(
@@ -116,7 +116,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [],
+    [navigate],
   );
   if (error) {
     return <IllustratedError details={error.message} />;

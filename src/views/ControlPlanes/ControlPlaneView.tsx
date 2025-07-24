@@ -17,7 +17,7 @@ import { ProvidersConfig } from '../../components/ControlPlane/ProvidersConfig.t
 import { Providers } from '../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 
 import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { Landscapers } from '../../components/ControlPlane/Landscapers.tsx';
@@ -27,7 +27,7 @@ export default function ControlPlaneView() {
   const { projectName, workspaceName, controlPlaneName, contextName } = useParams();
   const { t } = useTranslation();
 
-  const { data: mcp, error } = useResource(
+  const { data: mcp, error } = useApiResource(
     ControlPlaneResource(projectName ?? '', workspaceName ?? '', controlPlaneName ?? ''),
   );
 

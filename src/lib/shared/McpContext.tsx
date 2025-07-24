@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useContext } from 'react';
 import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/controlPlanes.ts';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
-import useResource from '../api/useApiResource.ts';
+import { useApiResource } from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { BusyIndicator } from '@ui5/webcomponents-react';
 
-interface McpContext {
+interface Mcp {
   project: string;
   workspace: string;
   name: string;
@@ -19,24 +19,24 @@ interface McpContext {
 }
 
 interface Props {
-  context: McpContext;
+  context: Mcp;
   children?: ReactNode;
 }
 
-export const McpContext = createContext({} as McpContext);
+export const McpContext = createContext({} as Mcp);
 
 export const useMcp = () => {
   return useContext(McpContext);
 };
 
 export const McpContextProvider = ({ children, context }: Props) => {
-  const mcp = useResource(ManagedControlPlaneResource(context.project, context.workspace, context.name));
+  const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name));
 
   const secretNamespace = mcp.data?.status?.access?.namespace;
   const secretName = mcp.data?.status?.access?.name;
   const secretKey = mcp.data?.status?.access?.key;
 
-  const kubeconfig = useResource(GetKubeconfig(secretKey ?? '', secretName ?? '', secretNamespace ?? ''));
+  const kubeconfig = useApiResource(GetKubeconfig(secretKey ?? '', secretName ?? '', secretNamespace ?? ''));
 
   if (mcp.isLoading || mcp.error) {
     return <></>;
