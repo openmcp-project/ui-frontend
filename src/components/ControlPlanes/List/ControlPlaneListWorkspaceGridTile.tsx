@@ -1,30 +1,14 @@
-import {
-  Button,
-  FlexBox,
-  Grid,
-  ObjectPageSection,
-  Panel,
-  Title,
-} from '@ui5/webcomponents-react';
+import { Button, FlexBox, Grid, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
-import {
-  ListWorkspacesType,
-  isWorkspaceReady,
-} from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { ListWorkspacesType, isWorkspaceReady } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
-import {
-  DeleteWorkspaceResource,
-  DeleteWorkspaceType,
-} from '../../../lib/api/types/crate/deleteWorkspace.ts';
-import {
-  useApiResourceMutation,
-  useApiResource,
-} from '../../../lib/api/useApiResource.ts';
+import { DeleteWorkspaceResource, DeleteWorkspaceType } from '../../../lib/api/types/crate/deleteWorkspace.ts';
+import { useApiResourceMutation, useApiResource } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteWorkspace } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteWorkspace.tsx';
@@ -46,17 +30,10 @@ interface Props {
   workspace: ListWorkspacesType;
 }
 
-export function ControlPlaneListWorkspaceGridTile({
-  projectName,
-  workspace,
-}: Props) {
-  const [
-    isCreateManagedControlPlaneWizardOpen,
-    setIsCreateManagedControlPlaneWizardOpen,
-  ] = useState(false);
+export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Props) {
+  const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const workspaceName = workspace.metadata.name;
-  const workspaceDisplayName =
-    workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
+  const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
   const projectNamespace = workspace.metadata.namespace;
 
@@ -65,9 +42,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const toast = useToast();
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: controlplanes, error: cpsError } = useApiResource(
-    ListControlPlanes(projectName, workspaceName),
-  );
+  const { data: controlplanes, error: cpsError } = useApiResource(ListControlPlanes(projectName, workspaceName));
   const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
     DeleteWorkspaceResource(projectNamespace, workspaceName),
   );
@@ -80,20 +55,12 @@ export function ControlPlaneListWorkspaceGridTile({
       if (error.status === 403) {
         return (
           <IllustratedError
-            title={t(
-              'ControlPlaneListWorkspaceGridTile.permissionErrorMessage',
-            )}
-            details={t(
-              'ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle',
-            )}
+            title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
+            details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
           />
         );
       } else {
-        return (
-          <IllustratedError
-            title={t('ControlPlaneListWorkspaceGridTile.loadingErrorMessage')}
-          />
-        );
+        return <IllustratedError title={t('ControlPlaneListWorkspaceGridTile.loadingErrorMessage')} />;
       }
     }
     return null;
@@ -126,16 +93,9 @@ export function ControlPlaneListWorkspaceGridTile({
                 {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
               </Title>
 
-              <CopyButton
-                text={workspace.status?.namespace || '-'}
-                style={{ justifyContent: 'start' }}
-              />
+              <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
 
-              <MembersAvatarView
-                members={workspace.spec.members}
-                project={projectName}
-                workspace={workspaceName}
-              />
+              <MembersAvatarView members={workspace.spec.members} project={projectName} workspace={workspaceName} />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <YamlViewButtonWithLoader
                   workspaceName={workspace.metadata.namespace}
@@ -144,9 +104,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 />
                 <ControlPlanesListMenu
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
-                  setIsCreateManagedControlPlaneWizardOpen={
-                    setIsCreateManagedControlPlaneWizardOpen
-                  }
+                  setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
                 />
               </FlexBox>
             </div>
@@ -193,19 +151,12 @@ export function ControlPlaneListWorkspaceGridTile({
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}
-        kubectl={
-          <KubectlDeleteWorkspace
-            projectName={projectName}
-            resourceName={workspaceName}
-          />
-        }
+        kubectl={<KubectlDeleteWorkspace projectName={projectName} resourceName={workspaceName} />}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {
           await trigger();
-          toast.show(
-            t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'),
-          );
+          toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
         }}
       />
       <CreateManagedControlPlaneWizardContainer

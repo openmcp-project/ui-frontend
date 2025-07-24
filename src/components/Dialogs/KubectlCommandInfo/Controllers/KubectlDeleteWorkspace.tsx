@@ -7,10 +7,7 @@ interface KubectlDeleteWorkspaceProps {
   resourceName: string;
 }
 
-export const KubectlDeleteWorkspace = ({
-  projectName,
-  resourceName,
-}: KubectlDeleteWorkspaceProps) => {
+export const KubectlDeleteWorkspace = ({ projectName, resourceName }: KubectlDeleteWorkspaceProps) => {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
 
   const openInfoDialog = () => setIsInfoDialogOpen(true);

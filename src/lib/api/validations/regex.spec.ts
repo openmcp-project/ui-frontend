@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  projectWorkspaceNameRegex,
-  managedControlPlaneNameRegex,
-} from './regex';
+import { projectWorkspaceNameRegex, managedControlPlaneNameRegex } from './regex';
 
 describe('projectWorkspaceNameRegex', () => {
   const valid = [
@@ -54,18 +51,7 @@ describe('managedControlPlaneNameRegex', () => {
     'abc1-2.def3',
     'abc.def.ghi',
   ];
-  const invalid = [
-    'My-MCP',
-    'ABC',
-    '-mcp',
-    'mcp-',
-    '.mcp',
-    'mcp.',
-    'a'.repeat(64),
-    'abc..def',
-    'abc-.def',
-    'abc.-def',
-  ];
+  const invalid = ['My-MCP', 'ABC', '-mcp', 'mcp-', '.mcp', 'mcp.', 'a'.repeat(64), 'abc..def', 'abc-.def', 'abc.-def'];
 
   it('matches valid managed control plane names', () => {
     for (const name of valid) {

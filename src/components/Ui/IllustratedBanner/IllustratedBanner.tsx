@@ -16,13 +16,7 @@ type InfoBannerProps = {
   button?: React.ReactElement;
 };
 
-export const IllustratedBanner = ({
-  title,
-  subtitle,
-  illustrationName,
-  help,
-  button,
-}: InfoBannerProps) => {
+export const IllustratedBanner = ({ title, subtitle, illustrationName, help, button }: InfoBannerProps) => {
   return (
     <FlexBox direction="Column" alignItems="Center">
       <IllustratedMessage
@@ -35,9 +29,7 @@ export const IllustratedBanner = ({
         <a href={help.link} target="_blank" rel="noreferrer">
           <Button
             design={ButtonDesign.Transparent}
-            icon={
-              help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'
-            }
+            icon={help.buttonIcon ? help.buttonIcon : 'sap-icon://question-mark'}
           >
             {help.buttonText}
           </Button>

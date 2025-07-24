@@ -1,9 +1,4 @@
-import {
-  Button,
-  FlexBox,
-  FlexBoxAlignItems,
-  Text,
-} from '@ui5/webcomponents-react';
+import { Button, FlexBox, FlexBoxAlignItems, Text } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useState } from 'react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';

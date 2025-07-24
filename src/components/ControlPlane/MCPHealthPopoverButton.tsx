@@ -1,19 +1,9 @@
-import {
-  AnalyticalTable,
-  Icon,
-  Popover,
-  FlexBox,
-  FlexBoxJustifyContent,
-  Button,
-} from '@ui5/webcomponents-react';
+import { AnalyticalTable, Icon, Popover, FlexBox, FlexBoxJustifyContent, Button } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
-import {
-  ControlPlaneStatusType,
-  ReadyStatus,
-} from '../../lib/api/types/crate/controlPlanes';
+import { ControlPlaneStatusType, ReadyStatus } from '../../lib/api/types/crate/controlPlanes';
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
@@ -67,10 +57,8 @@ export default function MCPHealthPopoverButton({
         mcpStatus?.conditions
           .map((condition) => {
             let text = `- ${condition.type}: ${condition.status}\n`;
-            if (condition.reason)
-              text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
-            if (condition.message)
-              text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
+            if (condition.reason) text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
+            if (condition.message) text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
             return text;
           })
           .join('')
@@ -189,14 +177,9 @@ function StatusTable({
           }) ?? []
         }
       />
-      <FlexBox
-        justifyContent={FlexBoxJustifyContent.End}
-        style={{ marginTop: '0.5rem' }}
-      >
+      <FlexBox justifyContent={FlexBoxJustifyContent.End} style={{ marginTop: '0.5rem' }}>
         <a href={githubIssuesLink} target="_blank" rel="noreferrer">
-          <Button>
-            {t('MCPHealthPopoverButton.createSupportTicketButton')}
-          </Button>
+          <Button>{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
         </a>
       </FlexBox>
     </div>

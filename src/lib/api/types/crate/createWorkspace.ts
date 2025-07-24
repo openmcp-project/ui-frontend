@@ -1,9 +1,5 @@
 import { Resource } from '../resource';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
 
 export interface CreateWorkspaceType {
@@ -56,9 +52,7 @@ export const CreateWorkspace = (
   };
 };
 
-export const CreateWorkspaceResource = (
-  namespace: string,
-): Resource<undefined> => {
+export const CreateWorkspaceResource = (namespace: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/workspaces`,
     method: 'POST',

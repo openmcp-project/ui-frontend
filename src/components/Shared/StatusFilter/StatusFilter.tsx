@@ -1,9 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Select } from '@ui5/webcomponents-react';
-import StatusFilterOption, {
-  StatusFilterOptionProps,
-} from './StatusFilterOption';
+import StatusFilterOption, { StatusFilterOptionProps } from './StatusFilterOption';
 
 interface StatusFilterProps {
   column: {
@@ -12,10 +10,7 @@ interface StatusFilterProps {
   };
 }
 
-const options: Pick<
-  StatusFilterOptionProps,
-  'value' | 'iconName' | 'color' | 'labelKey'
->[] = [
+const options: Pick<StatusFilterOptionProps, 'value' | 'iconName' | 'color' | 'labelKey'>[] = [
   { value: 'all', iconName: 'filter', color: 'gray', labelKey: 'All' },
   {
     value: 'true',
@@ -34,9 +29,7 @@ const options: Pick<
 const StatusFilter: React.FC<StatusFilterProps> = ({ column }) => {
   const { t } = useTranslation();
 
-  const handleChange = (
-    e: CustomEvent<{ selectedOption: { dataset?: { value?: string } } }>,
-  ) => {
+  const handleChange = (e: CustomEvent<{ selectedOption: { dataset?: { value?: string } } }>) => {
     const value = e.detail.selectedOption.dataset?.value;
     column.setFilter?.(value === 'all' ? undefined : value);
   };
@@ -48,10 +41,7 @@ const StatusFilter: React.FC<StatusFilterProps> = ({ column }) => {
           key={option.value}
           {...option}
           t={t}
-          isSelected={
-            column.filterValue === option.value ||
-            (option.value === 'all' && !column.filterValue)
-          }
+          isSelected={column.filterValue === option.value || (option.value === 'all' && !column.filterValue)}
         />
       ))}
     </Select>

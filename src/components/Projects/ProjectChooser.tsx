@@ -2,7 +2,7 @@ import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function ProjectChooser({ currentProjectName }: Props) {
-  const { data, error } = useResource(ListProjectNames);
+  const { data, error } = useApiResource(ListProjectNames);
   const navigate = useLuigiNavigate();
 
   if (error) {

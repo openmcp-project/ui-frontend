@@ -5,12 +5,7 @@ const email1 = 'test1@test.com';
 const email2 = 'test2@test.com';
 
 function mountContainer(members: Member[] = []) {
-  cy.mount(
-    <EditMembers
-      members={members}
-      onMemberChanged={cy.spy().as('onChangeSpy')}
-    />,
-  );
+  cy.mount(<EditMembers members={members} onMemberChanged={cy.spy().as('onChangeSpy')} />);
 }
 
 describe('<EditMembers />', () => {
@@ -35,9 +30,7 @@ describe('<EditMembers />', () => {
     });
     cy.get('[data-testid="add-member-button"]').click();
     cy.get('@onChangeSpy').should('have.been.calledOnce');
-    cy.get('@onChangeSpy').should('have.been.calledWith', [
-      { name: email2, roles: [MemberRoles.admin], kind: 'User' },
-    ]);
+    cy.get('@onChangeSpy').should('have.been.calledWith', [{ name: email2, roles: [MemberRoles.admin], kind: 'User' }]);
   });
 
   it('Should remove selected member', () => {
@@ -45,9 +38,7 @@ describe('<EditMembers />', () => {
       { name: email1, roles: [MemberRoles.admin], kind: 'User' },
       { name: email2, roles: [MemberRoles.viewer], kind: 'User' },
     ]);
-    cy.get(
-      '[aria-rowindex="1"] > [data-column-id-cell="."] > ui5-button',
-    ).click();
+    cy.get('[aria-rowindex="1"] > [data-column-id-cell="."] > ui5-button').click();
     cy.get('@onChangeSpy').should('have.been.calledOnce');
     cy.get('@onChangeSpy').should('have.been.calledWith', [
       { name: email2, roles: [MemberRoles.viewer], kind: 'User' },

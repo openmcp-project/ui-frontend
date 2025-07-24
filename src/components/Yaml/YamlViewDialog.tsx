@@ -9,17 +9,12 @@ export type YamlViewDialogProps = {
   dialogContent: ReactNode;
 };
 
-export const YamlViewDialog: FC<YamlViewDialogProps> = ({
-  isOpen,
-  setIsOpen,
-  dialogContent,
-}) => {
+export const YamlViewDialog: FC<YamlViewDialogProps> = ({ isOpen, setIsOpen, dialogContent }) => {
   const { t } = useTranslation();
   return (
     <Dialog
       open={isOpen}
       stretch
-      onClick={(e) => e.stopPropagation()}
       footer={
         <Bar
           design="Footer"
@@ -30,6 +25,7 @@ export const YamlViewDialog: FC<YamlViewDialogProps> = ({
           }
         />
       }
+      onClick={(e) => e.stopPropagation()}
       onClose={() => {
         setIsOpen(false);
       }}

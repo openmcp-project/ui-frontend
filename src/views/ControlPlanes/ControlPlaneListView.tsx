@@ -18,10 +18,7 @@ export default function ControlPlaneListView() {
           <ObjectPageTitle
             header={
               <Title>
-                <Trans
-                  i18nKey="ControlPlaneListView.header"
-                  components={{ span: <span className="mono-font" /> }}
-                />
+                <Trans i18nKey="ControlPlaneListView.header" components={{ span: <span className="mono-font" /> }} />
               </Title>
             }
             subHeader={
@@ -32,16 +29,12 @@ export default function ControlPlaneListView() {
                   alignItems: 'center',
                 }}
               >
-                <p style={{ marginRight: '0.5rem' }}>
-                  {t('ControlPlaneListView.projectHeader')}
-                </p>
+                <p style={{ marginRight: '0.5rem' }}>{t('ControlPlaneListView.projectHeader')}</p>
                 <ProjectChooser currentProjectName={projectName ?? ''} />
               </div>
             }
             breadcrumbs={<IntelligentBreadcrumbs />}
-            actionsBar={
-              <ControlPlaneListToolbar projectName={projectName ?? ''} />
-            }
+            actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ''} />}
           />
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?

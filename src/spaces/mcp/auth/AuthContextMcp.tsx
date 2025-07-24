@@ -34,18 +34,13 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
         } catch (_) {
           /* safe to ignore */
         }
-        throw new Error(
-          errorBody?.message ||
-            `Authentication check failed with status: ${response.status}`,
-        );
+        throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
       }
 
       const body = await response.json();
       const validationResult = MeResponseSchema.safeParse(body);
       if (!validationResult.success) {
-        throw new Error(
-          `Auth API response validation failed: ${validationResult.error.flatten()}`,
-        );
+        throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
       }
 
       const { isAuthenticated: apiIsAuthenticated } = validationResult.data;
@@ -61,16 +56,10 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const login = () => {
     sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'mcp');
 
-    window.location.replace(
-      `/api/auth/mcp/login?redirectTo=${encodeURIComponent(window.location.hash)}`,
-    );
+    window.location.replace(`/api/auth/mcp/login?redirectTo=${encodeURIComponent(window.location.hash)}`);
   };
 
-  return (
-    <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>
-      {children}
-    </AuthContextMcp>
-  );
+  return <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
 }
 
 export const useAuthMcp = () => {

@@ -5,7 +5,7 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 import { sortVersions } from '../../utils/componentsVersions.ts';
 
 import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
-import useApiResource from '../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
 import { ComponentsListItem, removeComponents } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
