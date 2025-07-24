@@ -6,10 +6,7 @@ interface TooltipCellProps {
 }
 
 const TooltipCell: React.FC<TooltipCellProps> = ({ children, title }) => {
-  const resolvedTitle =
-    typeof children === 'string' || typeof children === 'number'
-      ? String(children)
-      : (title ?? '');
+  const resolvedTitle = typeof children === 'string' || typeof children === 'number' ? String(children) : (title ?? '');
 
   return (
     <div

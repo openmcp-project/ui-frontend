@@ -12,9 +12,7 @@ interface AuthContextOnboardingType {
   logout: () => Promise<void>;
 }
 
-const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(
-  null,
-);
+const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(null);
 
 export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,22 +38,16 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         } catch (_) {
           /* safe to ignore */
         }
-        throw new Error(
-          errorBody?.message ||
-            `Authentication check failed with status: ${response.status}`,
-        );
+        throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
       }
 
       const body = await response.json();
       const validationResult = MeResponseSchema.safeParse(body);
       if (!validationResult.success) {
-        throw new Error(
-          `Auth API response validation failed: ${validationResult.error.flatten()}`,
-        );
+        throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
       }
 
-      const { isAuthenticated: apiIsAuthenticated, user: apiUser } =
-        validationResult.data;
+      const { isAuthenticated: apiIsAuthenticated, user: apiUser } = validationResult.data;
       setUser(apiUser);
       setIsAuthenticated(apiIsAuthenticated);
 
@@ -76,9 +68,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const login = () => {
     sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
 
-    window.location.replace(
-      `/api/auth/onboarding/login?redirectTo=${encodeURIComponent(window.location.hash)}`,
-    );
+    window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(window.location.hash)}`);
   };
 
   const logout = async () => {
@@ -94,9 +84,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         } catch (_) {
           /* safe to ignore */
         }
-        throw new Error(
-          errorBody?.message || `Logout failed with status: ${response.status}`,
-        );
+        throw new Error(errorBody?.message || `Logout failed with status: ${response.status}`);
       }
 
       await refreshAuthStatus();
@@ -106,9 +94,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContextOnboarding
-      value={{ isLoading, isAuthenticated, user, error, login, logout }}
-    >
+    <AuthContextOnboarding value={{ isLoading, isAuthenticated, user, error, login, logout }}>
       {children}
     </AuthContextOnboarding>
   );
@@ -117,9 +103,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 export const useAuthOnboarding = () => {
   const context = use(AuthContextOnboarding);
   if (!context) {
-    throw new Error(
-      'useAuthOnboarding must be used within an AuthProviderOnboarding.',
-    );
+    throw new Error('useAuthOnboarding must be used within an AuthProviderOnboarding.');
   }
   return context;
 };

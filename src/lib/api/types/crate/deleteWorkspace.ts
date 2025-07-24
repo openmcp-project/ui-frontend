@@ -5,10 +5,7 @@ export interface DeleteWorkspaceType {
   namespace: string;
 }
 
-export const DeleteWorkspaceResource = (
-  namespace: string,
-  workspaceName: string,
-): Resource<undefined> => {
+export const DeleteWorkspaceResource = (namespace: string, workspaceName: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/workspaces/${workspaceName}`,
     method: 'DELETE',

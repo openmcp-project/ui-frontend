@@ -51,10 +51,7 @@ export const fetchApiServer = async (
       // Unauthorized, redirect to the login page
       window.location.replace('/api/auth/onboarding/login');
     }
-    const error = new APIError(
-      'An error occurred while fetching the data.',
-      res.status,
-    );
+    const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await res.json();
     throw error;
   }
@@ -75,9 +72,7 @@ export const fetchApiServerJson = async <T>(
 };
 
 // request is of [path, config, jq]
-export const fetchApiServerJsonMultiple = (
-  requests: [string | null, ApiConfig, string | undefined][],
-) => {
+export const fetchApiServerJsonMultiple = (requests: [string | null, ApiConfig, string | undefined][]) => {
   return Promise.all(
     requests
       .filter((r) => r[0] !== null)

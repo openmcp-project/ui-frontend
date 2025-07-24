@@ -33,12 +33,7 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup
-        ref={openerRef}
-        style={{ maxWidth: '200px' }}
-        type={AvatarGroupType.Group}
-        onClick={handleOnClick}
-      >
+      <AvatarGroup ref={openerRef} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleOnClick}>
         {avatars}
       </AvatarGroup>
       <Popover

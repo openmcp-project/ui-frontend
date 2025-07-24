@@ -1,7 +1,4 @@
-import {
-  AnalyticalTable,
-  AnalyticalTableColumnDefinition,
-} from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { useTranslation } from 'react-i18next';
 

@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useRef,
-  FC,
-  ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useRef, FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const DURATION = 2000; //ms
@@ -20,9 +13,7 @@ const CopyButtonContext = createContext<CopyButtonContextType>({
   setActiveCopyId: () => {},
 });
 
-export const CopyButtonProvider: FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const CopyButtonProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [activeCopyId, setActiveCopyId] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -43,9 +34,7 @@ export const CopyButtonProvider: FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <CopyButtonContext.Provider
-      value={{ activeCopyId, setActiveCopyId: handleSetActiveCopyId }}
-    >
+    <CopyButtonContext.Provider value={{ activeCopyId, setActiveCopyId: handleSetActiveCopyId }}>
       {children}
     </CopyButtonContext.Provider>
   );

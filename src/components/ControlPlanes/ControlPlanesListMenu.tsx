@@ -1,11 +1,4 @@
-import {
-  Button,
-  ButtonDomRef,
-  Menu,
-  MenuItem,
-  Ui5CustomEvent,
-  MenuDomRef,
-} from '@ui5/webcomponents-react';
+import { Button, ButtonDomRef, Menu, MenuItem, Ui5CustomEvent, MenuDomRef } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
@@ -27,9 +20,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
 
   const { t } = useTranslation();
 
-  const handleOpenerClick = (
-    e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>,
-  ) => {
+  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     if (popoverRef.current && e.currentTarget) {
       popoverRef.current.opener = e.currentTarget as HTMLElement;
       setOpen((prev) => !prev);

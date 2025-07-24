@@ -21,8 +21,6 @@ export interface ExecutionsListResponse {
   items: Execution[];
 }
 
-export const ExecutionsRequest = (
-  namespace: string,
-): Resource<ExecutionsListResponse> => ({
+export const ExecutionsRequest = (namespace: string): Resource<ExecutionsListResponse> => ({
   path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/${namespace}/executions`,
 });

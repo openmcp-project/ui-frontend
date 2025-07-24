@@ -28,23 +28,15 @@ export interface ComponentsSelectionProps {
   setComponentsList: (components: ComponentsListItem[]) => void;
 }
 
-export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
-  componentsList,
-  setComponentsList,
-}) => {
+export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({ componentsList, setComponentsList }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
 
-  const selectedComponents = useMemo(
-    () => getSelectedComponents(componentsList),
-    [componentsList],
-  );
+  const selectedComponents = useMemo(() => getSelectedComponents(componentsList), [componentsList]);
 
   const searchResults = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-    return componentsList.filter(({ name }) =>
-      name.toLowerCase().includes(lowerSearch),
-    );
+    return componentsList.filter(({ name }) => name.toLowerCase().includes(lowerSearch));
   }, [componentsList, searchTerm]);
 
   const handleSelectionChange = useCallback(
@@ -53,9 +45,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
       if (!id) return;
       setComponentsList(
         componentsList.map((component) =>
-          component.name === id
-            ? { ...component, isSelected: !component.isSelected }
-            : component,
+          component.name === id ? { ...component, isSelected: !component.isSelected } : component,
         ),
       );
     },
@@ -74,9 +64,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
       if (!name) return;
       setComponentsList(
         componentsList.map((component) =>
-          component.name === name
-            ? { ...component, selectedVersion: version || '' }
-            : component,
+          component.name === name ? { ...component, selectedVersion: version || '' } : component,
         ),
       );
     },
@@ -86,9 +74,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
   const isProviderDisabled = useCallback(
     (component: ComponentsListItem) => {
       if (!component.name?.includes('provider')) return false;
-      const crossplane = componentsList.find(
-        ({ name }) => name === 'crossplane',
-      );
+      const crossplane = componentsList.find(({ name }) => name === 'crossplane');
       return crossplane?.isSelected === false;
     },
     [componentsList],
@@ -130,11 +116,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                     aria-label={component.name}
                     onChange={handleSelectionChange}
                   />
-                  <FlexBox
-                    gap={10}
-                    justifyContent="SpaceBetween"
-                    alignItems="Baseline"
-                  >
+                  <FlexBox gap={10} justifyContent="SpaceBetween" alignItems="Baseline">
                     {/* TODO: Add documentation link */}
                     {component.documentationUrl && (
                       <Button

@@ -11,15 +11,11 @@ describe('generateInitialsForEmail', () => {
   });
 
   it('should generate initials from an email with multiple name parts', () => {
-    expect(generateInitialsForEmail('first.middle.last@example.com')).toBe(
-      'FML',
-    );
+    expect(generateInitialsForEmail('first.middle.last@example.com')).toBe('FML');
   });
 
   it('should truncate to 3 initials if more than 3 name parts exist', () => {
-    expect(
-      generateInitialsForEmail('first.second.third.extra@example.com'),
-    ).toBe('FST');
+    expect(generateInitialsForEmail('first.second.third.extra@example.com')).toBe('FST');
   });
 
   it('should handle emails where the name part is short', () => {

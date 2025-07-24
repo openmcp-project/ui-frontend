@@ -6,7 +6,7 @@ import { GetKubeconfig } from '../../lib/api/types/crate/getKubeconfig.ts';
 import yaml from 'js-yaml';
 import { useRef, useState } from 'react';
 import { DownloadKubeconfig } from './CopyKubeconfigButton.tsx';
-import useResource from '../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../lib/api/useApiResource.ts';
 import { extractWorkspaceNameFromNamespace } from '../../utils/index.ts';
 import { useTranslation } from 'react-i18next';
 
@@ -36,9 +36,7 @@ export default function ConnectButton(props: Props) {
 
   const { t } = useTranslation();
 
-  const res = useResource(
-    GetKubeconfig(props.secretKey, props.secretName, props.namespace),
-  );
+  const res = useApiResource(GetKubeconfig(props.secretKey, props.secretName, props.namespace));
   if (res.isLoading) {
     return <></>;
   }
@@ -72,12 +70,7 @@ export default function ConnectButton(props: Props) {
 
   return (
     <div>
-      <Button
-        disabled={props.disabled}
-        icon="slim-arrow-down"
-        icon-end
-        onClick={handleOpenerClick}
-      >
+      <Button disabled={props.disabled} icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>
         {t('ConnectButton.buttonText')}
       </Button>
       <Menu
@@ -103,18 +96,12 @@ export default function ConnectButton(props: Props) {
               props.workspaceName,
             )}/mcps/${props.controlPlaneName}/context/${context.name}`}
             additionalText={`(${
-              context.context.user === 'openmcp'
-                ? t('ConnectButton.defaultIdP')
-                : t('ConnectButton.unsupportedIdP')
+              context.context.user === 'openmcp' ? t('ConnectButton.defaultIdP') : t('ConnectButton.unsupportedIdP')
             })`}
             disabled={context.context.user !== 'openmcp'}
           />
         ))}
-        <MenuItem
-          key={'download'}
-          text={'Download Kubeconfig'}
-          data-action="download"
-        />
+        <MenuItem key={'download'} text={'Download Kubeconfig'} data-action="download" />
       </Menu>
     </div>
   );

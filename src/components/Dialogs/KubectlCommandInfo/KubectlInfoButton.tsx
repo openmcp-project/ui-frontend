@@ -5,19 +5,11 @@ import '@ui5/webcomponents-icons/dist/command-line-interfaces.js';
 
 interface KubectlInfoButtonProps extends Omit<ButtonPropTypes, 'children'> {}
 
-export const KubectlInfoButton = ({
-  onClick,
-  ...buttonProps
-}: KubectlInfoButtonProps) => {
+export const KubectlInfoButton = ({ onClick, ...buttonProps }: KubectlInfoButtonProps) => {
   const { t } = useTranslation();
 
   return (
-    <Button
-      design={ButtonDesign.Transparent}
-      icon="command-line-interfaces"
-      onClick={onClick}
-      {...buttonProps}
-    >
+    <Button design={ButtonDesign.Transparent} icon="command-line-interfaces" onClick={onClick} {...buttonProps}>
       {t('CommonKubectl.learnButton')}
     </Button>
   );

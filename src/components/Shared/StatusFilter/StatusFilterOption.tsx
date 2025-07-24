@@ -11,20 +11,8 @@ export interface StatusFilterOptionProps {
   isSelected: boolean;
 }
 
-const RenderOption: React.FC<StatusFilterOptionProps> = ({
-  value,
-  iconName,
-  color,
-  labelKey,
-  t,
-  isSelected,
-}) => (
-  <Option
-    key={value}
-    data-value={value}
-    selected={isSelected}
-    className={styles.option}
-  >
+const RenderOption: React.FC<StatusFilterOptionProps> = ({ value, iconName, color, labelKey, t, isSelected }) => (
+  <Option key={value} data-value={value} selected={isSelected} className={styles.option}>
     <div className={styles.container}>
       <Icon name={iconName} style={{ color }} className={styles.icon} />
       <span className={styles.label}>{t(labelKey)}</span>

@@ -1,9 +1,6 @@
 import { FC } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import {
-  materialLight,
-  materialDark,
-} from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { materialLight, materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
@@ -33,13 +30,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
 
   return (
     <div className={styles.container}>
-      <FlexBox
-        className={styles.buttons}
-        direction="Row"
-        justifyContent="End"
-        alignItems="Baseline"
-        gap={16}
-      >
+      <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
         <Button icon="copy" onClick={copyToClipboard}>
           {t('buttons.copy')}
         </Button>

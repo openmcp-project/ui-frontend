@@ -1,11 +1,5 @@
 import { FC, useRef, useState, useCallback } from 'react';
-import {
-  Button,
-  FlexBox,
-  Input,
-  InputDomRef,
-  Label,
-} from '@ui5/webcomponents-react';
+import { Button, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
@@ -46,10 +40,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       setEmailMessage(t('validationErrors.userExists'));
       return;
     }
-    onMemberChanged([
-      ...members,
-      { name: email, roles: [selectedRole], kind: 'User' },
-    ]);
+    onMemberChanged([...members, { name: email, roles: [selectedRole], kind: 'User' }]);
     if (input) input.value = '';
   }, [members, onMemberChanged, selectedRole, t]);
 
