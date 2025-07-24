@@ -1,8 +1,4 @@
-import {
-  KubectlBaseDialog,
-  FormField,
-  CustomCommand,
-} from './KubectlBaseDialog';
+import { KubectlBaseDialog, FormField, CustomCommand } from './KubectlBaseDialog';
 import { useTranslation } from 'react-i18next';
 
 interface KubectlCreateProjectDialogProps {
@@ -10,10 +6,7 @@ interface KubectlCreateProjectDialogProps {
   isOpen: boolean;
 }
 
-export const KubectlCreateProjectDialog = ({
-  onClose,
-  isOpen,
-}: KubectlCreateProjectDialogProps) => {
+export const KubectlCreateProjectDialog = ({ onClose, isOpen }: KubectlCreateProjectDialogProps) => {
   const { t } = useTranslation();
   const randomProjectName = Math.random().toString(36).substring(2, 8);
 
@@ -21,30 +14,20 @@ export const KubectlCreateProjectDialog = ({
     {
       id: 'projectName',
       label: t('KubectlCreateProjectDialog.formFields.projectName.label'),
-      placeholder: t(
-        'KubectlCreateProjectDialog.formFields.projectName.placeholder',
-      ),
+      placeholder: t('KubectlCreateProjectDialog.formFields.projectName.placeholder'),
       defaultValue: randomProjectName,
     },
     {
       id: 'chargingTargetId',
       label: t('KubectlCreateProjectDialog.formFields.chargingTargetId.label'),
-      placeholder: t(
-        'KubectlCreateProjectDialog.formFields.chargingTargetId.placeholder',
-      ),
-      defaultValue: t(
-        'KubectlCreateProjectDialog.formFields.chargingTargetId.defaultValue',
-      ),
+      placeholder: t('KubectlCreateProjectDialog.formFields.chargingTargetId.placeholder'),
+      defaultValue: t('KubectlCreateProjectDialog.formFields.chargingTargetId.defaultValue'),
     },
     {
       id: 'userEmail',
       label: t('KubectlCreateProjectDialog.formFields.userEmail.label'),
-      placeholder: t(
-        'KubectlCreateProjectDialog.formFields.userEmail.placeholder',
-      ),
-      defaultValue: t(
-        'KubectlCreateProjectDialog.formFields.userEmail.defaultValue',
-      ),
+      placeholder: t('KubectlCreateProjectDialog.formFields.userEmail.placeholder'),
+      defaultValue: t('KubectlCreateProjectDialog.formFields.userEmail.defaultValue'),
     },
   ];
 

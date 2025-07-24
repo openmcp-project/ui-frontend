@@ -56,15 +56,15 @@ export const KubectlBaseDialog = ({
       initialValues[field.id] = field.defaultValue;
     });
     setFormValues(initialValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFieldChange =
-    (fieldId: string) => (event: Ui5CustomEvent<InputDomRef>) => {
-      setFormValues((prev) => ({
-        ...prev,
-        [fieldId]: event.target.value,
-      }));
-    };
+  const handleFieldChange = (fieldId: string) => (event: Ui5CustomEvent<InputDomRef>) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [fieldId]: event.target.value,
+    }));
+  };
 
   const getFormattedCommand = (template: string) => {
     let result = template;
@@ -108,9 +108,7 @@ export const KubectlBaseDialog = ({
           .map((template, index) => (
             <div key={`main-command-${index}`}>
               <Text>{template.description}</Text>
-              <KubectlTerminal
-                command={getFormattedCommand(template.command)}
-              />
+              <KubectlTerminal command={getFormattedCommand(template.command)} />
             </div>
           ))}
 
@@ -134,9 +132,7 @@ export const KubectlBaseDialog = ({
             >
               {formFields.map((field) => (
                 <div key={field.id}>
-                  <Text style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                    {field.label}
-                  </Text>
+                  <Text style={{ fontWeight: 'bold', marginBottom: '8px' }}>{field.label}</Text>
                   <Input
                     placeholder={field.placeholder}
                     value={formValues[field.id] || ''}
@@ -155,9 +151,7 @@ export const KubectlBaseDialog = ({
           .map((template, index) => (
             <div key={`additional-command-${index}`}>
               <Text>{template.description}</Text>
-              <KubectlTerminal
-                command={getFormattedCommand(template.command)}
-              />
+              <KubectlTerminal command={getFormattedCommand(template.command)} />
             </div>
           ))}
 

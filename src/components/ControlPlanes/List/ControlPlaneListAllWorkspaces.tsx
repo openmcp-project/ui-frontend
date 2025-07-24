@@ -17,9 +17,7 @@ interface Props {
 
 export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
   const { workspaceCreationGuide } = useLink();
-  const { data: allWorkspaces, error } = useApiResource(
-    ListWorkspaces(projectName),
-  );
+  const { data: allWorkspaces, error } = useApiResource(ListWorkspaces(projectName));
 
   const { t } = useTranslation();
 
@@ -37,9 +35,7 @@ export default function ControlPlaneListAllWorkspaces({ projectName }: Props) {
           <IllustratedMessage
             name="EmptyList"
             titleText={t('ControlPlaneListAllWorkspaces.emptyListTitleMessage')}
-            subtitleText={t(
-              'ControlPlaneListAllWorkspaces.emptyListSubtitleMessage',
-            )}
+            subtitleText={t('ControlPlaneListAllWorkspaces.emptyListSubtitleMessage')}
           />
           <Button
             design={ButtonDesign.Emphasized}

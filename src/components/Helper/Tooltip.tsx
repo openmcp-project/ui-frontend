@@ -21,11 +21,7 @@ export function Tooltip(props: TooltipProps) {
 
   return (
     <>
-      <div
-        ref={openerRef}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
+      <div ref={openerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         {props.children}
         <Popover
           opener={openerRef.current!}

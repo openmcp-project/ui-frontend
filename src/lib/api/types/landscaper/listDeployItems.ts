@@ -17,8 +17,6 @@ export interface DeployItemsListResponse {
   items: DeployItem[];
 }
 
-export const DeployItemsRequest = (
-  namespace: string,
-): Resource<DeployItemsListResponse> => ({
+export const DeployItemsRequest = (namespace: string): Resource<DeployItemsListResponse> => ({
   path: `/apis/landscaper.gardener.cloud/v1alpha1/namespaces/${namespace}/deployitems`,
 });

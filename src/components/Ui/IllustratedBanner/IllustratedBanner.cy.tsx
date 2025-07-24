@@ -30,11 +30,7 @@ describe('<IllustratedBanner />', () => {
     );
 
     cy.get('ui5-button').contains('Need Help?').should('be.visible');
-    cy.get('ui5-button').should(
-      'have.attr',
-      'icon',
-      'sap-icon://question-mark',
-    );
+    cy.get('ui5-button').should('have.attr', 'icon', 'sap-icon://question-mark');
   });
 
   it('renders a link with correct attributes', () => {

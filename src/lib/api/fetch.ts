@@ -75,9 +75,7 @@ export const fetchApiServerJson = async <T>(
 };
 
 // request is of [path, config, jq]
-export const fetchApiServerJsonMultiple = (
-  requests: [string | null, ApiConfig, string | undefined][],
-) => {
+export const fetchApiServerJsonMultiple = (requests: [string | null, ApiConfig, string | undefined][]) => {
   return Promise.all(
     requests
       .filter((r) => r[0] !== null)

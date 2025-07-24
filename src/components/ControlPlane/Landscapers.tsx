@@ -9,55 +9,30 @@ import {
 } from '@ui5/webcomponents-react';
 import { useState, JSX } from 'react';
 import { resourcesInterval } from '../../lib/shared/constants';
-import useResource, {
-  useMultipleApiResources,
-} from '../../lib/api/useApiResource';
+import { useApiResource, useMultipleApiResources } from '../../lib/api/useApiResource';
 import { ListNamespaces } from '../../lib/api/types/k8s/listNamespaces';
-import {
-  Installation,
-  InstallationsRequest,
-} from '../../lib/api/types/landscaper/listInstallations';
-import {
-  Execution,
-  ExecutionsRequest,
-} from '../../lib/api/types/landscaper/listExecutions';
-import {
-  DeployItem,
-  DeployItemsRequest,
-} from '../../lib/api/types/landscaper/listDeployItems';
+import { Installation, InstallationsRequest } from '../../lib/api/types/landscaper/listInstallations';
+import { Execution, ExecutionsRequest } from '../../lib/api/types/landscaper/listExecutions';
+import { DeployItem, DeployItemsRequest } from '../../lib/api/types/landscaper/listDeployItems';
 
 import { MultiComboBoxSelectionChangeEventDetail } from '@ui5/webcomponents/dist/MultiComboBox.js';
 
 export function Landscapers() {
   const { t } = useTranslation();
 
-  const { data: namespaces } = useResource(ListNamespaces, {
+  const { data: namespaces } = useApiResource(ListNamespaces, {
     refreshInterval: resourcesInterval,
   });
 
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
 
-  const { data: installations = [] } = useMultipleApiResources<Installation>(
-    selectedNamespaces,
-    InstallationsRequest,
-  );
+  const { data: installations = [] } = useMultipleApiResources<Installation>(selectedNamespaces, InstallationsRequest);
 
-  const { data: executions = [] } = useMultipleApiResources<Execution>(
-    selectedNamespaces,
-    ExecutionsRequest,
-  );
+  const { data: executions = [] } = useMultipleApiResources<Execution>(selectedNamespaces, ExecutionsRequest);
 
-  const { data: deployItems = [] } = useMultipleApiResources<DeployItem>(
-    selectedNamespaces,
-    DeployItemsRequest,
-  );
+  const { data: deployItems = [] } = useMultipleApiResources<DeployItem>(selectedNamespaces, DeployItemsRequest);
 
-  const handleSelectionChange = (
-    e: Ui5CustomEvent<
-      MultiComboBoxDomRef,
-      MultiComboBoxSelectionChangeEventDetail
-    >,
-  ) => {
+  const handleSelectionChange = (e: Ui5CustomEvent<MultiComboBoxDomRef, MultiComboBoxSelectionChangeEventDetail>) => {
     const selectedItems = Array.from(e.detail.items || []);
     const selectedValues = selectedItems
       .map((item) => item.text)
@@ -85,9 +60,7 @@ export function Landscapers() {
       (installation.status?.subInstCache?.activeSubs
         ?.map((sub) =>
           installations.find(
-            (i) =>
-              i.metadata.name === sub.objectName &&
-              i.metadata.namespace === installation.metadata.namespace,
+            (i) => i.metadata.name === sub.objectName && i.metadata.namespace === installation.metadata.namespace,
           ),
         )
         .filter(Boolean) as Installation[]) || [];
@@ -102,9 +75,7 @@ export function Landscapers() {
       (execution?.status?.deployItemCache?.activeDIs
         ?.map((di) =>
           deployItems.find(
-            (item) =>
-              item.metadata.name === di.objectName &&
-              item.metadata.namespace === execution.metadata.namespace,
+            (item) => item.metadata.name === di.objectName && item.metadata.namespace === execution.metadata.namespace,
           ),
         )
         .filter(Boolean) as DeployItem[]) || [];
@@ -154,8 +125,7 @@ export function Landscapers() {
     return !installations.some((parent) =>
       parent.status?.subInstCache?.activeSubs?.some(
         (sub: { objectName: string }) =>
-          sub.objectName === inst.metadata.name &&
-          parent.metadata.namespace === inst.metadata.namespace,
+          sub.objectName === inst.metadata.name && parent.metadata.namespace === inst.metadata.namespace,
       ),
     );
   });

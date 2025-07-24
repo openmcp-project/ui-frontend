@@ -40,10 +40,7 @@ export default function LoginView() {
             </p>
           </Text>
           <div>
-            <Button
-              design={ButtonDesign.Emphasized}
-              onClick={() => void auth.login()}
-            >
+            <Button design={ButtonDesign.Emphasized} onClick={() => void auth.login()}>
               {t('Login.signInButton')}
             </Button>
           </div>

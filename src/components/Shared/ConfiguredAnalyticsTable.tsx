@@ -14,9 +14,7 @@ interface Props {
 export default function ConfiguredAnalyticsTable(props: Props) {
   return (
     <AnalyticalTable
-      columns={props.columns.map((c) =>
-        typeof c === 'string' ? { Header: c, accessor: c } : c,
-      )}
+      columns={props.columns.map((c) => (typeof c === 'string' ? { Header: c, accessor: c } : c))}
       data={props.data}
       minRows={1}
       visibleRows={props.visibleRows ?? 12}

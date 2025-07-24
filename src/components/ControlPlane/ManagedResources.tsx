@@ -5,7 +5,7 @@ import {
   AnalyticalTableScaleWidthMode,
   Title,
 } from '@ui5/webcomponents-react';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { timeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
@@ -44,7 +44,7 @@ export function ManagedResources() {
     data: managedResources,
     error,
     isLoading,
-  } = useResource(ManagedResourcesRequest, {
+  } = useApiResource(ManagedResourcesRequest, {
     refreshInterval: resourcesInterval, // Resources are quite expensive to fetch, so we refresh every 30 seconds
   });
 
@@ -102,7 +102,7 @@ export function ManagedResources() {
           ) : undefined,
       },
     ],
-    [],
+    [t],
   );
 
   const rows: ResourceRow[] =
@@ -110,12 +110,8 @@ export function ManagedResources() {
       ?.filter((managedResource) => managedResource.items)
       .flatMap((managedResource) =>
         managedResource.items?.map((item) => {
-          const conditionSynced = item.status?.conditions?.find(
-            (condition) => condition.type === 'Synced',
-          );
-          const conditionReady = item.status?.conditions?.find(
-            (condition) => condition.type === 'Ready',
-          );
+          const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
+          const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
 
           return {
             kind: item.kind,

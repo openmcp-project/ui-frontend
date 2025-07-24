@@ -1,9 +1,4 @@
-export type ComponentType =
-  | 'crossplane'
-  | 'btpServiceOperator'
-  | 'externalSecretsOperator'
-  | 'flux'
-  | 'kyverno';
+export type ComponentType = 'crossplane' | 'btpServiceOperator' | 'externalSecretsOperator' | 'flux' | 'kyverno';
 
 export const possibleComponents: Component[] = [
   { name: 'crossplane', version: '1.17.1' },

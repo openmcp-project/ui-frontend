@@ -19,24 +19,16 @@ interface FrontendConfigProviderProps {
   children: ReactNode;
 }
 
-export function FrontendConfigProvider({
-  children,
-}: FrontendConfigProviderProps) {
+export function FrontendConfigProvider({ children }: FrontendConfigProviderProps) {
   const config = use(fetchPromise);
-  return (
-    <FrontendConfigContext.Provider value={config}>
-      {children}
-    </FrontendConfigContext.Provider>
-  );
+  return <FrontendConfigContext.Provider value={config}>{children}</FrontendConfigContext.Provider>;
 }
 
 export const useFrontendConfig = () => {
   const context = use(FrontendConfigContext);
 
   if (!context) {
-    throw new Error(
-      'useFrontendConfig must be used within a FrontendConfigProvider.',
-    );
+    throw new Error('useFrontendConfig must be used within a FrontendConfigProvider.');
   }
   return context;
 };

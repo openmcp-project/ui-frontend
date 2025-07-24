@@ -1,10 +1,4 @@
-import {
-  ObjectPage,
-  ObjectPageSection,
-  ObjectPageTitle,
-  Panel,
-  Title,
-} from '@ui5/webcomponents-react';
+import { ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
@@ -17,32 +11,24 @@ import IntelligentBreadcrumbs from '../../components/Core/IntelligentBreadcrumbs
 import FluxList from '../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
-import {
-  McpContextProvider,
-  WithinManagedControlPlane,
-} from '../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane } from '../../lib/shared/McpContext.tsx';
 import { ManagedResources } from '../../components/ControlPlane/ManagedResources.tsx';
 import { ProvidersConfig } from '../../components/ControlPlane/ProvidersConfig.tsx';
 import { Providers } from '../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../components/ControlPlane/MCPHealthPopoverButton.tsx';
-import useResource from '../../lib/api/useApiResource';
+import { useApiResource } from '../../lib/api/useApiResource';
 
 import { YamlViewButtonWithLoader } from '../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { Landscapers } from '../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 export default function ControlPlaneView() {
-  const { projectName, workspaceName, controlPlaneName, contextName } =
-    useParams();
+  const { projectName, workspaceName, controlPlaneName, contextName } = useParams();
   const { t } = useTranslation();
 
-  const { data: mcp, error } = useResource(
-    ControlPlaneResource(
-      projectName ?? '',
-      workspaceName ?? '',
-      controlPlaneName ?? '',
-    ),
+  const { data: mcp, error } = useApiResource(
+    ControlPlaneResource(projectName ?? '', workspaceName ?? '', controlPlaneName ?? ''),
   );
 
   if (!projectName || !workspaceName || !controlPlaneName) {
@@ -52,11 +38,7 @@ export default function ControlPlaneView() {
   if (error) {
     return <IllustratedError details={error.message} />;
   }
-  if (
-    !mcp?.status?.access?.key ||
-    !mcp?.status?.access?.name ||
-    !mcp?.status?.access?.namespace
-  ) {
+  if (!mcp?.status?.access?.key || !mcp?.status?.access?.name || !mcp?.status?.access?.namespace) {
     return <IllustratedError details={t('ControlPlaneView.accessError')} />;
   }
 
@@ -113,11 +95,7 @@ export default function ControlPlaneView() {
               <Panel
                 headerLevel="H2"
                 headerText="Panel"
-                header={
-                  <Title level="H3">
-                    {t('ControlPlaneView.componentsTitle')}
-                  </Title>
-                }
+                header={<Title level="H3">{t('ControlPlaneView.componentsTitle')}</Title>}
                 noAnimation
               >
                 <ComponentList mcp={mcp} />
@@ -132,11 +110,7 @@ export default function ControlPlaneView() {
               <Panel
                 headerLevel="H3"
                 headerText="Panel"
-                header={
-                  <Title level="H3">
-                    {t('ControlPlaneView.crossplaneTitle')}
-                  </Title>
-                }
+                header={<Title level="H3">{t('ControlPlaneView.crossplaneTitle')}</Title>}
                 noAnimation
               >
                 <div className="crossplane-table-element">
@@ -159,11 +133,7 @@ export default function ControlPlaneView() {
               <Panel
                 headerLevel="H3"
                 headerText="Panel"
-                header={
-                  <Title level="H3">
-                    {t('ControlPlaneView.landscapersTitle')}
-                  </Title>
-                }
+                header={<Title level="H3">{t('ControlPlaneView.landscapersTitle')}</Title>}
                 noAnimation
               >
                 <Landscapers />
@@ -178,9 +148,7 @@ export default function ControlPlaneView() {
               <Panel
                 headerLevel="H3"
                 headerText="Panel"
-                header={
-                  <Title level="H3">{t('ControlPlaneView.gitOpsTitle')}</Title>
-                }
+                header={<Title level="H3">{t('ControlPlaneView.gitOpsTitle')}</Title>}
                 noAnimation
               >
                 <FluxList />
