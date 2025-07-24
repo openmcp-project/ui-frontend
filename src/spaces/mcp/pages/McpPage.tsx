@@ -17,7 +17,7 @@ import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfi
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
-import useResource from '../../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
@@ -33,7 +33,7 @@ export default function McpPage() {
     data: mcp,
     error,
     isLoading,
-  } = useResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
 
   if (isLoading) {
     return <BusyIndicator active />;

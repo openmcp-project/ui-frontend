@@ -5,7 +5,7 @@ import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/Lis
 import IntelligentBreadcrumbs from '../../../components/Core/IntelligentBreadcrumbs.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { Trans, useTranslation } from 'react-i18next';
-import useApiResource from '../../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ListWorkspaces } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
