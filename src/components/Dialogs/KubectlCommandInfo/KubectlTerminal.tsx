@@ -28,10 +28,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
       const kubectlPart = 'kubectl' + afterYaml;
 
       const yamlLines = yamlContent.split('\n').map((line, index) => (
-        <div
-          key={index}
-          style={{ marginLeft: line.startsWith(' ') ? '16px' : '0' }}
-        >
+        <div key={index} style={{ marginLeft: line.startsWith(' ') ? '16px' : '0' }}>
           {line}
         </div>
       ));
@@ -93,12 +90,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
             }}
           />
         </FlexBox>
-        <Button
-          icon="copy"
-          design="Transparent"
-          tooltip="Copy to clipboard"
-          onClick={handleCopy}
-        />
+        <Button icon="copy" design="Transparent" tooltip="Copy to clipboard" onClick={handleCopy} />
       </FlexBox>
 
       <div style={{ padding: '12px 16px', overflowX: 'auto' }}>

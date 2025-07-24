@@ -10,11 +10,7 @@ interface CopyButtonProps extends ButtonPropTypes {
   style?: CSSProperties;
 }
 
-export const CopyButton = ({
-  text,
-  style = {},
-  ...buttonProps
-}: CopyButtonProps) => {
+export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps) => {
   const { show } = useToast();
   const { activeCopyId, setActiveCopyId } = useCopyButton();
   const uniqueId = useId();

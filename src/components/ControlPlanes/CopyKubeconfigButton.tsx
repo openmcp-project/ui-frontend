@@ -56,12 +56,7 @@ export default function CopyKubeconfigButton() {
           data-action="download"
           icon="download"
         />
-        <MenuItem
-          key={'copy'}
-          text={t('CopyKubeconfigButton.menuCopy')}
-          data-action="copy"
-          icon="copy"
-        />
+        <MenuItem key={'copy'} text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />
       </Menu>
     </>
   );

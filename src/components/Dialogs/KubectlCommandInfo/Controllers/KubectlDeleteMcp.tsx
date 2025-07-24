@@ -8,11 +8,7 @@ interface KubectlDeleteMcpProps {
   resourceName: string;
 }
 
-export const KubectlDeleteMcp = ({
-  projectName,
-  workspaceName,
-  resourceName,
-}: KubectlDeleteMcpProps) => {
+export const KubectlDeleteMcp = ({ projectName, workspaceName, resourceName }: KubectlDeleteMcpProps) => {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
 
   const openInfoDialog = () => setIsInfoDialogOpen(true);

@@ -30,21 +30,13 @@ export const useMcp = () => {
 };
 
 export const McpContextProvider = ({ children, context }: Props) => {
-  const mcp = useResource(
-    ManagedControlPlaneResource(
-      context.project,
-      context.workspace,
-      context.name,
-    ),
-  );
+  const mcp = useResource(ManagedControlPlaneResource(context.project, context.workspace, context.name));
 
   const secretNamespace = mcp.data?.status?.access?.namespace;
   const secretName = mcp.data?.status?.access?.name;
   const secretKey = mcp.data?.status?.access?.key;
 
-  const kubeconfig = useResource(
-    GetKubeconfig(secretKey ?? '', secretName ?? '', secretNamespace ?? ''),
-  );
+  const kubeconfig = useResource(GetKubeconfig(secretKey ?? '', secretName ?? '', secretNamespace ?? ''));
 
   if (mcp.isLoading || mcp.error) {
     return <></>;
@@ -77,11 +69,7 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
   );
 }
 
-export function WithinManagedControlPlane({
-  children,
-}: {
-  children?: ReactNode;
-}) {
+export function WithinManagedControlPlane({ children }: { children?: ReactNode }) {
   const auth = useAuthMcp();
 
   if (auth.isLoading) {

@@ -110,12 +110,8 @@ export function ManagedResources() {
       ?.filter((managedResource) => managedResource.items)
       .flatMap((managedResource) =>
         managedResource.items?.map((item) => {
-          const conditionSynced = item.status?.conditions?.find(
-            (condition) => condition.type === 'Synced',
-          );
-          const conditionReady = item.status?.conditions?.find(
-            (condition) => condition.type === 'Ready',
-          );
+          const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
+          const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
 
           return {
             kind: item.kind,

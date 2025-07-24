@@ -22,14 +22,7 @@ import {
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import {
-  Dispatch,
-  RefObject,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
@@ -55,9 +48,7 @@ export function ShellBarComponent() {
 
   const { user } = useAuthOnboarding();
 
-  const onProfileClick = (
-    e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>,
-  ) => {
+  const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
   };
@@ -69,19 +60,12 @@ export function ShellBarComponent() {
     }
   };
 
-  const onFeedbackClick = (
-    e: Ui5CustomEvent<ShellBarItemDomRef, ShellBarItemClickEventDetail>,
-  ) => {
+  const onFeedbackClick = (e: Ui5CustomEvent<ShellBarItemDomRef, ShellBarItemClickEventDetail>) => {
     feedbackPopoverRef.current!.opener = e.detail.targetRef;
     setFeedbackPopoverOpen(!feedbackPopoverOpen);
   };
 
-  const onFeedbackMessageChange = (
-    event: Ui5CustomEvent<
-      TextAreaDomRef,
-      { value: string; previousValue: string }
-    >,
-  ) => {
+  const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, { value: string; previousValue: string }>) => {
     const newValue = event.target.value;
     setFeedbackMessage(newValue);
   };
@@ -110,9 +94,7 @@ export function ShellBarComponent() {
 
   useEffect(() => {
     const shellbar = document.querySelector('ui5-shellbar');
-    const el = shellbar?.shadowRoot?.querySelector(
-      '.ui5-shellbar-overflow-container-left',
-    );
+    const el = shellbar?.shadowRoot?.querySelector('.ui5-shellbar-overflow-container-left');
 
     if (el) {
       (el as HTMLElement).style.backgroundColor = 'red';
@@ -123,23 +105,14 @@ export function ShellBarComponent() {
     <>
       <ShellBar
         className={styles.TestShellbar}
-        profile={
-          <Avatar
-            initials={generateInitialsForEmail(auth.user?.email)}
-            size="XS"
-          />
-        }
+        profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
         startButton={
           <div className={styles.container}>
             <div className={styles.logoWrapper}>
               <img src="/logo.png" alt="MCP" className={styles.logo} />
               <span className={styles.logoText}>MCP</span>
             </div>
-            <Button
-              ref={betaButtonRef}
-              className={styles.betaButton}
-              onClick={onBetaClick}
-            >
+            <Button ref={betaButtonRef} className={styles.betaButton} onClick={onBetaClick}>
               <span className={styles.betaContent}>
                 <Icon name="information" className={styles.betaIcon} />
                 <span className={styles.betaText}>Beta</span>
@@ -152,16 +125,8 @@ export function ShellBarComponent() {
         <ShellBarItem icon="feedback" onClick={onFeedbackClick} />
       </ShellBar>
 
-      <ProfilePopover
-        open={profilePopoverOpen}
-        setOpen={setProfilePopoverOpen}
-        popoverRef={profilePopoverRef}
-      />
-      <BetaPopover
-        open={betaPopoverOpen}
-        setOpen={setBetaPopoverOpen}
-        popoverRef={betaPopoverRef}
-      />
+      <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
+      <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
       <FeedbackPopover
         open={feedbackPopoverOpen}
         setOpen={setFeedbackPopoverOpen}
@@ -224,12 +189,7 @@ const BetaPopover = ({
   const { t } = useTranslation();
 
   return (
-    <Popover
-      ref={popoverRef}
-      placement={PopoverPlacement.Bottom}
-      open={open}
-      onClose={() => setOpen(false)}
-    >
+    <Popover ref={popoverRef} placement={PopoverPlacement.Bottom} open={open} onClose={() => setOpen(false)}>
       <div
         style={{
           padding: '1rem',
@@ -274,20 +234,13 @@ const FeedbackPopover = ({
 }) => {
   const { t } = useTranslation();
 
-  const onRatingChange = (
-    event: Event & { target: UI5RatingIndicatorElement },
-  ) => {
+  const onRatingChange = (event: Event & { target: UI5RatingIndicatorElement }) => {
     setRating(event.target.value);
   };
 
   return (
     <>
-      <Popover
-        ref={popoverRef}
-        placement={PopoverPlacement.Bottom}
-        open={open}
-        onClose={() => setOpen(false)}
-      >
+      <Popover ref={popoverRef} placement={PopoverPlacement.Bottom} open={open} onClose={() => setOpen(false)}>
         <div
           style={{
             padding: '1rem',
@@ -297,26 +250,12 @@ const FeedbackPopover = ({
           {!feedbackSent ? (
             <Form headerText={t('ShellBar.feedbackHeader')}>
               <FormGroup>
-                <FormItem
-                  labelContent={
-                    <Label style={{ color: 'black' }}>
-                      {t('ShellBar.feedbackRatingLabel')}
-                    </Label>
-                  }
-                >
-                  <RatingIndicator
-                    value={rating}
-                    max={5}
-                    onChange={onRatingChange}
-                  />
+                <FormItem labelContent={<Label style={{ color: 'black' }}>{t('ShellBar.feedbackRatingLabel')}</Label>}>
+                  <RatingIndicator value={rating} max={5} onChange={onRatingChange} />
                 </FormItem>
                 <FormItem
                   className="formAlignLabelStart"
-                  labelContent={
-                    <Label style={{ color: 'black' }}>
-                      {t('ShellBar.feedbackMessageLabel')}
-                    </Label>
-                  }
+                  labelContent={<Label style={{ color: 'black' }}>{t('ShellBar.feedbackMessageLabel')}</Label>}
                 >
                   <TextArea
                     value={feedbackMessage}

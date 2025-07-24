@@ -9,9 +9,5 @@ interface Props {
 export const ApiConfigContext = createContext({} as ApiConfig);
 
 export const ApiConfigProvider = ({ children, apiConfig }: Props) => {
-  return (
-    <ApiConfigContext.Provider value={apiConfig}>
-      {children}
-    </ApiConfigContext.Provider>
-  );
+  return <ApiConfigContext.Provider value={apiConfig}>{children}</ApiConfigContext.Provider>;
 };

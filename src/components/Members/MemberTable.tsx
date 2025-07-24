@@ -1,8 +1,5 @@
 import { AnalyticalTable, Button } from '@ui5/webcomponents-react';
-import {
-  Member,
-  MemberRolesDetailed,
-} from '../../lib/api/types/shared/members';
+import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
@@ -66,11 +63,7 @@ export const MemberTable: FC<MemberTableProps> = ({
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (
-      <Infobox
-        size="sm"
-        variant={isValidationError ? 'danger' : 'normal'}
-        id="members-error"
-      >
+      <Infobox size="sm" variant={isValidationError ? 'danger' : 'normal'} id="members-error">
         {t('validationErrors.atLeastOneUser')}
       </Infobox>
     );
@@ -81,7 +74,5 @@ export const MemberTable: FC<MemberTableProps> = ({
     role: m.roles.map((r) => MemberRolesDetailed[r].displayValue).join(', '),
   }));
 
-  return (
-    <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />
-  );
+  return <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />;
 };

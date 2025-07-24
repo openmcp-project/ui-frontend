@@ -13,10 +13,7 @@ export const PatchMCPResourceForDeletionBody = {
   },
 };
 
-export const PatchMCPResourceForDeletion = (
-  namespace: string,
-  mcpName: string,
-): Resource<undefined> => {
+export const PatchMCPResourceForDeletion = (namespace: string, mcpName: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}?fieldManager=kubectl-annotate`,
     method: 'PATCH',
@@ -25,10 +22,7 @@ export const PatchMCPResourceForDeletion = (
   };
 };
 
-export const DeleteMCPResource = (
-  namespace: string,
-  mcpName: string,
-): Resource<undefined> => {
+export const DeleteMCPResource = (namespace: string, mcpName: string): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}/`,
     method: 'DELETE',

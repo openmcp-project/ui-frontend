@@ -9,16 +9,9 @@ import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import YamlViewer from './YamlViewer.tsx';
 import useResource from '../../lib/api/useApiResource';
-import {
-  removeManagedFieldsProperty,
-  Resource,
-} from '../../utils/removeManagedFieldsProperty.ts';
+import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
 
-export const YamlLoader: FC<YamlViewButtonProps> = ({
-  workspaceName,
-  resourceType,
-  resourceName,
-}) => {
+export const YamlLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
   const { isLoading, data, error } = useResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,

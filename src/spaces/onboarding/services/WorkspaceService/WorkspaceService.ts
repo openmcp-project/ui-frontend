@@ -19,9 +19,7 @@ export function useWorkspacesQuery(projectNamespace: string) {
   });
 
   const workspaceNames = (
-    query.data?.core_openmcp_cloud?.Workspaces.map(
-      (workspace) => workspace.metadata?.name,
-    ) ?? []
+    query.data?.core_openmcp_cloud?.Workspaces.map((workspace) => workspace.metadata?.name) ?? []
   ).filter((workspaceName) => workspaceName != null);
 
   return {

@@ -8,19 +8,11 @@ import { Resource } from './types/resource';
 import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
-import {
-  ProviderConfigs,
-  ProviderConfigsData,
-  ProviderConfigsDataForRequest,
-} from '../shared/types';
+import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
 
 export { useApiResource as default };
 
-export const useApiResource = <T>(
-  resource: Resource<T>,
-  config?: SWRConfiguration,
-  excludeMcpConfig?: boolean,
-) => {
+export const useApiResource = <T>(resource: Resource<T>, config?: SWRConfiguration, excludeMcpConfig?: boolean) => {
   const apiConfig = useContext(ApiConfigContext);
 
   const { data, error, isLoading, isValidating } = useSWR(
@@ -53,27 +45,17 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       ? null //TODO: is null a valid key?
       : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
-      fetchApiServerJson<CRDResponse>(
-        path,
-        apiConfig,
-        CRDRequest.jq,
-        CRDRequest.method,
-        CRDRequest.body,
-      ),
+      fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     config,
   );
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
 
-  const crdWithProviderConfig = data?.items.filter(
-    (x) => x.spec.names.kind === 'ProviderConfig',
-  );
+  const crdWithProviderConfig = data?.items.filter((x) => x.spec.names.kind === 'ProviderConfig');
 
   const providerConfigsData: ProviderConfigsData[] =
     crdWithProviderConfig?.map((item) => {
-      const providerName = item.metadata.ownerReferences.find(
-        (x) => x.kind === 'Provider',
-      )?.name;
+      const providerName = item.metadata.ownerReferences.find((x) => x.kind === 'Provider')?.name;
 
       return {
         provider: providerName ? providerName : '',
@@ -181,13 +163,7 @@ export const useApiResourceMutation = <T>(
       : [resource.path, apiConfig],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) =>
-      fetchApiServerJson<T>(
-        path,
-        apiConfig,
-        resource.jq,
-        resource.method,
-        JSON.stringify(arg.arg),
-      ),
+      fetchApiServerJson<T>(path, apiConfig, resource.jq, resource.method, JSON.stringify(arg.arg)),
     config,
   );
 
@@ -239,11 +215,7 @@ export function useMultipleApiResources<T>(
       setError(null);
 
       try {
-        const results = await fetchMultipleResources<T>(
-          namespaces,
-          getResource,
-          apiConfig,
-        );
+        const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
       } catch (err) {
         setError(err as Error);
@@ -264,13 +236,9 @@ async function fetchMultipleResources<T>(
   getResource: (namespace: string) => { path: string | null },
   apiConfig: ApiConfig,
 ): Promise<T[]> {
-  const paths = namespaces
-    .map((ns) => getResource(ns).path)
-    .filter((path): path is string => !!path);
+  const paths = namespaces.map((ns) => getResource(ns).path).filter((path): path is string => !!path);
 
-  const results = await Promise.allSettled(
-    paths.map((path) => fetchApiServerJson(path, apiConfig)),
-  );
+  const results = await Promise.allSettled(paths.map((path) => fetchApiServerJson(path, apiConfig)));
 
   const data: T[] = [];
 

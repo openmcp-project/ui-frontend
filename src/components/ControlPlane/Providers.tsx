@@ -75,9 +75,7 @@ export function Providers() {
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
               value={cellData.cell.row.original?.installed === 'true'}
-              transitionTime={
-                cellData.cell.row.original?.installedTransitionTime
-              }
+              transitionTime={cellData.cell.row.original?.installedTransitionTime}
             />
           ) : null,
       },
@@ -112,12 +110,8 @@ export function Providers() {
 
   const rows: ProvidersRow[] =
     providers?.items?.map((item) => {
-      const installed = item.status?.conditions?.find(
-        (condition) => condition.type === 'Installed',
-      );
-      const healthy = item.status?.conditions?.find(
-        (condition) => condition.type === 'Healthy',
-      );
+      const installed = item.status?.conditions?.find((condition) => condition.type === 'Installed');
+      const healthy = item.status?.conditions?.find((condition) => condition.type === 'Healthy');
       return {
         name: item.metadata.name,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),

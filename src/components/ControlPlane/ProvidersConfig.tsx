@@ -79,9 +79,7 @@ export function ProvidersConfig() {
         disableFilters: true,
         Cell: (cellData: CellData<Rows>) =>
           cellData.cell.row.original?.resource ? (
-            <YamlViewButton
-              resourceObject={cellData.cell.row.original?.resource}
-            />
+            <YamlViewButton resourceObject={cellData.cell.row.original?.resource} />
           ) : undefined,
       },
     ],

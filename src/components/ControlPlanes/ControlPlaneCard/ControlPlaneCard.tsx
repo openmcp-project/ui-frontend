@@ -12,14 +12,9 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
-import {
-  ListControlPlanesType,
-  ReadyStatus,
-} from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import {
-  useApiResourceMutation,
-} from '../../../lib/api/useApiResource.ts';
+import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   DeleteMCPResource,
   DeleteMCPType,
@@ -38,40 +33,26 @@ interface Props {
   projectName: string;
 }
 
-export function ControlPlaneCard({
-  controlPlane,
-  workspace,
-  projectName,
-}: Props) {
+export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props) {
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
 
   const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
-    PatchMCPResourceForDeletion(
-      controlPlane.metadata.namespace,
-      controlPlane.metadata.name,
-    ),
+    PatchMCPResourceForDeletion(controlPlane.metadata.namespace, controlPlane.metadata.name),
   );
   const { trigger: deleteTrigger } = useApiResourceMutation<DeleteMCPType>(
-    DeleteMCPResource(
-      controlPlane.metadata.namespace,
-      controlPlane.metadata.name,
-    ),
+    DeleteMCPResource(controlPlane.metadata.namespace, controlPlane.metadata.name),
   );
 
   const name = controlPlane.metadata.name;
   const namespace = controlPlane.metadata.namespace;
 
-  const isSystemIdentityProviderEnabled =
-    Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
+  const isSystemIdentityProviderEnabled = Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
 
-  const isConnectButtonEnabled =
-    canConnectToMCP(controlPlane) &&
-    isSystemIdentityProviderEnabled
+  const isConnectButtonEnabled = canConnectToMCP(controlPlane) && isSystemIdentityProviderEnabled;
 
-  const showWarningBecauseOfDisabledSystemIdentityProvider =
-    !isSystemIdentityProviderEnabled;
+  const showWarningBecauseOfDisabledSystemIdentityProvider = !isSystemIdentityProviderEnabled;
 
   return (
     <>
@@ -92,28 +73,16 @@ export function ControlPlaneCard({
                 />
               </div>
             </FlexBox>
-            <FlexBox
-              direction="Row"
-              justifyContent="SpaceBetween"
-              alignItems="Center"
-              className={styles.row}
-            >
+            <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
               <Button
                 design={'Transparent'}
                 icon="delete"
-                disabled={
-                  controlPlane.status?.status === ReadyStatus.InDeletion
-                }
+                disabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                 onClick={() => {
                   setDialogDeleteMcpIsOpen(true);
                 }}
               />
-              <FlexBox
-                direction="Row"
-                justifyContent="SpaceBetween"
-                alignItems="Center"
-                gap={10}
-              >
+              <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButtonWithLoader
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}

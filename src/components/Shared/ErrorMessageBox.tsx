@@ -17,11 +17,7 @@ export const ErrorDialog = forwardRef<ErrorDialogHandle>((_, ref) => {
   }));
   return (
     <>
-      <MessageBox
-        open={open}
-        type={MessageBoxType.Error}
-        onClose={() => setOpen(false)}
-      >
+      <MessageBox open={open} type={MessageBoxType.Error} onClose={() => setOpen(false)}>
         {message}
       </MessageBox>
     </>

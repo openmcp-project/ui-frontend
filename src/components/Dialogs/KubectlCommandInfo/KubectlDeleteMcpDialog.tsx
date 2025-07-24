@@ -19,9 +19,7 @@ export const KubectlDeleteMcpDialog = ({
   isOpen,
 }: KubectlDeleteMcpDialogProps) => {
   const { t } = useTranslation();
-  const workspaceNamespace = projectName
-    ? `project-${projectName}--ws-${workspaceName}`
-    : '<project-namespace>';
+  const workspaceNamespace = projectName ? `project-${projectName}--ws-${workspaceName}` : '<project-namespace>';
   const mcpName = resourceName || '<mcp-name>';
 
   const customCommands: CustomCommand[] = [

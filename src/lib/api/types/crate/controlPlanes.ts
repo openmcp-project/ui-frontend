@@ -10,13 +10,13 @@ export interface Metadata {
 export interface ControlPlaneType {
   metadata: Metadata;
   spec:
-  | {
-    authentication: {
-      enableSystemIdentityProvider?: boolean;
-    };
-    components: ControlPlaneComponentsType;
-  }
-  | undefined;
+    | {
+        authentication: {
+          enableSystemIdentityProvider?: boolean;
+        };
+        components: ControlPlaneComponentsType;
+      }
+    | undefined;
   status: ControlPlaneStatusType | undefined;
 }
 
@@ -36,13 +36,13 @@ export interface ControlPlaneStatusType {
   status: ReadyStatus;
   conditions: ControlPlaneStatusCondition[];
   access:
-  | {
-    key: string | undefined;
-    name: string | undefined;
-    namespace: string | undefined;
-    kubeconfig: string | undefined;
-  }
-  | undefined;
+    | {
+        key: string | undefined;
+        name: string | undefined;
+        namespace: string | undefined;
+        kubeconfig: string | undefined;
+      }
+    | undefined;
 }
 
 export interface ControlPlaneStatusCondition {

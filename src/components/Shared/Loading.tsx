@@ -7,11 +7,7 @@ export default function Loading() {
 
   return (
     <>
-      <IllustratedMessage
-        name="ReloadScreen"
-        titleText={t('Loading.title')}
-        subtitleText={t('Loading.subtitle')}
-      />
+      <IllustratedMessage name="ReloadScreen" titleText={t('Loading.title')} subtitleText={t('Loading.subtitle')} />
     </>
   );
 }

@@ -4,9 +4,7 @@ import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js';
 export function DarkModeSystemSwitcher() {
   useEffect(() => {
     if (!window.matchMedia) {
-      console.warn(
-        'Dark mode system switcher is not supported in this browser',
-      );
+      console.warn('Dark mode system switcher is not supported in this browser');
       return;
     }
 
