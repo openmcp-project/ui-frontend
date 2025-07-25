@@ -24,7 +24,7 @@ import { Landscapers } from '../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 export default function ControlPlaneView() {
-  const { projectName, workspaceName, controlPlaneName, contextName } = useParams();
+  const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
 
   const { data: mcp, error } = useApiResource(
@@ -48,7 +48,6 @@ export default function ControlPlaneView() {
         project: projectName,
         workspace: workspaceName,
         name: controlPlaneName,
-        context: contextName!,
       }}
     >
       <AuthProviderMcp>

@@ -10,7 +10,6 @@ interface Mcp {
   project: string;
   workspace: string;
   name: string;
-  context: string;
 
   secretNamespace?: string;
   secretName?: string;
@@ -56,7 +55,6 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
       <ApiConfigProvider
         apiConfig={{
           mcpConfig: {
-            contextName: mcp.context,
             projectName: mcp.project,
             workspaceName: mcp.workspace,
             controlPlaneName: mcp.name,
