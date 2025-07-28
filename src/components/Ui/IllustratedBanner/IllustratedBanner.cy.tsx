@@ -16,6 +16,18 @@ describe('<IllustratedBanner />', () => {
     cy.contains('Test subtitle').should('be.visible');
   });
 
+  it('renders subtitle nodes', () => {
+    cy.mount(
+      <IllustratedBanner
+        title="Test title"
+        subtitle={<button>Button as subtitle</button>}
+        illustrationName={IllustrationMessageType.NoData}
+      />,
+    );
+
+    cy.get('button').contains('Button as subtitle').should('be.visible');
+  });
+
   it('renders help button with correct text and icon', () => {
     cy.mount(
       <IllustratedBanner

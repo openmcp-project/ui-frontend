@@ -73,9 +73,9 @@ export const ListControlPlanes = (
 };
 
 export const ControlPlane = (
-  projectName: string,
-  workspaceName: string,
-  controlPlaneName: string,
+  projectName?: string,
+  workspaceName?: string,
+  controlPlaneName?: string,
 ): Resource<ControlPlaneType> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
