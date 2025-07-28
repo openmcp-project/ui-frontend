@@ -5,6 +5,10 @@
     "learnMore": "Learn more in our documentation",
     "signInButton": "Sign in"
   },
+  "Entities": {
+    "ManagedControlPlane": "Managed Control Plane",
+    "Project": "Project"
+  },
   "ComponentList": {
     "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
@@ -87,6 +91,11 @@
     "subtitleMessage": "Get started by creating your first Managed Control Plane.",
     "helpButton": "Help"
   },
+  "NotFoundBanner": {
+    "titleMessage": "{{entityType}} not found",
+    "subtitleMessage": "Sorry, we couldn’t find what you are looking for.<br />The link may be incorrect or the {{entityType}} might have been removed.",
+    "navigateHome": "Back to Homepage"
+  },
   "IntelligentBreadcrumbs": {
     "homeLabel": "Home"
   },
@@ -151,7 +160,7 @@
   "EditMembers": {
     "addButton": "Add"
   },
-  "ControlPlaneListView": {
+  "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
     "projectHeader": "Project:"
   },
@@ -161,7 +170,7 @@
     "deleteProject": "Delete project",
     "deleteConfirmationDialog": "Project deleted"
   },
-  "ControlPlaneView": {
+  "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",

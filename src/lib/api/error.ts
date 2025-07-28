@@ -21,3 +21,7 @@ export class ValidationError extends Error {
     Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }
+
+export function isNotFoundError(error?: APIError | null): boolean {
+  return !!error && (error.status === 404 || error.status === 403);
+}

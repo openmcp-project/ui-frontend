@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
+import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 
 interface AuthContextMcpType {
   isLoading: boolean;
@@ -55,8 +56,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
 
   const login = () => {
     sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'mcp');
-
-    window.location.replace(`/api/auth/mcp/login?redirectTo=${encodeURIComponent(window.location.hash)}`);
+    window.location.replace(`/api/auth/mcp/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
   };
 
   return <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
