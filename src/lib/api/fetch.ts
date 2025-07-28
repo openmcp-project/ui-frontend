@@ -1,5 +1,7 @@
 import { APIError } from './error';
 import { ApiConfig } from './types/apiConfig';
+import { AUTH_FLOW_SESSION_KEY } from '../../common/auth/AuthCallbackHandler.tsx';
+import { getRedirectSuffix } from '../../common/auth/getRedirectSuffix.ts';
 
 const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
@@ -48,8 +50,9 @@ export const fetchApiServer = async (
 
   if (!res.ok) {
     if (res.status === 401) {
-      // Unauthorized, redirect to the login page
-      window.location.replace('/api/auth/onboarding/login');
+      // Unauthorized (token expired), redirect to the login page
+      sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
+      window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await res.json();

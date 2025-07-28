@@ -7,7 +7,7 @@ import { ToastProvider } from './context/ToastContext.tsx';
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
 import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
-import { DarkModeSystemSwitcher } from './components/Core/DarkModeSystemSwitcher.tsx';
+import { ThemeManager } from './components/ThemeManager.tsx';
 import '.././i18n.ts';
 import './utils/i18n/timeAgo';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
@@ -49,7 +49,7 @@ export function createApp() {
                         <ApolloClientProvider>
                           <App />
                         </ApolloClientProvider>
-                        <DarkModeSystemSwitcher />
+                        <ThemeManager />
                       </SWRConfig>
                     </CopyButtonProvider>
                   </ToastProvider>
