@@ -39,7 +39,7 @@ export default function McpPage() {
     return <BusyIndicator active />;
   }
 
-  if (!projectName || !workspaceName || !controlPlaneName || !contextName || isNotFoundError(error)) {
+  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 
