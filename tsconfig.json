@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node", "cypress"]
   },
-  "include": ["src", "cypress.d.ts", "server.js", "i18n.ts", "server/**/*"],
+  "include": ["src", "cypress.d.ts", "server.js", "server/**/*"],
   "references": [
     {
       "path": "./tsconfig.node.json"
