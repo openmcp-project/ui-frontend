@@ -1,42 +1,44 @@
-import { AnalyticalTable, Icon, Popover, FlexBox, FlexBoxJustifyContent, Button } from '@ui5/webcomponents-react';
-import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
+import {
+  AnalyticalTable,
+  Icon,
+  Popover,
+  FlexBox,
+  FlexBoxJustifyContent,
+  Button,
+  PopoverDomRef,
+} from '@ui5/webcomponents-react';
+import { AnalyticalTableColumnDefinition, AnalyticalTableCell } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
-import { JSX, useRef, useState } from 'react';
-import { ControlPlaneStatusType, ReadyStatus } from '../../lib/api/types/crate/controlPlanes';
+import { JSX, useRef, useState, MouseEvent } from 'react';
+import { ControlPlaneStatusType, ReadyStatus, ControlPlaneCondition } from '../../lib/api/types/crate/controlPlanes';
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import TooltipCell from '../Shared/TooltipCell.tsx';
-export default function MCPHealthPopoverButton({
-  mcpStatus,
-  projectName,
-  workspaceName,
-  mcpName,
-}: {
+
+type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
   projectName: string;
   workspaceName: string;
   mcpName: string;
-}) {
-  const popoverRef = useRef(null);
+};
+
+const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName }: MCPHealthPopoverButtonProps) => {
+  const popoverRef = useRef<PopoverDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
-
   const { t } = useTranslation();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleOpenerClick = (e: any) => {
+  const handleOpenerClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (popoverRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ref = popoverRef.current as any;
-      ref.opener = e.target;
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = e.target;
       setOpen((prev) => !prev);
     }
   };
 
-  const getTicketTitle = () => {
+  const getTicketTitle = (): string => {
     switch (mcpStatus?.status) {
       case ReadyStatus.Ready:
         return t('MCPHealthPopoverButton.supportTicketTitleReady');
@@ -49,13 +51,13 @@ export default function MCPHealthPopoverButton({
     }
   };
 
-  const constructGithubIssuesLink = () => {
+  const constructGithubIssuesLink = (): string => {
     const clusterDetails = `${projectName}/${workspaceName}/${mcpName}`;
 
     const statusDetails = mcpStatus?.conditions
       ? `${t('MCPHealthPopoverButton.statusDetailsLabel')}: ${mcpStatus.status}\n\n${t('MCPHealthPopoverButton.detailsLabel')}\n` +
-        mcpStatus?.conditions
-          .map((condition) => {
+        mcpStatus.conditions
+          .map((condition: ControlPlaneCondition) => {
             let text = `- ${condition.type}: ${condition.status}\n`;
             if (condition.reason) text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
             if (condition.message) text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
@@ -79,8 +81,7 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.statusHeader'),
       accessor: 'status',
       width: 50,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => {
+      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
         const isReady = instance.cell.value === 'True';
         return (
           <Icon
@@ -94,8 +95,7 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.typeHeader'),
       accessor: 'type',
       width: 150,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => {
+      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -103,8 +103,7 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.messageHeader'),
       accessor: 'message',
       width: 350,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => {
+      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -112,8 +111,7 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.reasonHeader'),
       accessor: 'reason',
       width: 100,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => {
+      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -121,11 +119,9 @@ export default function MCPHealthPopoverButton({
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
       width: 110,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      Cell: (instance: any) => {
+      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
         const rawDate = instance.cell.value;
         const date = new Date(rawDate);
-
         return (
           <TooltipCell>
             <ReactTimeAgo date={date} />
@@ -143,40 +139,32 @@ export default function MCPHealthPopoverButton({
         onClick={handleOpenerClick}
       />
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
-        {
-          <StatusTable
-            status={mcpStatus}
-            tableColumns={statusTableColumns}
-            githubIssuesLink={constructGithubIssuesLink()}
-          />
-        }
+        <StatusTable
+          status={mcpStatus}
+          tableColumns={statusTableColumns}
+          githubIssuesLink={constructGithubIssuesLink()}
+        />
       </Popover>
     </div>
   );
-}
+};
 
-function StatusTable({
-  status,
-  tableColumns,
-  githubIssuesLink,
-}: {
+export default MCPHealthPopoverButton;
+
+type StatusTableProps = {
   status: ControlPlaneStatusType | undefined;
   tableColumns: AnalyticalTableColumnDefinition[];
   githubIssuesLink: string;
-}) {
+};
+
+const StatusTable = ({ status, tableColumns, githubIssuesLink }: StatusTableProps) => {
   const { t } = useTranslation();
+
+  const sortedConditions = status?.conditions ? [...status.conditions].sort((a, b) => (a.type < b.type ? -1 : 1)) : [];
 
   return (
     <div style={{ width: 770 }}>
-      <AnalyticalTable
-        scaleWidthMode="Default"
-        columns={tableColumns}
-        data={
-          status?.conditions?.sort((a, b) => {
-            return a.type < b.type ? -1 : 1;
-          }) ?? []
-        }
-      />
+      <AnalyticalTable scaleWidthMode="Default" columns={tableColumns} data={sortedConditions} />
       <FlexBox justifyContent={FlexBoxJustifyContent.End} style={{ marginTop: '0.5rem' }}>
         <a href={githubIssuesLink} target="_blank" rel="noreferrer">
           <Button>{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
@@ -184,9 +172,9 @@ function StatusTable({
       </FlexBox>
     </div>
   );
-}
+};
 
-function getIconForOverallStatus(status: ReadyStatus | undefined): JSX.Element {
+const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
   switch (status) {
     case ReadyStatus.Ready:
       return <Icon style={{ color: 'green' }} name="sap-icon://sys-enter" />;
@@ -194,7 +182,7 @@ function getIconForOverallStatus(status: ReadyStatus | undefined): JSX.Element {
       return <Icon style={{ color: 'red' }} name="sap-icon://pending" />;
     case ReadyStatus.InDeletion:
       return <Icon style={{ color: 'orange' }} name="sap-icon://delete" />;
-    case undefined:
+    default:
       return <></>;
   }
-}
+};
