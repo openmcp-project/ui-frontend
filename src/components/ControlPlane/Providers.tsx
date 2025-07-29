@@ -88,10 +88,13 @@ export function Providers() {
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
-            <ResourceStatusCell
-              value={cellData.cell.row.original?.healthy === 'true'}
-              transitionTime={cellData.cell.row.original?.healthyTransitionTime}
-            />
+            <div>
+              <ResourceStatusCell
+                value={cellData.cell.row.original?.healthy === 'true'}
+                transitionTime={cellData.cell.row.original?.healthyTransitionTime}
+              />
+              here2
+            </div>
           ) : null,
       },
       {
