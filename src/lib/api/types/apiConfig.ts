@@ -2,7 +2,6 @@ type McpConfig = {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
-  contextName: string;
 };
 
 //syntax basically combines all the atrributes from the types into one

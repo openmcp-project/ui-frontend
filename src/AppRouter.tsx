@@ -16,7 +16,7 @@ function AppRouter() {
             <Route path="projects" element={<ProjectListView />} />
             <Route path="projects/:projectName" element={<ProjectPage />} />
             <Route
-              path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName/context/:contextName"
+              path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
               element={<McpPage />}
             />
           </Route>

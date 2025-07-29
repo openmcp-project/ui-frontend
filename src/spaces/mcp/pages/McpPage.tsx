@@ -26,7 +26,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 
 export default function McpPage() {
-  const { projectName, workspaceName, controlPlaneName, contextName } = useParams();
+  const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
 
   const {
@@ -39,7 +39,7 @@ export default function McpPage() {
     return <BusyIndicator active />;
   }
 
-  if (!projectName || !workspaceName || !controlPlaneName || !contextName || isNotFoundError(error)) {
+  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 
@@ -53,7 +53,6 @@ export default function McpPage() {
         project: projectName,
         workspace: workspaceName,
         name: controlPlaneName,
-        context: contextName,
       }}
     >
       <AuthProviderMcp>

@@ -7,7 +7,7 @@ import yaml from 'js-yaml';
 import { useRef, useState } from 'react';
 import { DownloadKubeconfig } from './CopyKubeconfigButton.tsx';
 import { useApiResource } from '../../lib/api/useApiResource.ts';
-import { extractWorkspaceNameFromNamespace } from '../../utils/index.ts';
+import { extractWorkspaceNameFromNamespace } from '../../utils';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -45,10 +45,6 @@ export default function ConnectButton(props: Props) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const contexts = kubeconfig.contexts as any[];
-  const currentContext = kubeconfig['current-context'];
-  if (!currentContext) {
-    return <></>;
-  }
 
   if (contexts.length === 1) {
     return (
@@ -57,9 +53,7 @@ export default function ConnectButton(props: Props) {
         disabled={props.disabled}
         onClick={() =>
           navigate(
-            `/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(
-              props.workspaceName,
-            )}/mcps/${props.controlPlaneName}/context/${currentContext}`,
+            `/mcp/projects/${props.projectName}/workspaces/${extractWorkspaceNameFromNamespace(props.workspaceName)}/mcps/${props.controlPlaneName}`,
           )
         }
       >
