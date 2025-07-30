@@ -81,7 +81,7 @@ describe('generateColorMap', () => {
       { providerConfigName: 'a', providerType: 'x' },
       { providerConfigName: 'b', providerType: 'y' },
     ];
-    const colorMap = generateColorMap(nodes as any, 'provider', []);
+    const colorMap = generateColorMap(nodes as any, 'provider');
     expect(colorMap['a']).toBeDefined();
     expect(colorMap['b']).toBeDefined();
   });
@@ -91,12 +91,12 @@ describe('generateColorMap', () => {
       { providerConfigName: 'a', providerType: 'x' },
       { providerConfigName: 'b', providerType: 'y' },
     ];
-    const colorMap = generateColorMap(nodes as any, 'source', []);
+    const colorMap = generateColorMap(nodes as any, 'source');
     expect(colorMap['x']).toBeDefined();
     expect(colorMap['y']).toBeDefined();
   });
 
   it('returns an empty object for empty input', () => {
-    expect(generateColorMap([], 'provider', [])).toEqual({});
+    expect(generateColorMap([], 'provider')).toEqual({});
   });
 });
