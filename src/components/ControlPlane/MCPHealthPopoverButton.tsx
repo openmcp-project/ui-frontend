@@ -7,16 +7,31 @@ import {
   Button,
   PopoverDomRef,
 } from '@ui5/webcomponents-react';
-import { AnalyticalTableColumnDefinition, AnalyticalTableCell } from '@ui5/webcomponents-react/wrappers';
+import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
-import { JSX, useRef, useState, MouseEvent } from 'react';
-import { ControlPlaneStatusType, ReadyStatus, ControlPlaneCondition } from '../../lib/api/types/crate/controlPlanes';
+import { JSX, useRef, useState, MouseEvent, ReactNode } from 'react';
+import {
+  ControlPlaneStatusType,
+  ReadyStatus,
+  ControlPlaneStatusCondition,
+} from '../../lib/api/types/crate/controlPlanes';
 import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import TooltipCell from '../Shared/TooltipCell.tsx';
+
+interface CellData<T> {
+  cell: {
+    value: ReactNode;
+  };
+  row: {
+    original: T;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -57,7 +72,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
     const statusDetails = mcpStatus?.conditions
       ? `${t('MCPHealthPopoverButton.statusDetailsLabel')}: ${mcpStatus.status}\n\n${t('MCPHealthPopoverButton.detailsLabel')}\n` +
         mcpStatus.conditions
-          .map((condition: ControlPlaneCondition) => {
+          .map((condition: ControlPlaneStatusCondition) => {
             let text = `- ${condition.type}: ${condition.status}\n`;
             if (condition.reason) text += `  - ${t('MCPHealthPopoverButton.reasonHeader')}: ${condition.reason}\n`;
             if (condition.message) text += `  - ${t('MCPHealthPopoverButton.messageHeader')}: ${condition.message}\n`;
@@ -81,7 +96,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.statusHeader'),
       accessor: 'status',
       width: 50,
-      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
+      Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         const isReady = instance.cell.value === 'True';
         return (
           <Icon
@@ -95,7 +110,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.typeHeader'),
       accessor: 'type',
       width: 150,
-      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
+      Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -103,7 +118,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.messageHeader'),
       accessor: 'message',
       width: 350,
-      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
+      Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -111,7 +126,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.reasonHeader'),
       accessor: 'reason',
       width: 100,
-      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
+      Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -119,9 +134,9 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
       width: 110,
-      Cell: (instance: AnalyticalTableCell<ControlPlaneCondition>) => {
+      Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         const rawDate = instance.cell.value;
-        const date = new Date(rawDate);
+        const date = new Date(rawDate as string);
         return (
           <TooltipCell>
             <ReactTimeAgo date={date} />
