@@ -9,17 +9,15 @@ interface LegendProps {
   generateColorMap: (
     items: NodeData[],
     colorBy: string,
-    providers?: ProviderConfigItem[],
   ) => Record<string, string>;
 }
 
 export const Legend: React.FC<LegendProps> = ({
   nodes,
   colorBy,
-  providers,
   generateColorMap,
 }) => {
-  const colorMap = generateColorMap(nodes, colorBy, providers);
+  const colorMap = generateColorMap(nodes, colorBy);
   return (
     <div className={styles.legendContainer}>
       <h4 className={styles.legendTitle}>Legend:</h4>

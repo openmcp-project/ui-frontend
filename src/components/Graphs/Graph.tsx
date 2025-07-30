@@ -18,7 +18,6 @@ import {
   useProvidersConfigResource,
 } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
-import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
@@ -110,12 +109,6 @@ const Graph: React.FC = () => {
     useApiResource(ManagedResourcesRequest, {
       refreshInterval: resourcesInterval,
     });
-  const { data: providers, error: providersError } = useApiResource(
-    ProvidersListRequest,
-    {
-      refreshInterval: resourcesInterval,
-    },
-  );
   const { data: providerConfigsList, error: providerConfigsError } =
     useProvidersConfigResource({
       refreshInterval: resourcesInterval,
@@ -196,8 +189,8 @@ const Graph: React.FC = () => {
   }, [managedResources, providerConfigsList]);
 
   const colorMap = useMemo(
-    () => generateColorMap(treeData, colorBy, providers?.items),
-    [treeData, colorBy, providers?.items],
+    () => generateColorMap(treeData, colorBy),
+    [treeData, colorBy],
   );
 
   useEffect(() => {
@@ -207,7 +200,7 @@ const Graph: React.FC = () => {
     setEdges(edges);
   }, [treeData, colorBy, colorMap, setNodes, setEdges]);
 
-  if (managedResourcesError || providersError || providerConfigsError) {
+  if (managedResourcesError || providerConfigsError) {
     return (
       <div className={`${styles.centeredMessage} ${styles.errorMessage}`}>
         Error loading graph data.
@@ -215,7 +208,7 @@ const Graph: React.FC = () => {
     );
   }
 
-  if (!managedResources || !providers || !providerConfigsList) {
+  if (!managedResources || !providerConfigsList) {
     return <div className={styles.centeredMessage}>Loading graph data...</div>;
   }
 
@@ -290,7 +283,6 @@ const Graph: React.FC = () => {
       <Legend
         nodes={nodes.map((n) => n.data as NodeData)}
         colorBy={colorBy}
-        providers={providers?.items || []}
         generateColorMap={generateColorMap}
       />
     </div>

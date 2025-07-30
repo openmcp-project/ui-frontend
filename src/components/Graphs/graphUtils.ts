@@ -3,7 +3,6 @@ import {
   ManagedResourceItem,
   NodeData,
   ProviderConfig,
-  ProviderConfigItem,
 } from './types';
 
 export type StatusType = 'ERROR' | 'OK';
@@ -45,7 +44,6 @@ export const resolveProviderType = (
 export const generateColorMap = (
   items: NodeData[],
   colorBy: string,
-  _providers?: ProviderConfigItem[],
 ): Record<string, string> => {
   const colors = [
     '#1abc9c',
