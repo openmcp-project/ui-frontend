@@ -1,32 +1,18 @@
-import {
-  Condition,
-  ManagedResourceItem,
-  NodeData,
-  ProviderConfig,
-} from './types';
+import { Condition, ManagedResourceItem, NodeData, ProviderConfig } from './types';
 
 export type StatusType = 'ERROR' | 'OK';
 
-export const getStatusFromConditions = (
-  conditions?: Condition[],
-): StatusType => {
+export const getStatusFromConditions = (conditions?: Condition[]): StatusType => {
   if (!conditions || !Array.isArray(conditions)) return 'ERROR';
-  const relevant = conditions.find(
-    (c) => c.type === 'Ready' || c.type === 'Healthy',
-  );
+  const relevant = conditions.find((c) => c.type === 'Ready' || c.type === 'Healthy');
   return relevant?.status === 'True' ? 'OK' : 'ERROR';
 };
 
-export const resolveProviderType = (
-  configName?: string,
-  providerConfigsList?: ProviderConfig[],
-): string => {
+export const resolveProviderType = (configName?: string, providerConfigsList?: ProviderConfig[]): string => {
   if (!configName) return 'unknown';
 
   for (const configList of providerConfigsList || []) {
-    const match = configList.items?.find(
-      (item) => item.metadata?.name === configName,
-    );
+    const match = configList.items?.find((item) => item.metadata?.name === configName);
 
     if (match) {
       const apiVersion = match.apiVersion?.toLowerCase() || '';
@@ -41,10 +27,7 @@ export const resolveProviderType = (
   return configName;
 };
 
-export const generateColorMap = (
-  items: NodeData[],
-  colorBy: string,
-): Record<string, string> => {
+export const generateColorMap = (items: NodeData[], colorBy: string): Record<string, string> => {
   const colors = [
     '#1abc9c',
     '#9b59b6',
@@ -63,9 +46,7 @@ export const generateColorMap = (
   const keys =
     colorBy === 'source'
       ? Array.from(new Set(items.map((i) => i.providerType).filter(Boolean)))
-      : Array.from(
-          new Set(items.map((i) => i.providerConfigName).filter(Boolean)),
-        );
+      : Array.from(new Set(items.map((i) => i.providerConfigName).filter(Boolean)));
 
   const map: Record<string, string> = {};
   keys.forEach((key, i) => {
@@ -86,15 +67,11 @@ export function extractRefs(item: ManagedResourceItem) {
     globalAccountRef: item?.spec?.forProvider?.globalAccountRef?.name,
     orgRoleRef: item?.spec?.forProvider?.orgRoleRef?.name,
     spaceMembersRef: item?.spec?.forProvider?.spaceMembersRef?.name,
-    cloudFoundryEnvironmentRef:
-      item?.spec?.forProvider?.cloudFoundryEnvironmentRef?.name,
+    cloudFoundryEnvironmentRef: item?.spec?.forProvider?.cloudFoundryEnvironmentRef?.name,
     kymaEnvironmentRef: item?.spec?.forProvider?.kymaEnvironmentRef?.name,
     roleCollectionRef: item?.spec?.forProvider?.roleCollectionRef?.name,
-    roleCollectionAssignmentRef:
-      item?.spec?.forProvider?.roleCollectionAssignmentRef?.name,
-    subaccountTrustConfigurationRef:
-      item?.spec?.forProvider?.subaccountTrustConfigurationRef?.name,
-    globalaccountTrustConfigurationRef:
-      item?.spec?.forProvider?.globalaccountTrustConfigurationRef?.name,
+    roleCollectionAssignmentRef: item?.spec?.forProvider?.roleCollectionAssignmentRef?.name,
+    subaccountTrustConfigurationRef: item?.spec?.forProvider?.subaccountTrustConfigurationRef?.name,
+    globalaccountTrustConfigurationRef: item?.spec?.forProvider?.globalaccountTrustConfigurationRef?.name,
   };
 }

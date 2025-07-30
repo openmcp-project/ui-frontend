@@ -7,20 +7,9 @@ import { CustomNodeProps } from './types';
 import styles from './CustomNode.module.css';
 
 const CustomNode: React.FC<CustomNodeProps> = ({ data }) => (
-  <div
-    className={styles.nodeContainer}
-    style={{ fontFamily: ThemingParameters.sapFontFamily }}
-  >
-    <Handle
-      type="target"
-      position={Position.Top}
-      style={{ visibility: 'hidden' }}
-    />
-    <Handle
-      type="source"
-      position={Position.Bottom}
-      style={{ visibility: 'hidden' }}
-    />
+  <div className={styles.nodeContainer} style={{ fontFamily: ThemingParameters.sapFontFamily }}>
+    <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
+    <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
     <div className={styles.nodeContent}>
       <StatusIcon status={data.status} />
       <div className={styles.nodeTextContainer}>

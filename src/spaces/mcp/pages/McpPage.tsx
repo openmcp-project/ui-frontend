@@ -1,11 +1,4 @@
-import {
-  BusyIndicator,
-  ObjectPage,
-  ObjectPageSection,
-  ObjectPageTitle,
-  Panel,
-  Title,
-} from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
@@ -18,10 +11,7 @@ import IntelligentBreadcrumbs from '../../../components/Core/IntelligentBreadcru
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
-import {
-  McpContextProvider,
-  WithinManagedControlPlane,
-} from '../../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
@@ -44,20 +34,13 @@ export default function McpPage() {
     data: mcp,
     error,
     isLoading,
-  } = useApiResource(
-    ControlPlaneResource(projectName, workspaceName, controlPlaneName),
-  );
+  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
 
   if (isLoading) {
     return <BusyIndicator active />;
   }
 
-  if (
-    !projectName ||
-    !workspaceName ||
-    !controlPlaneName ||
-    isNotFoundError(error)
-  ) {
+  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 
@@ -125,9 +108,7 @@ export default function McpPage() {
               <Panel
                 headerLevel="H2"
                 headerText="Panel"
-                header={
-                  <Title level="H3">{t('McpPage.componentsTitle')}</Title>
-                }
+                header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
                 noAnimation
               >
                 <ComponentList mcp={mcp} />
@@ -142,9 +123,7 @@ export default function McpPage() {
               <Panel
                 headerLevel="H3"
                 headerText="Panel"
-                header={
-                  <Title level="H3">{t('McpPage.crossplaneTitle')}</Title>
-                }
+                header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
                 noAnimation
               >
                 <div className="crossplane-table-element">
@@ -167,9 +146,7 @@ export default function McpPage() {
               <Panel
                 headerLevel="H3"
                 headerText="Panel"
-                header={
-                  <Title level="H3">{t('McpPage.landscapersTitle')}</Title>
-                }
+                header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
                 noAnimation
               >
                 <Landscapers />

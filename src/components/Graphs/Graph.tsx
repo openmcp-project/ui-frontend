@@ -13,22 +13,14 @@ import {
 import styles from './Graph.module.css';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {
-  useApiResource,
-  useProvidersConfigResource,
-} from '../../lib/api/useApiResource';
+import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
 import CustomNode from './CustomNode';
 import { Legend } from './Legend';
-import {
-  extractRefs,
-  generateColorMap,
-  getStatusFromConditions,
-  resolveProviderType,
-} from './graphUtils';
+import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
 
 const nodeWidth = 250;
 const nodeHeight = 60;
@@ -48,8 +40,7 @@ function buildGraph(
 
   const nodeMap: Record<string, Node<NodeData>> = {};
   treeData.forEach((n) => {
-    const colorKey =
-      colorBy === 'source' ? n.providerType : n.providerConfigName;
+    const colorKey = colorBy === 'source' ? n.providerType : n.providerConfigName;
     const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
@@ -105,14 +96,12 @@ function buildGraph(
 }
 
 const Graph: React.FC = () => {
-  const { data: managedResources, error: managedResourcesError } =
-    useApiResource(ManagedResourcesRequest, {
-      refreshInterval: resourcesInterval,
-    });
-  const { data: providerConfigsList, error: providerConfigsError } =
-    useProvidersConfigResource({
-      refreshInterval: resourcesInterval,
-    });
+  const { data: managedResources, error: managedResourcesError } = useApiResource(ManagedResourcesRequest, {
+    refreshInterval: resourcesInterval,
+  });
+  const { data: providerConfigsList, error: providerConfigsError } = useProvidersConfigResource({
+    refreshInterval: resourcesInterval,
+  });
   const [nodes, setNodes] = useNodesState<NodeData>([]);
   const [edges, setEdges] = useEdgesState<Edge[]>([]);
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
@@ -124,12 +113,8 @@ const Graph: React.FC = () => {
         group.items?.forEach((item: ManagedResourceItem) => {
           const id = item?.metadata?.name;
           const kind = item?.kind;
-          const providerConfigName =
-            item?.spec?.providerConfigRef?.name ?? 'unknown';
-          const providerType = resolveProviderType(
-            providerConfigName,
-            providerConfigsList,
-          );
+          const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
+          const providerType = resolveProviderType(providerConfigName, providerConfigsList);
           const status = getStatusFromConditions(item?.status?.conditions);
 
           const {
@@ -188,10 +173,7 @@ const Graph: React.FC = () => {
     return Array.from(allNodesMap.values());
   }, [managedResources, providerConfigsList]);
 
-  const colorMap = useMemo(
-    () => generateColorMap(treeData, colorBy),
-    [treeData, colorBy],
-  );
+  const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
 
   useEffect(() => {
     if (!treeData.length) return;
@@ -201,11 +183,7 @@ const Graph: React.FC = () => {
   }, [treeData, colorBy, colorMap, setNodes, setEdges]);
 
   if (managedResourcesError || providerConfigsError) {
-    return (
-      <div className={`${styles.centeredMessage} ${styles.errorMessage}`}>
-        Error loading graph data.
-      </div>
-    );
+    return <div className={`${styles.centeredMessage} ${styles.errorMessage}`}>Error loading graph data.</div>;
   }
 
   if (!managedResources || !providerConfigsList) {
@@ -213,9 +191,7 @@ const Graph: React.FC = () => {
   }
 
   if (treeData.length === 0) {
-    return (
-      <div className={styles.centeredMessage}>No resources to display.</div>
-    );
+    return <div className={styles.centeredMessage}>No resources to display.</div>;
   }
 
   return (
@@ -280,11 +256,7 @@ const Graph: React.FC = () => {
           <Background />
         </ReactFlow>
       </div>
-      <Legend
-        nodes={nodes.map((n) => n.data as NodeData)}
-        colorBy={colorBy}
-        generateColorMap={generateColorMap}
-      />
+      <Legend nodes={nodes.map((n) => n.data as NodeData)} colorBy={colorBy} generateColorMap={generateColorMap} />
     </div>
   );
 };

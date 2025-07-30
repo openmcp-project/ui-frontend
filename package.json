@@ -11,6 +11,7 @@
     "start": "node server.js",
     "build": "tsc && vite build",
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint ./src --fix",
     "preview": "vite preview",
     "test:vi": "vitest",
     "test:cy": "cypress run --component --browser chrome",

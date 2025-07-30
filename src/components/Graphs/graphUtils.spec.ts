@@ -1,49 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import {
-  getStatusFromConditions,
-  resolveProviderType,
-  generateColorMap,
-} from './graphUtils';
+import { getStatusFromConditions, resolveProviderType, generateColorMap } from './graphUtils';
 
 describe('getStatusFromConditions', () => {
   it('returns OK if Ready is True', () => {
-    expect(
-      getStatusFromConditions([
-        { type: 'Ready', status: 'True', lastTransitionTime: '2024-01-01' },
-      ]),
-    ).toBe('OK');
+    expect(getStatusFromConditions([{ type: 'Ready', status: 'True', lastTransitionTime: '2024-01-01' }])).toBe('OK');
   });
 
   it('returns OK if Healthy is True', () => {
-    expect(
-      getStatusFromConditions([
-        { type: 'Healthy', status: 'True', lastTransitionTime: '2024-01-01' },
-      ]),
-    ).toBe('OK');
+    expect(getStatusFromConditions([{ type: 'Healthy', status: 'True', lastTransitionTime: '2024-01-01' }])).toBe('OK');
   });
 
   it('returns ERROR if Ready is False', () => {
-    expect(
-      getStatusFromConditions([
-        { type: 'Ready', status: 'False', lastTransitionTime: '2024-01-01' },
-      ]),
-    ).toBe('ERROR');
+    expect(getStatusFromConditions([{ type: 'Ready', status: 'False', lastTransitionTime: '2024-01-01' }])).toBe(
+      'ERROR',
+    );
   });
 
   it('returns ERROR if Healthy is False', () => {
-    expect(
-      getStatusFromConditions([
-        { type: 'Healthy', status: 'False', lastTransitionTime: '2024-01-01' },
-      ]),
-    ).toBe('ERROR');
+    expect(getStatusFromConditions([{ type: 'Healthy', status: 'False', lastTransitionTime: '2024-01-01' }])).toBe(
+      'ERROR',
+    );
   });
 
   it('returns ERROR if no relevant condition exists', () => {
-    expect(
-      getStatusFromConditions([
-        { type: 'Other', status: 'True', lastTransitionTime: '2024-01-01' },
-      ]),
-    ).toBe('ERROR');
+    expect(getStatusFromConditions([{ type: 'Other', status: 'True', lastTransitionTime: '2024-01-01' }])).toBe(
+      'ERROR',
+    );
   });
 
   it('returns ERROR for undefined or empty input', () => {
@@ -80,9 +62,7 @@ describe('resolveProviderType', () => {
   });
 
   it('returns configName if not found', () => {
-    const configs = [
-      { items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] },
-    ];
+    const configs = [{ items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] }];
     expect(resolveProviderType('notfound', configs)).toBe('notfound');
   });
 
