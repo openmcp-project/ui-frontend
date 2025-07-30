@@ -1,5 +1,6 @@
 import {
   Condition,
+  ManagedResourceItem,
   NodeData,
   ProviderConfig,
   ProviderConfigItem,
@@ -70,3 +71,28 @@ export const generateColorMap = (
   });
   return map;
 };
+
+export function extractRefs(item: ManagedResourceItem) {
+  return {
+    subaccountRef: item?.spec?.forProvider?.subaccountRef?.name,
+    serviceManagerRef: item?.spec?.forProvider?.serviceManagerRef?.name,
+    spaceRef: item?.spec?.forProvider?.spaceRef?.name,
+    orgRef: item?.spec?.forProvider?.orgRef?.name,
+    cloudManagementRef: item?.spec?.cloudManagementRef?.name,
+    directoryRef: item?.spec?.forProvider?.directoryRef?.name,
+    entitlementRef: item?.spec?.forProvider?.entitlementRef?.name,
+    globalAccountRef: item?.spec?.forProvider?.globalAccountRef?.name,
+    orgRoleRef: item?.spec?.forProvider?.orgRoleRef?.name,
+    spaceMembersRef: item?.spec?.forProvider?.spaceMembersRef?.name,
+    cloudFoundryEnvironmentRef:
+      item?.spec?.forProvider?.cloudFoundryEnvironmentRef?.name,
+    kymaEnvironmentRef: item?.spec?.forProvider?.kymaEnvironmentRef?.name,
+    roleCollectionRef: item?.spec?.forProvider?.roleCollectionRef?.name,
+    roleCollectionAssignmentRef:
+      item?.spec?.forProvider?.roleCollectionAssignmentRef?.name,
+    subaccountTrustConfigurationRef:
+      item?.spec?.forProvider?.subaccountTrustConfigurationRef?.name,
+    globalaccountTrustConfigurationRef:
+      item?.spec?.forProvider?.globalaccountTrustConfigurationRef?.name,
+  };
+}

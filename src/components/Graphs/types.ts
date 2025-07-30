@@ -14,10 +14,22 @@ export interface ManagedResourceItem {
   spec?: {
     providerConfigRef?: { name: string };
     forProvider?: {
-      subaccountRef?: { name: string };
-      serviceManagerRef?: { name: string };
-      spaceRef?: { name: string };
-      orgRef?: { name: string };
+      subaccountRef?: { name?: string };
+      serviceManagerRef?: { name?: string };
+      spaceRef?: { name?: string };
+      orgRef?: { name?: string };
+      directoryRef?: { name?: string };
+      entitlementRef?: { name?: string };
+      globalAccountRef?: { name?: string };
+      orgRoleRef?: { name?: string };
+      spaceMembersRef?: { name?: string };
+      cloudFoundryEnvironmentRef?: { name?: string };
+      kymaEnvironmentRef?: { name?: string };
+      roleCollectionRef?: { name?: string };
+      roleCollectionAssignmentRef?: { name?: string };
+      subaccountTrustConfigurationRef?: { name?: string };
+      globalaccountTrustConfigurationRef?: { name?: string };
+      // Dodaj inne referencje jeśli będą potrzebne
     };
     cloudManagementRef?: { name: string };
   };

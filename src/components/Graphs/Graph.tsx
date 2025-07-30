@@ -25,6 +25,7 @@ import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
 import CustomNode from './CustomNode';
 import { Legend } from './Legend';
 import {
+  extractRefs,
   generateColorMap,
   getStatusFromConditions,
   resolveProviderType,
@@ -138,17 +139,42 @@ const Graph: React.FC = () => {
           );
           const status = getStatusFromConditions(item?.status?.conditions);
 
-          const subaccountRef = item?.spec?.forProvider?.subaccountRef?.name;
-          const serviceManagerRef =
-            item?.spec?.forProvider?.serviceManagerRef?.name;
-          const spaceRef = item?.spec?.forProvider?.spaceRef?.name;
-          const orgRef = item?.spec?.forProvider?.orgRef?.name;
-          const cloudManagementRef = item?.spec?.cloudManagementRef?.name;
+          const {
+            subaccountRef,
+            serviceManagerRef,
+            spaceRef,
+            orgRef,
+            cloudManagementRef,
+            directoryRef,
+            entitlementRef,
+            globalAccountRef,
+            orgRoleRef,
+            spaceMembersRef,
+            cloudFoundryEnvironmentRef,
+            kymaEnvironmentRef,
+            roleCollectionRef,
+            roleCollectionAssignmentRef,
+            subaccountTrustConfigurationRef,
+            globalaccountTrustConfigurationRef,
+          } = extractRefs(item);
 
           const parentId = serviceManagerRef || subaccountRef;
-          const extraRefs = [spaceRef, orgRef, cloudManagementRef].filter(
-            Boolean,
-          ) as string[];
+          const extraRefs = [
+            spaceRef,
+            orgRef,
+            cloudManagementRef,
+            directoryRef,
+            entitlementRef,
+            globalAccountRef,
+            orgRoleRef,
+            spaceMembersRef,
+            cloudFoundryEnvironmentRef,
+            kymaEnvironmentRef,
+            roleCollectionRef,
+            roleCollectionAssignmentRef,
+            subaccountTrustConfigurationRef,
+            globalaccountTrustConfigurationRef,
+          ].filter(Boolean) as string[];
 
           if (id) {
             allNodesMap.set(id, {
