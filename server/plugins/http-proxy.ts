@@ -3,6 +3,7 @@ import httpProxy from '@fastify/http-proxy';
 import { AuthenticationError } from './auth-utils.js';
 import * as Sentry from '@sentry/node';
 
+// @ts-ignore
 function proxyPlugin(fastify) {
   const { API_BACKEND_URL } = fastify.config;
   const { OIDC_CLIENT_ID, OIDC_SCOPES } = fastify.config;
@@ -10,6 +11,7 @@ function proxyPlugin(fastify) {
   fastify.register(httpProxy, {
     prefix: '/onboarding',
     upstream: API_BACKEND_URL,
+    // @ts-ignore
     preHandler: async (request, reply) => {
       request.log.info('Entering HTTP proxy preHandler.');
 
@@ -102,6 +104,7 @@ function proxyPlugin(fastify) {
       }
     },
     replyOptions: {
+      // @ts-ignore
       rewriteRequestHeaders: (req, headers) => {
         const useCrate = req.headers['x-use-crate'];
         const accessToken = useCrate

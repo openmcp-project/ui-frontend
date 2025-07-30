@@ -3,6 +3,7 @@ import { AuthenticationError } from '../plugins/auth-utils.js';
 
 const stateSessionKey = 'oauthStateOnboarding';
 
+// @ts-ignore
 async function authPlugin(fastify) {
   const { OIDC_ISSUER, OIDC_CLIENT_ID, OIDC_REDIRECT_URI, OIDC_SCOPES, POST_LOGIN_REDIRECT } = fastify.config;
 
@@ -10,6 +11,7 @@ async function authPlugin(fastify) {
   const issuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('issuerConfiguration', issuerConfiguration);
 
+  // @ts-ignore
   fastify.get('/auth/onboarding/login', async function (req, reply) {
     const redirectUri = await fastify.prepareOidcLoginRedirect(
       req,
@@ -25,6 +27,7 @@ async function authPlugin(fastify) {
     return reply.redirect(redirectUri);
   });
 
+  // @ts-ignore
   fastify.get('/auth/onboarding/callback', async function (req, reply) {
     try {
       const callbackResult = await fastify.handleOidcCallback(
@@ -58,6 +61,7 @@ async function authPlugin(fastify) {
     }
   });
 
+  // @ts-ignore
   fastify.get('/auth/onboarding/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('onboarding_accessToken');
     const userInfo = req.encryptedSession.get('onboarding_userInfo');
@@ -67,6 +71,7 @@ async function authPlugin(fastify) {
     return reply.send({ isAuthenticated, user });
   });
 
+  // @ts-ignore
   fastify.post('/auth/logout', async function (req, reply) {
     // TODO: Idp sign out flow
     await req.encryptedSession.clear();

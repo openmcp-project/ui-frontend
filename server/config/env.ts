@@ -38,6 +38,7 @@ const schema = {
   },
 };
 
+// @ts-ignore
 async function envPlugin(fastify) {
   await fastify.register(fastifyEnv, { schema });
 }

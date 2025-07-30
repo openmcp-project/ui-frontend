@@ -19,6 +19,7 @@ export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = 'encryptionKey';
 // name of the cookie that stores the session identifier on user side.
 export const SESSION_COOKIE_NAME = 'session';
 
+// @ts-ignore
 async function encryptedSession(fastify) {
   const { COOKIE_SECRET, SESSION_SECRET } = fastify.config;
 
@@ -60,6 +61,7 @@ async function encryptedSession(fastify) {
 
 export default fp(encryptedSession);
 
+// @ts-ignore
 function createStore(request) {
   let unencryptedStore = {}; // Private variable
 
@@ -103,14 +105,20 @@ function createStore(request) {
   }
 
   return {
+    // @ts-ignore
     async set(key, value) {
+      // @ts-ignore
       unencryptedStore[key] = value;
       await save();
     },
+    // @ts-ignore
     get(key) {
+      // @ts-ignore
       return unencryptedStore[key];
     },
+    // @ts-ignore
     async delete(key) {
+      // @ts-ignore
       delete unencryptedStore[key];
       await save();
     },
@@ -121,10 +129,12 @@ function createStore(request) {
   };
 }
 
+// @ts-ignore
 function getUserEncryptionKeyFromUserCookie(request) {
   return request[ENCRYPTED_COOKIE_REQUEST_DECORATOR].get(ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY);
 }
 
+// @ts-ignore
 function setUserEncryptionKeyIntoUserCookie(request, key) {
   request[ENCRYPTED_COOKIE_REQUEST_DECORATOR].set(ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY, key.toString('base64'));
 }
@@ -140,6 +150,7 @@ function generateSecureEncryptionKey() {
 // If no adequate key is given, it throws an error
 // The key needs to be 32bytes (256bits) as type buffer. Needs to be cryptographically secure random generated e.g. with `crypto.randomBytes(32)`
 // it outputs cipherText (bas64 encoded string), the initialisation vector (iv) (hex string) and the authentication tag (hex string).
+// @ts-ignore
 function encryptSymetric(plaintext, key) {
   if (key == undefined) {
     throw new Error('Key must be provided');
@@ -186,6 +197,7 @@ function encryptSymetric(plaintext, key) {
 // uses authenticated symetric encryption (aes-256-gcm) to decrypt the ciphertext with the key.
 // requires the ciphertext, the initialisation vector (iv)(hex string), the authentication tag (tag) (hex string)  and the key (buffer) to be provided.
 //it thows an error if the decryption or tag verification fails
+// @ts-ignore
 function decryptSymetric(cipherText, iv, tag, key) {
   if (key == undefined) {
     throw new Error('Key must be provided');
