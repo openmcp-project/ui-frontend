@@ -11,16 +11,18 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data }) => (
     <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
     <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
     <div className={styles.nodeContent}>
-      <StatusIcon status={data.status} />
+      <div className={styles.statusIcon}>
+        <StatusIcon status={data.status} />
+      </div>
       <div className={styles.nodeTextContainer}>
         <div className={styles.nodeLabel} title={data.label}>
           {data.label}
         </div>
-        {data.type && <div>{data.type}</div>}
+        {data.type && <div className={styles.nodeType}>{data.type}</div>}
       </div>
     </div>
     <div className={styles.yamlButtonWrapper}>
-      <YamlViewButton resourceObject={data.item} />
+      <YamlViewButton resourceObject={data.item} smallerIcon={true} />
     </div>
   </div>
 );

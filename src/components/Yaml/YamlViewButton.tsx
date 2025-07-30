@@ -1,4 +1,4 @@
-import { Button } from '@ui5/webcomponents-react';
+import { Button, Icon } from '@ui5/webcomponents-react';
 import { FC, useMemo, useState } from 'react';
 import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +10,10 @@ import { YamlViewDialog } from './YamlViewDialog.tsx';
 
 export type YamlViewButtonProps = {
   resourceObject: unknown;
+  smallerIcon?: boolean;
 };
 
-export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
+export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject, smallerIcon }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
@@ -33,7 +34,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
       />
 
       <Button
-        className={styles.button}
+        className={smallerIcon ? styles.smallerIconButton : styles.button}
         design={'Transparent'}
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
@@ -41,7 +42,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
           setIsOpen(true);
         }}
       >
-        <YamlIcon />
+        {smallerIcon ? <Icon name="document" className={styles.smallIcon} /> : <YamlIcon />}
       </Button>
     </span>
   );
