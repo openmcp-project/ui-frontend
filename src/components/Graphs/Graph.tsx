@@ -249,7 +249,7 @@ const Graph: React.FC = () => {
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
-          zoomOnScroll={true}
+          zoomOnScroll={false}
           panOnDrag={true}
         >
           <Controls />
