@@ -10,6 +10,7 @@ import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -36,6 +37,7 @@ export default function FluxList() {
     isReady: boolean;
     statusUpdateTime?: string;
     item: unknown;
+    status: unknown;
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -102,12 +104,21 @@ export default function FluxList() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
-            <ResourceStatusCell
-              value={cellData.cell.row.original?.isReady}
-              transitionTime={
-                cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
-              }
-            />
+            <span>
+              <ResourceStatusCell
+                value={cellData.cell.row.original?.isReady}
+                transitionTime={
+                  cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
+                }
+              />
+              <ResourceStatusCellWithButton
+                value={cellData.cell.row.original?.isReady}
+                transitionTime={
+                  cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
+                }
+                errorMessage={cellData.cell.row.original?.status?.message}
+              />
+            </span>
           ) : null,
       },
 
@@ -141,6 +152,7 @@ export default function FluxList() {
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
+        status: item.status?.conditions?.find((x) => x.type === 'Ready'),
       };
     }) ?? [];
 
@@ -152,6 +164,7 @@ export default function FluxList() {
         statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
+        status: item.status?.conditions?.find((x) => x.type === 'Ready'),
       };
     }) ?? [];
 
