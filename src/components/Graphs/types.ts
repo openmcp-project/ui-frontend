@@ -1,5 +1,5 @@
 export interface Condition {
-  type: unknown;
+  type: 'Ready' | 'Synced' | unknown;
   status: 'True' | 'False';
   lastTransitionTime: string;
 }

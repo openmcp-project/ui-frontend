@@ -6,7 +6,11 @@ import {
   ProviderConfigItem,
 } from './types';
 
-export const getStatusFromConditions = (conditions?: Condition[]): string => {
+export type StatusType = 'ERROR' | 'OK';
+
+export const getStatusFromConditions = (
+  conditions?: Condition[],
+): StatusType => {
   if (!conditions || !Array.isArray(conditions)) return 'ERROR';
   const relevant = conditions.find(
     (c) => c.type === 'Ready' || c.type === 'Healthy',

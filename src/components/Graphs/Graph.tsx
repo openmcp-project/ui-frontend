@@ -288,7 +288,7 @@ const Graph: React.FC = () => {
         </ReactFlow>
       </div>
       <Legend
-        nodes={nodes.map((n) => n.data as unknown as NodeData)}
+        nodes={nodes.map((n) => n.data as NodeData)}
         colorBy={colorBy}
         providers={providers?.items || []}
         generateColorMap={generateColorMap}

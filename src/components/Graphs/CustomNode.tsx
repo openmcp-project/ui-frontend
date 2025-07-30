@@ -27,7 +27,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data }) => (
         <div className={styles.nodeLabel} title={data.label}>
           {data.label}
         </div>
-        {data.type && <div className={styles.nodeType}>{data.type}</div>}
+        {data.type && <div>{data.type}</div>}
       </div>
     </div>
     <div className={styles.yamlButtonWrapper}>
