@@ -1,0 +1,31 @@
+.nodeContainer {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  justify-content: space-between;
+  position: relative;
+  font-family: var(--sapFontFamily);
+  pointer-events: auto;
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.nodeTextContainer {
+  overflow: hidden;
+}
+
+.nodeLabel {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
