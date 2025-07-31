@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useApiResourceMutation, useRevalidateApiResource } from '../../lib/api/useApiResource';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
@@ -16,7 +16,7 @@ import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export type CreateDialogProps = {
@@ -37,6 +37,8 @@ export function CreateWorkspaceDialogContainer({
   setIsOpen: (isOpen: boolean) => void;
   project?: string;
 }) {
+  const { t } = useTranslation();
+  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     register,
     handleSubmit,
@@ -54,7 +56,6 @@ export function CreateWorkspaceDialogContainer({
       chargingTargetType: '',
     },
   });
-  const { t } = useTranslation();
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
