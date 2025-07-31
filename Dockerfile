@@ -13,7 +13,7 @@ ENV NODE_ENV=production
 COPY . .
 RUN npm run build
 
-# Remove dev dependencies
+# Remove dev dependencies so the node_modules directory that we COPY into the distroless image contains only runtime dependencies
 RUN npm prune --omit=dev
 
 
