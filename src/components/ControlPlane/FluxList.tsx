@@ -6,11 +6,12 @@ import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { FluxKustomization, KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
+import { s } from 'vitest/dist/chunks/reporters.d.BFLkQcL6';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -37,7 +38,7 @@ export default function FluxList() {
     isReady: boolean;
     statusUpdateTime?: string;
     item: unknown;
-    status: unknown;
+    readyStatus: undefined | { message?: string };
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -61,13 +62,16 @@ export default function FluxList() {
         width: 85,
         hAlign: 'Center',
         Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+        Cell: (cellData: CellData<FluxRow>) =>
           cellData.cell.row.original?.isReady != null ? (
-            <ResourceStatusCell
+            <ResourceStatusCellWithButton
+              positiveText={'Ready'}
+              negativeText={'Error'}
               value={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
+              message={cellData.cell.row.original?.readyStatus?.message}
             />
           ) : null,
       },
@@ -105,18 +109,14 @@ export default function FluxList() {
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <span>
-              <ResourceStatusCell
-                value={cellData.cell.row.original?.isReady}
-                transitionTime={
-                  cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
-                }
-              />
               <ResourceStatusCellWithButton
+                positiveText={'Ready'}
+                negativeText={'Error'}
                 value={cellData.cell.row.original?.isReady}
                 transitionTime={
                   cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
                 }
-                errorMessage={cellData.cell.row.original?.status?.message}
+                message={cellData.cell.row.original?.readyStatus?.message}
               />
             </span>
           ) : null,
@@ -152,7 +152,7 @@ export default function FluxList() {
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        status: item.status?.conditions?.find((x) => x.type === 'Ready'),
+        readyStatus: item.status?.conditions?.find((x) => x.type === 'Ready'),
       };
     }) ?? [];
 
@@ -164,7 +164,7 @@ export default function FluxList() {
         statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        status: item.status?.conditions?.find((x) => x.type === 'Ready'),
+        readyStatus: item.status?.conditions?.find((x) => x.type === 'Ready'),
       };
     }) ?? [];
 

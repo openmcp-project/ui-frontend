@@ -16,6 +16,7 @@ import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
 
 interface CellData<T> {
   cell: {
@@ -35,6 +36,8 @@ type ResourceRow = {
   ready: boolean;
   readyTransitionTime: string;
   item: unknown;
+  conditionReadyMessage: string;
+  conditionSyncedMessage: string;
 };
 
 export function ManagedResources() {
@@ -70,9 +73,12 @@ export function ManagedResources() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['synced']>) =>
           cellData.cell.row.original?.synced != null ? (
-            <ResourceStatusCell
+            <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.synced}
               transitionTime={cellData.cell.row.original?.syncedTransitionTime}
+              positiveText={'Synced'}
+              negativeText={'Sync error'}
+              message={cellData.cell.row.original?.conditionSyncedMessage}
             />
           ) : null,
       },
@@ -84,9 +90,12 @@ export function ManagedResources() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['ready']>) =>
           cellData.cell.row.original?.ready != null ? (
-            <ResourceStatusCell
+            <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.ready}
               transitionTime={cellData.cell.row.original?.readyTransitionTime}
+              positiveText={'Ready'}
+              negativeText={'Not ready'}
+              message={cellData.cell.row.original?.conditionReadyMessage}
             />
           ) : null,
       },
@@ -122,6 +131,8 @@ export function ManagedResources() {
             ready: conditionReady?.status === 'True',
             readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
             item: item,
+            conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
+            conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
           };
         }),
       ) ?? [];
