@@ -3,14 +3,17 @@ import crypto from 'node:crypto';
 import * as Sentry from '@sentry/node';
 
 export class AuthenticationError extends Error {
+  // @ts-ignore
   constructor(message) {
     super(message);
     this.name = this.constructor.name;
+    // @ts-ignore
     this.code = 'ERR_AUTHENTICATION';
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
+// @ts-ignore
 async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
   const url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
   const res = await fetch(url);
@@ -20,17 +23,20 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
   return res.json();
 }
 
+// @ts-ignore
 function isAllowedRedirectTo(value) {
   if (!value) return true;
   const first = value.charAt(0);
   return first === '/' || first === '#';
 }
 
+// @ts-ignore
 async function authUtilsPlugin(fastify) {
+  // @ts-ignore
   fastify.decorate('discoverIssuerConfiguration', async (issuerBaseUrl) => {
     fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
 
-    const remoteConfiguration = await getRemoteOpenIdConfiguration(issuerBaseUrl);
+    const remoteConfiguration = await getRemoteOpenIdConfiguration(issuerBaseUrl) as any; // ToDo: proper typing
 
     const requiredConfiguration = {
       authorizationEndpoint: remoteConfiguration.authorization_endpoint,
@@ -42,6 +48,7 @@ async function authUtilsPlugin(fastify) {
     return requiredConfiguration;
   });
 
+  // @ts-ignore
   fastify.decorate('refreshAuthTokens', async (currentRefreshToken, oidcConfig, tokenEndpoint) => {
     fastify.log.info('Refreshing tokens.');
 
@@ -78,6 +85,7 @@ async function authUtilsPlugin(fastify) {
     };
   });
 
+  // @ts-ignore
   fastify.decorate('prepareOidcLoginRedirect', async (request, oidcConfig, authorizationEndpoint, stateKey) => {
     if (stateKey === undefined) {
       stateKey = 'oauthState';
@@ -121,6 +129,7 @@ async function authUtilsPlugin(fastify) {
     return url.toString();
   });
 
+  // @ts-ignore
   fastify.decorate('handleOidcCallback', async (request, oidcConfig, tokenEndpoint, stateKey) => {
     if (stateKey === undefined) {
       stateKey = 'oauthState';
@@ -157,7 +166,7 @@ async function authUtilsPlugin(fastify) {
       throw new AuthenticationError('Token exchange failed.');
     }
 
-    const tokens = await response.json();
+    const tokens = await response.json() as any; // ToDo: proper typing
 
     const result = {
       accessToken: tokens.access_token,
@@ -169,11 +178,13 @@ async function authUtilsPlugin(fastify) {
 
     if (tokens.expires_in && typeof tokens.expires_in === 'number') {
       const expiresAt = Date.now() + tokens.expires_in * 1000;
+      // @ts-ignore
       result.expiresAt = expiresAt;
     }
 
     Sentry.addBreadcrumb({
       category: 'auth',
+      // @ts-ignore
       message: 'Successfully authenticated user: ' + result.userInfo.email,
       level: 'info',
     });
@@ -183,6 +194,7 @@ async function authUtilsPlugin(fastify) {
   });
 }
 
+// @ts-ignore
 function extractUserInfoFromIdToken(request, idToken) {
   request.log.info('Extracting user info from ID token.');
 
