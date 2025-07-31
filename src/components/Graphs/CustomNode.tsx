@@ -1,12 +1,15 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
-import { YamlViewButton } from '../Yaml/YamlViewButton';
+import { Button, Icon } from '@ui5/webcomponents-react';
 import StatusIcon from './StatusIcon';
-import { CustomNodeProps } from './types';
+import { CustomNodeProps, ManagedResourceItem } from './types';
 import styles from './CustomNode.module.css';
 
-const CustomNode: React.FC<CustomNodeProps> = ({ data }) => (
+const CustomNode: React.FC<CustomNodeProps & { onYamlClick: (item: ManagedResourceItem) => void }> = ({
+  data,
+  onYamlClick,
+}) => (
   <div className={styles.nodeContainer} style={{ fontFamily: ThemingParameters.sapFontFamily }}>
     <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
     <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
@@ -22,7 +25,15 @@ const CustomNode: React.FC<CustomNodeProps> = ({ data }) => (
       </div>
     </div>
     <div className={styles.yamlButtonWrapper}>
-      <YamlViewButton resourceObject={data.item} smallerIcon={true} />
+      <Button
+        className={styles.smallerIconButton}
+        design="Transparent"
+        aria-label="YAML"
+        title="YAML"
+        onClick={() => onYamlClick(data.item)}
+      >
+        <Icon name="document" style={{ color: 'rgb(0, 100, 217)' }} />
+      </Button>
     </div>
   </div>
 );

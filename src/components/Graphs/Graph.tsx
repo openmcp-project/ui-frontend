@@ -9,6 +9,7 @@ import {
   useEdgesState,
   MarkerType,
   Position,
+  NodeProps,
 } from 'reactflow';
 import styles from './Graph.module.css';
 import dagre from 'dagre';
@@ -21,13 +22,13 @@ import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
 import CustomNode from './CustomNode';
 import { Legend } from './Legend';
 import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
+import { YamlViewDialog } from '../Yaml/YamlViewDialog';
+import YamlViewer from '../Yaml/YamlViewer';
+import { stringify } from 'yaml';
+import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
 
 const nodeWidth = 250;
 const nodeHeight = 60;
-
-const nodeTypes = {
-  custom: CustomNode,
-};
 
 function buildGraph(
   treeData: NodeData[],
@@ -105,6 +106,28 @@ const Graph: React.FC = () => {
   const [nodes, setNodes] = useNodesState<NodeData>([]);
   const [edges, setEdges] = useEdgesState<Edge[]>([]);
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
+
+  const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
+  const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
+
+  const handleYamlClick = (item: ManagedResourceItem) => {
+    setYamlResource(item);
+    setYamlDialogOpen(true);
+  };
+
+  const nodeTypes = {
+    custom: (props: NodeProps<NodeData>) => <CustomNode {...props} onYamlClick={handleYamlClick} />,
+  };
+
+  const yamlString = useMemo(
+    () => (yamlResource ? stringify(removeManagedFieldsProperty(yamlResource)) : ''),
+    [yamlResource],
+  );
+  const yamlFilename = useMemo(() => {
+    if (!yamlResource) return '';
+    const { kind, metadata } = yamlResource;
+    return `${kind ?? ''}${metadata?.name ? '_' : ''}${metadata?.name ?? ''}`;
+  }, [yamlResource]);
 
   const treeData = useMemo(() => {
     const allNodesMap = new Map<string, NodeData>();
@@ -249,13 +272,20 @@ const Graph: React.FC = () => {
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
-          zoomOnScroll={false}
+          zoomOnScroll={true}
           panOnDrag={true}
         >
           <Controls />
           <Background />
         </ReactFlow>
       </div>
+      {yamlDialogOpen && yamlResource && (
+        <YamlViewDialog
+          isOpen={yamlDialogOpen}
+          setIsOpen={setYamlDialogOpen}
+          dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
+        />
+      )}
       <Legend nodes={nodes.map((n) => n.data as NodeData)} colorBy={colorBy} generateColorMap={generateColorMap} />
     </div>
   );
