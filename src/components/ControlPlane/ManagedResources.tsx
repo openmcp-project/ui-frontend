@@ -12,7 +12,7 @@ import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
+
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
@@ -69,7 +69,7 @@ export function ManagedResources() {
         Header: t('ManagedResources.tableHeaderSynced'),
         accessor: 'synced',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['synced']>) =>
           cellData.cell.row.original?.synced != null ? (
@@ -86,7 +86,7 @@ export function ManagedResources() {
         Header: t('ManagedResources.tableHeaderReady'),
         accessor: 'ready',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['ready']>) =>
           cellData.cell.row.original?.ready != null ? (
@@ -102,7 +102,7 @@ export function ManagedResources() {
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<ResourceRow>) =>

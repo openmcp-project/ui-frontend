@@ -59,7 +59,7 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
-        width: 85,
+        width: 125,
         hAlign: 'Center',
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow>) =>
@@ -78,7 +78,7 @@ export default function FluxList() {
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
@@ -103,7 +103,7 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
-        width: 85,
+        width: 125,
         hAlign: 'Center',
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
@@ -125,7 +125,7 @@ export default function FluxList() {
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<FluxRow>) => <YamlViewButton resourceObject={cellData.cell.row.original?.item} />,

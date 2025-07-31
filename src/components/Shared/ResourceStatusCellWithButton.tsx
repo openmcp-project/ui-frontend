@@ -1,8 +1,9 @@
-import { Icon, Popover, PopoverDomRef, Text } from '@ui5/webcomponents-react';
+import { FlexBox, Icon, PopoverDomRef, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import { timeAgo } from '../../utils/i18n/timeAgo';
 import { MouseEvent, useRef, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+
 export interface StatusCellProps {
   value: boolean;
   transitionTime: string;
@@ -26,10 +27,7 @@ export const ResourceStatusCellWithButton = ({
       setOpen((prev) => !prev);
     }
   };
-  // if (!value) {
-  // console.log(errorMessage);
-  // }
-  // alert(errorMessage);
+
   return (
     <span>
       <AnimatedHoverTextButton
@@ -44,12 +42,30 @@ export const ResourceStatusCellWithButton = ({
         text={value ? positiveText : negativeText}
         onClick={handleOpenerClick}
       />
-      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
-        <Text style={{ maxWidth: '60ch', textAlign: 'left', lineHeight: '1.5em' }}>{message}</Text>
-        <Text style={{ maxWidth: '60ch', textAlign: 'left', lineHeight: '1.5em', fontWeight: 'bold' }}>
-          {timeAgo.format(new Date(transitionTime))}
+      <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
+        <Text
+          style={{
+            maxWidth: '60ch',
+            textAlign: 'left',
+            lineHeight: '1.5em',
+            color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
+          }}
+        >
+          {message}
         </Text>
-      </Popover>
+
+        <FlexBox
+          style={{ borderTop: '1px solid gray', paddingTop: '1rem', marginTop: '1rem' }}
+          justifyContent={'Start'}
+          alignItems={'Center'}
+          gap={16}
+        >
+          <Icon name={'date-time'} />
+          <Text style={{ maxWidth: '60ch', textAlign: 'left', lineHeight: '1.5em', fontWeight: 'bold' }}>
+            {timeAgo.format(new Date(transitionTime))}
+          </Text>
+        </FlexBox>
+      </ResponsivePopover>
     </span>
   );
 };

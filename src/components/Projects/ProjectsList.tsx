@@ -75,7 +75,7 @@ export default function ProjectsList() {
       {
         Header: t('yaml.YAML'),
         accessor: 'yaml',
-        width: 85,
+        width: 75,
         disableFilters: true,
         hAlign: 'Center',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,7 +84,7 @@ export default function ProjectsList() {
             style={{
               width: '100%',
               display: 'flex',
-              justifyContent: 'end',
+              justifyContent: 'center',
               alignItems: 'center',
             }}
           >

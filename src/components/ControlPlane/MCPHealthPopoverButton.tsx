@@ -133,7 +133,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
     {
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
-      width: 110,
+      width: 125,
       Cell: (instance: CellData<ControlPlaneStatusCondition>) => {
         const rawDate = instance.cell.value;
         const date = new Date(rawDate as string);

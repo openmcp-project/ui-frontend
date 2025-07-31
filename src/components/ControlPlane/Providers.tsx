@@ -18,6 +18,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
 
 interface CellData<T> {
   cell: {
@@ -33,8 +34,10 @@ type ProvidersRow = {
   version: string;
   healthy: string;
   healthyTransitionTime: string;
+  healthyMessage: string;
   installed: string;
   installedTransitionTime: string;
+  installedMessage: string;
   created: string;
   item: unknown;
 };
@@ -68,14 +71,17 @@ export function Providers() {
         Header: t('Providers.tableHeaderInstalled'),
         accessor: 'installed',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
-            <ResourceStatusCell
+            <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.installed === 'true'}
               transitionTime={cellData.cell.row.original?.installedTransitionTime}
+              positiveText={'Installed'}
+              negativeText={'Install error'}
+              message={cellData.cell.row.original?.installedMessage}
             />
           ) : null,
       },
@@ -83,24 +89,26 @@ export function Providers() {
         Header: t('Providers.tableHeaderHealthy'),
         accessor: 'healthy',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
             <div>
-              <ResourceStatusCell
+              <ResourceStatusCellWithButton
                 value={cellData.cell.row.original?.healthy === 'true'}
                 transitionTime={cellData.cell.row.original?.healthyTransitionTime}
+                positiveText={'Healthy'}
+                negativeText={'Not healthy'}
+                message={cellData.cell.row.original?.healthyMessage}
               />
-              here2
             </div>
           ) : null,
       },
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<ProvidersRow>) => (
@@ -124,6 +132,8 @@ export function Providers() {
         healthyTransitionTime: healthy?.lastTransitionTime ?? '',
         version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
         item: item,
+        healthyMessage: healthy?.message ?? healthy?.reason ?? '',
+        installedMessage: installed?.message ?? installed?.reason ?? '',
       };
     }) ?? [];
 
