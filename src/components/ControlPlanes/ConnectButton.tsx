@@ -37,7 +37,7 @@ export default function ConnectButton(props: Props) {
   const { t } = useTranslation();
 
   const res = useApiResource(GetKubeconfig(props.secretKey, props.secretName, props.namespace));
-  if (res.isLoading) {
+  if (res.isLoading || res.error) {
     return <></>;
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

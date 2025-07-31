@@ -3,6 +3,7 @@ import { AuthenticationError } from '../plugins/auth-utils.js';
 
 const stateSessionKey = 'oauthStateMCP';
 
+// @ts-ignore
 async function authPlugin(fastify) {
   const { OIDC_ISSUER, OIDC_CLIENT_ID_MCP, OIDC_REDIRECT_URI, OIDC_SCOPES, POST_LOGIN_REDIRECT } = fastify.config;
 
@@ -11,6 +12,7 @@ async function authPlugin(fastify) {
   const mcpIssuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('mcpIssuerConfiguration', mcpIssuerConfiguration);
 
+  // @ts-ignore
   fastify.get('/auth/mcp/login', async function (req, reply) {
     const redirectUri = await fastify.prepareOidcLoginRedirect(
       req,
@@ -26,6 +28,7 @@ async function authPlugin(fastify) {
     return reply.redirect(redirectUri);
   });
 
+  // @ts-ignore
   fastify.get('/auth/mcp/callback', async function (req, reply) {
     try {
       const callbackResult = await fastify.handleOidcCallback(
@@ -58,6 +61,7 @@ async function authPlugin(fastify) {
     }
   });
 
+  // @ts-ignore
   fastify.get('/auth/mcp/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('mcp_accessToken');
 

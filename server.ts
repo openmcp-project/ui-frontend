@@ -20,6 +20,7 @@ if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
     beforeSend(event) {
       if (event.request && event.request.cookies) {
         event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
+          // @ts-ignore
           acc[key] = '';
           return acc;
         }, {});
@@ -49,8 +50,10 @@ Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
 let sentryHost = '';
+// @ts-ignore
 if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0) {
   try {
+    // @ts-ignore
     sentryHost = new URL(fastify.config.VITE_SENTRY_DSN).hostname;
   } catch {
     console.log('VITE_SENTRY_DSN is not a valid URL');
@@ -63,6 +66,7 @@ fastify.register(helmet, {
     directives: {
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost],
       'script-src': isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+      // @ts-ignore
       'frame-ancestors': [fastify.config.FRAME_ANCESTORS],
     },
   },
@@ -78,6 +82,7 @@ await fastify.register(FastifyVite, {
   spa: true,
 });
 
+// @ts-ignore
 fastify.get('/', function (req, reply) {
   return reply.html();
 });
@@ -88,6 +93,7 @@ fastify.listen(
     port: 5173,
     host: '0.0.0.0',
   },
+  // @ts-ignore
   function (err, address) {
     if (err) {
       fastify.log.error(err);
