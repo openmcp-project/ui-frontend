@@ -17,6 +17,8 @@ export type ProvidersListResponse = {
             type: 'Healthy' | 'Installed' | unknown;
             status: 'True' | 'False';
             lastTransitionTime: string;
+            message?: string;
+            reason?: string;
           },
         ];
       };

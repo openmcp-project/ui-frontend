@@ -17,9 +17,11 @@ export type KustomizationsResponse = {
         };
         conditions: [
           {
+            message: string;
             status: string;
             type: string;
             lastTransitionTime: string;
+            reason: string;
           },
         ];
       };

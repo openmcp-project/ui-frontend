@@ -74,7 +74,7 @@ export function ProvidersConfig() {
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<Rows>) =>

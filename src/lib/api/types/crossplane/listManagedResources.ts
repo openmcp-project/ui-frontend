@@ -15,6 +15,8 @@ export type ManagedResourcesResponse = [
               type: 'Ready' | 'Synced' | unknown;
               status: 'True' | 'False';
               lastTransitionTime: string;
+              message?: string;
+              reason?: string;
             },
           ];
         };
