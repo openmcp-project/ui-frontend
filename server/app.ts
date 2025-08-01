@@ -1,13 +1,14 @@
-import path, { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import AutoLoad from "@fastify/autoload";
-import encryptedSession from "./encrypted-session.js";
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import AutoLoad from '@fastify/autoload';
+import encryptedSession from './encrypted-session.js';
 
 export const options = {};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+//@ts-ignore
 export default async function (fastify, opts) {
   fastify.register(encryptedSession, {
     ...opts,

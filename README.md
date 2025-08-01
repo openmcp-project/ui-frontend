@@ -41,10 +41,10 @@ The UI will be served on http://localhost:5173.
 To enable local development with Safari, follow these steps on your local machine:
 
 1. **Update Cookie Settings:**  
-   In [`server/encrypted-session.js`](server/encrypted-session.js), set the `secure` property to `false` in both occurrences.
+   In [`server/encrypted-session.js`](server/encrypted-session.ts), set the `secure` property to `false` in both occurrences.
 
 2. **Disable Helmet Registration:**  
-   In [`server.js`](server.js), comment out or remove the registration of `helmet`.
+   In [`server.js`](server.ts), comment out or remove the registration of `helmet`.
 
 
 ### Build & Production
