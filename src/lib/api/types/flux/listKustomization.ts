@@ -21,6 +21,7 @@ export type KustomizationsResponse = {
             status: string;
             type: string;
             lastTransitionTime: string;
+            reason: string;
           },
         ];
       };

@@ -37,7 +37,7 @@ export default function FluxList() {
     isReady: boolean;
     statusUpdateTime?: string;
     item: unknown;
-    readyStatus: string;
+    readyMessage: string;
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -70,7 +70,7 @@ export default function FluxList() {
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
-              message={cellData.cell.row.original?.readyStatus}
+              message={cellData.cell.row.original?.readyMessage}
             />
           ) : null,
       },
@@ -115,7 +115,7 @@ export default function FluxList() {
                 transitionTime={
                   cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
                 }
-                message={cellData.cell.row.original?.readyStatus}
+                message={cellData.cell.row.original?.readyMessage}
               />
             </span>
           ) : null,
@@ -152,7 +152,7 @@ export default function FluxList() {
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        readyStatus: readyObject?.message ?? readyObject?.reason ?? '',
+        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
 
@@ -165,7 +165,7 @@ export default function FluxList() {
         statusUpdateTime: readyObject?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        readyStatus: readyObject?.message ?? '',
+        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
 
