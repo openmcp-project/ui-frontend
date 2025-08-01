@@ -1,4 +1,4 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, Link } from '@ui5/webcomponents-react';
 
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -13,12 +13,26 @@ import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
+type ProjectListRow = {
+  projectName: string;
+  nameSpace: string;
+};
+
+type ProjectListCellInstance<T> = {
+  cell: {
+    value: string;
+    row: {
+      original: T;
+    };
+  };
+};
+
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error } = useApiResource(ListProjectNames, {
     refreshInterval: 3000,
   });
-  const stabilizedData = useMemo(
+  const stabilizedData = useMemo<ProjectListRow[]>(
     () =>
       data?.map((projectName) => {
         return {
@@ -28,13 +42,12 @@ export default function ProjectsList() {
       }) ?? [],
     [data],
   );
-  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
+  const stabilizedColumns = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
         accessor: 'projectName',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Cell: (instance: any) => (
+        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
           <Link
             design={'Emphasized'}
             style={{
@@ -55,8 +68,7 @@ export default function ProjectsList() {
         Header: 'Namespace',
         accessor: 'nameSpace',
         width: 340,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Cell: (instance: any) => (
+        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
           <div
             style={{
               display: 'flex',
@@ -64,7 +76,6 @@ export default function ProjectsList() {
               gap: '0.5rem',
               alignItems: 'center',
               width: '100%',
-
               cursor: 'pointer',
             }}
           >
@@ -77,9 +88,8 @@ export default function ProjectsList() {
         accessor: 'yaml',
         width: 75,
         disableFilters: true,
-        hAlign: 'Center',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Cell: (instance: any) => (
+        hAlign: 'Center' as const,
+        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
           <div
             style={{
               width: '100%',
@@ -100,9 +110,8 @@ export default function ProjectsList() {
         accessor: 'options',
         width: 60,
         disableFilters: true,
-        hAlign: 'Center',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Cell: (instance: any) => (
+        hAlign: 'Center' as const,
+        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
           <div
             style={{
               width: '100%',
