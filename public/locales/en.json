@@ -175,7 +175,8 @@
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
-    "landscapersTitle": "Landscapers"
+    "landscapersTitle": "Landscapers",
+    "graphTitle": "Graph"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
