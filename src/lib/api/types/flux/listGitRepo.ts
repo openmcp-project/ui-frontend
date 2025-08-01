@@ -20,6 +20,8 @@ export type GitReposResponse = {
             status: string;
             type: string;
             lastTransitionTime: string;
+            message?: string;
+            reason?: string;
           },
         ];
       };

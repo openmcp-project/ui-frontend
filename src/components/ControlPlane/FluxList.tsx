@@ -37,7 +37,7 @@ export default function FluxList() {
     isReady: boolean;
     statusUpdateTime?: string;
     item: unknown;
-    readyStatus: undefined | { message?: string };
+    readyStatus: string;
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -70,7 +70,7 @@ export default function FluxList() {
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
-              message={cellData.cell.row.original?.readyStatus?.message}
+              message={cellData.cell.row.original?.readyStatus}
             />
           ) : null,
       },
@@ -115,7 +115,7 @@ export default function FluxList() {
                 transitionTime={
                   cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
                 }
-                message={cellData.cell.row.original?.readyStatus?.message}
+                message={cellData.cell.row.original?.readyStatus}
               />
             </span>
           ) : null,
@@ -144,26 +144,28 @@ export default function FluxList() {
 
   const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
+      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
       return {
         name: item.metadata.name,
-        isReady: item?.status?.conditions?.find((x) => x.type === 'Ready')?.status === 'True',
-        statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
+        isReady: readyObject?.status === 'True',
+        statusUpdateTime: readyObject?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        readyStatus: item.status?.conditions?.find((x) => x.type === 'Ready'),
+        readyStatus: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
 
   const kustomizationsRows: FluxRow[] =
     kustmizationData?.items?.map((item) => {
+      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
       return {
         name: item.metadata.name,
-        isReady: item.status?.conditions?.find((x) => x.type === 'Ready')?.status === 'True',
-        statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
+        isReady: readyObject?.status === 'True',
+        statusUpdateTime: readyObject?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
-        readyStatus: item.status?.conditions?.find((x) => x.type === 'Ready'),
+        readyStatus: readyObject?.message ?? '',
       };
     }) ?? [];
 
