@@ -48,20 +48,36 @@ export const ResourceStatusCellWithButton = ({
             maxWidth: '60ch',
             textAlign: 'left',
             lineHeight: '1.5em',
-            color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
           }}
         >
           {message}
         </Text>
 
         <FlexBox
-          style={{ borderTop: '1px solid gray', paddingTop: '1rem', marginTop: '1rem' }}
+          style={{
+            borderTop: '1px solid gray',
+            paddingTop: '1rem',
+            marginTop: '1rem',
+          }}
           justifyContent={'Start'}
           alignItems={'Center'}
-          gap={16}
+          gap={12}
         >
-          <Icon name={'date-time'} />
-          <Text style={{ maxWidth: '60ch', textAlign: 'left', lineHeight: '1.5em', fontWeight: 'bold' }}>
+          <Icon
+            name={'date-time'}
+            style={{
+              color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
+            }}
+          />
+          <Text
+            style={{
+              maxWidth: '60ch',
+              textAlign: 'left',
+              lineHeight: '1.5em',
+              fontWeight: 'bold',
+              color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
+            }}
+          >
             {timeAgo.format(new Date(transitionTime))}
           </Text>
         </FlexBox>

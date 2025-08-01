@@ -11,7 +11,6 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
-import { s } from 'vitest/dist/chunks/reporters.d.BFLkQcL6';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled

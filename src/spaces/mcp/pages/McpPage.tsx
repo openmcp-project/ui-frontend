@@ -73,7 +73,6 @@ export default function McpPage() {
                       gap: '0.5rem',
                     }}
                   >
-                    here
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
                       projectName={projectName}

@@ -12,7 +12,7 @@ import IllustratedError from '../Shared/IllustratedError';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { timeAgo } from '../../utils/i18n/timeAgo';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
+
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
