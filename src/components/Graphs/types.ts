@@ -51,6 +51,7 @@ export interface ProviderConfig {
 }
 
 export interface NodeData {
+  [key: string]: unknown;
   id: string;
   label: string;
   type?: string;

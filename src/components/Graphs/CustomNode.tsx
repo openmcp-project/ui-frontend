@@ -1,8 +1,8 @@
 import React from 'react';
-import { Handle, Position } from 'reactflow';
 import { Button, Icon } from '@ui5/webcomponents-react';
 import StatusIcon from './StatusIcon';
 import styles from './CustomNode.module.css';
+import { Handle, Position } from '@xyflow/react';
 
 export interface CustomNodeProps {
   label: string;
@@ -13,8 +13,8 @@ export interface CustomNodeProps {
 
 const CustomNode: React.FC<CustomNodeProps> = ({ label, type, status, onYamlClick }) => (
   <div className={styles.nodeContainer}>
-    <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
-    <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
+    <Handle type="target" position={Position.Top} className={styles.handleHidden} />
+    <Handle type="source" position={Position.Bottom} className={styles.handleHidden} />
     <div className={styles.nodeContent}>
       <div className={styles.statusIcon}>
         <StatusIcon isOk={status === 'OK'} />

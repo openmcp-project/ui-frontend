@@ -3,17 +3,15 @@ import {
   ReactFlow,
   Background,
   Controls,
-  Edge,
-  Node,
   useNodesState,
   useEdgesState,
   MarkerType,
-  Position,
-  NodeProps,
-} from 'reactflow';
+  Position
+} from '@xyflow/react';
+import type { Edge, Node, NodeProps } from '@xyflow/react';
 import styles from './Graph.module.css';
 import dagre from 'dagre';
-import 'reactflow/dist/style.css';
+import '@xyflow/react/dist/style.css';
 import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
@@ -105,8 +103,8 @@ const Graph: React.FC = () => {
   const { data: providerConfigsList, error: providerConfigsError } = useProvidersConfigResource({
     refreshInterval: resourcesInterval,
   });
-  const [nodes, setNodes] = useNodesState<NodeData>([]);
-  const [edges, setEdges] = useEdgesState<Edge[]>([]);
+  const [nodes, setNodes] = useNodesState<Node<NodeData>>([]);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
 
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
@@ -118,12 +116,12 @@ const Graph: React.FC = () => {
   };
 
   const nodeTypes = {
-    custom: (props: NodeProps<NodeData>) => (
+    custom: (props: NodeProps) => (
       <CustomNode
-        label={props.data.label}
-        type={props.data.type}
-        status={props.data.status}
-        onYamlClick={() => handleYamlClick(props.data.item)}
+        label={props.data.label as string}
+        type={props.data.type as string}
+        status={props.data.status as string}
+        onYamlClick={() => handleYamlClick(props.data.item as ManagedResourceItem)}
       />
     ),
   };
@@ -216,11 +214,11 @@ const Graph: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!treeData.length) return;
-    const { nodes, edges } = buildGraph(treeData, colorBy, colorMap);
-    setNodes(nodes);
-    setEdges(edges);
-  }, [treeData, colorBy, colorMap, setNodes, setEdges]);
+  if (!treeData.length) return;
+  const { nodes, edges } = buildGraph(treeData, colorBy, colorMap);
+  setNodes(nodes); 
+  setEdges(edges); 
+}, [treeData, colorBy, colorMap, setNodes, setEdges]);
 
   if (managedResourcesError || providerConfigsError) {
     return <div className={`${styles.message} ${styles.errorMessage}`}>{t('Graphs.loadingError')}</div>;
@@ -269,6 +267,9 @@ const Graph: React.FC = () => {
             markerEnd: { type: MarkerType.ArrowClosed },
           }}
           fitView
+          proOptions={{
+            hideAttribution: true,
+          }}
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}

@@ -45,3 +45,7 @@
 .statusIcon {
   margin-right: 6px;
 }
+
+.handleHidden {
+  visibility: hidden;
+}
