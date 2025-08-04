@@ -1,103 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState, MarkerType, Position } from '@xyflow/react';
-import type { Edge, Node, NodeProps } from '@xyflow/react';
+import React, { useMemo, useState } from 'react';
+import { ReactFlow, Background, Controls, MarkerType } from '@xyflow/react';
+import type { NodeProps } from '@xyflow/react';
 import styles from './Graph.module.css';
-import dagre from 'dagre';
 import '@xyflow/react/dist/style.css';
-import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
-import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
-import { resourcesInterval } from '../../lib/shared/constants';
-import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
+import { ManagedResourceItem } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
-import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
 import YamlViewer from '../Yaml/YamlViewer';
 import { stringify } from 'yaml';
 import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
 import { useTranslation } from 'react-i18next';
-
-const nodeWidth = 250;
-const nodeHeight = 60;
-
-function buildGraph(
-  treeData: NodeData[],
-  colorBy: 'provider' | 'source',
-  colorMap: Record<string, string>,
-): { nodes: Node<NodeData>[]; edges: Edge[] } {
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-  dagreGraph.setGraph({ rankdir: 'TB' });
-
-  const nodeMap: Record<string, Node<NodeData>> = {};
-  treeData.forEach((n) => {
-    const colorKey = colorBy === 'source' ? n.providerType : n.providerConfigName;
-    const node: Node<NodeData> = {
-      id: n.id,
-      type: 'custom',
-      data: { ...n },
-      style: {
-        border: `2px solid ${colorMap[colorKey] || '#ccc'}`,
-        borderRadius: 8,
-        backgroundColor: '#fff',
-        width: nodeWidth,
-        height: nodeHeight,
-      },
-      width: nodeWidth,
-      height: nodeHeight,
-      position: { x: 0, y: 0 },
-      sourcePosition: Position.Bottom,
-      targetPosition: Position.Top,
-    };
-    nodeMap[n.id] = node;
-    dagreGraph.setNode(n.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  const edgeList: Edge[] = [];
-  treeData.forEach((n) => {
-    if (n.parentId) {
-      dagreGraph.setEdge(n.parentId, n.id);
-      edgeList.push({
-        id: `e-${n.parentId}-${n.id}`,
-        source: n.parentId,
-        target: n.id,
-        markerEnd: { type: MarkerType.ArrowClosed },
-      });
-    }
-    n.extraRefs?.forEach((refId) => {
-      if (nodeMap[refId]) {
-        dagreGraph.setEdge(refId, n.id);
-        edgeList.push({
-          id: `e-${refId}-${n.id}`,
-          source: refId,
-          target: n.id,
-          markerEnd: { type: MarkerType.ArrowClosed },
-        });
-      }
-    });
-  });
-
-  dagre.layout(dagreGraph);
-  Object.values(nodeMap).forEach((node) => {
-    const pos = dagreGraph.node(node.id);
-    node.position = { x: pos.x - nodeWidth / 2, y: pos.y - nodeHeight / 2 };
-  });
-
-  return { nodes: Object.values(nodeMap), edges: edgeList };
-}
+import { useGraph } from './useGraph';
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
-
-  const { data: managedResources, error: managedResourcesError } = useApiResource(ManagedResourcesRequest, {
-    refreshInterval: resourcesInterval,
-  });
-  const { data: providerConfigsList, error: providerConfigsError } = useProvidersConfigResource({
-    refreshInterval: resourcesInterval,
-  });
-  const [nodes, setNodes] = useNodesState<Node<NodeData>>([]);
-  const [edges, setEdges] = useEdgesState<Edge>([]);
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
+  const { nodes, edges, colorMap, treeData, loading } = useGraph(colorBy);
 
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
@@ -128,74 +47,6 @@ const Graph: React.FC = () => {
     return `${kind ?? ''}${metadata?.name ? '_' : ''}${metadata?.name ?? ''}`;
   }, [yamlResource]);
 
-  const treeData = useMemo(() => {
-    const allNodesMap = new Map<string, NodeData>();
-    if (managedResources) {
-      managedResources.forEach((group: ManagedResourceGroup) => {
-        group.items?.forEach((item: ManagedResourceItem) => {
-          const id = item?.metadata?.name;
-          const kind = item?.kind;
-          const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
-          const providerType = resolveProviderType(providerConfigName, providerConfigsList);
-          const status = getStatusFromConditions(item?.status?.conditions);
-
-          const {
-            subaccountRef,
-            serviceManagerRef,
-            spaceRef,
-            orgRef,
-            cloudManagementRef,
-            directoryRef,
-            entitlementRef,
-            globalAccountRef,
-            orgRoleRef,
-            spaceMembersRef,
-            cloudFoundryEnvironmentRef,
-            kymaEnvironmentRef,
-            roleCollectionRef,
-            roleCollectionAssignmentRef,
-            subaccountTrustConfigurationRef,
-            globalaccountTrustConfigurationRef,
-          } = extractRefs(item);
-
-          const parentId = serviceManagerRef || subaccountRef;
-          const extraRefs = [
-            spaceRef,
-            orgRef,
-            cloudManagementRef,
-            directoryRef,
-            entitlementRef,
-            globalAccountRef,
-            orgRoleRef,
-            spaceMembersRef,
-            cloudFoundryEnvironmentRef,
-            kymaEnvironmentRef,
-            roleCollectionRef,
-            roleCollectionAssignmentRef,
-            subaccountTrustConfigurationRef,
-            globalaccountTrustConfigurationRef,
-          ].filter(Boolean) as string[];
-
-          if (id) {
-            allNodesMap.set(id, {
-              id,
-              label: id,
-              type: kind,
-              providerConfigName,
-              providerType,
-              status,
-              parentId,
-              extraRefs,
-              item,
-            });
-          }
-        });
-      });
-    }
-    return Array.from(allNodesMap.values());
-  }, [managedResources, providerConfigsList]);
-
-  const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
   const legendItems: LegendItem[] = useMemo(
     () =>
       Object.entries(colorMap).map(([name, color]) => ({
@@ -205,22 +56,11 @@ const Graph: React.FC = () => {
     [colorMap],
   );
 
-  useEffect(() => {
-    if (!treeData.length) return;
-    const { nodes, edges } = buildGraph(treeData, colorBy, colorMap);
-    setNodes(nodes);
-    setEdges(edges);
-  }, [treeData, colorBy, colorMap, setNodes, setEdges]);
-
-  if (managedResourcesError || providerConfigsError) {
-    return <div className={`${styles.message} ${styles.errorMessage}`}>{t('Graphs.loadingError')}</div>;
-  }
-
-  if (!managedResources || !providerConfigsList) {
+  if (loading) {
     return <div className={styles.message}>{t('Graphs.loadingGraph')}</div>;
   }
 
-  if (treeData.length === 0) {
+  if (!treeData.length) {
     return <div className={styles.message}>{t('Graphs.noResources')}</div>;
   }
 
