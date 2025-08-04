@@ -94,15 +94,13 @@ export function Providers() {
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
-            <div>
-              <ResourceStatusCellWithButton
-                value={cellData.cell.row.original?.healthy === 'true'}
-                transitionTime={cellData.cell.row.original?.healthyTransitionTime}
-                positiveText={'Healthy'}
-                negativeText={'Not healthy'}
-                message={cellData.cell.row.original?.healthyMessage}
-              />
-            </div>
+            <ResourceStatusCellWithButton
+              value={cellData.cell.row.original?.healthy === 'true'}
+              transitionTime={cellData.cell.row.original?.healthyTransitionTime}
+              positiveText={'Healthy'}
+              negativeText={'Not healthy'}
+              message={cellData.cell.row.original?.healthyMessage}
+            />
           ) : null,
       },
       {

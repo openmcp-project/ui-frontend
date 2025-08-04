@@ -107,17 +107,15 @@ export default function FluxList() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
-            <span>
-              <ResourceStatusCellWithButton
-                positiveText={'Ready'}
-                negativeText={'Error'}
-                value={cellData.cell.row.original?.isReady}
-                transitionTime={
-                  cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
-                }
-                message={cellData.cell.row.original?.readyMessage}
-              />
-            </span>
+            <ResourceStatusCellWithButton
+              positiveText={'Ready'}
+              negativeText={'Error'}
+              value={cellData.cell.row.original?.isReady}
+              transitionTime={
+                cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
+              }
+              message={cellData.cell.row.original?.readyMessage}
+            />
           ) : null,
       },
 
