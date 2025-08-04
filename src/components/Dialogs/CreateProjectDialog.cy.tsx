@@ -1,20 +1,24 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog';
 import { MemberRoles } from '../../lib/api/types/shared/members';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { validationSchemaProjectWorkspace } from '../../lib/api/validations/schemas.ts';
+import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
+import { useTranslation } from 'react-i18next';
 
 export const CreateProjectWorkspaceDialogWrapper: React.FC<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   spyFormBody?: (data: any) => object;
 }> = ({ spyFormBody }) => {
   const [isOpen, setIsOpen] = useState(true);
+  const { t } = useTranslation();
 
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+
+  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
 
   const {
     register,
