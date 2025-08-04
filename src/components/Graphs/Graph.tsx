@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  useNodesState,
-  useEdgesState,
-  MarkerType,
-  Position
-} from '@xyflow/react';
+import { ReactFlow, Background, Controls, useNodesState, useEdgesState, MarkerType, Position } from '@xyflow/react';
 import type { Edge, Node, NodeProps } from '@xyflow/react';
 import styles from './Graph.module.css';
 import dagre from 'dagre';
@@ -214,11 +206,11 @@ const Graph: React.FC = () => {
   );
 
   useEffect(() => {
-  if (!treeData.length) return;
-  const { nodes, edges } = buildGraph(treeData, colorBy, colorMap);
-  setNodes(nodes); 
-  setEdges(edges); 
-}, [treeData, colorBy, colorMap, setNodes, setEdges]);
+    if (!treeData.length) return;
+    const { nodes, edges } = buildGraph(treeData, colorBy, colorMap);
+    setNodes(nodes);
+    setEdges(edges);
+  }, [treeData, colorBy, colorMap, setNodes, setEdges]);
 
   if (managedResourcesError || providerConfigsError) {
     return <div className={`${styles.message} ${styles.errorMessage}`}>{t('Graphs.loadingError')}</div>;
