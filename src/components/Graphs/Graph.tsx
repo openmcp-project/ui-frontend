@@ -98,7 +98,7 @@ function buildGraph(
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
-   
+
   const { data: managedResources, error: managedResourcesError } = useApiResource(ManagedResourcesRequest, {
     refreshInterval: resourcesInterval,
   });
@@ -119,13 +119,13 @@ const Graph: React.FC = () => {
 
   const nodeTypes = {
     custom: (props: NodeProps<NodeData>) => (
-  <CustomNode
-    label={props.data.label}
-    type={props.data.type}
-    status={props.data.status}
-    onYamlClick={() => handleYamlClick(props.data.item)}
-  />
-),
+      <CustomNode
+        label={props.data.label}
+        type={props.data.type}
+        status={props.data.status}
+        onYamlClick={() => handleYamlClick(props.data.item)}
+      />
+    ),
   };
 
   const yamlString = useMemo(
@@ -212,7 +212,7 @@ const Graph: React.FC = () => {
         name: name === 'default' ? 'default' : name,
         color,
       })),
-    [colorMap]
+    [colorMap],
   );
 
   useEffect(() => {
@@ -235,58 +235,58 @@ const Graph: React.FC = () => {
   }
 
   return (
-  <div className={styles.graphContainer}>
-    <div className={styles.graphColumn}>
-      <div className={styles.graphHeader}>
-        <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
-        <label>
-          <input
-            type="radio"
-            name="colorBy"
-            value="provider"
-            checked={colorBy === 'provider'}
-            onChange={() => setColorBy('provider')}
-          />{' '}
-          {t('Graphs.colorsProviderConfig')}
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="colorBy"
-            value="source"
-            checked={colorBy === 'source'}
-            onChange={() => setColorBy('source')}
-          />{' '}
-          {t('Graphs.colorsProvider')}
-        </label>
+    <div className={styles.graphContainer}>
+      <div className={styles.graphColumn}>
+        <div className={styles.graphHeader}>
+          <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
+          <label>
+            <input
+              type="radio"
+              name="colorBy"
+              value="provider"
+              checked={colorBy === 'provider'}
+              onChange={() => setColorBy('provider')}
+            />{' '}
+            {t('Graphs.colorsProviderConfig')}
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="colorBy"
+              value="source"
+              checked={colorBy === 'source'}
+              onChange={() => setColorBy('source')}
+            />{' '}
+            {t('Graphs.colorsProvider')}
+          </label>
+        </div>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          defaultEdgeOptions={{
+            style: { stroke: '#888', strokeWidth: 1.5 },
+            markerEnd: { type: MarkerType.ArrowClosed },
+          }}
+          fitView
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+          zoomOnScroll={true}
+          panOnDrag={true}
+        >
+          <Controls />
+          <Background />
+        </ReactFlow>
       </div>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        defaultEdgeOptions={{
-          style: { stroke: '#888', strokeWidth: 1.5 },
-          markerEnd: { type: MarkerType.ArrowClosed },
-        }}
-        fitView
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-        zoomOnScroll={true}
-        panOnDrag={true}
-      >
-        <Controls />
-        <Background />
-      </ReactFlow>
+      <YamlViewDialog
+        isOpen={yamlDialogOpen}
+        setIsOpen={setYamlDialogOpen}
+        dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
+      />
+      <Legend legendItems={legendItems} />
     </div>
-    <YamlViewDialog
-      isOpen={yamlDialogOpen}
-      setIsOpen={setYamlDialogOpen}
-      dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
-    />
-    <Legend legendItems={legendItems} />
-  </div>
-);
+  );
 };
 
 export default Graph;

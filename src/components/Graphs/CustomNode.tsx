@@ -11,12 +11,7 @@ export interface CustomNodeProps {
   onYamlClick: () => void;
 }
 
-const CustomNode: React.FC<CustomNodeProps> = ({
-  label,
-  type,
-  status,
-  onYamlClick,
-}) => (
+const CustomNode: React.FC<CustomNodeProps> = ({ label, type, status, onYamlClick }) => (
   <div className={styles.nodeContainer}>
     <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
     <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
@@ -32,12 +27,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
       </div>
     </div>
     <div className={styles.yamlButtonWrapper}>
-      <Button
-        design="Transparent"
-        aria-label="YAML"
-        title="YAML"
-        onClick={onYamlClick}
-      >
+      <Button design="Transparent" aria-label="YAML" title="YAML" onClick={onYamlClick}>
         <Icon name="document" design="Information" />
       </Button>
     </div>
