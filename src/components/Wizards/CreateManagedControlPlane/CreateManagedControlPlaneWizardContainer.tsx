@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
-import { validationSchemaCreateManagedControlPlane } from '../../../lib/api/validations/schemas.ts';
+import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
@@ -62,6 +62,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
+  const validationSchemaCreateManagedControlPlane = useMemo(() => createManagedControlPlaneSchema(t), [t]);
 
   const {
     register,

@@ -8,7 +8,7 @@ import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
 import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
 import { ThemeManager } from './components/ThemeManager.tsx';
-import '.././i18n.ts';
+import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
