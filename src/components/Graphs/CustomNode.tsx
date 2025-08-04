@@ -1,38 +1,44 @@
 import React from 'react';
 import { Handle, Position } from 'reactflow';
-import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { Button, Icon } from '@ui5/webcomponents-react';
 import StatusIcon from './StatusIcon';
-import { CustomNodeProps, ManagedResourceItem } from './types';
 import styles from './CustomNode.module.css';
 
-const CustomNode: React.FC<CustomNodeProps & { onYamlClick: (item: ManagedResourceItem) => void }> = ({
-  data,
+export interface CustomNodeProps {
+  label: string;
+  type?: string;
+  status: string;
+  onYamlClick: () => void;
+}
+
+const CustomNode: React.FC<CustomNodeProps> = ({
+  label,
+  type,
+  status,
   onYamlClick,
 }) => (
-  <div className={styles.nodeContainer} style={{ fontFamily: ThemingParameters.sapFontFamily }}>
+  <div className={styles.nodeContainer}>
     <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
     <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
     <div className={styles.nodeContent}>
       <div className={styles.statusIcon}>
-        <StatusIcon status={data.status} />
+        <StatusIcon isOk={status === 'OK'} />
       </div>
       <div className={styles.nodeTextContainer}>
-        <div className={styles.nodeLabel} title={data.label}>
-          {data.label}
+        <div className={styles.nodeLabel} title={label}>
+          {label}
         </div>
-        {data.type && <div className={styles.nodeType}>{data.type}</div>}
+        {type && <div className={styles.nodeType}>{type}</div>}
       </div>
     </div>
     <div className={styles.yamlButtonWrapper}>
       <Button
-        className={styles.smallerIconButton}
         design="Transparent"
         aria-label="YAML"
         title="YAML"
-        onClick={() => onYamlClick(data.item)}
+        onClick={onYamlClick}
       >
-        <Icon name="document" style={{ color: 'rgb(0, 100, 217)' }} />
+        <Icon name="document" design="Information" />
       </Button>
     </div>
   </div>

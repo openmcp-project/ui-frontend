@@ -1,23 +1,26 @@
 import React from 'react';
-import { NodeData, ProviderConfigItem } from './types';
 import styles from './Legend.module.css';
+import { useTranslation } from 'react-i18next';
 
-interface LegendProps {
-  nodes: NodeData[];
-  colorBy: string;
-  providers?: ProviderConfigItem[];
-  generateColorMap: (items: NodeData[], colorBy: string) => Record<string, string>;
+export interface LegendItem {
+  name: string;
+  color: string;
 }
 
-export const Legend: React.FC<LegendProps> = ({ nodes, colorBy, generateColorMap }) => {
-  const colorMap = generateColorMap(nodes, colorBy);
+interface LegendProps {
+  legendItems: LegendItem[];
+}
+
+export const Legend: React.FC<LegendProps> = ({ legendItems }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.legendContainer}>
-      <h4 className={styles.legendTitle}>Legend:</h4>
-      {Object.entries(colorMap).map(([key, color]) => (
-        <div key={key} className={styles.legendRow}>
+      <h4 className={styles.legendTitle}>{t('GraphsLegend.title')}</h4>
+      {legendItems.map(({ name, color }) => (
+        <div key={name} className={styles.legendRow}>
           <div className={styles.legendColorBox} style={{ backgroundColor: color }} />
-          <span>{key === 'default' ? 'default' : key}</span>
+          <span>{name}</span>
         </div>
       ))}
     </div>

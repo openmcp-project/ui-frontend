@@ -29,7 +29,6 @@ export interface ManagedResourceItem {
       roleCollectionAssignmentRef?: { name?: string };
       subaccountTrustConfigurationRef?: { name?: string };
       globalaccountTrustConfigurationRef?: { name?: string };
-      // Dodaj inne referencje jeśli będą potrzebne
     };
     cloudManagementRef?: { name: string };
   };
@@ -61,12 +60,4 @@ export interface NodeData {
   parentId?: string;
   extraRefs: string[];
   item: ManagedResourceItem;
-}
-
-export interface CustomNodeProps {
-  data: NodeData;
-}
-
-export interface StatusIconProps {
-  status: string;
 }

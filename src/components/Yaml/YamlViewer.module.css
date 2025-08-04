@@ -9,17 +9,6 @@
   z-index: 1;
 }
 
-.smallIcon {
-  color: #004CA3;
-}
-
-.smallerIconButton {
-  width: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .button {
   width: 4rem;
   display: flex;

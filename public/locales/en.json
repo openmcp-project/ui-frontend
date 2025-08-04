@@ -282,6 +282,17 @@
     "tableHeaderInstalled": "Installed",
     "tableHeaderHealthy": "Healthy"
   },
+  "Graphs": {
+    "colorsProvider": "Provider",
+    "colorsProviderConfig": "Provider Config",
+    "colorizedTitle": "Colorized Graph",
+    "loadingError": "Error loading graph data",
+    "loadingGraph": "Loading graph data...",
+    "noResources": "No resources to display"
+  },
+  "GraphsLegend": {
+    "title": "Legend"
+  },
   "validationErrors": {
     "required": "This field is required!",
     "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",

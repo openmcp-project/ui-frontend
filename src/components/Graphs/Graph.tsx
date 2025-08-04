@@ -17,15 +17,15 @@ import 'reactflow/dist/style.css';
 import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
 import CustomNode from './CustomNode';
-import { Legend } from './Legend';
+import { Legend, LegendItem } from './Legend';
 import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
 import YamlViewer from '../Yaml/YamlViewer';
 import { stringify } from 'yaml';
 import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
+import { useTranslation } from 'react-i18next';
 
 const nodeWidth = 250;
 const nodeHeight = 60;
@@ -97,6 +97,8 @@ function buildGraph(
 }
 
 const Graph: React.FC = () => {
+  const { t } = useTranslation();
+   
   const { data: managedResources, error: managedResourcesError } = useApiResource(ManagedResourcesRequest, {
     refreshInterval: resourcesInterval,
   });
@@ -116,7 +118,14 @@ const Graph: React.FC = () => {
   };
 
   const nodeTypes = {
-    custom: (props: NodeProps<NodeData>) => <CustomNode {...props} onYamlClick={handleYamlClick} />,
+    custom: (props: NodeProps<NodeData>) => (
+  <CustomNode
+    label={props.data.label}
+    type={props.data.type}
+    status={props.data.status}
+    onYamlClick={() => handleYamlClick(props.data.item)}
+  />
+),
   };
 
   const yamlString = useMemo(
@@ -197,6 +206,14 @@ const Graph: React.FC = () => {
   }, [managedResources, providerConfigsList]);
 
   const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
+  const legendItems: LegendItem[] = useMemo(
+    () =>
+      Object.entries(colorMap).map(([name, color]) => ({
+        name: name === 'default' ? 'default' : name,
+        color,
+      })),
+    [colorMap]
+  );
 
   useEffect(() => {
     if (!treeData.length) return;
@@ -206,89 +223,70 @@ const Graph: React.FC = () => {
   }, [treeData, colorBy, colorMap, setNodes, setEdges]);
 
   if (managedResourcesError || providerConfigsError) {
-    return <div className={`${styles.centeredMessage} ${styles.errorMessage}`}>Error loading graph data.</div>;
+    return <div className={`${styles.message} ${styles.errorMessage}`}>{t('Graphs.loadingError')}</div>;
   }
 
   if (!managedResources || !providerConfigsList) {
-    return <div className={styles.centeredMessage}>Loading graph data...</div>;
+    return <div className={styles.message}>{t('Graphs.loadingGraph')}</div>;
   }
 
   if (treeData.length === 0) {
-    return <div className={styles.centeredMessage}>No resources to display.</div>;
+    return <div className={styles.message}>{t('Graphs.noResources')}</div>;
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '600px',
-        border: '1px solid #ddd',
-        borderRadius: 8,
-        overflow: 'hidden',
-        backgroundColor: '#fafafa',
-        fontFamily: ThemingParameters.sapFontFamily,
-      }}
-    >
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div
-          style={{
-            padding: '0.5rem',
-            display: 'flex',
-            gap: '1rem',
-            alignItems: 'center',
-          }}
-        >
-          <span style={{ fontWeight: 500 }}>Colorized by:</span>
-          <label>
-            <input
-              type="radio"
-              name="colorBy"
-              value="provider"
-              checked={colorBy === 'provider'}
-              onChange={() => setColorBy('provider')}
-            />{' '}
-            Provider Config
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="colorBy"
-              value="source"
-              checked={colorBy === 'source'}
-              onChange={() => setColorBy('source')}
-            />{' '}
-            Provider
-          </label>
-        </div>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          defaultEdgeOptions={{
-            style: { stroke: '#888', strokeWidth: 1.5 },
-            markerEnd: { type: MarkerType.ArrowClosed },
-          }}
-          fitView
-          nodesDraggable={false}
-          nodesConnectable={false}
-          elementsSelectable={false}
-          zoomOnScroll={true}
-          panOnDrag={true}
-        >
-          <Controls />
-          <Background />
-        </ReactFlow>
+  <div className={styles.graphContainer}>
+    <div className={styles.graphColumn}>
+      <div className={styles.graphHeader}>
+        <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
+        <label>
+          <input
+            type="radio"
+            name="colorBy"
+            value="provider"
+            checked={colorBy === 'provider'}
+            onChange={() => setColorBy('provider')}
+          />{' '}
+          {t('Graphs.colorsProviderConfig')}
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="colorBy"
+            value="source"
+            checked={colorBy === 'source'}
+            onChange={() => setColorBy('source')}
+          />{' '}
+          {t('Graphs.colorsProvider')}
+        </label>
       </div>
-      {yamlDialogOpen && yamlResource && (
-        <YamlViewDialog
-          isOpen={yamlDialogOpen}
-          setIsOpen={setYamlDialogOpen}
-          dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
-        />
-      )}
-      <Legend nodes={nodes.map((n) => n.data as NodeData)} colorBy={colorBy} generateColorMap={generateColorMap} />
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        defaultEdgeOptions={{
+          style: { stroke: '#888', strokeWidth: 1.5 },
+          markerEnd: { type: MarkerType.ArrowClosed },
+        }}
+        fitView
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
+        zoomOnScroll={true}
+        panOnDrag={true}
+      >
+        <Controls />
+        <Background />
+      </ReactFlow>
     </div>
-  );
+    <YamlViewDialog
+      isOpen={yamlDialogOpen}
+      setIsOpen={setYamlDialogOpen}
+      dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
+    />
+    <Legend legendItems={legendItems} />
+  </div>
+);
 };
 
 export default Graph;

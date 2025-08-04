@@ -1,22 +1,17 @@
 import React from 'react';
 import { Icon } from '@ui5/webcomponents-react';
+import styles from './StatusIcon.module.css';
 
 export interface StatusIconProps {
-  status: string;
+  isOk: boolean;
 }
 
-const StatusIcon: React.FC<StatusIconProps> = ({ status }) => {
-  const isOk = status === 'OK';
-  return (
-    <Icon
-      name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
-      style={{
-        color: isOk ? '#28a745' : '#dc3545',
-        fontSize: '1rem',
-        marginRight: 6,
-      }}
-    />
-  );
-};
+const StatusIcon: React.FC<StatusIconProps> = ({ isOk }) => (
+  <Icon
+    name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
+    design={isOk ? 'Positive' : 'Negative'}
+    className={styles.statusIcon}
+  />
+);
 
 export default StatusIcon;

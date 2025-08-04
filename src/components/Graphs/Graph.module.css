@@ -14,6 +14,13 @@
   flex-direction: column;
 }
 
+.graphHeader {
+  padding: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .graphToolbar {
   padding: 0.5rem;
   display: flex;
@@ -21,7 +28,7 @@
   align-items: center;
 }
 
-.centeredMessage {
+.message {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,4 +39,8 @@
 
 .errorMessage {
   color: #c00;
+}
+
+.colorizedTitle {
+  font-weight: 500;
 }

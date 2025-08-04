@@ -94,7 +94,7 @@ export default function McpPage() {
             <ObjectPageSection
               className="cp-page-section-graph"
               id="graph"
-              titleText={t('ControlPlaneView.graphTitle')}
+              titleText={t('McpPage.graphTitle')}
               hideTitleText
             >
               <Graph />
