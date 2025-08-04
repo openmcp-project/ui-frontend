@@ -27,6 +27,7 @@ export type ProviderConfigs = {
       };
       status: {
         count: string;
+        users: string;
       };
     },
   ];
