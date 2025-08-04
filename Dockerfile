@@ -1,6 +1,5 @@
-# Use the latest LTS version of Node.js
-# https://hub.docker.com/_/node
-FROM node:22@sha256:37ff334612f77d8f999c10af8797727b731629c26f2e83caa6af390998bdc49c AS build-stage
+# BUILD STAGE
+FROM node:24-slim@sha256:36ae19f59c91f3303c7a648f07493fe14c4bd91320ac8d898416327bacf1bbfa AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -14,11 +13,21 @@ ENV NODE_ENV=production
 COPY . .
 RUN npm run build
 
-# The same image but now only install the production dependencies as the frontend is already built using vite in the build-stage
-FROM gcr.io/distroless/nodejs22-debian12@sha256:b765815eafacee5222bfa50179028f41dd8c642b68ad68ec4e6922d3b1ff2710 AS production
+# Remove dev dependencies so the node_modules directory that we COPY into the distroless image contains only runtime dependencies
+RUN npm prune --omit=dev
 
+
+# PRODUCTION STAGE
+FROM gcr.io/distroless/nodejs24-debian12@sha256:20a51c926c0bb68a9b1f7059c81516da002655f8a896a2cb7bc56b56974782b3 AS production
 WORKDIR /usr/src/app
 
-COPY --from=build-stage /usr/src/app /usr/src/app
+# Copy built files
+COPY --from=build-stage /usr/src/app/dist/client /usr/src/app/dist/client
+COPY --from=build-stage /usr/src/app/dist/vite.config.json /usr/src/app/dist/vite.config.json
+COPY --from=build-stage /usr/src/app/dist/server /usr/src/app/server
+COPY --from=build-stage /usr/src/app/dist/server.js /usr/src/app/server.js
+COPY --from=build-stage /usr/src/app/public /usr/src/app/public
+COPY --from=build-stage /usr/src/app/node_modules /usr/src/app/node_modules
 
+# Run
 CMD ["server.js"]

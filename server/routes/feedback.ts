@@ -1,9 +1,12 @@
+// @ts-ignore
 import fetch from 'node-fetch';
 import fp from 'fastify-plugin';
 
+// @ts-ignore
 async function feedbackRoute(fastify) {
   const { FEEDBACK_SLACK_URL } = fastify.config;
 
+  // @ts-ignore
   fastify.post('/feedback', async (request, reply) => {
     const { message, rating, user, environment } = request.body;
 
