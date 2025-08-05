@@ -46,11 +46,12 @@ export const generateColorMap = (items: NodeData[], colorBy: string): Record<str
       ? Array.from(new Set(items.map((i) => i.providerType).filter(Boolean)))
       : Array.from(new Set(items.map((i) => i.providerConfigName).filter(Boolean)));
 
-  const map: Record<string, string> = {};
+  const map = new Map<string, string>();
   keys.forEach((key, i) => {
-    map[key] = colors[i % colors.length];
+    map.set(key, colors[i % colors.length]);
   });
-  return map;
+
+  return Object.fromEntries(map);
 };
 
 export function extractRefs(item: ManagedResourceItem) {

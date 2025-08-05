@@ -19,7 +19,7 @@ function buildGraph(
   dagreGraph.setDefaultEdgeLabel(() => ({}));
   dagreGraph.setGraph({ rankdir: 'TB' });
 
-  const nodeMap: Record<string, Node<NodeData>> = {};
+  const nodeMap = new Map<string, Node<NodeData>>();
   treeData.forEach((n) => {
     const colorKey = colorBy === 'source' ? n.providerType : n.providerConfigName;
     const node: Node<NodeData> = {
@@ -39,7 +39,7 @@ function buildGraph(
       sourcePosition: Position.Bottom,
       targetPosition: Position.Top,
     };
-    nodeMap[n.id] = node;
+    nodeMap.set(n.id, node);
     dagreGraph.setNode(n.id, { width: nodeWidth, height: nodeHeight });
   });
 
@@ -55,7 +55,7 @@ function buildGraph(
       });
     }
     n.extraRefs?.forEach((refId) => {
-      if (nodeMap[refId]) {
+      if (nodeMap.has(refId)) {
         dagreGraph.setEdge(refId, n.id);
         edgeList.push({
           id: `e-${refId}-${n.id}`,
@@ -68,12 +68,12 @@ function buildGraph(
   });
 
   dagre.layout(dagreGraph);
-  Object.values(nodeMap).forEach((node) => {
+  nodeMap.forEach((node) => {
     const pos = dagreGraph.node(node.id);
     node.position = { x: pos.x - nodeWidth / 2, y: pos.y - nodeHeight / 2 };
   });
 
-  return { nodes: Object.values(nodeMap), edges: edgeList };
+  return { nodes: Array.from(nodeMap.values()), edges: edgeList };
 }
 
 export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceItem) => void) {
