@@ -18,7 +18,7 @@ RUN npm prune --omit=dev
 
 
 # PRODUCTION STAGE
-FROM gcr.io/distroless/nodejs24-debian12@sha256:ca801d691284502b3b433d9fbd13f85b5c222f62b3716e2fa8838f72a8f5c17c AS production
+FROM gcr.io/distroless/nodejs24-debian12@sha256:ea1b7da0dc772436dd12d54e7cacbb74959be4ce0e0e7521a26360a4aee78d31 AS production
 WORKDIR /usr/src/app
 
 # Copy built files
