@@ -285,7 +285,7 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Colorized Graph",
+    "colorizedTitle": "Colorized Graph by: ",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"

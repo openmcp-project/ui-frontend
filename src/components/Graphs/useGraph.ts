@@ -77,14 +77,20 @@ function buildGraph(
 }
 
 export function useGraph(colorBy: 'provider' | 'source') {
-  const { data: managedResources, isLoading: managedResourcesLoading, error: managedResourcesError } =
-    useApiResource(ManagedResourcesRequest, {
-      refreshInterval: resourcesInterval,
-    });
-  const { data: providerConfigsList, isLoading: providerConfigsLoading, error: providerConfigsError } =
-    useProvidersConfigResource({
-      refreshInterval: resourcesInterval,
-    });
+  const {
+    data: managedResources,
+    isLoading: managedResourcesLoading,
+    error: managedResourcesError,
+  } = useApiResource(ManagedResourcesRequest, {
+    refreshInterval: resourcesInterval,
+  });
+  const {
+    data: providerConfigsList,
+    isLoading: providerConfigsLoading,
+    error: providerConfigsError,
+  } = useProvidersConfigResource({
+    refreshInterval: resourcesInterval,
+  });
 
   const loading = managedResourcesLoading || providerConfigsLoading;
   const error = managedResourcesError || providerConfigsError;

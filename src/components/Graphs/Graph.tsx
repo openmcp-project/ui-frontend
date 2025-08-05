@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ReactFlow, Background, Controls, MarkerType } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
+import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
 import { ManagedResourceItem } from './types';
@@ -72,27 +73,21 @@ const Graph: React.FC = () => {
     <div className={styles.graphContainer}>
       <div className={styles.graphColumn}>
         <div className={styles.graphHeader}>
-          <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
-          <label>
-            <input
-              type="radio"
+          <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
+            <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
+            <RadioButton
               name="colorBy"
-              value="provider"
+              text={t('Graphs.colorsProviderConfig')}
               checked={colorBy === 'provider'}
               onChange={() => setColorBy('provider')}
-            />{' '}
-            {t('Graphs.colorsProviderConfig')}
-          </label>
-          <label>
-            <input
-              type="radio"
+            />
+            <RadioButton
               name="colorBy"
-              value="source"
+              text={t('Graphs.colorsProvider')}
               checked={colorBy === 'source'}
               onChange={() => setColorBy('source')}
-            />{' '}
-            {t('Graphs.colorsProvider')}
-          </label>
+            />
+          </FlexBox>
         </div>
         <ReactFlow
           nodes={nodes}
