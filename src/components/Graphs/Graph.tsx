@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { ReactFlow, Background, Controls, MarkerType } from '@xyflow/react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { ReactFlow, Background, Controls, MarkerType, Node } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
-import { ManagedResourceItem } from './types';
+import { ManagedResourceItem, NodeData } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
@@ -14,34 +14,35 @@ import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProp
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 
+const nodeTypes = {
+  custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
+    <CustomNode
+      label={props.data.label}
+      type={props.data.type}
+      status={props.data.status}
+      onYamlClick={() => props.data.onYamlClick(props.data.item)}
+    />
+  ),
+};
+
 const Graph: React.FC = () => {
   const { t } = useTranslation();
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
-  const { nodes, edges, colorMap, treeData, loading, error } = useGraph(colorBy);
-
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
 
-  const handleYamlClick = (item: ManagedResourceItem) => {
+  const handleYamlClick = useCallback((item: ManagedResourceItem) => {
     setYamlResource(item);
     setYamlDialogOpen(true);
-  };
+  }, []);
 
-  const nodeTypes = {
-    custom: (props: NodeProps) => (
-      <CustomNode
-        label={props.data.label as string}
-        type={props.data.type as string}
-        status={props.data.status as string}
-        onYamlClick={() => handleYamlClick(props.data.item as ManagedResourceItem)}
-      />
-    ),
-  };
+  const { nodes, edges, colorMap, treeData, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
     () => (yamlResource ? stringify(removeManagedFieldsProperty(yamlResource)) : ''),
     [yamlResource],
   );
+
   const yamlFilename = useMemo(() => {
     if (!yamlResource) return '';
     const { kind, metadata } = yamlResource;

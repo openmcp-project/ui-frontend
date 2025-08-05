@@ -76,7 +76,7 @@ function buildGraph(
   return { nodes: Object.values(nodeMap), edges: edgeList };
 }
 
-export function useGraph(colorBy: 'provider' | 'source') {
+export function useGraph(colorBy: 'provider' | 'source', onYamlClick: (item: ManagedResourceItem) => void) {
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -154,12 +154,13 @@ export function useGraph(colorBy: 'provider' | 'source') {
             parentId,
             extraRefs,
             item,
+            onYamlClick,
           });
         }
       });
     });
     return Array.from(allNodesMap.values());
-  }, [managedResources, providerConfigsList]);
+  }, [managedResources, providerConfigsList, onYamlClick]);
 
   const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
 

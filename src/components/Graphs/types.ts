@@ -61,4 +61,5 @@ export interface NodeData {
   parentId?: string;
   extraRefs: string[];
   item: ManagedResourceItem;
+  onYamlClick: (item: ManagedResourceItem) => void;
 }
