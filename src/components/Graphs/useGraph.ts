@@ -4,7 +4,7 @@ import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listMana
 import { resourcesInterval } from '../../lib/shared/constants';
 import { Node, Edge, Position, MarkerType } from '@xyflow/react';
 import dagre from 'dagre';
-import { NodeData, ManagedResourceGroup, ManagedResourceItem } from './types';
+import { NodeData, ManagedResourceGroup, ManagedResourceItem, ColorBy } from './types';
 import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
 
 const nodeWidth = 250;
@@ -12,7 +12,7 @@ const nodeHeight = 60;
 
 function buildGraph(
   treeData: NodeData[],
-  colorBy: 'provider' | 'source',
+  colorBy: ColorBy,
   colorMap: Record<string, string>,
 ): { nodes: Node<NodeData>[]; edges: Edge[] } {
   const dagreGraph = new dagre.graphlib.Graph();
@@ -76,7 +76,7 @@ function buildGraph(
   return { nodes: Object.values(nodeMap), edges: edgeList };
 }
 
-export function useGraph(colorBy: 'provider' | 'source', onYamlClick: (item: ManagedResourceItem) => void) {
+export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceItem) => void) {
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -178,5 +178,5 @@ export function useGraph(colorBy: 'provider' | 'source', onYamlClick: (item: Man
     setEdges(edges);
   }, [treeData, colorBy, colorMap]);
 
-  return { nodes, edges, colorMap, treeData, loading, error };
+  return { nodes, edges, colorMap, loading, error };
 }

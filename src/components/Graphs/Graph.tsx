@@ -4,7 +4,7 @@ import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
-import { ManagedResourceItem, NodeData } from './types';
+import { ManagedResourceItem, NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
@@ -27,7 +27,7 @@ const nodeTypes = {
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
-  const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
+  const [colorBy, setColorBy] = useState<ColorBy>('provider');
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
 
@@ -36,7 +36,7 @@ const Graph: React.FC = () => {
     setYamlDialogOpen(true);
   }, []);
 
-  const { nodes, edges, colorMap, treeData, loading, error } = useGraph(colorBy, handleYamlClick);
+  const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
     () => (yamlResource ? stringify(removeManagedFieldsProperty(yamlResource)) : ''),
@@ -66,7 +66,7 @@ const Graph: React.FC = () => {
     return <div className={styles.message}>{t('Graphs.loadingGraph')}</div>;
   }
 
-  if (!treeData.length) {
+  if (!nodes.length) {
     return <div className={styles.message}>{t('Graphs.noResources')}</div>;
   }
 

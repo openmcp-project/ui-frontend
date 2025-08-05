@@ -1,3 +1,5 @@
+export type ColorBy = 'provider' | 'source';
+
 export interface Condition {
   type: 'Ready' | 'Synced' | unknown;
   status: 'True' | 'False';

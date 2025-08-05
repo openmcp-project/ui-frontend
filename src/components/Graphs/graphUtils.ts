@@ -8,9 +8,7 @@ export const getStatusFromConditions = (conditions?: Condition[]): StatusType =>
   return relevant?.status === 'True' ? 'OK' : 'ERROR';
 };
 
-export const resolveProviderType = (configName?: string, providerConfigsList?: ProviderConfig[]): string => {
-  if (!configName) return 'unknown';
-
+export const resolveProviderType = (configName: string, providerConfigsList : ProviderConfig[]): string => {
   for (const configList of providerConfigsList || []) {
     const match = configList.items?.find((item) => item.metadata?.name === configName);
 
