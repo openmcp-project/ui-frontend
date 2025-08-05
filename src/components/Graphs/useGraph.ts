@@ -77,14 +77,17 @@ function buildGraph(
 }
 
 export function useGraph(colorBy: 'provider' | 'source') {
-  const { data: managedResources, isLoading: managedResourcesLoading } = useApiResource(ManagedResourcesRequest, {
-    refreshInterval: resourcesInterval,
-  });
-  const { data: providerConfigsList, isLoading: providerConfigsLoading } = useProvidersConfigResource({
-    refreshInterval: resourcesInterval,
-  });
+  const { data: managedResources, isLoading: managedResourcesLoading, error: managedResourcesError } =
+    useApiResource(ManagedResourcesRequest, {
+      refreshInterval: resourcesInterval,
+    });
+  const { data: providerConfigsList, isLoading: providerConfigsLoading, error: providerConfigsError } =
+    useProvidersConfigResource({
+      refreshInterval: resourcesInterval,
+    });
 
   const loading = managedResourcesLoading || providerConfigsLoading;
+  const error = managedResourcesError || providerConfigsError;
 
   const treeData = useMemo(() => {
     if (!managedResources || !providerConfigsList) return [];
@@ -168,5 +171,5 @@ export function useGraph(colorBy: 'provider' | 'source') {
     setEdges(edges);
   }, [treeData, colorBy, colorMap]);
 
-  return { nodes, edges, colorMap, treeData, loading };
+  return { nodes, edges, colorMap, treeData, loading, error };
 }

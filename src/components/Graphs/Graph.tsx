@@ -16,7 +16,7 @@ import { useGraph } from './useGraph';
 const Graph: React.FC = () => {
   const { t } = useTranslation();
   const [colorBy, setColorBy] = useState<'provider' | 'source'>('provider');
-  const { nodes, edges, colorMap, treeData, loading } = useGraph(colorBy);
+  const { nodes, edges, colorMap, treeData, loading, error } = useGraph(colorBy);
 
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
@@ -55,6 +55,10 @@ const Graph: React.FC = () => {
       })),
     [colorMap],
   );
+
+  if (error) {
+    return <div className={`${styles.message} ${styles.errorMessage}`}>{t('Graphs.loadingError')}</div>;
+  }
 
   if (loading) {
     return <div className={styles.message}>{t('Graphs.loadingGraph')}</div>;
