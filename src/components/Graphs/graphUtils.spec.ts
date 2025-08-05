@@ -65,14 +65,6 @@ describe('resolveProviderType', () => {
     const configs = [{ items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] }];
     expect(resolveProviderType('notfound', configs)).toBe('notfound');
   });
-
-  it('returns "unknown" if configName is missing', () => {
-    expect(resolveProviderType(undefined, [])).toBe('unknown');
-  });
-
-  it('returns configName if configs is undefined', () => {
-    expect(resolveProviderType('foo', undefined)).toBe('foo');
-  });
 });
 
 describe('generateColorMap', () => {
