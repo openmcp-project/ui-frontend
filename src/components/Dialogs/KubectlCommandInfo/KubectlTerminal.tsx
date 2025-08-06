@@ -35,6 +35,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
 
       return (
         <>
+          {/* eslint-disable-next-line i18next/no-literal-string */}
           <span>echo &apos;</span>
           <div style={{ marginLeft: '16px' }}>{yamlLines}</div>
           <span>&apos;</span> | <span>{kubectlPart}</span>
@@ -94,6 +95,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
       </FlexBox>
 
       <div style={{ padding: '12px 16px', overflowX: 'auto' }}>
+        {/* eslint-disable-next-line i18next/no-literal-string */}
         <span style={{ marginRight: '8px' }}>❯</span>
         {FormattedCommand()}
       </div>
