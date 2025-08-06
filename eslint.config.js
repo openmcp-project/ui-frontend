@@ -8,6 +8,7 @@ import jestDom from 'eslint-plugin-jest-dom';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+import i18next from 'eslint-plugin-i18next';
 
 const flat = typescriptEslint.config(
   eslint.configs.recommended,
@@ -263,6 +264,10 @@ const flatReact = [
     // https://github.com/testing-library/eslint-plugin-jest-dom
     files: ['**/*.{test,spec}.{ts,tsx}'],
     ...jestDom.configs['flat/recommended'],
+  },
+  {
+    ignores: ['**/*.cy.tsx'],
+    ...i18next.configs['flat/recommended'],
   },
 ];
 
