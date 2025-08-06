@@ -1,9 +1,9 @@
 import { FC, useRef, useState, useCallback } from 'react';
-import { Button, Dialog, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, InputDomRef, Label, Option, Select } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
-import { Member, MemberRoles } from '../../lib/api/types/shared/members';
+import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 export interface EditMembersProps {
@@ -64,11 +64,15 @@ export const EditMembers: FC<EditMembersProps> = ({
   const handleOpenMemberFormDialog = () => {
     setIsMemberDialogOpen(true);
   };
-
+  const handleTypeChange = () => {};
+  const types = [
+    { value: 'user', displayValue: 'User' },
+    { value: 'service-account', displayValue: 'Service Account' },
+  ];
   return (
     <FlexBox direction="Column" gap={8}>
       <Dialog open={isMemberDialogOpen}>
-        <FlexBox alignItems="End" gap={8}>
+        <FlexBox alignItems="End" direction={'Column'} gap={8}>
           <FlexBox direction="Column">
             <Label for="member-email-input">{t('common.members')}</Label>
             <Input
@@ -82,6 +86,28 @@ export const EditMembers: FC<EditMembersProps> = ({
             />
           </FlexBox>
           <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
+          <FlexBox direction={'Column'}>
+            <Label for={'type'}>{t('MemberTable.columnRoleHeader')}</Label>
+            <Select id="member-role-select" onChange={handleTypeChange}>
+              {types.map(({ displayValue, value }) => (
+                <Option key={value} data-value={value} value={value}>
+                  {displayValue}
+                </Option>
+              ))}
+            </Select>
+          </FlexBox>
+          <FlexBox direction="Column">
+            <Label for="namespace-input">Namespace</Label>
+            <Input
+              // ref={namespaceInputRef}
+              id="namespace-input"
+              type="Text"
+              // valueState={namespaceState}
+              // valueStateMessage={<span>{emailMessage}</span>}
+              data-testid="namespace-input"
+              // onInput={handleEmailInputChange}
+            />
+          </FlexBox>
           <Button
             className={styles.addButton}
             data-testid="add-member-button"
