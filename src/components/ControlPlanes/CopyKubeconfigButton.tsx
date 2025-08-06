@@ -26,7 +26,7 @@ export default function CopyKubeconfigButton() {
   return (
     <>
       <Button icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>
-        Kubeconfig
+        {t('CopyKubeconfigButton.kubeconfigButton')}
       </Button>
       <Menu
         ref={popoverRef}
