@@ -175,7 +175,8 @@
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
-    "landscapersTitle": "Landscapers"
+    "landscapersTitle": "Landscapers",
+    "graphTitle": "Graph"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -280,6 +281,17 @@
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
     "tableHeaderHealthy": "Healthy"
+  },
+  "Graphs": {
+    "colorsProvider": "Provider",
+    "colorsProviderConfig": "Provider Config",
+    "colorizedTitle": "Colorized Graph by: ",
+    "loadingError": "Error loading graph data",
+    "loadingGraph": "Loading graph data...",
+    "noResources": "No resources to display"
+  },
+  "GraphsLegend": {
+    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",

@@ -24,6 +24,7 @@ import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import Graph from '../../../components/Graphs/Graph.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -90,6 +91,14 @@ export default function McpPage() {
               />
             }
           >
+            <ObjectPageSection
+              className="cp-page-section-graph"
+              id="graph"
+              titleText={t('McpPage.graphTitle')}
+              hideTitleText
+            >
+              <Graph />
+            </ObjectPageSection>
             <ObjectPageSection
               className="cp-page-section-components"
               id="components"

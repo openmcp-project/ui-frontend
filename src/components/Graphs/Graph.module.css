@@ -1,0 +1,46 @@
+.graphContainer {
+  display: flex;
+  height: 600px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fafafa;
+  font-family: var(--sapFontFamily);
+}
+
+.graphColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.graphHeader {
+  padding: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.graphToolbar {
+  padding: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  font-size: 18px;
+  color: #888;
+}
+
+.errorMessage {
+  color: #c00;
+}
+
+.colorizedTitle {
+  font-weight: 500;
+}
