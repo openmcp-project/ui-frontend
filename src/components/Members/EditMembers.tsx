@@ -1,5 +1,5 @@
 import { FC, useRef, useState, useCallback } from 'react';
-import { Button, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
@@ -24,8 +24,9 @@ export const EditMembers: FC<EditMembersProps> = ({
   const [emailMessage, setEmailMessage] = useState('');
   const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer);
   const { t } = useTranslation();
-
+  const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const handleAddMember = useCallback(() => {
+    setIsMemberDialogOpen(false);
     setEmailState('None');
     setEmailMessage('');
     const input = emailInputRef.current;
@@ -60,31 +61,45 @@ export const EditMembers: FC<EditMembersProps> = ({
     setEmailMessage('');
   }, []);
 
+  const handleOpenMemberFormDialog = () => {
+    setIsMemberDialogOpen(true);
+  };
+
   return (
     <FlexBox direction="Column" gap={8}>
-      <FlexBox alignItems="End" gap={8}>
-        <FlexBox direction="Column">
-          <Label for="member-email-input">{t('common.members')}</Label>
-          <Input
-            ref={emailInputRef}
-            id="member-email-input"
-            type="Email"
-            valueState={emailState}
-            valueStateMessage={<span>{emailMessage}</span>}
-            data-testid="member-email-input"
-            onInput={handleEmailInputChange}
-          />
+      <Dialog open={isMemberDialogOpen}>
+        <FlexBox alignItems="End" gap={8}>
+          <FlexBox direction="Column">
+            <Label for="member-email-input">{t('common.members')}</Label>
+            <Input
+              ref={emailInputRef}
+              id="member-email-input"
+              type="Email"
+              valueState={emailState}
+              valueStateMessage={<span>{emailMessage}</span>}
+              data-testid="member-email-input"
+              onInput={handleEmailInputChange}
+            />
+          </FlexBox>
+          <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
+          <Button
+            className={styles.addButton}
+            data-testid="add-member-button"
+            design="Emphasized"
+            onClick={handleAddMember}
+          >
+            {t('EditMembers.addButton')}
+          </Button>
         </FlexBox>
-        <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
-        <Button
-          className={styles.addButton}
-          data-testid="add-member-button"
-          design="Emphasized"
-          onClick={handleAddMember}
-        >
-          {t('EditMembers.addButton')}
-        </Button>
-      </FlexBox>
+      </Dialog>
+      <Button
+        className={styles.addButton}
+        data-testid="add-member-button"
+        design="Emphasized"
+        onClick={handleOpenMemberFormDialog}
+      >
+        {t('EditMembers.addButton')}
+      </Button>
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
