@@ -76,8 +76,8 @@ export function ManagedResources() {
             <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.synced}
               transitionTime={cellData.cell.row.original?.syncedTransitionTime}
-              positiveText={'Synced'}
-              negativeText={'Sync error'}
+              positiveText={t('common.synced')}
+              negativeText={t('errors.syncError')}
               message={cellData.cell.row.original?.conditionSyncedMessage}
             />
           ) : null,
@@ -93,7 +93,7 @@ export function ManagedResources() {
             <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.ready}
               transitionTime={cellData.cell.row.original?.readyTransitionTime}
-              positiveText={'Ready'}
+              positiveText={t('common.ready')}
               negativeText={'Not ready'}
               message={cellData.cell.row.original?.conditionReadyMessage}
             />

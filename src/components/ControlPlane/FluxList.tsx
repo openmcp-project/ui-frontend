@@ -64,8 +64,8 @@ export default function FluxList() {
         Cell: (cellData: CellData<FluxRow>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCellWithButton
-              positiveText={'Ready'}
-              negativeText={'Error'}
+              positiveText={t('common.ready')}
+              negativeText={t('errors.error')}
               value={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
@@ -108,8 +108,8 @@ export default function FluxList() {
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCellWithButton
-              positiveText={'Ready'}
-              negativeText={'Error'}
+              positiveText={t('common.ready')}
+              negativeText={t('common.error')}
               value={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''

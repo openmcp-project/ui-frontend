@@ -79,8 +79,8 @@ export function Providers() {
             <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.installed === 'true'}
               transitionTime={cellData.cell.row.original?.installedTransitionTime}
-              positiveText={'Installed'}
-              negativeText={'Install error'}
+              positiveText={t('common.installed')}
+              negativeText={t('errors.installError')}
               message={cellData.cell.row.original?.installedMessage}
             />
           ) : null,
@@ -97,8 +97,8 @@ export function Providers() {
             <ResourceStatusCellWithButton
               value={cellData.cell.row.original?.healthy === 'true'}
               transitionTime={cellData.cell.row.original?.healthyTransitionTime}
-              positiveText={'Healthy'}
-              negativeText={'Not healthy'}
+              positiveText={t('common.healthy')}
+              negativeText={t('errors.notHealthy')}
               message={cellData.cell.row.original?.healthyMessage}
             />
           ) : null,
