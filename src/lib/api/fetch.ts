@@ -12,14 +12,11 @@ const contentTypeHeader = 'Content-Type';
 
 // fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const parseJsonOrText = async (res: Response): Promise<unknown> => {
+  const text = await res.text();
   try {
-    return await res.json();
+    return JSON.parse(text);
   } catch {
-    try {
-      return await res.text();
-    } catch {
-      return '';
-    }
+    return text;
   }
 };
 
@@ -78,9 +75,12 @@ export const fetchApiServerJson = async <T>(
   jq?: string,
   httpMethod: string = 'GET',
   body?: BodyInit,
-): Promise<T> => {
+): Promise<T | string> => {
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
   const data = await parseJsonOrText(res);
+  if (typeof data === 'string') {
+    return data as string;
+  }
   return data as T;
 };
 
