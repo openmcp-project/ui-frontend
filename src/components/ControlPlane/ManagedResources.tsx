@@ -74,7 +74,7 @@ export function ManagedResources() {
         Cell: (cellData: CellData<ResourceRow['synced']>) =>
           cellData.cell.row.original?.synced != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.synced}
+              isOk={cellData.cell.row.original?.synced}
               transitionTime={cellData.cell.row.original?.syncedTransitionTime}
               positiveText={t('common.synced')}
               negativeText={t('errors.syncError')}
@@ -91,7 +91,7 @@ export function ManagedResources() {
         Cell: (cellData: CellData<ResourceRow['ready']>) =>
           cellData.cell.row.original?.ready != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.ready}
+              isOk={cellData.cell.row.original?.ready}
               transitionTime={cellData.cell.row.original?.readyTransitionTime}
               positiveText={t('common.ready')}
               negativeText={'Not ready'}

@@ -77,7 +77,7 @@ export function Providers() {
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.installed === 'true'}
+              isOk={cellData.cell.row.original?.installed === 'true'}
               transitionTime={cellData.cell.row.original?.installedTransitionTime}
               positiveText={t('common.installed')}
               negativeText={t('errors.installError')}
@@ -95,7 +95,7 @@ export function Providers() {
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.healthy === 'true'}
+              isOk={cellData.cell.row.original?.healthy === 'true'}
               transitionTime={cellData.cell.row.original?.healthyTransitionTime}
               positiveText={t('common.healthy')}
               negativeText={t('errors.notHealthy')}

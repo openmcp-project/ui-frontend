@@ -66,7 +66,7 @@ export default function FluxList() {
             <ResourceStatusCell
               positiveText={t('common.ready')}
               negativeText={t('errors.error')}
-              value={cellData.cell.row.original?.isReady}
+              isOk={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
@@ -110,7 +110,7 @@ export default function FluxList() {
             <ResourceStatusCell
               positiveText={t('common.ready')}
               negativeText={t('common.error')}
-              value={cellData.cell.row.original?.isReady}
+              isOk={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }

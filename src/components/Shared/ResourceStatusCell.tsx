@@ -5,14 +5,14 @@ import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 
 export interface ResourceStatusCellProps {
-  value: boolean;
+  isOk: boolean;
   transitionTime: string;
   message?: string;
   positiveText: string;
   negativeText: string;
 }
 export const ResourceStatusCell = ({
-  value,
+  isOk,
   transitionTime,
   message,
   positiveText,
@@ -33,13 +33,13 @@ export const ResourceStatusCell = ({
       <AnimatedHoverTextButton
         icon={
           <Icon
-            design={value ? 'Positive' : 'Negative'}
-            name={value ? 'sys-enter-2' : 'sys-cancel-2'}
+            design={isOk ? 'Positive' : 'Negative'}
+            name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
             showTooltip={true}
             accessibleName={transitionTime ? timeAgo.format(new Date(transitionTime)) : '-'}
           />
         }
-        text={value ? positiveText : negativeText}
+        text={isOk ? positiveText : negativeText}
         onClick={handleOpenerClick}
       />
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
@@ -66,7 +66,7 @@ export const ResourceStatusCell = ({
           <Icon
             name={'date-time'}
             style={{
-              color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
+              color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           />
           <Text
@@ -75,7 +75,7 @@ export const ResourceStatusCell = ({
               textAlign: 'left',
               lineHeight: '1.5em',
               fontWeight: 'bold',
-              color: value ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
+              color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           >
             {timeAgo.format(new Date(transitionTime))}
