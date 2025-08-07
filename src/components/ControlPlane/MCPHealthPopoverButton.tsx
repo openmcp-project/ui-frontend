@@ -6,11 +6,13 @@ import {
   FlexBoxJustifyContent,
   Button,
   PopoverDomRef,
+  ButtonDomRef,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
-import { JSX, useRef, useState, MouseEvent, ReactNode } from 'react';
+import { JSX, useRef, useState, ReactNode } from 'react';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import {
   ControlPlaneStatusType,
   ReadyStatus,
@@ -21,6 +23,7 @@ import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import TooltipCell from '../Shared/TooltipCell.tsx';
+import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 
 interface CellData<T> {
   cell: {
@@ -46,9 +49,9 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
 
-  const handleOpenerClick = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     if (popoverRef.current) {
-      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = e.target;
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = event.target;
       setOpen((prev) => !prev);
     }
   };
