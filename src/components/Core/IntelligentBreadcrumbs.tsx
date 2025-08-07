@@ -30,15 +30,19 @@ export default function IntelligentBreadcrumbs() {
         </BreadcrumbsItem>
         {projectName && (
           <>
-            <BreadcrumbsItem href={`${PREFIX}/projects`}>Projects</BreadcrumbsItem>
+            <BreadcrumbsItem href={`${PREFIX}/projects`}>{t('IntelligentBreadcrumbs.projects')}</BreadcrumbsItem>
             <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>{projectName}</BreadcrumbsItem>
             {workspaceName && (
               <>
-                <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>Workspaces</BreadcrumbsItem>
+                <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>
+                  {t('IntelligentBreadcrumbs.workspaces')}
+                </BreadcrumbsItem>
                 <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>{workspaceName}</BreadcrumbsItem>
                 {controlPlaneName && (
                   <>
-                    <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>MCPs</BreadcrumbsItem>
+                    <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>
+                      {t('IntelligentBreadcrumbs.mcps')}
+                    </BreadcrumbsItem>
                     <BreadcrumbsItem
                       href={`${PREFIX}/projects/${projectName}/workspaces/${workspaceName}/mcps/${controlPlaneName}`}
                     >

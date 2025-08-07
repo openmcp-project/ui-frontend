@@ -1,0 +1,31 @@
+.legendContainer {
+  padding: 1rem;
+  min-width: 240px;
+  max-width: 300px;
+  max-height: 280px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  overflow: auto;
+  align-self: flex-start;
+}
+
+.legendTitle {
+  margin-bottom: 10px;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legendColorBox {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 3px;
+  border: 1px solid #999;
+}

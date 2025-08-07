@@ -45,7 +45,7 @@ export function ProvidersConfig() {
         rows.push({
           parent: provider.provider,
           name: config.metadata.name,
-          usage: config.metadata.usage ? config.metadata.usage : '0',
+          usage: config?.status?.users ?? '0',
           created: timeAgo.format(new Date(config.metadata.creationTimestamp)),
           resource: config,
         });
