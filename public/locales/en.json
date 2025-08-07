@@ -81,6 +81,7 @@
     "detailsLabel": "Details:"
   },
   "CopyKubeconfigButton": {
+    "kubeconfigButton": "Kubeconfig",
     "copiedMessage": "Copied to Clipboard",
     "failedMessage": "Failed to copy, Error:",
     "menuDownload": "Download",
@@ -97,7 +98,10 @@
     "navigateHome": "Back to Homepage"
   },
   "IntelligentBreadcrumbs": {
-    "homeLabel": "Home"
+    "homeLabel": "Home",
+    "projects": "Projects",
+    "workspaces": "Workspaces",
+    "mcps": "MCPs"
   },
   "MCPContext": {
     "errorMessage": "An unknown error occurred"
@@ -107,6 +111,7 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
+    "betaButton": "Beta",
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "signOutButton": "Sign Out",
     "feedbackMessageLabel": "Message",
@@ -175,7 +180,8 @@
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
-    "landscapersTitle": "Landscapers"
+    "landscapersTitle": "Landscapers",
+    "graphTitle": "Graph"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -280,6 +286,17 @@
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
     "tableHeaderHealthy": "Healthy"
+  },
+  "Graphs": {
+    "colorsProvider": "Provider",
+    "colorsProviderConfig": "Provider Config",
+    "colorizedTitle": "Colorized Graph by: ",
+    "loadingError": "Error loading graph data",
+    "loadingGraph": "Loading graph data...",
+    "noResources": "No resources to display"
+  },
+  "GraphsLegend": {
+    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",

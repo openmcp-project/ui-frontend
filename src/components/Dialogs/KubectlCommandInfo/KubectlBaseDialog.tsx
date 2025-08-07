@@ -84,7 +84,7 @@ export const KubectlBaseDialog = ({
       headerText={title}
       open={open}
       style={{ width: '550px' }}
-      footer={<Bar endContent={<Button onClick={onClose}>Close</Button>} />}
+      footer={<Bar endContent={<Button onClick={onClose}>{t('common.close')}</Button>} />}
       onClose={onClose}
     >
       <FlexBox direction="Column" style={{ gap: '16px' }}>
