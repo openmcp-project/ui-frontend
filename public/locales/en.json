@@ -333,7 +333,8 @@
   "errors": {
     "installError": "Install error",
     "syncError": "Sync error",
-    "error": "Error"
+    "error": "Error",
+    "notHealthy": "Not healthy"
   },
   "buttons": {
     "viewResource": "View resource",

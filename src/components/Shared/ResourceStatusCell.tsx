@@ -1,9 +1,9 @@
-import { FlexBox, Icon, PopoverDomRef, ResponsivePopover, Text } from '@ui5/webcomponents-react';
+import { ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import { timeAgo } from '../../utils/i18n/timeAgo';
-import { MouseEvent, useRef, useState } from 'react';
+import { RefObject, useRef, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-
+import styles from './ResourceStatusCell.module.css';
 export interface ResourceStatusCellProps {
   isOk: boolean;
   transitionTime: string;
@@ -18,19 +18,17 @@ export const ResourceStatusCell = ({
   positiveText,
   negativeText,
 }: ResourceStatusCellProps) => {
-  const popoverRef = useRef<PopoverDomRef>(null);
-  const [open, setOpen] = useState(false);
+  const btnRef = useRef<ButtonDomRef>(null);
+  const [popoverIsOpen, setPopoverIsOpen] = useState(false);
 
-  const handleOpenerClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (popoverRef.current) {
-      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = e.target;
-      setOpen((prev) => !prev);
-    }
+  const handleClose = () => {
+    setPopoverIsOpen(false);
   };
 
   return (
     <span>
       <AnimatedHoverTextButton
+        ref={btnRef}
         icon={
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
@@ -40,41 +38,26 @@ export const ResourceStatusCell = ({
           />
         }
         text={isOk ? positiveText : negativeText}
-        onClick={handleOpenerClick}
       />
-      <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
-        <Text
-          style={{
-            maxWidth: '60ch',
-            textAlign: 'left',
-            lineHeight: '1.5em',
-          }}
-        >
-          {message}
-        </Text>
+      <ResponsivePopover
+        opener={btnRef.current}
+        open={popoverIsOpen}
+        placement={PopoverPlacement.Bottom}
+        onClose={handleClose}
+      >
+        <Text className={styles.message}>{message}</Text>
 
-        <FlexBox
-          style={{
-            borderTop: '1px solid gray',
-            paddingTop: '1rem',
-            marginTop: '1rem',
-          }}
-          justifyContent={'Start'}
-          alignItems={'Center'}
-          gap={12}
-        >
+        <FlexBox className={styles.wrapper} justifyContent={'Start'} alignItems={'Center'} gap={12}>
           <Icon
             name={'date-time'}
             style={{
               color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
+            design={isOk ? 'Positive' : 'Negative'}
           />
           <Text
+            className={styles.subheader}
             style={{
-              maxWidth: '60ch',
-              textAlign: 'left',
-              lineHeight: '1.5em',
-              fontWeight: 'bold',
               color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           >
