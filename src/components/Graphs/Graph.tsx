@@ -4,7 +4,7 @@ import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
-import { ManagedResourceItem, NodeData, ColorBy } from './types';
+import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
@@ -13,6 +13,7 @@ import { stringify } from 'yaml';
 import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
+import { ManagedResourceItem } from '../../lib/shared/types';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (

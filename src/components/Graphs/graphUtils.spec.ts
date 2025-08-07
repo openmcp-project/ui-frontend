@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getStatusFromConditions, resolveProviderType, generateColorMap } from './graphUtils';
+import { ProviderConfigs } from '../../lib/shared/types';
 
 describe('getStatusFromConditions', () => {
   it('returns OK if Ready is True', () => {
@@ -36,33 +37,38 @@ describe('getStatusFromConditions', () => {
 
 describe('resolveProviderType', () => {
   it('returns correct providerType if found', () => {
-    const configs = [
+    const configs: ProviderConfigs[] = [
       {
+        provider: 'provider-a',
         items: [
           { metadata: { name: 'foo' }, apiVersion: 'btp/v1' },
           { metadata: { name: 'bar' }, apiVersion: 'cloudfoundry/v1' },
         ],
       },
       {
+        provider: 'provider-b',
         items: [{ metadata: { name: 'baz' }, apiVersion: 'gardener/v1' }],
       },
-    ];
+    ] as any;
     expect(resolveProviderType('foo', configs)).toBe('provider-btp');
     expect(resolveProviderType('bar', configs)).toBe('provider-cf');
     expect(resolveProviderType('baz', configs)).toBe('provider-gardener');
   });
 
   it('returns apiVersion or configName if no match for known providers', () => {
-    const configs = [
+    const configs: ProviderConfigs[] = [
       {
+        provider: 'provider-a',
         items: [{ metadata: { name: 'other' }, apiVersion: 'custom/v1' }],
       },
-    ];
+    ] as any;
     expect(resolveProviderType('other', configs)).toBe('custom/v1');
   });
 
   it('returns configName if not found', () => {
-    const configs = [{ items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] }];
+    const configs: ProviderConfigs[] = [
+      { provider: 'provider-a', items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] },
+    ] as any;
     expect(resolveProviderType('notfound', configs)).toBe('notfound');
   });
 });
