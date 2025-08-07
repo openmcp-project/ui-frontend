@@ -75,12 +75,10 @@ export const fetchApiServerJson = async <T>(
   jq?: string,
   httpMethod: string = 'GET',
   body?: BodyInit,
-): Promise<T | string> => {
+): Promise<T> => {
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
   const data = await parseJsonOrText(res);
-  if (typeof data === 'string') {
-    return data as string;
-  }
+
   return data as T;
 };
 
