@@ -18,7 +18,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
-import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 
 interface CellData<T> {
   cell: {
@@ -76,7 +76,7 @@ export function Providers() {
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['installed']>) =>
           cellData.cell.row.original?.installed != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               value={cellData.cell.row.original?.installed === 'true'}
               transitionTime={cellData.cell.row.original?.installedTransitionTime}
               positiveText={t('common.installed')}
@@ -94,7 +94,7 @@ export function Providers() {
         filter: 'equals',
         Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
           cellData.cell.row.original?.installed != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               value={cellData.cell.row.original?.healthy === 'true'}
               transitionTime={cellData.cell.row.original?.healthyTransitionTime}
               positiveText={t('common.healthy')}

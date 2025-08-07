@@ -10,7 +10,7 @@ import { timeAgo } from '../../utils/i18n/timeAgo.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
-import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -63,7 +63,7 @@ export default function FluxList() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow>) =>
           cellData.cell.row.original?.isReady != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               positiveText={t('common.ready')}
               negativeText={t('errors.error')}
               value={cellData.cell.row.original?.isReady}
@@ -107,7 +107,7 @@ export default function FluxList() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               positiveText={t('common.ready')}
               negativeText={t('common.error')}
               value={cellData.cell.row.original?.isReady}

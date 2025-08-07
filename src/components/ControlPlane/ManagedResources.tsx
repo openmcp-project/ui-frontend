@@ -16,7 +16,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
-import { ResourceStatusCellWithButton } from '../Shared/ResourceStatusCellWithButton.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 
 interface CellData<T> {
   cell: {
@@ -73,7 +73,7 @@ export function ManagedResources() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['synced']>) =>
           cellData.cell.row.original?.synced != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               value={cellData.cell.row.original?.synced}
               transitionTime={cellData.cell.row.original?.syncedTransitionTime}
               positiveText={t('common.synced')}
@@ -90,7 +90,7 @@ export function ManagedResources() {
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['ready']>) =>
           cellData.cell.row.original?.ready != null ? (
-            <ResourceStatusCellWithButton
+            <ResourceStatusCell
               value={cellData.cell.row.original?.ready}
               transitionTime={cellData.cell.row.original?.readyTransitionTime}
               positiveText={t('common.ready')}
