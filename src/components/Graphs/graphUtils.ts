@@ -1,4 +1,5 @@
-import { Condition, ManagedResourceItem, NodeData, ProviderConfig } from './types';
+import { Condition, ManagedResourceItem, ProviderConfigs } from '../../lib/shared/types';
+import { NodeData } from './types';
 
 export type StatusType = 'ERROR' | 'OK';
 
@@ -8,7 +9,7 @@ export const getStatusFromConditions = (conditions?: Condition[]): StatusType =>
   return relevant?.status === 'True' ? 'OK' : 'ERROR';
 };
 
-export const resolveProviderType = (configName: string, providerConfigsList: ProviderConfig[]): string => {
+export const resolveProviderType = (configName: string, providerConfigsList: ProviderConfigs[]): string => {
   for (const configList of providerConfigsList || []) {
     const match = configList.items?.find((item) => item.metadata?.name === configName);
 
