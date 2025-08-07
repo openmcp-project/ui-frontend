@@ -1,6 +1,6 @@
 import { ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import { timeAgo } from '../../utils/i18n/timeAgo';
-import { RefObject, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import styles from './ResourceStatusCell.module.css';
@@ -24,7 +24,9 @@ export const ResourceStatusCell = ({
   const handleClose = () => {
     setPopoverIsOpen(false);
   };
-
+  const handleOpen = () => {
+    setPopoverIsOpen(true);
+  };
   return (
     <span>
       <AnimatedHoverTextButton
@@ -38,9 +40,10 @@ export const ResourceStatusCell = ({
           />
         }
         text={isOk ? positiveText : negativeText}
+        onClick={handleOpen}
       />
       <ResponsivePopover
-        opener={btnRef.current}
+        opener={btnRef.current ?? undefined}
         open={popoverIsOpen}
         placement={PopoverPlacement.Bottom}
         onClose={handleClose}

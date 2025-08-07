@@ -3,22 +3,19 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, RefObject, useState } from 'react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
-export function AnimatedHoverTextButton({
-  text,
-  icon,
-
-  ref,
-}: {
+type HoverTextButtonProps = {
   text: string;
   icon: JSX.Element;
-
   ref?: RefObject<ButtonDomRef | null>;
-}) {
+  onClick: () => void;
+};
+export const AnimatedHoverTextButton = ({ text, icon, onClick, ref }: HoverTextButtonProps) => {
   const [hover, setHover] = useState(false);
   return (
     <Button
       ref={ref}
       design={ButtonDesign.Transparent}
+      onClick={onClick}
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
@@ -28,4 +25,4 @@ export function AnimatedHoverTextButton({
       </FlexBox>
     </Button>
   );
-}
+};
