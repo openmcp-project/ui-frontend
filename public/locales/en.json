@@ -163,7 +163,7 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add"
+    "addButton": "Add new member or service account"
   },
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",

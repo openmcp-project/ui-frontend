@@ -1,11 +1,25 @@
 import { FC, useRef, useState, useCallback } from 'react';
-import { Button, Dialog, FlexBox, Input, InputDomRef, Label, Option, Select } from '@ui5/webcomponents-react';
+import {
+  Button,
+  Dialog,
+  FlexBox,
+  Icon,
+  Input,
+  InputDomRef,
+  Label,
+  Option,
+  RadioButton,
+  Select,
+  ToggleButton,
+} from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { MemberRoleSelect } from './MemberRoleSelect.tsx';
 import { ValueState } from '../Shared/Ui5ValieState.tsx';
 import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
+import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { types } from 'node:util';
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
@@ -19,6 +33,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   isValidationError = false,
   requireAtLeastOneMember = true,
 }) => {
+  const [accountType, setAccountType] = useState('');
   const emailInputRef = useRef<InputDomRef>(null);
   const [emailState, setEmailState] = useState<ValueState>('None');
   const [emailMessage, setEmailMessage] = useState('');
@@ -64,17 +79,19 @@ export const EditMembers: FC<EditMembersProps> = ({
   const handleOpenMemberFormDialog = () => {
     setIsMemberDialogOpen(true);
   };
-  const handleTypeChange = () => {};
-  const types = [
-    { value: 'user', displayValue: 'User' },
-    { value: 'service-account', displayValue: 'Service Account' },
+  const handleAccontTypeChange = (value: string) => {
+    setAccountType(value);
+  };
+  const accountTypes: RadioButtonsSelectOption[] = [
+    { value: 'user', label: 'User account', icon: 'employee' },
+    { value: 'service-account', label: 'Service Account', icon: 'subway-train' },
   ];
   return (
     <FlexBox direction="Column" gap={8}>
       <Dialog open={isMemberDialogOpen}>
-        <FlexBox alignItems="End" direction={'Column'} gap={8}>
-          <FlexBox direction="Column">
-            <Label for="member-email-input">{t('common.members')}</Label>
+        <FlexBox alignItems="Stretch" direction={'Column'}>
+          <FlexBox direction="Column" alignItems="Stretch">
+            <Label for="member-email-input">{t('common.name')}</Label>
             <Input
               ref={emailInputRef}
               id="member-email-input"
@@ -86,16 +103,17 @@ export const EditMembers: FC<EditMembersProps> = ({
             />
           </FlexBox>
           <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
-          <FlexBox direction={'Column'}>
-            <Label for={'type'}>{t('MemberTable.columnRoleHeader')}</Label>
-            <Select id="member-role-select" onChange={handleTypeChange}>
-              {types.map(({ displayValue, value }) => (
-                <Option key={value} data-value={value} value={value}>
-                  {displayValue}
-                </Option>
-              ))}
-            </Select>
+          <FlexBox alignItems={'Baseline'} direction={'Column'}>
+            <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
+              <RadioButtonsSelect
+                label={'Account type:'}
+                selectedValue={accountType}
+                options={accountTypes}
+                handleOnClick={handleAccontTypeChange}
+              />
+            </FlexBox>
           </FlexBox>
+
           <FlexBox direction="Column">
             <Label for="namespace-input">Namespace</Label>
             <Input
@@ -108,10 +126,12 @@ export const EditMembers: FC<EditMembersProps> = ({
               // onInput={handleEmailInputChange}
             />
           </FlexBox>
+          <Button>{t('buttons.cancel')}</Button>
           <Button
             className={styles.addButton}
             data-testid="add-member-button"
-            design="Emphasized"
+            design={'Emphasized'}
+            icon={'sap-icon://add-employee'}
             onClick={handleAddMember}
           >
             {t('EditMembers.addButton')}
@@ -122,6 +142,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         className={styles.addButton}
         data-testid="add-member-button"
         design="Emphasized"
+        icon={'sap-icon://add-employee'}
         onClick={handleOpenMemberFormDialog}
       >
         {t('EditMembers.addButton')}
