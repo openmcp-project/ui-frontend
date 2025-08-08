@@ -1,21 +1,21 @@
-import { Button, FlexBox, FlexBoxAlignItems, Text } from '@ui5/webcomponents-react';
+import { Button, ButtonDomRef, FlexBox, FlexBoxAlignItems, Text } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/copy';
-import { JSX, useState } from 'react';
+import { JSX, RefObject, useState } from 'react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 
-export function AnimatedHoverTextButton({
-  text,
-  icon,
-  onClick,
-}: {
+type HoverTextButtonProps = {
   text: string;
   icon: JSX.Element;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onClick: (e: any) => void;
-}) {
+  ref?: RefObject<ButtonDomRef | null>;
+  onClick: (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => void;
+};
+export const AnimatedHoverTextButton = ({ text, icon, onClick, ref }: HoverTextButtonProps) => {
   const [hover, setHover] = useState(false);
   return (
     <Button
+      ref={ref}
       design={ButtonDesign.Transparent}
       onClick={onClick}
       onMouseOver={() => setHover(true)}
@@ -27,4 +27,4 @@ export function AnimatedHoverTextButton({
       </FlexBox>
     </Button>
   );
-}
+};

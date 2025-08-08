@@ -16,6 +16,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
+
   const yamlString = useMemo(() => {
     return stringify(removeManagedFieldsProperty(resource));
   }, [resource]);

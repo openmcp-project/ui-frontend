@@ -323,7 +323,18 @@
     "search": "Search",
     "components": "Components",
     "notSelected": "Not selected",
-    "btp": "BTP"
+    "btp": "BTP",
+    "error": "Error",
+    "ready": "Ready",
+    "synced": "Synced",
+    "healthy": "Healthy",
+    "installed": "Installed"
+  },
+  "errors": {
+    "installError": "Install error",
+    "syncError": "Sync error",
+    "error": "Error",
+    "notHealthy": "Not healthy"
   },
   "buttons": {
     "viewResource": "View resource",
