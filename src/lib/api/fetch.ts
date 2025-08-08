@@ -11,6 +11,15 @@ const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
 // fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
+export const parseJsonOrText = async (res: Response): Promise<unknown> => {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 export const fetchApiServer = async (
   path: string,
   config: ApiConfig,
@@ -53,7 +62,7 @@ export const fetchApiServer = async (
       window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);
-    error.info = await res.json();
+    error.info = await parseJsonOrText(res);
     throw error;
   }
 
@@ -68,8 +77,9 @@ export const fetchApiServerJson = async <T>(
   body?: BodyInit,
 ): Promise<T> => {
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
+  const data = await parseJsonOrText(res);
 
-  return await res.json();
+  return data as T;
 };
 
 // request is of [path, config, jq]
@@ -79,7 +89,7 @@ export const fetchApiServerJsonMultiple = (requests: [string | null, ApiConfig, 
       .filter((r) => r[0] !== null)
       .map(([path, config, jq]) =>
         // @ts-expect-error path is not null
-        fetchApiServer(path, config, jq).then((res) => res.json()),
+        fetchApiServer(path, config, jq).then((res) => parseJsonOrText(res)),
       ),
   );
 };
