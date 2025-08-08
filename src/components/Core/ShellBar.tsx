@@ -47,6 +47,7 @@ export function ShellBarComponent() {
   const betaButtonRef = useRef<ButtonDomRef>(null);
 
   const { user } = useAuthOnboarding();
+  const { t } = useTranslation();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
@@ -115,7 +116,7 @@ export function ShellBarComponent() {
             <Button ref={betaButtonRef} className={styles.betaButton} onClick={onBetaClick}>
               <span className={styles.betaContent}>
                 <Icon name="information" className={styles.betaIcon} />
-                <span className={styles.betaText}>Beta</span>
+                <span className={styles.betaText}>{t('ShellBar.betaButton')}</span>
               </span>
             </Button>
           </div>

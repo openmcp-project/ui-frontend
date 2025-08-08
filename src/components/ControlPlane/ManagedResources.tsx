@@ -12,10 +12,11 @@ import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell';
+
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 
 interface CellData<T> {
   cell: {
@@ -35,6 +36,8 @@ type ResourceRow = {
   ready: boolean;
   readyTransitionTime: string;
   item: unknown;
+  conditionReadyMessage: string;
+  conditionSyncedMessage: string;
 };
 
 export function ManagedResources() {
@@ -66,13 +69,16 @@ export function ManagedResources() {
         Header: t('ManagedResources.tableHeaderSynced'),
         accessor: 'synced',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['synced']>) =>
           cellData.cell.row.original?.synced != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.synced}
+              isOk={cellData.cell.row.original?.synced}
               transitionTime={cellData.cell.row.original?.syncedTransitionTime}
+              positiveText={t('common.synced')}
+              negativeText={t('errors.syncError')}
+              message={cellData.cell.row.original?.conditionSyncedMessage}
             />
           ) : null,
       },
@@ -80,20 +86,23 @@ export function ManagedResources() {
         Header: t('ManagedResources.tableHeaderReady'),
         accessor: 'ready',
         hAlign: 'Center',
-        width: 85,
+        width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<ResourceRow['ready']>) =>
           cellData.cell.row.original?.ready != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.ready}
+              isOk={cellData.cell.row.original?.ready}
               transitionTime={cellData.cell.row.original?.readyTransitionTime}
+              positiveText={t('common.ready')}
+              negativeText={'Not ready'}
+              message={cellData.cell.row.original?.conditionReadyMessage}
             />
           ) : null,
       },
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<ResourceRow>) =>
@@ -122,6 +131,8 @@ export function ManagedResources() {
             ready: conditionReady?.status === 'True',
             readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
             item: item,
+            conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
+            conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
           };
         }),
       ) ?? [];
