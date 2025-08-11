@@ -19,6 +19,7 @@ export const parseJsonOrText = async (res: Response): Promise<unknown> => {
   }
 };
 
+// fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const fetchApiServer = async (
   path: string,
   config: ApiConfig,
@@ -68,7 +69,6 @@ export const fetchApiServer = async (
   return res;
 };
 
-// fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const fetchApiServerJson = async <T>(
   path: string,
   config: ApiConfig,
