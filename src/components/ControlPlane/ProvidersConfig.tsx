@@ -8,7 +8,7 @@ import {
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { useProvidersConfigResource } from '../../lib/api/useApiResource';
-import { timeAgo } from '../../utils/i18n/timeAgo';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
@@ -46,7 +46,7 @@ export function ProvidersConfig() {
           parent: provider.provider,
           name: config.metadata.name,
           usage: config?.status?.users ?? '0',
-          created: timeAgo.format(new Date(config.metadata.creationTimestamp)),
+          created: formatDateAsTimeAgo(config.metadata.creationTimestamp),
           resource: config,
         });
       });
