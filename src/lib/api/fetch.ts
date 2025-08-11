@@ -77,19 +77,6 @@ export const fetchApiServerJson = async <T>(
   body?: BodyInit,
 ): Promise<T> => {
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
-  const data = await parseJsonOrText(res);
 
-  return data as T;
-};
-
-// request is of [path, config, jq]
-export const fetchApiServerJsonMultiple = (requests: [string | null, ApiConfig, string | undefined][]) => {
-  return Promise.all(
-    requests
-      .filter((r) => r[0] !== null)
-      .map(([path, config, jq]) =>
-        // @ts-expect-error path is not null
-        fetchApiServer(path, config, jq).then((res) => parseJsonOrText(res)),
-      ),
-  );
+  return await res.json();
 };
