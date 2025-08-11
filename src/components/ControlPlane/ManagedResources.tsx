@@ -7,7 +7,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
-import { timeAgo } from '../../utils/i18n/timeAgo';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
@@ -125,7 +125,7 @@ export function ManagedResources() {
           return {
             kind: item.kind,
             name: item.metadata.name,
-            created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+            created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
             synced: conditionSynced?.status === 'True',
             syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
             ready: conditionReady?.status === 'True',

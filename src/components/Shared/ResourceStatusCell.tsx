@@ -1,5 +1,5 @@
 import { ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
-import { timeAgo } from '../../utils/i18n/timeAgo';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { useRef, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -36,7 +36,7 @@ export const ResourceStatusCell = ({
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
             showTooltip={true}
-            accessibleName={transitionTime ? timeAgo.format(new Date(transitionTime)) : '-'}
+            accessibleName={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
           />
         }
         text={isOk ? positiveText : negativeText}
@@ -64,7 +64,7 @@ export const ResourceStatusCell = ({
               color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           >
-            {timeAgo.format(new Date(transitionTime))}
+            {formatDateAsTimeAgo(transitionTime)}
           </Text>
         </FlexBox>
       </ResponsivePopover>
