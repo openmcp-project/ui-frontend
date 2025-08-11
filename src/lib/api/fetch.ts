@@ -10,7 +10,6 @@ const mcpNameHeader = 'X-mcp';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
-// fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const parseJsonOrText = async (res: Response): Promise<unknown> => {
   const text = await res.text();
   try {
@@ -69,6 +68,7 @@ export const fetchApiServer = async (
   return res;
 };
 
+// fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
 export const fetchApiServerJson = async <T>(
   path: string,
   config: ApiConfig,
