@@ -6,10 +6,11 @@ import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { FluxKustomization, KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { timeAgo } from '../../utils/i18n/timeAgo.ts';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -36,6 +37,7 @@ export default function FluxList() {
     isReady: boolean;
     statusUpdateTime?: string;
     item: unknown;
+    readyMessage: string;
   };
 
   const gitReposColumns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -56,23 +58,26 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
-        width: 85,
+        width: 125,
         hAlign: 'Center',
         Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<FluxRow['isReady']>) =>
+        Cell: (cellData: CellData<FluxRow>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.isReady}
+              positiveText={t('common.ready')}
+              negativeText={t('errors.error')}
+              isOk={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
+              message={cellData.cell.row.original?.readyMessage}
             />
           ) : null,
       },
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
@@ -97,16 +102,19 @@ export default function FluxList() {
       {
         Header: t('FluxList.tableStatusHeader'),
         accessor: 'status',
-        width: 85,
+        width: 125,
         hAlign: 'Center',
         Filter: ({ column }) => <StatusFilter column={column} />,
         Cell: (cellData: CellData<FluxRow['isReady']>) =>
           cellData.cell.row.original?.isReady != null ? (
             <ResourceStatusCell
-              value={cellData.cell.row.original?.isReady}
+              positiveText={t('common.ready')}
+              negativeText={t('common.error')}
+              isOk={cellData.cell.row.original?.isReady}
               transitionTime={
                 cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
               }
+              message={cellData.cell.row.original?.readyMessage}
             />
           ) : null,
       },
@@ -114,7 +122,7 @@ export default function FluxList() {
       {
         Header: t('yaml.YAML'),
         hAlign: 'Center',
-        width: 85,
+        width: 75,
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<FluxRow>) => <YamlViewButton resourceObject={cellData.cell.row.original?.item} />,
@@ -134,24 +142,28 @@ export default function FluxList() {
 
   const gitReposRows: FluxRow[] =
     gitReposData?.items?.map((item) => {
+      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
       return {
         name: item.metadata.name,
-        isReady: item?.status?.conditions?.find((x) => x.type === 'Ready')?.status === 'True',
-        statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
+        isReady: readyObject?.status === 'True',
+        statusUpdateTime: readyObject?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
+        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
 
   const kustomizationsRows: FluxRow[] =
     kustmizationData?.items?.map((item) => {
+      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
       return {
         name: item.metadata.name,
-        isReady: item.status?.conditions?.find((x) => x.type === 'Ready')?.status === 'True',
-        statusUpdateTime: item.status?.conditions?.find((x) => x.type === 'Ready')?.lastTransitionTime,
+        isReady: readyObject?.status === 'True',
+        statusUpdateTime: readyObject?.lastTransitionTime,
         created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
         item: item,
+        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
 

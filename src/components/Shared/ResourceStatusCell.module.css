@@ -1,0 +1,18 @@
+.message {
+  max-width: 60ch;
+  text-align: left;
+  line-height: 1.5em;
+}
+
+.wrapper {
+  border-top: 1px solid gray;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.subheader {
+  max-width: 60ch;
+  text-align: left;
+  line-height: 1.5em;
+  font-weight: bold;
+}
