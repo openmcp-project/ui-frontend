@@ -45,10 +45,8 @@ export const fetchApiServer = async (
   httpMethod: string = 'GET',
   body?: BodyInit,
 ): Promise<Response> => {
-  /**
-   * The default headers used for the fetch request.
-   * The Authorization header is required for both the Crate API and the MCP API and the correct token is passed in the config object that is consumed outside this function from the context that has handled the OIDC flow to get a token.
-   */
+  // The default headers used for the fetch request.
+  // The Authorization header is required for both the Crate API and the MCP API and the correct token is passed in the config object that is consumed outside this function from the context that has handled the OIDC flow to get a token.
   const headers: { [key: string]: string } = {};
   if (httpMethod !== 'PATCH') {
     headers[contentTypeHeader] = 'application/json';
@@ -56,15 +54,11 @@ export const fetchApiServer = async (
     headers[contentTypeHeader] = 'application/merge-patch+json';
   }
 
-  /**
-   * Set the jq header to do a jq transformation on the proxy server.
-   */
+  // Set the jq header to do a jq transformation on the proxy server.
   if (jq) headers[jqHeader] = jq;
 
-  /**
-   * If the config object has a mcpConfig, it is assumed that the request is for the MCP API server and the necessary headers are set for the backend to get the OIDC kubeconfig without exposing it to the frontend,
-   * otherwise, the useCrateClusterHeader is set to true to indicate that the request is for the Crate.
-   */
+  // If the config object has a mcpConfig, it is assumed that the request is for the MCP API server and the necessary headers are set for the backend to get the OIDC kubeconfig without exposing it to the frontend,
+  // otherwise, the useCrateClusterHeader is set to true to indicate that the request is for the Crate.
   if (config.mcpConfig !== undefined) {
     headers[projectNameHeader] = config.mcpConfig.projectName;
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
@@ -81,9 +75,7 @@ export const fetchApiServer = async (
 
   if (!res.ok) {
     if (res.status === 401) {
-      /**
-       * Unauthorized (token expired), redirect to the login page.
-       */
+      // Unauthorized (token expired), redirect to the login page.
       sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
       window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
     }
