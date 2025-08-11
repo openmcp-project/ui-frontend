@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
@@ -92,13 +92,11 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
     refreshInterval: resourcesInterval,
   });
 
-  const initialLoaded = useRef(false);
-  const isInitialLoading = (managedResourcesLoading || providerConfigsLoading) && !initialLoaded.current;
+  const loading = managedResourcesLoading || providerConfigsLoading;
   const error = managedResourcesError || providerConfigsError;
 
   const treeData = useMemo(() => {
     if (!managedResources || !providerConfigsList) return [];
-    if (!initialLoaded.current) initialLoaded.current = true;
     const allNodesMap = new Map<string, NodeData>();
     managedResources.forEach((group: ManagedResourceGroup) => {
       group.items?.forEach((item: ManagedResourceItem) => {
@@ -162,7 +160,7 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
       });
     });
     return Array.from(allNodesMap.values());
-  }, [managedResources, providerConfigsList, onYamlClick, initialLoaded]);
+  }, [managedResources, providerConfigsList, onYamlClick]);
 
   const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
 
@@ -180,5 +178,5 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
     setEdges(edges);
   }, [treeData, colorBy, colorMap]);
 
-  return { nodes, edges, colorMap, loading: isInitialLoading, error };
+  return { nodes, edges, colorMap, loading, error };
 }
