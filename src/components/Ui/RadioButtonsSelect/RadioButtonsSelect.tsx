@@ -18,7 +18,7 @@ export const RadioButtonsSelect = ({ selectedValue, options, handleOnClick, labe
     <FlexBox aria-labelledby={label} role="radiogroup" direction={'Column'}>
       <Label>{label} </Label>
       <FlexBox gap={8}>
-        {options.map(({ value, label, icon }) => (
+        {options.map(({ value, label, icon }, index) => (
           <ToggleButton
             key={value}
             design={'Transparent'}
