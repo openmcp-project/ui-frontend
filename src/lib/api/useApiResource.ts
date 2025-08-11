@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
@@ -120,17 +120,19 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   };
   const [configs, setConfigs] = useState<ProviderConfigs[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const initialLoaded = useRef(false);
 
   useEffect(() => {
     const fetchDataAndUpdateState = async () => {
-      setIsLoading(true);
+      if (!initialLoaded.current) setIsLoading(true);
       try {
         await fetchProviderConfigsData();
         const finalData = await fetchProviderConfigs();
 
         setConfigs(finalData);
-        if (finalData.length > 0) {
+        if (!initialLoaded.current) {
           setIsLoading(false);
+          initialLoaded.current = true;
         }
       } catch (_) {
         setIsLoading(false);
