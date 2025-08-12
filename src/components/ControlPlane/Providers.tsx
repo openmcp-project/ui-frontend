@@ -11,7 +11,7 @@ import { useApiResource } from '../../lib/api/useApiResource';
 import IllustratedError from '../Shared/IllustratedError';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { timeAgo } from '../../utils/i18n/timeAgo';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
@@ -123,7 +123,7 @@ export function Providers() {
       const healthy = item.status?.conditions?.find((condition) => condition.type === 'Healthy');
       return {
         name: item.metadata.name,
-        created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
         installed: installed?.status === 'True' ? 'true' : 'false',
         installedTransitionTime: installed?.lastTransitionTime ?? '',
         healthy: healthy?.status === 'True' ? 'true' : 'false',

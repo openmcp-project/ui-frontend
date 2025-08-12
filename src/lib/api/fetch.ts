@@ -10,7 +10,34 @@ const mcpNameHeader = 'X-mcp';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
-// fetchApiServer is a wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
+/**
+ * Attempts to parse the response body as JSON. If parsing fails, returns the raw text.
+ *
+ * @param {Response} res - The fetch Response object.
+ * @returns {Promise<unknown>} The parsed JSON object or the raw text if parsing fails.
+ */
+export const parseJsonOrText = async (res: Response): Promise<unknown> => {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
+/**
+ * Wrapper around fetch that adds the necessary headers for the Crate API or the MCP API server.
+ * Handles authentication, content type, and custom headers for backend routing.
+ * Redirects to login if the response is unauthorized (401).
+ *
+ * @param {string} path - The API endpoint path (appended to `/api/onboarding`).
+ * @param {ApiConfig} config - The API configuration, including authentication and MCP/Crate context.
+ * @param {string} [jq] - Optional jq transformation string for the proxy server.
+ * @param {string} [httpMethod='GET'] - The HTTP method to use (GET, POST, PATCH, etc.).
+ * @param {BodyInit} [body] - The request body, if applicable.
+ * @returns {Promise<Response>} The fetch Response object.
+ * @throws {APIError} Throws an APIError if the response is not ok.
+ */
 export const fetchApiServer = async (
   path: string,
   config: ApiConfig,
@@ -31,7 +58,7 @@ export const fetchApiServer = async (
   if (jq) headers[jqHeader] = jq;
 
   // If the config object has a mcpConfig, it is assumed that the request is for the MCP API server and the necessary headers are set for the backend to get the OIDC kubeconfig without exposing it to the frontend,
-  // otherwise, the useCrateClusterHeader is set to true to indicate that the request is for the Crate
+  // otherwise, the useCrateClusterHeader is set to true to indicate that the request is for the Crate.
   if (config.mcpConfig !== undefined) {
     headers[projectNameHeader] = config.mcpConfig.projectName;
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
@@ -48,18 +75,30 @@ export const fetchApiServer = async (
 
   if (!res.ok) {
     if (res.status === 401) {
-      // Unauthorized (token expired), redirect to the login page
+      // Unauthorized (token expired), redirect to the login page.
       sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
       window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);
-    error.info = await res.json();
+    error.info = await parseJsonOrText(res);
     throw error;
   }
 
   return res;
 };
 
+/**
+ * Calls fetchApiServer and parses the response as JSON.
+ *
+ * @template T
+ * @param {string} path - The API endpoint path (appended to `/api/onboarding`).
+ * @param {ApiConfig} config - The API configuration, including authentication and MCP/Crate context.
+ * @param {string} [jq] - Optional jq transformation string for the proxy server.
+ * @param {string} [httpMethod='GET'] - The HTTP method to use (GET, POST, PATCH, etc.).
+ * @param {BodyInit} [body] - The request body, if applicable.
+ * @returns {Promise<T>} The parsed JSON response.
+ * @throws {APIError} Throws an APIError if the response is not ok.
+ */
 export const fetchApiServerJson = async <T>(
   path: string,
   config: ApiConfig,
@@ -70,16 +109,4 @@ export const fetchApiServerJson = async <T>(
   const res = await fetchApiServer(path, config, jq, httpMethod, body);
 
   return await res.json();
-};
-
-// request is of [path, config, jq]
-export const fetchApiServerJsonMultiple = (requests: [string | null, ApiConfig, string | undefined][]) => {
-  return Promise.all(
-    requests
-      .filter((r) => r[0] !== null)
-      .map(([path, config, jq]) =>
-        // @ts-expect-error path is not null
-        fetchApiServer(path, config, jq).then((res) => res.json()),
-      ),
-  );
 };

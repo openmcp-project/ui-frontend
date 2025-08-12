@@ -5,7 +5,7 @@ import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { FluxKustomization, KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
-import { timeAgo } from '../../utils/i18n/timeAgo.ts';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
@@ -148,7 +148,7 @@ export default function FluxList() {
         isReady: readyObject?.status === 'True',
         statusUpdateTime: readyObject?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
-        created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
         item: item,
         readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
@@ -161,7 +161,7 @@ export default function FluxList() {
         name: item.metadata.name,
         isReady: readyObject?.status === 'True',
         statusUpdateTime: readyObject?.lastTransitionTime,
-        created: timeAgo.format(new Date(item.metadata.creationTimestamp)),
+        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
         item: item,
         readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
