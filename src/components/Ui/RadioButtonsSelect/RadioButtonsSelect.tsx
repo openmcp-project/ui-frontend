@@ -1,5 +1,6 @@
 import { FlexBox, Label, ToggleButton } from '@ui5/webcomponents-react';
-
+import styles from './RadioButtonsSelect.module.css';
+import cx, { clsx } from 'clsx';
 export type RadioButtonsSelectOption = {
   label: string;
   value: string;
@@ -17,10 +18,20 @@ export const RadioButtonsSelect = ({ selectedValue, options, handleOnClick, labe
   return (
     <FlexBox aria-labelledby={label} role="radiogroup" direction={'Column'}>
       <Label>{label} </Label>
-      <FlexBox gap={8}>
+      <FlexBox>
         {options.map(({ value, label, icon }, index) => (
           <ToggleButton
             key={value}
+            className={clsx(
+              styles.button,
+              { [styles.buttonFirst]: index === 0 && index !== options.length },
+              {
+                [styles.buttonMiddle]:
+                  index !== 0 && index !== options.length && options.length > 2 && index + 1 !== options.length,
+              },
+              { [styles.buttonLast]: index + 1 === options.length && options.length > 1 },
+              { [styles.left]: index > 0 },
+            )}
             design={'Transparent'}
             style={{
               color:

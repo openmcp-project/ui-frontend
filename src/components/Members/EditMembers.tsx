@@ -1,25 +1,13 @@
 import { FC, useRef, useState, useCallback } from 'react';
-import {
-  Button,
-  Dialog,
-  FlexBox,
-  Icon,
-  Input,
-  InputDomRef,
-  Label,
-  Option,
-  RadioButton,
-  Select,
-  ToggleButton,
-} from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
-import { MemberRoleSelect } from './MemberRoleSelect.tsx';
-import { ValueState } from '../Shared/Ui5ValieState.tsx';
-import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+
+import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import { types } from 'node:util';
+import { ValueState } from '../Shared/Ui5ValieState.tsx';
+
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
@@ -33,11 +21,11 @@ export const EditMembers: FC<EditMembersProps> = ({
   isValidationError = false,
   requireAtLeastOneMember = true,
 }) => {
-  const [accountType, setAccountType] = useState('');
+  const [accountType, setAccountType] = useState('user');
   const emailInputRef = useRef<InputDomRef>(null);
   const [emailState, setEmailState] = useState<ValueState>('None');
   const [emailMessage, setEmailMessage] = useState('');
-  const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer);
+  const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer as string);
   const { t } = useTranslation();
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const handleAddMember = useCallback(() => {
@@ -56,7 +44,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       setEmailMessage(t('validationErrors.userExists'));
       return;
     }
-    onMemberChanged([...members, { name: email, roles: [selectedRole], kind: 'User' }]);
+    // onMemberChanged([...members, { name: email, roles: [selectedRole], kind: 'User' }]);
     if (input) input.value = '';
   }, [members, onMemberChanged, selectedRole, t]);
 
@@ -67,7 +55,7 @@ export const EditMembers: FC<EditMembersProps> = ({
     [members, onMemberChanged],
   );
 
-  const handleRoleChange = useCallback((role: MemberRoles) => {
+  const handleRoleChange = useCallback((role: string) => {
     setSelectedRole(role);
   }, []);
 
@@ -90,7 +78,7 @@ export const EditMembers: FC<EditMembersProps> = ({
     <FlexBox direction="Column" gap={8}>
       <Dialog open={isMemberDialogOpen}>
         <FlexBox alignItems="Stretch" direction={'Column'}>
-          <FlexBox direction="Column" alignItems="Stretch">
+          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
             <Label for="member-email-input">{t('common.name')}</Label>
             <Input
               ref={emailInputRef}
@@ -102,8 +90,16 @@ export const EditMembers: FC<EditMembersProps> = ({
               onInput={handleEmailInputChange}
             />
           </FlexBox>
-          <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
-          <FlexBox alignItems={'Baseline'} direction={'Column'}>
+          {/*<MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />*/}
+          <div className={styles.wrapper}>
+            <RadioButtonsSelect
+              selectedValue={selectedRole}
+              options={memberRolesOptions}
+              handleOnClick={handleRoleChange}
+              label={t('MemberTable.columnRoleHeader')}
+            />
+          </div>
+          <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
             <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
               <RadioButtonsSelect
                 label={'Account type:'}
