@@ -34,12 +34,21 @@ const isLocalDev = process.argv.includes('--local-dev');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 
+// Make frontend configuration available (frontend-config.json)
+const frontendConfigLocation = isLocalDev ? 'public/frontend-config.json' : 'dist/client/frontend-config.json';
 if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFIG_PATH.length > 0) {
   console.log('FRONTEND_CONFIG_PATH is specified. Will copy the frontend-config from there.');
   console.log(`  Copying ${process.env.FRONTEND_CONFIG_PATH} to ${frontendConfigLocation}`);
   copyFileSync(process.env.FRONTEND_CONFIG_PATH, frontendConfigLocation);
+}
+
+// Make hyperspace portal configuration available (hyperspace-portal-config.json)
+if (!isLocalDev && process.env.HYPERSPACE_PORTAL_CONFIG_PATH !== undefined && process.env.HYPERSPACE_PORTAL_CONFIG_PATH.length > 0) {
+  const hyperspacePortalConfigLocation = 'dist/client/hyperspace-portal-config.json';
+  console.log('HYPERSPACE_PORTAL_CONFIG_PATH is specified. Will copy the hyperspace-portal-config from there.');
+  console.log(`  Copying ${process.env.HYPERSPACE_PORTAL_CONFIG_PATH} to ${hyperspacePortalConfigLocation}`);
+  copyFileSync(process.env.HYPERSPACE_PORTAL_CONFIG_PATH, hyperspacePortalConfigLocation);
 }
 
 const fastify = Fastify({
