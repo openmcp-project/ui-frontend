@@ -8,8 +8,14 @@ import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
 import * as Sentry from '@sentry/node';
+import { injectDynatraceTag } from './server/config/dynatrace.js';
 
 dotenv.config();
+
+const { DYNATRACE_SCRIPT_URL } = process.env;
+if (DYNATRACE_SCRIPT_URL) {
+  injectDynatraceTag(DYNATRACE_SCRIPT_URL);
+}
 
 if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
   console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
@@ -70,11 +76,21 @@ if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0)
   }
 }
 
+let dynatraceOrigin = '';
+if (DYNATRACE_SCRIPT_URL) {
+  try {
+    dynatraceOrigin = new URL(DYNATRACE_SCRIPT_URL).origin;
+  } catch {
+    console.error('DYNATRACE_SCRIPT_URL is not a valid URL');
+  }
+}
+
+
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
-      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost],
-      'script-src': isLocalDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
+      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
+      'script-src': isLocalDev ? ["'self'", "'unsafe-inline'", dynatraceOrigin] : ["'self'", dynatraceOrigin],
       // @ts-ignore
       'frame-ancestors': [fastify.config.FRAME_ANCESTORS],
     },
