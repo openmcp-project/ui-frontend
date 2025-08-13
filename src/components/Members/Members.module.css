@@ -5,3 +5,13 @@
 .wrapper {
   margin-bottom: 1rem;
 }
+
+.placeholder {
+  min-height: 4rem;
+  margin-bottom: 1rem;
+}
+
+.container {
+  min-width: 600px;
+  max-width: 100%;
+}

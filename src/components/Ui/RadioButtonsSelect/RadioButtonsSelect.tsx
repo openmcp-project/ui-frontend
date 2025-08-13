@@ -1,6 +1,6 @@
 import { FlexBox, Label, ToggleButton } from '@ui5/webcomponents-react';
 import styles from './RadioButtonsSelect.module.css';
-import cx, { clsx } from 'clsx';
+import { clsx } from 'clsx';
 export type RadioButtonsSelectOption = {
   label: string;
   value: string;
@@ -17,7 +17,7 @@ type RadioButtonsSelectProps = {
 export const RadioButtonsSelect = ({ selectedValue, options, handleOnClick, label }: RadioButtonsSelectProps) => {
   return (
     <FlexBox aria-labelledby={label} role="radiogroup" direction={'Column'}>
-      <Label>{label} </Label>
+      <Label className={styles.label}>{label} </Label>
       <FlexBox>
         {options.map(({ value, label, icon }, index) => (
           <ToggleButton

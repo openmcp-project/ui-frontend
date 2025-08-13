@@ -343,7 +343,8 @@
     "next": "Next",
     "create": "Create",
     "close": "Close",
-    "back": "Back"
+    "back": "Back",
+    "cancel": "Cancel"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",

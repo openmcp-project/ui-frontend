@@ -25,6 +25,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   const emailInputRef = useRef<InputDomRef>(null);
   const [emailState, setEmailState] = useState<ValueState>('None');
   const [emailMessage, setEmailMessage] = useState('');
+  const [namespace, setNamespace] = useState('');
   const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer as string);
   const { t } = useTranslation();
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
@@ -76,63 +77,77 @@ export const EditMembers: FC<EditMembersProps> = ({
   ];
   return (
     <FlexBox direction="Column" gap={8}>
-      <Dialog open={isMemberDialogOpen}>
-        <FlexBox alignItems="Stretch" direction={'Column'}>
-          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
-            <Label for="member-email-input">{t('common.name')}</Label>
-            <Input
-              ref={emailInputRef}
-              id="member-email-input"
-              type="Email"
-              valueState={emailState}
-              valueStateMessage={<span>{emailMessage}</span>}
-              data-testid="member-email-input"
-              onInput={handleEmailInputChange}
-            />
-          </FlexBox>
-          {/*<MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />*/}
-          <div className={styles.wrapper}>
-            <RadioButtonsSelect
-              selectedValue={selectedRole}
-              options={memberRolesOptions}
-              handleOnClick={handleRoleChange}
-              label={t('MemberTable.columnRoleHeader')}
-            />
-          </div>
-          <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
-            <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-              <RadioButtonsSelect
-                label={'Account type:'}
-                selectedValue={accountType}
-                options={accountTypes}
-                handleOnClick={handleAccontTypeChange}
+      <Dialog open={isMemberDialogOpen} headerText={'Add member'}>
+        <div className={styles.container}>
+          <FlexBox alignItems="Stretch" direction={'Column'}>
+            <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+              <Label for="member-email-input">{t('common.name')}</Label>
+              <Input
+                ref={emailInputRef}
+                id="member-email-input"
+                type="Email"
+                valueState={emailState}
+                valueStateMessage={<span>{emailMessage}</span>}
+                data-testid="member-email-input"
+                onInput={handleEmailInputChange}
               />
             </FlexBox>
-          </FlexBox>
+            {/*<MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />*/}
+            <div className={styles.wrapper}>
+              <RadioButtonsSelect
+                selectedValue={selectedRole}
+                options={memberRolesOptions}
+                handleOnClick={handleRoleChange}
+                label={t('MemberTable.columnRoleHeader')}
+              />
+            </div>
+            <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
+              <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
+                <RadioButtonsSelect
+                  label={'Account type:'}
+                  selectedValue={accountType}
+                  options={accountTypes}
+                  handleOnClick={handleAccontTypeChange}
+                />
+              </FlexBox>
+            </FlexBox>
+            <div className={styles.placeholder}>
+              <FlexBox direction="Column">
+                {accountType === 'service-account' && (
+                  <>
+                    <Label for="namespace-input">Namespace</Label>
+                    <Input
+                      type="Text"
+                      value={accountType === 'service-account' ? namespace : ''}
+                      disabled={accountType !== 'service-account'}
+                      // ref={namespaceInputRef}
+                      data-testid="namespace-input"
+                      id="namespace-input"
+                      onChange={(event) => {
+                        setNamespace(event.target.value);
+                      }}
+                      // valueState={namespaceState}
+                      // valueStateMessage={<span>{emailMessage}</span>}
 
-          <FlexBox direction="Column">
-            <Label for="namespace-input">Namespace</Label>
-            <Input
-              // ref={namespaceInputRef}
-              id="namespace-input"
-              type="Text"
-              // valueState={namespaceState}
-              // valueStateMessage={<span>{emailMessage}</span>}
-              data-testid="namespace-input"
-              // onInput={handleEmailInputChange}
-            />
+                      // onInput={handleEmailInputChange}
+                    />
+                  </>
+                )}
+              </FlexBox>
+            </div>
+
+            <Button className={styles.wrapper}>{t('buttons.cancel')}</Button>
+            <Button
+              className={styles.addButton}
+              data-testid="add-member-button"
+              design={'Emphasized'}
+              icon={'sap-icon://add-employee'}
+              onClick={handleAddMember}
+            >
+              {t('EditMembers.addButton')}
+            </Button>
           </FlexBox>
-          <Button>{t('buttons.cancel')}</Button>
-          <Button
-            className={styles.addButton}
-            data-testid="add-member-button"
-            design={'Emphasized'}
-            icon={'sap-icon://add-employee'}
-            onClick={handleAddMember}
-          >
-            {t('EditMembers.addButton')}
-          </Button>
-        </FlexBox>
+        </div>
       </Dialog>
       <Button
         className={styles.addButton}
