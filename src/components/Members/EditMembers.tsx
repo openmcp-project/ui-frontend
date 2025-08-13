@@ -1,7 +1,6 @@
 import { FC, useRef, useState, useCallback } from 'react';
 import { Button, Dialog, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
-
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
@@ -15,39 +14,75 @@ export interface EditMembersProps {
   requireAtLeastOneMember?: boolean;
 }
 
+const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
+  { value: 'user', label: 'User account', icon: 'employee' },
+  { value: 'service-account', label: 'Service Account', icon: 'subway-train' },
+];
+
 export const EditMembers: FC<EditMembersProps> = ({
   members,
   onMemberChanged,
   isValidationError = false,
   requireAtLeastOneMember = true,
 }) => {
-  const [accountType, setAccountType] = useState('user');
+  const { t } = useTranslation();
   const emailInputRef = useRef<InputDomRef>(null);
-  const [emailState, setEmailState] = useState<ValueState>('None');
-  const [emailMessage, setEmailMessage] = useState('');
+
+  const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
+  const [accountType, setAccountType] = useState('user');
   const [namespace, setNamespace] = useState('');
   const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer as string);
-  const { t } = useTranslation();
-  const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
-  const handleAddMember = useCallback(() => {
-    setIsMemberDialogOpen(false);
+  const [emailState, setEmailState] = useState<ValueState>('None');
+  const [emailMessage, setEmailMessage] = useState('');
+
+  const resetEmailValidation = useCallback(() => {
     setEmailState('None');
     setEmailMessage('');
+  }, []);
+
+  const validateEmail = useCallback(
+    (email: string): boolean => {
+      if (!email) {
+        setEmailState('Negative');
+        setEmailMessage(t('validationErrors.required'));
+        return false;
+      }
+
+      if (members.some((m) => m.name === email)) {
+        setEmailState('Negative');
+        setEmailMessage(t('validationErrors.userExists'));
+        return false;
+      }
+
+      return true;
+    },
+    [members, t],
+  );
+
+  const handleAddMember = useCallback(() => {
     const input = emailInputRef.current;
     const email = input?.value.trim() || '';
-    if (!email) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.required'));
+
+    if (!validateEmail(email)) {
       return;
     }
-    if (members.some((m) => m.name === email)) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.userExists'));
-      return;
+
+    const newMember: Member = {
+      name: email,
+      roles: [selectedRole],
+      kind: accountType === 'service-account' ? 'ServiceAccount' : 'User',
+      ...(accountType === 'service-account' && namespace && { namespace }),
+    };
+
+    onMemberChanged([...members, newMember]);
+
+    if (input) {
+      input.value = '';
     }
-    // onMemberChanged([...members, { name: email, roles: [selectedRole], kind: 'User' }]);
-    if (input) input.value = '';
-  }, [members, onMemberChanged, selectedRole, t]);
+
+    setIsMemberDialogOpen(false);
+    resetEmailValidation();
+  }, [members, onMemberChanged, selectedRole, accountType, namespace, validateEmail, resetEmailValidation]);
 
   const handleRemoveMember = useCallback(
     (email: string) => {
@@ -56,25 +91,54 @@ export const EditMembers: FC<EditMembersProps> = ({
     [members, onMemberChanged],
   );
 
+  const handleOpenMemberFormDialog = useCallback(() => {
+    setIsMemberDialogOpen(true);
+  }, []);
+
+  const handleCloseMemberFormDialog = useCallback(() => {
+    setIsMemberDialogOpen(false);
+    resetEmailValidation();
+  }, [resetEmailValidation]);
+
+  const handleAccountTypeChange = useCallback((value: string) => {
+    setAccountType(value);
+    if (value === 'user') {
+      setNamespace('');
+    }
+  }, []);
+
   const handleRoleChange = useCallback((role: string) => {
     setSelectedRole(role);
   }, []);
 
   const handleEmailInputChange = useCallback(() => {
-    setEmailState('None');
-    setEmailMessage('');
+    resetEmailValidation();
+  }, [resetEmailValidation]);
+
+  const handleNamespaceChange = useCallback((event: any) => {
+    setNamespace(event.target.value);
   }, []);
 
-  const handleOpenMemberFormDialog = () => {
-    setIsMemberDialogOpen(true);
+  const renderServiceAccountFields = () => {
+    if (accountType !== 'service-account') {
+      return null;
+    }
+
+    return (
+      <FlexBox direction="Column">
+        <Label for="namespace-input">Namespace</Label>
+        <Input
+          type="Text"
+          value={namespace}
+          disabled={accountType !== 'service-account'}
+          data-testid="namespace-input"
+          id="namespace-input"
+          onChange={handleNamespaceChange}
+        />
+      </FlexBox>
+    );
   };
-  const handleAccontTypeChange = (value: string) => {
-    setAccountType(value);
-  };
-  const accountTypes: RadioButtonsSelectOption[] = [
-    { value: 'user', label: 'User account', icon: 'employee' },
-    { value: 'service-account', label: 'Service Account', icon: 'subway-train' },
-  ];
+
   return (
     <FlexBox direction="Column" gap={8}>
       <Dialog open={isMemberDialogOpen} headerText={'Add member'}>
@@ -92,7 +156,7 @@ export const EditMembers: FC<EditMembersProps> = ({
                 onInput={handleEmailInputChange}
               />
             </FlexBox>
-            {/*<MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />*/}
+
             <div className={styles.wrapper}>
               <RadioButtonsSelect
                 selectedValue={selectedRole}
@@ -101,42 +165,23 @@ export const EditMembers: FC<EditMembersProps> = ({
                 label={t('MemberTable.columnRoleHeader')}
               />
             </div>
+
             <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
               <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
                 <RadioButtonsSelect
                   label={'Account type:'}
                   selectedValue={accountType}
-                  options={accountTypes}
-                  handleOnClick={handleAccontTypeChange}
+                  options={ACCOUNT_TYPES}
+                  handleOnClick={handleAccountTypeChange}
                 />
               </FlexBox>
             </FlexBox>
-            <div className={styles.placeholder}>
-              <FlexBox direction="Column">
-                {accountType === 'service-account' && (
-                  <>
-                    <Label for="namespace-input">Namespace</Label>
-                    <Input
-                      type="Text"
-                      value={accountType === 'service-account' ? namespace : ''}
-                      disabled={accountType !== 'service-account'}
-                      // ref={namespaceInputRef}
-                      data-testid="namespace-input"
-                      id="namespace-input"
-                      onChange={(event) => {
-                        setNamespace(event.target.value);
-                      }}
-                      // valueState={namespaceState}
-                      // valueStateMessage={<span>{emailMessage}</span>}
 
-                      // onInput={handleEmailInputChange}
-                    />
-                  </>
-                )}
-              </FlexBox>
-            </div>
+            <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
 
-            <Button className={styles.wrapper}>{t('buttons.cancel')}</Button>
+            <Button className={styles.wrapper} onClick={handleCloseMemberFormDialog}>
+              {t('buttons.cancel')}
+            </Button>
             <Button
               className={styles.addButton}
               data-testid="add-member-button"
@@ -149,6 +194,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           </FlexBox>
         </div>
       </Dialog>
+
       <Button
         className={styles.addButton}
         data-testid="add-member-button"
@@ -158,6 +204,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       >
         {t('EditMembers.addButton')}
       </Button>
+
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
