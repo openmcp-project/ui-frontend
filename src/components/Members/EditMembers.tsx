@@ -1,11 +1,13 @@
-import { FC, useRef, useState, useCallback, useEffect } from 'react';
-import { Button, Dialog, FlexBox, Input, Label } from '@ui5/webcomponents-react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { Button, Dialog, FlexBox, Form, Input, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import { ValueState } from '../Shared/Ui5ValieState.tsx';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export interface EditMembersProps {
   members: Member[];
@@ -27,6 +29,13 @@ interface AddEditMemberDialogProps {
   memberToEdit?: Member;
 }
 
+type MemberFormData = {
+  accountType: 'user' | 'service-account';
+  name: string;
+  role: string;
+  namespace?: string;
+};
+
 const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   open,
   onClose,
@@ -35,104 +44,107 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   memberToEdit,
 }) => {
   const { t } = useTranslation();
-  const [accountType, setAccountType] = useState('user');
-  const [namespace, setNamespace] = useState('');
-  const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer as string);
-  const [email, setEmail] = useState('');
-  const [emailState, setEmailState] = useState<ValueState>('None');
-  const [emailMessage, setEmailMessage] = useState('');
-
+  const isEdit = !!memberToEdit;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const resetEmailValidation = useCallback(() => {
-    setEmailState('None');
-    setEmailMessage('');
-  }, []);
-
-  const validateEmail = useCallback((): boolean => {
-    const trimmed = email.trim();
-    if (!trimmed) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.required'));
-      return false;
-    }
-
-    const isEdit = !!memberToEdit;
-    if (existingMembers.some((m) => m.name === trimmed && (!isEdit || m.name !== memberToEdit.name))) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.userExists'));
-      return false;
-    }
-
-    if (accountType === 'user' && !emailRegex.test(trimmed)) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.invalidEmail'));
-      return false;
-    }
-
-    return true;
-  }, [email, accountType, existingMembers, memberToEdit, t]);
-
-  const handleSave = useCallback(() => {
-    if (!validateEmail()) {
-      return;
-    }
-
-    const trimmedEmail = email.trim();
-
-    const newMember: Member = {
-      name: trimmedEmail,
-      roles: [selectedRole],
-      kind: accountType === 'service-account' ? 'ServiceAccount' : 'User',
-      ...(accountType === 'service-account' && namespace && { namespace }),
-    };
-
-    onSave(newMember, !!memberToEdit);
-
-    onClose();
-    resetEmailValidation();
-  }, [email, selectedRole, accountType, namespace, validateEmail, memberToEdit, onSave, onClose, resetEmailValidation]);
-
-  const handleAccountTypeChange = useCallback((value: string) => {
-    setAccountType(value);
-    if (value === 'user') {
-      setNamespace('');
-    }
-  }, []);
-
-  const handleRoleChange = useCallback((role: string) => {
-    setSelectedRole(role);
-  }, []);
-
-  const handleEmailInputChange = useCallback(
-    (event: any) => {
-      setEmail(event.target.value);
-      resetEmailValidation();
-    },
-    [resetEmailValidation],
+  const memberFormSchema = useMemo(
+    () =>
+      z
+        .object({
+          accountType: z.enum(['user', 'service-account']),
+          name: z.string(),
+          role: z.string(),
+          namespace: z.string().optional(),
+        })
+        .superRefine((data, ctx) => {
+          const trimmed = data.name.trim();
+          if (!trimmed) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['name'],
+              message: t('validationErrors.required'),
+            });
+          }
+          if (existingMembers.some((m) => m.name === trimmed && (!memberToEdit || trimmed !== memberToEdit.name))) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['name'],
+              message: t('validationErrors.userExists'),
+            });
+          }
+          if (data.accountType === 'user' && !emailRegex.test(trimmed)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['name'],
+              message: t('validationErrors.invalidEmail'),
+            });
+          }
+        }),
+    [t, existingMembers, memberToEdit],
   );
 
-  const handleNamespaceChange = useCallback((event: any) => {
-    setNamespace(event.target.value);
-  }, []);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    reset,
+    formState: { errors },
+  } = useForm<MemberFormData>({
+    resolver: zodResolver(memberFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      accountType: 'user',
+      name: '',
+      role: MemberRoles.viewer,
+      namespace: '',
+    },
+  });
+
+  const accountType = watch('accountType');
+  const role = watch('role');
+
+  useEffect(() => {
+    if (accountType === 'user') {
+      setValue('namespace', '');
+    }
+  }, [accountType, setValue]);
 
   useEffect(() => {
     if (open) {
       if (memberToEdit) {
-        setEmail(memberToEdit.name);
-        setSelectedRole(memberToEdit.roles[0] || MemberRoles.viewer);
-        const type = memberToEdit.kind === 'ServiceAccount' ? 'service-account' : 'user';
-        setAccountType(type);
-        setNamespace(memberToEdit.namespace || '');
+        reset({
+          name: memberToEdit.name,
+          role: memberToEdit.roles[0] || MemberRoles.viewer,
+          accountType: memberToEdit.kind === 'User' ? 'user' : 'service-account',
+          namespace: memberToEdit?.namespace || '',
+        });
       } else {
-        setEmail('');
-        setSelectedRole(MemberRoles.viewer);
-        setAccountType('user');
-        setNamespace('');
+        reset({
+          accountType: 'user',
+          name: '',
+          role: MemberRoles.viewer,
+          namespace: '',
+        });
       }
-      resetEmailValidation();
     }
-  }, [open, memberToEdit, resetEmailValidation]);
+  }, [open, memberToEdit, reset]);
+
+  const onFormSubmit = (data: MemberFormData) => {
+    alert('submit');
+    const trimmedName = data.name.trim();
+
+    const newMember: Member = {
+      name: trimmedName,
+      roles: [data.role],
+      kind: data.accountType === 'user' ? 'User' : 'ServiceAccount',
+      ...(data.accountType === 'service-account' && data.namespace && { namespace: data.namespace }),
+    };
+
+    onSave(newMember, isEdit);
+    onClose();
+  };
 
   const renderServiceAccountFields = () => {
     if (accountType !== 'service-account') {
@@ -142,14 +154,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     return (
       <FlexBox direction="Column">
         <Label for="namespace-input">Namespace</Label>
-        <Input
-          type="Text"
-          value={namespace}
-          disabled={accountType !== 'service-account'}
-          data-testid="namespace-input"
-          id="namespace-input"
-          onChange={handleNamespaceChange}
-        />
+        <Input type="Text" {...register('namespace')} data-testid="namespace-input" id="namespace-input" />
       </FlexBox>
     );
   };
@@ -158,57 +163,62 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
   return (
     <Dialog open={open} headerText={dialogHeader}>
-      <div className={styles.container}>
-        <FlexBox alignItems="Stretch" direction={'Column'}>
-          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
-            <Label for="member-email-input">{t('common.name')}</Label>
-            <Input
-              id="member-email-input"
-              type={accountType === 'user' ? 'Email' : 'Text'}
-              value={email}
-              valueState={emailState}
-              valueStateMessage={<span>{emailMessage}</span>}
-              data-testid="member-email-input"
-              onChange={handleEmailInputChange}
-            />
-          </FlexBox>
-
-          <div className={styles.wrapper}>
-            <RadioButtonsSelect
-              selectedValue={selectedRole}
-              options={memberRolesOptions}
-              handleOnClick={handleRoleChange}
-              label={t('MemberTable.columnRoleHeader')}
-            />
-          </div>
-
-          <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
-            <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-              <RadioButtonsSelect
-                label={'Account type:'}
-                selectedValue={accountType}
-                options={ACCOUNT_TYPES}
-                handleOnClick={handleAccountTypeChange}
+      <Form>
+        <div className={styles.container}>
+          <FlexBox alignItems="Stretch" direction={'Column'}>
+            <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+              <Label for="member-email-input">{t('common.name')}</Label>
+              <Input
+                id="member-email-input"
+                type={accountType === 'user' ? 'Email' : 'Text'}
+                {...register('name')}
+                valueState={errors.name ? 'Negative' : 'None'}
+                valueStateMessage={<span>{errors.name?.message}</span>}
+                data-testid="member-email-input"
               />
             </FlexBox>
+
+            <div className={styles.wrapper}>
+              <RadioButtonsSelect
+                selectedValue={role}
+                options={memberRolesOptions}
+                handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
+                label={t('MemberTable.columnRoleHeader')}
+              />
+            </div>
+
+            <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
+              <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
+                <RadioButtonsSelect
+                  label={'Account type:'}
+                  selectedValue={accountType}
+                  options={ACCOUNT_TYPES}
+                  handleOnClick={(value) =>
+                    setValue('accountType', value as 'user' | 'service-account', { shouldValidate: true })
+                  }
+                />
+              </FlexBox>
+            </FlexBox>
+
+            <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
+
+            <Button className={styles.wrapper} onClick={onClose}>
+              {t('buttons.cancel')}
+            </Button>
+            <Button
+              className={styles.addButton}
+              data-testid="add-member-button"
+              design={'Emphasized'}
+              icon={'sap-icon://add-employee'}
+              onClick={() => {
+                onFormSubmit(getValues());
+              }}
+            >
+              {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
+            </Button>
           </FlexBox>
-
-          <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
-
-          <Button className={styles.wrapper} onClick={onClose}>
-            {t('buttons.cancel')}
-          </Button>
-          <Button
-            className={styles.addButton}
-            data-testid="add-member-button"
-            design={'Emphasized'}
-            icon={'sap-icon://add-employee'}
-            onClick={handleSave}
-          >
-            {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
-          </Button>
-        </FlexBox>
-      </div>
+        </div>
+      </Form>
     </Dialog>
   );
 };
