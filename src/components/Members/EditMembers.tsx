@@ -45,7 +45,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 }) => {
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const memberFormSchema = useMemo(
     () =>
@@ -72,13 +71,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               message: t('validationErrors.userExists'),
             });
           }
-          if (data.accountType === 'user' && !emailRegex.test(trimmed)) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: ['name'],
-              message: t('validationErrors.invalidEmail'),
-            });
-          }
         }),
     [t, existingMembers, memberToEdit],
   );
@@ -88,7 +80,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     handleSubmit,
     watch,
     setValue,
-    getValues,
     reset,
     formState: { errors },
   } = useForm<MemberFormData>({
@@ -152,7 +143,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
     return (
       <FlexBox direction="Column">
-        <Label for="namespace-input">Namespace</Label>
+        <Label for="namespace-input">{t('common.namespace')}</Label>
         <Input type="Text" {...register('namespace')} data-testid="namespace-input" id="namespace-input" />
       </FlexBox>
     );
@@ -162,62 +153,60 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
   return (
     <Dialog open={open} headerText={dialogHeader}>
-      <Form>
-        <div className={styles.container}>
-          <FlexBox alignItems="Stretch" direction={'Column'}>
-            <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
-              <Label for="member-email-input">{t('common.name')}</Label>
-              <Input
-                id="member-email-input"
-                type={accountType === 'user' ? 'Email' : 'Text'}
-                {...register('name')}
-                valueState={errors.name ? 'Negative' : 'None'}
-                valueStateMessage={<span>{errors.name?.message}</span>}
-                data-testid="member-email-input"
-              />
-            </FlexBox>
-
-            <div className={styles.wrapper}>
-              <RadioButtonsSelect
-                selectedValue={role}
-                options={memberRolesOptions}
-                handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
-                label={t('MemberTable.columnRoleHeader')}
-              />
-            </div>
-
-            <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
-              <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-                <RadioButtonsSelect
-                  label={'Account type:'}
-                  selectedValue={accountType}
-                  options={ACCOUNT_TYPES}
-                  handleOnClick={(value) =>
-                    setValue('accountType', value as 'user' | 'service-account', { shouldValidate: true })
-                  }
-                />
-              </FlexBox>
-            </FlexBox>
-
-            <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
-
-            <Button className={styles.wrapper} onClick={onClose}>
-              {t('buttons.cancel')}
-            </Button>
-            <Button
-              className={styles.addButton}
-              data-testid="add-member-button"
-              design={'Emphasized'}
-              icon={'sap-icon://add-employee'}
-              onClick={() => {
-                handleSubmit(onFormSubmit)();
-              }}
-            >
-              {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
-            </Button>
+      <div className={styles.container}>
+        <FlexBox alignItems="Stretch" direction={'Column'}>
+          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+            <Label for="member-email-input">{t('common.name')}</Label>
+            <Input
+              id="member-email-input"
+              type={accountType === 'user' ? 'Email' : 'Text'}
+              {...register('name')}
+              valueState={errors.name ? 'Negative' : 'None'}
+              valueStateMessage={<span>{errors.name?.message}</span>}
+              data-testid="member-email-input"
+            />
           </FlexBox>
-        </div>
-      </Form>
+
+          <div className={styles.wrapper}>
+            <RadioButtonsSelect
+              selectedValue={role}
+              options={memberRolesOptions}
+              handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
+              label={t('MemberTable.columnRoleHeader')}
+            />
+          </div>
+
+          <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
+            <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
+              <RadioButtonsSelect
+                label={'Account type:'}
+                selectedValue={accountType}
+                options={ACCOUNT_TYPES}
+                handleOnClick={(value) =>
+                  setValue('accountType', value as 'user' | 'service-account', { shouldValidate: true })
+                }
+              />
+            </FlexBox>
+          </FlexBox>
+
+          <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
+
+          <Button className={styles.wrapper} onClick={onClose}>
+            {t('buttons.cancel')}
+          </Button>
+          <Button
+            className={styles.addButton}
+            data-testid="add-member-button"
+            design={'Emphasized'}
+            icon={'sap-icon://add-employee'}
+            onClick={() => {
+              handleSubmit(onFormSubmit)();
+            }}
+          >
+            {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
+          </Button>
+        </FlexBox>
+      </div>
     </Dialog>
   );
 };
