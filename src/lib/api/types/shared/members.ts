@@ -26,4 +26,5 @@ export interface Member {
   kind: string;
   name: string;
   roles: string[];
+  namespace?: string;
 }

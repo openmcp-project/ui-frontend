@@ -132,7 +132,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   }, [open, memberToEdit, reset]);
 
   const onFormSubmit = (data: MemberFormData) => {
-    alert('submit');
     const trimmedName = data.name.trim();
 
     const newMember: Member = {
@@ -211,7 +210,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               design={'Emphasized'}
               icon={'sap-icon://add-employee'}
               onClick={() => {
-                onFormSubmit(getValues());
+                handleSubmit(onFormSubmit)();
               }}
             >
               {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
