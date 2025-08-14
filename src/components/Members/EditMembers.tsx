@@ -8,6 +8,7 @@ import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtons
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import FadeVisibility from '../Ui/FadeVisibility/FadeVisibility.tsx';
 
 export interface EditMembersProps {
   members: Member[];
@@ -136,19 +137,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     onClose();
   };
 
-  const renderServiceAccountFields = () => {
-    if (accountType !== 'service-account') {
-      return null;
-    }
-
-    return (
-      <FlexBox direction="Column">
-        <Label for="namespace-input">{t('common.namespace')}</Label>
-        <Input type="Text" {...register('namespace')} data-testid="namespace-input" id="namespace-input" />
-      </FlexBox>
-    );
-  };
-
   const dialogHeader = memberToEdit ? t('EditMembers.editHeader') : t('EditMembers.addHeader') || 'Add member';
 
   return (
@@ -189,7 +177,16 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             </FlexBox>
           </FlexBox>
 
-          <div className={styles.placeholder}>{renderServiceAccountFields()}</div>
+          <div className={styles.placeholder}>
+            <FadeVisibility show={accountType === 'service-account'}>
+              <div>
+                <FlexBox direction="Column">
+                  <Label for="namespace-input">{t('common.namespace')}</Label>
+                  <Input type="Text" {...register('namespace')} data-testid="namespace-input" id="namespace-input" />
+                </FlexBox>
+              </div>
+            </FadeVisibility>
+          </div>
 
           <Button className={styles.wrapper} onClick={onClose}>
             {t('buttons.cancel')}
