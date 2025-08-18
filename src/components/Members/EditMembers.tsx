@@ -17,9 +17,9 @@ export interface EditMembersProps {
   requireAtLeastOneMember?: boolean;
 }
 
-const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
-  { value: 'user', label: 'User account', icon: 'employee' },
-  { value: 'service-account', label: 'Service Account', icon: 'subway-train' },
+export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
+  { value: 'User', label: 'User Account', icon: 'employee' },
+  { value: 'ServiceAccount', label: 'Service Account', icon: 'subway-train' },
 ];
 
 interface AddEditMemberDialogProps {
@@ -30,8 +30,10 @@ interface AddEditMemberDialogProps {
   memberToEdit?: Member;
 }
 
+type AccountType = 'User' | 'ServiceAccount';
+
 type MemberFormData = {
-  accountType: 'user' | 'service-account';
+  accountType: AccountType;
   name: string;
   role: string;
   namespace?: string;
@@ -51,7 +53,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     () =>
       z
         .object({
-          accountType: z.enum(['user', 'service-account']),
+          accountType: z.enum(['User', 'ServiceAccount']),
           name: z.string(),
           role: z.string(),
           namespace: z.string().optional(),
@@ -87,7 +89,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     resolver: zodResolver(memberFormSchema),
     mode: 'onChange',
     defaultValues: {
-      accountType: 'user',
+      accountType: 'User',
       name: '',
       role: MemberRoles.viewer,
       namespace: '',
@@ -98,7 +100,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const role = watch('role');
 
   useEffect(() => {
-    if (accountType === 'user') {
+    if (accountType === 'User') {
       setValue('namespace', '');
     }
   }, [accountType, setValue]);
@@ -108,13 +110,13 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       if (memberToEdit) {
         reset({
           name: memberToEdit.name,
-          role: memberToEdit.roles[0] || MemberRoles.viewer,
-          accountType: memberToEdit.kind === 'User' ? 'user' : 'service-account',
+          role: memberToEdit.role || MemberRoles.viewer,
+          accountType: memberToEdit.kind === 'User' ? 'User' : 'ServiceAccount',
           namespace: memberToEdit?.namespace || '',
         });
       } else {
         reset({
-          accountType: 'user',
+          accountType: 'User',
           name: '',
           role: MemberRoles.viewer,
           namespace: '',
@@ -128,9 +130,9 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
     const newMember: Member = {
       name: trimmedName,
-      roles: [data.role],
-      kind: data.accountType === 'user' ? 'User' : 'ServiceAccount',
-      ...(data.accountType === 'service-account' && data.namespace && { namespace: data.namespace }),
+      role: data.role,
+      kind: data.accountType,
+      ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
     };
 
     onSave(newMember, isEdit);
@@ -156,7 +158,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             <Input
               className={styles.input}
               id="member-email-input"
-              type={accountType === 'user' ? 'Email' : 'Text'}
+              type={accountType === 'User' ? 'Email' : 'Text'}
               {...register('name')}
               valueState={errors.name ? 'Negative' : 'None'}
               valueStateMessage={<span>{errors.name?.message}</span>}
@@ -170,15 +172,13 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                 label={'Account type:'}
                 selectedValue={accountType}
                 options={ACCOUNT_TYPES}
-                handleOnClick={(value) =>
-                  setValue('accountType', value as 'user' | 'service-account', { shouldValidate: true })
-                }
+                handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
               />
             </FlexBox>
           </FlexBox>
 
           <div className={styles.placeholder}>
-            <FadeVisibility show={accountType === 'service-account'}>
+            <FadeVisibility show={accountType === 'ServiceAccount'}>
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>

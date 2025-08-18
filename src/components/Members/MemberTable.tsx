@@ -1,9 +1,10 @@
-import { AnalyticalTable, Button } from '@ui5/webcomponents-react';
+import { AnalyticalTable, Button, FlexBox, Icon } from '@ui5/webcomponents-react';
 import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
+import { ACCOUNT_TYPES } from './EditMembers.tsx';
 
 type MemberTableRow = {
   email: string;
@@ -50,6 +51,15 @@ export const MemberTable: FC<MemberTableProps> = ({
     {
       Header: t('MemberTable.columnTypeHeader'),
       accessor: 'kind',
+      Cell: (instance: CellInstance) => {
+        const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
+        return (
+          <FlexBox gap={'0.5rem'} wrap={'NoWrap'}>
+            <Icon name={kind?.icon} accessibleName={kind?.label} showTooltip />
+            {kind?.label}
+          </FlexBox>
+        );
+      },
     },
     {
       Header: t('MemberTable.columnNamespaceHeader'),
@@ -99,13 +109,15 @@ export const MemberTable: FC<MemberTableProps> = ({
     );
   }
 
-  const data: MemberTableRow[] = members.map((m) => ({
-    email: m.name,
-    role: m.roles.map((r) => MemberRolesDetailed[r as MemberRoles].displayValue).join(', '),
-    kind: m.kind,
-    namespace: m.namespace ?? '',
-    _member: m,
-  }));
+  const data: MemberTableRow[] = members.map((m) => {
+    return {
+      email: m.name,
+      role: MemberRolesDetailed[m.role as MemberRoles]?.displayValue,
+      kind: m.kind,
+      namespace: m.namespace ?? '',
+      _member: m,
+    };
+  });
 
   return <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />;
 };

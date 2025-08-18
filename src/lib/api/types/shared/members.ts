@@ -1,7 +1,7 @@
 import { RadioButtonsSelectOption } from '../../../../components/Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 
 export enum MemberRoles {
-  viewer = 'view',
+  viewer = 'viewer',
   admin = 'admin',
 }
 
@@ -25,6 +25,6 @@ export enum MemberKind {
 export interface Member {
   kind: string;
   name: string;
-  roles: string[];
+  role: string;
   namespace?: string;
 }
