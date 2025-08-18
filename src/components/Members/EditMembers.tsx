@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Dialog, FlexBox, Form, Input, Label } from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, Label } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
@@ -143,18 +143,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     <Dialog open={open} headerText={dialogHeader}>
       <div className={styles.container}>
         <FlexBox alignItems="Stretch" direction={'Column'}>
-          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
-            <Label for="member-email-input">{t('common.name')}</Label>
-            <Input
-              id="member-email-input"
-              type={accountType === 'user' ? 'Email' : 'Text'}
-              {...register('name')}
-              valueState={errors.name ? 'Negative' : 'None'}
-              valueStateMessage={<span>{errors.name?.message}</span>}
-              data-testid="member-email-input"
-            />
-          </FlexBox>
-
           <div className={styles.wrapper}>
             <RadioButtonsSelect
               selectedValue={role}
@@ -163,6 +151,18 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               label={t('MemberTable.columnRoleHeader')}
             />
           </div>
+          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+            <Label for="member-email-input">{t('common.name')}</Label>
+            <Input
+              className={styles.input}
+              id="member-email-input"
+              type={accountType === 'user' ? 'Email' : 'Text'}
+              {...register('name')}
+              valueState={errors.name ? 'Negative' : 'None'}
+              valueStateMessage={<span>{errors.name?.message}</span>}
+              data-testid="member-email-input"
+            />
+          </FlexBox>
 
           <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
             <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
@@ -182,7 +182,13 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>
-                  <Input type="Text" {...register('namespace')} data-testid="namespace-input" id="namespace-input" />
+                  <Input
+                    type="Text"
+                    {...register('namespace')}
+                    className={styles.input}
+                    data-testid="namespace-input"
+                    id="namespace-input"
+                  />
                 </FlexBox>
               </div>
             </FadeVisibility>

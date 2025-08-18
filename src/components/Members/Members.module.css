@@ -8,10 +8,14 @@
 
 .placeholder {
   min-height: 4rem;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
 }
 
 .container {
-  min-width: 600px;
+  min-width: 40ch;
   max-width: 100%;
+}
+
+.input {
+  width: 75%;
 }

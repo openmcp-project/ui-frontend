@@ -143,7 +143,9 @@
   },
   "MemberTable": {
     "columnEmailHeader": "Email",
-    "columnRoleHeader": "Role"
+    "columnRoleHeader": "Role",
+    "columnTypeHeader": "Type",
+    "columnNamespaceHeader": "Namespace"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -163,7 +165,9 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add new member or service account"
+    "addButton": "Add new member or service account",
+    "editHeader": "Edit member or service account",
+    "addHeader": "Add new member or service account"
   },
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",

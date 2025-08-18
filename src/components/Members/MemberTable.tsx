@@ -1,5 +1,5 @@
 import { AnalyticalTable, Button } from '@ui5/webcomponents-react';
-import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
@@ -8,6 +8,8 @@ import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 type MemberTableRow = {
   email: string;
   role: string;
+  kind: string;
+  namespace: string;
   _member: Member;
 };
 
@@ -44,6 +46,14 @@ export const MemberTable: FC<MemberTableProps> = ({
     {
       Header: t('MemberTable.columnRoleHeader'),
       accessor: 'role',
+    },
+    {
+      Header: t('MemberTable.columnTypeHeader'),
+      accessor: 'kind',
+    },
+    {
+      Header: t('MemberTable.columnNamespaceHeader'),
+      accessor: 'namespace',
     },
   ];
 
@@ -91,7 +101,9 @@ export const MemberTable: FC<MemberTableProps> = ({
 
   const data: MemberTableRow[] = members.map((m) => ({
     email: m.name,
-    role: m.roles.map((r) => MemberRolesDetailed[r].displayValue).join(', '),
+    role: m.roles.map((r) => MemberRolesDetailed[r as MemberRoles].displayValue).join(', '),
+    kind: m.kind,
+    namespace: m.namespace ?? '',
     _member: m,
   }));
 

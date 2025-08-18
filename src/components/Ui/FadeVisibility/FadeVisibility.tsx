@@ -32,7 +32,7 @@ const FadeVisibility: React.FC<FadeVisibilityProps> = ({ show, children }) => {
     <div
       style={{
         opacity: visible ? 1 : 0,
-        transition: 'opacity 0.3s ease-in-out',
+        transition: 'opacity 0.15s  ease-in-out',
       }}
     >
       {children}
