@@ -111,7 +111,7 @@ describe('CreateProjectWorkspaceDialog', () => {
         },
         {
           name: 'user2@example.com',
-          roles: [MemberRoles.viewer],
+          roles: [MemberRoles.view],
           kind: 'User',
         },
       ],

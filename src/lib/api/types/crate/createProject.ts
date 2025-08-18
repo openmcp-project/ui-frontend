@@ -1,6 +1,6 @@
 import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
-import { Member } from '../shared/members';
+import { Member, MemberPayload } from '../shared/members';
 
 export interface CreateProjectType {
   apiVersion: string;
@@ -17,7 +17,7 @@ export interface CreateProjectType {
     };
   };
   spec: {
-    members: Member[];
+    members: MemberPayload[];
   };
 }
 
@@ -44,7 +44,13 @@ export const CreateProject = (
       },
     },
     spec: {
-      members: optional?.members ?? [],
+      members:
+        optional?.members?.map(({ kind, namespace, role, name }) => ({
+          kind,
+          name,
+          roles: [role],
+          namespace: namespace ?? undefined,
+        })) ?? [],
     },
   };
 };

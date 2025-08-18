@@ -91,7 +91,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     defaultValues: {
       accountType: 'User',
       name: '',
-      role: MemberRoles.viewer,
+      role: MemberRoles.view,
       namespace: '',
     },
   });
@@ -110,7 +110,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       if (memberToEdit) {
         reset({
           name: memberToEdit.name,
-          role: memberToEdit.role || MemberRoles.viewer,
+          role: memberToEdit.role || MemberRoles.view,
           accountType: memberToEdit.kind === 'User' ? 'User' : 'ServiceAccount',
           namespace: memberToEdit?.namespace || '',
         });
@@ -118,7 +118,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         reset({
           accountType: 'User',
           name: '',
-          role: MemberRoles.viewer,
+          role: MemberRoles.view,
           namespace: '',
         });
       }

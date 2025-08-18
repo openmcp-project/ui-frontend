@@ -15,9 +15,7 @@ describe('<EditMembers />', () => {
     cy.get('#member-email-input').typeIntoUi5Input(email1);
     cy.get('[data-testid="add-member-button"]').click();
     cy.get('@onChangeSpy').should('have.been.calledOnce');
-    cy.get('@onChangeSpy').should('have.been.calledWith', [
-      { name: email1, roles: [MemberRoles.viewer], kind: 'User' },
-    ]);
+    cy.get('@onChangeSpy').should('have.been.calledWith', [{ name: email1, roles: [MemberRoles.view], kind: 'User' }]);
   });
 
   it('Should create member with Adminisitrator role', () => {
@@ -36,12 +34,10 @@ describe('<EditMembers />', () => {
   it('Should remove selected member', () => {
     mountContainer([
       { name: email1, roles: [MemberRoles.admin], kind: 'User' },
-      { name: email2, roles: [MemberRoles.viewer], kind: 'User' },
+      { name: email2, roles: [MemberRoles.view], kind: 'User' },
     ]);
     cy.get('[aria-rowindex="1"] > [data-column-id-cell="."] > ui5-button').click();
     cy.get('@onChangeSpy').should('have.been.calledOnce');
-    cy.get('@onChangeSpy').should('have.been.calledWith', [
-      { name: email2, roles: [MemberRoles.viewer], kind: 'User' },
-    ]);
+    cy.get('@onChangeSpy').should('have.been.calledWith', [{ name: email2, roles: [MemberRoles.view], kind: 'User' }]);
   });
 });
