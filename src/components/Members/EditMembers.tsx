@@ -30,7 +30,7 @@ interface AddEditMemberDialogProps {
   memberToEdit?: Member;
 }
 
-type AccountType = 'User' | 'ServiceAccount';
+export type AccountType = 'User' | 'ServiceAccount';
 
 type MemberFormData = {
   accountType: AccountType;
