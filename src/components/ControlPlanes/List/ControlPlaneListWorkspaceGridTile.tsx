@@ -76,7 +76,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
       >
         <Panel
           headerLevel="H2"
-          style={{ margin: '12px 12px 12px 0' }}
+          style={{ maxWidth: '1200px', margin: '2px auto 0px auto', width: '100%' }}
           header={
             <div
               style={{
