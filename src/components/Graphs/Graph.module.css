@@ -1,10 +1,10 @@
 .graphContainer {
   display: flex;
   height: 600px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--sapList_BorderColor, #ddd);
   border-radius: 8px;
   overflow: hidden;
-  background-color: #fafafa;
+  background-color: var(--sapBackgroundColor, #fafafa);
   font-family: var(--sapFontFamily);
 }
 
@@ -19,6 +19,7 @@
   display: flex;
   gap: 1rem;
   align-items: center;
+  color: var(--sapTextColor, #222);
 }
 
 .graphToolbar {
@@ -43,6 +44,7 @@
 
 .colorizedTitle {
   font-weight: 500;
+  color: var(--sapTextColor, #222);
 }
 
 /* Remove the default fieldset frame when used for grouping only */
@@ -51,4 +53,21 @@
   margin: 0;
   padding: 0;
   min-inline-size: 0;
+}
+
+/* React Flow Controls dark mode */
+:global([data-theme='dark'] .react-flow__controls) {
+  background-color: rgba(28, 28, 28, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='dark'] .react-flow__controls-button) {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+:global([data-theme='dark'] .react-flow__controls-button:hover) {
+  background: rgba(255, 255, 255, 0.08);
 }

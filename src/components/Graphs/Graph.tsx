@@ -14,6 +14,7 @@ import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProp
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
+import { useTheme } from '../../hooks/useTheme';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
@@ -30,6 +31,7 @@ const nodeTypes = {
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
+  const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('provider');
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
@@ -74,9 +76,10 @@ const Graph: React.FC = () => {
   }
 
   return (
-    <div className={styles.graphContainer}>
+    <div className={styles.graphContainer} data-theme={isDarkTheme ? 'dark' : 'light'}>
       <div className={styles.graphColumn}>
         <ReactFlow
+          data-theme={isDarkTheme ? 'dark' : 'light'}
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}

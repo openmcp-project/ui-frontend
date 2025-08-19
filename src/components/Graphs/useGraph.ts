@@ -30,7 +30,7 @@ function buildGraph(
       style: {
         border: `2px solid ${colorMap[colorKey] || '#ccc'}`,
         borderRadius: 8,
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--sapTile_Background, #fff)',
         width: nodeWidth,
         height: nodeHeight,
       },
