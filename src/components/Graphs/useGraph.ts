@@ -5,7 +5,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { Node, Edge, Position, MarkerType } from '@xyflow/react';
 import dagre from 'dagre';
 import { NodeData, ColorBy } from './types';
-import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
+import { extractRefs, generateColorMap, getStatusCondition, resolveProviderType } from './graphUtils';
 import { ManagedResourceGroup, ManagedResourceItem } from '../../lib/shared/types';
 
 const nodeWidth = 250;
@@ -105,7 +105,8 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
         const kind = item?.kind;
         const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
         const providerType = resolveProviderType(providerConfigName, providerConfigsList);
-        const status = getStatusFromConditions(item?.status?.conditions);
+        const statusCond = getStatusCondition(item?.status?.conditions);
+        const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
 
         const {
           subaccountRef,
@@ -152,6 +153,8 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
             providerConfigName,
             providerType,
             status,
+            transitionTime: statusCond?.lastTransitionTime ?? '',
+            statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
             parentId,
             extraRefs,
             item,

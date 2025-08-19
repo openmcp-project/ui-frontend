@@ -3,10 +3,9 @@ import { NodeData } from './types';
 
 export type StatusType = 'ERROR' | 'OK';
 
-export const getStatusFromConditions = (conditions?: Condition[]): StatusType => {
-  if (!conditions || !Array.isArray(conditions)) return 'ERROR';
-  const relevant = conditions.find((c) => c.type === 'Ready' || c.type === 'Healthy');
-  return relevant?.status === 'True' ? 'OK' : 'ERROR';
+export const getStatusCondition = (conditions?: Condition[]): Condition | undefined => {
+  if (!conditions || !Array.isArray(conditions)) return undefined;
+  return conditions.find((c) => c.type === 'Ready' || c.type === 'Healthy');
 };
 
 export const resolveProviderType = (configName: string, providerConfigsList: ProviderConfigs[]): string => {
@@ -27,20 +26,7 @@ export const resolveProviderType = (configName: string, providerConfigsList: Pro
 };
 
 export const generateColorMap = (items: NodeData[], colorBy: string): Record<string, string> => {
-  const colors = [
-    '#1abc9c',
-    '#9b59b6',
-    '#2ecc71',
-    '#2980b9',
-    '#3498db',
-    '#e67e22',
-    '#e74c3c',
-    '#16a085',
-    '#f39c12',
-    '#d35400',
-    '#8e44ad',
-    '#c0392b',
-  ];
+  const colors = ['#E09D00', '#E6600D', '#AB218E', '#678BC7', '#1A9898', '#759421', '#925ACE', '#647987'];
 
   const keys =
     colorBy === 'source'

@@ -38,6 +38,8 @@ export type Condition = {
   type: 'Ready' | 'Synced' | unknown;
   status: 'True' | 'False';
   lastTransitionTime: string;
+  reason?: string;
+  message?: string;
 };
 
 export type ManagedResourceGroup = {

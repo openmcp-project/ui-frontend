@@ -290,13 +290,10 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Visualize: ",
+    "colorizedTitle": "Group by: ",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
-  },
-  "GraphsLegend": {
-    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",

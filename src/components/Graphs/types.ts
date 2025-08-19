@@ -10,6 +10,8 @@ export interface NodeData {
   providerConfigName: string;
   providerType: string;
   status: string;
+  transitionTime?: string;
+  statusMessage?: string;
   parentId?: string;
   extraRefs: string[];
   item: ManagedResourceItem;

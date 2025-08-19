@@ -44,3 +44,11 @@
 .colorizedTitle {
   font-weight: 500;
 }
+
+/* Remove the default fieldset frame when used for grouping only */
+.fieldsetReset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
