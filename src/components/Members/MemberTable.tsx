@@ -44,13 +44,11 @@ export const MemberTable: FC<MemberTableProps> = ({
       Header: t('MemberTable.columnEmailHeader'),
       accessor: 'email',
     },
-    {
-      Header: t('MemberTable.columnRoleHeader'),
-      accessor: 'role',
-    },
+
     {
       Header: t('MemberTable.columnTypeHeader'),
       accessor: 'kind',
+      width: 145,
       Cell: (instance: CellInstance) => {
         const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
         return (
@@ -60,6 +58,11 @@ export const MemberTable: FC<MemberTableProps> = ({
           </FlexBox>
         );
       },
+    },
+    {
+      Header: t('MemberTable.columnRoleHeader'),
+      accessor: 'role',
+      width: 105,
     },
     {
       Header: t('MemberTable.columnNamespaceHeader'),

@@ -140,7 +140,7 @@ export const CreateManagedControlPlane = (
               {
                 kind: member.kind as AccountType,
                 name: idpPrefix && member.kind === 'User' ? `${idpPrefix}:${member.name}` : member.name,
-                namespace: member.kind === 'ServiceAccount' ? member.namespace : undefined,
+                namespace: member.kind === 'ServiceAccount' ? (member.namespace ?? 'default') : undefined,
               },
             ],
           })) ?? [],

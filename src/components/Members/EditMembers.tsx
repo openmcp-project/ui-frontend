@@ -76,14 +76,6 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   return (
     <FlexBox direction="Column" gap={8}>
-      <AddEditMemberDialog
-        open={isMemberDialogOpen}
-        existingMembers={members}
-        memberToEdit={memberToEdit}
-        onClose={handleCloseMemberFormDialog}
-        onSave={handleSaveMember}
-      />
-
       <Button
         className={styles.addButton}
         data-testid="add-member-button"
@@ -93,6 +85,13 @@ export const EditMembers: FC<EditMembersProps> = ({
       >
         {t('EditMembers.addButton')}
       </Button>
+      <AddEditMemberDialog
+        open={isMemberDialogOpen}
+        existingMembers={members}
+        memberToEdit={memberToEdit}
+        onClose={handleCloseMemberFormDialog}
+        onSave={handleSaveMember}
+      />
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}

@@ -49,7 +49,7 @@ export const CreateProject = (
           kind,
           name,
           roles: [role],
-          namespace: namespace ?? undefined,
+          namespace: kind === 'ServiceAccount' ? (namespace ?? 'default') : undefined,
         })) ?? [],
     },
   };
