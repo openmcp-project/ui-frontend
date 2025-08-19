@@ -56,6 +56,8 @@ export function ManagedResources() {
       {
         Header: t('ManagedResources.tableHeaderKind'),
         accessor: 'kind',
+        show: false,
+        display: false, 
       },
       {
         Header: t('ManagedResources.tableHeaderName'),
@@ -145,7 +147,6 @@ export function ManagedResources() {
 
       {!error && (
         <AnalyticalTable
-          style={{ margin: '12px' }}
           columns={columns}
           data={rows}
           minRows={1}
