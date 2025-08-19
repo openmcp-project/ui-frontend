@@ -19,7 +19,7 @@ export interface EditMembersProps {
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
   { value: 'User', label: 'User Account', icon: 'employee' },
-  { value: 'ServiceAccount', label: 'Service Account', icon: 'subway-train' },
+  { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
 ];
 
 interface AddEditMemberDialogProps {
@@ -100,12 +100,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const role = watch('role');
 
   useEffect(() => {
-    if (accountType === 'User') {
-      setValue('namespace', '');
-    }
-  }, [accountType, setValue]);
-
-  useEffect(() => {
     if (open) {
       if (memberToEdit) {
         reset({
@@ -144,6 +138,28 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   return (
     <Dialog open={open} headerText={dialogHeader}>
       <div className={styles.container}>
+        <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
+          <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
+            <RadioButtonsSelect
+              label={'Account type:'}
+              selectedValue={accountType}
+              options={ACCOUNT_TYPES}
+              handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
+            />
+          </FlexBox>
+        </FlexBox>
+        <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+          <Label for="member-email-input">{t('common.name')}</Label>
+          <Input
+            className={styles.input}
+            id="member-email-input"
+            type={accountType === 'User' ? 'Email' : 'Text'}
+            {...register('name')}
+            valueState={errors.name ? 'Negative' : 'None'}
+            valueStateMessage={<span>{errors.name?.message}</span>}
+            data-testid="member-email-input"
+          />
+        </FlexBox>
         <FlexBox alignItems="Stretch" direction={'Column'}>
           <div className={styles.wrapper}>
             <RadioButtonsSelect
@@ -153,29 +169,6 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               label={t('MemberTable.columnRoleHeader')}
             />
           </div>
-          <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
-            <Label for="member-email-input">{t('common.name')}</Label>
-            <Input
-              className={styles.input}
-              id="member-email-input"
-              type={accountType === 'User' ? 'Email' : 'Text'}
-              {...register('name')}
-              valueState={errors.name ? 'Negative' : 'None'}
-              valueStateMessage={<span>{errors.name?.message}</span>}
-              data-testid="member-email-input"
-            />
-          </FlexBox>
-
-          <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
-            <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
-              <RadioButtonsSelect
-                label={'Account type:'}
-                selectedValue={accountType}
-                options={ACCOUNT_TYPES}
-                handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
-              />
-            </FlexBox>
-          </FlexBox>
 
           <div className={styles.placeholder}>
             <FadeVisibility show={accountType === 'ServiceAccount'}>
@@ -191,6 +184,7 @@ const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </FlexBox>
               </div>
+              <Label>{t('EditMembers.defaultNamespaceInfo')}</Label>
             </FadeVisibility>
           </div>
 
@@ -250,9 +244,16 @@ export const EditMembers: FC<EditMembersProps> = ({
     (member: Member, isEdit: boolean) => {
       let updatedMembers: Member[];
       if (isEdit) {
-        updatedMembers = members.map((m) => (m.name === memberToEdit?.name ? member : m));
+        updatedMembers = members.map((m) =>
+          m.name === memberToEdit?.name
+            ? { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined }
+            : m,
+        );
       } else {
-        updatedMembers = [...members, member];
+        updatedMembers = [
+          ...members,
+          { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined },
+        ];
       }
       onMemberChanged(updatedMembers);
       setIsMemberDialogOpen(false);
