@@ -37,7 +37,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({ watch, projectName
           <br />
           <List headerText={t('common.members')}>
             {watch('members').map((member) => (
-              <ListItemStandard key={member.name} text={member.name} additionalText={member.roles[0]} />
+              <ListItemStandard key={member.name} text={member.name} additionalText={member.role} />
             ))}
           </List>
           <br />
