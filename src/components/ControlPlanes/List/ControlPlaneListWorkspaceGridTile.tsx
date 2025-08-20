@@ -49,6 +49,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
 
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
+  const shouldCollapsePanel = !!errorView;
 
   function createErrorView(error: APIError) {
     if (error) {
@@ -77,6 +78,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
         <Panel
           headerLevel="H2"
           style={{ margin: '12px 12px 12px 0' }}
+          collapsed={shouldCollapsePanel}
           header={
             <div
               style={{
