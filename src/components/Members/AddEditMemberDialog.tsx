@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -170,13 +170,17 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </FlexBox>
               </div>
-              <Label>{t('EditMembers.defaultNamespaceInfo')}</Label>
+              {/*<Label>{t('EditMembers.defaultNamespaceInfo')}</Label>*/}
+
+              <Label>
+                <Trans
+                  i18nKey="EditMembers.defaultNamespaceInfo"
+                  components={{ span: <span className="mono-font" /> }}
+                />
+              </Label>
             </FadeVisibility>
           </div>
 
-          <Button className={styles.wrapper} onClick={onClose}>
-            {t('buttons.cancel')}
-          </Button>
           <Button
             className={styles.addButton}
             data-testid="add-member-button"
@@ -187,6 +191,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             }}
           >
             {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
+          </Button>
+          <Button className={styles.wrapper} onClick={onClose}>
+            {t('buttons.cancel')}
           </Button>
         </FlexBox>
       </div>

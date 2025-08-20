@@ -169,7 +169,7 @@
     "editHeader": "Edit member or service account",
     "addHeader": "Add new member or service account",
     "saveButton": "Save changes",
-    "defaultNamespaceInfo": "Leave empty to use default namespace"
+    "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace"
   },
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
