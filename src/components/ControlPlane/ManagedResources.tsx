@@ -56,8 +56,6 @@ export function ManagedResources() {
       {
         Header: t('ManagedResources.tableHeaderKind'),
         accessor: 'kind',
-        show: false,
-        display: false, 
       },
       {
         Header: t('ManagedResources.tableHeaderName'),
