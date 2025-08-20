@@ -134,13 +134,7 @@ export default function ProjectsList() {
   return (
     <>
     <AnalyticalTable
-      style={{
-        maxWidth: '1200px',
-        margin: '10px auto -8px auto',
-        width: '100%',
-        borderRadius: '12px', // Add this line
-        overflow: 'hidden',   // Ensures content doesn't overflow rounded corners
-      }}
+      style={{maxWidth: '1200px', margin: '10px auto 0px auto', width: '100%', borderRadius: '12px', overflow: 'hidden'}}
       columns={stabilizedColumns}
       data={stabilizedData}
     />    
