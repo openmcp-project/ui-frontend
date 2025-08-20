@@ -1,10 +1,17 @@
+import { RadioButtonsSelectOption } from '../../../../components/Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+
 export enum MemberRoles {
-  viewer = 'view',
+  view = 'view',
   admin = 'admin',
 }
 
+export const memberRolesOptions: RadioButtonsSelectOption[] = [
+  { label: 'Viewer', value: MemberRoles.view, icon: 'employee' },
+  { label: 'Admin', value: MemberRoles.admin, icon: 'key-user-settings' },
+];
+
 export const MemberRolesDetailed = {
-  [MemberRoles.viewer]: { value: MemberRoles.viewer, displayValue: 'Viewer' },
+  [MemberRoles.view]: { value: MemberRoles.view, displayValue: 'Viewer' },
   [MemberRoles.admin]: {
     value: MemberRoles.admin,
     displayValue: 'Administrator',
@@ -18,5 +25,13 @@ export enum MemberKind {
 export interface Member {
   kind: string;
   name: string;
-  roles: MemberRoles[];
+  role: string;
+  namespace?: string;
+}
+
+export interface MemberPayload {
+  kind: string;
+  name: string;
+  roles: string[];
+  namespace?: string;
 }

@@ -143,7 +143,9 @@
   },
   "MemberTable": {
     "columnEmailHeader": "Email",
-    "columnRoleHeader": "Role"
+    "columnRoleHeader": "Role",
+    "columnTypeHeader": "Type",
+    "columnNamespaceHeader": "Namespace"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -163,7 +165,12 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add"
+    "addButton": "Add new member or service account",
+    "editHeader": "Edit member or service account",
+    "addHeader": "Add new member or service account",
+    "saveButton": "Save changes",
+    "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
+    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
   },
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
@@ -290,20 +297,18 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Visualize: ",
+    "colorizedTitle": "Group by: ",
+    "colorsFlux": "Flux",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
-  },
-  "GraphsLegend": {
-    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",
     "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "properFormattingLowercase": "Use lowercase a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "maxChars": "Max length is {{maxLength}} characters.",
-    "userExists": "User with this email already exists!",
+    "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
@@ -328,7 +333,8 @@
     "ready": "Ready",
     "synced": "Synced",
     "healthy": "Healthy",
-    "installed": "Installed"
+    "installed": "Installed",
+    "none": "None"
   },
   "errors": {
     "installError": "Install error",
@@ -343,7 +349,8 @@
     "next": "Next",
     "create": "Create",
     "close": "Close",
-    "back": "Back"
+    "back": "Back",
+    "cancel": "Cancel"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",

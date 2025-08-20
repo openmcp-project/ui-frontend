@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { ReactFlow, Background, Controls, MarkerType, Node } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MarkerType, Node, Panel } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
-import { ManagedResourceItem, NodeData, ColorBy } from './types';
+import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
@@ -13,6 +13,8 @@ import { stringify } from 'yaml';
 import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
+import { ManagedResourceItem } from '../../lib/shared/types';
+import { useTheme } from '../../hooks/useTheme';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
@@ -20,6 +22,8 @@ const nodeTypes = {
       label={props.data.label}
       type={props.data.type}
       status={props.data.status}
+      transitionTime={props.data.transitionTime}
+      statusMessage={props.data.statusMessage}
       onYamlClick={() => props.data.onYamlClick(props.data.item)}
     />
   ),
@@ -27,6 +31,7 @@ const nodeTypes = {
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
+  const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('provider');
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
@@ -51,11 +56,11 @@ const Graph: React.FC = () => {
 
   const legendItems: LegendItem[] = useMemo(
     () =>
-      Object.entries(colorMap).map(([name, color]) => ({
-        name: name === 'default' ? 'default' : name,
-        color,
-      })),
-    [colorMap],
+      Object.entries(colorMap).map(([name, color]) => {
+        const displayName = colorBy === 'flux' && (name === 'default' || !name) ? t('common.none') : name;
+        return { name: displayName, color };
+      }),
+    [colorMap, colorBy, t],
   );
 
   if (error) {
@@ -71,26 +76,10 @@ const Graph: React.FC = () => {
   }
 
   return (
-    <div className={styles.graphContainer}>
+    <div className={styles.graphContainer} data-theme={isDarkTheme ? 'dark' : 'light'}>
       <div className={styles.graphColumn}>
-        <div className={styles.graphHeader}>
-          <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
-            <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
-            <RadioButton
-              name="colorBy"
-              text={t('Graphs.colorsProviderConfig')}
-              checked={colorBy === 'provider'}
-              onChange={() => setColorBy('provider')}
-            />
-            <RadioButton
-              name="colorBy"
-              text={t('Graphs.colorsProvider')}
-              checked={colorBy === 'source'}
-              onChange={() => setColorBy('source')}
-            />
-          </FlexBox>
-        </div>
         <ReactFlow
+          data-theme={isDarkTheme ? 'dark' : 'light'}
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
@@ -108,8 +97,38 @@ const Graph: React.FC = () => {
           zoomOnScroll={true}
           panOnDrag={true}
         >
-          <Controls />
+          <Controls showInteractive={false} />
           <Background />
+          <Panel position="top-left">
+            <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
+              <fieldset className={styles.fieldsetReset}>
+                <div className={styles.graphHeader}>
+                  <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
+                  <RadioButton
+                    name="colorBy"
+                    text={t('Graphs.colorsProviderConfig')}
+                    checked={colorBy === 'provider'}
+                    onChange={() => setColorBy('provider')}
+                  />
+                  <RadioButton
+                    name="colorBy"
+                    text={t('Graphs.colorsProvider')}
+                    checked={colorBy === 'source'}
+                    onChange={() => setColorBy('source')}
+                  />
+                  <RadioButton
+                    name="colorBy"
+                    text={t('Graphs.colorsFlux')}
+                    checked={colorBy === 'flux'}
+                    onChange={() => setColorBy('flux')}
+                  />
+                </div>
+              </fieldset>
+            </FlexBox>
+          </Panel>
+          <Panel position="top-right">
+            <Legend legendItems={legendItems} />
+          </Panel>
         </ReactFlow>
       </div>
       <YamlViewDialog
@@ -117,7 +136,6 @@ const Graph: React.FC = () => {
         setIsOpen={setYamlDialogOpen}
         dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
       />
-      <Legend legendItems={legendItems} />
     </div>
   );
 };
