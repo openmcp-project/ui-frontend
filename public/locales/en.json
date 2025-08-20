@@ -178,6 +178,7 @@
   "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
+    "overviewTitle": "Overview",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
     "landscapersTitle": "Landscapers",
