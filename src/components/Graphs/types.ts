@@ -1,6 +1,6 @@
 import { ManagedResourceItem } from '../../lib/shared/types';
 
-export type ColorBy = 'provider' | 'source';
+export type ColorBy = 'provider' | 'source' | 'flux';
 
 export interface NodeData {
   [key: string]: unknown;
@@ -12,6 +12,7 @@ export interface NodeData {
   status: string;
   transitionTime?: string;
   statusMessage?: string;
+  fluxName?: string;
   parentId?: string;
   extraRefs: string[];
   item: ManagedResourceItem;

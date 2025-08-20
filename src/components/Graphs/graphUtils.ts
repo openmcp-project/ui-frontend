@@ -28,15 +28,20 @@ export const resolveProviderType = (configName: string, providerConfigsList: Pro
 export const generateColorMap = (items: NodeData[], colorBy: string): Record<string, string> => {
   const colors = ['#E09D00', '#E6600D', '#AB218E', '#678BC7', '#1A9898', '#759421', '#925ACE', '#647987'];
 
-  const keys =
-    colorBy === 'source'
-      ? Array.from(new Set(items.map((i) => i.providerType).filter(Boolean)))
-      : Array.from(new Set(items.map((i) => i.providerConfigName).filter(Boolean)));
+  const keys = (() => {
+    if (colorBy === 'source') return Array.from(new Set(items.map((i) => i.providerType).filter(Boolean)));
+    if (colorBy === 'flux') return Array.from(new Set(items.map((i) => i.fluxName ?? 'default')));
+    return Array.from(new Set(items.map((i) => i.providerConfigName).filter(Boolean)));
+  })();
 
   const map = new Map<string, string>();
   keys.forEach((key, i) => {
     map.set(key, colors[i % colors.length]);
   });
+
+  if (colorBy === 'flux' && keys.includes('default')) {
+    map.set('default', '#BFBFBF');
+  }
 
   return Object.fromEntries(map);
 };

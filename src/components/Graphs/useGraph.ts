@@ -22,7 +22,8 @@ function buildGraph(
 
   const nodeMap = new Map<string, Node<NodeData>>();
   treeData.forEach((n) => {
-    const colorKey = colorBy === 'source' ? n.providerType : n.providerConfigName;
+    const colorKey: string =
+      colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
     const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
@@ -108,6 +109,13 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
         const statusCond = getStatusCondition(item?.status?.conditions);
         const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
 
+        let fluxName: string | undefined;
+        const labelsMap = (item.metadata as { labels?: Record<string, string> }).labels;
+        if (labelsMap) {
+          const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
+          if (key) fluxName = labelsMap[key];
+        }
+
         const {
           subaccountRef,
           serviceManagerRef,
@@ -155,6 +163,7 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
             status,
             transitionTime: statusCond?.lastTransitionTime ?? '',
             statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+            fluxName,
             parentId,
             extraRefs,
             item,

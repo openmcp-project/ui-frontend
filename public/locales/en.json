@@ -291,6 +291,7 @@
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
     "colorizedTitle": "Group by: ",
+    "colorsFlux": "Flux",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
@@ -325,7 +326,8 @@
     "ready": "Ready",
     "synced": "Synced",
     "healthy": "Healthy",
-    "installed": "Installed"
+    "installed": "Installed",
+    "none": "None"
   },
   "errors": {
     "installError": "Install error",

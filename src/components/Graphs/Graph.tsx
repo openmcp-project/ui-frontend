@@ -56,11 +56,11 @@ const Graph: React.FC = () => {
 
   const legendItems: LegendItem[] = useMemo(
     () =>
-      Object.entries(colorMap).map(([name, color]) => ({
-        name: name === 'default' ? 'default' : name,
-        color,
-      })),
-    [colorMap],
+      Object.entries(colorMap).map(([name, color]) => {
+        const displayName = colorBy === 'flux' && (name === 'default' || !name) ? t('common.none') : name;
+        return { name: displayName, color };
+      }),
+    [colorMap, colorBy, t],
   );
 
   if (error) {
@@ -115,6 +115,12 @@ const Graph: React.FC = () => {
                     text={t('Graphs.colorsProvider')}
                     checked={colorBy === 'source'}
                     onChange={() => setColorBy('source')}
+                  />
+                  <RadioButton
+                    name="colorBy"
+                    text={t('Graphs.colorsFlux')}
+                    checked={colorBy === 'flux'}
+                    onChange={() => setColorBy('flux')}
                   />
                 </div>
               </fieldset>
