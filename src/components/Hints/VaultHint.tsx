@@ -4,10 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 interface VaultHintProps {
   enabled?: boolean;
+  version?: string;
   onActivate?: () => void;
+  managedResources?: any;
+  isLoading?: boolean;
+  error?: any;
 }
 
-export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, onActivate }) => {
+export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, version, onActivate, managedResources, isLoading, error }) => {
   const { t } = useTranslation();
 
   const cardStyle = enabled
@@ -23,7 +27,7 @@ export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, onActivat
       <Card
         header={
           <CardHeader
-            additionalText={enabled ? 'Active' : undefined}
+            additionalText={enabled ? `Active v${version ?? ''}` : undefined}
             avatar={
               <img
                 src="/vault.png"
@@ -38,12 +42,18 @@ export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, onActivat
         style={cardStyle}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
-          <ProgressIndicator
-            value={100}
-            displayValue={enabled ? '100% Available' : 'Inactive'}
-            valueState={enabled ? 'Positive' : 'None'}
-            style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
-          />
+          {isLoading ? (
+            <ProgressIndicator value={0} displayValue={t('Loading...')} valueState="None" style={{ width: '80%', maxWidth: 500, minWidth: 120 }} />
+          ) : error ? (
+            <ProgressIndicator value={0} displayValue={t('Error loading resources')} valueState="Negative" style={{ width: '80%', maxWidth: 500, minWidth: 120 }} />
+          ) : (
+            <ProgressIndicator
+              value={managedResources ? 100 : 0}
+              displayValue={enabled ? (managedResources ? '100% Available' : 'No Resources') : 'Inactive'}
+              valueState={enabled ? (managedResources ? 'Positive' : 'None') : 'None'}
+              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+            />
+          )}
         </div>
         {!enabled && (
           <div style={{
