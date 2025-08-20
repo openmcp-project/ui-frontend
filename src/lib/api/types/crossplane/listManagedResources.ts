@@ -8,6 +8,7 @@ export type ManagedResourcesResponse = [
         metadata: {
           name: string;
           creationTimestamp: string;
+          labels: [];
         };
         status?: {
           conditions?: [

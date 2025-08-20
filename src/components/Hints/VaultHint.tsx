@@ -1,17 +1,25 @@
 import { Card, CardHeader, ProgressIndicator, Button } from '@ui5/webcomponents-react';
+import { ManagedResourcesResponse } from '../../lib/api/types/crossplane/listManagedResources';
 import { useTranslation } from 'react-i18next';
-
+import { APIError } from '../../lib/api/error';
 
 interface VaultHintProps {
   enabled?: boolean;
   version?: string;
   onActivate?: () => void;
-  managedResources?: any;
+  managedResources?: ManagedResourcesResponse | undefined;
   isLoading?: boolean;
-  error?: any;
+  error?: APIError;
 }
 
-export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, version, onActivate, managedResources, isLoading, error }) => {
+export const VaultHint: React.FC<VaultHintProps> = ({
+  enabled = false,
+  version,
+  onActivate,
+  managedResources,
+  isLoading,
+  error,
+}) => {
   const { t } = useTranslation();
 
   const cardStyle = enabled
@@ -37,15 +45,26 @@ export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, version, 
             }
             titleText="Vault"
             subtitleText="Rotating Secrets Progress"
+            interactive={true}
           />
         }
         style={cardStyle}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
           {isLoading ? (
-            <ProgressIndicator value={0} displayValue={t('Loading...')} valueState="None" style={{ width: '80%', maxWidth: 500, minWidth: 120 }} />
+            <ProgressIndicator
+              value={0}
+              displayValue={t('Loading...')}
+              valueState="None"
+              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+            />
           ) : error ? (
-            <ProgressIndicator value={0} displayValue={t('Error loading resources')} valueState="Negative" style={{ width: '80%', maxWidth: 500, minWidth: 120 }} />
+            <ProgressIndicator
+              value={0}
+              displayValue={t('Error loading resources')}
+              valueState="Negative"
+              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+            />
           ) : (
             <ProgressIndicator
               value={managedResources ? 100 : 0}
@@ -56,15 +75,17 @@ export const VaultHint: React.FC<VaultHintProps> = ({ enabled = false, version, 
           )}
         </div>
         {!enabled && (
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            zIndex: 2,
-            pointerEvents: 'auto',
-          }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              zIndex: 2,
+              pointerEvents: 'auto',
+            }}
+          >
             <Button design="Emphasized" onClick={onActivate}>
-              Activate
+              {t('Activate')}
             </Button>
           </div>
         )}

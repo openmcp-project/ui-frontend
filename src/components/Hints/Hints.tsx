@@ -10,9 +10,8 @@ import { useApiResource } from '../../lib/api/useApiResource';
 import React from 'react';
 
 interface HintsProps {
-    mcp: ControlPlaneType;
+  mcp: ControlPlaneType;
 }
-
 
 const Hints: React.FC<HintsProps> = ({ mcp }) => {
   const {
@@ -30,7 +29,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         gap: '12px',
         justifyContent: 'space-between',
         alignItems: 'stretch',
-        width: '100%'
+        width: '100%',
       }}
     >
       <CrossplaneHint

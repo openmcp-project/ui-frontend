@@ -27,7 +27,6 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import Graph from '../../../components/Graphs/Graph.tsx';
 import Hints from '../../../components/Hints/Hints.tsx';
 
-
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
@@ -37,7 +36,6 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-
 
   if (isLoading) {
     return <BusyIndicator active />;
@@ -100,7 +98,7 @@ export default function McpPage() {
               titleText={t('McpPage.overviewTitle')}
               hideTitleText
             >
-                <Hints mcp={mcp}/>
+              <Hints mcp={mcp} />
             </ObjectPageSection>
             <ObjectPageSection
               className="cp-page-section-graph"
