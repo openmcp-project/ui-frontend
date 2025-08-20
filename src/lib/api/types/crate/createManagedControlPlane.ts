@@ -1,6 +1,7 @@
 import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
+import { AccountType } from '../../../../components/Members/EditMembers.tsx';
 
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
@@ -18,7 +19,7 @@ interface RoleBinding {
   subjects: Subject[];
 }
 interface Subject {
-  kind: 'User' | 'Group' | 'ServiceAccount';
+  kind: AccountType;
   name: string;
 }
 
@@ -134,11 +135,12 @@ export const CreateManagedControlPlane = (
       authorization: {
         roleBindings:
           optional?.members?.map((member) => ({
-            role: member.roles[0],
+            role: member.role,
             subjects: [
               {
-                kind: 'User',
-                name: idpPrefix ? `${idpPrefix}:${member.name}` : member.name,
+                kind: member.kind as AccountType,
+                name: idpPrefix && member.kind === 'User' ? `${idpPrefix}:${member.name}` : member.name,
+                namespace: member.kind === 'ServiceAccount' ? (member.namespace ?? 'default') : undefined,
               },
             ],
           })) ?? [],
