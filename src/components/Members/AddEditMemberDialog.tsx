@@ -4,11 +4,12 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
-import { Button, Dialog, FlexBox, Input, Label } from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import styles from './Members.module.css';
 import { RadioButtonsSelect } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import FadeVisibility from '../Ui/FadeVisibility/FadeVisibility.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
+import { useLink } from '../../lib/shared/useLink.ts';
 
 interface AddEditMemberDialogProps {
   open: boolean;
@@ -34,7 +35,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 }) => {
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
-
+  const { serviceAccoutsGuide } = useLink();
   const memberFormSchema = useMemo(
     () =>
       z
@@ -178,6 +179,16 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   components={{ span: <span className="mono-font" /> }}
                 />
               </Label>
+              <div>
+                <MessageStrip className={styles.info} design="Information" hideCloseButton={true}>
+                  <Trans
+                    i18nKey="EditMembers.serviceAccoutsGuide"
+                    components={{
+                      link1: <Link href={serviceAccoutsGuide} target="_blank" />,
+                    }}
+                  />
+                </MessageStrip>
+              </div>
             </FadeVisibility>
           </div>
 

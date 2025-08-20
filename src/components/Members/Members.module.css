@@ -7,15 +7,21 @@
 }
 
 .placeholder {
-  min-height: 5rem;
-  margin-bottom: 2.5rem;
+  min-height: 7.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .container {
-  min-width: 40ch;
+  min-width: 465px;
   max-width: 100%;
 }
 
 .input {
   width: 100%;
+}
+
+.info {
+  margin-top: 0.5rem;
+  max-width: 100%;
+  text-wrap: wrap;
 }

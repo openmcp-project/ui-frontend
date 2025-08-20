@@ -13,6 +13,9 @@ export function useLink() {
     mcpCreationGuide: createLink(
       '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
     ),
+    serviceAccoutsGuide: createLink(
+      '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
+    ),
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
   };
 }
