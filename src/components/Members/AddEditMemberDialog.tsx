@@ -171,7 +171,6 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </FlexBox>
               </div>
-              {/*<Label>{t('EditMembers.defaultNamespaceInfo')}</Label>*/}
 
               <Label>
                 <Trans
