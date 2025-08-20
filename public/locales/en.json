@@ -297,13 +297,11 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Visualize: ",
+    "colorizedTitle": "Group by: ",
+    "colorsFlux": "Flux",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
-  },
-  "GraphsLegend": {
-    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",
@@ -335,7 +333,8 @@
     "ready": "Ready",
     "synced": "Synced",
     "healthy": "Healthy",
-    "installed": "Installed"
+    "installed": "Installed",
+    "none": "None"
   },
   "errors": {
     "installError": "Install error",
