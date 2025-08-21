@@ -106,7 +106,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1200px', margin: '0.1em auto -8px auto', width: '100%' }}
+                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
                 headerLevel="H2"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
@@ -122,7 +122,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1200px', margin: '0.1em auto -8px auto', width: '100%' }}
+                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
@@ -146,7 +146,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1200px', margin: '0.1em auto -8px auto', width: '100%' }}
+                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
@@ -162,7 +162,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1200px', margin: '0.1em auto -8px auto', width: '100%' }}
+                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}

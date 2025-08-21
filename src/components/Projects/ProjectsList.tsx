@@ -135,7 +135,7 @@ export default function ProjectsList() {
     <>
       <AnalyticalTable
         style={{
-          maxWidth: '1200px',
+          maxWidth: '1280px',
           margin: '10px auto 0px auto',
           width: '100%',
           borderRadius: '12px',
