@@ -1,7 +1,8 @@
 import { Card, CardHeader, ProgressIndicator, Button } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
+import cx from 'clsx';
 import { APIError } from '../../lib/api/error';
-import { getDisabledCardStyle } from './Hints';
+import { styles } from './Hints';
 import { ManagedResourceItem } from '../../lib/shared/types';
 
 interface GitOpsHintProps {
@@ -48,8 +49,6 @@ export const GitOpsHint: React.FC<GitOpsHintProps> = ({
       : 'None'
     : 'None';
 
-  const cardStyle = enabled ? {} : getDisabledCardStyle();
-
   return (
     <div style={{ position: 'relative', width: '100%' }}>
       <Card
@@ -65,17 +64,21 @@ export const GitOpsHint: React.FC<GitOpsHintProps> = ({
             }
             titleText={t('Hints.GitOpsHint.title')}
             subtitleText={t('Hints.GitOpsHint.subtitle')}
-            interactive={true}
+            interactive={enabled}
           />
         }
-        style={cardStyle}
-        onClick={() => {
+        className={cx({
+          [styles['disabled']]: !enabled,
+        })}
+        onClick={enabled ? () => {
           const el = document.querySelector('.cp-page-section-gitops');
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }}
+        } : undefined}
       >
+        {/* Disabled overlay */}
+        {!enabled && <div className={styles.disabledOverlay} />}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
           {isLoading ? (
             <ProgressIndicator

@@ -14,12 +14,8 @@ interface HintsProps {
   mcp: ControlPlaneType;
 }
 
-// Utility function to create disabled card style
-export const getDisabledCardStyle = () => ({
-  background: '#f3f3f3',
-  filter: 'grayscale(0.7)',
-  opacity: 0.7,
-});
+// Export styles for use by hint components
+export { default as styles } from './Hints.module.css';
 
 // Utility function to flatten managed resources
 export const flattenManagedResources = (managedResources: any): ManagedResourceItem[] => {
@@ -50,9 +46,10 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         justifyContent: 'space-between',
         alignItems: 'stretch',
         width: '100%',
-        height: '150px',
-        zIndex: 9999,
-        position: 'relative',
+        // This breaks the scrolling currently since its zIndex is higher than the header bar
+        // height: '150px',
+        // zIndex: 9999,
+        // position: 'relative',
       }}
     >
       <CrossplaneHint
