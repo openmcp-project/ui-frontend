@@ -1,6 +1,7 @@
 import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
+import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
@@ -106,7 +107,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
+                className={styles.panel}
                 headerLevel="H2"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
@@ -122,7 +123,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
@@ -146,7 +147,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
@@ -162,7 +163,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
-                style={{ maxWidth: '1280px', margin: '0.1em auto -8px auto', width: '100%' }}
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}
