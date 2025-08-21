@@ -55,7 +55,7 @@ export const GitOpsHint: React.FC<GitOpsHintProps> = ({
       <Card
         header={
           <CardHeader
-            additionalText={enabled ? `${t('Hints.GitOpsHint.activeStatus')}${version ?? ''}` : undefined}
+            additionalText={enabled ? `v${version ?? ''}` : undefined}
             avatar={
               <img
                 src="/flux.png"

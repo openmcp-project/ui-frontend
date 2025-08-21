@@ -78,7 +78,7 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
       <Card
         header={
           <CardHeader
-            additionalText={enabled ? `${t('Hints.CrossplaneHint.activeStatus')}${version ?? ''}` : undefined}
+            additionalText={enabled ? `v${version ?? ''}` : undefined}
             avatar={
               <img
                 src="/crossplane-icon.png"
@@ -108,21 +108,33 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
               value={0}
               displayValue={t('Hints.common.loading')}
               valueState="None"
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+              style={{ 
+                width: '80%', 
+                maxWidth: 500, 
+                minWidth: 120,
+              }}
             />
           ) : error ? (
             <ProgressIndicator
               value={0}
               displayValue={t('Hints.common.errorLoadingResources')}
               valueState="Negative"
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+              style={{ 
+                width: '80%', 
+                maxWidth: 500, 
+                minWidth: 120,
+              }}
             />
           ) : (
             <ProgressIndicator
               value={progressValue}
               displayValue={progressDisplay}
               valueState={progressValueState}
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
+              style={{ 
+                width: '80%', 
+                maxWidth: 500, 
+                minWidth: 120,
+              }}
             />
           )}
         </div>
