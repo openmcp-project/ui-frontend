@@ -53,7 +53,7 @@ export function CreateProjectDialogContainer({
 
   useEffect(() => {
     if (username) {
-      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }]);
+      setValue('members', [{ name: username, role: MemberRoles.admin, kind: 'User' }]);
     }
     if (!isOpen) {
       clearForm();

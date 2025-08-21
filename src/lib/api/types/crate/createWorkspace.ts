@@ -1,6 +1,6 @@
 import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
-import { Member } from '../shared/members';
+import { Member, MemberPayload } from '../shared/members';
 
 export interface CreateWorkspaceType {
   apiVersion: string;
@@ -18,7 +18,7 @@ export interface CreateWorkspaceType {
     };
   };
   spec: {
-    members: Member[];
+    members: MemberPayload[];
   };
 }
 
@@ -47,7 +47,13 @@ export const CreateWorkspace = (
       },
     },
     spec: {
-      members: optional?.members ?? [],
+      members:
+        optional?.members?.map(({ kind, namespace, role, name }) => ({
+          kind,
+          name,
+          roles: [role],
+          namespace: kind === 'ServiceAccount' ? (namespace ?? 'default') : undefined,
+        })) ?? [],
     },
   };
 };
