@@ -1,14 +1,14 @@
 import { Card, CardHeader, ProgressIndicator, Button } from '@ui5/webcomponents-react';
-import { ManagedResourcesResponse } from '../../lib/api/types/crossplane/listManagedResources';
 import { useTranslation } from 'react-i18next';
 import { APIError } from '../../lib/api/error';
-import { Condition, ManagedResourceItem } from '../Graphs/types';
+import { getDisabledCardStyle } from './Hints';
+import { ManagedResourceItem, Condition } from '../../lib/shared/types';
 
 interface CrossplaneHintProps {
   enabled?: boolean;
   version?: string;
   onActivate?: () => void;
-  managedResources?: ManagedResourcesResponse | undefined;
+  allItems?: ManagedResourceItem[];
   isLoading?: boolean;
   error?: APIError;
 }
@@ -17,26 +17,13 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
   enabled = false,
   version,
   onActivate,
-  managedResources,
+  allItems = [],
   isLoading,
   error,
 }) => {
   const { t } = useTranslation();
 
-  const cardStyle = enabled
-    ? {}
-    : {
-        background: '#f3f3f3',
-        filter: 'grayscale(0.7)',
-        opacity: 0.7,
-      };
-
-  // Flatten all items from all managedResources entries
-  const allItems = managedResources
-    ? managedResources
-        .filter((managedResource) => managedResource.items)
-        .flatMap((managedResource) => managedResource.items)
-    : [];
+  const cardStyle = enabled ? {} : getDisabledCardStyle();
 
   // Health state counts for slider segments
   const healthyCount = allItems.filter((item: ManagedResourceItem) => {
@@ -52,13 +39,13 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
   const progressValue = totalCount > 0 ? Math.round((healthyCount / totalCount) * 100) : 0;
   // Display value: show ratio
   const progressDisplay = enabled
-    ? managedResources
-      ? `${Math.round((healthyCount / totalCount) * 100)}% Available`
-      : 'No Resources'
-    : 'Inactive';
+    ? allItems.length > 0
+      ? `${Math.round((healthyCount / totalCount) * 100)}${t('Hints.CrossplaneHint.progressAvailable')}`
+      : t('Hints.CrossplaneHint.noResources')
+    : t('Hints.CrossplaneHint.inactive');
   // Value state: positive if half are ready & synced
   const progressValueState = enabled
-    ? managedResources
+    ? allItems.length > 0
       ? healthyCount >= totalCount / 2 && totalCount > 0
         ? 'Positive'
         : 'Critical'
@@ -70,7 +57,7 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
       <Card
         header={
           <CardHeader
-            additionalText={enabled ? `Active v${version ?? ''}` : undefined}
+            additionalText={enabled ? `${t('Hints.CrossplaneHint.activeStatus')}${version ?? ''}` : undefined}
             avatar={
               <img
                 src="/crossplane-icon.png"
@@ -78,8 +65,8 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
                 style={{ width: 50, height: 50, borderRadius: '50%', background: 'transparent', objectFit: 'cover' }}
               />
             }
-            titleText="Crossplane"
-            subtitleText="Managed Resources Readiness"
+            titleText={t('Hints.CrossplaneHint.title')}
+            subtitleText={t('Hints.CrossplaneHint.subtitle')}
             interactive={true}
           />
         }
@@ -95,14 +82,14 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
           {isLoading ? (
             <ProgressIndicator
               value={0}
-              displayValue={t('Loading...')}
+              displayValue={t('Hints.common.loading')}
               valueState="None"
               style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
             />
           ) : error ? (
             <ProgressIndicator
               value={0}
-              displayValue={t('Error loading resources')}
+              displayValue={t('Hints.common.errorLoadingResources')}
               valueState="Negative"
               style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
             />
@@ -126,7 +113,7 @@ export const CrossplaneHint: React.FC<CrossplaneHintProps> = ({
             }}
           >
             <Button design="Emphasized" onClick={onActivate}>
-              {t('Activate')}
+              {t('Hints.CrossplaneHint.activate')}
             </Button>
           </div>
         )}

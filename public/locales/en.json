@@ -165,6 +165,7 @@
   "EditMembers": {
     "addButton": "Add"
   },
+
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
     "projectHeader": "Project:"
@@ -360,5 +361,38 @@
     "selectedComponents": "Selected Components",
     "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
     "cannotLoad": "Cannot load components list"
+  },
+  "Hints": {
+    "CrossplaneHint": {
+      "title": "Crossplane",
+      "subtitle": "Managed Resources Readiness",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate"
+    },
+    "GitOpsHint": {
+      "title": "Flux",
+      "subtitle": "GitOps Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate"
+    },
+    "VaultHint": {
+      "title": "Vault",
+      "subtitle": "Rotating Secrets Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate"
+    },
+    "common": {
+      "loading": "Loading...",
+      "errorLoadingResources": "Error loading resources"
+    }
   }
 }
