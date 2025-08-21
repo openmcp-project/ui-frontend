@@ -41,13 +41,7 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
 
   return (
     <div>
-      <AnalyticalTable
-        scaleWidthMode="Smart"
-        columns={componentTableColumns}
-        minRows={0}
-        data={data}
-        style={{ marginLeft: '12px', marginRight: '12px' }}
-      />
+      <AnalyticalTable scaleWidthMode="Smart" columns={componentTableColumns} minRows={0} data={data} />
     </div>
   );
 }

@@ -145,7 +145,6 @@ export function ManagedResources() {
 
       {!error && (
         <AnalyticalTable
-          style={{ margin: '12px' }}
           columns={columns}
           data={rows}
           minRows={1}
