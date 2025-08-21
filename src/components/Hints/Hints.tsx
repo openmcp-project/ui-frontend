@@ -24,7 +24,7 @@ export const getDisabledCardStyle = () => ({
 // Utility function to flatten managed resources
 export const flattenManagedResources = (managedResources: any): ManagedResourceItem[] => {
   if (!managedResources || !Array.isArray(managedResources)) return [];
-  
+
   return managedResources
     .filter((managedResource) => managedResource?.items)
     .flatMap((managedResource) => managedResource.items || []);
@@ -50,6 +50,9 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         justifyContent: 'space-between',
         alignItems: 'stretch',
         width: '100%',
+        height: '150px',
+        zIndex: 9999,
+        position: 'relative',
       }}
     >
       <CrossplaneHint
