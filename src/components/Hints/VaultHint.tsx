@@ -40,7 +40,7 @@ export const VaultHint: React.FC<VaultHintProps> = ({
             }
             titleText={t('Hints.VaultHint.title')}
             subtitleText={t('Hints.VaultHint.subtitle')}
-            interactive={true}
+            interactive={false}
           />
         }
         style={cardStyle}
