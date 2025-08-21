@@ -133,7 +133,17 @@ export default function ProjectsList() {
 
   return (
     <>
-      <AnalyticalTable style={{ margin: '12px' }} columns={stabilizedColumns} data={stabilizedData} />
+      <AnalyticalTable
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+        columns={stabilizedColumns}
+        data={stabilizedData}
+      />
     </>
   );
 }
