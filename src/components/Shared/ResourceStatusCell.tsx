@@ -18,7 +18,7 @@ export const ResourceStatusCell = ({
   message,
   positiveText,
   negativeText,
-  hideOnHoverEffect
+  hideOnHoverEffect,
 }: ResourceStatusCellProps) => {
   const btnRef = useRef<ButtonDomRef>(null);
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
@@ -33,13 +33,7 @@ export const ResourceStatusCell = ({
   return (
     <span>
       {hideOnHoverEffect ? (
-        <Button
-          ref={btnRef}
-          design="Transparent"
-          onClick={handleOpen}
-          title={timeAgo}
-          aria-label={timeAgo}
-        >
+        <Button ref={btnRef} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpen}>
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
