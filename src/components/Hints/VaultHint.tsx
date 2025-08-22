@@ -1,9 +1,10 @@
-import { Card, CardHeader, ProgressIndicator, Button } from '@ui5/webcomponents-react';
+import { Card, CardHeader, Button } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
 import { APIError } from '../../lib/api/error';
 import { styles } from './Hints';
 import { ManagedResourceItem } from '../../lib/shared/types';
+import { MultiPercentageBar } from '../Shared/MultiPercentageBar';
 
 interface VaultHintProps {
   enabled?: boolean;
@@ -49,28 +50,84 @@ export const VaultHint: React.FC<VaultHintProps> = ({
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
-          {isLoading ? (
-            <ProgressIndicator
-              value={0}
-              displayValue={t('Hints.common.loading')}
-              valueState="None"
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
-            />
-          ) : error ? (
-            <ProgressIndicator
-              value={0}
-              displayValue={t('Hints.common.errorLoadingResources')}
-              valueState="Negative"
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
-            />
-          ) : (
-            <ProgressIndicator
-              value={allItems.length > 0 ? 0 : 0}
-              displayValue={enabled ? (allItems.length > 0 ? `100${t('Hints.VaultHint.progressAvailable')}` : t('Hints.VaultHint.noResources')) : t('Hints.VaultHint.inactive')}
-              valueState={enabled ? (allItems.length > 0 ? 'Positive' : 'None') : 'None'}
-              style={{ width: '80%', maxWidth: 500, minWidth: 120 }}
-            />
-          )}
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            width: '100%', 
+            maxWidth: 500, 
+            padding: '0 1rem' 
+          }}>
+            {(() => {
+              if (isLoading) {
+                // Show loading animation with a single gray segment
+                return (
+                  <MultiPercentageBar 
+                    segments={[{
+                      percentage: 100,
+                      color: '#e9e9e9ff',
+                      label: 'Loading'
+                    }]}
+                    style={{ width: '100%' }}
+                    label={t('Hints.common.loading')}
+                    showPercentage={false} // Hide percentage for loading
+                    isHealthy={false} // Not healthy styling for loading
+                  />
+                );
+              }
+              
+              if (error) {
+                // Show error state with red segment
+                return (
+                  <MultiPercentageBar 
+                    segments={[{
+                      percentage: 100,
+                      color: '#d22020ff',
+                      label: 'Error'
+                    }]}
+                    style={{ width: '100%' }}
+                    label={t('Hints.common.errorLoadingResources')}
+                    showPercentage={false} // Hide percentage for error
+                    isHealthy={false} // Not healthy styling for error
+                  />
+                );
+              }
+              
+              // Show appropriate state based on enabled status
+              if (!enabled) {
+                return (
+                  <MultiPercentageBar 
+                    segments={[{
+                      percentage: 100,
+                      color: '#e9e9e9ff',
+                      label: 'Inactive'
+                    }]}
+                    style={{ width: '100%' }}
+                    label={t('Hints.VaultHint.inactive')}
+                    showPercentage={false} // Hide percentage when inactive
+                    isHealthy={false} // Not healthy styling for inactive
+                  />
+                );
+              }
+
+              const label = allItems.length > 0 ? `100${t('Hints.VaultHint.progressAvailable')}` : t('Hints.VaultHint.noResources');
+              const color = allItems.length > 0 ? '#28a745' : '#e9e9e9ff';
+              const isCurrentlyHealthy = allItems.length > 0;
+              
+              return (
+                <MultiPercentageBar 
+                  segments={[{
+                    percentage: 100,
+                    color: color,
+                    label: 'Active'
+                  }]}
+                  style={{ width: '100%' }}
+                  label={label}
+                  showPercentage={true} // Show percentage when active
+                  isHealthy={isCurrentlyHealthy} // Healthy if has items
+                />
+              );
+            })()}
+          </div>
         </div>
         {!enabled && (
           <div
