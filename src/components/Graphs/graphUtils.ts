@@ -26,7 +26,7 @@ export const resolveProviderType = (configName: string, providerConfigsList: Pro
 };
 
 export const generateColorMap = (items: NodeData[], colorBy: string): Record<string, string> => {
-  const colors = ['#E09D00', '#E6600D', '#AB218E', '#678BC7', '#1A9898', '#759421', '#925ACE', '#647987'];
+  const colors = ['#E09D00', '#e269c9', '#AB218E', '#678BC7', '#1A9898', '#759421', '#925ACE', '#647987'];
 
   const keys = (() => {
     if (colorBy === 'source') return Array.from(new Set(items.map((i) => i.providerType).filter(Boolean)));
