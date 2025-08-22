@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import styles from './Hints.module.css';
 
 interface PercentageSegment {
   percentage: number;
@@ -40,7 +41,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   labelFontSize = '0.875rem',
   gap = '2px',
   borderRadius = '6px',
-  backgroundColor = '#e9e9e9ff',
+  backgroundColor, // Remove default value to use CSS class
   className,
   style,
   animationDuration = 600, // Default 600ms animation
@@ -216,17 +217,17 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {showPercentage && (
-              <span style={{ 
+              <span className={`${styles.chartLabel} ${allHealthy ? '' : ''}`} style={{ 
                 fontSize: labelFontSize, 
-                color: allHealthy ? 'green' : 'black', 
+                color: allHealthy ? 'green' : undefined, 
                 fontWeight: allHealthy ? '700' : '400'
               }}>
                 {displayPrimaryPercentage}%
               </span>
             )}
-            <span style={{ 
+            <span className={`${styles.chartLabel} ${allHealthy ? '' : ''}`} style={{ 
               fontSize: labelFontSize, 
-              color: allHealthy ? 'green' : 'black', 
+              color: allHealthy ? 'green' : undefined, 
               fontWeight: allHealthy ? '700' : '400'
             }}>
               {displayLabel}
@@ -236,12 +237,12 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
       )}
       
       {/* Colored bars */}
-      <div style={{ 
+      <div className={styles.chartBackground} style={{ 
         display: 'flex', 
         gap, 
         width: barWidth, 
         maxWidth: barMaxWidth,
-        backgroundColor,
+        ...(backgroundColor && { backgroundColor }), // Only override if explicitly provided
         borderRadius,
         padding: '2px',
         opacity: isVisible ? 1 : 0,

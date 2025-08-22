@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './Hints.module.css';
 
 interface LegendItem {
   label: string;
@@ -18,22 +19,18 @@ export const LegendSection: React.FC<LegendSectionProps> = ({
   style 
 }) => {
   return (
-    <div style={{ 
+    <div className={styles.legendSection} style={{ 
       marginBottom: '1rem',
       padding: '0.75rem',
       borderRadius: '6px',
-      backgroundColor: 'white',
-      border: '1px solid #e1e5e9',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
       width: 'fit-content',
       margin: '0 auto 1rem auto',
       ...style
     }}>
-      <div style={{ 
+      <div className={styles.legendTitle} style={{ 
         fontSize: '0.95rem', 
         fontWeight: '600', 
         marginBottom: '0.5rem',
-        color: '#374151',
         textAlign: 'center'
       }}>
         {title}
@@ -56,7 +53,7 @@ export const LegendSection: React.FC<LegendSectionProps> = ({
               backgroundColor: item.color, 
               borderRadius: '50%' 
             }} />
-            <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+            <span className={styles.legendItem} style={{ fontSize: '0.85rem' }}>
               {item.count} {item.label}
             </span>
           </div>
