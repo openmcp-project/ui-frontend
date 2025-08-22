@@ -377,7 +377,8 @@
       "progressAvailable": "% Available",
       "noResources": "No Resources",
       "inactive": "Inactive",
-      "activate": "Activate"
+      "activate": "Activate",
+      "resources": "Resources"
     },
     "GitOpsHint": {
       "title": "Flux",
@@ -386,7 +387,8 @@
       "progressAvailable": "% Available",
       "noResources": "No Resources",
       "inactive": "Inactive",
-      "activate": "Activate"
+      "activate": "Activate",
+      "managed": "Managed"
     },
     "VaultHint": {
       "title": "Vault",
@@ -399,7 +401,8 @@
     },
     "common": {
       "loading": "Loading...",
-      "errorLoadingResources": "Error loading resources"
+      "errorLoadingResources": "Error loading resources",
+      "activate": "Activate"
     }
   }
 }

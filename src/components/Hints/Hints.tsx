@@ -1,7 +1,10 @@
 import { FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
-import { CrossplaneHint } from './CrossplaneHint';
-import { GitOpsHint } from './GitOpsHint';
-import { VaultHint } from './VaultHint';
+import { GenericHint } from './GenericHint';
+import { 
+  useCrossplaneHintConfig, 
+  useGitOpsHintConfig, 
+  useVaultHintConfig 
+} from './hintConfigs';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
@@ -38,6 +41,11 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
   // Flatten all managed resources once and pass to components
   const allItems = useMemo(() => flattenManagedResources(managedResources), [managedResources]);
 
+  // Get hint configurations
+  const crossplaneConfig = useCrossplaneHintConfig();
+  const gitOpsConfig = useGitOpsHintConfig();
+  const vaultConfig = useVaultHintConfig();
+
   return (
     <FlexBox
       direction={FlexBoxDirection.Row}
@@ -52,26 +60,29 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         // position: 'relative',
       }}
     >
-      <CrossplaneHint
+      <GenericHint
         enabled={!!mcp?.spec?.components?.crossplane}
         version={mcp?.spec?.components?.crossplane?.version}
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
+        config={crossplaneConfig}
       />
-      <GitOpsHint
+      <GenericHint
         enabled={!!mcp?.spec?.components?.flux}
         version={mcp?.spec?.components?.flux?.version}
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
+        config={gitOpsConfig}
       />
-      <VaultHint
+      <GenericHint
         enabled={!!mcp?.spec?.components?.externalSecretsOperator}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
+        config={vaultConfig}
       />
     </FlexBox>
   );
