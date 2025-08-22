@@ -9,6 +9,7 @@ type InfoBannerProps = {
   title: string;
   subtitle: string | UI5WCSlotsNode;
   illustrationName: IllustrationMessageType; // e.g. 'NoData', 'SimpleError', etc.
+  compact?: boolean;
   help?: {
     link: string;
     buttonText: string;
@@ -23,6 +24,7 @@ export const IllustratedBanner = ({
   illustrationName,
   help,
   button,
+  compact = false,
 }: InfoBannerProps) => {
   let subtitleText, subtitleNode;
   if (typeof subtitleProp === 'string') {
@@ -34,7 +36,7 @@ export const IllustratedBanner = ({
   return (
     <FlexBox direction="Column" alignItems="Center">
       <IllustratedMessage
-        design={IllustrationMessageDesign.Scene}
+        design={compact ? IllustrationMessageDesign.ExtraSmall : IllustrationMessageDesign.Large}
         name={illustrationName}
         titleText={title}
         subtitleText={subtitleText}
