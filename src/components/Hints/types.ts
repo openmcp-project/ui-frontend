@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { APIError } from '../../lib/api/error';
 import { ManagedResourceItem } from '../../lib/shared/types';
-import { PercentageSegment } from '../Shared/MultiPercentageBar';
+import { PercentageSegment } from './MultiPercentageBar';
 
 export interface HintSegmentCalculator {
   (allItems: ManagedResourceItem[], isLoading: boolean, error: APIError | undefined, enabled: boolean): HintState;

@@ -383,7 +383,13 @@
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "healthy": "Healthy"
+      "healthy": "Healthy",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "healthy": "Healthy",
+        "creating": "Creating", 
+        "failing": "Failing"
+      }
     },
     "GitOpsHint": {
       "title": "Flux",

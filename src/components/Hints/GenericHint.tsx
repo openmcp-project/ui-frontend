@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, Button } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
-import { MultiPercentageBar } from '../Shared/MultiPercentageBar';
+import { MultiPercentageBar } from './MultiPercentageBar';
 import { GenericHintProps } from './types';
 import { styles } from './Hints';
 
