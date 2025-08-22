@@ -22,6 +22,7 @@ export const ResourceStatusCell = ({
 }: ResourceStatusCellProps) => {
   const btnRef = useRef<ButtonDomRef>(null);
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+  const timeAgo = transitionTime ? formatDateAsTimeAgo(transitionTime) : '-';
 
   const handleClose = () => {
     setPopoverIsOpen(false);
@@ -36,14 +37,14 @@ export const ResourceStatusCell = ({
           ref={btnRef}
           design="Transparent"
           onClick={handleOpen}
-          title={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
-          aria-label={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
+          title={timeAgo}
+          aria-label={timeAgo}
         >
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
             showTooltip={true}
-            accessibleName={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
+            accessibleName={timeAgo}
           />
         </Button>
       ) : (
@@ -54,7 +55,7 @@ export const ResourceStatusCell = ({
               design={isOk ? 'Positive' : 'Negative'}
               name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
               showTooltip={true}
-              accessibleName={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
+              accessibleName={timeAgo}
             />
           }
           text={isOk ? positiveText : negativeText}
@@ -84,7 +85,7 @@ export const ResourceStatusCell = ({
               color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           >
-            {formatDateAsTimeAgo(transitionTime)}
+            {timeAgo}
           </Text>
         </FlexBox>
       </ResponsivePopover>
