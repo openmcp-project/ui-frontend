@@ -106,6 +106,7 @@ export function ShellBarComponent() {
     <>
       <ShellBar
         className={styles.TestShellbar}
+        hidden={window.location.href.includes('compact-mode')}
         profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
         startButton={
           <div className={styles.container}>
