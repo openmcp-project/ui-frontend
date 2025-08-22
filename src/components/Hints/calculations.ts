@@ -28,7 +28,7 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 
   if (isLoading) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Loading' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
       label: t('Hints.common.loading'),
       showPercentage: false,
       isHealthy: false,
@@ -38,7 +38,7 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 
   if (error) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: 'Error' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: t('Hints.common.errorLoadingResources') }],
       label: t('Hints.common.errorLoadingResources'),
       showPercentage: false,
       isHealthy: false,
@@ -48,7 +48,7 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 
   if (!enabled) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Inactive' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.CrossplaneHint.inactive') }],
       label: t('Hints.CrossplaneHint.inactive'),
       showPercentage: false,
       isHealthy: false,
@@ -60,7 +60,7 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 
   if (totalCount === 0) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'No Resources' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.CrossplaneHint.noResources') }],
       label: t('Hints.CrossplaneHint.noResources'),
       showPercentage: false,
       isHealthy: false,
@@ -90,11 +90,11 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 
   return {
     segments: [
-      { percentage: healthyPercentage, color: HINT_COLORS.healthy, label: 'Healthy' },
-      { percentage: creatingPercentage, color: HINT_COLORS.creating, label: 'Creating' },
-      { percentage: unhealthyPercentage, color: HINT_COLORS.unhealthy, label: 'Unhealthy' },
+      { percentage: healthyPercentage, color: HINT_COLORS.healthy, label: t('common.healthy') },
+      { percentage: creatingPercentage, color: HINT_COLORS.creating, label: t('common.creating') },
+      { percentage: unhealthyPercentage, color: HINT_COLORS.unhealthy, label: t('common.unhealthy') },
     ],
-    label: 'Resources',
+    label: t('Hints.CrossplaneHint.healthy'),
     showPercentage: true,
     isHealthy: healthyPercentage === 100 && totalCount > 0,
     showOnlyNonZero: true,
@@ -114,7 +114,7 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 
   if (isLoading) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Loading' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
       label: t('Hints.common.loading'),
       showPercentage: false,
       isHealthy: false,
@@ -124,7 +124,7 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 
   if (error) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: 'Error' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: t('Hints.common.errorLoadingResources') }],
       label: t('Hints.common.errorLoadingResources'),
       showPercentage: false,
       isHealthy: false,
@@ -134,7 +134,7 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 
   if (!enabled) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Inactive' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.GitOpsHint.inactive') }],
       label: t('Hints.GitOpsHint.inactive'),
       showPercentage: false,
       isHealthy: false,
@@ -146,7 +146,7 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 
   if (totalCount === 0) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'No Resources' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.GitOpsHint.noResources') }],
       label: t('Hints.GitOpsHint.noResources'),
       showPercentage: false,
       isHealthy: false,
@@ -167,8 +167,8 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 
   return {
     segments: [
-      { percentage: progressValue, color: progressColor, label: 'Progress' },
-      { percentage: restPercentage, color: HINT_COLORS.inactive, label: 'Remaining' },
+      { percentage: progressValue, color: progressColor, label: t('common.progress') },
+      { percentage: restPercentage, color: HINT_COLORS.inactive, label: t('common.remaining') },
     ],
     label: t('Hints.GitOpsHint.managed'),
     showPercentage: true,
@@ -190,7 +190,7 @@ export const calculateVaultSegments: HintSegmentCalculator = (
 
   if (isLoading) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Loading' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
       label: t('Hints.common.loading'),
       showPercentage: false,
       isHealthy: false,
@@ -200,7 +200,7 @@ export const calculateVaultSegments: HintSegmentCalculator = (
 
   if (error) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: 'Error' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: t('Hints.common.errorLoadingResources') }],
       label: t('Hints.common.errorLoadingResources'),
       showPercentage: false,
       isHealthy: false,
@@ -210,7 +210,7 @@ export const calculateVaultSegments: HintSegmentCalculator = (
 
   if (!enabled) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: 'Inactive' }],
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.VaultHint.inactive') }],
       label: t('Hints.VaultHint.inactive'),
       showPercentage: false,
       isHealthy: false,
@@ -225,7 +225,7 @@ export const calculateVaultSegments: HintSegmentCalculator = (
   const color = hasResources ? HINT_COLORS.healthy : HINT_COLORS.inactive;
 
   return {
-    segments: [{ percentage: 100, color, label: 'Active' }],
+    segments: [{ percentage: 100, color, label: t('common.active') }],
     label,
     showPercentage: true,
     isHealthy: hasResources,

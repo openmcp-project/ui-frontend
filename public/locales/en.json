@@ -336,7 +336,12 @@
     "synced": "Synced",
     "healthy": "Healthy",
     "installed": "Installed",
-    "none": "None"
+    "none": "None",
+    "creating": "Creating",
+    "unhealthy": "Unhealthy",
+    "progress": "Progress",
+    "remaining": "Remaining",
+    "active": "Active"
   },
   "errors": {
     "installError": "Install error",
@@ -378,7 +383,7 @@
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "resources": "Resources"
+      "healthy": "Healthy"
     },
     "GitOpsHint": {
       "title": "Flux",
