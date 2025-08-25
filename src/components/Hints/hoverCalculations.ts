@@ -34,17 +34,17 @@ export const calculateCrossplaneHoverData = (allItems: ManagedResourceItem[]): C
 
   allItems.forEach((item: ManagedResourceItem) => {
     const type = item.kind || 'Unknown';
-    
+
     if (!typeStats[type]) {
       typeStats[type] = { total: 0, healthy: 0, creating: 0, unhealthy: 0 };
     }
-    
+
     typeStats[type].total++;
-    
+
     const conditions = item.status?.conditions || [];
     const ready = conditions.find((c: Condition) => c.type === 'Ready' && c.status === 'True');
     const synced = conditions.find((c: Condition) => c.type === 'Synced' && c.status === 'True');
-    
+
     if (ready && synced) {
       typeStats[type].healthy++;
       totalHealthy++;
@@ -59,7 +59,7 @@ export const calculateCrossplaneHoverData = (allItems: ManagedResourceItem[]): C
     }
   });
 
-  const resourceTypeStats: ResourceTypeStats[] = Object.keys(typeStats).map(type => {
+  const resourceTypeStats: ResourceTypeStats[] = Object.keys(typeStats).map((type) => {
     const stats = typeStats[type];
     return {
       type,

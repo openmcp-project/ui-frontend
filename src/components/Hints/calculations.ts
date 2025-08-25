@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { ManagedResourceItem, Condition } from '../../lib/shared/types';
 import { APIError } from '../../lib/api/error';
 import { HintSegmentCalculator, HintState } from './types';
@@ -22,10 +21,9 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
-  enabled: boolean
+  enabled: boolean,
+  t: (key: string) => string,
 ): HintState => {
-  const { t } = useTranslation();
-
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
@@ -108,10 +106,9 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
-  enabled: boolean
+  enabled: boolean,
+  t: (key: string) => string,
 ): HintState => {
-  const { t } = useTranslation();
-
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
@@ -158,7 +155,7 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
   const fluxLabelCount = allItems.filter(
     (item: ManagedResourceItem) =>
       item?.metadata?.labels &&
-      Object.prototype.hasOwnProperty.call(item.metadata.labels, 'kustomize.toolkit.fluxcd.io/name')
+      Object.prototype.hasOwnProperty.call(item.metadata.labels, 'kustomize.toolkit.fluxcd.io/name'),
   ).length;
 
   const progressValue = totalCount > 0 ? Math.round((fluxLabelCount / totalCount) * 100) : 0;
@@ -184,10 +181,9 @@ export const calculateVaultSegments: HintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
-  enabled: boolean
+  enabled: boolean,
+  t: (key: string) => string,
 ): HintState => {
-  const { t } = useTranslation();
-
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
@@ -219,9 +215,7 @@ export const calculateVaultSegments: HintSegmentCalculator = (
   }
 
   const hasResources = allItems.length > 0;
-  const label = hasResources 
-    ? `100${t('Hints.VaultHint.progressAvailable')}` 
-    : t('Hints.VaultHint.noResources');
+  const label = hasResources ? `100${t('Hints.VaultHint.progressAvailable')}` : t('Hints.VaultHint.noResources');
   const color = hasResources ? HINT_COLORS.healthy : HINT_COLORS.inactive;
 
   return {
@@ -270,17 +264,17 @@ export const calculateCrossplaneHoverData = (allItems: ManagedResourceItem[]): C
 
   allItems.forEach((item: ManagedResourceItem) => {
     const type = item.kind || 'Unknown';
-    
+
     if (!typeStats[type]) {
       typeStats[type] = { total: 0, healthy: 0, creating: 0, unhealthy: 0 };
     }
-    
+
     typeStats[type].total++;
-    
+
     const conditions = item.status?.conditions || [];
     const ready = conditions.find((c: Condition) => c.type === 'Ready' && c.status === 'True');
     const synced = conditions.find((c: Condition) => c.type === 'Synced' && c.status === 'True');
-    
+
     if (ready && synced) {
       typeStats[type].healthy++;
       totalHealthy++;
@@ -295,7 +289,7 @@ export const calculateCrossplaneHoverData = (allItems: ManagedResourceItem[]): C
     }
   });
 
-  const resourceTypeStats: ResourceTypeStats[] = Object.keys(typeStats).map(type => {
+  const resourceTypeStats: ResourceTypeStats[] = Object.keys(typeStats).map((type) => {
     const stats = typeStats[type];
     return {
       type,

@@ -1,13 +1,9 @@
 import { FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
 import { GenericHint } from './GenericHint';
-import { 
-  useCrossplaneHintConfig, 
-  useGitOpsHintConfig, 
-  useVaultHintConfig 
-} from './hintConfigs';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './hintConfigs';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
-import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
+import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
@@ -21,7 +17,7 @@ interface HintsProps {
 export { default as styles } from './Hints.module.css';
 
 // Utility function to flatten managed resources
-export const flattenManagedResources = (managedResources: any): ManagedResourceItem[] => {
+export const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
   if (!managedResources || !Array.isArray(managedResources)) return [];
 
   return managedResources
@@ -39,7 +35,10 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
   });
 
   // Flatten all managed resources once and pass to components
-  const allItems = useMemo(() => flattenManagedResources(managedResources), [managedResources]);
+  const allItems = useMemo(
+    () => flattenManagedResources(managedResources ?? ([] as unknown as ManagedResourcesResponse)),
+    [managedResources],
+  );
 
   // Get hint configurations
   const crossplaneConfig = useCrossplaneHintConfig();

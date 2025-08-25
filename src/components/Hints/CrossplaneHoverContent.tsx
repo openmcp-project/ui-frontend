@@ -10,25 +10,19 @@ interface CrossplaneHoverContentProps {
   enabled: boolean;
 }
 
-export const CrossplaneHoverContent: React.FC<CrossplaneHoverContentProps> = ({
-  allItems,
-  enabled,
-}) => {
+export const CrossplaneHoverContent: React.FC<CrossplaneHoverContentProps> = ({ allItems, enabled }) => {
   const { t } = useTranslation();
 
   // Calculate all statistics using the dedicated calculation function
-  const { resourceTypeStats, overallStats } = useMemo(() => 
-    calculateCrossplaneHoverData(allItems), 
-    [allItems]
-  );
+  const { resourceTypeStats, overallStats } = useMemo(() => calculateCrossplaneHoverData(allItems), [allItems]);
 
   // Prepare radar chart dataset
   const radarDataset = useMemo(() => {
-    return resourceTypeStats.map(stats => ({
+    return resourceTypeStats.map((stats) => ({
       type: stats.type,
       healthy: stats.healthyPercentage,
       creating: stats.creatingPercentage,
-      unhealthy: stats.unhealthyPercentage
+      unhealthy: stats.unhealthyPercentage,
     }));
   }, [resourceTypeStats]);
 
@@ -41,39 +35,43 @@ export const CrossplaneHoverContent: React.FC<CrossplaneHoverContentProps> = ({
     {
       label: t('Hints.CrossplaneHint.hoverContent.healthy'),
       count: overallStats.healthy,
-      color: HINT_COLORS.healthy
+      color: HINT_COLORS.healthy,
     },
     {
       label: t('Hints.CrossplaneHint.hoverContent.creating'),
       count: overallStats.creating,
-      color: HINT_COLORS.creating
+      color: HINT_COLORS.creating,
     },
     {
       label: t('Hints.CrossplaneHint.hoverContent.failing'),
       count: overallStats.unhealthy,
-      color: HINT_COLORS.unhealthy
-    }
+      color: HINT_COLORS.unhealthy,
+    },
   ];
   return (
-    <div style={{ 
-      width: '100%', 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center',
-      margin: '1rem 0',
-      overflow: 'visible'
-    }}>
-      <LegendSection 
+    <div
+      style={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        margin: '1rem 0',
+        overflow: 'visible',
+      }}
+    >
+      <LegendSection
         title={`${overallStats.total} ${t('Hints.CrossplaneHint.hoverContent.totalResources')}`}
         items={legendItems}
       />
-      <div style={{ 
-        width: '100%', 
-        height: 300, 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center'
-      }}>
+      <div
+        style={{
+          width: '100%',
+          height: 300,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <RadarChart
           dataset={radarDataset}
           dimensions={[{ accessor: 'type' }]}
@@ -82,8 +80,8 @@ export const CrossplaneHoverContent: React.FC<CrossplaneHoverContentProps> = ({
               accessor: 'healthy',
               color: HINT_COLORS.healthy,
               hideDataLabel: true,
-              label: t('Hints.CrossplaneHint.hoverContent.healthy') + ' (%)'
-            }
+              label: t('Hints.CrossplaneHint.hoverContent.healthy') + ' (%)',
+            },
           ]}
           style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
           noLegend={true}

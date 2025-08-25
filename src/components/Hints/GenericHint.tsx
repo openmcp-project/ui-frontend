@@ -19,15 +19,18 @@ export const GenericHint: React.FC<GenericHintProps> = ({
   const [hovered, setHovered] = useState(false);
 
   // Calculate segments and state using the provided calculator
-  const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled);
+  const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled, t);
 
   // Handle click navigation if scroll target is provided
-  const handleClick = enabled && config.scrollTarget ? () => {
-    const el = document.querySelector(config.scrollTarget!);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  } : undefined;
+  const handleClick =
+    enabled && config.scrollTarget
+      ? () => {
+          const el = document.querySelector(config.scrollTarget!);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      : undefined;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -63,16 +66,18 @@ export const GenericHint: React.FC<GenericHintProps> = ({
       >
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            width: '100%', 
-            maxWidth: 500, 
-            padding: '0 1rem' 
-          }}>
-            <MultiPercentageBar 
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              width: '100%',
+              maxWidth: 500,
+              padding: '0 1rem',
+            }}
+          >
+            <MultiPercentageBar
               segments={hintState.segments}
               style={{ width: '100%' }}
               label={hintState.label}
@@ -82,12 +87,15 @@ export const GenericHint: React.FC<GenericHintProps> = ({
             />
           </div>
         </div>
-        
+
         {/* Hover content (e.g., RadarChart for Crossplane) */}
-        {enabled && hovered && !isLoading && !error && config.renderHoverContent && (
-          config.renderHoverContent(allItems, enabled)
-        )}
-        
+        {enabled &&
+          hovered &&
+          !isLoading &&
+          !error &&
+          config.renderHoverContent &&
+          config.renderHoverContent(allItems, enabled)}
+
         {/* Activate button for disabled state */}
         {!enabled && onActivate && (
           <div

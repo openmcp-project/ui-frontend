@@ -59,9 +59,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 
   // Memoize filtered segments to prevent infinite re-renders
   const filteredSegments = useMemo(() => {
-    return showOnlyNonZero 
-      ? segments.filter(segment => segment.percentage > 0)
-      : segments;
+    return showOnlyNonZero ? segments.filter((segment) => segment.percentage > 0) : segments;
   }, [segments, showOnlyNonZero]);
 
   // Initialize visibility animation and subtle wave
@@ -71,7 +69,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 
     // Start subtle wave animation
     intervalRef.current = setInterval(() => {
-      setWavePosition(prev => {
+      setWavePosition((prev) => {
         if (prev >= 150) {
           return -80; // Reset to start position
         }
@@ -100,11 +98,13 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 
     // Check if segments have actually changed to prevent unnecessary animations
     const lastSegments = lastSegmentsRef.current;
-    const segmentsChanged = filteredSegments.length !== lastSegments.length ||
-      filteredSegments.some((segment, index) => 
-        lastSegments[index]?.percentage !== segment.percentage ||
-        lastSegments[index]?.color !== segment.color ||
-        lastSegments[index]?.label !== segment.label
+    const segmentsChanged =
+      filteredSegments.length !== lastSegments.length ||
+      filteredSegments.some(
+        (segment, index) =>
+          lastSegments[index]?.percentage !== segment.percentage ||
+          lastSegments[index]?.color !== segment.color ||
+          lastSegments[index]?.label !== segment.label,
       );
 
     if (!segmentsChanged) {
@@ -116,13 +116,16 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 
     const targetPrimaryPercentage = filteredSegments[0]?.percentage || 0;
     const startTime = Date.now();
-    const startSegments = currentAnimatedSegmentsRef.current.length > 0 ? currentAnimatedSegmentsRef.current : filteredSegments.map(s => ({ ...s, percentage: 0 }));
+    const startSegments =
+      currentAnimatedSegmentsRef.current.length > 0
+        ? currentAnimatedSegmentsRef.current
+        : filteredSegments.map((s) => ({ ...s, percentage: 0 }));
     const startPrimaryPercentage = currentPrimaryPercentageRef.current;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / animationDuration, 1);
-      
+
       // Easing function for smooth animation
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
       const easedProgress = easeOutCubic(progress);
@@ -132,12 +135,13 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
         const start = startSegments[index] || { ...target, percentage: 0 };
         return {
           ...target,
-          percentage: start.percentage + (target.percentage - start.percentage) * easedProgress
+          percentage: start.percentage + (target.percentage - start.percentage) * easedProgress,
         };
       });
 
       // Animate primary percentage
-      const newPrimaryPercentage = startPrimaryPercentage + (targetPrimaryPercentage - startPrimaryPercentage) * easedProgress;
+      const newPrimaryPercentage =
+        startPrimaryPercentage + (targetPrimaryPercentage - startPrimaryPercentage) * easedProgress;
       const roundedPrimaryPercentage = Math.round(newPrimaryPercentage);
 
       // Update refs for next animation
@@ -194,64 +198,75 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   const allHealthy = isHealthy !== undefined ? isHealthy : displayPrimaryPercentage === 100;
 
   return (
-    <div 
+    <div
       className={className}
-      style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        gap: '4px', 
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '4px',
         width: '100%',
         paddingBottom: '8px',
-        ...style
+        ...style,
       }}
     >
       {/* Label with conditional styling */}
       {showLabels && (
-        <div style={{ 
-          display: 'flex', 
-          gap: '6px', 
-          flexWrap: 'wrap', 
-          justifyContent: 'left', 
-          width: '80%' 
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+            flexWrap: 'wrap',
+            justifyContent: 'left',
+            width: '80%',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {showPercentage && (
-              <span className={`${styles.chartLabel} ${allHealthy ? '' : ''}`} style={{ 
-                fontSize: labelFontSize, 
-                color: allHealthy ? 'green' : undefined, 
-                fontWeight: allHealthy ? '700' : '400'
-              }}>
+              <span
+                className={`${styles.chartLabel} ${allHealthy ? '' : ''}`}
+                style={{
+                  fontSize: labelFontSize,
+                  color: allHealthy ? 'green' : undefined,
+                  fontWeight: allHealthy ? '700' : '400',
+                }}
+              >
                 {displayPrimaryPercentage}%
               </span>
             )}
-            <span className={`${styles.chartLabel} ${allHealthy ? '' : ''}`} style={{ 
-              fontSize: labelFontSize, 
-              color: allHealthy ? 'green' : undefined, 
-              fontWeight: allHealthy ? '700' : '400'
-            }}>
+            <span
+              className={`${styles.chartLabel} ${allHealthy ? '' : ''}`}
+              style={{
+                fontSize: labelFontSize,
+                color: allHealthy ? 'green' : undefined,
+                fontWeight: allHealthy ? '700' : '400',
+              }}
+            >
               {displayLabel}
             </span>
           </div>
         </div>
       )}
-      
+
       {/* Colored bars */}
-      <div className={styles.chartBackground} style={{ 
-        display: 'flex', 
-        gap, 
-        width: barWidth, 
-        maxWidth: barMaxWidth,
-        ...(backgroundColor && { backgroundColor }), // Only override if explicitly provided
-        borderRadius,
-        padding: '2px',
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
-        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
-      }}>
+      <div
+        className={styles.chartBackground}
+        style={{
+          display: 'flex',
+          gap,
+          width: barWidth,
+          maxWidth: barMaxWidth,
+          ...(backgroundColor && { backgroundColor }), // Only override if explicitly provided
+          borderRadius,
+          padding: '2px',
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
+        }}
+      >
         {displaySegments.map((segment, index) => {
           return (
-            <div 
+            <div
               key={index}
               style={{
                 flex: segment.percentage,
@@ -261,7 +276,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
                 height: barHeight,
                 position: 'relative',
                 overflow: 'hidden',
-                transition: 'flex 0.3s ease-out' // Add smooth transition for flex changes
+                transition: 'flex 0.3s ease-out', // Add smooth transition for flex changes
               }}
             >
               {/* Subtle wave overlay */}
@@ -280,7 +295,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
                     transparent 100%)`,
                   borderRadius,
                   pointerEvents: 'none',
-                  transition: 'none'
+                  transition: 'none',
                 }}
               />
             </div>

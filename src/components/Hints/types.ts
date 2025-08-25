@@ -4,7 +4,13 @@ import { ManagedResourceItem } from '../../lib/shared/types';
 import { PercentageSegment } from './MultiPercentageBar';
 
 export interface HintSegmentCalculator {
-  (allItems: ManagedResourceItem[], isLoading: boolean, error: APIError | undefined, enabled: boolean): HintState;
+  (
+    allItems: ManagedResourceItem[],
+    isLoading: boolean,
+    error: APIError | undefined,
+    enabled: boolean,
+    t: (key: string) => string,
+  ): HintState;
 }
 
 export interface HintState {

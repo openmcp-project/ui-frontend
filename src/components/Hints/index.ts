@@ -7,37 +7,24 @@ export { CrossplaneHoverContent } from './CrossplaneHoverContent';
 export { LegendSection } from './LegendSection';
 
 // Configuration hooks
-export { 
-  useCrossplaneHintConfig, 
-  useGitOpsHintConfig, 
-  useVaultHintConfig 
-} from './hintConfigs';
+export { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './hintConfigs';
 
 // Calculation utilities
-export { 
-  calculateCrossplaneSegments, 
-  calculateGitOpsSegments, 
+export {
+  calculateCrossplaneSegments,
+  calculateGitOpsSegments,
   calculateVaultSegments,
   calculateCrossplaneHoverData,
-  HINT_COLORS 
+  HINT_COLORS,
 } from './calculations';
 
 // Utility functions
 export { flattenManagedResources } from './Hints';
 
 // Types
-export type { 
-  HintConfig, 
-  HintState, 
-  HintSegmentCalculator, 
-  GenericHintProps 
-} from './types';
+export type { HintConfig, HintState, HintSegmentCalculator, GenericHintProps } from './types';
 
-export type { 
-  ResourceTypeStats, 
-  OverallStats, 
-  CrossplaneHoverData 
-} from './calculations';
+export type { ResourceTypeStats, OverallStats, CrossplaneHoverData } from './calculations';
 
 // Styles
 export { default as styles } from './Hints.module.css';
