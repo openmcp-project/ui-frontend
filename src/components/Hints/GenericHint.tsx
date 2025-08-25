@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, Button } from '@ui5/webcomponents-react';
+import { Card, CardHeader, MessageViewButton } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
 import { MultiPercentageBar } from './MultiPercentageBar';
@@ -97,7 +97,7 @@ export const GenericHint: React.FC<GenericHintProps> = ({
           config.renderHoverContent(allItems, enabled)}
 
         {/* Activate button for disabled state */}
-        {!enabled && onActivate && (
+        {!enabled && (
           <div
             style={{
               position: 'absolute',
@@ -107,9 +107,11 @@ export const GenericHint: React.FC<GenericHintProps> = ({
               pointerEvents: 'auto',
             }}
           >
-            <Button design="Emphasized" onClick={onActivate}>
-              {t('Hints.common.activate')}
-            </Button>
+            <MessageViewButton 
+              type={"Information"} 
+              onClick={onActivate}
+              style={{ cursor: onActivate ? 'pointer' : 'default' }}
+            />
           </div>
         )}
       </Card>

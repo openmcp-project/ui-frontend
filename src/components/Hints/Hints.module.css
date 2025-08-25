@@ -15,15 +15,7 @@
   pointer-events: none;
 }
 
-/* Chart and Legend Styles */
-.chartBackground {
-  background-color: var(--sapBackgroundColor, #fafafa);
-}
-
-.chartLabel {
-  color: var(--sapTextColor, #374151);
-}
-
+/* Legend Styles */
 .legendSection {
   background-color: var(--sapTile_Background, #ffffff);
   border: 1px solid var(--sapList_BorderColor, #e1e5e9);
@@ -73,16 +65,6 @@
 [data-ui5-theme-root*="dark"] .disabledOverlay,
 [data-ui5-theme*="dark"] .disabledOverlay {
   background: rgba(0, 0, 0, 0.4);
-}
-
-[data-ui5-theme-root*="dark"] .chartBackground,
-[data-ui5-theme*="dark"] .chartBackground {
-  background-color: #2a2a2a;
-}
-
-[data-ui5-theme-root*="dark"] .chartLabel,
-[data-ui5-theme*="dark"] .chartLabel {
-  color: #ffffff;
 }
 
 [data-ui5-theme-root*="dark"] .legendSection,

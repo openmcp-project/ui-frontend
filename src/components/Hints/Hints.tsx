@@ -62,6 +62,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
       <GenericHint
         enabled={!!mcp?.spec?.components?.crossplane}
         version={mcp?.spec?.components?.crossplane?.version}
+        onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('Activate Crossplane') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
@@ -70,6 +71,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
       <GenericHint
         enabled={!!mcp?.spec?.components?.flux}
         version={mcp?.spec?.components?.flux?.version}
+        onActivate={!mcp?.spec?.components?.flux ? () => console.log('Activate Flux') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
@@ -78,6 +80,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
       <GenericHint
         enabled={!!mcp?.spec?.components?.externalSecretsOperator}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
+        onActivate={!mcp?.spec?.components?.externalSecretsOperator ? () => console.log('Activate Vault') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}

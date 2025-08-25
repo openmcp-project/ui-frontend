@@ -7,7 +7,7 @@ import { HintSegmentCalculator, HintState } from './types';
  */
 export const HINT_COLORS = {
   healthy: '#28a745',
-  creating: '#e9730c',
+  creating: '#0874f4',
   unhealthy: '#d22020ff',
   inactive: '#e9e9e9ff',
   managed: '#28a745',
