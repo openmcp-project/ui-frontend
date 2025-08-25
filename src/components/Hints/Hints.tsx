@@ -69,7 +69,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={crossplaneConfig}
-        onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('Activate Crossplane') : undefined} // TODO: replace with link to docs
+        onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
       <GenericHint
         enabled={!!mcp?.spec?.components?.flux}
@@ -78,16 +78,16 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={gitOpsConfig}
-        onActivate={!mcp?.spec?.components?.flux ? () => console.log('Activate Flux') : undefined} // TODO: replace with link to docs
+        onActivate={!mcp?.spec?.components?.flux ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
       <GenericHint
-        enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+        enabled={false}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={vaultConfig}
-        onActivate={!mcp?.spec?.components?.externalSecretsOperator ? () => console.log('Activate Vault') : undefined} // TODO: replace with link to docs
+        onActivate={!mcp?.spec?.components?.externalSecretsOperator ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
     </FlexBox>
   );
