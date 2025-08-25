@@ -3,7 +3,7 @@ export { default } from './Hints';
 export { GenericHint } from './GenericHint';
 
 // Hover content components
-export { CrossplaneHoverContent } from './CrossplaneHoverContent';
+export { HoverContent } from './HoverContent';
 export { LegendSection } from './LegendSection';
 
 // Configuration hooks
@@ -15,6 +15,8 @@ export {
   calculateGitOpsSegments,
   calculateVaultSegments,
   calculateCrossplaneHoverData,
+  calculateCrossplaneHoverDataGeneric,
+  calculateGitOpsHoverDataGeneric,
   HINT_COLORS,
 } from './calculations';
 
@@ -22,7 +24,8 @@ export {
 export { flattenManagedResources } from './Hints';
 
 // Types
-export type { HintConfig, HintState, HintSegmentCalculator, GenericHintProps } from './types';
+export type { HintConfig, HintState, HintSegmentCalculator, HoverDataCalculator, GenericHintProps } from './types';
+export type { HoverContentProps, LegendItem, RadarDataPoint, RadarMeasure, RadarDimension } from './HoverContent';
 
 export type { ResourceTypeStats, OverallStats, CrossplaneHoverData } from './calculations';
 

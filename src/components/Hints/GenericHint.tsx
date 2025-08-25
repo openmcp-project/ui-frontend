@@ -5,6 +5,7 @@ import cx from 'clsx';
 import { MultiPercentageBar } from './MultiPercentageBar';
 import { GenericHintProps } from './types';
 import { styles } from './Hints';
+import { HoverContent } from './HoverContent';
 
 export const GenericHint: React.FC<GenericHintProps> = ({
   enabled = false,
@@ -93,6 +94,19 @@ export const GenericHint: React.FC<GenericHintProps> = ({
           hovered &&
           !isLoading &&
           !error &&
+          config.calculateHoverData && (
+            (() => {
+              const hoverData = config.calculateHoverData(allItems, enabled, t);
+              return hoverData ? <HoverContent enabled={enabled} {...hoverData} /> : null;
+            })()
+          )}
+
+        {/* Legacy hover content support */}
+        {enabled &&
+          hovered &&
+          !isLoading &&
+          !error &&
+          !config.calculateHoverData &&
           config.renderHoverContent &&
           config.renderHoverContent(allItems, enabled)}
 

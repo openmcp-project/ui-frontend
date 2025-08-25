@@ -1,6 +1,7 @@
 import { ManagedResourceItem, Condition } from '../../lib/shared/types';
 import { APIError } from '../../lib/api/error';
-import { HintSegmentCalculator, HintState } from './types';
+import { HintSegmentCalculator, HintState, HoverDataCalculator } from './types';
+import { HoverContentProps } from './HoverContent';
 
 /**
  * Common colors used across all hints
@@ -311,5 +312,134 @@ export const calculateCrossplaneHoverData = (allItems: ManagedResourceItem[]): C
       creating: totalCreating,
       unhealthy: totalUnhealthy,
     },
+  };
+};
+
+/**
+ * Calculate hover data for Crossplane using the generic HoverContent structure
+ * Shows healthy resources (the positive segment)
+ */
+export const calculateCrossplaneHoverDataGeneric: HoverDataCalculator = (
+  allItems: ManagedResourceItem[],
+  enabled: boolean,
+  t: (key: string) => string,
+): Omit<HoverContentProps, 'enabled'> | null => {
+  if (!enabled || allItems.length === 0) {
+    return null;
+  }
+
+  const { resourceTypeStats, overallStats } = calculateCrossplaneHoverData(allItems);
+
+  // Get the segments from the bar chart calculation to ensure color consistency
+  const segmentData = calculateCrossplaneSegments(allItems, false, undefined, enabled, t);
+  
+  const legendItems = segmentData.segments.map(segment => ({
+    label: segment.label,
+    count: segment.label === t('common.healthy') ? overallStats.healthy :
+           segment.label === t('common.creating') ? overallStats.creating :
+           overallStats.unhealthy,
+    color: segment.color,
+  }));
+
+  // Focus on healthy percentage in radar chart (the positive aspect)
+  const radarDataset = resourceTypeStats.map((stats) => ({
+    type: stats.type,
+    healthy: stats.healthyPercentage,
+  }));
+
+  // Use the color of the healthy segment (first segment in the bar chart)
+  const healthyColor = segmentData.segments.find(s => s.label === t('common.healthy'))?.color || HINT_COLORS.healthy;
+
+  return {
+    totalCount: overallStats.total,
+    totalLabel: t('Hints.CrossplaneHint.hoverContent.totalResources'),
+    legendItems,
+    radarDataset,
+    radarDimensions: [{ accessor: 'type' }],
+    radarMeasures: [
+      {
+        accessor: 'healthy',
+        color: healthyColor,
+        hideDataLabel: true,
+        label: t('Hints.CrossplaneHint.hoverContent.healthy') + ' (%)',
+      },
+    ],
+  };
+};
+
+/**
+ * Calculate hover data for GitOps showing resource type management coverage
+ * Shows managed resources (the positive segment)
+ */
+export const calculateGitOpsHoverDataGeneric: HoverDataCalculator = (
+  allItems: ManagedResourceItem[],
+  enabled: boolean,
+  t: (key: string) => string,
+): Omit<HoverContentProps, 'enabled'> | null => {
+  if (!enabled || allItems.length === 0) {
+    return null;
+  }
+
+  // Group by resource type and calculate flux management coverage
+  const typeStats: Record<string, { total: number; managed: number }> = {};
+  let totalManaged = 0;
+
+  allItems.forEach((item: ManagedResourceItem) => {
+    const type = item.kind || 'Unknown';
+
+    if (!typeStats[type]) {
+      typeStats[type] = { total: 0, managed: 0 };
+    }
+
+    typeStats[type].total++;
+
+    // Check if the resource is managed by Flux
+    if (
+      item?.metadata?.labels &&
+      Object.prototype.hasOwnProperty.call(item.metadata.labels, 'kustomize.toolkit.fluxcd.io/name')
+    ) {
+      typeStats[type].managed++;
+      totalManaged++;
+    }
+  });
+
+  const totalUnmanaged = allItems.length - totalManaged;
+
+  // Get the segments from the bar chart calculation to ensure color consistency
+  const segmentData = calculateGitOpsSegments(allItems, false, undefined, enabled, t);
+  
+  const legendItems = segmentData.segments.map(segment => ({
+    label: segment.label,
+    count: segment.label === t('common.progress') ? totalManaged : totalUnmanaged,
+    color: segment.color,
+  }));
+
+  // Focus on managed percentage in radar chart (the positive aspect)
+  const radarDataset = Object.keys(typeStats).map((type) => {
+    const stats = typeStats[type];
+    const managedPercentage = Math.round((stats.managed / stats.total) * 100);
+    return {
+      type,
+      managed: managedPercentage,
+    };
+  });
+
+  // Use the color of the progress/managed segment (first segment in the bar chart)
+  const managedColor = segmentData.segments.find(s => s.label === t('common.progress'))?.color || HINT_COLORS.managed;
+
+  return {
+    totalCount: allItems.length,
+    totalLabel: t('Hints.GitOpsHint.hoverContent.totalResources'),
+    legendItems,
+    radarDataset,
+    radarDimensions: [{ accessor: 'type' }],
+    radarMeasures: [
+      {
+        accessor: 'managed',
+        color: managedColor,
+        hideDataLabel: true,
+        label: t('Hints.GitOpsHint.hoverContent.managed') + ' (%)',
+      },
+    ],
   };
 };

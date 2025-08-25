@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { APIError } from '../../lib/api/error';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import { PercentageSegment } from './MultiPercentageBar';
+import { HoverContentProps } from './HoverContent';
 
 export interface HintSegmentCalculator {
   (
@@ -11,6 +12,14 @@ export interface HintSegmentCalculator {
     enabled: boolean,
     t: (key: string) => string,
   ): HintState;
+}
+
+export interface HoverDataCalculator {
+  (
+    allItems: ManagedResourceItem[],
+    enabled: boolean,
+    t: (key: string) => string,
+  ): Omit<HoverContentProps, 'enabled'> | null;
 }
 
 export interface HintState {
@@ -29,6 +38,7 @@ export interface HintConfig {
   iconStyle?: React.CSSProperties;
   scrollTarget?: string;
   calculateSegments: HintSegmentCalculator;
+  calculateHoverData?: HoverDataCalculator;
   renderHoverContent?: (allItems: ManagedResourceItem[], enabled: boolean) => ReactNode;
 }
 

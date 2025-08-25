@@ -1,8 +1,12 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { HintConfig } from './types';
-import { calculateCrossplaneSegments, calculateGitOpsSegments, calculateVaultSegments } from './calculations';
-import { CrossplaneHoverContent } from './CrossplaneHoverContent';
+import { 
+  calculateCrossplaneSegments, 
+  calculateGitOpsSegments, 
+  calculateVaultSegments,
+  calculateCrossplaneHoverDataGeneric,
+  calculateGitOpsHoverDataGeneric
+} from './calculations';
 
 export const useCrossplaneHintConfig = (): HintConfig => {
   const { t } = useTranslation();
@@ -15,9 +19,8 @@ export const useCrossplaneHintConfig = (): HintConfig => {
     scrollTarget: '.crossplane-table-element',
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateCrossplaneSegments(allItems, isLoading, error, enabled, t),
-    renderHoverContent: (allItems, enabled) => {
-      return React.createElement(CrossplaneHoverContent, { allItems, enabled });
-    },
+    calculateHoverData: (allItems, enabled) =>
+      calculateCrossplaneHoverDataGeneric(allItems, enabled, t),
   };
 };
 
@@ -32,6 +35,8 @@ export const useGitOpsHintConfig = (): HintConfig => {
     scrollTarget: '.cp-page-section-gitops',
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateGitOpsSegments(allItems, isLoading, error, enabled, t),
+    calculateHoverData: (allItems, enabled) =>
+      calculateGitOpsHoverDataGeneric(allItems, enabled, t),
   };
 };
 
