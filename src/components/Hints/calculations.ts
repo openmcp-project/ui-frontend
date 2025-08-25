@@ -332,12 +332,15 @@ export const calculateCrossplaneHoverDataGeneric: HoverDataCalculator = (
 
   // Get the segments from the bar chart calculation to ensure color consistency
   const segmentData = calculateCrossplaneSegments(allItems, false, undefined, enabled, t);
-  
-  const legendItems = segmentData.segments.map(segment => ({
+
+  const legendItems = segmentData.segments.map((segment) => ({
     label: segment.label,
-    count: segment.label === t('common.healthy') ? overallStats.healthy :
-           segment.label === t('common.creating') ? overallStats.creating :
-           overallStats.unhealthy,
+    count:
+      segment.label === t('common.healthy')
+        ? overallStats.healthy
+        : segment.label === t('common.creating')
+          ? overallStats.creating
+          : overallStats.unhealthy,
     color: segment.color,
   }));
 
@@ -348,7 +351,7 @@ export const calculateCrossplaneHoverDataGeneric: HoverDataCalculator = (
   }));
 
   // Use the color of the healthy segment (first segment in the bar chart)
-  const healthyColor = segmentData.segments.find(s => s.label === t('common.healthy'))?.color || HINT_COLORS.healthy;
+  const healthyColor = segmentData.segments.find((s) => s.label === t('common.healthy'))?.color || HINT_COLORS.healthy;
 
   return {
     totalCount: overallStats.total,
@@ -407,8 +410,8 @@ export const calculateGitOpsHoverDataGeneric: HoverDataCalculator = (
 
   // Get the segments from the bar chart calculation to ensure color consistency
   const segmentData = calculateGitOpsSegments(allItems, false, undefined, enabled, t);
-  
-  const legendItems = segmentData.segments.map(segment => ({
+
+  const legendItems = segmentData.segments.map((segment) => ({
     label: segment.label,
     count: segment.label === t('common.progress') ? totalManaged : totalUnmanaged,
     color: segment.color,
@@ -425,7 +428,7 @@ export const calculateGitOpsHoverDataGeneric: HoverDataCalculator = (
   });
 
   // Use the color of the progress/managed segment (first segment in the bar chart)
-  const managedColor = segmentData.segments.find(s => s.label === t('common.progress'))?.color || HINT_COLORS.managed;
+  const managedColor = segmentData.segments.find((s) => s.label === t('common.progress'))?.color || HINT_COLORS.managed;
 
   return {
     totalCount: allItems.length,

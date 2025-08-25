@@ -68,14 +68,14 @@ export const GenericHint: React.FC<GenericHintProps> = ({
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.5rem 0' }}>
           <div
             style={{
               display: 'flex',
               gap: '8px',
               width: '100%',
               maxWidth: 500,
-              padding: '0 1rem',
+              padding: '0 0.5rem',
             }}
           >
             <MultiPercentageBar
@@ -92,20 +92,15 @@ export const GenericHint: React.FC<GenericHintProps> = ({
         {/* Hover content (e.g., RadarChart for Crossplane) */}
         {enabled &&
           hovered &&
-          !isLoading &&
-          !error &&
-          config.calculateHoverData && (
-            (() => {
-              const hoverData = config.calculateHoverData(allItems, enabled, t);
-              return hoverData ? <HoverContent enabled={enabled} {...hoverData} /> : null;
-            })()
-          )}
+          config.calculateHoverData &&
+          (() => {
+            const hoverData = config.calculateHoverData(allItems, enabled, t);
+            return hoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
+          })()}
 
         {/* Legacy hover content support */}
         {enabled &&
           hovered &&
-          !isLoading &&
-          !error &&
           !config.calculateHoverData &&
           config.renderHoverContent &&
           config.renderHoverContent(allItems, enabled)}
@@ -121,10 +116,10 @@ export const GenericHint: React.FC<GenericHintProps> = ({
               pointerEvents: 'auto',
             }}
           >
-            <MessageViewButton 
-              type={"Information"} 
-              onClick={onActivate}
+            <MessageViewButton
+              type={'Information'}
               style={{ cursor: onActivate ? 'pointer' : 'default' }}
+              onClick={onActivate}
             />
           </div>
         )}

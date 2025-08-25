@@ -19,10 +19,9 @@ export const LegendSection: React.FC<LegendSectionProps> = ({ title, items, styl
       className={styles.legendSection}
       style={{
         marginBottom: '1rem',
-        padding: '0.75rem',
-        borderRadius: '6px',
-        width: 'fit-content',
-        margin: '0 auto 1rem auto',
+        width: '80%',
+        maxWidth: '400px',
+        alignSelf: 'center',
         ...style,
       }}
     >
@@ -32,7 +31,7 @@ export const LegendSection: React.FC<LegendSectionProps> = ({ title, items, styl
           fontSize: '0.95rem',
           fontWeight: '600',
           marginBottom: '0.5rem',
-          textAlign: 'center',
+          textAlign: 'left',
         }}
       >
         {title}
@@ -42,7 +41,7 @@ export const LegendSection: React.FC<LegendSectionProps> = ({ title, items, styl
           display: 'flex',
           gap: '0.75rem',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
         }}
       >
         {items.map((item, index) => (

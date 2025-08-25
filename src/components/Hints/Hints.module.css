@@ -17,10 +17,7 @@
 
 /* Legend Styles */
 .legendSection {
-  background-color: var(--sapTile_Background, #ffffff);
-  border: 1px solid var(--sapList_BorderColor, #e1e5e9);
   color: var(--sapTextColor, #374151);
-  box-shadow: var(--sapContent_Shadow1, 0 1px 3px rgba(0, 0, 0, 0.1));
 }
 
 .legendTitle {
@@ -46,10 +43,7 @@
   }
   
   .legendSection {
-    background-color: #2a2a2a;
-    border-color: #404040;
     color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
   
   .legendTitle {
@@ -69,10 +63,7 @@
 
 [data-ui5-theme-root*="dark"] .legendSection,
 [data-ui5-theme*="dark"] .legendSection {
-  background-color: #2a2a2a;
-  border-color: #404040;
   color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 [data-ui5-theme-root*="dark"] .legendTitle,
@@ -83,4 +74,33 @@
 [data-ui5-theme-root*="dark"] .legendItem,
 [data-ui5-theme*="dark"] .legendItem {
   color: #cccccc;
+}
+
+/* Hover Content Animation */
+.hoverContent {
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  animation: expandIn 0.3s ease-in-out;
+}
+
+@keyframes expandIn {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+.hoverContentLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
 }

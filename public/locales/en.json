@@ -339,7 +339,7 @@
     "none": "None",
     "creating": "Creating",
     "unhealthy": "Unhealthy",
-    "progress": "Progress",
+    "progress": "Managed",
     "remaining": "Remaining",
     "active": "Active"
   },

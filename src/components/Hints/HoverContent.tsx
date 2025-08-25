@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { RadarChart } from '@ui5/webcomponents-react-charts';
 import { LegendSection } from './LegendSection';
+import { styles } from './Hints';
+import cx from 'clsx';
 
 export interface LegendItem {
   label: string;
@@ -31,7 +33,16 @@ export interface HoverContentProps {
   radarDataset: RadarDataPoint[];
   radarDimensions: RadarDimension[];
   radarMeasures: RadarMeasure[];
+  isLoading?: boolean;
 }
+
+// Helper function to truncate labels to max 13 characters
+const truncateLabel = (label: string, maxLength: number = 13): string => {
+  if (label.length <= maxLength) {
+    return label;
+  }
+  return label.substring(0, maxLength) + '...';
+};
 
 export const HoverContent: React.FC<HoverContentProps> = ({
   enabled,
@@ -41,13 +52,32 @@ export const HoverContent: React.FC<HoverContentProps> = ({
   radarDataset,
   radarDimensions,
   radarMeasures,
+  isLoading = false,
 }) => {
-  if (!enabled || radarDataset.length === 0) {
+  // Process the dataset to truncate labels
+  const processedDataset = useMemo(() => {
+    return radarDataset.map((dataPoint) => {
+      const processedDataPoint = { ...dataPoint };
+
+      // Truncate labels for each dimension accessor
+      radarDimensions.forEach((dimension) => {
+        const value = dataPoint[dimension.accessor];
+        if (typeof value === 'string') {
+          processedDataPoint[dimension.accessor] = truncateLabel(value);
+        }
+      });
+
+      return processedDataPoint;
+    });
+  }, [radarDataset, radarDimensions]);
+
+  if (!enabled) {
     return null;
   }
 
   return (
     <div
+      className={cx(styles.hoverContent)}
       style={{
         width: '100%',
         display: 'flex',
@@ -57,10 +87,7 @@ export const HoverContent: React.FC<HoverContentProps> = ({
         overflow: 'visible',
       }}
     >
-      <LegendSection
-        title={`${totalCount} ${totalLabel}`}
-        items={legendItems}
-      />
+      <LegendSection title={`${totalCount} ${totalLabel}`} items={legendItems} />
       <div
         style={{
           width: '100%',
@@ -70,13 +97,49 @@ export const HoverContent: React.FC<HoverContentProps> = ({
           alignItems: 'center',
         }}
       >
-        <RadarChart
-          dataset={radarDataset}
-          dimensions={radarDimensions}
-          measures={radarMeasures}
-          style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
-          noLegend={true}
-        />
+        {isLoading || radarDataset.length === 0 ? (
+          <div className={cx(styles.hoverContentLoading)}>
+            <RadarChart
+              dataset={[]}
+              dimensions={[
+                {
+                  accessor: 'name',
+                  formatter: (value: string | number) => String(value || ''),
+                },
+              ]}
+              measures={[
+                {
+                  accessor: 'users',
+                  formatter: (value: string | number) => String(value || ''),
+                  label: 'Users',
+                },
+                {
+                  accessor: 'sessions',
+                  formatter: (value: string | number) => String(value || ''),
+                  hideDataLabel: true,
+                  label: 'Active Sessions',
+                },
+                {
+                  accessor: 'volume',
+                  label: 'Vol.',
+                },
+              ]}
+              style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
+              noLegend={true}
+              onClick={() => {}}
+              onDataPointClick={() => {}}
+              onLegendClick={() => {}}
+            />
+          </div>
+        ) : (
+          <RadarChart
+            dataset={processedDataset}
+            dimensions={radarDimensions}
+            measures={radarMeasures}
+            style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
+            noLegend={true}
+          />
+        )}
       </div>
     </div>
   );

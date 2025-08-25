@@ -53,6 +53,9 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         justifyContent: 'space-between',
         alignItems: 'stretch',
         width: '100%',
+        maxWidth: '1280px',
+        margin: '0 auto',
+
         // This breaks the scrolling currently since its zIndex is higher than the header bar
         // height: '150px',
         // zIndex: 9999,
@@ -62,29 +65,29 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
       <GenericHint
         enabled={!!mcp?.spec?.components?.crossplane}
         version={mcp?.spec?.components?.crossplane?.version}
-        onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('Activate Crossplane') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={crossplaneConfig}
+        onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('Activate Crossplane') : undefined} // TODO: replace with link to docs
       />
       <GenericHint
         enabled={!!mcp?.spec?.components?.flux}
         version={mcp?.spec?.components?.flux?.version}
-        onActivate={!mcp?.spec?.components?.flux ? () => console.log('Activate Flux') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={gitOpsConfig}
+        onActivate={!mcp?.spec?.components?.flux ? () => console.log('Activate Flux') : undefined} // TODO: replace with link to docs
       />
       <GenericHint
         enabled={!!mcp?.spec?.components?.externalSecretsOperator}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
-        onActivate={!mcp?.spec?.components?.externalSecretsOperator ? () => console.log('Activate Vault') : undefined} // TODO: replace with link to docs
         allItems={allItems}
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={vaultConfig}
+        onActivate={!mcp?.spec?.components?.externalSecretsOperator ? () => console.log('Activate Vault') : undefined} // TODO: replace with link to docs
       />
     </FlexBox>
   );

@@ -60,32 +60,28 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   return (
     <div
       className={`${styles.container} ${className || ''}`}
-      style={{
-        '--animation-duration': `${animationDuration}ms`,
-        '--bar-width': barWidth,
-        '--bar-max-width': barMaxWidth,
-        '--bar-height': barHeight,
-        '--gap': gap,
-        '--border-radius': borderRadius,
-        '--label-font-size': labelFontSize,
-        ...(backgroundColor && { '--background-color': backgroundColor }),
-        ...style,
-      } as React.CSSProperties}
+      style={
+        {
+          '--animation-duration': `${animationDuration}ms`,
+          '--bar-width': barWidth,
+          '--bar-max-width': barMaxWidth,
+          '--bar-height': barHeight,
+          '--gap': gap,
+          '--border-radius': borderRadius,
+          '--label-font-size': labelFontSize,
+          ...(backgroundColor && { '--background-color': backgroundColor }),
+          ...style,
+        } as React.CSSProperties
+      }
     >
       {/* Label */}
       {showLabels && (
         <div className={styles.labelContainer}>
           <div className={styles.labelGroup}>
             {showPercentage && (
-              <span
-                className={`${styles.percentage} ${allHealthy ? styles.healthy : ''}`}
-              >
-                {primaryPercentage}%
-              </span>
+              <span className={`${styles.percentage} ${allHealthy ? styles.healthy : ''}`}>{primaryPercentage}%</span>
             )}
-            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>
-              {displayLabel}
-            </span>
+            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
           </div>
         </div>
       )}
@@ -96,10 +92,12 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
           <div
             key={`${segment.label}-${index}`}
             className={styles.segment}
-            style={{
-              '--segment-percentage': segment.percentage,
-              '--segment-color': segment.color,
-            } as React.CSSProperties}
+            style={
+              {
+                '--segment-percentage': segment.percentage,
+                '--segment-color': segment.color,
+              } as React.CSSProperties
+            }
           >
             {/* Wave animation overlay */}
             <div className={styles.waveOverlay} />
