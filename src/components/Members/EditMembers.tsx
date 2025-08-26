@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
+import { ImportMembersDialog } from './ImportMembersDialog.tsx';
 
 export interface EditMembersProps {
   members: Member[];
@@ -31,6 +32,7 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState<Member | undefined>(undefined);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const handleRemoveMember = useCallback(
     (email: string) => {
@@ -51,6 +53,14 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   const handleCloseMemberFormDialog = useCallback(() => {
     setIsMemberDialogOpen(false);
+  }, []);
+
+  const handleOpenImportDialog = useCallback(() => {
+    setIsImportDialogOpen(true);
+  }, []);
+
+  const handleCloseImportDialog = useCallback(() => {
+    setIsImportDialogOpen(false);
   }, []);
 
   const handleSaveMember = useCallback(
@@ -85,6 +95,15 @@ export const EditMembers: FC<EditMembersProps> = ({
       >
         {t('EditMembers.addButton')}
       </Button>
+      <Button
+        className={styles.addButton}
+        data-testid="import-members-button"
+        design="Transparent"
+        icon={'upload'}
+        onClick={handleOpenImportDialog}
+      >
+        Import members
+      </Button>
       <AddEditMemberDialog
         open={isMemberDialogOpen}
         existingMembers={members}
@@ -92,6 +111,8 @@ export const EditMembers: FC<EditMembersProps> = ({
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
+
+      <ImportMembersDialog open={isImportDialogOpen} onClose={handleCloseImportDialog} />
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
