@@ -56,10 +56,10 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         maxWidth: '1280px',
         margin: '0 auto',
 
-        // This breaks the scrolling currently since its zIndex is higher than the header bar
-        // height: '150px',
-        // zIndex: 9999,
-        // position: 'relative',
+        //This breaks the scrolling currently since its zIndex is higher than the header bar
+        height: '150px',
+        zIndex: 2,
+        position: 'relative',
       }}
     >
       <GenericHintCard
