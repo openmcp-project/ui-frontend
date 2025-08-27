@@ -127,7 +127,14 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
         </FlexBox>
       )}
 
-      {step === 2 && <ImportMembersSelectionTable onCancel={onClose} onImport={onImport} />}
+      {step === 2 && (
+        <ImportMembersSelectionTable
+          onCancel={onClose}
+          onImport={onImport}
+          includeMembers={importMembers}
+          includeServiceAccounts={importServiceAccounts}
+        />
+      )}
     </Dialog>
   );
 };
@@ -139,16 +146,22 @@ type SelectionRow = {
   _member: Member;
 };
 
-const ImportMembersSelectionTable: FC<{ onCancel: () => void; onImport: (members: Member[]) => void }> = ({
-  onCancel,
-  onImport,
-}) => {
+const ImportMembersSelectionTable: FC<{
+  onCancel: () => void;
+  onImport: (members: Member[]) => void;
+  includeMembers: boolean;
+  includeServiceAccounts: boolean;
+}> = ({ onCancel, onImport, includeMembers, includeServiceAccounts }) => {
   const mockedMembers: Member[] = [
     { name: 'alice@example.com', role: MemberRoles.view, kind: 'User' },
     { name: 'bob@example.com', role: MemberRoles.admin, kind: 'User' },
     { name: 'service-reader', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'default' },
     { name: 'service-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'ops' },
   ];
+
+  const filteredMockedMembers: Member[] = mockedMembers.filter(
+    (m) => (m.kind === 'User' && includeMembers) || (m.kind === 'ServiceAccount' && includeServiceAccounts),
+  );
 
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
 
@@ -196,7 +209,7 @@ const ImportMembersSelectionTable: FC<{ onCancel: () => void; onImport: (members
     { Header: 'Role', accessor: 'role', width: 120 },
   ];
 
-  const data: SelectionRow[] = mockedMembers.map((m) => ({
+  const data: SelectionRow[] = filteredMockedMembers.map((m) => ({
     email: m.name,
     role: MemberRolesDetailed[m.role as MemberRoles]?.displayValue,
     kind: m.kind,
@@ -204,7 +217,7 @@ const ImportMembersSelectionTable: FC<{ onCancel: () => void; onImport: (members
   }));
 
   const handleAddMembers = () => {
-    const selected = mockedMembers.filter((m) => selectedEmails.has(m.name));
+    const selected = filteredMockedMembers.filter((m) => selectedEmails.has(m.name));
     onImport(selected);
     onCancel();
   };
