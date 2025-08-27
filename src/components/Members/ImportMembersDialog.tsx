@@ -50,13 +50,13 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
     [],
   );
 
-  const { handleSubmit, setValue, watch, reset } = useForm<ImportMembersFormData>({
+  const { handleSubmit, setValue, watch, reset, getValues } = useForm<ImportMembersFormData>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
       parentType: 'Project',
-      importMembers: false,
-      importServiceAccounts: false,
+      importMembers: true,
+      importServiceAccounts: true,
     },
   });
 
@@ -67,7 +67,6 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
   const onSubmitStepOne = () => {
     setStep(2);
   };
-  console.log(parentType, importMembers, importServiceAccounts);
 
   useEffect(() => {
     if (!open) {
@@ -96,7 +95,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
           <FlexBox direction="Column" gap={4}>
             <CheckBox
               text="Members"
-              checked={importMembers}
+              checked={getValues('importMembers') ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importMembers', e.target.checked, {
                   shouldValidate: true,
@@ -107,7 +106,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
             />
             <CheckBox
               text="Service Accounts"
-              checked={importServiceAccounts}
+              checked={getValues('importServiceAccounts') ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importServiceAccounts', e.target.checked, {
                   shouldValidate: true,
