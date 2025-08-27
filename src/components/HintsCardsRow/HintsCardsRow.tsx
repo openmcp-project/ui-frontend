@@ -69,9 +69,6 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={crossplaneConfig}
-        onActivate={
-          !mcp?.spec?.components?.crossplane ? () => console.log('This is under active development') : undefined
-        } // TODO: replace with link to docs
       />
       <GenericHintCard
         enabled={!!mcp?.spec?.components?.flux}
@@ -80,7 +77,6 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={gitOpsConfig}
-        onActivate={!mcp?.spec?.components?.flux ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
       <GenericHintCard
         enabled={false}
@@ -89,11 +85,6 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={vaultConfig}
-        onActivate={
-          !mcp?.spec?.components?.externalSecretsOperator
-            ? () => console.log('This is under active development')
-            : undefined
-        } // TODO: replace with link to docs
       />
     </FlexBox>
   );

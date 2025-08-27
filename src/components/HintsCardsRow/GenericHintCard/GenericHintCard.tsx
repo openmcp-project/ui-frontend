@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, MessageViewButton } from '@ui5/webcomponents-react';
+import { Card, CardHeader } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
 import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
@@ -11,7 +11,6 @@ import { GenericHintProps } from '../../../types/types';
 export const GenericHintCard: React.FC<GenericHintProps> = ({
   enabled = false,
   version,
-  onActivate,
   allItems = [],
   isLoading,
   error,
@@ -86,25 +85,6 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
           const hasValidHoverData = !!hoverData;
 
           return hasValidHoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
-        })()}
-
-        {(() => {
-          // Trigger for showing the information button when the card is disabled
-          const shouldShowActivateButton = !enabled;
-          if (!shouldShowActivateButton) return null;
-
-          return (
-            <div className={styles2.activateButton}>
-              <MessageViewButton
-                type={'Information'}
-                className={cx({
-                  [styles2.activateButtonClickable]: !!onActivate,
-                  [styles2.activateButtonDefault]: !onActivate,
-                })}
-                onClick={onActivate}
-              />
-            </div>
-          );
         })()}
       </Card>
     </div>
