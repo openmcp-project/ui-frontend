@@ -81,10 +81,10 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
         {(() => {
           const shouldShowHoverContent = enabled && hovered && config.calculateHoverData;
           if (!shouldShowHoverContent) return null;
-          
+
           const hoverData = config.calculateHoverData!(allItems, enabled, t);
           const hasValidHoverData = !!hoverData;
-          
+
           return hasValidHoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
         })()}
 
@@ -92,7 +92,7 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
           // Trigger for showing the information button when the card is disabled
           const shouldShowActivateButton = !enabled;
           if (!shouldShowActivateButton) return null;
-          
+
           return (
             <div className={styles2.activateButton}>
               <MessageViewButton
