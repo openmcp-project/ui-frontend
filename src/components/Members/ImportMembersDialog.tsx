@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo, useState, useEffect } from 'react';
 import {
   Button,
   CheckBox,
@@ -50,7 +50,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
     [],
   );
 
-  const { handleSubmit, setValue, watch } = useForm<ImportMembersFormData>({
+  const { handleSubmit, setValue, watch, reset } = useForm<ImportMembersFormData>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
@@ -68,13 +68,15 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
     setStep(2);
   };
   console.log(parentType, importMembers, importServiceAccounts);
+
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+      reset({ parentType: 'Project', importMembers: false, importServiceAccounts: false });
+    }
+  }, [open, reset]);
   return (
-    <Dialog
-      open={open}
-      headerText={step === 1 ? 'Import members' : 'Import members'}
-      // onAfterClose={handleDialogAfterClose}
-      onClose={onClose}
-    >
+    <Dialog open={open} headerText={step === 1 ? 'Import members' : 'Import members'} onClose={onClose}>
       {step === 1 && (
         <FlexBox direction="Column" gap={8} style={{ padding: '1rem' }}>
           <Label>Choose parent to import members from</Label>
