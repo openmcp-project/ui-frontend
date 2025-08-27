@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { HintConfig } from './types';
+import { GenericHintConfig } from '../../../types/types';
 import {
   calculateCrossplaneSegments,
   calculateGitOpsSegments,
   calculateVaultSegments,
   calculateCrossplaneHoverDataGeneric,
   calculateGitOpsHoverDataGeneric,
-} from './calculations';
+} from '../../../utils/hintsCardsRowCalculations';
 
-export const useCrossplaneHintConfig = (): HintConfig => {
+export const useCrossplaneHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {
@@ -23,7 +23,7 @@ export const useCrossplaneHintConfig = (): HintConfig => {
   };
 };
 
-export const useGitOpsHintConfig = (): HintConfig => {
+export const useGitOpsHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {
@@ -38,7 +38,7 @@ export const useGitOpsHintConfig = (): HintConfig => {
   };
 };
 
-export const useVaultHintConfig = (): HintConfig => {
+export const useVaultHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {

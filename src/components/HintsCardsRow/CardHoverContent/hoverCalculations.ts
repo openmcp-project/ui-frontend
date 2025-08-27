@@ -1,4 +1,4 @@
-import { ManagedResourceItem, Condition } from '../../lib/shared/types';
+import { ManagedResourceItem, Condition } from '../../../lib/shared/types';
 
 export interface ResourceTypeStats {
   type: string;

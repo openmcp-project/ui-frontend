@@ -15,19 +15,6 @@
   pointer-events: none;
 }
 
-/* Legend Styles */
-.legendSection {
-  color: var(--sapTextColor, #374151);
-}
-
-.legendTitle {
-  color: var(--sapTitleColor, var(--sapTextColor, #374151));
-}
-
-.legendItem {
-  color: var(--sapContent_LabelColor, #6b7280);
-}
-
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .disabledOverlay {
@@ -41,39 +28,12 @@
   .chartLabel {
     color: #ffffff;
   }
-  
-  .legendSection {
-    color: #ffffff;
-  }
-  
-  .legendTitle {
-    color: #ffffff;
-  }
-  
-  .legendItem {
-    color: #cccccc;
-  }
 }
 
 /* Also check for UI5 theme variables for dark themes */
 [data-ui5-theme-root*="dark"] .disabledOverlay,
 [data-ui5-theme*="dark"] .disabledOverlay {
   background: rgba(0, 0, 0, 0.4);
-}
-
-[data-ui5-theme-root*="dark"] .legendSection,
-[data-ui5-theme*="dark"] .legendSection {
-  color: #ffffff;
-}
-
-[data-ui5-theme-root*="dark"] .legendTitle,
-[data-ui5-theme*="dark"] .legendTitle {
-  color: #ffffff;
-}
-
-[data-ui5-theme-root*="dark"] .legendItem,
-[data-ui5-theme*="dark"] .legendItem {
-  color: #cccccc;
 }
 
 /* Hover Content Animation */

@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Card, CardHeader, MessageViewButton } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
-import { MultiPercentageBar } from './MultiPercentageBar';
-import { GenericHintProps } from './types';
-import { styles } from './Hints';
-import { HoverContent } from './HoverContent';
+import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
+import { styles } from '../HintsCardsRow';
+import { HoverContent } from '../CardHoverContent/CardHoverContent';
+import styles2 from './GenericHintCard.module.css';
+import { GenericHintProps } from '../../../types/types';
 
-export const GenericHint: React.FC<GenericHintProps> = ({
+export const GenericHintCard: React.FC<GenericHintProps> = ({
   enabled = false,
   version,
   onActivate,
@@ -34,7 +35,7 @@ export const GenericHint: React.FC<GenericHintProps> = ({
       : undefined;
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div className={styles2.container}>
       <Card
         header={
           <CardHeader
@@ -43,12 +44,8 @@ export const GenericHint: React.FC<GenericHintProps> = ({
               <img
                 src={config.iconSrc}
                 alt={config.iconAlt}
+                className={styles2.avatar}
                 style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: '50%',
-                  background: 'transparent',
-                  objectFit: 'cover',
                   ...config.iconStyle,
                 }}
               />
@@ -68,19 +65,11 @@ export const GenericHint: React.FC<GenericHintProps> = ({
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0.5rem 0' }}>
-          <div
-            style={{
-              display: 'flex',
-              gap: '8px',
-              width: '100%',
-              maxWidth: 500,
-              padding: '0 0.5rem',
-            }}
-          >
+        <div className={styles2.contentContainer}>
+          <div className={styles2.progressBarContainer}>
             <MultiPercentageBar
               segments={hintState.segments}
-              style={{ width: '100%' }}
+              className={styles2.progressBar}
               label={hintState.label}
               showPercentage={hintState.showPercentage}
               isHealthy={hintState.isHealthy}
@@ -89,40 +78,34 @@ export const GenericHint: React.FC<GenericHintProps> = ({
           </div>
         </div>
 
-        {/* Hover content (e.g., RadarChart for Crossplane) */}
-        {enabled &&
-          hovered &&
-          config.calculateHoverData &&
-          (() => {
-            const hoverData = config.calculateHoverData(allItems, enabled, t);
-            return hoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
-          })()}
+        {(() => {
+          const shouldShowHoverContent = enabled && hovered && config.calculateHoverData;
+          if (!shouldShowHoverContent) return null;
+          
+          const hoverData = config.calculateHoverData!(allItems, enabled, t);
+          const hasValidHoverData = !!hoverData;
+          
+          return hasValidHoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
+        })()}
 
-        {/* Legacy hover content support */}
-        {enabled &&
-          hovered &&
-          !config.calculateHoverData &&
-          config.renderHoverContent &&
-          config.renderHoverContent(allItems, enabled)}
-
-        {/* Activate button for disabled state */}
-        {!enabled && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '16px',
-              right: '16px',
-              zIndex: 2,
-              pointerEvents: 'auto',
-            }}
-          >
-            <MessageViewButton
-              type={'Information'}
-              style={{ cursor: onActivate ? 'pointer' : 'default' }}
-              onClick={onActivate}
-            />
-          </div>
-        )}
+        {(() => {
+          // Trigger for showing the information button when the card is disabled
+          const shouldShowActivateButton = !enabled;
+          if (!shouldShowActivateButton) return null;
+          
+          return (
+            <div className={styles2.activateButton}>
+              <MessageViewButton
+                type={'Information'}
+                className={cx({
+                  [styles2.activateButtonClickable]: !!onActivate,
+                  [styles2.activateButtonDefault]: !onActivate,
+                })}
+                onClick={onActivate}
+              />
+            </div>
+          );
+        })()}
       </Card>
     </div>
   );

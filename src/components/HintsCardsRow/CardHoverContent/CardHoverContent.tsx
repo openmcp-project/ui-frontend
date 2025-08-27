@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { RadarChart } from '@ui5/webcomponents-react-charts';
-import { LegendSection } from './LegendSection';
-import { styles } from './Hints';
+import { LegendSection } from '../LegendSection/LegendSection';
+import { styles } from '../HintsCardsRow';
+import styles2 from './CardHoverContent.module.css';
 import cx from 'clsx';
 
 export interface LegendItem {
@@ -76,27 +77,9 @@ export const HoverContent: React.FC<HoverContentProps> = ({
   }
 
   return (
-    <div
-      className={cx(styles.hoverContent)}
-      style={{
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        margin: '1rem 0',
-        overflow: 'visible',
-      }}
-    >
+    <div className={cx(styles.hoverContent, styles2.hoverContent)}>
       <LegendSection title={`${totalCount} ${totalLabel}`} items={legendItems} />
-      <div
-        style={{
-          width: '100%',
-          height: 300,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <div className={styles2.chartContainer}>
         {isLoading || radarDataset.length === 0 ? (
           <div className={cx(styles.hoverContentLoading)}>
             <RadarChart

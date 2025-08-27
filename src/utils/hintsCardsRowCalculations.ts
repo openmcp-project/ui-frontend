@@ -1,7 +1,8 @@
-import { ManagedResourceItem, Condition } from '../../lib/shared/types';
-import { APIError } from '../../lib/api/error';
-import { HintSegmentCalculator, HintState, HoverDataCalculator } from './types';
-import { HoverContentProps } from './HoverContent';
+import { ManagedResourceItem, Condition } from '../lib/shared/types';
+import { APIError } from '../lib/api/error';
+import { GenericHintSegmentCalculator, GenericHintState, HoverDataCalculator } from '../types/types';
+
+import { HoverContentProps } from '../components/HintsCardsRow/CardHoverContent/CardHoverContent';
 
 /**
  * Common colors used across all hints
@@ -18,13 +19,13 @@ export const HINT_COLORS = {
 /**
  * Crossplane-specific segment calculation
  */
-export const calculateCrossplaneSegments: HintSegmentCalculator = (
+export const calculateCrossplaneSegments: GenericHintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
   enabled: boolean,
   t: (key: string) => string,
-): HintState => {
+): GenericHintState => {
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
@@ -103,13 +104,13 @@ export const calculateCrossplaneSegments: HintSegmentCalculator = (
 /**
  * GitOps-specific segment calculation
  */
-export const calculateGitOpsSegments: HintSegmentCalculator = (
+export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
   enabled: boolean,
   t: (key: string) => string,
-): HintState => {
+): GenericHintState => {
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
@@ -178,13 +179,13 @@ export const calculateGitOpsSegments: HintSegmentCalculator = (
 /**
  * Vault-specific segment calculation
  */
-export const calculateVaultSegments: HintSegmentCalculator = (
+export const calculateVaultSegments: GenericHintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
   error: APIError | undefined,
   enabled: boolean,
   t: (key: string) => string,
-): HintState => {
+): GenericHintState => {
   if (isLoading) {
     return {
       segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],

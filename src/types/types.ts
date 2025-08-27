@@ -1,17 +1,17 @@
 import { ReactNode } from 'react';
-import { APIError } from '../../lib/api/error';
-import { ManagedResourceItem } from '../../lib/shared/types';
-import { PercentageSegment } from './MultiPercentageBar';
-import { HoverContentProps } from './HoverContent';
+import { APIError } from '../lib/api/error';
+import { ManagedResourceItem } from '../lib/shared/types';
+import { PercentageSegment } from '../components/HintsCardsRow/MultiPercentageBar/MultiPercentageBar';
+import { HoverContentProps } from '../components/HintsCardsRow/CardHoverContent/CardHoverContent';
 
-export interface HintSegmentCalculator {
+export interface GenericHintSegmentCalculator {
   (
     allItems: ManagedResourceItem[],
     isLoading: boolean,
     error: APIError | undefined,
     enabled: boolean,
     t: (key: string) => string,
-  ): HintState;
+  ): GenericHintState;
 }
 
 export interface HoverDataCalculator {
@@ -22,7 +22,7 @@ export interface HoverDataCalculator {
   ): Omit<HoverContentProps, 'enabled'> | null;
 }
 
-export interface HintState {
+export interface GenericHintState {
   segments: PercentageSegment[];
   label: string;
   showPercentage: boolean;
@@ -30,14 +30,14 @@ export interface HintState {
   showOnlyNonZero?: boolean;
 }
 
-export interface HintConfig {
+export interface GenericHintConfig {
   title: string;
   subtitle: string;
   iconSrc: string;
   iconAlt: string;
   iconStyle?: React.CSSProperties;
   scrollTarget?: string;
-  calculateSegments: HintSegmentCalculator;
+  calculateSegments: GenericHintSegmentCalculator;
   calculateHoverData?: HoverDataCalculator;
   renderHoverContent?: (allItems: ManagedResourceItem[], enabled: boolean) => ReactNode;
 }
@@ -49,5 +49,5 @@ export interface GenericHintProps {
   allItems?: ManagedResourceItem[];
   isLoading?: boolean;
   error?: APIError;
-  config: HintConfig;
+  config: GenericHintConfig;
 }

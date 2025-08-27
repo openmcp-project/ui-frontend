@@ -5,9 +5,9 @@ import {
   calculateVaultSegments,
   calculateCrossplaneHoverData,
   HINT_COLORS,
-} from './calculations';
-import { ManagedResourceItem, Condition } from '../../lib/shared/types';
-import { APIError } from '../../lib/api/error';
+} from './hintsCardsRowCalculations';
+import { ManagedResourceItem, Condition } from '../lib/shared/types';
+import { APIError } from '../lib/api/error';
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({

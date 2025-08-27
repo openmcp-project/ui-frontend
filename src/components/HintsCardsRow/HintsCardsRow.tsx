@@ -1,6 +1,6 @@
 import { FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
-import { GenericHint } from './GenericHint';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './hintConfigs';
+import { GenericHintCard } from './GenericHintCard/GenericHintCard';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './GenericHintCard/genericHintConfigs';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../lib/api/types/crossplane/listManagedResources';
@@ -14,7 +14,7 @@ interface HintsProps {
 }
 
 // Export styles for use by hint components
-export { default as styles } from './Hints.module.css';
+export { default as styles } from './HintsCardsRow.module.css';
 
 // Utility function to flatten managed resources
 export const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -25,7 +25,7 @@ export const flattenManagedResources = (managedResources: ManagedResourcesRespon
     .flatMap((managedResource) => managedResource.items || []);
 };
 
-const Hints: React.FC<HintsProps> = ({ mcp }) => {
+const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -62,7 +62,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         // position: 'relative',
       }}
     >
-      <GenericHint
+      <GenericHintCard
         enabled={!!mcp?.spec?.components?.crossplane}
         version={mcp?.spec?.components?.crossplane?.version}
         allItems={allItems}
@@ -71,7 +71,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         config={crossplaneConfig}
         onActivate={!mcp?.spec?.components?.crossplane ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
-      <GenericHint
+      <GenericHintCard
         enabled={!!mcp?.spec?.components?.flux}
         version={mcp?.spec?.components?.flux?.version}
         allItems={allItems}
@@ -80,7 +80,7 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
         config={gitOpsConfig}
         onActivate={!mcp?.spec?.components?.flux ? () => console.log('This is under active development') : undefined} // TODO: replace with link to docs
       />
-      <GenericHint
+      <GenericHintCard
         enabled={false}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
         allItems={allItems}
@@ -93,4 +93,4 @@ const Hints: React.FC<HintsProps> = ({ mcp }) => {
   );
 };
 
-export default Hints;
+export default HintsCardsRow;
