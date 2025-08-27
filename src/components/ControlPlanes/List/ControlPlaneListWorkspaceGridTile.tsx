@@ -120,6 +120,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
               title={t('IllustratedBanner.titleMessage')}
               subtitle={t('IllustratedBanner.subtitleMessage')}
               illustrationName={IllustrationMessageType.NoData}
+              compact
               help={{
                 link: mcpCreationGuide,
                 buttonText: t('IllustratedBanner.helpButton'),

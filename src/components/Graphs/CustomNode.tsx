@@ -28,6 +28,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ label, type, status, transition
             positiveText={t('common.healthy')}
             negativeText={t('errors.notHealthy')}
             message={statusMessage}
+            hideOnHoverEffect={true}
           />
         </div>
         <div className={styles.nodeTextContainer}>

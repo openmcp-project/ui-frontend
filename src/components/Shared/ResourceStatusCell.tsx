@@ -1,4 +1,4 @@
-import { ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
+import { Button, ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { useRef, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
@@ -10,6 +10,7 @@ export interface ResourceStatusCellProps {
   message?: string;
   positiveText: string;
   negativeText: string;
+  hideOnHoverEffect?: boolean;
 }
 export const ResourceStatusCell = ({
   isOk,
@@ -17,9 +18,11 @@ export const ResourceStatusCell = ({
   message,
   positiveText,
   negativeText,
+  hideOnHoverEffect,
 }: ResourceStatusCellProps) => {
   const btnRef = useRef<ButtonDomRef>(null);
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+  const timeAgo = transitionTime ? formatDateAsTimeAgo(transitionTime) : '-';
 
   const handleClose = () => {
     setPopoverIsOpen(false);
@@ -29,19 +32,31 @@ export const ResourceStatusCell = ({
   };
   return (
     <span>
-      <AnimatedHoverTextButton
-        ref={btnRef}
-        icon={
+      {hideOnHoverEffect ? (
+        <Button ref={btnRef} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpen}>
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
             showTooltip={true}
-            accessibleName={transitionTime ? formatDateAsTimeAgo(transitionTime) : '-'}
+            accessibleName={timeAgo}
           />
-        }
-        text={isOk ? positiveText : negativeText}
-        onClick={handleOpen}
-      />
+        </Button>
+      ) : (
+        <AnimatedHoverTextButton
+          ref={btnRef}
+          icon={
+            <Icon
+              design={isOk ? 'Positive' : 'Negative'}
+              name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
+              showTooltip={true}
+              accessibleName={timeAgo}
+            />
+          }
+          text={isOk ? positiveText : negativeText}
+          onClick={handleOpen}
+        />
+      )}
+
       <ResponsivePopover
         opener={btnRef.current ?? undefined}
         open={popoverIsOpen}
@@ -64,7 +79,7 @@ export const ResourceStatusCell = ({
               color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
             }}
           >
-            {formatDateAsTimeAgo(transitionTime)}
+            {timeAgo}
           </Text>
         </FlexBox>
       </ResponsivePopover>
