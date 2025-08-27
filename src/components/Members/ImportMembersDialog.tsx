@@ -29,9 +29,10 @@ type ImportMembersFormData = {
 type ImportMembersDialogProps = {
   open: boolean;
   onClose: () => void;
+  onImport: (members: Member[]) => void;
 };
 
-export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClose }) => {
+export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClose, onImport }) => {
   const [step, setStep] = useState<number>(1);
 
   const formSchema = useMemo(
@@ -126,7 +127,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
         </FlexBox>
       )}
 
-      {step === 2 && <ImportMembersSelectionTable onCancel={onClose} />}
+      {step === 2 && <ImportMembersSelectionTable onCancel={onClose} onImport={onImport} />}
     </Dialog>
   );
 };
@@ -138,7 +139,10 @@ type SelectionRow = {
   _member: Member;
 };
 
-const ImportMembersSelectionTable: FC<{ onCancel: () => void }> = ({ onCancel }) => {
+const ImportMembersSelectionTable: FC<{ onCancel: () => void; onImport: (members: Member[]) => void }> = ({
+  onCancel,
+  onImport,
+}) => {
   const mockedMembers: Member[] = [
     { name: 'alice@example.com', role: MemberRoles.view, kind: 'User' },
     { name: 'bob@example.com', role: MemberRoles.admin, kind: 'User' },
@@ -201,9 +205,7 @@ const ImportMembersSelectionTable: FC<{ onCancel: () => void }> = ({ onCancel })
 
   const handleAddMembers = () => {
     const selected = mockedMembers.filter((m) => selectedEmails.has(m.name));
-    // TODO: Integrate with import flow. For now we just log selected.
-    // eslint-disable-next-line no-console
-    console.log('Selected members to import:', selected);
+    onImport(selected);
     onCancel();
   };
 

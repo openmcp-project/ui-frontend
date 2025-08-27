@@ -63,6 +63,18 @@ export const EditMembers: FC<EditMembersProps> = ({
     setIsImportDialogOpen(false);
   }, []);
 
+  const handleImportMembers = useCallback(
+    (imported: Member[]) => {
+      const byName = new Map<string, Member>();
+      members.forEach((m) => byName.set(m.name, m));
+      imported.forEach((m) => byName.set(m.name, m));
+      const merged = Array.from(byName.values());
+      onMemberChanged(merged);
+      setIsImportDialogOpen(false);
+    },
+    [members, onMemberChanged],
+  );
+
   const handleSaveMember = useCallback(
     (member: Member, isEdit: boolean) => {
       let updatedMembers: Member[];
@@ -112,7 +124,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         onSave={handleSaveMember}
       />
 
-      <ImportMembersDialog open={isImportDialogOpen} onClose={handleCloseImportDialog} />
+      <ImportMembersDialog open={isImportDialogOpen} onClose={handleCloseImportDialog} onImport={handleImportMembers} />
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
