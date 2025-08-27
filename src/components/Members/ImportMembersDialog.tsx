@@ -133,6 +133,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
         <ImportMembersSelectionTable
           onCancel={onClose}
           onImport={onImport}
+          parentType={parentType as ParentType}
           includeMembers={importMembers}
           includeServiceAccounts={importServiceAccounts}
         />
@@ -148,18 +149,28 @@ type SelectionRow = {
   _member: Member;
 };
 
+const getMockedProjectMembers = (): Member[] => [
+  { name: 'p.project@example.com', role: MemberRoles.view, kind: 'User' },
+  { name: 'pp.project@example.com', role: MemberRoles.admin, kind: 'User' },
+  { name: 'sa-project-reader', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'project-default' },
+  { name: 'sa-project-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'project-ops' },
+];
+
+const getMockedWorkspaceMembers = (): Member[] => [
+  { name: 'w.workspace@example.com', role: MemberRoles.admin, kind: 'User' },
+  { name: 'ww.workspace@example.com', role: MemberRoles.view, kind: 'User' },
+  { name: 'sa-ws-view', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'workspace-default' },
+  { name: 'sa-ws-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'workspace-ops' },
+];
+
 const ImportMembersSelectionTable: FC<{
   onCancel: () => void;
   onImport: (members: Member[]) => void;
+  parentType: ParentType;
   includeMembers: boolean;
   includeServiceAccounts: boolean;
-}> = ({ onCancel, onImport, includeMembers, includeServiceAccounts }) => {
-  const mockedMembers: Member[] = [
-    { name: 'alice@example.com', role: MemberRoles.view, kind: 'User' },
-    { name: 'bob@example.com', role: MemberRoles.admin, kind: 'User' },
-    { name: 'service-reader', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'default' },
-    { name: 'service-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'ops' },
-  ];
+}> = ({ onCancel, onImport, parentType, includeMembers, includeServiceAccounts }) => {
+  const mockedMembers: Member[] = parentType === 'Project' ? getMockedProjectMembers() : getMockedWorkspaceMembers();
 
   const filteredMockedMembers: Member[] = mockedMembers.filter(
     (m) => (m.kind === 'User' && includeMembers) || (m.kind === 'ServiceAccount' && includeServiceAccounts),
