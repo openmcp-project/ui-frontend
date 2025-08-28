@@ -86,7 +86,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   useEffect(() => {
     if (!open) {
       setStep(1);
-      reset({ parentType: 'Project', importMembers: false, importServiceAccounts: false });
+      reset({ parentType: 'Project', importMembers: true, importServiceAccounts: true });
     }
   }, [open, reset]);
   return (
@@ -110,7 +110,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
           <FlexBox direction="Column" gap={4}>
             <CheckBox
               text={t('common.members')}
-              checked={getValues('importMembers') ?? false}
+              checked={importMembers ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importMembers', e.target.checked, {
                   shouldValidate: true,
@@ -121,7 +121,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
             />
             <CheckBox
               text={t('ImportMembersDialog.serviceAccountsLabel')}
-              checked={getValues('importServiceAccounts') ?? false}
+              checked={importServiceAccounts ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importServiceAccounts', e.target.checked, {
                   shouldValidate: true,
