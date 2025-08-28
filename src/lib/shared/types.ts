@@ -51,6 +51,7 @@ export type ManagedResourceItem = {
   metadata: {
     name: string;
     creationTimestamp: string;
+    labels: [];
   };
   apiVersion?: string;
   spec?: {
