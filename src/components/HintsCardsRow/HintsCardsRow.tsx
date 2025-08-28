@@ -79,7 +79,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         config={gitOpsConfig}
       />
       <GenericHintCard
-        enabled={false}
+        enabled={!!mcp?.spec?.components?.externalSecretsOperator}
         version={mcp?.spec?.components?.externalSecretsOperator?.version}
         allItems={allItems}
         isLoading={managedResourcesLoading}

@@ -217,7 +217,7 @@ export const calculateVaultSegments: GenericHintSegmentCalculator = (
   }
 
   const hasResources = allItems.length > 0;
-  const label = hasResources ? `100${t('Hints.VaultHint.progressAvailable')}` : t('Hints.VaultHint.noResources');
+  const label = hasResources ? t('Hints.VaultHint.progressAvailable') : t('Hints.VaultHint.noResources');
   const color = hasResources ? HINT_COLORS.healthy : HINT_COLORS.inactive;
 
   return {
