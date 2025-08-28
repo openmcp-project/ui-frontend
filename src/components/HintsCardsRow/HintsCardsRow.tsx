@@ -1,6 +1,6 @@
-import { FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
 import { GenericHintCard } from './GenericHintCard/GenericHintCard';
 import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './GenericHintCard/genericHintConfigs';
+import styles from './HintsCardsRow.module.css';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../lib/api/types/crossplane/listManagedResources';
@@ -46,47 +46,73 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
   const vaultConfig = useVaultHintConfig();
 
   return (
-    <FlexBox
-      direction={FlexBoxDirection.Row}
-      style={{
-        gap: '12px',
-        justifyContent: 'space-between',
-        alignItems: 'stretch',
-        width: '100%',
-        maxWidth: '1280px',
-        margin: '0 auto',
-
-        //This breaks the scrolling currently since its zIndex is higher than the header bar
-        height: '150px',
-        zIndex: 2,
-        position: 'relative',
-      }}
-    >
-      <GenericHintCard
-        enabled={!!mcp?.spec?.components?.crossplane}
-        version={mcp?.spec?.components?.crossplane?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={crossplaneConfig}
-      />
-      <GenericHintCard
-        enabled={!!mcp?.spec?.components?.flux}
-        version={mcp?.spec?.components?.flux?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={gitOpsConfig}
-      />
-      <GenericHintCard
-        enabled={false}
-        version={mcp?.spec?.components?.externalSecretsOperator?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={vaultConfig}
-      />
-    </FlexBox>
+    <div className={styles.bentoContainer}>
+      {/* Box 1: Main card - big box on top-left */}
+      <div className={styles.mainCard}>
+        <GenericHintCard
+          enabled={!!mcp?.spec?.components?.crossplane}
+          version={mcp?.spec?.components?.crossplane?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={crossplaneConfig}
+        />
+      </div>
+      
+      {/* Right column: flexbox container for right side cards */}
+      <div className={styles.rightColumn}>
+        {/* Box 2: Top right card */}
+        <div className={styles.topRightCard}>
+          <GenericHintCard
+            enabled={!!mcp?.spec?.components?.flux}
+            version={mcp?.spec?.components?.flux?.version}
+            allItems={allItems}
+            isLoading={managedResourcesLoading}
+            error={managedResourcesError}
+            config={gitOpsConfig}
+          />
+        </div>
+        
+        {/* Box 3: Middle right card (underneath box 2) */}
+        <div className={styles.middleRightCard}>
+          <GenericHintCard
+            enabled={false}
+            version={mcp?.spec?.components?.externalSecretsOperator?.version}
+            allItems={allItems}
+            isLoading={managedResourcesLoading}
+            error={managedResourcesError}
+            config={vaultConfig}
+          />
+        </div>
+      </div>
+      
+      {/* Bottom row: flexbox container for bottom cards */}
+      <div className={styles.bottomRow}>
+        {/* Box 4: Bottom left card (underneath box 1) */}
+        <div className={styles.bottomLeftCard}>
+          <GenericHintCard
+            enabled={false}
+            version={mcp?.spec?.components?.externalSecretsOperator?.version}
+            allItems={allItems}
+            isLoading={managedResourcesLoading}
+            error={managedResourcesError}
+            config={vaultConfig}
+          />
+        </div>
+        
+        {/* Box 5: Bottom right card (underneath box 3) */}
+        <div className={styles.bottomRightCard}>
+          <GenericHintCard
+            enabled={false}
+            version={mcp?.spec?.components?.externalSecretsOperator?.version}
+            allItems={allItems}
+            isLoading={managedResourcesLoading}
+            error={managedResourcesError}
+            config={vaultConfig}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -2,6 +2,108 @@
   position: relative;
 }
 
+.bentoContainer {
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+  grid-template-rows: 1fr 0.5fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 400px;
+  z-index: 2;
+  position: relative;
+}
+
+.mainCard {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.topRightCard {
+  flex: 1;
+}
+
+.middleRightCard {
+  flex: 1;
+}
+
+.rightColumn {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bottomRow {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  display: flex;
+  gap: 12px;
+}
+
+.bottomLeftCard {
+  flex: 1;
+}
+
+.bottomRightCard {
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .bentoContainer {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 0.5fr;
+    height: 450px;
+  }
+  
+  .mainCard {
+    grid-column: 1 / 3;
+    grid-row: 1;
+  }
+  
+  .rightColumn {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    flex-direction: row;
+  }
+  
+  .bottomRow {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .bentoContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    height: 500px;
+  }
+  
+  .mainCard,
+  .rightColumn,
+  .bottomRow {
+    grid-column: 1;
+  }
+  
+  .mainCard {
+    grid-row: 1;
+  }
+  
+  .rightColumn {
+    grid-row: 2;
+    flex-direction: column;
+  }
+  
+  .bottomRow {
+    grid-row: 3;
+    flex-direction: column;
+  }
+}
+
 .disabledOverlay {
   position: absolute;
   top: 0;
