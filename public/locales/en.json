@@ -429,6 +429,8 @@
     "chooseParentLabel": "Choose parent to import members from",
     "whatToImportLabel": "What would you like to import?",
     "serviceAccountsLabel": "Service Accounts",
-    "addMembersButton": "Add members"
+    "addMembersButton": "Add members",
+    "selectAllButton": "Select all",
+    "deselectAllButton": "Deselect all"
   }
 }

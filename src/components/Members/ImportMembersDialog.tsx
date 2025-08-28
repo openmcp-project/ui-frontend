@@ -262,6 +262,17 @@ const ImportMembersSelectionTable: FC<{
 
   return (
     <FlexBox direction="Column" gap={8} style={{ padding: '1rem' }}>
+      <FlexBox justifyContent="End" gap={8} style={{ marginBottom: '0.5rem' }}>
+        <Button
+          design="Transparent"
+          onClick={() => setSelectedEmails(new Set(filteredMockedMembers.map((m) => m.name)))}
+        >
+          {t('ImportMembersDialog.selectAllButton')}
+        </Button>
+        <Button design="Transparent" onClick={() => setSelectedEmails(new Set())}>
+          {t('ImportMembersDialog.deselectAllButton')}
+        </Button>
+      </FlexBox>
       <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} className={styles.table} />
 
       <FlexBox justifyContent="End" gap={8} style={{ marginTop: '1rem' }}>
