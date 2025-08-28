@@ -51,3 +51,17 @@ export const useVaultHintConfig = (): GenericHintConfig => {
       calculateVaultSegments(allItems, isLoading, error, enabled, t),
   };
 };
+
+export const useVeleroHintConfig = (): GenericHintConfig => {
+  const { t } = useTranslation();
+
+  return {
+    title: "Velero",
+    subtitle: "Backups Status",
+    iconSrc: '/velero.png',
+    iconAlt: 'Velero',
+    iconStyle: { borderRadius: '0' }, // Vault icon should not be rounded
+    calculateSegments: (allItems, isLoading, error, enabled) =>
+      calculateVaultSegments(allItems, isLoading, error, enabled, t),
+  };
+};

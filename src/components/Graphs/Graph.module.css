@@ -1,6 +1,6 @@
 .graphContainer {
   display: flex;
-  height: 600px;
+  height: 500px;
   border: 1px solid var(--sapList_BorderColor, #ddd);
   border-radius: 8px;
   overflow: hidden;

@@ -1,5 +1,5 @@
 import { GenericHintCard } from './GenericHintCard/GenericHintCard';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './GenericHintCard/genericHintConfigs';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig, useVeleroHintConfig } from './GenericHintCard/genericHintConfigs';
 import styles from './HintsCardsRow.module.css';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
@@ -8,6 +8,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import React, { useMemo } from 'react';
+import Graph from '../Graphs/Graph';
 
 interface HintsProps {
   mcp: ControlPlaneType;
@@ -44,24 +45,33 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
   const crossplaneConfig = useCrossplaneHintConfig();
   const gitOpsConfig = useGitOpsHintConfig();
   const vaultConfig = useVaultHintConfig();
+  const veleroConfig = useVeleroHintConfig();
 
   return (
     <div className={styles.bentoContainer}>
       {/* Box 1: Main card - big box on top-left */}
       <div className={styles.mainCard}>
-        <GenericHintCard
-          enabled={!!mcp?.spec?.components?.crossplane}
-          version={mcp?.spec?.components?.crossplane?.version}
-          allItems={allItems}
-          isLoading={managedResourcesLoading}
-          error={managedResourcesError}
-          config={crossplaneConfig}
-        />
+          <Graph />
       </div>
       
       {/* Right column: flexbox container for right side cards */}
       <div className={styles.rightColumn}>
         {/* Box 2: Top right card */}
+          <div className={styles.middleRightCard}>
+          <GenericHintCard
+            enabled={!!mcp?.spec?.components?.crossplane}
+            version={mcp?.spec?.components?.crossplane?.version}
+            allItems={allItems}
+            isLoading={managedResourcesLoading}
+            error={managedResourcesError}
+            config={crossplaneConfig}
+                        height="150px"
+
+          />
+        </div>
+      
+        
+        {/* Box 3: Middle right card (underneath box 2) */}
         <div className={styles.topRightCard}>
           <GenericHintCard
             enabled={!!mcp?.spec?.components?.flux}
@@ -70,18 +80,8 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
             isLoading={managedResourcesLoading}
             error={managedResourcesError}
             config={gitOpsConfig}
-          />
-        </div>
-        
-        {/* Box 3: Middle right card (underneath box 2) */}
-        <div className={styles.middleRightCard}>
-          <GenericHintCard
-            enabled={false}
-            version={mcp?.spec?.components?.externalSecretsOperator?.version}
-            allItems={allItems}
-            isLoading={managedResourcesLoading}
-            error={managedResourcesError}
-            config={vaultConfig}
+                                    height="150px"
+
           />
         </div>
       </div>
@@ -91,24 +91,26 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         {/* Box 4: Bottom left card (underneath box 1) */}
         <div className={styles.bottomLeftCard}>
           <GenericHintCard
-            enabled={false}
+            enabled={!!mcp?.spec?.components?.externalSecretsOperator}
             version={mcp?.spec?.components?.externalSecretsOperator?.version}
             allItems={allItems}
             isLoading={managedResourcesLoading}
             error={managedResourcesError}
             config={vaultConfig}
+            height="50px"
           />
         </div>
         
         {/* Box 5: Bottom right card (underneath box 3) */}
         <div className={styles.bottomRightCard}>
           <GenericHintCard
-            enabled={false}
+            enabled={!!mcp?.spec?.components?.externalSecretsOperator}
             version={mcp?.spec?.components?.externalSecretsOperator?.version}
             allItems={allItems}
             isLoading={managedResourcesLoading}
             error={managedResourcesError}
-            config={vaultConfig}
+            config={veleroConfig}
+            height="50px"
           />
         </div>
       </div>

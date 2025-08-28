@@ -15,6 +15,7 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
   isLoading,
   error,
   config,
+  height = '200px',
 }) => {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
@@ -65,7 +66,10 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
         {!enabled && <div className={styles.disabledOverlay} />}
 
         <div className={styles2.contentContainer}>
-          <div className={styles2.progressBarContainer}>
+          <div 
+            className={styles2.progressBarContainer}
+            style={{ height: typeof height === 'number' ? `${height}px` : height }}
+          >
             <MultiPercentageBar
               segments={hintState.segments}
               className={styles2.progressBar}
