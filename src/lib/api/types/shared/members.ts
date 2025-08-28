@@ -25,7 +25,7 @@ export enum MemberKind {
 export interface Member {
   kind: string;
   name: string;
-  role: string;
+  roles: string[];
   namespace?: string;
 }
 
