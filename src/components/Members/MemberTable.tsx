@@ -111,7 +111,6 @@ export const MemberTable: FC<MemberTableProps> = ({
       </Infobox>
     );
   }
-  console.log(members);
   const data: MemberTableRow[] = members.map((m) => {
     return {
       email: m.name,
