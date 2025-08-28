@@ -110,7 +110,7 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
         const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
 
         let fluxName: string | undefined;
-        const labelsMap = (item.metadata as { labels?: Record<string, string> }).labels;
+        const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
         if (labelsMap) {
           const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
           if (key) fluxName = labelsMap[key];

@@ -26,6 +26,7 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
+import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -92,6 +93,14 @@ export default function McpPage() {
               />
             }
           >
+            <ObjectPageSection
+              className="cp-page-section-overview"
+              id="overview"
+              titleText={t('McpPage.overviewTitle')}
+              hideTitleText
+            >
+              <HintsCardsRow mcp={mcp} />
+            </ObjectPageSection>
             <ObjectPageSection
               className="cp-page-section-graph"
               id="graph"
