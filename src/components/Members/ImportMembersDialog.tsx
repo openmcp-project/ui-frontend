@@ -22,6 +22,7 @@ import { ACCOUNT_TYPES } from './EditMembers.tsx';
 
 import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
 import { useApiResource } from '../../lib/api/useApiResource.ts';
+import { useTranslation } from 'react-i18next';
 
 type ParentType = 'Workspace' | 'Project';
 
@@ -47,7 +48,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   onImport,
 }) => {
   const [step, setStep] = useState<number>(1);
-
+  const { t } = useTranslation();
   const formSchema = useMemo(
     () =>
       z
@@ -198,7 +199,7 @@ const ImportMembersSelectionTable: FC<{
   const mockedMembers: Member[] = membersData.map(({ name, namespace, kind, roles }) => ({
     kind,
     name,
-    role: roles.includes('admin') ? 'admin' : 'view',
+    roles,
     namespace,
   }));
 
@@ -252,7 +253,7 @@ const ImportMembersSelectionTable: FC<{
 
   const data: SelectionRow[] = filteredMockedMembers.map((m) => ({
     email: m.name,
-    role: MemberRolesDetailed[m.role as MemberRoles]?.displayValue,
+    role: MemberRolesDetailed[m.roles?.[0] as MemberRoles]?.displayValue,
     kind: m.kind,
     _member: m,
   }));
