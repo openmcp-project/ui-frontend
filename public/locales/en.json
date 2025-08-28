@@ -172,6 +172,7 @@
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
   },
+
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
     "projectHeader": "Project:"
@@ -185,6 +186,7 @@
   "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
+    "overviewTitle": "Overview",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
     "landscapersTitle": "Landscapers",
@@ -334,7 +336,12 @@
     "synced": "Synced",
     "healthy": "Healthy",
     "installed": "Installed",
-    "none": "None"
+    "none": "None",
+    "creating": "Creating",
+    "unhealthy": "Unhealthy",
+    "progress": "Managed",
+    "remaining": "Remaining",
+    "active": "Active"
   },
   "errors": {
     "installError": "Install error",
@@ -366,5 +373,52 @@
     "selectedComponents": "Selected Components",
     "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
     "cannotLoad": "Cannot load components list"
+  },
+  "Hints": {
+    "CrossplaneHint": {
+      "title": "Crossplane",
+      "subtitle": "Managed Resources Readiness",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "healthy": "Healthy",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "healthy": "Healthy",
+        "creating": "Creating", 
+        "failing": "Failing"
+      }
+    },
+    "GitOpsHint": {
+      "title": "Flux",
+      "subtitle": "GitOps Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "managed": "Managed",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "managed": "Managed",
+        "unmanaged": "Unmanaged"
+      }
+    },
+    "VaultHint": {
+      "title": "Vault",
+      "subtitle": "Rotating Secrets Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Coming soon...",
+      "activate": "Activate"
+    },
+    "common": {
+      "loading": "Loading...",
+      "errorLoadingResources": "Error loading resources",
+      "activate": "Activate"
+    }
   }
 }
