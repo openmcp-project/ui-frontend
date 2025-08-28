@@ -2,7 +2,7 @@
   display: flex;
   height: 600px;
   border: 1px solid var(--sapList_BorderColor, #ddd);
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   background-color: var(--sapBackgroundColor, #fafafa);
   font-family: var(--sapFontFamily);
@@ -20,6 +20,7 @@
   gap: 1rem;
   align-items: center;
   color: var(--sapTextColor, #222);
+  font-size: var(--sapFontSize);
 }
 
 .graphToolbar {
