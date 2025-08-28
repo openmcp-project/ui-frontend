@@ -22,6 +22,6 @@ export function isWorkspaceReady(workspace: ListWorkspacesType): boolean {
 export const ListWorkspaces = (projectName?: string): Resource<ListWorkspacesType[]> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}/workspaces`,
-    jq: '[.items[] | {metadata: .metadata | {name, namespace, annotations, deletionTimestamp}, status: .status, spec: .spec | {members: [.members[] | {name, roles}]}}]',
+    jq: '[.items[] | {metadata: .metadata | {name, namespace, annotations, deletionTimestamp}, status: .status, spec: .spec | {members: [.members[] | {name, roles, kind, namespace}]}}]',
   };
 };

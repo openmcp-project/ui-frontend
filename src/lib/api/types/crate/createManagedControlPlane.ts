@@ -135,7 +135,7 @@ export const CreateManagedControlPlane = (
       authorization: {
         roleBindings:
           optional?.members?.map((member) => ({
-            role: member.role,
+            role: member.roles?.[0],
             subjects: [
               {
                 kind: member.kind as AccountType,
