@@ -283,6 +283,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 requireAtLeastOneMember={false}
                 workspaceName={workspaceName}
                 projectName={projectName}
+                type={'mcp'}
                 onMemberChanged={setMembers}
               />
             </FormGroup>

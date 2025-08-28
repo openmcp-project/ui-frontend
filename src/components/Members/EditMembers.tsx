@@ -15,6 +15,7 @@ export interface EditMembersProps {
   requireAtLeastOneMember?: boolean;
   projectName?: string;
   workspaceName?: string;
+  type: 'workspace' | 'project' | 'mcp';
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -31,6 +32,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   requireAtLeastOneMember = true,
   workspaceName,
   projectName,
+  type,
 }) => {
   const { t } = useTranslation();
 
@@ -111,15 +113,17 @@ export const EditMembers: FC<EditMembersProps> = ({
       >
         {t('EditMembers.addButton')}
       </Button>
-      <Button
-        className={styles.addButton}
-        data-testid="import-members-button"
-        design="Transparent"
-        icon={'upload'}
-        onClick={handleOpenImportDialog}
-      >
-        Import members
-      </Button>
+      {type !== 'project' && (
+        <Button
+          className={styles.addButton}
+          data-testid="import-members-button"
+          design="Transparent"
+          icon={'upload'}
+          onClick={handleOpenImportDialog}
+        >
+          {t('ImportMembersDialog.dialogTitle')}
+        </Button>
+      )}
       <AddEditMemberDialog
         open={isMemberDialogOpen}
         existingMembers={members}

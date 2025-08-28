@@ -35,7 +35,7 @@ export interface CreateProjectWorkspaceDialogProps {
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
   projectName?: string;
-  type: 'workspace' | 'project';
+  type: 'workspace' | 'project' | 'mcp';
   watch: UseFormWatch<CreateDialogProps>;
 }
 
@@ -94,6 +94,7 @@ export function CreateProjectWorkspaceDialog({
           sideFormContent={
             <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
               <EditMembers
+                type={type}
                 members={members}
                 isValidationError={!!errors.members}
                 projectName={projectName}

@@ -1,4 +1,5 @@
 import { FC, useMemo, useState, useEffect } from 'react';
+import styles from './ImportMembersDialog.module.css';
 import {
   Button,
   CheckBox,
@@ -59,9 +60,9 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         })
         .refine((data) => data.importMembers || data.importServiceAccounts, {
           path: ['importMembers'],
-          message: 'Select at least one option',
+          message: t('validationErrors.selectAtLeastOneOption'),
         }),
-    [],
+    [t],
   );
 
   const { handleSubmit, setValue, watch, reset, getValues } = useForm<ImportMembersFormData>({
@@ -82,8 +83,6 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
     setStep(2);
   };
 
-  console.log(projectName);
-  console.log(workspaceName);
   useEffect(() => {
     if (!open) {
       setStep(1);
@@ -91,10 +90,10 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
     }
   }, [open, reset]);
   return (
-    <Dialog open={open} headerText={step === 1 ? 'Import members' : 'Import members'} onClose={onClose}>
+    <Dialog open={open} headerText={t('ImportMembersDialog.dialogTitle')} className={styles.dialog} onClose={onClose}>
       {step === 1 && (
         <FlexBox direction="Column" gap={8} style={{ padding: '1rem' }}>
-          <Label>Choose parent to import members from</Label>
+          <Label>{t('ImportMembersDialog.chooseParentLabel')}</Label>
           <Select
             data-testid="parent-select"
             value={parentType}
@@ -103,14 +102,14 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
               setValue('parentType', selected, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             }}
           >
-            {!!workspaceName && <Option value="Workspace">Workspace</Option>}
-            <Option value="Project">Project</Option>
+            {!!workspaceName && <Option value="Workspace">{t('Entities.Workspace')}</Option>}
+            <Option value="Project">{t('Entities.Project')}</Option>
           </Select>
 
-          <Label>What would you like to import?</Label>
+          <Label>{t('ImportMembersDialog.whatToImportLabel')}</Label>
           <FlexBox direction="Column" gap={4}>
             <CheckBox
-              text="Members"
+              text={t('common.members')}
               checked={getValues('importMembers') ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importMembers', e.target.checked, {
@@ -121,7 +120,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
               }
             />
             <CheckBox
-              text="Service Accounts"
+              text={t('ImportMembersDialog.serviceAccountsLabel')}
               checked={getValues('importServiceAccounts') ?? false}
               onChange={(e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) =>
                 setValue('importServiceAccounts', e.target.checked, {
@@ -135,10 +134,10 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
 
           <FlexBox justifyContent="End" gap={8} style={{ marginTop: '1rem' }}>
             <Button design="Transparent" onClick={onClose}>
-              Cancel
+              {t('buttons.cancel')}
             </Button>
             <Button design="Emphasized" disabled={!canProceed} onClick={() => handleSubmit(onSubmitStepOne)()}>
-              Next
+              {t('buttons.next')}
             </Button>
           </FlexBox>
         </FlexBox>
@@ -179,14 +178,11 @@ const ImportMembersSelectionTable: FC<{
   workspaceName?: string;
   projectName?: string;
 }> = ({ onCancel, onImport, parentType, workspaceName, projectName, includeMembers, includeServiceAccounts }) => {
-  const {
-    isLoading,
-    data: parentResourceData,
-    error,
-  } = useApiResource(
+  const { t } = useTranslation();
+  const { isLoading, data: parentResourceData } = useApiResource(
     parentType === 'Project'
       ? ResourceObject<SpecMembers>('', 'projects', projectName ?? '')
-      : ResourceObject<SpecMembers>(workspaceName ?? '', 'projects', projectName ?? ''),
+      : ResourceObject<SpecMembers>(projectName ?? '', 'workspaces', workspaceName ?? ''),
     undefined,
     true,
   );
@@ -233,9 +229,9 @@ const ImportMembersSelectionTable: FC<{
         );
       },
     },
-    { Header: 'Email', accessor: 'email' },
+    { Header: t('MemberTable.columnEmailHeader'), accessor: 'email' },
     {
-      Header: 'Type',
+      Header: t('MemberTable.columnTypeHeader'),
       accessor: 'kind',
       width: 145,
       Cell: (instance: { cell: { row: { original: SelectionRow } } }) => {
@@ -248,7 +244,7 @@ const ImportMembersSelectionTable: FC<{
         );
       },
     },
-    { Header: 'Role', accessor: 'role', width: 120 },
+    { Header: t('MemberTable.columnRoleHeader'), accessor: 'role', width: 120 },
   ];
 
   const data: SelectionRow[] = filteredMockedMembers.map((m) => ({
@@ -266,14 +262,14 @@ const ImportMembersSelectionTable: FC<{
 
   return (
     <FlexBox direction="Column" gap={8} style={{ padding: '1rem' }}>
-      <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />
+      <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} className={styles.table} />
 
       <FlexBox justifyContent="End" gap={8} style={{ marginTop: '1rem' }}>
         <Button design="Transparent" onClick={onCancel}>
-          Cancel
+          {t('buttons.cancel')}
         </Button>
         <Button design="Emphasized" disabled={selectedEmails.size === 0} onClick={handleAddMembers}>
-          Add members
+          {t('ImportMembersDialog.addMembersButton')}
         </Button>
       </FlexBox>
     </FlexBox>

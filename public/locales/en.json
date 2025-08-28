@@ -7,7 +7,8 @@
   },
   "Entities": {
     "ManagedControlPlane": "Managed Control Plane",
-    "Project": "Project"
+    "Project": "Project",
+    "Workspace": "Workspace"
   },
   "ComponentList": {
     "tableComponentHeader": "Name",
@@ -312,6 +313,7 @@
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
+    "selectAtLeastOneOption": "Select at least one option",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
   "common": {
@@ -420,5 +422,13 @@
       "errorLoadingResources": "Error loading resources",
       "activate": "Activate"
     }
+  }
+  ,
+  "ImportMembersDialog": {
+    "dialogTitle": "Import members",
+    "chooseParentLabel": "Choose parent to import members from",
+    "whatToImportLabel": "What would you like to import?",
+    "serviceAccountsLabel": "Service Accounts",
+    "addMembersButton": "Add members"
   }
 }
