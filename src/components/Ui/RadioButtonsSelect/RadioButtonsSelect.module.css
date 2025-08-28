@@ -1,0 +1,24 @@
+.button {
+  border: 1px solid #dddddd;
+}
+
+.buttonFirst {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.buttonLast {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.buttonMiddle {
+  border-radius: 0;
+}
+
+.left {
+  margin-left: -1px;
+}
+
+.label {
+  margin-bottom: 0.25rem;
+}

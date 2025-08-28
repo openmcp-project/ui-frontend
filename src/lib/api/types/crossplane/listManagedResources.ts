@@ -1,27 +1,9 @@
+import { ManagedResourceItem } from '../../../shared/types';
 import { Resource } from '../resource';
 
 export type ManagedResourcesResponse = [
   {
-    items: [
-      {
-        kind: string;
-        metadata: {
-          name: string;
-          creationTimestamp: string;
-        };
-        status?: {
-          conditions?: [
-            {
-              type: 'Ready' | 'Synced' | unknown;
-              status: 'True' | 'False';
-              lastTransitionTime: string;
-              message?: string;
-              reason?: string;
-            },
-          ];
-        };
-      },
-    ];
+    items: [ManagedResourceItem];
   },
 ];
 

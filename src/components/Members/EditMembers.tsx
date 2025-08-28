@@ -1,11 +1,12 @@
-import { FC, useRef, useState, useCallback } from 'react';
-import { Button, FlexBox, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
+import { FC, useCallback, useState } from 'react';
+import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
-import { MemberRoleSelect } from './MemberRoleSelect.tsx';
-import { ValueState } from '../Shared/Ui5ValieState.tsx';
-import { Member, MemberRoles } from '../../lib/api/types/shared/members';
+import { Member } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
+import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
+
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
@@ -13,36 +14,23 @@ export interface EditMembersProps {
   requireAtLeastOneMember?: boolean;
 }
 
+export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
+  { value: 'User', label: 'User Account', icon: 'employee' },
+  { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
+];
+
+export type AccountType = 'User' | 'ServiceAccount';
+
 export const EditMembers: FC<EditMembersProps> = ({
   members,
   onMemberChanged,
   isValidationError = false,
   requireAtLeastOneMember = true,
 }) => {
-  const emailInputRef = useRef<InputDomRef>(null);
-  const [emailState, setEmailState] = useState<ValueState>('None');
-  const [emailMessage, setEmailMessage] = useState('');
-  const [selectedRole, setSelectedRole] = useState(MemberRoles.viewer);
   const { t } = useTranslation();
 
-  const handleAddMember = useCallback(() => {
-    setEmailState('None');
-    setEmailMessage('');
-    const input = emailInputRef.current;
-    const email = input?.value.trim() || '';
-    if (!email) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.required'));
-      return;
-    }
-    if (members.some((m) => m.name === email)) {
-      setEmailState('Negative');
-      setEmailMessage(t('validationErrors.userExists'));
-      return;
-    }
-    onMemberChanged([...members, { name: email, roles: [selectedRole], kind: 'User' }]);
-    if (input) input.value = '';
-  }, [members, onMemberChanged, selectedRole, t]);
+  const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<Member | undefined>(undefined);
 
   const handleRemoveMember = useCallback(
     (email: string) => {
@@ -51,45 +39,66 @@ export const EditMembers: FC<EditMembersProps> = ({
     [members, onMemberChanged],
   );
 
-  const handleRoleChange = useCallback((role: MemberRoles) => {
-    setSelectedRole(role);
+  const handleOpenMemberFormDialog = useCallback(() => {
+    setMemberToEdit(undefined);
+    setIsMemberDialogOpen(true);
   }, []);
 
-  const handleEmailInputChange = useCallback(() => {
-    setEmailState('None');
-    setEmailMessage('');
+  const handleEditMember = useCallback((member: Member) => {
+    setMemberToEdit(member);
+    setIsMemberDialogOpen(true);
   }, []);
+
+  const handleCloseMemberFormDialog = useCallback(() => {
+    setIsMemberDialogOpen(false);
+  }, []);
+
+  const handleSaveMember = useCallback(
+    (member: Member, isEdit: boolean) => {
+      let updatedMembers: Member[];
+      if (isEdit) {
+        updatedMembers = members.map((m) =>
+          m.name === memberToEdit?.name
+            ? { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined }
+            : m,
+        );
+      } else {
+        updatedMembers = [
+          ...members,
+          { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined },
+        ];
+      }
+      onMemberChanged(updatedMembers);
+      setIsMemberDialogOpen(false);
+    },
+    [members, onMemberChanged, memberToEdit],
+  );
 
   return (
     <FlexBox direction="Column" gap={8}>
-      <FlexBox alignItems="End" gap={8}>
-        <FlexBox direction="Column">
-          <Label for="member-email-input">{t('common.members')}</Label>
-          <Input
-            ref={emailInputRef}
-            id="member-email-input"
-            type="Email"
-            valueState={emailState}
-            valueStateMessage={<span>{emailMessage}</span>}
-            data-testid="member-email-input"
-            onInput={handleEmailInputChange}
-          />
-        </FlexBox>
-        <MemberRoleSelect value={selectedRole} onChange={handleRoleChange} />
-        <Button
-          className={styles.addButton}
-          data-testid="add-member-button"
-          design="Emphasized"
-          onClick={handleAddMember}
-        >
-          {t('EditMembers.addButton')}
-        </Button>
-      </FlexBox>
+      <Button
+        className={styles.addButton}
+        data-testid="add-member-button"
+        design="Emphasized"
+        icon={'sap-icon://add-employee'}
+        onClick={handleOpenMemberFormDialog}
+      >
+        {t('EditMembers.addButton')}
+      </Button>
+      <AddEditMemberDialog
+        open={isMemberDialogOpen}
+        existingMembers={members}
+        memberToEdit={memberToEdit}
+        onClose={handleCloseMemberFormDialog}
+        onSave={handleSaveMember}
+      />
+
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
         isValidationError={isValidationError}
         onDeleteMember={handleRemoveMember}
+        onEditMember={handleEditMember}
       />
     </FlexBox>
   );

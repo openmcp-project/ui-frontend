@@ -143,7 +143,9 @@
   },
   "MemberTable": {
     "columnEmailHeader": "Email",
-    "columnRoleHeader": "Role"
+    "columnRoleHeader": "Role",
+    "columnTypeHeader": "Type",
+    "columnNamespaceHeader": "Namespace"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -163,8 +165,14 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add"
+    "addButton": "Add new member or service account",
+    "editHeader": "Edit member or service account",
+    "addHeader": "Add new member or service account",
+    "saveButton": "Save changes",
+    "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
+    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
   },
+
   "ProjectsPage": {
     "header": "Your instances of <span>ManagedControlPlane</span>",
     "projectHeader": "Project:"
@@ -178,6 +186,7 @@
   "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",
     "componentsTitle": "Components",
+    "overviewTitle": "Overview",
     "crossplaneTitle": "Crossplane",
     "gitOpsTitle": "GitOps",
     "landscapersTitle": "Landscapers",
@@ -290,20 +299,18 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Visualize: ",
+    "colorizedTitle": "Group by: ",
+    "colorsFlux": "Flux",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
-  },
-  "GraphsLegend": {
-    "title": "Legend"
   },
   "validationErrors": {
     "required": "This field is required!",
     "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "properFormattingLowercase": "Use lowercase a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
     "maxChars": "Max length is {{maxLength}} characters.",
-    "userExists": "User with this email already exists!",
+    "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
@@ -328,7 +335,13 @@
     "ready": "Ready",
     "synced": "Synced",
     "healthy": "Healthy",
-    "installed": "Installed"
+    "installed": "Installed",
+    "none": "None",
+    "creating": "Creating",
+    "unhealthy": "Unhealthy",
+    "progress": "Managed",
+    "remaining": "Remaining",
+    "active": "Active"
   },
   "errors": {
     "installError": "Install error",
@@ -343,7 +356,8 @@
     "next": "Next",
     "create": "Create",
     "close": "Close",
-    "back": "Back"
+    "back": "Back",
+    "cancel": "Cancel"
   },
   "yaml": {
     "copiedToClipboard": "YAML copied to clipboard!",
@@ -359,5 +373,52 @@
     "selectedComponents": "Selected Components",
     "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
     "cannotLoad": "Cannot load components list"
+  },
+  "Hints": {
+    "CrossplaneHint": {
+      "title": "Crossplane",
+      "subtitle": "Managed Resources Readiness",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "healthy": "Healthy",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "healthy": "Healthy",
+        "creating": "Creating", 
+        "failing": "Failing"
+      }
+    },
+    "GitOpsHint": {
+      "title": "Flux",
+      "subtitle": "GitOps Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "managed": "Managed",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "managed": "Managed",
+        "unmanaged": "Unmanaged"
+      }
+    },
+    "VaultHint": {
+      "title": "Vault",
+      "subtitle": "Rotating Secrets Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Coming soon...",
+      "activate": "Activate"
+    },
+    "common": {
+      "loading": "Loading...",
+      "errorLoadingResources": "Error loading resources",
+      "activate": "Activate"
+    }
   }
 }

@@ -4,8 +4,9 @@ import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listMana
 import { resourcesInterval } from '../../lib/shared/constants';
 import { Node, Edge, Position, MarkerType } from '@xyflow/react';
 import dagre from 'dagre';
-import { NodeData, ManagedResourceGroup, ManagedResourceItem, ColorBy } from './types';
-import { extractRefs, generateColorMap, getStatusFromConditions, resolveProviderType } from './graphUtils';
+import { NodeData, ColorBy } from './types';
+import { extractRefs, generateColorMap, getStatusCondition, resolveProviderType } from './graphUtils';
+import { ManagedResourceGroup, ManagedResourceItem } from '../../lib/shared/types';
 
 const nodeWidth = 250;
 const nodeHeight = 60;
@@ -21,7 +22,8 @@ function buildGraph(
 
   const nodeMap = new Map<string, Node<NodeData>>();
   treeData.forEach((n) => {
-    const colorKey = colorBy === 'source' ? n.providerType : n.providerConfigName;
+    const colorKey: string =
+      colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
     const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
@@ -29,7 +31,7 @@ function buildGraph(
       style: {
         border: `2px solid ${colorMap[colorKey] || '#ccc'}`,
         borderRadius: 8,
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--sapTile_Background, #fff)',
         width: nodeWidth,
         height: nodeHeight,
       },
@@ -104,7 +106,15 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
         const kind = item?.kind;
         const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
         const providerType = resolveProviderType(providerConfigName, providerConfigsList);
-        const status = getStatusFromConditions(item?.status?.conditions);
+        const statusCond = getStatusCondition(item?.status?.conditions);
+        const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
+
+        let fluxName: string | undefined;
+        const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
+        if (labelsMap) {
+          const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
+          if (key) fluxName = labelsMap[key];
+        }
 
         const {
           subaccountRef,
@@ -151,6 +161,9 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
             providerConfigName,
             providerType,
             status,
+            transitionTime: statusCond?.lastTransitionTime ?? '',
+            statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+            fluxName,
             parentId,
             extraRefs,
             item,

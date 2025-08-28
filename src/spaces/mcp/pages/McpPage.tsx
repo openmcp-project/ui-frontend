@@ -1,6 +1,7 @@
 import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
+import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
@@ -25,6 +26,7 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
+import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -92,6 +94,14 @@ export default function McpPage() {
             }
           >
             <ObjectPageSection
+              className="cp-page-section-overview"
+              id="overview"
+              titleText={t('McpPage.overviewTitle')}
+              hideTitleText
+            >
+              <HintsCardsRow mcp={mcp} />
+            </ObjectPageSection>
+            <ObjectPageSection
               className="cp-page-section-graph"
               id="graph"
               titleText={t('McpPage.graphTitle')}
@@ -106,6 +116,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
+                className={styles.panel}
                 headerLevel="H2"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
@@ -121,6 +132,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
@@ -144,6 +156,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
@@ -159,6 +172,7 @@ export default function McpPage() {
               hideTitleText
             >
               <Panel
+                className={styles.panel}
                 headerLevel="H3"
                 headerText="Panel"
                 header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}

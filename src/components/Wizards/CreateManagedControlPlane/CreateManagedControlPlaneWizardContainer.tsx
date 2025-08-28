@@ -111,7 +111,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   useEffect(() => {
     if (user?.email && isOpen) {
-      setValue('members', [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }]);
+      setValue('members', [{ name: user.email, role: MemberRoles.admin, kind: 'User' }]);
     }
     if (!isOpen) {
       clearFormFields();
