@@ -5,11 +5,19 @@ import { ShellBarComponent } from './components/Core/ShellBar.tsx';
 import { SentryRoutes } from './mount.ts';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import McpPage from './spaces/mcp/pages/McpPage.tsx';
+import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 
 function AppRouter() {
   return (
     <>
-      <ShellBarComponent />
+      <SearchParamToggleVisibility shouldBeVisible={(params) => {
+        if (params === undefined) return true;
+        if (params.get('showHeaderBar') === null) return true;
+        return params?.get('showHeaderBar') === "true"
+      }}>
+        <ShellBarComponent />
+      </SearchParamToggleVisibility>
+
       <Router>
         <SentryRoutes>
           <Route path="/mcp" element={<GlobalProviderOutlet />}>
