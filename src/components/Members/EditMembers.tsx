@@ -13,6 +13,8 @@ export interface EditMembersProps {
   onMemberChanged: (members: Member[]) => void;
   isValidationError?: boolean;
   requireAtLeastOneMember?: boolean;
+  projectName?: string;
+  workspaceName?: string;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -27,6 +29,8 @@ export const EditMembers: FC<EditMembersProps> = ({
   onMemberChanged,
   isValidationError = false,
   requireAtLeastOneMember = true,
+  workspaceName,
+  projectName,
 }) => {
   const { t } = useTranslation();
 
@@ -124,7 +128,13 @@ export const EditMembers: FC<EditMembersProps> = ({
         onSave={handleSaveMember}
       />
 
-      <ImportMembersDialog open={isImportDialogOpen} onClose={handleCloseImportDialog} onImport={handleImportMembers} />
+      <ImportMembersDialog
+        open={isImportDialogOpen}
+        workspaceName={workspaceName}
+        projectName={projectName}
+        onClose={handleCloseImportDialog}
+        onImport={handleImportMembers}
+      />
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}

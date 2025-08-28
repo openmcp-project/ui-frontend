@@ -93,7 +93,12 @@ export function CreateProjectWorkspaceDialog({
           requireChargingTarget={type === 'project'}
           sideFormContent={
             <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-              <EditMembers members={members} isValidationError={!!errors.members} onMemberChanged={setMembers} />
+              <EditMembers
+                members={members}
+                isValidationError={!!errors.members}
+                projectName={projectName}
+                onMemberChanged={setMembers}
+              />
             </FormGroup>
           }
         />

@@ -9,14 +9,19 @@ import {
   Select,
   Ui5CustomEvent,
   CheckBoxDomRef,
+  AnalyticalTable,
+  Icon,
+  BusyIndicator,
 } from '@ui5/webcomponents-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AnalyticalTable, Icon } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
+
+import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
+import { useApiResource } from '../../lib/api/useApiResource.ts';
 
 type ParentType = 'Workspace' | 'Project';
 
@@ -30,9 +35,17 @@ type ImportMembersDialogProps = {
   open: boolean;
   onClose: () => void;
   onImport: (members: Member[]) => void;
+  projectName?: string;
+  workspaceName?: string;
 };
 
-export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClose, onImport }) => {
+export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
+  open,
+  projectName,
+  workspaceName,
+  onClose,
+  onImport,
+}) => {
   const [step, setStep] = useState<number>(1);
 
   const formSchema = useMemo(
@@ -68,6 +81,8 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
     setStep(2);
   };
 
+  console.log(projectName);
+  console.log(workspaceName);
   useEffect(() => {
     if (!open) {
       setStep(1);
@@ -87,7 +102,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
               setValue('parentType', selected, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             }}
           >
-            <Option value="Workspace">Workspace</Option>
+            {!!workspaceName && <Option value="Workspace">Workspace</Option>}
             <Option value="Project">Project</Option>
           </Select>
 
@@ -130,11 +145,13 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({ open, onClos
 
       {step === 2 && (
         <ImportMembersSelectionTable
-          onCancel={onClose}
-          onImport={onImport}
           parentType={parentType as ParentType}
           includeMembers={importMembers}
           includeServiceAccounts={importServiceAccounts}
+          workspaceName={workspaceName}
+          projectName={projectName}
+          onCancel={onClose}
+          onImport={onImport}
         />
       )}
     </Dialog>
@@ -148,19 +165,9 @@ type SelectionRow = {
   _member: Member;
 };
 
-const getMockedProjectMembers = (): Member[] => [
-  { name: 'p.project@example.com', role: MemberRoles.view, kind: 'User' },
-  { name: 'pp.project@example.com', role: MemberRoles.admin, kind: 'User' },
-  { name: 'sa-project-reader', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'project-default' },
-  { name: 'sa-project-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'project-ops' },
-];
-
-const getMockedWorkspaceMembers = (): Member[] => [
-  { name: 'w.workspace@example.com', role: MemberRoles.admin, kind: 'User' },
-  { name: 'ww.workspace@example.com', role: MemberRoles.view, kind: 'User' },
-  { name: 'sa-ws-view', role: MemberRoles.view, kind: 'ServiceAccount', namespace: 'workspace-default' },
-  { name: 'sa-ws-admin', role: MemberRoles.admin, kind: 'ServiceAccount', namespace: 'workspace-ops' },
-];
+interface SpecMembers {
+  spec?: { members: { name: string; roles: string[]; kind: 'User' | 'ServiceAccount'; namespace?: string }[] };
+}
 
 const ImportMembersSelectionTable: FC<{
   onCancel: () => void;
@@ -168,14 +175,36 @@ const ImportMembersSelectionTable: FC<{
   parentType: ParentType;
   includeMembers: boolean;
   includeServiceAccounts: boolean;
-}> = ({ onCancel, onImport, parentType, includeMembers, includeServiceAccounts }) => {
-  const mockedMembers: Member[] = parentType === 'Project' ? getMockedProjectMembers() : getMockedWorkspaceMembers();
+  workspaceName?: string;
+  projectName?: string;
+}> = ({ onCancel, onImport, parentType, workspaceName, projectName, includeMembers, includeServiceAccounts }) => {
+  const {
+    isLoading,
+    data: parentResourceData,
+    error,
+  } = useApiResource(
+    parentType === 'Project'
+      ? ResourceObject<SpecMembers>('', 'projects', projectName ?? '')
+      : ResourceObject<SpecMembers>(workspaceName ?? '', 'projects', projectName ?? ''),
+    undefined,
+    true,
+  );
+  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
+  if (isLoading) {
+    return <BusyIndicator active />;
+  }
+  console.log(parentResourceData?.spec?.members);
+  const membersData = parentResourceData?.spec?.members ?? [];
+  const mockedMembers: Member[] = membersData.map(({ name, namespace, kind, roles }) => ({
+    kind,
+    name,
+    role: roles.includes('admin') ? 'admin' : 'view',
+    namespace,
+  }));
 
   const filteredMockedMembers: Member[] = mockedMembers.filter(
     (m) => (m.kind === 'User' && includeMembers) || (m.kind === 'ServiceAccount' && includeServiceAccounts),
   );
-
-  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
 
   const columns: AnalyticalTableColumnDefinition[] = [
     {
@@ -242,7 +271,7 @@ const ImportMembersSelectionTable: FC<{
         <Button design="Transparent" onClick={onCancel}>
           Cancel
         </Button>
-        <Button design="Emphasized" onClick={handleAddMembers} disabled={selectedEmails.size === 0}>
+        <Button design="Emphasized" disabled={selectedEmails.size === 0} onClick={handleAddMembers}>
           Add members
         </Button>
       </FlexBox>

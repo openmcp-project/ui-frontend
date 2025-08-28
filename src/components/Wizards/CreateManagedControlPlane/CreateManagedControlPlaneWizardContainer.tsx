@@ -281,6 +281,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 members={watch('members')}
                 isValidationError={!!errors.members}
                 requireAtLeastOneMember={false}
+                workspaceName={workspaceName}
+                projectName={projectName}
                 onMemberChanged={setMembers}
               />
             </FormGroup>
