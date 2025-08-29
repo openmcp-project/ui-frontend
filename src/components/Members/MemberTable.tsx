@@ -41,7 +41,7 @@ export const MemberTable: FC<MemberTableProps> = ({
 
   const columns: AnalyticalTableColumnDefinition[] = [
     {
-      Header: t('MemberTable.columnEmailHeader'),
+      Header: t('MemberTable.columnNameHeader'),
       accessor: 'email',
     },
 
@@ -70,36 +70,30 @@ export const MemberTable: FC<MemberTableProps> = ({
     },
   ];
 
-  if (onEditMember) {
+  if (onEditMember && onDeleteMember) {
     columns.push({
       Header: '',
       id: 'edit',
-      width: 50,
+      width: 100,
       Cell: (instance: CellInstance) => (
-        <Button
-          icon="edit"
-          onClick={() => {
-            const selectedMember = instance.cell.row.original._member;
-            onEditMember(selectedMember);
-          }}
-        />
-      ),
-    });
-  }
-
-  if (onDeleteMember) {
-    columns.push({
-      Header: '',
-      id: 'delete',
-      width: 50,
-      Cell: (instance: CellInstance) => (
-        <Button
-          icon="delete"
-          onClick={() => {
-            const selectedMemberEmail = instance.cell.row.original.email;
-            onDeleteMember(selectedMemberEmail);
-          }}
-        />
+        <FlexBox gap={'0.5rem'} justifyContent={'SpaceBetween'}>
+          <Button
+            icon="edit"
+            design="Transparent"
+            onClick={() => {
+              const selectedMember = instance.cell.row.original._member;
+              onEditMember(selectedMember);
+            }}
+          />
+          <Button
+            design="Transparent"
+            icon="delete"
+            onClick={() => {
+              const selectedMemberEmail = instance.cell.row.original.email;
+              onDeleteMember(selectedMemberEmail);
+            }}
+          />
+        </FlexBox>
       ),
     });
   }

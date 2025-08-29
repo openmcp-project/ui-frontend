@@ -7,7 +7,8 @@
   },
   "Entities": {
     "ManagedControlPlane": "Managed Control Plane",
-    "Project": "Project"
+    "Project": "Project",
+    "Workspace": "Workspace"
   },
   "ComponentList": {
     "tableComponentHeader": "Name",
@@ -142,7 +143,7 @@
     "subtitle": "Fetching data..."
   },
   "MemberTable": {
-    "columnEmailHeader": "Email",
+    "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
     "columnNamespaceHeader": "Namespace"
@@ -165,9 +166,9 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add new member or service account",
-    "editHeader": "Edit member or service account",
-    "addHeader": "Add new member or service account",
+    "addButton": "Add User or ServiceAccount",
+    "editHeader": "Edit User or ServiceAccount",
+    "addHeader": "Add User or ServiceAccount",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
@@ -312,6 +313,7 @@
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
+    "selectAtLeastOneOption": "Select at least one option",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
   "common": {
@@ -420,5 +422,15 @@
       "errorLoadingResources": "Error loading resources",
       "activate": "Activate"
     }
+  }
+  ,
+  "ImportMembersDialog": {
+    "dialogTitle": "Reuse",
+    "chooseParentLabel": "Choose parent resource to reuse members from",
+    "whatToImportLabel": "What would you like to import?",
+    "serviceAccountsLabel": "Service Accounts",
+    "addMembersButton": "Add members",
+    "selectAllButton": "Select all",
+    "deselectAllButton": "Deselect all"
   }
 }
