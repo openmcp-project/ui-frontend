@@ -92,7 +92,7 @@ fastify.register(helmet, {
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
       'script-src': isLocalDev ? ["'self'", "'unsafe-inline'", dynatraceOrigin] : ["'self'", dynatraceOrigin],
       // @ts-ignore
-      'frame-ancestors': [fastify.config.FRAME_ANCESTORS],
+      'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
   },
 });
