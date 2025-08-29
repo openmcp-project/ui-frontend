@@ -27,6 +27,9 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
+import { ListSecrets } from '../../../lib/api/types/k8s/listSecrets.ts';
+import { resourcesInterval } from '../../../lib/shared/constants.ts';
+import { EsoExternalSecretsRequest } from '../../../lib/api/types/eso/listExternalSecrets.ts';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -37,6 +40,14 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+
+  const {
+    data: secrets,
+    error: kustomizationErr,
+    isLoading: kustomizationIsLoading,
+  } = useApiResource(EsoExternalSecretsRequest);
+
+  console.log("Printing secrets", secrets)
 
   if (isLoading) {
     return <BusyIndicator active />;
