@@ -25,6 +25,8 @@ export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
 
 export type AccountType = 'User' | 'ServiceAccount';
 
+const removeProjectPrefix = (name?: string) => (name?.startsWith('project-') ? name.slice('project-'.length) : name);
+
 export const EditMembers: FC<EditMembersProps> = ({
   members,
   onMemberChanged,
@@ -135,7 +137,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       <ImportMembersDialog
         open={isImportDialogOpen}
         workspaceName={workspaceName}
-        projectName={projectName}
+        projectName={type === 'mcp' ? removeProjectPrefix(projectName) : projectName}
         onClose={handleCloseImportDialog}
         onImport={handleImportMembers}
       />

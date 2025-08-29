@@ -98,8 +98,8 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
           <Select
             data-testid="parent-select"
             value={parentType}
-            onChange={(e: CustomEvent<{ selectedOption: { dataset?: { value?: string } } }>) => {
-              const selected = e.detail.selectedOption?.dataset?.value as ParentType;
+            onChange={(e: CustomEvent<{ selectedOption: { value?: string } }>) => {
+              const selected = e.detail.selectedOption?.value as ParentType;
               setValue('parentType', selected, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             }}
           >
@@ -187,7 +187,7 @@ const ImportMembersSelectionTable: FC<{
   } = useApiResource(
     parentType === 'Project'
       ? ResourceObject<SpecMembers>('', 'projects', projectName ?? '')
-      : ResourceObject<SpecMembers>(projectName ?? '', 'workspaces', workspaceName ?? ''),
+      : ResourceObject<SpecMembers>(`project-${projectName ?? ''}`, 'workspaces', workspaceName ?? ''),
     undefined,
     true,
   );
