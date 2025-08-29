@@ -111,26 +111,27 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   return (
     <FlexBox direction="Column" gap={8}>
-      <Button
-        className={styles.addButton}
-        data-testid="add-member-button"
-        design="Emphasized"
-        icon={'sap-icon://add-employee'}
-        onClick={handleOpenMemberFormDialog}
-      >
-        {t('EditMembers.addButton')}
-      </Button>
-      {type !== 'project' && (
+      <FlexBox gap={8} justifyContent="SpaceBetween">
         <Button
           className={styles.addButton}
-          data-testid="import-members-button"
-          design="Transparent"
-          icon={'upload'}
-          onClick={handleOpenImportDialog}
+          data-testid="add-member-button"
+          design="Emphasized"
+          icon={'sap-icon://add-employee'}
+          onClick={handleOpenMemberFormDialog}
         >
-          {t('ImportMembersDialog.dialogTitle')}
+          {t('EditMembers.addButton')}
         </Button>
-      )}
+        {type !== 'project' && (
+          <Button
+            className={styles.narrowButton}
+            data-testid="import-members-button"
+            icon={'upload'}
+            onClick={handleOpenImportDialog}
+          >
+            {t('ImportMembersDialog.dialogTitle')}
+          </Button>
+        )}
+      </FlexBox>
       <AddEditMemberDialog
         open={isMemberDialogOpen}
         existingMembers={members}
