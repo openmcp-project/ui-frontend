@@ -2,7 +2,7 @@ import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
 import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
-import IntelligentBreadcrumbs from '../../../components/Core/IntelligentBreadcrumbs.tsx';
+import { BreadCrumbFeedbackHeader } from '../../../components/Core/IntelligentBreadcrumbs.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { Trans, useTranslation } from 'react-i18next';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
@@ -52,11 +52,11 @@ export default function ProjectPage() {
                 <ProjectChooser currentProjectName={projectName ?? ''} />
               </div>
             }
-            breadcrumbs={<IntelligentBreadcrumbs />}
+            breadcrumbs={<BreadCrumbFeedbackHeader />}
             actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ''} />}
           />
         }
-        //TODO: project chooser should be part of the breadcrumb section if possible?
+      //TODO: project chooser should be part of the breadcrumb section if possible?
       >
         <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} />
       </ObjectPage>

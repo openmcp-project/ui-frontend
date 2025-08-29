@@ -2,27 +2,20 @@ import {
   Avatar,
   Button,
   ButtonDomRef,
-  Form,
-  FormGroup,
-  FormItem,
   Icon,
-  Label,
-  Link,
   List,
   ListItemStandard,
   Popover,
   PopoverDomRef,
-  RatingIndicator,
   ShellBar,
   ShellBarDomRef,
   ShellBarItem,
   ShellBarItemDomRef,
-  TextArea,
   TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +24,6 @@ import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 import { ShellBarItemClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBarItem.js';
 
-type UI5RatingIndicatorElement = HTMLElement & { value: number };
 
 export function ShellBarComponent() {
   const auth = useAuthOnboarding();
@@ -129,17 +121,7 @@ export function ShellBarComponent() {
 
       <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
       <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
-      <FeedbackPopover
-        open={feedbackPopoverOpen}
-        setOpen={setFeedbackPopoverOpen}
-        popoverRef={feedbackPopoverRef}
-        setRating={setRating}
-        rating={rating}
-        feedbackMessage={feedbackMessage}
-        feedbackSent={feedbackSent}
-        onFeedbackSent={onFeedbackSent}
-        onFeedbackMessageChange={onFeedbackMessageChange}
-      />
+
     </>
   );
 }
@@ -205,91 +187,3 @@ const BetaPopover = ({
   );
 };
 
-const FeedbackPopover = ({
-  open,
-  setOpen,
-  popoverRef,
-  setRating,
-  rating,
-  onFeedbackSent,
-  feedbackMessage,
-  onFeedbackMessageChange,
-  feedbackSent,
-}: {
-  open: boolean;
-  setOpen: (arg0: boolean) => void;
-  popoverRef: RefObject<PopoverDomRef | null>;
-  setRating: Dispatch<SetStateAction<number>>;
-  rating: number;
-  onFeedbackSent: () => void;
-  feedbackMessage: string;
-  onFeedbackMessageChange: (
-    event: Ui5CustomEvent<
-      TextAreaDomRef,
-      {
-        value: string;
-        previousValue: string;
-      }
-    >,
-  ) => void;
-  feedbackSent: boolean;
-}) => {
-  const { t } = useTranslation();
-
-  const onRatingChange = (event: Event & { target: UI5RatingIndicatorElement }) => {
-    setRating(event.target.value);
-  };
-
-  return (
-    <>
-      <Popover ref={popoverRef} placement={PopoverPlacement.Bottom} open={open} onClose={() => setOpen(false)}>
-        <div
-          style={{
-            padding: '1rem',
-            width: '250px',
-          }}
-        >
-          {!feedbackSent ? (
-            <Form headerText={t('ShellBar.feedbackHeader')}>
-              <FormGroup>
-                <FormItem labelContent={<Label style={{ color: 'black' }}>{t('ShellBar.feedbackRatingLabel')}</Label>}>
-                  <RatingIndicator value={rating} max={5} onChange={onRatingChange} />
-                </FormItem>
-                <FormItem
-                  className="formAlignLabelStart"
-                  labelContent={<Label style={{ color: 'black' }}>{t('ShellBar.feedbackMessageLabel')}</Label>}
-                >
-                  <TextArea
-                    value={feedbackMessage}
-                    placeholder={t('ShellBar.feedbackPlaceholder')}
-                    rows={5}
-                    onInput={onFeedbackMessageChange}
-                  />
-                </FormItem>
-                <FormItem>
-                  <Button design="Emphasized" onClick={() => onFeedbackSent()}>
-                    {t('ShellBar.feedbackButton')}
-                  </Button>
-                </FormItem>
-                <FormItem>
-                  <Label style={{ color: 'gray' }}>
-                    {t('ShellBar.feedbackNotificationText')}
-                    <Link
-                      href="https://github.com/openmcp-project/ui-frontend/issues/new/choose"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {t('ShellBar.feedbackNotificationAction')}
-                    </Link>
-                  </Label>
-                </FormItem>
-              </FormGroup>
-            </Form>
-          ) : (
-            <Label>{t('ShellBar.feedbackThanks')}</Label>
-          )}
-        </div>
-      </Popover>
-    </>
-  );
-};

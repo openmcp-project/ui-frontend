@@ -1,9 +1,10 @@
-import { Breadcrumbs, BreadcrumbsDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import { Breadcrumbs, BreadcrumbsDomRef, FlexBox, FlexBoxAlignItems, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import { BreadcrumbsItem } from '@ui5/webcomponents-react/wrappers';
 import { NavigateOptions, useParams } from 'react-router-dom';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import LandscapeLabel from './LandscapeLabel.tsx';
 import { useTranslation } from 'react-i18next';
+import { FeedbackButton } from './FeedbackButton.tsx';
 
 const PREFIX = '/mcp';
 
@@ -57,4 +58,16 @@ export default function IntelligentBreadcrumbs() {
       </Breadcrumbs>
     </>
   );
+}
+
+
+export function BreadCrumbFeedbackHeader() {
+  return (
+    <FlexBox
+      alignItems={FlexBoxAlignItems.Center}
+    >
+      <IntelligentBreadcrumbs />
+      <FeedbackButton />
+    </FlexBox>
+  )
 }
