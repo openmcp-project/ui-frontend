@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
 import { Member } from '../../lib/api/types/shared/members';
@@ -104,6 +104,11 @@ export const EditMembers: FC<EditMembersProps> = ({
     [members, onMemberChanged, memberToEdit],
   );
 
+  const computedProjectName = useMemo(
+    () => (type === 'mcp' ? removeProjectPrefix(projectName) : projectName),
+    [type, projectName],
+  );
+
   return (
     <FlexBox direction="Column" gap={8}>
       <Button
@@ -137,7 +142,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       <ImportMembersDialog
         open={isImportDialogOpen}
         workspaceName={workspaceName}
-        projectName={type === 'mcp' ? removeProjectPrefix(projectName) : projectName}
+        projectName={computedProjectName}
         onClose={handleCloseImportDialog}
         onImport={handleImportMembers}
       />
