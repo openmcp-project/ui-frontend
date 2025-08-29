@@ -19,7 +19,7 @@ export interface EditMembersProps {
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
-  { value: 'User', label: 'User Account', icon: 'employee' },
+  { value: 'User', label: 'User', icon: 'employee' },
   { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
 ];
 

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
+import { on } from 'events';
 
 type MemberTableRow = {
   email: string;
@@ -70,39 +71,38 @@ export const MemberTable: FC<MemberTableProps> = ({
     },
   ];
 
-  if (onEditMember) {
+  if (onEditMember || onDeleteMember) {
     columns.push({
       Header: '',
       id: 'edit',
-      width: 50,
+      width: 85,
       Cell: (instance: CellInstance) => (
-        <Button
-          icon="edit"
-          onClick={() => {
-            const selectedMember = instance.cell.row.original._member;
-            onEditMember(selectedMember);
-          }}
-        />
+        <>
+          {onEditMember ? (
+            <Button
+              icon="edit"
+              design="Transparent"
+              onClick={() => {
+                const selectedMember = instance.cell.row.original._member;
+                onEditMember(selectedMember);
+              }}
+            />
+          ) : null}
+          {onDeleteMember ? (
+            <Button
+              icon="delete"
+              design="Transparent"
+              onClick={() => {
+                const selectedMemberEmail = instance.cell.row.original.email;
+                onDeleteMember(selectedMemberEmail);
+              }}
+            />
+          ) : null}
+        </>
       ),
     });
   }
 
-  if (onDeleteMember) {
-    columns.push({
-      Header: '',
-      id: 'delete',
-      width: 50,
-      Cell: (instance: CellInstance) => (
-        <Button
-          icon="delete"
-          onClick={() => {
-            const selectedMemberEmail = instance.cell.row.original.email;
-            onDeleteMember(selectedMemberEmail);
-          }}
-        />
-      ),
-    });
-  }
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (
