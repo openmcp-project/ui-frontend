@@ -48,10 +48,10 @@ export const CreateWorkspace = (
     },
     spec: {
       members:
-        optional?.members?.map(({ kind, namespace, role, name }) => ({
+        optional?.members?.map(({ kind, namespace, roles, name }) => ({
           kind,
           name,
-          roles: [role],
+          roles,
           namespace: kind === 'ServiceAccount' ? (namespace ?? 'default') : undefined,
         })) ?? [],
     },

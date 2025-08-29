@@ -111,11 +111,10 @@ export const MemberTable: FC<MemberTableProps> = ({
       </Infobox>
     );
   }
-
   const data: MemberTableRow[] = members.map((m) => {
     return {
       email: m.name,
-      role: MemberRolesDetailed[m.role as MemberRoles]?.displayValue,
+      role: MemberRolesDetailed[m.roles?.[0] as MemberRoles]?.displayValue ?? m.roles?.toString(),
       kind: m.kind,
       namespace: m.namespace ?? '',
       _member: m,
