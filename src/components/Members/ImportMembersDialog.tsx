@@ -190,7 +190,7 @@ const ImportMembersSelectionTable: FC<{
   if (isLoading) {
     return <BusyIndicator active />;
   }
-  console.log(parentResourceData?.spec?.members);
+
   const membersData = parentResourceData?.spec?.members ?? [];
   const mockedMembers: Member[] = membersData.map(({ name, namespace, kind, roles }) => ({
     kind,
