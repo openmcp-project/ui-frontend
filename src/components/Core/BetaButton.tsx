@@ -1,17 +1,15 @@
-import { ButtonDomRef, Button, Icon, PopoverDomRef, Popover, Text } from "@ui5/webcomponents-react";
-import { useState, useRef, RefObject } from "react";
+import { ButtonDomRef, Button, Icon, PopoverDomRef, Popover, Text } from '@ui5/webcomponents-react';
+import { useState, useRef, RefObject } from 'react';
 import styles from './ShellBar.module.css';
-import { useTranslation } from "react-i18next";
-import PopoverPlacement from "@ui5/webcomponents/dist/types/PopoverPlacement.js";
+import { useTranslation } from 'react-i18next';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
-
 
 export function BetaButton() {
   const [betaPopoverOpen, setBetaPopoverOpen] = useState(false);
   const betaButtonRef = useRef<ButtonDomRef>(null);
   const betaPopoverRef = useRef<PopoverDomRef>(null);
   const { t } = useTranslation();
-
 
   const onBetaClick = () => {
     if (betaButtonRef.current) {
@@ -30,7 +28,7 @@ export function BetaButton() {
         <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
       </Button>
     </>
-  )
+  );
 }
 
 const BetaPopover = ({
@@ -58,4 +56,3 @@ const BetaPopover = ({
     </Popover>
   );
 };
-

@@ -61,15 +61,12 @@ export default function IntelligentBreadcrumbs() {
   );
 }
 
-
 export function BreadCrumbFeedbackHeader() {
   return (
-    <FlexBox
-      alignItems={FlexBoxAlignItems.Center}
-    >
+    <FlexBox alignItems={FlexBoxAlignItems.Center}>
       <IntelligentBreadcrumbs />
       <BetaButton />
       <FeedbackButton />
     </FlexBox>
-  )
+  );
 }

@@ -56,7 +56,7 @@ export default function ProjectPage() {
             actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ''} />}
           />
         }
-      //TODO: project chooser should be part of the breadcrumb section if possible?
+        //TODO: project chooser should be part of the breadcrumb section if possible?
       >
         <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} />
       </ObjectPage>

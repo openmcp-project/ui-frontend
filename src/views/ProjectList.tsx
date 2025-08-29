@@ -13,9 +13,7 @@ export default function ProjectsListView() {
       titleArea={
         <ObjectPageTitle
           header={t('ProjectsListView.pageTitle')}
-          breadcrumbs={
-            <BreadCrumbFeedbackHeader />
-          }
+          breadcrumbs={<BreadCrumbFeedbackHeader />}
           actionsBar={<ProjectListToolbar />}
         />
       }

@@ -1,13 +1,26 @@
-import { PopoverDomRef, Ui5CustomEvent, TextAreaDomRef, Button, ButtonDomRef, Popover, Form, FormGroup, FormItem, Label, Link, RatingIndicator, TextArea } from "@ui5/webcomponents-react";
-import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
-import { useAuthOnboarding } from "../../spaces/onboarding/auth/AuthContextOnboarding";
-import { useTranslation } from "react-i18next";
-import { ButtonClickEventDetail } from "@ui5/webcomponents/dist/Button.js";
-import PopoverPlacement from "@ui5/webcomponents/dist/types/PopoverPlacement.js";
-import ButtonDesign from "@ui5/webcomponents/dist/types/ButtonDesign.js";
+import {
+  PopoverDomRef,
+  Ui5CustomEvent,
+  TextAreaDomRef,
+  Button,
+  ButtonDomRef,
+  Popover,
+  Form,
+  FormGroup,
+  FormItem,
+  Label,
+  Link,
+  RatingIndicator,
+  TextArea,
+} from '@ui5/webcomponents-react';
+import { Dispatch, RefObject, SetStateAction, useRef, useState } from 'react';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
+import { useTranslation } from 'react-i18next';
+import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 type UI5RatingIndicatorElement = HTMLElement & { value: number };
-
 
 export function FeedbackButton() {
   const feedbackPopoverRef = useRef<PopoverDomRef>(null);
@@ -51,14 +64,7 @@ export function FeedbackButton() {
 
   return (
     <>
-      <Button
-        icon="feedback"
-        tooltip="Feedback"
-        onClick={onFeedbackClick}
-        design={ButtonDesign.Transparent}
-      >
-
-      </Button>
+      <Button icon="feedback" tooltip="Feedback" design={ButtonDesign.Transparent} onClick={onFeedbackClick} />
       <FeedbackPopover
         open={feedbackPopoverOpen}
         setOpen={setFeedbackPopoverOpen}
@@ -71,7 +77,7 @@ export function FeedbackButton() {
         onFeedbackMessageChange={onFeedbackMessageChange}
       />
     </>
-  )
+  );
 }
 
 const FeedbackPopover = ({

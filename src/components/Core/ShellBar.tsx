@@ -16,18 +16,15 @@ import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
 
-
 export function ShellBarComponent() {
   const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
 
-
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
   };
-
 
   useEffect(() => {
     const shellbar = document.querySelector('ui5-shellbar');
@@ -53,11 +50,9 @@ export function ShellBarComponent() {
           </div>
         }
         onProfileClick={onProfileClick}
-      >
-      </ShellBar>
+      />
 
       <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
-
     </>
   );
 }
@@ -96,4 +91,3 @@ const ProfilePopover = ({
     </Popover>
   );
 };
-

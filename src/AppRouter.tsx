@@ -10,11 +10,13 @@ import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleEx
 function AppRouter() {
   return (
     <>
-      <SearchParamToggleVisibility shouldBeVisible={(params) => {
-        if (params === undefined) return true;
-        if (params.get('showHeaderBar') === null) return true;
-        return params?.get('showHeaderBar') === "true"
-      }}>
+      <SearchParamToggleVisibility
+        shouldBeVisible={(params) => {
+          if (params === undefined) return true;
+          if (params.get('showHeaderBar') === null) return true;
+          return params?.get('showHeaderBar') === 'true';
+        }}
+      >
         <ShellBarComponent />
       </SearchParamToggleVisibility>
 
