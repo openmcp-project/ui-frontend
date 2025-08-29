@@ -98,6 +98,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     });
   }
 
+
   if (requireAtLeastOneMember && members.length === 0) {
     return (
       <Infobox size="sm" variant={isValidationError ? 'danger' : 'normal'} id="members-error">

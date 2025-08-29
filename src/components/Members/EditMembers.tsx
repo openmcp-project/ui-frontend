@@ -19,7 +19,7 @@ export interface EditMembersProps {
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
-  { value: 'User', label: 'User Account', icon: 'employee' },
+  { value: 'User', label: 'User', icon: 'employee' },
   { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
 ];
 
@@ -125,7 +125,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           <Button
             className={styles.narrowButton}
             data-testid="import-members-button"
-            icon={'upload'}
+            icon={'cause'}
             onClick={handleOpenImportDialog}
           >
             {t('ImportMembersDialog.dialogTitle')}
