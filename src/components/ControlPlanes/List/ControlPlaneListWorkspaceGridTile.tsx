@@ -58,6 +58,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
             details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
+            compact = {true}
           />
         );
       } else {
