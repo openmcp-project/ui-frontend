@@ -36,7 +36,7 @@ export const IllustratedBanner = ({
   return (
     <FlexBox direction="Column" alignItems="Center">
       <IllustratedMessage
-        design={compact ? IllustrationMessageDesign.ExtraSmall : IllustrationMessageDesign.Large}
+        design={compact ? IllustrationMessageDesign.Small : IllustrationMessageDesign.Large}
         name={illustrationName}
         titleText={title}
         subtitleText={subtitleText}
