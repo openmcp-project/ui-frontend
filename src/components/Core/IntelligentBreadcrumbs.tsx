@@ -5,6 +5,7 @@ import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import LandscapeLabel from './LandscapeLabel.tsx';
 import { useTranslation } from 'react-i18next';
 import { FeedbackButton } from './FeedbackButton.tsx';
+import { BetaButton } from './BetaButton.tsx';
 
 const PREFIX = '/mcp';
 
@@ -67,6 +68,7 @@ export function BreadCrumbFeedbackHeader() {
       alignItems={FlexBoxAlignItems.Center}
     >
       <IntelligentBreadcrumbs />
+      <BetaButton />
       <FeedbackButton />
     </FlexBox>
   )
