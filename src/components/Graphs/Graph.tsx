@@ -76,7 +76,7 @@ const Graph: React.FC = () => {
   }
 
   return (
-    <div className={styles.graphContainer} data-theme={isDarkTheme ? 'dark' : 'light'}>
+    <div className={styles.graphContainer} style={{maxWidth: '1280px', margin: '0 auto'}} data-theme={isDarkTheme ? 'dark' : 'light'}>
       <div className={styles.graphColumn}>
         <ReactFlow
           data-theme={isDarkTheme ? 'dark' : 'light'}
