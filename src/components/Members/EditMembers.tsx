@@ -125,7 +125,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           className={styles.addButton}
           data-testid="import-members-button"
           design="Transparent"
-          icon={'upload'}
+          icon={'cause'}
           onClick={handleOpenImportDialog}
         >
           {t('ImportMembersDialog.dialogTitle')}

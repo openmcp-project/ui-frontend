@@ -166,9 +166,9 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add new member or service account",
-    "editHeader": "Edit member or service account",
-    "addHeader": "Add new member or service account",
+    "addButton": "Add User or ServiceAccount",
+    "editHeader": "Edit User or ServiceAccount",
+    "addHeader": "Add User or ServiceAccount",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
@@ -425,8 +425,8 @@
   }
   ,
   "ImportMembersDialog": {
-    "dialogTitle": "Import members",
-    "chooseParentLabel": "Choose parent to import members from",
+    "dialogTitle": "Reuse",
+    "chooseParentLabel": "Choose parent resource to reuse members from",
     "whatToImportLabel": "What would you like to import?",
     "serviceAccountsLabel": "Service Accounts",
     "addMembersButton": "Add members",
