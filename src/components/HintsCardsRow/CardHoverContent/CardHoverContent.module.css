@@ -1,0 +1,17 @@
+/* Card Hover Content Styles */
+.hoverContent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+  overflow: visible;
+}
+
+.chartContainer {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
