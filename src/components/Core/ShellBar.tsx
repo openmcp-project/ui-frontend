@@ -9,9 +9,6 @@ import {
   PopoverDomRef,
   ShellBar,
   ShellBarDomRef,
-  ShellBarItem,
-  ShellBarItemDomRef,
-  TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -22,23 +19,16 @@ import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
-import { ShellBarItemClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBarItem.js';
 
 
 export function ShellBarComponent() {
   const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const betaPopoverRef = useRef<PopoverDomRef>(null);
-  const feedbackPopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const [betaPopoverOpen, setBetaPopoverOpen] = useState(false);
-  const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [feedbackMessage, setFeedbackMessage] = useState('');
-  const [feedbackSent, setFeedbackSent] = useState(false);
   const betaButtonRef = useRef<ButtonDomRef>(null);
 
-  const { user } = useAuthOnboarding();
   const { t } = useTranslation();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
@@ -52,38 +42,6 @@ export function ShellBarComponent() {
       setBetaPopoverOpen(!betaPopoverOpen);
     }
   };
-
-  const onFeedbackClick = (e: Ui5CustomEvent<ShellBarItemDomRef, ShellBarItemClickEventDetail>) => {
-    feedbackPopoverRef.current!.opener = e.detail.targetRef;
-    setFeedbackPopoverOpen(!feedbackPopoverOpen);
-  };
-
-  const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, { value: string; previousValue: string }>) => {
-    const newValue = event.target.value;
-    setFeedbackMessage(newValue);
-  };
-
-  async function onFeedbackSent() {
-    const payload = {
-      message: feedbackMessage,
-      rating: rating.toString(),
-      user: user?.email,
-      environment: window.location.hostname,
-    };
-    try {
-      await fetch('/api/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setFeedbackSent(true);
-    }
-  }
 
   useEffect(() => {
     const shellbar = document.querySelector('ui5-shellbar');
@@ -116,7 +74,6 @@ export function ShellBarComponent() {
         }
         onProfileClick={onProfileClick}
       >
-        <ShellBarItem icon="feedback" onClick={onFeedbackClick} />
       </ShellBar>
 
       <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
