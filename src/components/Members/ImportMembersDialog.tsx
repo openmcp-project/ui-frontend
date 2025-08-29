@@ -24,6 +24,7 @@ import { ACCOUNT_TYPES } from './EditMembers.tsx';
 import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
 import { useApiResource } from '../../lib/api/useApiResource.ts';
 import { useTranslation } from 'react-i18next';
+import IllustratedError from '../Shared/IllustratedError.tsx';
 
 type ParentType = 'Workspace' | 'Project';
 
@@ -65,7 +66,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
     [t],
   );
 
-  const { handleSubmit, setValue, watch, reset, getValues } = useForm<ImportMembersFormData>({
+  const { handleSubmit, setValue, watch, reset } = useForm<ImportMembersFormData>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
@@ -97,8 +98,8 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
           <Select
             data-testid="parent-select"
             value={parentType}
-            onChange={(e: any) => {
-              const selected = (e.detail.selectedOption as any)?.value as ParentType;
+            onChange={(e: CustomEvent<{ selectedOption: { dataset?: { value?: string } } }>) => {
+              const selected = e.detail.selectedOption?.dataset?.value as ParentType;
               setValue('parentType', selected, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
             }}
           >
@@ -179,7 +180,11 @@ const ImportMembersSelectionTable: FC<{
   projectName?: string;
 }> = ({ onCancel, onImport, parentType, workspaceName, projectName, includeMembers, includeServiceAccounts }) => {
   const { t } = useTranslation();
-  const { isLoading, data: parentResourceData } = useApiResource(
+  const {
+    isLoading,
+    data: parentResourceData,
+    error,
+  } = useApiResource(
     parentType === 'Project'
       ? ResourceObject<SpecMembers>('', 'projects', projectName ?? '')
       : ResourceObject<SpecMembers>(projectName ?? '', 'workspaces', workspaceName ?? ''),
@@ -262,18 +267,25 @@ const ImportMembersSelectionTable: FC<{
 
   return (
     <FlexBox direction="Column" gap={8} style={{ padding: '1rem' }}>
-      <FlexBox justifyContent="End" gap={8} style={{ marginBottom: '0.5rem' }}>
-        <Button
-          design="Transparent"
-          onClick={() => setSelectedEmails(new Set(filteredMockedMembers.map((m) => m.name)))}
-        >
-          {t('ImportMembersDialog.selectAllButton')}
-        </Button>
-        <Button design="Transparent" onClick={() => setSelectedEmails(new Set())}>
-          {t('ImportMembersDialog.deselectAllButton')}
-        </Button>
-      </FlexBox>
-      <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} className={styles.table} />
+      {error ? (
+        <IllustratedError />
+      ) : (
+        <div>
+          <FlexBox justifyContent="Start" gap={8} style={{ marginBottom: '0.5rem' }}>
+            <Button
+              design="Transparent"
+              onClick={() => setSelectedEmails(new Set(filteredMockedMembers.map((m) => m.name)))}
+            >
+              {t('ImportMembersDialog.selectAllButton')}
+            </Button>
+            <Button design="Transparent" onClick={() => setSelectedEmails(new Set())}>
+              {t('ImportMembersDialog.deselectAllButton')}
+            </Button>
+          </FlexBox>
+
+          <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} className={styles.table} />
+        </div>
+      )}
 
       <FlexBox justifyContent="End" gap={8} style={{ marginTop: '1rem' }}>
         <Button design="Transparent" onClick={onCancel}>
