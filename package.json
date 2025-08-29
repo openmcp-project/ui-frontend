@@ -21,7 +21,7 @@
     "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch"
   },
   "dependencies": {
-    "@apollo/client": "^3.13.6",
+    "@apollo/client": "^4.0.0",
     "@fastify/autoload": "^6.3.0",
     "@fastify/cookie": "^11.0.2",
     "@fastify/env": "^5.0.2",
