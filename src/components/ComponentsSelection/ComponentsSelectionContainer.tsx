@@ -69,7 +69,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   }
 
   if (error) {
-    return <IllustratedError compact={true}/>;
+    return <IllustratedError compact={true} />;
   }
 
   // Defensive: If the API returned no items, show error
