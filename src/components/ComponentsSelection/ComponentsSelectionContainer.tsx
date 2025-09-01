@@ -69,12 +69,12 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   }
 
   if (error) {
-    return <IllustratedError />;
+    return <IllustratedError compact={true}/>;
   }
 
   // Defensive: If the API returned no items, show error
   if (!componentsList || componentsList.length === 0) {
-    return <IllustratedError title={t('componentsSelection.cannotLoad')} />;
+    return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
   }
 
   return <ComponentsSelection componentsList={componentsList} setComponentsList={setComponentsList} />;
