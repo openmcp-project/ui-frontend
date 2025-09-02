@@ -22,12 +22,8 @@ FROM gcr.io/distroless/nodejs24-debian12@sha256:98fd27d54e32d0d281a4c41db1bbe87a
 WORKDIR /usr/src/app
 
 # Copy built files
-COPY --from=build-stage /usr/src/app/dist/client /usr/src/app/dist/client
-COPY --from=build-stage /usr/src/app/dist/vite.config.json /usr/src/app/dist/vite.config.json
-COPY --from=build-stage /usr/src/app/dist/server /usr/src/app/server
-COPY --from=build-stage /usr/src/app/dist/server.js /usr/src/app/server.js
-COPY --from=build-stage /usr/src/app/public /usr/src/app/public
+COPY --from=build-stage /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-stage /usr/src/app/node_modules /usr/src/app/node_modules
 
 # Run
-CMD ["server.js"]
+CMD ["dist/server.js"]

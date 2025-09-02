@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "node --loader ts-node/esm ./server.ts --local-dev",
-    "start": "node dist/server/server.js",
+    "start": "node dist/server.js",
     "build": "tsc && npm run build:server && vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "lint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
