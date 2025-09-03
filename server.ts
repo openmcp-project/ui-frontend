@@ -12,6 +12,8 @@ import { injectDynatraceTag } from './server/config/dynatrace.js';
 
 dotenv.config();
 
+console.log(process.env);
+
 const { DYNATRACE_SCRIPT_URL } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
@@ -50,7 +52,11 @@ if (process.env.FRONTEND_CONFIG_PATH !== undefined && process.env.FRONTEND_CONFI
 }
 
 // Make hyperspace portal configuration available (hyperspace-portal-config.json)
-if (!isLocalDev && process.env.HYPERSPACE_PORTAL_CONFIG_PATH !== undefined && process.env.HYPERSPACE_PORTAL_CONFIG_PATH.length > 0) {
+if (
+  !isLocalDev &&
+  process.env.HYPERSPACE_PORTAL_CONFIG_PATH !== undefined &&
+  process.env.HYPERSPACE_PORTAL_CONFIG_PATH.length > 0
+) {
   const hyperspacePortalConfigLocation = 'dist/client/hyperspace-portal-config.json';
   console.log('HYPERSPACE_PORTAL_CONFIG_PATH is specified. Will copy the hyperspace-portal-config from there.');
   console.log(`  Copying ${process.env.HYPERSPACE_PORTAL_CONFIG_PATH} to ${hyperspacePortalConfigLocation}`);
@@ -84,7 +90,6 @@ if (DYNATRACE_SCRIPT_URL) {
     console.error('DYNATRACE_SCRIPT_URL is not a valid URL');
   }
 }
-
 
 fastify.register(helmet, {
   contentSecurityPolicy: {

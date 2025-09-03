@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM node:24-slim@sha256:9b741b28148b0195d62fa456ed84dd6c953c1f17a3761f3e6e6797a754d9edff AS build-stage
+FROM node:24-slim@sha256:363eede750b6677a578eea4373235aaa70a7df0da90b5fe77f66b3e651484f6f AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -18,16 +18,12 @@ RUN npm prune --omit=dev
 
 
 # PRODUCTION STAGE
-FROM gcr.io/distroless/nodejs24-debian12@sha256:98fd27d54e32d0d281a4c41db1bbe87a61259b2cad12c61bb1b8c0e32166162d AS production
+FROM gcr.io/distroless/nodejs24-debian12@sha256:f1572ff596ee17fe935a808c28a868f46dcbfad04003cb8fb951dd83025c16c9 AS production
 WORKDIR /usr/src/app
 
 # Copy built files
-COPY --from=build-stage /usr/src/app/dist/client /usr/src/app/dist/client
-COPY --from=build-stage /usr/src/app/dist/vite.config.json /usr/src/app/dist/vite.config.json
-COPY --from=build-stage /usr/src/app/dist/server /usr/src/app/server
-COPY --from=build-stage /usr/src/app/dist/server.js /usr/src/app/server.js
-COPY --from=build-stage /usr/src/app/public /usr/src/app/public
+COPY --from=build-stage /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-stage /usr/src/app/node_modules /usr/src/app/node_modules
 
 # Run
-CMD ["server.js"]
+CMD ["dist/server.js"]
