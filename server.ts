@@ -95,7 +95,9 @@ fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
-      'script-src': isLocalDev ? ["'self'", "'unsafe-inline'", dynatraceOrigin] : ["'self'", dynatraceOrigin],
+      'script-src': isLocalDev
+        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
+        : ["'self'", "'unsafe-eval'", sentryHost, dynatraceOrigin],
       // @ts-ignore
       'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
