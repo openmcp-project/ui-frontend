@@ -136,6 +136,7 @@ export default function FluxList() {
       <IllustratedError
         details={repoErr?.message || kustomizationErr?.message || t('FluxList.undefinedError')}
         title={t('FluxList.noFluxError')}
+        compact={true}
       />
     );
   }
