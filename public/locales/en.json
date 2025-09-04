@@ -174,7 +174,12 @@
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
-    "reuseMembersButton": "Reuse"
+    "reuseMembersButton": "Reuse",
+    "membersToastNoChanges": "No changes.",
+    "membersToastAdded1": "1 member added.",
+    "membersToastAddedN": "{{count}} members added.",
+    "membersToastChanged1": "1 member changed.",
+    "membersToastChangedN": "{{count}} members changed."
   },
 
   "ProjectsPage": {
@@ -432,7 +437,7 @@
     "reuseFromLabel": "Reuse from",
     "filterForLabel": "Filter for",
     "addMembersButton0": "Add members",
-    "addMembersButton1": "Add 1 member",
+    "addMembersButton1": "Add member",
     "addMembersButtonN": "Add {{count}} members"
   }
 }

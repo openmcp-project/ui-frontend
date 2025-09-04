@@ -1,12 +1,14 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
-import { Member } from '../../lib/api/types/shared/members';
+import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
+import { TFunction } from 'i18next';
 
 export interface EditMembersProps {
   members: Member[];
@@ -73,15 +75,29 @@ export const EditMembers: FC<EditMembersProps> = ({
     setIsImportDialogOpen(false);
   }, []);
 
+  const toast = useToast();
+
   const handleImportMembers = useCallback(
     (imported: Member[]) => {
-      const byName = new Map<string, Member>();
-      members.forEach((m) => byName.set(m.name, m));
-      imported.forEach((m) => byName.set(m.name, m));
-      const merged = Array.from(byName.values());
-      onMemberChanged(merged);
+      let numberOfAddedMembers = 0;
+      let numberOfChangedMembers = 0;
+
+      const membersByName = new Map<string, Member>(members.map((member) => [member.name, member]));
+      imported.forEach((importedMember) => {
+        const existingMember = membersByName.get(importedMember.name);
+        if (!existingMember) {
+          numberOfAddedMembers++;
+        } else if (!areMembersEqual(importedMember, existingMember)) {
+          numberOfChangedMembers++;
+        }
+        membersByName.set(importedMember.name, importedMember);
+      });
+      const updatedMembers = Array.from(membersByName.values());
+
+      toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
+      onMemberChanged(updatedMembers);
     },
-    [members, onMemberChanged],
+    [members, onMemberChanged, t],
   );
 
   const handleSaveMember = useCallback(
@@ -161,3 +177,29 @@ export const EditMembers: FC<EditMembersProps> = ({
     </FlexBox>
   );
 };
+
+function buildToastMessage(addedCount: number, changedCount: number, t: TFunction) {
+  const messages: string[] = [];
+
+  if (addedCount === 0 && changedCount === 0) {
+    return t('EditMembers.membersToastNoChanges');
+  }
+
+  if (addedCount > 0) {
+    messages.push(
+      addedCount === 1
+        ? t('EditMembers.membersToastAdded1')
+        : t('EditMembers.membersToastAddedN', { count: addedCount }),
+    );
+  }
+
+  if (changedCount > 0) {
+    messages.push(
+      changedCount === 1
+        ? t('EditMembers.membersToastChanged1')
+        : t('EditMembers.membersToastChangedN', { count: changedCount }),
+    );
+  }
+
+  return messages.join(' ');
+}
