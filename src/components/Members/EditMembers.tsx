@@ -97,7 +97,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
       onMemberChanged(updatedMembers);
     },
-    [members, onMemberChanged, t],
+    [members, onMemberChanged, t, toast],
   );
 
   const handleSaveMember = useCallback(
