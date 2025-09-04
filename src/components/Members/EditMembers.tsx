@@ -25,7 +25,9 @@ export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
 
 export type AccountType = 'User' | 'ServiceAccount';
 
-const removeProjectPrefix = (name?: string) => (name?.startsWith('project-') ? name.slice('project-'.length) : name);
+const PROJECT_PREFIX = 'project-';
+const removeProjectPrefix = (name?: string) =>
+  name?.startsWith(PROJECT_PREFIX) ? name.slice(PROJECT_PREFIX.length) : name;
 
 export const EditMembers: FC<EditMembersProps> = ({
   members,

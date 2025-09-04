@@ -212,19 +212,14 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
 };
 
 function getAddMembersButtonText(selectedMembersCount: number, t: TFunction) {
-  let addButtonText = '';
   switch (selectedMembersCount) {
     case 0:
-      addButtonText = t('ImportMembersDialog.addMembersButton0');
-      break;
+      return t('ImportMembersDialog.addMembersButton0');
     case 1:
-      addButtonText = t('ImportMembersDialog.addMembersButton1');
-      break;
+      return t('ImportMembersDialog.addMembersButton1');
     default:
-      addButtonText = t('ImportMembersDialog.addMembersButtonN', { count: selectedMembersCount });
-      break;
+      return t('ImportMembersDialog.addMembersButtonN', { count: selectedMembersCount });
   }
-  return addButtonText;
 }
 
 interface SpecMembers {
