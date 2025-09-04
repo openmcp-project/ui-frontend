@@ -78,7 +78,6 @@ export const EditMembers: FC<EditMembersProps> = ({
       imported.forEach((m) => byName.set(m.name, m));
       const merged = Array.from(byName.values());
       onMemberChanged(merged);
-      setIsImportDialogOpen(false);
     },
     [members, onMemberChanged],
   );
@@ -128,7 +127,7 @@ export const EditMembers: FC<EditMembersProps> = ({
             icon={'cause'}
             onClick={handleOpenImportDialog}
           >
-            {t('ImportMembersDialog.dialogTitle')}
+            {t('EditMembers.reuseMembersButton')}
           </Button>
         )}
       </FlexBox>
@@ -140,13 +139,15 @@ export const EditMembers: FC<EditMembersProps> = ({
         onSave={handleSaveMember}
       />
 
-      <ImportMembersDialog
-        open={isImportDialogOpen}
-        workspaceName={workspaceName}
-        projectName={computedProjectName}
-        onClose={handleCloseImportDialog}
-        onImport={handleImportMembers}
-      />
+      {computedProjectName && (
+        <ImportMembersDialog
+          isOpen={isImportDialogOpen}
+          workspaceName={workspaceName}
+          projectName={computedProjectName}
+          onClose={handleCloseImportDialog}
+          onImport={handleImportMembers}
+        />
+      )}
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}

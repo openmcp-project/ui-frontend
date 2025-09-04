@@ -8,7 +8,9 @@
   "Entities": {
     "ManagedControlPlane": "Managed Control Plane",
     "Project": "Project",
-    "Workspace": "Workspace"
+    "Workspace": "Workspace",
+    "Users": "Users",
+    "ServiceAccounts": "ServiceAccounts"
   },
   "ComponentList": {
     "tableComponentHeader": "Name",
@@ -171,7 +173,8 @@
     "addHeader": "Add User or ServiceAccount",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
-    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
+    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
+    "reuseMembersButton": "Reuse"
   },
 
   "ProjectsPage": {
@@ -313,10 +316,10 @@
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
-    "selectAtLeastOneOption": "Select at least one option",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
   "common": {
+    "all": "All",
     "documentation": "Documentation",
     "close": "Close",
     "cannotLoadData": "Cannot load data",
@@ -425,12 +428,11 @@
   }
   ,
   "ImportMembersDialog": {
-    "dialogTitle": "Reuse",
-    "chooseParentLabel": "Choose parent resource to reuse members from",
-    "whatToImportLabel": "What would you like to import?",
-    "serviceAccountsLabel": "Service Accounts",
-    "addMembersButton": "Add members",
-    "selectAllButton": "Select all",
-    "deselectAllButton": "Deselect all"
+    "dialogTitle": "Reuse Members",
+    "reuseFromLabel": "Reuse from",
+    "filterForLabel": "Filter for",
+    "addMembersButton0": "Add members",
+    "addMembersButton1": "Add 1 member",
+    "addMembersButtonN": "Add {{count}} members"
   }
 }
