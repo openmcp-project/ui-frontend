@@ -6,6 +6,8 @@
   overflow: hidden;
   background-color: var(--sapBackgroundColor, #fafafa);
   font-family: var(--sapFontFamily);
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 .graphColumn {
