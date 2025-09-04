@@ -6,9 +6,10 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 interface Props {
   title?: string;
   details?: string;
+  compact?: boolean;
 }
 
-export default function IllustratedError({ title, details }: Props) {
+export default function IllustratedError({ title, details, compact }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -16,6 +17,7 @@ export default function IllustratedError({ title, details }: Props) {
       illustrationName={IllustrationMessageType.SimpleError}
       title={title ?? t('IllustratedError.titleText')}
       subtitle={details ?? t('IllustratedError.subtitleText')}
+      compact={compact}
     />
   );
 }
