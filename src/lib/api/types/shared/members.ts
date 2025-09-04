@@ -29,6 +29,17 @@ export interface Member {
   namespace?: string;
 }
 
+export function areMembersEqual(a: Member, b?: Member): boolean {
+  return (
+    !!b &&
+    a.kind === b.kind &&
+    a.name === b.name &&
+    a.namespace === b.namespace &&
+    a.roles.length === b.roles.length &&
+    a.roles.every((r) => b.roles.includes(r))
+  );
+}
+
 export interface MemberPayload {
   kind: string;
   name: string;

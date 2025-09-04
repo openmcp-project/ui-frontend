@@ -1,36 +1,50 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { MemberTable } from './MemberTable.tsx';
-import { Member } from '../../lib/api/types/shared/members';
+import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
 import styles from './Members.module.css';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
+import { ImportMembersDialog } from './ImportMembersDialog.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
+import { TFunction } from 'i18next';
 
 export interface EditMembersProps {
   members: Member[];
   onMemberChanged: (members: Member[]) => void;
   isValidationError?: boolean;
   requireAtLeastOneMember?: boolean;
+  projectName?: string;
+  workspaceName?: string;
+  type: 'workspace' | 'project' | 'mcp';
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
-  { value: 'User', label: 'User Account', icon: 'employee' },
+  { value: 'User', label: 'User', icon: 'employee' },
   { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
 ];
 
 export type AccountType = 'User' | 'ServiceAccount';
+
+const PROJECT_PREFIX = 'project-';
+const removeProjectPrefix = (name?: string) =>
+  name?.startsWith(PROJECT_PREFIX) ? name.slice(PROJECT_PREFIX.length) : name;
 
 export const EditMembers: FC<EditMembersProps> = ({
   members,
   onMemberChanged,
   isValidationError = false,
   requireAtLeastOneMember = true,
+  workspaceName,
+  projectName,
+  type,
 }) => {
   const { t } = useTranslation();
 
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState<Member | undefined>(undefined);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const handleRemoveMember = useCallback(
     (email: string) => {
@@ -53,6 +67,39 @@ export const EditMembers: FC<EditMembersProps> = ({
     setIsMemberDialogOpen(false);
   }, []);
 
+  const handleOpenImportDialog = useCallback(() => {
+    setIsImportDialogOpen(true);
+  }, []);
+
+  const handleCloseImportDialog = useCallback(() => {
+    setIsImportDialogOpen(false);
+  }, []);
+
+  const toast = useToast();
+
+  const handleImportMembers = useCallback(
+    (imported: Member[]) => {
+      let numberOfAddedMembers = 0;
+      let numberOfChangedMembers = 0;
+
+      const membersByName = new Map<string, Member>(members.map((member) => [member.name, member]));
+      imported.forEach((importedMember) => {
+        const existingMember = membersByName.get(importedMember.name);
+        if (!existingMember) {
+          numberOfAddedMembers++;
+        } else if (!areMembersEqual(importedMember, existingMember)) {
+          numberOfChangedMembers++;
+        }
+        membersByName.set(importedMember.name, importedMember);
+      });
+      const updatedMembers = Array.from(membersByName.values());
+
+      toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
+      onMemberChanged(updatedMembers);
+    },
+    [members, onMemberChanged, t, toast],
+  );
+
   const handleSaveMember = useCallback(
     (member: Member, isEdit: boolean) => {
       let updatedMembers: Member[];
@@ -74,17 +121,34 @@ export const EditMembers: FC<EditMembersProps> = ({
     [members, onMemberChanged, memberToEdit],
   );
 
+  const computedProjectName = useMemo(
+    () => (type === 'mcp' ? removeProjectPrefix(projectName) : projectName),
+    [type, projectName],
+  );
+
   return (
     <FlexBox direction="Column" gap={8}>
-      <Button
-        className={styles.addButton}
-        data-testid="add-member-button"
-        design="Emphasized"
-        icon={'sap-icon://add-employee'}
-        onClick={handleOpenMemberFormDialog}
-      >
-        {t('EditMembers.addButton')}
-      </Button>
+      <FlexBox gap={8} justifyContent="SpaceBetween">
+        <Button
+          className={styles.addButton}
+          data-testid="add-member-button"
+          design="Emphasized"
+          icon={'sap-icon://add-employee'}
+          onClick={handleOpenMemberFormDialog}
+        >
+          {t('EditMembers.addButton')}
+        </Button>
+        {type !== 'project' && (
+          <Button
+            className={styles.narrowButton}
+            data-testid="import-members-button"
+            icon={'cause'}
+            onClick={handleOpenImportDialog}
+          >
+            {t('EditMembers.reuseMembersButton')}
+          </Button>
+        )}
+      </FlexBox>
       <AddEditMemberDialog
         open={isMemberDialogOpen}
         existingMembers={members}
@@ -92,6 +156,16 @@ export const EditMembers: FC<EditMembersProps> = ({
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
+
+      {computedProjectName && (
+        <ImportMembersDialog
+          isOpen={isImportDialogOpen}
+          workspaceName={workspaceName}
+          projectName={computedProjectName}
+          onClose={handleCloseImportDialog}
+          onImport={handleImportMembers}
+        />
+      )}
 
       <MemberTable
         requireAtLeastOneMember={requireAtLeastOneMember}
@@ -103,3 +177,29 @@ export const EditMembers: FC<EditMembersProps> = ({
     </FlexBox>
   );
 };
+
+function buildToastMessage(addedCount: number, changedCount: number, t: TFunction) {
+  const messages: string[] = [];
+
+  if (addedCount === 0 && changedCount === 0) {
+    return t('EditMembers.membersToastNoChanges');
+  }
+
+  if (addedCount > 0) {
+    messages.push(
+      addedCount === 1
+        ? t('EditMembers.membersToastAdded1')
+        : t('EditMembers.membersToastAddedN', { count: addedCount }),
+    );
+  }
+
+  if (changedCount > 0) {
+    messages.push(
+      changedCount === 1
+        ? t('EditMembers.membersToastChanged1')
+        : t('EditMembers.membersToastChangedN', { count: changedCount }),
+    );
+  }
+
+  return messages.join(' ');
+}
