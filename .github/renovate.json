@@ -5,6 +5,7 @@
     "docker:pinDigests",
     "helpers:pinGitHubActionDigests",
     "group:allNonMajor",
-    "npm:unpublishSafe"
+    "npm:unpublishSafe",
+    ":disableDependencyDashboard"
   ]
 }
