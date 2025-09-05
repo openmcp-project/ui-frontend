@@ -5,10 +5,18 @@ import React from 'react';
 import { Routes, useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
 
 let sentryRoutes = Routes;
-if (import.meta.env.VITE_SENTRY_DSN && import.meta.env.VITE_SENTRY_DSN.length > 0) {
+
+const sentryConfig = await fetch('/sentry').then((res) => res.json());
+
+if (
+  sentryConfig.FRONTEND_SENTRY_DSN &&
+  sentryConfig.FRONTEND_SENTRY_DSN.length > 0 &&
+  sentryConfig.FRONTEND_SENTRY_ENVIRONMENT &&
+  sentryConfig.FRONTEND_SENTRY_ENVIRONMENT.length > 0
+) {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
+    dsn: sentryConfig.FRONTEND_SENTRY_DSN,
+    environment: sentryConfig.FRONTEND_SENTRY_ENVIRONMENT,
     integrations: [
       Sentry.reactRouterV7BrowserTracingIntegration({
         useEffect: React.useEffect,

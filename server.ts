@@ -72,12 +72,12 @@ await fastify.register(envPlugin);
 
 let sentryHost = '';
 // @ts-ignore
-if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0) {
+if (fastify.config.FRONTEND_SENTRY_DSN && fastify.config.FRONTEND_SENTRY_DSN.length > 0) {
   try {
     // @ts-ignore
-    sentryHost = new URL(fastify.config.VITE_SENTRY_DSN).hostname;
+    sentryHost = new URL(fastify.config.FRONTEND_SENTRY_DSN).hostname;
   } catch {
-    console.log('VITE_SENTRY_DSN is not a valid URL');
+    console.log('FRONTEND_SENTRY_DSN is not a valid URL');
     sentryHost = '';
   }
 }
@@ -112,6 +112,15 @@ await fastify.register(FastifyVite, {
   root: __dirname,
   dev: isLocalDev,
   spa: true,
+});
+
+fastify.get('/sentry', function (req, reply) {
+  return reply.send({
+    // @ts-ignore
+    FRONTEND_SENTRY_DSN: fastify.config.FRONTEND_SENTRY_DSN,
+    // @ts-ignore
+    FRONTEND_SENTRY_ENVIRONMENT: fastify.config.FRONTEND_SENTRY_ENVIRONMENT,
+  });
 });
 
 // @ts-ignore

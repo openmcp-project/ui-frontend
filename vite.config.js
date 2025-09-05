@@ -14,6 +14,7 @@ export default defineConfig({
     sentryVitePlugin({
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
+      telemetry: false,
       reactComponentAnnotation: {
         enabled: true,
       },
@@ -22,5 +23,6 @@ export default defineConfig({
 
   build: {
     sourcemap: true,
+    target: 'esnext', // Support top-level await
   },
 });
