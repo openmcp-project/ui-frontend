@@ -30,8 +30,8 @@ const schema = {
     FEEDBACK_URL_LINK: { type: 'string' },
     FRAME_ANCESTORS: { type: 'string' },
     BFF_SENTRY_DSN: { type: 'string' },
-    VITE_SENTRY_DSN: { type: 'string' },
-    VITE_SENTRY_ENVIRONMENT: { type: 'string' },
+    FRONTEND_SENTRY_DSN: { type: 'string' },
+    FRONTEND_SENTRY_ENVIRONMENT: { type: 'string' },
 
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },
