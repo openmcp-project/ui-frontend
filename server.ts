@@ -24,7 +24,7 @@ if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
 } else {
   Sentry.init({
     dsn: process.env.BFF_SENTRY_DSN,
-    environment: process.env.VITE_SENTRY_ENVIRONMENT,
+    environment: process.env.FRONTEND_SENTRY_ENVIRONMENT,
     beforeSend(event) {
       if (event.request && event.request.cookies) {
         event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
