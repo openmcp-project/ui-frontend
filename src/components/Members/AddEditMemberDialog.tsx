@@ -91,7 +91,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       if (memberToEdit) {
         reset({
           name: memberToEdit.name,
-          role: memberToEdit.role || MemberRoles.view,
+          role: memberToEdit.roles?.[0] || MemberRoles.view,
           accountType: memberToEdit.kind === 'User' ? 'User' : 'ServiceAccount',
           namespace: memberToEdit?.namespace || '',
         });
@@ -111,7 +111,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
     const newMember: Member = {
       name: trimmedName,
-      role: data.role,
+      roles: [data.role],
       kind: data.accountType,
       ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
     };

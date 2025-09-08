@@ -1,6 +1,6 @@
 .legendContainer {
   padding: 1rem;
-  min-width: 240px;
+  min-width: 220px;
   max-width: 300px;
   max-height: 280px;
   border: 1px solid var(--sapList_BorderColor, #ccc);
@@ -11,6 +11,7 @@
   overflow: auto;
   align-self: flex-start;
   color: var(--sapTextColor, #222);
+  font-size: var(--sapFontSize);
 }
 
 .legendTitle {
@@ -21,8 +22,11 @@
 .legendRow {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
   color: var(--sapTextColor, #222);
+}
+
+.legendRow:not(:last-child) {
+  margin-bottom: 8px;
 }
 
 .legendColorBox {
