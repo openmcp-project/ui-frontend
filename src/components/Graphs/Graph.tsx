@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { ReactFlow, Background, Controls, MarkerType, Node, Panel } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MarkerType, Node, Panel, BackgroundVariant } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
@@ -97,8 +97,8 @@ const Graph: React.FC = () => {
           zoomOnScroll={true}
           panOnDrag={true}
         >
+          <Background gap={10} variant={BackgroundVariant.Dots}  bgColor='white' />
           <Controls showInteractive={false} />
-          <Background />
           <Panel position="top-left">
             <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
               <fieldset className={styles.fieldsetReset}>
