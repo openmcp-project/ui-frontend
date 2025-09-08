@@ -4,16 +4,21 @@
   border: 1px solid var(--sapList_BorderColor, #ddd);
   border-radius: 16px;
   overflow: hidden;
+  overflow-x: hidden !important;
   background-color: var(--sapBackgroundColor, #fafafa);
   font-family: var(--sapFontFamily);
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .graphColumn {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 .graphHeader {
@@ -68,7 +73,19 @@
 :global([data-theme='dark'] .react-flow__controls-button) {
   background: transparent;
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Force ReactFlow to not have horizontal scroll */
+:global(.react-flow) {
+  overflow-x: hidden !important;
+}
+
+:global(.react-flow__pane) {
+  overflow-x: hidden !important;
+}
+
+:global(.react-flow__viewport) {
+  overflow-x: hidden !important;
 }
 
 :global([data-theme='dark'] .react-flow__controls-button:hover) {
