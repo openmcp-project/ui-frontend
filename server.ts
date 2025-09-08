@@ -24,7 +24,7 @@ if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
 } else {
   Sentry.init({
     dsn: process.env.BFF_SENTRY_DSN,
-    environment: process.env.VITE_SENTRY_ENVIRONMENT,
+    environment: process.env.FRONTEND_SENTRY_ENVIRONMENT,
     beforeSend(event) {
       if (event.request && event.request.cookies) {
         event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
@@ -72,12 +72,12 @@ await fastify.register(envPlugin);
 
 let sentryHost = '';
 // @ts-ignore
-if (fastify.config.VITE_SENTRY_DSN && fastify.config.VITE_SENTRY_DSN.length > 0) {
+if (fastify.config.FRONTEND_SENTRY_DSN && fastify.config.FRONTEND_SENTRY_DSN.length > 0) {
   try {
     // @ts-ignore
-    sentryHost = new URL(fastify.config.VITE_SENTRY_DSN).hostname;
+    sentryHost = new URL(fastify.config.FRONTEND_SENTRY_DSN).hostname;
   } catch {
-    console.log('VITE_SENTRY_DSN is not a valid URL');
+    console.log('FRONTEND_SENTRY_DSN is not a valid URL');
     sentryHost = '';
   }
 }
@@ -95,7 +95,9 @@ fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
-      'script-src': isLocalDev ? ["'self'", "'unsafe-inline'", dynatraceOrigin] : ["'self'", dynatraceOrigin],
+      'script-src': isLocalDev
+        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
+        : ["'self'", sentryHost, dynatraceOrigin],
       // @ts-ignore
       'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
@@ -110,6 +112,15 @@ await fastify.register(FastifyVite, {
   root: __dirname,
   dev: isLocalDev,
   spa: true,
+});
+
+fastify.get('/sentry', function (req, reply) {
+  return reply.send({
+    // @ts-ignore
+    FRONTEND_SENTRY_DSN: fastify.config.FRONTEND_SENTRY_DSN,
+    // @ts-ignore
+    FRONTEND_SENTRY_ENVIRONMENT: fastify.config.FRONTEND_SENTRY_ENVIRONMENT,
+  });
 });
 
 // @ts-ignore
