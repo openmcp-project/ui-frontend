@@ -1,5 +1,6 @@
-import { GenericHintCard } from './GenericHintCard/GenericHintCard';
+import { ComponentCard } from '../BentoGrid/ComponentCard/ComponentCard';
 import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig, useVeleroHintConfig } from './GenericHintCard/genericHintConfigs';
+import { BentoGrid, BentoCard, GraphCard } from '../BentoGrid';
 import styles from './HintsCardsRow.module.css';
 
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
@@ -8,7 +9,6 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import React, { useMemo } from 'react';
-import Graph from '../Graphs/Graph';
 
 interface HintsProps {
   mcp: ControlPlaneType;
@@ -48,73 +48,70 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
   const veleroConfig = useVeleroHintConfig();
 
   return (
-    <div className={styles.bentoContainer}>
-      {/* Box 1: Main card - big box on top-left */}
-      <div className={styles.mainCard}>
-          <Graph />
-      </div>
-      
-      {/* Right column: flexbox container for right side cards */}
-      <div className={styles.rightColumn}>
-        {/* Box 2: Top right card */}
-          <div className={styles.middleRightCard}>
-          <GenericHintCard
-            enabled={!!mcp?.spec?.components?.crossplane}
-            version={mcp?.spec?.components?.crossplane?.version}
-            allItems={allItems}
-            isLoading={managedResourcesLoading}
-            error={managedResourcesError}
-            config={crossplaneConfig}
-                        height="150px"
+    <BentoGrid className={styles.bentoContainer}>
+      {/* Left side: Graph in extra-large (top) */}
+      <BentoCard size="extra-large">
+        <GraphCard title="Resource Dependencies" />
+      </BentoCard>
 
-          />
-        </div>
-      
-        
-        {/* Box 3: Middle right card (underneath box 2) */}
-        <div className={styles.topRightCard}>
-          <GenericHintCard
-            enabled={!!mcp?.spec?.components?.flux}
-            version={mcp?.spec?.components?.flux?.version}
-            allItems={allItems}
-            isLoading={managedResourcesLoading}
-            error={managedResourcesError}
-            config={gitOpsConfig}
-                                    height="150px"
+      {/* Left side: Crossplane component in large (bottom) */}
+      <BentoCard size="large">
+        <ComponentCard
+          enabled={!!mcp?.spec?.components?.crossplane}
+          version={mcp?.spec?.components?.crossplane?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={crossplaneConfig}
+        />
+      </BentoCard>
 
-          />
-        </div>
-      </div>
-      
-      {/* Bottom row: flexbox container for bottom cards */}
-      <div className={styles.bottomRow}>
-        {/* Box 4: Bottom left card (underneath box 1) */}
-        <div className={styles.bottomLeftCard}>
-          <GenericHintCard
-            enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-            version={mcp?.spec?.components?.externalSecretsOperator?.version}
-            allItems={allItems}
-            isLoading={managedResourcesLoading}
-            error={managedResourcesError}
-            config={vaultConfig}
-            height="50px"
-          />
-        </div>
-        
-        {/* Box 5: Bottom right card (underneath box 3) */}
-        <div className={styles.bottomRightCard}>
-          <GenericHintCard
-            enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-            version={mcp?.spec?.components?.externalSecretsOperator?.version}
-            allItems={allItems}
-            isLoading={managedResourcesLoading}
-            error={managedResourcesError}
-            config={veleroConfig}
-            height="50px"
-          />
-        </div>
-      </div>
-    </div>
+      {/* Right side: Two medium components (GitOps copies) */}
+      <BentoCard size="medium">
+        <ComponentCard
+          enabled={!!mcp?.spec?.components?.flux}
+          version={mcp?.spec?.components?.flux?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={gitOpsConfig}
+        />
+      </BentoCard>
+
+      <BentoCard size="medium">
+        <ComponentCard
+          enabled={!!mcp?.spec?.components?.flux}
+          version={mcp?.spec?.components?.flux?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={gitOpsConfig}
+        />
+      </BentoCard>
+
+      {/* Right side: Two small components (Velero config and Vault) */}
+      <BentoCard size="small">
+        <ComponentCard
+          enabled={!!mcp?.spec?.components?.kyverno}
+          version={mcp?.spec?.components?.kyverno?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={veleroConfig}
+        />
+      </BentoCard>
+
+      <BentoCard size="small">
+        <ComponentCard
+          enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+          version={mcp?.spec?.components?.externalSecretsOperator?.version}
+          allItems={allItems}
+          isLoading={managedResourcesLoading}
+          error={managedResourcesError}
+          config={vaultConfig}
+        />
+      </BentoCard>
+    </BentoGrid>
   );
 };
 

@@ -1,107 +1,15 @@
-.disabled {
-  position: relative;
-}
-
+/* Bento Container - now just houses the BentoGrid */
 .bentoContainer {
-  display: grid;
-  grid-template-columns: 1fr 0.5fr;
-  grid-template-rows: 1fr 0.5fr;
-  gap: 12px;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  height: 450px;
-  z-index: 2;
+  padding: 20px;
+}
+
+/* Legacy styles kept for backward compatibility with cards */
+.disabled {
   position: relative;
-}
-
-.mainCard {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.topRightCard {
-  flex: 1;
-}
-
-.middleRightCard {
-  flex: 1;
-}
-
-.rightColumn {
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.bottomRow {
-  grid-column: 1 / 3;
-  grid-row: 2;
-  display: flex;
-  gap: 12px;
-}
-
-.bottomLeftCard {
-  flex: 1;
-}
-
-.bottomRightCard {
-  flex: 1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .bentoContainer {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 0.5fr;
-    height: 450px;
-  }
-  
-  .mainCard {
-    grid-column: 1 / 3;
-    grid-row: 1;
-  }
-  
-  .rightColumn {
-    grid-column: 1 / 3;
-    grid-row: 1;
-    flex-direction: row;
-  }
-  
-  .bottomRow {
-    grid-column: 1 / 3;
-    grid-row: 2;
-  }
-}
-
-@media (max-width: 768px) {
-  .bentoContainer {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(3, 1fr);
-    height: 500px;
-  }
-  
-  .mainCard,
-  .rightColumn,
-  .bottomRow {
-    grid-column: 1;
-  }
-  
-  .mainCard {
-    grid-row: 1;
-  }
-  
-  .rightColumn {
-    grid-row: 2;
-    flex-direction: column;
-  }
-  
-  .bottomRow {
-    grid-row: 3;
-    flex-direction: column;
-  }
+  opacity: 0.6;
 }
 
 .disabledOverlay {
@@ -122,17 +30,9 @@
   .disabledOverlay {
     background: rgba(0, 0, 0, 0.4);
   }
-  
-  .chartBackground {
-    background-color: #2a2a2a;
-  }
-  
-  .chartLabel {
-    color: #ffffff;
-  }
 }
 
-/* Also check for UI5 theme variables for dark themes */
+/* UI5 theme variables for dark themes */
 [data-ui5-theme-root*="dark"] .disabledOverlay,
 [data-ui5-theme*="dark"] .disabledOverlay {
   background: rgba(0, 0, 0, 0.4);

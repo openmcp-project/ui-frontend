@@ -1,0 +1,29 @@
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--sapTile_Background);
+  border: 1px solid var(--sapTile_BorderColor);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.graphContainer {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px;
+}
+
+/* Ensure the Graph component fills the container */
+.graphContainer > div {
+  height: 100% !important;
+}
