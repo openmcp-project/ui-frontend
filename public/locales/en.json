@@ -82,8 +82,6 @@
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
-    "copiedMessage": "Copied to Clipboard",
-    "failedMessage": "Failed to copy, Error:",
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
@@ -204,10 +202,6 @@
     "treeInstallation": "Installation",
     "treeExecution": "Execution",
     "noExecutionFound": "No Executions found"
-  },
-  "CopyButton": {
-    "copiedMessage": "Copied To Clipboard",
-    "failedMessage": "Failed to copy"
   },
   "DeleteWorkspaceDialog": {
     "title": "Delete a Workspace",
@@ -341,7 +335,9 @@
     "unhealthy": "Unhealthy",
     "progress": "Managed",
     "remaining": "Remaining",
-    "active": "Active"
+    "active": "Active",
+    "copyToClipboardSuccessToast": "Copied to clipboard",
+    "copyToClipboardFailedToast": "Failed to copy to clipboard"
   },
   "errors": {
     "installError": "Install error",
@@ -360,7 +356,6 @@
     "cancel": "Cancel"
   },
   "yaml": {
-    "copiedToClipboard": "YAML copied to clipboard!",
     "YAML": "File"
   },
   "createMCP": {
