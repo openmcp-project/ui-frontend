@@ -1,17 +1,53 @@
 .graphContainer {
   display: flex;
+  flex-direction: column;
   height: 500px;
   border: 1px solid var(--sapList_BorderColor, #ddd);
   border-radius: 16px;
   overflow: hidden;
-  background-color: var(--sapBackgroundColor, #fafafa);
+  background-color: #ffffff;
   font-family: var(--sapFontFamily);
+  position: relative;
 }
 
 .graphColumn {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background-color: #ffffff;
+}
+
+.bottomLegendContainer {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.topRightContainer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.filterIcon {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: 0.5rem;
+}
+
+.filterIcon:hover {
+  background-color: var(--sapButton_Hover_Background, #f0f0f0);
 }
 
 .graphHeader {
@@ -71,4 +107,43 @@
 
 :global([data-theme='dark'] .react-flow__controls-button:hover) {
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* Animated edge styles */
+:global(.react-flow__edge-path) {
+  stroke-dasharray: 5 5;
+  animation: flowAnimation 3s linear infinite;
+  stroke: #888;
+  opacity: 0.8;
+}
+
+:global(.react-flow__edge.react-flow__edge-step .react-flow__edge-path) {
+  stroke-dasharray: 8 4;
+  animation: flowAnimation 2s linear infinite;
+  stroke: #888;
+  opacity: 0.8;
+}
+
+@keyframes flowAnimation {
+  0% {
+    stroke-dashoffset: 0;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 12;
+    opacity: 0.6;
+  }
+}
+
+/* Blocky edge styling */
+:global(.react-flow__edge.react-flow__edge-step) {
+  stroke-width: 2px;
+}
+
+/* Custom background for bright white */
+:global(.react-flow__background) {
+  background-color: #ffffff !important;
 }

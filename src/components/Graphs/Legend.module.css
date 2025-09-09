@@ -1,4 +1,19 @@
 .legendContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  color: var(--sapTextColor, #222);
+  font-size: var(--sapFontSize);
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--sapList_BorderColor, #ddd);
+  backdrop-filter: blur(4px);
+}
+
+.legendContainerVertical {
   padding: 1rem;
   min-width: 220px;
   max-width: 300px;
@@ -25,7 +40,7 @@
   color: var(--sapTextColor, #222);
 }
 
-.legendRow:not(:last-child) {
+.legendRowVertical:not(:last-child) {
   margin-bottom: 8px;
 }
 
