@@ -27,41 +27,11 @@
   transform: translateY(-2px);
 }
 
-/* Specific card sizes and positioning for the layout */
-
-/* Extra Large: Graph (left side, rows 1-4, columns 1-9) */
-.card-extra-large {
-  grid-column: 1 / 10; /* 9 columns */
-  grid-row: 1 / 5;     /* 4 rows */
-}
-
-/* Large: Crossplane (left side, rows 5-6, columns 1-9) */
-.card-large {
-  grid-column: 1 / 10; /* 9 columns */
-  grid-row: 5 / 7;     /* 2 rows */
-}
-
-/* Medium: GitOps cards (right side, top two, rows 1-2 and 3-4, columns 10-12) */
-.card-medium:nth-of-type(3) {
-  grid-column: 10 / 13; /* 3 columns */
-  grid-row: 1 / 3;      /* 2 rows */
-}
-
-.card-medium:nth-of-type(4) {
-  grid-column: 10 / 13; /* 3 columns */
-  grid-row: 3 / 5;      /* 2 rows */
-}
-
-/* Small: Bottom right cards (rows 5-6, split columns 10-12) */
-.card-small:nth-of-type(5) {
-  grid-column: 10 / 11.5; /* 1.5 columns */
-  grid-row: 5 / 7;         /* 2 rows */
-}
-
-.card-small:nth-of-type(6) {
-  grid-column: 11.5 / 13; /* 1.5 columns */
-  grid-row: 5 / 7;        /* 2 rows */
-}
+/* Card sizes are now explicitly positioned via gridColumn/gridRow props */
+/* Layout: 
+   - Left: Extra large graph (8 cols x 4 rows) + Large crossplane (8 cols x 2 rows)
+   - Right: Two medium GitOps (4 cols x 2 rows each) + Two small underneath (2 cols x 2 rows each)
+*/
 
 /* Fallback positioning for cards in case the layout breaks */
 .card-small {

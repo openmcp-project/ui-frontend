@@ -50,12 +50,12 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
   return (
     <BentoGrid className={styles.bentoContainer}>
       {/* Left side: Graph in extra-large (top) */}
-      <BentoCard size="extra-large">
+      <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
         <GraphCard title="Resource Dependencies" />
       </BentoCard>
 
       {/* Left side: Crossplane component in large (bottom) */}
-      <BentoCard size="large">
+      <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
         <ComponentCard
           enabled={!!mcp?.spec?.components?.crossplane}
           version={mcp?.spec?.components?.crossplane?.version}
@@ -66,8 +66,8 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         />
       </BentoCard>
 
-      {/* Right side: Two medium components (GitOps copies) */}
-      <BentoCard size="medium">
+      {/* Right side: First medium component (GitOps) */}
+      <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
         <ComponentCard
           enabled={!!mcp?.spec?.components?.flux}
           version={mcp?.spec?.components?.flux?.version}
@@ -78,7 +78,8 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         />
       </BentoCard>
 
-      <BentoCard size="medium">
+      {/* Right side: Second medium component (GitOps copy) */}
+      <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
         <ComponentCard
           enabled={!!mcp?.spec?.components?.flux}
           version={mcp?.spec?.components?.flux?.version}
@@ -89,8 +90,8 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         />
       </BentoCard>
 
-      {/* Right side: Two small components (Velero config and Vault) */}
-      <BentoCard size="small">
+      {/* Right side: First small component (Velero config) */}
+      <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
         <ComponentCard
           enabled={!!mcp?.spec?.components?.kyverno}
           version={mcp?.spec?.components?.kyverno?.version}
@@ -101,7 +102,8 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         />
       </BentoCard>
 
-      <BentoCard size="small">
+      {/* Right side: Second small component (Vault) */}
+      <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
         <ComponentCard
           enabled={!!mcp?.spec?.components?.externalSecretsOperator}
           version={mcp?.spec?.components?.externalSecretsOperator?.version}

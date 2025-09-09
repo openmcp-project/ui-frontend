@@ -19,11 +19,35 @@
 .graphContainer {
   flex: 1;
   height: 100%;
+  width: 100%;
   overflow: hidden;
-  padding: 8px;
+  position: relative;
+  min-height: 300px; /* Ensure minimum height for graph */
 }
 
-/* Ensure the Graph component fills the container */
-.graphContainer > div {
+.graphWrapper {
+  height: 100%;
+  width: 100%;
+}
+
+/* Target the Graph component's main container and override its fixed height */
+.graphWrapper :global(.graphContainer) {
   height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+/* Ensure ReactFlow fills the container */
+.graphWrapper :global(.react-flow) {
+  height: 100% !important;
+}
+
+/* Ensure the Graph component and ReactFlow container fill the space */
+.graphContainer > div,
+.graphContainer > div > div,
+.graphWrapper > div,
+.graphWrapper > div > div {
+  height: 100% !important;
+  width: 100% !important;
 }

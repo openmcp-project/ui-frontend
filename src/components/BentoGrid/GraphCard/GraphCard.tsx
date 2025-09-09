@@ -24,7 +24,9 @@ export const GraphCard: React.FC<GraphCardProps> = ({
         className={styles.card}
       >
         <div className={styles.graphContainer}>
-          <Graph />
+          <div className={styles.graphWrapper}>
+            <Graph />
+          </div>
         </div>
       </Card>
     </div>

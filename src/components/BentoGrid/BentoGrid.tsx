@@ -7,6 +7,8 @@ export interface BentoCardProps {
   size: CardSize;
   children: React.ReactNode;
   className?: string;
+  gridColumn?: string;
+  gridRow?: string;
 }
 
 export interface BentoGridProps {
@@ -14,11 +16,21 @@ export interface BentoGridProps {
   className?: string;
 }
 
-export const BentoCard: React.FC<BentoCardProps> = ({ size, children, className = '' }) => {
+export const BentoCard: React.FC<BentoCardProps> = ({ 
+  size, 
+  children, 
+  className = '', 
+  gridColumn,
+  gridRow 
+}) => {
   const cardClass = `${styles.bentoCard} ${styles[`card-${size}`]} ${className}`;
   
+  const style: React.CSSProperties = {};
+  if (gridColumn) style.gridColumn = gridColumn;
+  if (gridRow) style.gridRow = gridRow;
+  
   return (
-    <div className={cardClass}>
+    <div className={cardClass} style={style}>
       {children}
     </div>
   );
