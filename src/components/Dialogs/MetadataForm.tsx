@@ -12,6 +12,7 @@ export interface MetadataFormProps {
   sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
   watch: UseFormWatch<CreateDialogProps>;
+  isEditMode?: boolean;
 }
 
 interface SelectOption {
@@ -26,6 +27,7 @@ export function MetadataForm({
   setValue,
   sideFormContent,
   requireChargingTarget = false,
+  isEditMode = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
   const handleChargingTargetTypeChange = (event: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
@@ -52,6 +54,7 @@ export function MetadataForm({
           valueState={errors.name ? 'Negative' : 'None'}
           valueStateMessage={<span>{errors.name?.message}</span>}
           required
+          disabled={isEditMode}
         />
         <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
         <Input id="displayName" {...register('displayName')} className={styles.input} />
