@@ -1,4 +1,4 @@
-import { Button, ButtonDomRef, Menu, MenuItem, Ui5CustomEvent, MenuDomRef } from '@ui5/webcomponents-react';
+import { Button, ButtonDomRef, Menu, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
@@ -17,34 +17,35 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   isDeleteMcpButtonDisabled,
   // setIsCreateManagedControlPlaneWizardOpen,
 }) => {
-  const popoverRef = useRef<MenuDomRef>(null);
-  const [open, setOpen] = useState(false);
+  // const popoverRef = useRef<MenuDomRef>(null);
 
+  const buttonRef = useRef(null);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
 
   const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
-    if (popoverRef.current && e.currentTarget) {
-      popoverRef.current.opener = e.currentTarget as HTMLElement;
-      setOpen((prev) => !prev);
-    }
+    setMenuIsOpen(true);
   };
 
   return (
     <>
-      <Button icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button ref={buttonRef} icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
-        ref={popoverRef}
-        open={open}
+        open={menuIsOpen}
+        opener={buttonRef.current}
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
-          // if (action === 'newManagedControlPlane') {
-          //   setIsCreateManagedControlPlaneWizardOpen(true);
-          // }
+          if (action === 'editMcp') {
+            // setIsCreateManagedControlPlaneWizardOpen(true);
+          }
           if (action === 'deleteMcp') {
             setDialogDeleteMcpIsOpen(true);
           }
 
-          setOpen(false);
+          setMenuIsOpen(false);
+        }}
+        onClose={() => {
+          setMenuIsOpen(false);
         }}
       >
         {/*<MenuItem*/}
@@ -58,6 +59,13 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           text={t('ControlPlaneCard.deleteMCP')}
           data-action="deleteMcp"
           icon="delete"
+          disabled={isDeleteMcpButtonDisabled}
+        />
+        <MenuItem
+          key={'edit'}
+          text={t('ControlPlaneCard.editMCP')}
+          data-action="editMcp"
+          icon="edit"
           disabled={isDeleteMcpButtonDisabled}
         />
       </Menu>

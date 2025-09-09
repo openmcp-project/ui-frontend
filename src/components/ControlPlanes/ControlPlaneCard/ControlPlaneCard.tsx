@@ -1,4 +1,4 @@
-import { Button, Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
+import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
