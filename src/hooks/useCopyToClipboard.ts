@@ -10,7 +10,7 @@ export function useCopyToClipboard(): { copyToClipboard: CopyFn } {
 
   const copyToClipboard: CopyFn = useCallback(
     async (text, showToastOnSuccess = true) => {
-      if (!navigator?.clipboard) {
+      if (!navigator.clipboard) {
         toast.show(t('common.copyToClipboardFailedToast'));
         return false;
       }
