@@ -3,51 +3,24 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.card {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
   background: var(--sapTile_Background);
   border: 1px solid var(--sapTile_BorderColor);
   border-radius: 12px;
   overflow: hidden;
 }
 
-.graphContainer {
+.simpleWrapper {
+  height: 100%;
+  width: 100%;
   flex: 1;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
   position: relative;
-  min-height: 300px; /* Ensure minimum height for graph */
+  z-index: 10;
 }
 
-.graphWrapper {
-  height: 100%;
-  width: 100%;
-}
-
-/* Target the Graph component's main container and override its fixed height */
-.graphWrapper :global(.graphContainer) {
+/* Override the Graph component's fixed height globally within this wrapper */
+.simpleWrapper > div {
   height: 100% !important;
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
-}
-
-/* Ensure ReactFlow fills the container */
-.graphWrapper :global(.react-flow) {
-  height: 100% !important;
-}
-
-/* Ensure the Graph component and ReactFlow container fill the space */
-.graphContainer > div,
-.graphContainer > div > div,
-.graphWrapper > div,
-.graphWrapper > div > div {
-  height: 100% !important;
-  width: 100% !important;
 }
