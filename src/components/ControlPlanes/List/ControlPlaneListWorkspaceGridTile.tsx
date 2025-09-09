@@ -168,6 +168,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
         setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
         projectName={projectNamespace}
         workspaceName={workspaceName}
+        isEditMode={true}
       />
     </>
   );

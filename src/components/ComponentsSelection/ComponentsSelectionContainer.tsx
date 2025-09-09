@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  initialSelection?: Record<string, { isSelected: boolean; version: string }>;
 }
 
 /**
@@ -33,6 +34,7 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
 export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({
   setComponentsList,
   componentsList,
+  initialSelection,
 }) => {
   const { data: availableManagedComponentsListData, error, isLoading } = useApiResource(ListManagedComponents());
   const { t } = useTranslation();
@@ -47,7 +49,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
       return;
     }
 
-    const newComponentsList = availableManagedComponentsListData.items
+    let newComponentsList = availableManagedComponentsListData.items
       .map((item) => {
         const versions = sortVersions(item.status.versions);
         return {
@@ -60,9 +62,24 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
       })
       .filter((component) => !removeComponents.find((item) => item === component.name));
 
+    // Apply initial selection when provided (edit mode)
+    if (initialSelection) {
+      newComponentsList = newComponentsList.map((component) => {
+        const init = initialSelection[component.name];
+        if (!init) return component;
+        // Ensure selectedVersion exists in versions list; if not, keep as-is
+        const selectedVersion = component.versions.includes(init.version) ? init.version : component.selectedVersion;
+        return {
+          ...component,
+          isSelected: init.isSelected,
+          selectedVersion,
+        };
+      });
+    }
+
     setComponentsList(newComponentsList);
     initialized.current = true;
-  }, [availableManagedComponentsListData, setComponentsList]);
+  }, [availableManagedComponentsListData, setComponentsList, initialSelection]);
 
   if (isLoading) {
     return <Loading />;

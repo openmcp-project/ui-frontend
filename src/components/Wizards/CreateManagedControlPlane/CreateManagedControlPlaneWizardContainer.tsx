@@ -31,7 +31,13 @@ import {
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
+  UpdateManagedControlPlaneResource,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
+import {
+  CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
+  DISPLAY_NAME_ANNOTATION,
+} from '../../../lib/api/types/shared/keyNames.ts';
 import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { APIError } from '../../../lib/api/error.ts';
@@ -45,6 +51,7 @@ type CreateManagedControlPlaneWizardContainerProps = {
   setIsOpen: (isOpen: boolean) => void;
   projectName?: string;
   workspaceName?: string;
+  isEditMode: boolean;
 };
 
 type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -56,11 +63,214 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   setIsOpen,
   projectName = '',
   workspaceName = '',
+  isEditMode = false,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-
+  const mockedData = {
+    apiVersion: 'core.openmcp.cloud/v1alpha1',
+    kind: 'ManagedControlPlane',
+    metadata: {
+      annotations: {
+        'kubectl.kubernetes.io/last-applied-configuration':
+          '{"apiVersion":"core.openmcp.cloud/v1alpha1","kind":"ManagedControlPlane","metadata":{"annotations":{},"name":"playground-mcp","namespace":"project-webapp-playground--ws-development"},"spec":{"authentication":{"enableSystemIdentityProvider":true},"authorization":{"roleBindings":[{"role":"admin","subjects":[{"kind":"User","name":"openmcp:johannes.ott@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:enrico.kaack@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:caroline.schaefer@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:moritz.reich@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:hubert.szczepanski@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:lukasz.goral@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:andreas.kienle@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:fabian.wolski@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:bozhidara.hristova@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:anna.helmke@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:ingo.kober@sap.com"}]}]},"components":{"apiServer":{"type":"GardenerDedicated"},"crossplane":{"providers":[{"name":"gardener-auth","version":"0.0.4"},{"name":"provider-kubernetes","version":"0.15.0"},{"name":"btp","version":"1.0.3"}],"version":"1.19.0"},"flux":{"version":"2.14.0"},"landscaper":{"deployers":["helm","container","manifest"]}},"desiredRegion":{"direction":"central","name":"europe"}}}\n',
+      },
+      creationTimestamp: '2025-05-13T09:29:05Z',
+      finalizers: ['finalizer.managedcontrolplane.openmcp.cloud'],
+      generation: 9,
+      labels: {
+        'openmcp.cloud/mcp-project': 'webapp-playground',
+        'openmcp.cloud/mcp-workspace': 'development',
+      },
+      name: 'playground-mcp',
+      namespace: 'project-webapp-playground--ws-development',
+      resourceVersion: '54678547',
+      uid: '449c6fb8-3504-4515-aa73-efd692cd2077',
+    },
+    spec: {
+      authentication: {
+        enableSystemIdentityProvider: true,
+      },
+      authorization: {
+        roleBindings: [
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:lasse.friedrich@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:johannes.ott@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:enrico.kaack@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:caroline.schaefer@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:moritz.reich@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:hubert.szczepanski@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:lukasz.goral@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:andreas.kienle@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:fabian.wolski@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:bozhidara.hristova@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:anna.helmke@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:ingo.kober@sap.com',
+              },
+            ],
+          },
+          {
+            role: 'admin',
+            subjects: [
+              {
+                kind: 'User',
+                name: 'openmcp:maximilian.braun@sap.com',
+              },
+            ],
+          },
+        ],
+      },
+      components: {
+        apiServer: {
+          type: 'GardenerDedicated',
+        },
+        crossplane: {
+          providers: [
+            {
+              name: 'gardener-auth',
+              version: '0.0.4',
+            },
+            {
+              name: 'provider-kubernetes',
+              version: '0.15.0',
+            },
+            {
+              name: 'btp',
+              version: '1.0.3',
+            },
+          ],
+          version: '1.19.0',
+        },
+        externalSecretsOperator: {
+          version: '0.18.2',
+        },
+        flux: {
+          version: '2.16.2',
+        },
+        kyverno: {
+          version: '3.2.4',
+        },
+        landscaper: {
+          deployers: ['helm', 'container', 'manifest'],
+        },
+      },
+      desiredRegion: {
+        direction: 'central',
+        name: 'europe',
+      },
+    },
+    status: {
+      components: {
+        apiServer: {
+          endpoint: 'https://api.zqxz6e5iyqsjbwpc.mcpds.shoot.canary.k8s-hana.ondemand.com',
+          serviceAccountIssuer:
+            'https://discovery.ingress.garden.canary.k8s.ondemand.com/projects/mcpds/shoots/8209381f-3dfc-4f3a-ba3c-dd3fcfca7891/issuer',
+        },
+        authentication: {
+          access: {
+            key: 'kubeconfig',
+            name: 'playground-mcp.kubeconfig',
+            namespace: 'project-webapp-playground--ws-development',
+          },
+        },
+      },
+      observedGeneration: 9,
+      status: 'Ready',
+    },
+  };
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
   const validationSchemaCreateManagedControlPlane = useMemo(() => createManagedControlPlaneSchema(t), [t]);
 
@@ -121,25 +331,45 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
+  const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
+    UpdateManagedControlPlaneResource(projectName, workspaceName, mockedData.metadata.name),
+  );
   const componentsList = watch('componentsList');
 
   const handleCreateManagedControlPlane = useCallback(
     async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
-        await trigger(
-          CreateManagedControlPlane(
-            name,
-            `${projectName}--ws-${workspaceName}`,
-            {
-              displayName,
-              chargingTarget,
-              chargingTargetType,
-              members,
-              componentsList,
-            },
-            idpPrefix,
-          ),
-        );
+        if (isEditMode) {
+          await triggerUpdate(
+            CreateManagedControlPlane(
+              mockedData.metadata.name,
+              `${projectName}--ws-${workspaceName}`,
+              {
+                displayName,
+                chargingTarget,
+                chargingTargetType,
+                members,
+                componentsList,
+              },
+              idpPrefix,
+            ),
+          );
+        } else {
+          await trigger(
+            CreateManagedControlPlane(
+              name,
+              `${projectName}--ws-${workspaceName}`,
+              {
+                displayName,
+                chargingTarget,
+                chargingTargetType,
+                members,
+                componentsList,
+              },
+              idpPrefix,
+            ),
+          );
+        }
         setSelectedStep('success');
         return true;
       } catch (e) {
@@ -228,6 +458,50 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [selectedStep]);
 
+  // Prepare initial selections for components when editing
+  const initialSelection = useMemo(() => {
+    if (!isEditMode) return undefined;
+    const selection: Record<string, { isSelected: boolean; version: string }> = {};
+    const components = mockedData.spec.components as any;
+    Object.keys(components).forEach((key) => {
+      if (key === 'apiServer' || key === 'landscaper') return;
+      const value = components[key];
+      if (key === 'crossplane') {
+        selection[key] = { isSelected: true, version: value.version ?? '' };
+        (value.providers ?? []).forEach((prov: { name: string; version: string }) => {
+          selection[prov.name] = { isSelected: true, version: prov.version ?? '' };
+        });
+      } else {
+        selection[key] = { isSelected: true, version: value.version ?? '' };
+      }
+    });
+    return selection;
+  }, [isEditMode]);
+
+  // Prefill form when editing
+  useEffect(() => {
+    if (!isOpen || !isEditMode) return;
+    const roleBindings = mockedData.spec.authorization.roleBindings ?? [];
+    const members: Member[] = roleBindings.flatMap((rb) =>
+      (rb.subjects ?? []).map((s: any) => ({
+        kind: s.kind,
+        name: s.kind === 'User' && s.name?.includes(':') ? s.name.split(':').slice(1).join(':') : s.name,
+        roles: [rb.role],
+        namespace: s.namespace,
+      })),
+    );
+    const labels = (mockedData.metadata.labels as unknown as Record<string, string>) ?? {};
+    const annotations = (mockedData.metadata.annotations as unknown as Record<string, string>) ?? {};
+    reset({
+      name: mockedData.metadata.name,
+      displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
+      chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
+      chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL] ?? '',
+      members,
+      componentsList: componentsList ?? [],
+    });
+  }, [isOpen, isEditMode]);
+
   if (!isOpen) return null;
 
   return (
@@ -293,7 +567,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           data-step="componentSelection"
           disabled={isStepDisabled('componentSelection')}
         >
-          <ComponentsSelectionContainer componentsList={componentsList ?? []} setComponentsList={setComponentsList} />
+          <ComponentsSelectionContainer
+            componentsList={componentsList ?? []}
+            setComponentsList={setComponentsList}
+            initialSelection={initialSelection}
+          />
         </WizardStep>
         <WizardStep
           icon="activities"

@@ -1,5 +1,5 @@
-import { Button, ButtonDomRef, Menu, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
@@ -23,7 +23,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
 
-  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+  const handleOpenerClick = () => {
     setMenuIsOpen(true);
   };
 
