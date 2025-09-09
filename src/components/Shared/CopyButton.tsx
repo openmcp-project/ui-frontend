@@ -18,7 +18,7 @@ export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps
   const { t } = useTranslation();
 
   const handleCopy = async () => {
-    await copyToClipboard(text, false);
+    await copyToClipboard(text, { showToastOnSuccess: false });
     setActiveCopyId(uniqueId);
   };
 
