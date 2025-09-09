@@ -55,7 +55,9 @@
     "loadingErrorMessage": "Failed to list mcps in workspace"
   },
   "ControlPlaneCard": {
-    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed."
+    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
+    "deleteMCP": "Delete Managed Control Plane"
+
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",

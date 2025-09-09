@@ -27,6 +27,8 @@ import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
+import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
+
 interface Props {
   controlPlane: ListControlPlanesType;
   workspace: ListWorkspacesType;
@@ -74,13 +76,10 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
               </div>
             </FlexBox>
             <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              <Button
-                design={'Transparent'}
-                icon="delete"
-                disabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                onClick={() => {
-                  setDialogDeleteMcpIsOpen(true);
-                }}
+              <ControlPlaneCardMenu
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                // setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
               />
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButtonWithLoader
