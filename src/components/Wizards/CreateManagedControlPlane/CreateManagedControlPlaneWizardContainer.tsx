@@ -73,20 +73,22 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     kind: 'ManagedControlPlane',
     metadata: {
       annotations: {
-        'kubectl.kubernetes.io/last-applied-configuration':
-          '{"apiVersion":"core.openmcp.cloud/v1alpha1","kind":"ManagedControlPlane","metadata":{"annotations":{},"name":"playground-mcp","namespace":"project-webapp-playground--ws-development"},"spec":{"authentication":{"enableSystemIdentityProvider":true},"authorization":{"roleBindings":[{"role":"admin","subjects":[{"kind":"User","name":"openmcp:johannes.ott@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:enrico.kaack@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:caroline.schaefer@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:moritz.reich@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:hubert.szczepanski@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:lukasz.goral@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:andreas.kienle@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:fabian.wolski@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:bozhidara.hristova@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:anna.helmke@sap.com"}]},{"role":"admin","subjects":[{"kind":"User","name":"openmcp:ingo.kober@sap.com"}]}]},"components":{"apiServer":{"type":"GardenerDedicated"},"crossplane":{"providers":[{"name":"gardener-auth","version":"0.0.4"},{"name":"provider-kubernetes","version":"0.15.0"},{"name":"btp","version":"1.0.3"}],"version":"1.19.0"},"flux":{"version":"2.14.0"},"landscaper":{"deployers":["helm","container","manifest"]}},"desiredRegion":{"direction":"central","name":"europe"}}}\n',
+        'openmcp.cloud/created-by': 'lukasz.goral@sap.com',
+        'openmcp.cloud/display-name': 'Test 77 display name',
       },
-      creationTimestamp: '2025-05-13T09:29:05Z',
+      creationTimestamp: '2025-09-10T08:57:37Z',
       finalizers: ['finalizer.managedcontrolplane.openmcp.cloud'],
-      generation: 9,
+      generation: 1,
       labels: {
+        'openmcp.cloud.sap/charging-target': '449c6fb8-3504-4515-aa73-efd692cd2077',
+        'openmcp.cloud.sap/charging-target-type': 'btp',
         'openmcp.cloud/mcp-project': 'webapp-playground',
         'openmcp.cloud/mcp-workspace': 'development',
       },
-      name: 'playground-mcp',
+      name: 'test-77',
       namespace: 'project-webapp-playground--ws-development',
-      resourceVersion: '54678547',
-      uid: '449c6fb8-3504-4515-aa73-efd692cd2077',
+      resourceVersion: '55150753',
+      uid: 'f318ddf6-17a0-4954-84a4-161698ae9e66',
     },
     spec: {
       authentication: {
@@ -99,115 +101,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             subjects: [
               {
                 kind: 'User',
-                name: 'openmcp:lasse.friedrich@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:johannes.ott@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:enrico.kaack@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:caroline.schaefer@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:moritz.reich@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:hubert.szczepanski@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
                 name: 'openmcp:lukasz.goral@sap.com',
               },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
               {
                 kind: 'User',
-                name: 'openmcp:andreas.kienle@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:fabian.wolski@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:bozhidara.hristova@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:anna.helmke@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:ingo.kober@sap.com',
-              },
-            ],
-          },
-          {
-            role: 'admin',
-            subjects: [
-              {
-                kind: 'User',
-                name: 'openmcp:maximilian.braun@sap.com',
+                name: 'openmcp:test.testiniro@sap.com',
               },
             ],
           },
@@ -218,57 +116,66 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           type: 'GardenerDedicated',
         },
         crossplane: {
-          providers: [
-            {
-              name: 'gardener-auth',
-              version: '0.0.4',
-            },
-            {
-              name: 'provider-kubernetes',
-              version: '0.15.0',
-            },
-            {
-              name: 'btp',
-              version: '1.0.3',
-            },
-          ],
+          providers: [],
           version: '1.19.0',
         },
-        externalSecretsOperator: {
-          version: '0.18.2',
-        },
-        flux: {
-          version: '2.16.2',
-        },
-        kyverno: {
-          version: '3.2.4',
-        },
-        landscaper: {
-          deployers: ['helm', 'container', 'manifest'],
-        },
-      },
-      desiredRegion: {
-        direction: 'central',
-        name: 'europe',
       },
     },
     status: {
       components: {
         apiServer: {
-          endpoint: 'https://api.zqxz6e5iyqsjbwpc.mcpds.shoot.canary.k8s-hana.ondemand.com',
+          endpoint: 'https://api.o46672cn33lr3vlx.mcpds.shoot.canary.k8s-hana.ondemand.com',
           serviceAccountIssuer:
-            'https://discovery.ingress.garden.canary.k8s.ondemand.com/projects/mcpds/shoots/8209381f-3dfc-4f3a-ba3c-dd3fcfca7891/issuer',
+            'https://discovery.ingress.garden.canary.k8s.ondemand.com/projects/mcpds/shoots/c550bdeb-87a7-42f0-8f94-b2c969b6dee2/issuer',
         },
-        authentication: {
-          access: {
-            key: 'kubeconfig',
-            name: 'playground-mcp.kubeconfig',
-            namespace: 'project-webapp-playground--ws-development',
-          },
-        },
+        authentication: {},
+        authorization: {},
+        cloudOrchestrator: {},
       },
-      observedGeneration: 9,
-      status: 'Ready',
+      conditions: [
+        {
+          lastTransitionTime: '2025-09-10T08:57:38Z',
+          managedBy: 'APIServer',
+          message:
+            '[Create: Succeeded] Shoot cluster has been successfully reconciled.\nThe following shoot conditions are not satisfied: SystemComponentsHealthy',
+          reason: 'WaitingForGardenerShoot',
+          status: 'False',
+          type: 'APIServerHealthy',
+        },
+        {
+          lastTransitionTime: '2025-09-10T08:57:37Z',
+          managedBy: 'Authentication',
+          message: 'Waiting for APIServer dependency to be ready.',
+          reason: 'WaitingForDependencies',
+          status: 'False',
+          type: 'AuthenticationHealthy',
+        },
+        {
+          lastTransitionTime: '2025-09-10T08:57:37Z',
+          managedBy: 'Authorization',
+          message: 'Waiting for APIServer dependency to be ready',
+          reason: 'WaitingForDependencies',
+          status: 'False',
+          type: 'AuthorizationHealthy',
+        },
+        {
+          lastTransitionTime: '2025-09-10T08:57:37Z',
+          managedBy: 'CloudOrchestrator',
+          message: 'Waiting for APIServer dependency to be ready.',
+          reason: 'WaitingForDependencies',
+          status: 'False',
+          type: 'CloudOrchestratorHealthy',
+        },
+        {
+          lastTransitionTime: '2025-09-10T09:05:40Z',
+          managedBy: '',
+          reason: 'AllComponentsReconciledSuccessfully',
+          status: 'True',
+          type: 'MCPSuccessful',
+        },
+      ],
+      observedGeneration: 1,
+      status: 'Not Ready',
     },
   };
   const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
