@@ -1,5 +1,6 @@
 .addButton {
   margin-bottom: 3px;
+  width: 100%;
 }
 
 .wrapper {
@@ -24,4 +25,8 @@
   margin-top: 0.5rem;
   max-width: 100%;
   text-wrap: wrap;
+}
+
+.narrowButton {
+  min-width: fit-content;
 }
