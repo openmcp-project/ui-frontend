@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM node:24-slim@sha256:363eede750b6677a578eea4373235aaa70a7df0da90b5fe77f66b3e651484f6f AS build-stage
+FROM node:24-slim@sha256:0104d9447ea3ddf7373643be7f9915fc7b7c896e41d0d33229338e457217cd78 AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -18,7 +18,7 @@ RUN npm prune --omit=dev
 
 
 # PRODUCTION STAGE
-FROM gcr.io/distroless/nodejs24-debian12@sha256:f1572ff596ee17fe935a808c28a868f46dcbfad04003cb8fb951dd83025c16c9 AS production
+FROM gcr.io/distroless/nodejs24-debian12@sha256:33204de28faf16f5bb1f8730fe12ea99609625d44aefdec32dab73b290d33943 AS production
 WORKDIR /usr/src/app
 
 # Copy built files
