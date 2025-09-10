@@ -14,7 +14,7 @@
   width: 100%;
   flex: 1;
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* Override the Graph component's fixed height globally within this wrapper */

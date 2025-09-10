@@ -1,4 +1,4 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title, Button } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
@@ -118,6 +118,21 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     }
   };
 
+  // For now, small cards will also scroll to their respective sections
+  const handleKyvernoClick = () => {
+    const el = document.querySelector('#crossplane');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleVaultClick = () => {
+    const el = document.querySelector('#crossplane');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <ObjectPage
       preserveHeaderStateOnClick={true}
@@ -161,12 +176,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
         <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', paddingTop: '16px', paddingBottom: '12px' }}>
           <BentoGrid>
             {/* Left side: Graph in extra-large (top) */}
-            <BentoCard 
-              size="extra-large" 
-              gridColumn="1 / 9" 
-              gridRow="1 / 5"
-              className="graph-card"
-            >
+            <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
               <GraphCard title="Resource Dependencies" />
             </BentoCard>
 
@@ -177,7 +187,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 style={{ 
                   cursor: 'pointer', 
                   height: '100%', 
-                  width: '100%' 
+                  width: '100%',
+                  position: 'relative'
                 }}
               >
                 <ComponentCard
@@ -187,6 +198,22 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   isLoading={managedResourcesLoading}
                   error={managedResourcesError}
                   config={crossplaneConfig}
+                />
+                <Button
+                  icon="sap-icon://expand"
+                  design="Transparent"
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    minWidth: '32px',
+                    height: '32px',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCrossplaneClick();
+                  }}
                 />
               </div>
             </BentoCard>
@@ -198,7 +225,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 style={{ 
                   cursor: 'pointer', 
                   height: '100%', 
-                  width: '100%' 
+                  width: '100%',
+                  position: 'relative'
                 }}
               >
                 <ComponentCard
@@ -208,6 +236,22 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   isLoading={managedResourcesLoading}
                   error={managedResourcesError}
                   config={gitOpsConfig}
+                />
+                <Button
+                  icon="sap-icon://expand"
+                  design="Transparent"
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    minWidth: '32px',
+                    height: '32px',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFluxClick();
+                  }}
                 />
               </div>
             </BentoCard>
@@ -219,7 +263,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 style={{ 
                   cursor: 'pointer', 
                   height: '100%', 
-                  width: '100%' 
+                  width: '100%',
+                  position: 'relative'
                 }}
               >
                 <ComponentCard
@@ -230,31 +275,99 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   error={managedResourcesError}
                   config={gitOpsConfig}
                 />
+                <Button
+                  icon="sap-icon://expand"
+                  design="Transparent"
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    minWidth: '32px',
+                    height: '32px',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFluxClick();
+                  }}
+                />
               </div>
             </BentoCard>
 
             {/* Right side: First small component (Velero config) */}
             <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.kyverno}
-                version={mcp?.spec?.components?.kyverno?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={veleroConfig}
-              />
+              <div 
+                onClick={handleKyvernoClick} 
+                style={{ 
+                  cursor: 'pointer', 
+                  height: '100%', 
+                  width: '100%',
+                  position: 'relative'
+                }}
+              >
+                <ComponentCard
+                  enabled={!!mcp?.spec?.components?.kyverno}
+                  version={mcp?.spec?.components?.kyverno?.version}
+                  allItems={allItems}
+                  isLoading={managedResourcesLoading}
+                  error={managedResourcesError}
+                  config={veleroConfig}
+                />
+                <Button
+                  icon="sap-icon://expand"
+                  design="Transparent"
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    minWidth: '24px',
+                    height: '24px',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleKyvernoClick();
+                  }}
+                />
+              </div>
             </BentoCard>
 
             {/* Right side: Second small component (Vault) */}
             <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-                version={mcp?.spec?.components?.externalSecretsOperator?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={vaultConfig}
-              />
+              <div 
+                onClick={handleVaultClick} 
+                style={{ 
+                  cursor: 'pointer', 
+                  height: '100%', 
+                  width: '100%',
+                  position: 'relative'
+                }}
+              >
+                <ComponentCard
+                  enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+                  version={mcp?.spec?.components?.externalSecretsOperator?.version}
+                  allItems={allItems}
+                  isLoading={managedResourcesLoading}
+                  error={managedResourcesError}
+                  config={vaultConfig}
+                />
+                <Button
+                  icon="sap-icon://expand"
+                  design="Transparent"
+                  style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
+                    minWidth: '24px',
+                    height: '24px',
+                    zIndex: 10
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleVaultClick();
+                  }}
+                />
+              </div>
             </BentoCard>
           </BentoGrid>
         </div>

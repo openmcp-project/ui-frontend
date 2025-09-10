@@ -3,11 +3,3 @@
   margin: 0.1em auto -8px auto;
   width: 100%;
 }
-
-:global(.graph-card) {
-  z-index: 1 !important;
-}
-
-:global(.graph-card:hover) {
-  z-index: 1 !important;
-}
