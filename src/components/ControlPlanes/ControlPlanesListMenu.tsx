@@ -16,7 +16,7 @@ type ControlPlanesListMenuProps = {
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setIsCreateManagedControlPlaneWizardOpen,
-  setInitialTemplateName, 
+  setInitialTemplateName,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);

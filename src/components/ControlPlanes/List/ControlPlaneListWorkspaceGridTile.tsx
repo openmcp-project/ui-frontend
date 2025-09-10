@@ -75,7 +75,9 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
 
     return (workspace.spec.members ?? []).filter((member: any) => {
       const memberNamespace = member?.namespace ?? fallbackNamespace;
-      const memberName = String(member?.name ?? '').trim().toLowerCase();
+      const memberName = String(member?.name ?? '')
+        .trim()
+        .toLowerCase();
       if (!memberName) return false;
 
       const dedupeKey = `${memberNamespace}::${memberName}`;

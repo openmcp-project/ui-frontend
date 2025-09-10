@@ -58,7 +58,9 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
         const template = defaultComponents.find((dc) => dc.name === item.metadata.name);
         const templateVersion = template?.version;
         const selectedVersion = template
-          ? (templateVersion && versions.includes(templateVersion) ? templateVersion : '')
+          ? templateVersion && versions.includes(templateVersion)
+            ? templateVersion
+            : ''
           : (versions[0] ?? '');
         return {
           name: item.metadata.name,

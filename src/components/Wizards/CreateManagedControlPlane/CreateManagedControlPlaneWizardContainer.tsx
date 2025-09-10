@@ -39,10 +39,7 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import {
-  ManagedControlPlaneTemplate,
-  noTemplateValue,
-} from '../../../lib/api/types/templates/mcpTemplate.ts';
+import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { buildNameWithPrefixesAndSufixes } from '../../../utils/buildNameWithPrefixesAndSufixes.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 
@@ -254,7 +251,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       default:
         break;
     }
-  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose, hasMissingComponentVersions]);
+  }, [
+    selectedStep,
+    handleSubmit,
+    setSelectedStep,
+    handleCreateManagedControlPlane,
+    watch,
+    resetFormAndClose,
+    hasMissingComponentVersions,
+  ]);
 
   const normalizeMemberRole = useCallback((r?: string | null) => {
     const v = (r ?? '').toString().trim().toLowerCase();
@@ -289,11 +294,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         case 'componentSelection':
           return selectedStep === 'metadata' || selectedStep === 'members' || !isValid;
         case 'summarize':
-          return selectedStep === 'metadata' ||
+          return (
+            selectedStep === 'metadata' ||
             selectedStep === 'members' ||
             selectedStep === 'componentSelection' ||
             !isValid ||
-            hasMissingComponentVersions;
+            hasMissingComponentVersions
+          );
         case 'success':
           return selectedStep !== 'success';
         default:
@@ -357,12 +364,23 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     const normalizedMembers = Array.from(byName.values()).map((m) => ({
       ...m,
-      roles: (m.roles ?? []).length ? m.roles.map((r) => normalizeMemberRole(r as unknown as string)) : [MemberRoles.view],
+      roles: (m.roles ?? []).length
+        ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
+        : [MemberRoles.view],
     }));
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
-  }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind, idpPrefix]);
+  }, [
+    selectedStep,
+    selectedTemplate,
+    watch,
+    setValue,
+    user?.email,
+    normalizeMemberRole,
+    normalizeMemberKind,
+    idpPrefix,
+  ]);
 
   useEffect(() => {
     if (selectedStep !== 'componentSelection') return;
@@ -378,7 +396,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     const current = (watch('componentsList') ?? []) as ComponentsListItem[];
     if (current.length > 0) {
       appliedTemplateComponentsRef.current = true;
-      return; 
+      return;
     }
 
     const mapped = defaults

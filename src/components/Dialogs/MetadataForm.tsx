@@ -79,7 +79,10 @@ export function MetadataForm({
       (e?.target && typeof e.target.value === 'string' ? e.target.value : undefined) ??
       (e?.detail && typeof e.detail.value === 'string' ? e.detail.value : '') ??
       '';
-    setValue('name', `${resolvedNamePrefix}${middle}${resolvedNameSuffix}`, { shouldValidate: true, shouldDirty: true });
+    setValue('name', `${resolvedNamePrefix}${middle}${resolvedNameSuffix}`, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const onDisplayNameCoreInput = (e: any) => {
@@ -102,7 +105,7 @@ export function MetadataForm({
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
 
-        {(resolvedNamePrefix || resolvedNameSuffix) ? (
+        {resolvedNamePrefix || resolvedNameSuffix ? (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {resolvedNamePrefix ? (
               <Input
@@ -119,10 +122,10 @@ export function MetadataForm({
               className={styles.input}
               id="name"
               value={nameCore}
-              onInput={onNameCoreInput}
               valueState={errors.name ? 'Negative' : 'None'}
               valueStateMessage={<span>{errors.name?.message}</span>}
               required
+              onInput={onNameCoreInput}
             />
             {resolvedNameSuffix ? (
               <Input
@@ -147,7 +150,7 @@ export function MetadataForm({
 
         <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
 
-        {(resolvedDisplayNamePrefix || resolvedDisplayNameSuffix) ? (
+        {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {resolvedDisplayNamePrefix ? (
               <Input
@@ -159,12 +162,7 @@ export function MetadataForm({
               />
             ) : null}
             <input type="hidden" {...register('displayName')} value={currentDisplayName} readOnly />
-            <Input
-              className={styles.input}
-              id="displayName"
-              value={displayNameCore}
-              onInput={onDisplayNameCoreInput}
-            />
+            <Input className={styles.input} id="displayName" value={displayNameCore} onInput={onDisplayNameCoreInput} />
             {resolvedDisplayNameSuffix ? (
               <Input
                 className={styles.input}
@@ -185,8 +183,8 @@ export function MetadataForm({
         <Select
           id={'chargingTargetType'}
           className={styles.input}
-          onChange={handleChargingTargetTypeChange}
           disabled={disableChargingFields}
+          onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
             <Option key={option.value} data-value={option.value} selected={currentChargingTargetType === option.value}>

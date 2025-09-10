@@ -138,21 +138,16 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                       value={component.selectedVersion}
                       disabled={!component.isSelected || providerDisabled}
                       aria-label={`${component.name} version`}
-                      onChange={handleVersionChange}
                       valueState={component.isSelected && !component.selectedVersion ? 'Negative' : 'None'}
                       valueStateMessage={
                         component.isSelected && !component.selectedVersion ? (
                           <span>{t('ComponentsSelection.chooseVersion')}</span>
                         ) : undefined
                       }
+                      onChange={handleVersionChange}
                     >
                       {!component.selectedVersion && (
-                        <Option
-                          key="__placeholder"
-                          data-version=""
-                          data-name={component.name}
-                          selected
-                        >
+                        <Option key="__placeholder" data-version="" data-name={component.name} selected>
                           {t('ComponentsSelection.chooseVersion')}
                         </Option>
                       )}
