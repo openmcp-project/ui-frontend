@@ -40,8 +40,8 @@ import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
-import { buildNameWithPrefixesAndSufixes } from '../../../utils/buildNameWithPrefixesAndSufixes.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
+import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -71,7 +71,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
 
-  // Here we will use OnboardingAPI to get all avaliable templates
+  // Here we will use OnboardingAPI to get all available templates
   const templates = useMemo<ManagedControlPlaneTemplate[]>(() => [], []);
 
   const [selectedTemplateValue, setSelectedTemplateValue] = useState<string>(noTemplateValue);
@@ -84,9 +84,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const templateAffixes = useMemo(
     () => ({
       namePrefix: selectedTemplate?.spec.meta.name?.prefix ?? '',
-      nameSuffix: selectedTemplate?.spec.meta.name?.sufix ?? '',
+      nameSuffix: selectedTemplate?.spec.meta.name?.suffix ?? '',
       displayNamePrefix: selectedTemplate?.spec.meta.displayName?.prefix ?? '',
-      displayNameSuffix: selectedTemplate?.spec.meta.displayName?.sufix ?? '',
+      displayNameSuffix: selectedTemplate?.spec.meta.displayName?.suffix ?? '',
     }),
     [selectedTemplate],
   );
@@ -192,7 +192,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const handleCreateManagedControlPlane = useCallback(
     async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
-        const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes(name, displayName, templateAffixes);
+        const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
 
         const normalizedType = (chargingTargetType ?? '').trim().toUpperCase();
         await trigger(

@@ -26,11 +26,11 @@ export type ManagedControlPlaneTemplate = {
       };
       displayName: {
         prefix?: string;
-        sufix?: string;
+        suffix?: string;
       };
       name: {
         prefix?: string;
-        sufix?: string;
+        suffix?: string;
       };
     };
     spec: {

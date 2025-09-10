@@ -1,4 +1,4 @@
-export function buildNameWithPrefixesAndSufixes(
+export function buildNameWithPrefixesAndSuffixes(
   name: string | undefined,
   displayName: string | undefined,
   affixes?: {

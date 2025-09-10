@@ -1,15 +1,15 @@
-import { buildNameWithPrefixesAndSufixes } from './buildNameWithPrefixesAndSufixes';
 import { describe, it, expect } from 'vitest';
+import { buildNameWithPrefixesAndSuffixes } from './buildNameWithPrefixesAndSuffixes';
 
-describe('buildNameWithPrefixesAndSufixes', () => {
+describe('buildNameWithPrefixesAndSuffixes', () => {
   it('returns provided values when no affixes provided', () => {
-    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes('name', 'Display', {});
+    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes('name', 'Display', {});
     expect(finalName).to.equal('name');
     expect(finalDisplayName).to.equal('Display');
   });
 
   it('applies prefix only', () => {
-    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes('name', 'displayName', {
+    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes('name', 'displayName', {
       namePrefix: 'pre-',
       displayNamePrefix: 'PRE-',
     });
@@ -18,7 +18,7 @@ describe('buildNameWithPrefixesAndSufixes', () => {
   });
 
   it('applies suffix only', () => {
-    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes('name', 'displayName', {
+    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes('name', 'displayName', {
       nameSuffix: '-suf',
       displayNameSuffix: 'SUF',
     });
@@ -27,7 +27,7 @@ describe('buildNameWithPrefixesAndSufixes', () => {
   });
 
   it('applies both prefix and suffix', () => {
-    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes('name', 'displayName', {
+    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes('name', 'displayName', {
       namePrefix: 'pre-',
       nameSuffix: '-suf',
       displayNamePrefix: 'PRE',
@@ -38,7 +38,7 @@ describe('buildNameWithPrefixesAndSufixes', () => {
   });
 
   it('trims whitespace around affixes', () => {
-    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSufixes('name', 'displayName', {
+    const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes('name', 'displayName', {
       namePrefix: '  pre- ',
       nameSuffix: ' -suf  ',
       displayNamePrefix: '  PRE ',
