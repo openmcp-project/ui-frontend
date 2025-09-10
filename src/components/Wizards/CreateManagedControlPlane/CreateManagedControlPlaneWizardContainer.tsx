@@ -72,7 +72,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
 
   // Here we will use OnboardingAPI to get all avaliable templates
-  const templates: ManagedControlPlaneTemplate[] = [];
+  const templates = useMemo<ManagedControlPlaneTemplate[]>(() => [], []);
 
   const [selectedTemplateValue, setSelectedTemplateValue] = useState<string>(noTemplateValue);
 
@@ -315,11 +315,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     if (currentIndex > 0) {
       setSelectedStep(wizardStepOrder[currentIndex - 1]);
     }
-  }, [selectedStep, wizardStepOrder]);
+  }, [selectedStep]);
 
   const normalizeMemberKind = useCallback((k?: string | null) => {
     const v = (k ?? '').toString().trim().toLowerCase();
-    return v === 'group' ? 'Group' : 'User';
+    return v === 'serviceaccount' ? 'ServiceAccount' : 'User';
   }, []);
 
   const appliedTemplateMembersRef = useRef(false);
@@ -335,7 +335,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     if (!selectedTemplate) return;
     if (appliedTemplateMembersRef.current) return;
 
-    const templateMembers = selectedTemplate?.spec?.spec?.authorization?.defaultMembers ?? [];
+    const templateMembers = (selectedTemplate?.spec?.spec?.authorization?.defaultMembers ??
+      []) as ManagedControlPlaneTemplate['spec']['spec']['authorization']['defaultMembers'];
     if (!templateMembers?.length) {
       appliedTemplateMembersRef.current = true;
       return;
@@ -349,7 +350,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
 
     const mappedFromTemplate: Member[] = templateMembers
-      .map((m: any) => ({
+      .map((m) => ({
         name: stripIdpPrefix(String(m?.name ?? ''), idpPrefix),
         roles: [normalizeMemberRole(m?.role)],
         kind: normalizeMemberKind(m?.kind),
@@ -371,23 +372,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
-  }, [
-    selectedStep,
-    selectedTemplate,
-    watch,
-    setValue,
-    user?.email,
-    normalizeMemberRole,
-    normalizeMemberKind,
-    idpPrefix,
-  ]);
+  }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
 
   useEffect(() => {
     if (selectedStep !== 'componentSelection') return;
     if (!selectedTemplate) return;
     if (appliedTemplateComponentsRef.current) return;
 
-    const defaults = selectedTemplate?.spec?.spec?.components?.defaultComponents ?? [];
+    const defaults = (selectedTemplate?.spec?.spec?.components?.defaultComponents ??
+      []) as ManagedControlPlaneTemplate['spec']['spec']['components']['defaultComponents'];
     if (!defaults?.length) {
       appliedTemplateComponentsRef.current = true;
       return;
@@ -400,8 +393,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
 
     const mapped = defaults
-      .filter((c: any) => !!c?.name && !!c?.version)
-      .map((c: any) => ({
+      .filter((c) => !!c?.name && !!c?.version)
+      .map((c) => ({
         name: String(c.name),
         version: String(c.version),
         selectedVersion: String(c.version),

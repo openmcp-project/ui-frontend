@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ComponentsSelection } from './ComponentsSelection.tsx';
 
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -32,6 +32,13 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
   });
 };
 
+type TemplateDefaultComponent = {
+  name: string;
+  version: string;
+  removable?: boolean;
+  versionChangeable?: boolean;
+};
+
 export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({
   setComponentsList,
   componentsList,
@@ -41,7 +48,10 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   const { t } = useTranslation();
   const initialized = useRef(false);
   const [templateDefaultsError, setTemplateDefaultsError] = useState<string | null>(null);
-  const defaultComponents = managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [];
+  const defaultComponents = useMemo<TemplateDefaultComponent[]>(
+    () => managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [],
+    [managedControlPlaneTemplate],
+  );
 
   useEffect(() => {
     if (
@@ -84,7 +94,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     }
 
     const errs: string[] = [];
-    defaultComponents.forEach((dc: any) => {
+    defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
       const item = items.find((it) => it.metadata.name === dc.name);
       if (!item) {

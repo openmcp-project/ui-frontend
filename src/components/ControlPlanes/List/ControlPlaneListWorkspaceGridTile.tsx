@@ -73,7 +73,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
     const seenKeys = new Set<string>();
     const fallbackNamespace = workspace.status?.namespace ?? '';
 
-    return (workspace.spec.members ?? []).filter((member: any) => {
+    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string }) => {
       const memberNamespace = member?.namespace ?? fallbackNamespace;
       const memberName = String(member?.name ?? '')
         .trim()
