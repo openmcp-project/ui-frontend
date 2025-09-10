@@ -16,6 +16,10 @@
   opacity: 0.6;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .disabledOverlay {
   position: absolute;
   top: 0;
@@ -70,4 +74,22 @@
 
 .activateButtonDefault {
   cursor: default;
+}
+
+.expandButton {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  min-width: 32px;
+  height: 32px;
+  z-index: 10;
+}
+
+.expandButtonSmall {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  min-width: 24px;
+  height: 24px;
+  z-index: 10;
 }

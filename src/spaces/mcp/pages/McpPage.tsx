@@ -1,4 +1,4 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title, Button } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
@@ -182,192 +182,72 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
             {/* Left side: Crossplane component in large (bottom) */}
             <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
-              <div 
-                onClick={handleCrossplaneClick} 
-                style={{ 
-                  cursor: 'pointer', 
-                  height: '100%', 
-                  width: '100%',
-                  position: 'relative'
-                }}
-              >
-                <ComponentCard
-                  enabled={!!mcp?.spec?.components?.crossplane}
-                  version={mcp?.spec?.components?.crossplane?.version}
-                  allItems={allItems}
-                  isLoading={managedResourcesLoading}
-                  error={managedResourcesError}
-                  config={crossplaneConfig}
-                />
-                <Button
-                  icon="sap-icon://expand"
-                  design="Transparent"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    minWidth: '32px',
-                    height: '32px',
-                    zIndex: 10
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCrossplaneClick();
-                  }}
-                />
-              </div>
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.crossplane}
+                version={mcp?.spec?.components?.crossplane?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={crossplaneConfig}
+                onClick={handleCrossplaneClick}
+                size="large"
+              />
             </BentoCard>
 
             {/* Right side: First medium component (GitOps) */}
             <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
-              <div 
-                onClick={handleFluxClick} 
-                style={{ 
-                  cursor: 'pointer', 
-                  height: '100%', 
-                  width: '100%',
-                  position: 'relative'
-                }}
-              >
-                <ComponentCard
-                  enabled={!!mcp?.spec?.components?.flux}
-                  version={mcp?.spec?.components?.flux?.version}
-                  allItems={allItems}
-                  isLoading={managedResourcesLoading}
-                  error={managedResourcesError}
-                  config={gitOpsConfig}
-                />
-                <Button
-                  icon="sap-icon://expand"
-                  design="Transparent"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    minWidth: '32px',
-                    height: '32px',
-                    zIndex: 10
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleFluxClick();
-                  }}
-                />
-              </div>
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.flux}
+                version={mcp?.spec?.components?.flux?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={gitOpsConfig}
+                onClick={handleFluxClick}
+                size="medium"
+              />
             </BentoCard>
 
             {/* Right side: Second medium component (GitOps copy) */}
             <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
-              <div 
-                onClick={handleFluxClick} 
-                style={{ 
-                  cursor: 'pointer', 
-                  height: '100%', 
-                  width: '100%',
-                  position: 'relative'
-                }}
-              >
-                <ComponentCard
-                  enabled={!!mcp?.spec?.components?.flux}
-                  version={mcp?.spec?.components?.flux?.version}
-                  allItems={allItems}
-                  isLoading={managedResourcesLoading}
-                  error={managedResourcesError}
-                  config={gitOpsConfig}
-                />
-                <Button
-                  icon="sap-icon://expand"
-                  design="Transparent"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    minWidth: '32px',
-                    height: '32px',
-                    zIndex: 10
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleFluxClick();
-                  }}
-                />
-              </div>
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.flux}
+                version={mcp?.spec?.components?.flux?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={gitOpsConfig}
+                onClick={handleFluxClick}
+                size="medium"
+              />
             </BentoCard>
 
             {/* Right side: First small component (Velero config) */}
             <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
-              <div 
-                onClick={handleKyvernoClick} 
-                style={{ 
-                  cursor: 'pointer', 
-                  height: '100%', 
-                  width: '100%',
-                  position: 'relative'
-                }}
-              >
-                <ComponentCard
-                  enabled={!!mcp?.spec?.components?.kyverno}
-                  version={mcp?.spec?.components?.kyverno?.version}
-                  allItems={allItems}
-                  isLoading={managedResourcesLoading}
-                  error={managedResourcesError}
-                  config={veleroConfig}
-                />
-                <Button
-                  icon="sap-icon://expand"
-                  design="Transparent"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    minWidth: '24px',
-                    height: '24px',
-                    zIndex: 10
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleKyvernoClick();
-                  }}
-                />
-              </div>
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.kyverno}
+                version={mcp?.spec?.components?.kyverno?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={veleroConfig}
+                onClick={handleKyvernoClick}
+                size="small"
+              />
             </BentoCard>
 
             {/* Right side: Second small component (Vault) */}
             <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
-              <div 
-                onClick={handleVaultClick} 
-                style={{ 
-                  cursor: 'pointer', 
-                  height: '100%', 
-                  width: '100%',
-                  position: 'relative'
-                }}
-              >
-                <ComponentCard
-                  enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-                  version={mcp?.spec?.components?.externalSecretsOperator?.version}
-                  allItems={allItems}
-                  isLoading={managedResourcesLoading}
-                  error={managedResourcesError}
-                  config={vaultConfig}
-                />
-                <Button
-                  icon="sap-icon://expand"
-                  design="Transparent"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    minWidth: '24px',
-                    height: '24px',
-                    zIndex: 10
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleVaultClick();
-                  }}
-                />
-              </div>
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+                version={mcp?.spec?.components?.externalSecretsOperator?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={vaultConfig}
+                onClick={handleVaultClick}
+                size="small"
+              />
             </BentoCard>
           </BentoGrid>
         </div>
