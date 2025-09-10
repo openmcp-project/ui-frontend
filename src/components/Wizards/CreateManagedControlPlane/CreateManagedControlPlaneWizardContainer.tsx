@@ -186,7 +186,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
-    return list.some((c) => c?.isSelected && !c?.selectedVersion);
+    return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
   }, [componentsList]);
 
   const handleCreateManagedControlPlane = useCallback(
@@ -261,10 +261,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     hasMissingComponentVersions,
   ]);
 
-  const normalizeMemberRole = useCallback((r?: string | null) => {
-    const v = (r ?? '').toString().trim().toLowerCase();
-    if (v === 'admin' || v === 'administrator') return MemberRoles.admin;
-    if (v === 'viewer' || v === 'view' || v === 'read' || v === 'readonly' || v === 'read-only') {
+  const normalizeMemberRole = useCallback((roleInput?: string | null) => {
+    const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
+    if (normalizedRole === 'admin' || normalizedRole === 'administrator') return MemberRoles.admin;
+    if (normalizedRole === 'viewer' || normalizedRole === 'view' || normalizedRole === 'readonly') {
       return MemberRoles.view;
     }
     return MemberRoles.view;
@@ -317,9 +317,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [selectedStep]);
 
-  const normalizeMemberKind = useCallback((k?: string | null) => {
-    const v = (k ?? '').toString().trim().toLowerCase();
-    return v === 'serviceaccount' ? 'ServiceAccount' : 'User';
+  const normalizeMemberKind = useCallback((kindInput?: string | null) => {
+    const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
+    return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
   }, []);
 
   const appliedTemplateMembersRef = useRef(false);

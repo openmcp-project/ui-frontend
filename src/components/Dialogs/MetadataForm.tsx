@@ -12,7 +12,8 @@ import {
   Ui5CustomEvent,
   InputDomRef,
 } from '@ui5/webcomponents-react';
-import styles from './CreateProjectWorkspaceDialog.module.css';
+
+import styles from './MetadataForm.module.css';
 import React from 'react';
 
 export interface MetadataFormProps {
@@ -74,10 +75,10 @@ export function MetadataForm({
   const resolvedDisplayNameSuffix = (propDisplayNameSuffix || '').trim();
 
   const computeCore = (full: string, prefix: string, suffix: string) => {
-    let v = full ?? '';
-    if (prefix && v.startsWith(prefix)) v = v.slice(prefix.length);
-    if (suffix && v.endsWith(suffix)) v = v.slice(0, v.length - suffix.length);
-    return v;
+    let name = full ?? '';
+    if (prefix && name.startsWith(prefix)) name = name.slice(prefix.length);
+    if (suffix && name.endsWith(suffix)) name = name.slice(0, name.length - suffix.length);
+    return name;
   };
 
   const nameCore = computeCore(currentName, resolvedNamePrefix, resolvedNameSuffix);
@@ -109,7 +110,7 @@ export function MetadataForm({
         </Label>
 
         {resolvedNamePrefix || resolvedNameSuffix ? (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className={styles.affixRow}>
             {resolvedNamePrefix ? (
               <Input
                 className={styles.input}
@@ -154,7 +155,7 @@ export function MetadataForm({
         <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
 
         {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className={styles.affixRow}>
             {resolvedDisplayNamePrefix ? (
               <Input
                 className={styles.input}
