@@ -100,112 +100,113 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
   return (
     <ObjectPage
-            preserveHeaderStateOnClick={true}
-            titleArea={
-              <ObjectPageTitle
-                header={controlPlaneName}
-                breadcrumbs={<BreadCrumbFeedbackHeader />}
-                //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
-                actionsBar={
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <MCPHealthPopoverButton
-                      mcpStatus={mcp?.status}
-                      projectName={projectName!}
-                      workspaceName={workspaceName ?? ''}
-                      mcpName={controlPlaneName}
-                    />
-                    <YamlViewButtonWithLoader
-                      workspaceName={mcp?.status?.access?.namespace}
-                      resourceType={'managedcontrolplanes'}
-                      resourceName={controlPlaneName}
-                    />
-                    <CopyKubeconfigButton />
-                  </div>
-                }
-              />
-            }
-          >
-            <ObjectPageSection
-              className="cp-page-section-overview"
-              id="overview"
-              titleText={t('McpPage.overviewTitle')}
-              hideTitleText
+      preserveHeaderStateOnClick={true}
+      titleArea={
+        <ObjectPageTitle
+          header={controlPlaneName}
+          breadcrumbs={<BreadCrumbFeedbackHeader />}
+          //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
+          actionsBar={
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                gap: '0.5rem',
+              }}
             >
-              <BentoGrid>
-                {/* Left side: Graph in extra-large (top) */}
-                <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
-                  <GraphCard title="Resource Dependencies" />
-                </BentoCard>
+              <MCPHealthPopoverButton
+                mcpStatus={mcp?.status}
+                projectName={projectName!}
+                workspaceName={workspaceName ?? ''}
+                mcpName={controlPlaneName}
+              />
+              <YamlViewButtonWithLoader
+                workspaceName={mcp?.status?.access?.namespace}
+                resourceType={'managedcontrolplanes'}
+                resourceName={controlPlaneName}
+              />
+              <CopyKubeconfigButton />
+            </div>
+          }
+        />
+      }
+    >
+      <ObjectPageSection
+        className="cp-page-section-overview"
+        id="overview"
+        titleText={t('McpPage.overviewTitle')}
+        hideTitleText
+      >
+        <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%' }}>
+          <BentoGrid>
+            {/* Left side: Graph in extra-large (top) */}
+            <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
+            <GraphCard title="Resource Dependencies" />
+          </BentoCard>
 
-                {/* Left side: Crossplane component in large (bottom) */}
-                <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
-                  <ComponentCard
-                    enabled={!!mcp?.spec?.components?.crossplane}
-                    version={mcp?.spec?.components?.crossplane?.version}
-                    allItems={allItems}
-                    isLoading={managedResourcesLoading}
-                    error={managedResourcesError}
-                    config={crossplaneConfig}
-                  />
-                </BentoCard>
+          {/* Left side: Crossplane component in large (bottom) */}
+          <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
+            <ComponentCard
+              enabled={!!mcp?.spec?.components?.crossplane}
+              version={mcp?.spec?.components?.crossplane?.version}
+              allItems={allItems}
+              isLoading={managedResourcesLoading}
+              error={managedResourcesError}
+              config={crossplaneConfig}
+            />
+          </BentoCard>
 
-                {/* Right side: First medium component (GitOps) */}
-                <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
-                  <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
-                    version={mcp?.spec?.components?.flux?.version}
-                    allItems={allItems}
-                    isLoading={managedResourcesLoading}
-                    error={managedResourcesError}
-                    config={gitOpsConfig}
-                  />
-                </BentoCard>
+          {/* Right side: First medium component (GitOps) */}
+          <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
+            <ComponentCard
+              enabled={!!mcp?.spec?.components?.flux}
+              version={mcp?.spec?.components?.flux?.version}
+              allItems={allItems}
+              isLoading={managedResourcesLoading}
+              error={managedResourcesError}
+              config={gitOpsConfig}
+            />
+          </BentoCard>
 
-                {/* Right side: Second medium component (GitOps copy) */}
-                <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
-                  <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
-                    version={mcp?.spec?.components?.flux?.version}
-                    allItems={allItems}
-                    isLoading={managedResourcesLoading}
-                    error={managedResourcesError}
-                    config={gitOpsConfig}
-                  />
-                </BentoCard>
+          {/* Right side: Second medium component (GitOps copy) */}
+          <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
+            <ComponentCard
+              enabled={!!mcp?.spec?.components?.flux}
+              version={mcp?.spec?.components?.flux?.version}
+              allItems={allItems}
+              isLoading={managedResourcesLoading}
+              error={managedResourcesError}
+              config={gitOpsConfig}
+            />
+          </BentoCard>
 
-                {/* Right side: First small component (Velero config) */}
-                <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
-                  <ComponentCard
-                    enabled={!!mcp?.spec?.components?.kyverno}
-                    version={mcp?.spec?.components?.kyverno?.version}
-                    allItems={allItems}
-                    isLoading={managedResourcesLoading}
-                    error={managedResourcesError}
-                    config={veleroConfig}
-                  />
-                </BentoCard>
+          {/* Right side: First small component (Velero config) */}
+          <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
+            <ComponentCard
+              enabled={!!mcp?.spec?.components?.kyverno}
+              version={mcp?.spec?.components?.kyverno?.version}
+              allItems={allItems}
+              isLoading={managedResourcesLoading}
+              error={managedResourcesError}
+              config={veleroConfig}
+            />
+          </BentoCard>
 
-                {/* Right side: Second small component (Vault) */}
-                <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
-                  <ComponentCard
-                    enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-                    version={mcp?.spec?.components?.externalSecretsOperator?.version}
-                    allItems={allItems}
-                    isLoading={managedResourcesLoading}
-                    error={managedResourcesError}
-                    config={vaultConfig}
-                  />
-                </BentoCard>
-              </BentoGrid>
-            </ObjectPageSection>
-           
-          </ObjectPage>
+          {/* Right side: Second small component (Vault) */}
+          <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
+            <ComponentCard
+              enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+              version={mcp?.spec?.components?.externalSecretsOperator?.version}
+              allItems={allItems}
+              isLoading={managedResourcesLoading}
+              error={managedResourcesError}
+              config={vaultConfig}
+            />
+          </BentoCard>
+        </BentoGrid>
+        </div>
+      </ObjectPageSection>
+    </ObjectPage>
   );
 }
