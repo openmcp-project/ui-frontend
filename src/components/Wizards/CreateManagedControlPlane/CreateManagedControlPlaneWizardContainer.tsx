@@ -540,13 +540,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           selected={selectedStep === 'metadata'}
           data-step="metadata"
         >
-          <MetadataForm
-            watch={watch}
-            setValue={setValue}
-            register={register}
-            errors={errors}
-            isEditMode={isEditMode}
-          />
+          <MetadataForm watch={watch} setValue={setValue} register={register} errors={errors} isEditMode={isEditMode} />
         </WizardStep>
         <WizardStep
           icon="user-edit"
