@@ -7,7 +7,10 @@
   },
   "Entities": {
     "ManagedControlPlane": "Managed Control Plane",
-    "Project": "Project"
+    "Project": "Project",
+    "Workspace": "Workspace",
+    "Users": "Users",
+    "ServiceAccounts": "ServiceAccounts"
   },
   "ComponentList": {
     "tableComponentHeader": "Name",
@@ -140,7 +143,7 @@
     "subtitle": "Fetching data..."
   },
   "MemberTable": {
-    "columnEmailHeader": "Email",
+    "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
     "columnNamespaceHeader": "Namespace"
@@ -163,12 +166,18 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add new member or service account",
-    "editHeader": "Edit member or service account",
-    "addHeader": "Add new member or service account",
+    "addButton": "Add User or ServiceAccount",
+    "editHeader": "Edit User or ServiceAccount",
+    "addHeader": "Add User or ServiceAccount",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
-    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information."
+    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
+    "reuseMembersButton": "Reuse",
+    "membersToastNoChanges": "No changes.",
+    "membersToastAdded1": "1 member added.",
+    "membersToastAddedN": "{{count}} members added.",
+    "membersToastChanged1": "1 member changed.",
+    "membersToastChangedN": "{{count}} members changed."
   },
 
   "ProjectsPage": {
@@ -309,6 +318,7 @@
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
   },
   "common": {
+    "all": "All",
     "documentation": "Documentation",
     "close": "Close",
     "cannotLoadData": "Cannot load data",
@@ -415,5 +425,14 @@
       "errorLoadingResources": "Error loading resources",
       "activate": "Activate"
     }
+  }
+  ,
+  "ImportMembersDialog": {
+    "dialogTitle": "Reuse Members",
+    "reuseFromLabel": "Reuse from",
+    "filterForLabel": "Filter for",
+    "addMembersButton0": "Add members",
+    "addMembersButton1": "Add member",
+    "addMembersButtonN": "Add {{count}} members"
   }
 }

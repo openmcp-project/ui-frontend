@@ -10,13 +10,16 @@ import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
 import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
 
-export const useApiResource = <T>(resource: Resource<T>, config?: SWRConfiguration, excludeMcpConfig?: boolean) => {
+export const useApiResource = <T>(
+  resource: Resource<T>,
+  config?: SWRConfiguration,
+  excludeMcpConfig?: boolean,
+  disable?: boolean,
+) => {
   const apiConfig = useContext(ApiConfigContext);
 
   const { data, error, isLoading, isValidating } = useSWR(
-    resource.path === null
-      ? null //TODO: is null a valid key?
-      : [resource.path, apiConfig],
+    disable || resource.path === null ? null : [resource.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<T>(
         path,
