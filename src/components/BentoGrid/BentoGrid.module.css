@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(6, 1fr);
-  gap: 12px;
+  gap: 24px;
   width: 100%;
   height: 600px; /* Fixed height for the entire grid */
   position: relative;

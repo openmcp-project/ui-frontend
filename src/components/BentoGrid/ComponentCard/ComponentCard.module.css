@@ -1,75 +1,47 @@
 .container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.card {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--sapTile_Background);
-  border: 1px solid var(--sapTile_BorderColor);
-  border-radius: 12px;
-  overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .avatar {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: transparent;
+  object-fit: cover;
 }
 
 .contentContainer {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  overflow: hidden;
+  align-items: center;
+  padding: 0.5rem 0;
 }
 
 .progressBarContainer {
-  flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 60px;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0 0.5rem;
 }
 
 .progressBar {
   width: 100%;
 }
 
-.disabled {
-  position: relative;
-  opacity: 0.6;
-}
-
-.disabledOverlay {
+.activateButton {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: grayscale(0.9) blur(0.5px);
-  border-radius: inherit;
-  z-index: 1;
-  pointer-events: none;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  pointer-events: auto;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .disabledOverlay {
-    background: rgba(0, 0, 0, 0.4);
-  }
+.activateButtonClickable {
+  cursor: pointer;
 }
 
-/* UI5 theme variables for dark themes */
-[data-ui5-theme-root*="dark"] .disabledOverlay,
-[data-ui5-theme*="dark"] .disabledOverlay {
-  background: rgba(0, 0, 0, 0.4);
+.activateButtonDefault {
+  cursor: default;
 }

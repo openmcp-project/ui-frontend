@@ -1,7 +1,6 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
-import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
@@ -9,24 +8,31 @@ import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { BreadCrumbFeedbackHeader } from '../../../components/Core/IntelligentBreadcrumbs.tsx';
 
-import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
-import { Providers } from '../../../components/ControlPlane/Providers.tsx';
-import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
-import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
-import Graph from '../../../components/Graphs/Graph.tsx';
-import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
+import { BentoGrid, BentoCard, GraphCard, ComponentCard } from '../../../components/BentoGrid';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig, useVeleroHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
+import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
+import { resourcesInterval } from '../../../lib/shared/constants';
+import { ManagedResourceItem } from '../../../lib/shared/types';
+import { useMemo } from 'react';
+
+// Utility function to flatten managed resources
+const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
+  if (!managedResources || !Array.isArray(managedResources)) return [];
+
+  return managedResources
+    .filter((managedResource) => managedResource?.items)
+    .flatMap((managedResource) => managedResource.items || []);
+};
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -60,7 +66,40 @@ export default function McpPage() {
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
-          <ObjectPage
+          <McpPageContent mcp={mcp} controlPlaneName={controlPlaneName} />
+        </WithinManagedControlPlane>
+      </AuthProviderMcp>
+    </McpContextProvider>
+  );
+}
+
+function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName: string }) {
+  const { t } = useTranslation();
+  const { projectName, workspaceName } = useParams();
+
+  // Add managed resources API call within the MCP context
+  const {
+    data: managedResources,
+    isLoading: managedResourcesLoading,
+    error: managedResourcesError,
+  } = useApiResource(ManagedResourcesRequest, {
+    refreshInterval: resourcesInterval,
+  });
+
+  // Flatten all managed resources once and pass to components
+  const allItems = useMemo(
+    () => flattenManagedResources(managedResources ?? ([] as unknown as ManagedResourcesResponse)),
+    [managedResources],
+  );
+
+  // Get hint configurations
+  const crossplaneConfig = useCrossplaneHintConfig();
+  const gitOpsConfig = useGitOpsHintConfig();
+  const vaultConfig = useVaultHintConfig();
+  const veleroConfig = useVeleroHintConfig();
+
+  return (
+    <ObjectPage
             preserveHeaderStateOnClick={true}
             titleArea={
               <ObjectPageTitle
@@ -78,7 +117,7 @@ export default function McpPage() {
                   >
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
-                      projectName={projectName}
+                      projectName={projectName!}
                       workspaceName={workspaceName ?? ''}
                       mcpName={controlPlaneName}
                     />
@@ -99,12 +138,74 @@ export default function McpPage() {
               titleText={t('McpPage.overviewTitle')}
               hideTitleText
             >
-              <HintsCardsRow mcp={mcp} />
+              <BentoGrid>
+                {/* Left side: Graph in extra-large (top) */}
+                <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
+                  <GraphCard title="Resource Dependencies" />
+                </BentoCard>
+
+                {/* Left side: Crossplane component in large (bottom) */}
+                <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.crossplane}
+                    version={mcp?.spec?.components?.crossplane?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={crossplaneConfig}
+                  />
+                </BentoCard>
+
+                {/* Right side: First medium component (GitOps) */}
+                <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.flux}
+                    version={mcp?.spec?.components?.flux?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={gitOpsConfig}
+                  />
+                </BentoCard>
+
+                {/* Right side: Second medium component (GitOps copy) */}
+                <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.flux}
+                    version={mcp?.spec?.components?.flux?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={gitOpsConfig}
+                  />
+                </BentoCard>
+
+                {/* Right side: First small component (Velero config) */}
+                <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.kyverno}
+                    version={mcp?.spec?.components?.kyverno?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={veleroConfig}
+                  />
+                </BentoCard>
+
+                {/* Right side: Second small component (Vault) */}
+                <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+                    version={mcp?.spec?.components?.externalSecretsOperator?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={vaultConfig}
+                  />
+                </BentoCard>
+              </BentoGrid>
             </ObjectPageSection>
            
           </ObjectPage>
-        </WithinManagedControlPlane>
-      </AuthProviderMcp>
-    </McpContextProvider>
   );
 }

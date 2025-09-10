@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardHeader } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
-import { MultiPercentageBar } from '../../HintsCardsRow/MultiPercentageBar/MultiPercentageBar';
-import { HoverContent } from '../../HintsCardsRow/CardHoverContent/CardHoverContent';
+import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
 import styles from './ComponentCard.module.css';
 import { GenericHintProps } from '../../../types/types';
 
@@ -16,7 +15,6 @@ export const ComponentCard: React.FC<GenericHintProps> = ({
   config,
 }) => {
   const { t } = useTranslation();
-  const [hovered, setHovered] = useState(false);
 
   // Calculate segments and state using the provided calculator
   const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled, t);
@@ -57,8 +55,6 @@ export const ComponentCard: React.FC<GenericHintProps> = ({
           [styles.disabled]: !enabled,
         })}
         onClick={handleClick}
-        onMouseEnter={enabled ? () => setHovered(true) : undefined}
-        onMouseLeave={enabled ? () => setHovered(false) : undefined}
       >
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
@@ -75,16 +71,6 @@ export const ComponentCard: React.FC<GenericHintProps> = ({
             />
           </div>
         </div>
-
-        {(() => {
-          const shouldShowHoverContent = enabled && hovered && config.calculateHoverData;
-          if (!shouldShowHoverContent) return null;
-
-          const hoverData = config.calculateHoverData!(allItems, enabled, t);
-          const hasValidHoverData = !!hoverData;
-
-          return hasValidHoverData ? <HoverContent enabled={enabled} isLoading={isLoading} {...hoverData} /> : null;
-        })()}
       </Card>
     </div>
   );

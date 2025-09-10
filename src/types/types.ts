@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { APIError } from '../lib/api/error';
 import { ManagedResourceItem } from '../lib/shared/types';
-import { PercentageSegment } from '../components/HintsCardsRow/MultiPercentageBar/MultiPercentageBar';
-import { HoverContentProps } from '../components/HintsCardsRow/CardHoverContent/CardHoverContent';
+import { PercentageSegment } from '../components/BentoGrid/MultiPercentageBar/MultiPercentageBar';
 
 export interface GenericHintSegmentCalculator {
   (
@@ -14,13 +13,6 @@ export interface GenericHintSegmentCalculator {
   ): GenericHintState;
 }
 
-export interface HoverDataCalculator {
-  (
-    allItems: ManagedResourceItem[],
-    enabled: boolean,
-    t: (key: string) => string,
-  ): Omit<HoverContentProps, 'enabled'> | null;
-}
 
 export interface GenericHintState {
   segments: PercentageSegment[];
@@ -38,7 +30,6 @@ export interface GenericHintConfig {
   iconStyle?: React.CSSProperties;
   scrollTarget?: string;
   calculateSegments: GenericHintSegmentCalculator;
-  calculateHoverData?: HoverDataCalculator;
   renderHoverContent?: (allItems: ManagedResourceItem[], enabled: boolean) => ReactNode;
 }
 

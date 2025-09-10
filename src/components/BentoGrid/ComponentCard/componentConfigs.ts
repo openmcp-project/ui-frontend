@@ -4,8 +4,7 @@ import {
   calculateCrossplaneSegments,
   calculateGitOpsSegments,
   calculateVaultSegments,
-  calculateCrossplaneHoverDataGeneric,
-  calculateGitOpsHoverDataGeneric,
+
 } from '../../../utils/hintsCardsRowCalculations';
 
 export const useCrossplaneHintConfig = (): GenericHintConfig => {
