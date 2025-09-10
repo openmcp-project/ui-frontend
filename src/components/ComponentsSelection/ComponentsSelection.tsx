@@ -22,13 +22,19 @@ import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { useTranslation } from 'react-i18next';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { getSelectedComponents } from './ComponentsSelectionContainer.tsx';
+import IllustratedError from '../Shared/IllustratedError.tsx';
 
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  templateDefaultsError?: string;
 }
 
-export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({ componentsList, setComponentsList }) => {
+export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
+  componentsList,
+  setComponentsList,
+  templateDefaultsError,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useTranslation();
 
@@ -133,7 +139,23 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({ compon
                       disabled={!component.isSelected || providerDisabled}
                       aria-label={`${component.name} version`}
                       onChange={handleVersionChange}
+                      valueState={component.isSelected && !component.selectedVersion ? 'Negative' : 'None'}
+                      valueStateMessage={
+                        component.isSelected && !component.selectedVersion ? (
+                          <span>{t('ComponentsSelection.chooseVersion')}</span>
+                        ) : undefined
+                      }
                     >
+                      {!component.selectedVersion && (
+                        <Option
+                          key="__placeholder"
+                          data-version=""
+                          data-name={component.name}
+                          selected
+                        >
+                          {t('ComponentsSelection.chooseVersion')}
+                        </Option>
+                      )}
                       {component.versions.map((version) => (
                         <Option
                           key={version}
@@ -155,7 +177,14 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({ compon
             </Infobox>
           )}
         </div>
+
         <div data-layout-span="XL4 L4 M4 S4">
+          {templateDefaultsError ? (
+            <div style={{ marginBottom: 8 }}>
+              <IllustratedError title={templateDefaultsError} compact />
+            </div>
+          ) : null}
+
           {selectedComponents.length > 0 ? (
             <List headerText={t('componentsSelection.selectedComponents')}>
               {selectedComponents.map((component) => (
