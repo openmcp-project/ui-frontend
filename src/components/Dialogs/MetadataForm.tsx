@@ -1,7 +1,17 @@
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useTranslation } from 'react-i18next';
-import { Form, FormGroup, Input, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import {
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+  InputDomRef,
+} from '@ui5/webcomponents-react';
 import styles from './CreateProjectWorkspaceDialog.module.css';
 import React from 'react';
 
@@ -58,7 +68,6 @@ export function MetadataForm({
   const currentName = watch?.('name') ?? '';
   const currentDisplayName = watch?.('displayName') ?? '';
 
-  // Resolve and normalize affixes once (trim + fallback to '')
   const resolvedNamePrefix = (namePrefix || '').trim();
   const resolvedDisplayNamePrefix = (displayNamePrefix || '').trim();
   const resolvedNameSuffix = (propNameSuffix || '').trim();
@@ -74,22 +83,16 @@ export function MetadataForm({
   const nameCore = computeCore(currentName, resolvedNamePrefix, resolvedNameSuffix);
   const displayNameCore = computeCore(currentDisplayName, resolvedDisplayNamePrefix, resolvedDisplayNameSuffix);
 
-  const onNameCoreInput = (e: any) => {
-    const middle =
-      (e?.target && typeof e.target.value === 'string' ? e.target.value : undefined) ??
-      (e?.detail && typeof e.detail.value === 'string' ? e.detail.value : '') ??
-      '';
+  const onNameCoreInput = (e: Ui5CustomEvent<InputDomRef, { value: string }>) => {
+    const middle = typeof e.detail?.value === 'string' ? e.detail.value : (e.target.value ?? '');
     setValue('name', `${resolvedNamePrefix}${middle}${resolvedNameSuffix}`, {
       shouldValidate: true,
       shouldDirty: true,
     });
   };
 
-  const onDisplayNameCoreInput = (e: any) => {
-    const middle =
-      (e?.target && typeof e.target.value === 'string' ? e.target.value : undefined) ??
-      (e?.detail && typeof e.detail.value === 'string' ? e.detail.value : '') ??
-      '';
+  const onDisplayNameCoreInput = (e: Ui5CustomEvent<InputDomRef, { value: string }>) => {
+    const middle = typeof e.detail?.value === 'string' ? e.detail.value : (e.target.value ?? '');
     setValue('displayName', `${resolvedDisplayNamePrefix}${middle}${resolvedDisplayNameSuffix}`, {
       shouldValidate: true,
       shouldDirty: true,
