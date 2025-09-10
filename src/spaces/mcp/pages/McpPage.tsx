@@ -1,6 +1,7 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
+import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
@@ -24,6 +25,10 @@ import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { ManagedResourceItem } from '../../../lib/shared/types';
 import { useMemo } from 'react';
+import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
+import { Providers } from '../../../components/ControlPlane/Providers.tsx';
+import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
+import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 
 // Utility function to flatten managed resources
 const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -98,6 +103,21 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
   const vaultConfig = useVaultHintConfig();
   const veleroConfig = useVeleroHintConfig();
 
+  // Handle component card clicks
+  const handleCrossplaneClick = () => {
+    const el = document.querySelector('#crossplane');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleFluxClick = () => {
+    const el = document.querySelector('#gitops');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <ObjectPage
       preserveHeaderStateOnClick={true}
@@ -138,74 +158,148 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
         titleText={t('McpPage.overviewTitle')}
         hideTitleText
       >
-        <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', paddingTop: '16px', paddingBottom: '12px' }}>
           <BentoGrid>
             {/* Left side: Graph in extra-large (top) */}
-            <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
-            <GraphCard title="Resource Dependencies" />
-          </BentoCard>
+            <BentoCard 
+              size="extra-large" 
+              gridColumn="1 / 9" 
+              gridRow="1 / 5"
+              className="graph-card"
+            >
+              <GraphCard title="Resource Dependencies" />
+            </BentoCard>
 
-          {/* Left side: Crossplane component in large (bottom) */}
-          <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
-            <ComponentCard
-              enabled={!!mcp?.spec?.components?.crossplane}
-              version={mcp?.spec?.components?.crossplane?.version}
-              allItems={allItems}
-              isLoading={managedResourcesLoading}
-              error={managedResourcesError}
-              config={crossplaneConfig}
-            />
-          </BentoCard>
+            {/* Left side: Crossplane component in large (bottom) */}
+            <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
+              <div 
+                onClick={handleCrossplaneClick} 
+                style={{ 
+                  cursor: 'pointer', 
+                  height: '100%', 
+                  width: '100%' 
+                }}
+              >
+                <ComponentCard
+                  enabled={!!mcp?.spec?.components?.crossplane}
+                  version={mcp?.spec?.components?.crossplane?.version}
+                  allItems={allItems}
+                  isLoading={managedResourcesLoading}
+                  error={managedResourcesError}
+                  config={crossplaneConfig}
+                />
+              </div>
+            </BentoCard>
 
-          {/* Right side: First medium component (GitOps) */}
-          <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
-            <ComponentCard
-              enabled={!!mcp?.spec?.components?.flux}
-              version={mcp?.spec?.components?.flux?.version}
-              allItems={allItems}
-              isLoading={managedResourcesLoading}
-              error={managedResourcesError}
-              config={gitOpsConfig}
-            />
-          </BentoCard>
+            {/* Right side: First medium component (GitOps) */}
+            <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
+              <div 
+                onClick={handleFluxClick} 
+                style={{ 
+                  cursor: 'pointer', 
+                  height: '100%', 
+                  width: '100%' 
+                }}
+              >
+                <ComponentCard
+                  enabled={!!mcp?.spec?.components?.flux}
+                  version={mcp?.spec?.components?.flux?.version}
+                  allItems={allItems}
+                  isLoading={managedResourcesLoading}
+                  error={managedResourcesError}
+                  config={gitOpsConfig}
+                />
+              </div>
+            </BentoCard>
 
-          {/* Right side: Second medium component (GitOps copy) */}
-          <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
-            <ComponentCard
-              enabled={!!mcp?.spec?.components?.flux}
-              version={mcp?.spec?.components?.flux?.version}
-              allItems={allItems}
-              isLoading={managedResourcesLoading}
-              error={managedResourcesError}
-              config={gitOpsConfig}
-            />
-          </BentoCard>
+            {/* Right side: Second medium component (GitOps copy) */}
+            <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
+              <div 
+                onClick={handleFluxClick} 
+                style={{ 
+                  cursor: 'pointer', 
+                  height: '100%', 
+                  width: '100%' 
+                }}
+              >
+                <ComponentCard
+                  enabled={!!mcp?.spec?.components?.flux}
+                  version={mcp?.spec?.components?.flux?.version}
+                  allItems={allItems}
+                  isLoading={managedResourcesLoading}
+                  error={managedResourcesError}
+                  config={gitOpsConfig}
+                />
+              </div>
+            </BentoCard>
 
-          {/* Right side: First small component (Velero config) */}
-          <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
-            <ComponentCard
-              enabled={!!mcp?.spec?.components?.kyverno}
-              version={mcp?.spec?.components?.kyverno?.version}
-              allItems={allItems}
-              isLoading={managedResourcesLoading}
-              error={managedResourcesError}
-              config={veleroConfig}
-            />
-          </BentoCard>
+            {/* Right side: First small component (Velero config) */}
+            <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.kyverno}
+                version={mcp?.spec?.components?.kyverno?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={veleroConfig}
+              />
+            </BentoCard>
 
-          {/* Right side: Second small component (Vault) */}
-          <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
-            <ComponentCard
-              enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-              version={mcp?.spec?.components?.externalSecretsOperator?.version}
-              allItems={allItems}
-              isLoading={managedResourcesLoading}
-              error={managedResourcesError}
-              config={vaultConfig}
-            />
-          </BentoCard>
-        </BentoGrid>
+            {/* Right side: Second small component (Vault) */}
+            <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
+              <ComponentCard
+                enabled={!!mcp?.spec?.components?.externalSecretsOperator}
+                version={mcp?.spec?.components?.externalSecretsOperator?.version}
+                allItems={allItems}
+                isLoading={managedResourcesLoading}
+                error={managedResourcesError}
+                config={vaultConfig}
+              />
+            </BentoCard>
+          </BentoGrid>
         </div>
+      </ObjectPageSection>
+      
+      <ObjectPageSection
+        className="cp-page-section-crossplane"
+        id="crossplane"
+        titleText={t('McpPage.crossplaneTitle')}
+        hideTitleText
+      >
+        <Panel
+          className={styles.panel}
+          headerLevel="H3"
+          headerText="Panel"
+          header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
+          noAnimation
+        >
+          <div className="crossplane-table-element">
+            <Providers />
+          </div>
+          <div className="crossplane-table-element">
+            <ProvidersConfig />
+          </div>
+          <div className="crossplane-table-element">
+            <ManagedResources />
+          </div>
+        </Panel>
+      </ObjectPageSection>
+      
+      <ObjectPageSection
+        className="cp-page-section-gitops"
+        id="gitops"
+        titleText={t('McpPage.gitOpsTitle')}
+        hideTitleText
+      >
+        <Panel
+          className={styles.panel}
+          headerLevel="H3"
+          headerText="Panel"
+          header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}
+          noAnimation
+        >
+          <FluxList />
+        </Panel>
       </ObjectPageSection>
     </ObjectPage>
   );
