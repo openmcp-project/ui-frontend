@@ -164,7 +164,7 @@ export const UpdateManagedControlPlaneResource = (
 ): Resource<undefined> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${projectName}--ws-${workspaceName}/managedcontrolplanes/${name}`,
-    method: 'PUT',
+    method: 'PATCH',
     jq: undefined,
     body: undefined,
   };
