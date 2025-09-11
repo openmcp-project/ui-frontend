@@ -687,6 +687,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             componentsList={componentsList ?? []}
             setComponentsList={setComponentsList}
             initialSelection={initialSelection}
+            managedControlPlaneTemplate={selectedTemplate}
           />
         </WizardStep>
         <WizardStep
