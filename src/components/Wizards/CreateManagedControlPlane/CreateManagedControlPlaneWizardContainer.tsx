@@ -79,21 +79,116 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     metadata: {
       annotations: {
         'openmcp.cloud/created-by': 'lukasz.goral@sap.com',
-        'openmcp.cloud/display-name': 'Test 77 display name',
+        'openmcp.cloud/display-name': 'test-11-sep display name',
       },
-      creationTimestamp: '2025-09-10T08:57:37Z',
+      creationTimestamp: '2025-09-11T12:05:33Z',
       finalizers: ['finalizer.managedcontrolplane.openmcp.cloud'],
       generation: 1,
       labels: {
-        'openmcp.cloud.sap/charging-target': '449c6fb8-3504-4515-aa73-efd692cd2077',
-        'openmcp.cloud.sap/charging-target-type': 'btp',
+        'openmcp.cloud.sap/charging-target': '',
+        'openmcp.cloud.sap/charging-target-type': '',
         'openmcp.cloud/mcp-project': 'webapp-playground',
         'openmcp.cloud/mcp-workspace': 'development',
       },
-      name: 'test-77',
+      managedFields: [
+        {
+          apiVersion: 'core.openmcp.cloud/v1alpha1',
+          fieldsType: 'FieldsV1',
+          fieldsV1: {
+            'f:metadata': {
+              'f:annotations': {
+                '.': {},
+                'f:openmcp.cloud/display-name': {},
+              },
+              'f:labels': {
+                '.': {},
+                'f:openmcp.cloud.sap/charging-target': {},
+                'f:openmcp.cloud.sap/charging-target-type': {},
+              },
+            },
+            'f:spec': {
+              '.': {},
+              'f:authentication': {
+                '.': {},
+                'f:enableSystemIdentityProvider': {},
+              },
+              'f:authorization': {
+                '.': {},
+                'f:roleBindings': {},
+              },
+              'f:components': {
+                '.': {},
+                'f:apiServer': {
+                  '.': {},
+                  'f:type': {},
+                },
+                'f:crossplane': {
+                  '.': {},
+                  'f:providers': {},
+                  'f:version': {},
+                },
+                'f:externalSecretsOperator': {
+                  '.': {},
+                  'f:version': {},
+                },
+              },
+            },
+          },
+          manager: 'Go-http-client',
+          operation: 'Update',
+          time: '2025-09-11T12:05:33Z',
+        },
+        {
+          apiVersion: 'core.openmcp.cloud/v1alpha1',
+          fieldsType: 'FieldsV1',
+          fieldsV1: {
+            'f:metadata': {
+              'f:finalizers': {
+                '.': {},
+                'v:"finalizer.managedcontrolplane.openmcp.cloud"': {},
+              },
+              'f:labels': {
+                'f:openmcp.cloud/mcp-project': {},
+                'f:openmcp.cloud/mcp-workspace': {},
+              },
+            },
+          },
+          manager: 'mcp-operator',
+          operation: 'Update',
+          time: '2025-09-11T12:05:33Z',
+        },
+        {
+          apiVersion: 'core.openmcp.cloud/v1alpha1',
+          fieldsType: 'FieldsV1',
+          fieldsV1: {
+            'f:status': {
+              '.': {},
+              'f:components': {
+                '.': {},
+                'f:apiServer': {
+                  '.': {},
+                  'f:endpoint': {},
+                  'f:serviceAccountIssuer': {},
+                },
+                'f:authentication': {},
+                'f:authorization': {},
+                'f:cloudOrchestrator': {},
+              },
+              'f:conditions': {},
+              'f:observedGeneration': {},
+              'f:status': {},
+            },
+          },
+          manager: 'mcp-operator',
+          operation: 'Update',
+          subresource: 'status',
+          time: '2025-09-11T12:10:35Z',
+        },
+      ],
+      name: 'test-11-sep',
       namespace: 'project-webapp-playground--ws-development',
-      resourceVersion: '55150753',
-      uid: 'f318ddf6-17a0-4954-84a4-161698ae9e66',
+      resourceVersion: '55437182',
+      uid: '9275fe3c-f845-4674-985a-ab2208bd77a4',
     },
     spec: {
       authentication: {
@@ -108,10 +203,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 kind: 'User',
                 name: 'openmcp:lukasz.goral@sap.com',
               },
-              {
-                kind: 'User',
-                name: 'openmcp:test.testiniro@sap.com',
-              },
             ],
           },
         ],
@@ -124,14 +215,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           providers: [],
           version: '1.19.0',
         },
+        externalSecretsOperator: {
+          version: '0.19.2',
+        },
       },
     },
     status: {
       components: {
         apiServer: {
-          endpoint: 'https://api.o46672cn33lr3vlx.mcpds.shoot.canary.k8s-hana.ondemand.com',
+          endpoint: 'https://api.wayjvd6clutv5cgi.mcpds.shoot.canary.k8s-hana.ondemand.com',
           serviceAccountIssuer:
-            'https://discovery.ingress.garden.canary.k8s.ondemand.com/projects/mcpds/shoots/c550bdeb-87a7-42f0-8f94-b2c969b6dee2/issuer',
+            'https://discovery.ingress.garden.canary.k8s.ondemand.com/projects/mcpds/shoots/d5533ee7-33bf-4df5-91ac-775f43448415/issuer',
         },
         authentication: {},
         authorization: {},
@@ -139,16 +233,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       },
       conditions: [
         {
-          lastTransitionTime: '2025-09-10T08:57:38Z',
+          lastTransitionTime: '2025-09-11T12:05:34Z',
           managedBy: 'APIServer',
           message:
-            '[Create: Succeeded] Shoot cluster has been successfully reconciled.\nThe following shoot conditions are not satisfied: SystemComponentsHealthy',
+            '[Create: Processing] Waiting until shoot worker nodes have been reconciled\nThe following shoot conditions are not satisfied: ControlPlaneHealthy, ObservabilityComponentsHealthy, EveryNodeReady, SystemComponentsHealthy',
           reason: 'WaitingForGardenerShoot',
           status: 'False',
           type: 'APIServerHealthy',
         },
         {
-          lastTransitionTime: '2025-09-10T08:57:37Z',
+          lastTransitionTime: '2025-09-11T12:05:34Z',
           managedBy: 'Authentication',
           message: 'Waiting for APIServer dependency to be ready.',
           reason: 'WaitingForDependencies',
@@ -156,7 +250,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           type: 'AuthenticationHealthy',
         },
         {
-          lastTransitionTime: '2025-09-10T08:57:37Z',
+          lastTransitionTime: '2025-09-11T12:05:34Z',
           managedBy: 'Authorization',
           message: 'Waiting for APIServer dependency to be ready',
           reason: 'WaitingForDependencies',
@@ -164,7 +258,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           type: 'AuthorizationHealthy',
         },
         {
-          lastTransitionTime: '2025-09-10T08:57:37Z',
+          lastTransitionTime: '2025-09-11T12:05:34Z',
           managedBy: 'CloudOrchestrator',
           message: 'Waiting for APIServer dependency to be ready.',
           reason: 'WaitingForDependencies',
@@ -172,7 +266,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           type: 'CloudOrchestratorHealthy',
         },
         {
-          lastTransitionTime: '2025-09-10T09:05:40Z',
+          lastTransitionTime: '2025-09-11T12:09:35Z',
           managedBy: '',
           reason: 'AllComponentsReconciledSuccessfully',
           status: 'True',
@@ -315,21 +409,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
 
         const normalizedType = (chargingTargetType ?? '').trim().toUpperCase();
-        await trigger(
-          CreateManagedControlPlane(
-            finalName,
-            `${projectName}--ws-${workspaceName}`,
-            {
-              displayName: finalDisplayName,
-              chargingTarget,
-              chargingTargetType: normalizedType,
-              members,
-              componentsList,
-            },
-            idpPrefix,
-          ),
-        );
+
         if (isEditMode) {
+          alert('edit mode');
           await triggerUpdate(
             CreateManagedControlPlane(
               mockedData.metadata.name,
@@ -347,12 +429,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         } else {
           await trigger(
             CreateManagedControlPlane(
-              name,
+              finalName,
               `${projectName}--ws-${workspaceName}`,
               {
-                displayName,
+                displayName: finalDisplayName,
                 chargingTarget,
-                chargingTargetType,
+                chargingTargetType: normalizedType,
                 members,
                 componentsList,
               },
