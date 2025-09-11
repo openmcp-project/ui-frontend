@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { ReactFlow, Background, Controls, Node, BackgroundVariant } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { Button, Popover } from '@ui5/webcomponents-react';
@@ -28,13 +28,22 @@ const nodeTypes = {
   ),
 };
 
-const Graph: React.FC = () => {
+interface GraphProps {
+  colorBy?: ColorBy;
+}
+
+const Graph: React.FC<GraphProps> = ({ colorBy: initialColorBy = 'source' }) => {
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
-  const [colorBy, setColorBy] = useState<ColorBy>('source');
+  const [colorBy, setColorBy] = useState<ColorBy>(initialColorBy);
   const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
   const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
+
+  // Update colorBy when prop changes
+  useEffect(() => {
+    setColorBy(initialColorBy);
+  }, [initialColorBy]);
 
   const handleYamlClick = useCallback((item: ManagedResourceItem) => {
     setYamlResource(item);

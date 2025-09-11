@@ -130,32 +130,6 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     }, 300);
   };
 
-  // Remove separate page logic - we'll do dynamic expansion within the grid
-  // if (expandedCard) {
-  //   return (
-  //     <McpPageExpanded
-  //       mcp={mcp}
-  //       controlPlaneName={controlPlaneName}
-  //       onCollapse={handleCollapseExpanded}
-  //     />
-  //   );
-  // }
-
-  // For now, small cards will also scroll to their respective sections
-  const handleKyvernoClick = () => {
-    const el = document.querySelector('#crossplane');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const handleVaultClick = () => {
-    const el = document.querySelector('#crossplane');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <ObjectPage
       preserveHeaderStateOnClick={true}
@@ -205,7 +179,10 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               gridRow="1 / 5"
               className={expandedCard ? styles.expandedCard : ''}
             >
-              <GraphCard title="Resource Dependencies" />
+              <GraphCard 
+                title="Resource Dependencies" 
+                colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
+              />
             </BentoCard>
 
             {/* Crossplane component - shows in default view or when expanded */}
@@ -335,7 +312,6 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={veleroConfig}
-                    onClick={handleKyvernoClick}
                     size="small"
                   />
                 </BentoCard>
@@ -354,7 +330,6 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={vaultConfig}
-                    onClick={handleVaultClick}
                     size="small"
                   />
                 </BentoCard>
