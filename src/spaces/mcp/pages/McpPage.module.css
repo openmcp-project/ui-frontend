@@ -3,3 +3,39 @@
   margin: 0.1em auto -8px auto;
   width: 100%;
 }
+
+/* Dynamic expansion animations for bento grid */
+.expandedGrid {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Keep the original 600px height and 6-row structure */
+}
+
+.expandedCard {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.02);
+  box-shadow: var(--sapContent_Shadow3) !important;
+  border: 2px solid var(--sapButton_Selected_BorderColor) !important;
+}
+
+.hidingCard {
+  opacity: 0;
+  transform: scale(0.95) translateX(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* Smooth grid column transitions */
+.expandedGrid .bentoCard {
+  transition: grid-column 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

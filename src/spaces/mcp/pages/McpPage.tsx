@@ -1,4 +1,4 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Button } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
@@ -24,7 +24,7 @@ import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig, useVe
 import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { ManagedResourceItem } from '../../../lib/shared/types';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
@@ -81,6 +81,8 @@ export default function McpPage() {
 function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName: string }) {
   const { t } = useTranslation();
   const { projectName, workspaceName } = useParams();
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [isExpanding, setIsExpanding] = useState(false);
 
   // Add managed resources API call within the MCP context
   const {
@@ -104,19 +106,40 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
   const veleroConfig = useVeleroHintConfig();
 
   // Handle component card clicks
-  const handleCrossplaneClick = () => {
-    const el = document.querySelector('#crossplane');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const handleCrossplaneExpand = () => {
+    setIsExpanding(true);
+    setTimeout(() => {
+      setExpandedCard('crossplane');
+      setIsExpanding(false);
+    }, 50);
   };
 
-  const handleFluxClick = () => {
-    const el = document.querySelector('#gitops');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const handleGitOpsExpand = () => {
+    setIsExpanding(true);
+    setTimeout(() => {
+      setExpandedCard('gitops');
+      setIsExpanding(false);
+    }, 50);
   };
+
+  const handleCollapseExpanded = () => {
+    setIsExpanding(true);
+    setTimeout(() => {
+      setExpandedCard(null);
+      setIsExpanding(false);
+    }, 300);
+  };
+
+  // Remove separate page logic - we'll do dynamic expansion within the grid
+  // if (expandedCard) {
+  //   return (
+  //     <McpPageExpanded
+  //       mcp={mcp}
+  //       controlPlaneName={controlPlaneName}
+  //       onCollapse={handleCollapseExpanded}
+  //     />
+  //   );
+  // }
 
   // For now, small cards will also scroll to their respective sections
   const handleKyvernoClick = () => {
@@ -174,125 +197,192 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
         hideTitleText
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', paddingTop: '16px', paddingBottom: '12px' }}>
-          <BentoGrid>
-            {/* Left side: Graph in extra-large (top) */}
-            <BentoCard size="extra-large" gridColumn="1 / 9" gridRow="1 / 5">
+          <BentoGrid className={expandedCard ? styles.expandedGrid : ''}>
+            {/* Left side: Graph in extra-large (top) - expands to full width when any component is expanded */}
+            <BentoCard 
+              size="extra-large" 
+              gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
+              gridRow="1 / 5"
+              className={expandedCard ? styles.expandedCard : ''}
+            >
               <GraphCard title="Resource Dependencies" />
             </BentoCard>
 
-            {/* Left side: Crossplane component in large (bottom) */}
-            <BentoCard size="large" gridColumn="1 / 9" gridRow="5 / 7">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.crossplane}
-                version={mcp?.spec?.components?.crossplane?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={crossplaneConfig}
-                onClick={handleCrossplaneClick}
-                size="large"
-              />
-            </BentoCard>
+            {/* Crossplane component - shows in default view or when expanded */}
+            {(!expandedCard || expandedCard === 'crossplane') && (
+              <BentoCard 
+                size="large" 
+                gridColumn={expandedCard === 'crossplane' ? "1 / 13" : "1 / 9"} 
+                gridRow="5 / 7"
+                className={expandedCard === 'crossplane' ? styles.expandedCard : ''}
+              >
+                <div style={{ position: 'relative', height: '100%' }}>
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.crossplane}
+                    version={mcp?.spec?.components?.crossplane?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={crossplaneConfig}
+                    onClick={expandedCard === 'crossplane' ? handleCollapseExpanded : handleCrossplaneExpand}
+                    size="large"
+                  />
+                  {expandedCard === 'crossplane' && (
+                    <Button
+                      icon="sap-icon://collapse"
+                      design="Default"
+                      onClick={handleCollapseExpanded}
+                      tooltip="Collapse to overview"
+                      style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        right: '8px',
+                        zIndex: 10
+                      }}
+                    />
+                  )}
+                </div>
+              </BentoCard>
+            )}
 
-            {/* Right side: First medium component (GitOps) */}
-            <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.flux}
-                version={mcp?.spec?.components?.flux?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={gitOpsConfig}
-                onClick={handleFluxClick}
-                size="medium"
-              />
-            </BentoCard>
+            {/* GitOps component - shows when expanded */}
+            {expandedCard === 'gitops' && (
+              <BentoCard 
+                size="large" 
+                gridColumn="1 / 13" 
+                gridRow="5 / 7"
+                className={styles.expandedCard}
+              >
+                <div style={{ position: 'relative', height: '100%' }}>
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.flux}
+                    version={mcp?.spec?.components?.flux?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={gitOpsConfig}
+                    onClick={handleCollapseExpanded}
+                    size="large"
+                  />
+                  <Button
+                    icon="sap-icon://collapse"
+                    design="Default"
+                    onClick={handleCollapseExpanded}
+                    tooltip="Collapse to overview"
+                    style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: '8px',
+                      zIndex: 10
+                    }}
+                  />
+                </div>
+              </BentoCard>
+            )}
 
-            {/* Right side: Second medium component (GitOps copy) */}
-            <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.flux}
-                version={mcp?.spec?.components?.flux?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={gitOpsConfig}
-                onClick={handleFluxClick}
-                size="medium"
-              />
-            </BentoCard>
+            {/* Right side cards - hide when any component is expanded */}
+            {!expandedCard && (
+              <>
+                {/* Right side: First medium component (GitOps) */}
+                <BentoCard 
+                  size="medium" 
+                  gridColumn="9 / 13" 
+                  gridRow="1 / 3"
+                  className={isExpanding ? styles.hidingCard : ''}
+                >
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.flux}
+                    version={mcp?.spec?.components?.flux?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={gitOpsConfig}
+                    onClick={handleGitOpsExpand}
+                    size="medium"
+                  />
+                </BentoCard>
 
-            {/* Right side: First small component (Velero config) */}
-            <BentoCard size="small" gridColumn="9 / 11" gridRow="5 / 7">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.kyverno}
-                version={mcp?.spec?.components?.kyverno?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={veleroConfig}
-                onClick={handleKyvernoClick}
-                size="small"
-              />
-            </BentoCard>
+                {/* Right side: Second medium component (GitOps copy) */}
+                <BentoCard 
+                  size="medium" 
+                  gridColumn="9 / 13" 
+                  gridRow="3 / 5"
+                  className={isExpanding ? styles.hidingCard : ''}
+                >
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.flux}
+                    version={mcp?.spec?.components?.flux?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={gitOpsConfig}
+                    onClick={handleGitOpsExpand}
+                    size="medium"
+                  />
+                </BentoCard>
 
-            {/* Right side: Second small component (Vault) */}
-            <BentoCard size="small" gridColumn="11 / 13" gridRow="5 / 7">
-              <ComponentCard
-                enabled={!!mcp?.spec?.components?.externalSecretsOperator}
-                version={mcp?.spec?.components?.externalSecretsOperator?.version}
-                allItems={allItems}
-                isLoading={managedResourcesLoading}
-                error={managedResourcesError}
-                config={vaultConfig}
-                onClick={handleVaultClick}
-                size="small"
-              />
-            </BentoCard>
+                {/* Right side: First small component (Velero config) */}
+                <BentoCard 
+                  size="small" 
+                  gridColumn="9 / 11" 
+                  gridRow="5 / 7"
+                  className={isExpanding ? styles.hidingCard : ''}
+                >
+                  <ComponentCard
+                    enabled={false}
+                    version={mcp?.spec?.components?.kyverno?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={veleroConfig}
+                    onClick={handleKyvernoClick}
+                    size="small"
+                  />
+                </BentoCard>
+
+                {/* Right side: Second small component (Vault) */}
+                <BentoCard 
+                  size="small" 
+                  gridColumn="11 / 13" 
+                  gridRow="5 / 7"
+                  className={isExpanding ? styles.hidingCard : ''}
+                >
+                  <ComponentCard
+                    enabled={false}
+                    version={mcp?.spec?.components?.externalSecretsOperator?.version}
+                    allItems={allItems}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={vaultConfig}
+                    onClick={handleVaultClick}
+                    size="small"
+                  />
+                </BentoCard>
+              </>
+            )}
           </BentoGrid>
+
+          {/* Tables section - outside the BentoGrid to maintain the 600px layout */}
+          {expandedCard === 'crossplane' && (
+            <div style={{ marginTop: '24px' }}>
+              <div className="crossplane-table-element">
+                <Providers />
+              </div>
+              <div className="crossplane-table-element">
+                <ProvidersConfig />
+              </div>
+              <div className="crossplane-table-element">
+                <ManagedResources />
+              </div>
+            </div>
+          )}
+          
+          {expandedCard === 'gitops' && (
+            <div style={{ marginTop: '24px' }}>
+              <FluxList />
+            </div>
+          )}
         </div>
-      </ObjectPageSection>
-      
-      <ObjectPageSection
-        className="cp-page-section-crossplane"
-        id="crossplane"
-        titleText={t('McpPage.crossplaneTitle')}
-        hideTitleText
-      >
-        <Panel
-          className={styles.panel}
-          headerLevel="H3"
-          headerText="Panel"
-          header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
-          noAnimation
-        >
-          <div className="crossplane-table-element">
-            <Providers />
-          </div>
-          <div className="crossplane-table-element">
-            <ProvidersConfig />
-          </div>
-          <div className="crossplane-table-element">
-            <ManagedResources />
-          </div>
-        </Panel>
-      </ObjectPageSection>
-      
-      <ObjectPageSection
-        className="cp-page-section-gitops"
-        id="gitops"
-        titleText={t('McpPage.gitOpsTitle')}
-        hideTitleText
-      >
-        <Panel
-          className={styles.panel}
-          headerLevel="H3"
-          headerText="Panel"
-          header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}
-          noAnimation
-        >
-          <FluxList />
-        </Panel>
       </ObjectPageSection>
     </ObjectPage>
   );
