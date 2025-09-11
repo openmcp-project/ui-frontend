@@ -109,26 +109,6 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     setTemplateDefaultsError(errors.length ? errors.join('\n') : null);
   }, [availableManagedComponentsListData, defaultComponents, setComponentsList]);
 
-  useEffect(() => {
-    if (!initialized.current) return;
-    if (!defaultComponents?.length) return;
-    if (!componentsList?.length) return;
-
-    const anySelected = componentsList.some((c) => c.isSelected);
-    if (anySelected) return;
-
-    const updated = componentsList.map((c) => {
-      const template = defaultComponents.find((dc) => dc.name === c.name);
-      if (!template) return c;
-      const templateVersion = template.version;
-      const selectedVersion =
-        templateVersion && Array.isArray(c.versions) && c.versions.includes(templateVersion) ? templateVersion : '';
-      return { ...c, isSelected: true, selectedVersion };
-    });
-
-    setComponentsList(updated);
-  }, [defaultComponents, componentsList, setComponentsList]);
-
   if (isLoading) {
     return <Loading />;
   }
