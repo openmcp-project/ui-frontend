@@ -399,6 +399,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     );
     const labels = (mockedData.metadata.labels as unknown as Record<string, string>) ?? {};
     const annotations = (mockedData.metadata.annotations as unknown as Record<string, string>) ?? {};
+    console.log(labels?.[CHARGING_TARGET_TYPE_LABEL]);
     reset({
       name: mockedData.metadata.name,
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',

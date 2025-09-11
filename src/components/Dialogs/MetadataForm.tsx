@@ -58,18 +58,22 @@ export function MetadataForm({
         />
         <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
         <Input id="displayName" {...register('displayName')} className={styles.input} />
-
         <div>
           <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
         </div>
-        <Select id={'chargingTargetType'} className={styles.input} onChange={handleChargingTargetTypeChange}>
+
+        <Select
+          value={watch?.('chargingTargetType') ?? ''}
+          id={'chargingTargetType'}
+          className={styles.input}
+          onChange={handleChargingTargetTypeChange}
+        >
           {chargingTypes.map((option) => (
-            <Option key={option.value} data-value={option.value}>
+            <Option key={option.value} value={option.value} data-value={option.value}>
               {option.label}
             </Option>
           ))}
         </Select>
-
         <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>
