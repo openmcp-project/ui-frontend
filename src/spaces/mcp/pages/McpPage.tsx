@@ -172,25 +172,12 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', paddingTop: '16px', paddingBottom: '12px' }}>
           <BentoGrid className={expandedCard ? styles.expandedGrid : ''}>
-            {/* Left side: Graph in extra-large (top) - expands to full width when any component is expanded */}
-            <BentoCard 
-              size="extra-large" 
-              gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
-              gridRow="1 / 5"
-              className={expandedCard ? styles.expandedCard : ''}
-            >
-              <GraphCard 
-                title="Resource Dependencies" 
-                colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
-              />
-            </BentoCard>
-
-            {/* Crossplane component - shows in default view or when expanded */}
+            {/* Left side: Crossplane component in large (top) - expands to full width when expanded */}
             {(!expandedCard || expandedCard === 'crossplane') && (
               <BentoCard 
                 size="large" 
                 gridColumn={expandedCard === 'crossplane' ? "1 / 13" : "1 / 9"} 
-                gridRow="5 / 7"
+                gridRow="1 / 3"
                 className={expandedCard === 'crossplane' ? styles.expandedCard : ''}
               >
                 <div style={{ position: 'relative', height: '100%' }}>
@@ -227,7 +214,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               <BentoCard 
                 size="large" 
                 gridColumn="1 / 13" 
-                gridRow="5 / 7"
+                gridRow="1 / 3"
                 className={styles.expandedCard}
               >
                 <div style={{ position: 'relative', height: '100%' }}>
@@ -256,6 +243,19 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 </div>
               </BentoCard>
             )}
+
+            {/* Left side: Graph in extra-large (bottom) - expands to full width when any component is expanded */}
+            <BentoCard 
+              size="extra-large" 
+              gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
+              gridRow="3 / 7"
+              className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
+            >
+              <GraphCard 
+                title="Resource Dependencies" 
+                colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
+              />
+            </BentoCard>
 
             {/* Right side cards - hide when any component is expanded */}
             {!expandedCard && (
@@ -303,7 +303,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   size="small" 
                   gridColumn="9 / 11" 
                   gridRow="5 / 7"
-                  className={isExpanding ? styles.hidingCard : ''}
+                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
                   <ComponentCard
                     enabled={false}
@@ -321,7 +321,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   size="small" 
                   gridColumn="11 / 13" 
                   gridRow="5 / 7"
-                  className={isExpanding ? styles.hidingCard : ''}
+                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
                   <ComponentCard
                     enabled={false}
