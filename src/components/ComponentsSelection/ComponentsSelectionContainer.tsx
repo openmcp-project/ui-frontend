@@ -54,61 +54,60 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   );
 
   useEffect(() => {
-    if (
-      initialized.current ||
-      !availableManagedComponentsListData?.items ||
-      availableManagedComponentsListData.items.length === 0
-    ) {
-      return;
-    }
-
-    const newComponentsList = availableManagedComponentsListData.items
-      .map((item) => {
-        const versions = sortVersions(item.status.versions);
-        const template = defaultComponents.find((dc) => dc.name === item.metadata.name);
-        const templateVersion = template?.version;
-        const selectedVersion = template
-          ? templateVersion && versions.includes(templateVersion)
-            ? templateVersion
-            : ''
-          : (versions[0] ?? '');
-        return {
-          name: item.metadata.name,
-          versions,
-          selectedVersion,
-          isSelected: !!template,
-          documentationUrl: '',
-        };
-      })
-      .filter((component) => !removeComponents.find((item) => item === component.name));
-
-    setComponentsList(newComponentsList);
-    initialized.current = true;
-  }, [availableManagedComponentsListData, setComponentsList, defaultComponents]);
-
-  useEffect(() => {
     const items = availableManagedComponentsListData?.items ?? [];
-    if (items.length === 0 || !defaultComponents.length) {
+
+    if (!items.length) {
+      if (!initialized.current) return;
       setTemplateDefaultsError(null);
       return;
     }
 
-    const errs: string[] = [];
+    if (!initialized.current) {
+      const newComponentsList = items
+        .map((item) => {
+          const versions = sortVersions(item.status.versions);
+          const template = defaultComponents.find((dc) => dc.name === item.metadata.name);
+          const templateVersion = template?.version;
+          const selectedVersion = template
+            ? templateVersion && versions.includes(templateVersion)
+              ? templateVersion
+              : ''
+            : (versions[0] ?? '');
+          return {
+            name: item.metadata.name,
+            versions,
+            selectedVersion,
+            isSelected: !!template,
+            documentationUrl: '',
+          };
+        })
+        .filter((component) => !removeComponents.find((item) => item === component.name));
+
+      setComponentsList(newComponentsList);
+      initialized.current = true;
+    }
+
+    if (!defaultComponents.length) {
+      setTemplateDefaultsError(null);
+      return;
+    }
+
+    const errors: string[] = [];
     defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
       const item = items.find((it) => it.metadata.name === dc.name);
       if (!item) {
-        errs.push(`Component "${dc.name}" from template is not available.`);
+        errors.push(`Component "${dc.name}" from template is not available.`);
         return;
       }
       const versions: string[] = Array.isArray(item.status?.versions) ? item.status.versions : [];
       if (dc.version && !versions.includes(dc.version)) {
-        errs.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
+        errors.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
       }
     });
 
-    setTemplateDefaultsError(errs.length ? errs.join('\n') : null);
-  }, [availableManagedComponentsListData, defaultComponents]);
+    setTemplateDefaultsError(errors.length ? errors.join('\n') : null);
+  }, [availableManagedComponentsListData, defaultComponents, setComponentsList]);
 
   useEffect(() => {
     if (!initialized.current) return;
