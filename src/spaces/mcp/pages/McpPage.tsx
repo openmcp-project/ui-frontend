@@ -20,7 +20,7 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { BentoGrid, BentoCard, GraphCard, ComponentCard } from '../../../components/BentoGrid';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig, useVeleroHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useESOHintConfig, useKyvernoHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
 import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { ManagedResourceItem } from '../../../lib/shared/types';
@@ -102,8 +102,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
   // Get hint configurations
   const crossplaneConfig = useCrossplaneHintConfig();
   const gitOpsConfig = useGitOpsHintConfig();
-  const vaultConfig = useVaultHintConfig();
-  const veleroConfig = useVeleroHintConfig();
+  const vaultConfig = useESOHintConfig();
+  const veleroConfig = useKyvernoHintConfig();
 
   // Handle component card clicks
   const handleCrossplaneExpand = () => {

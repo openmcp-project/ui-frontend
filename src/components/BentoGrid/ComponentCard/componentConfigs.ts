@@ -37,28 +37,29 @@ export const useGitOpsHintConfig = (): GenericHintConfig => {
   };
 };
 
-export const useVaultHintConfig = (): GenericHintConfig => {
+export const useESOHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {
-    title: t('Hints.VaultHint.title'),
-    subtitle: t('Hints.VaultHint.subtitle'),
-    iconSrc: '/vault.png',
-    iconAlt: 'Vault',
-    iconStyle: { borderRadius: '0' }, // Vault icon should not be rounded
+    title: t('Hints.ESOHint.title'),
+    subtitle: t('Hints.ESOHint.subtitle'),
+    iconSrc: '/eso.png',
+    iconAlt: 'ESO',
+    // Not sure yet whether this looks better fully round or with rounded edges...
+    // iconStyle: { borderRadius: '8px' }, // ESO icon with rounded corners
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateVaultSegments(allItems, isLoading, error, enabled, t),
   };
 };
 
-export const useVeleroHintConfig = (): GenericHintConfig => {
+export const useKyvernoHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {
-    title: "Velero",
-    subtitle: "Backups Status",
-    iconSrc: '/velero.png',
-    iconAlt: 'Velero',
+    title: "Kyverno",
+    subtitle: "Enfore policies",
+    iconSrc: '/kyverno.svg',
+    iconAlt: 'Kyverno',
     iconStyle: { borderRadius: '0' }, // Vault icon should not be rounded
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateVaultSegments(allItems, isLoading, error, enabled, t),

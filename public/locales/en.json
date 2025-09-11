@@ -387,7 +387,7 @@
   "Hints": {
     "CrossplaneHint": {
       "title": "Crossplane",
-      "subtitle": "Managed Resources Readiness",
+      "subtitle": "Manage your cloud landscape in code",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
       "noResources": "No Resources",
@@ -403,7 +403,7 @@
     },
     "GitOpsHint": {
       "title": "Flux",
-      "subtitle": "GitOps Progress",
+      "subtitle": "Persist desired state in code repsitories",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
       "noResources": "No Resources",
@@ -416,9 +416,9 @@
         "unmanaged": "Unmanaged"
       }
     },
-    "VaultHint": {
-      "title": "Vault",
-      "subtitle": "Rotating Secrets Progress",
+    "ESOHint": {
+      "title": "ESO",
+      "subtitle": "Secure secrets with rotation",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
       "noResources": "No Resources",

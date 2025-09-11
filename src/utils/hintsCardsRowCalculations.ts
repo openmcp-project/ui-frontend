@@ -207,8 +207,8 @@ export const calculateVaultSegments: GenericHintSegmentCalculator = (
 
   if (!enabled) {
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.VaultHint.inactive') }],
-      label: t('Hints.VaultHint.inactive'),
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.ESOHint.inactive') }],
+      label: t('Hints.ESOHint.inactive'),
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
@@ -216,7 +216,7 @@ export const calculateVaultSegments: GenericHintSegmentCalculator = (
   }
 
   const hasResources = allItems.length > 0;
-  const label = hasResources ? t('Hints.VaultHint.progressAvailable') : t('Hints.VaultHint.noResources');
+  const label = hasResources ? t('Hints.ESOHint.progressAvailable') : t('Hints.ESOHint.noResources');
   const color = hasResources ? HINT_COLORS.healthy : HINT_COLORS.inactive;
 
   return {
