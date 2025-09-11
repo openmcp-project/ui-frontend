@@ -5,7 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ListWorkspacesType, isWorkspaceReady } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import { DeleteWorkspaceResource, DeleteWorkspaceType } from '../../../lib/api/types/crate/deleteWorkspace.ts';
 import { useApiResourceMutation, useApiResource } from '../../../lib/api/useApiResource.ts';
@@ -32,6 +32,7 @@ interface Props {
 
 export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
+  const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
   const showDisplayName = workspaceDisplayName.length > 0;
@@ -68,6 +69,24 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
     return null;
   }
 
+  const uniqueMembers = useMemo(() => {
+    const seenKeys = new Set<string>();
+    const fallbackNamespace = workspace.status?.namespace ?? '';
+
+    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string }) => {
+      const memberNamespace = member?.namespace ?? fallbackNamespace;
+      const memberName = String(member?.name ?? '')
+        .trim()
+        .toLowerCase();
+      if (!memberName) return false;
+
+      const dedupeKey = `${memberNamespace}::${memberName}`;
+      if (seenKeys.has(dedupeKey)) return false;
+      seenKeys.add(dedupeKey);
+      return true;
+    });
+  }, [workspace.spec.members, workspace.status?.namespace]);
+
   return (
     <>
       <ObjectPageSection
@@ -98,7 +117,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
 
               <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
 
-              <MembersAvatarView members={workspace.spec.members} project={projectName} workspace={workspaceName} />
+              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <YamlViewButtonWithLoader
                   workspaceName={workspace.metadata.namespace}
@@ -108,6 +127,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
                 <ControlPlanesListMenu
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                   setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
+                  setInitialTemplateName={setInitialTemplateName}
                 />
               </FlexBox>
             </div>
@@ -168,6 +188,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
         setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
         projectName={projectNamespace}
         workspaceName={workspaceName}
+        initialTemplateName={initialTemplateName}
       />
     </>
   );
