@@ -107,7 +107,15 @@ export default function McpPage() {
               titleText={t('McpPage.graphTitle')}
               hideTitleText
             >
-              <Graph />
+              <Panel
+                className={styles.panel}
+                headerLevel="H2"
+                headerText="Panel"
+                header={<Title level="H2">{t('McpPage.graphTitle')}</Title>}
+                noAnimation
+              >
+                <Graph />
+              </Panel>
             </ObjectPageSection>
             <ObjectPageSection
               className="cp-page-section-components"
