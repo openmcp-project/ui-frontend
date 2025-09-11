@@ -1,5 +1,5 @@
 import { Button, ButtonPropTypes } from '@ui5/webcomponents-react';
-import { useToast } from '../../context/ToastContext.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useId, CSSProperties } from 'react';
 import { useCopyButton } from '../../context/CopyButtonContext.tsx';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
@@ -11,20 +11,15 @@ interface CopyButtonProps extends ButtonPropTypes {
 }
 
 export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps) => {
-  const { show } = useToast();
+  const { copyToClipboard } = useCopyToClipboard();
   const { activeCopyId, setActiveCopyId } = useCopyButton();
   const uniqueId = useId();
   const isCopied = activeCopyId === uniqueId;
   const { t } = useTranslation();
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setActiveCopyId(uniqueId);
-    } catch (err) {
-      console.error(`Failed to copy text: ${text}. Error: ${err}`);
-      show(`${t('CopyButton.copiedMessage')} ${err}`);
-    }
+    await copyToClipboard(text, { showToastOnSuccess: false });
+    setActiveCopyId(uniqueId);
   };
 
   const defaultStyle: CSSProperties = {
@@ -40,7 +35,7 @@ export const CopyButton = ({ text, style = {}, ...buttonProps }: CopyButtonProps
       onClick={handleCopy}
       {...buttonProps}
     >
-      {isCopied ? t('CopyButton.copiedMessage') : text}
+      {isCopied ? t('common.copyToClipboardSuccessToast') : text}
     </Button>
   );
 };
