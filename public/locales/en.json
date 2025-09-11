@@ -425,6 +425,15 @@
       "inactive": "Coming soon...",
       "activate": "Activate"
     },
+    "KyvernoHint": {
+      "title": "Kyverno",
+      "subtitle": "Enforce policies",
+      "activeStatus": "Active v",
+      "progressAvailable": "Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate"
+    },
     "common": {
       "loading": "Loading...",
       "errorLoadingResources": "Error loading resources",

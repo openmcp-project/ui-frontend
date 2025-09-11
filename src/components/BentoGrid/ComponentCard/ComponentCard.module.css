@@ -56,6 +56,30 @@
   padding: 0 0.5rem;
 }
 
+.progressBarContainerSmall {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 0.5rem;
+}
+
+.progressBarContainerMedium {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 600px;
+  padding: 0 0.75rem;
+}
+
+.progressBarContainerLarge {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: none;
+  padding: 0 1rem;
+}
+
 .progressBar {
   width: 100%;
 }

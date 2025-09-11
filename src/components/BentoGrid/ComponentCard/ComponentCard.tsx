@@ -38,7 +38,7 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
               />
             }
             titleText={config.title}
-            subtitleText={config.subtitle}
+            subtitleText={size === 'small' ? undefined : config.subtitle}
             interactive={enabled}
           />
         }
@@ -65,7 +65,11 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
         )}
 
         <div className={styles.contentContainer}>
-          <div className={styles.progressBarContainer}>
+          <div className={
+            size === 'small' ? styles.progressBarContainerSmall :
+            size === 'medium' ? styles.progressBarContainerMedium :
+            styles.progressBarContainerLarge
+          }>
             <MultiPercentageBar
               segments={hintState.segments}
               className={styles.progressBar}
@@ -73,6 +77,17 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
               showPercentage={hintState.showPercentage}
               isHealthy={hintState.isHealthy}
               showOnlyNonZero={hintState.showOnlyNonZero ?? true}
+              barWidth={
+                size === 'small' ? '80%' :
+                size === 'medium' ? '85%' :
+                '90%'
+              }
+              barHeight={size === 'small' ? '8px' : '12px'}
+              barMaxWidth={
+                size === 'small' ? '400px' :
+                size === 'medium' ? '600px' :
+                'none'
+              }
             />
           </div>
         </div>

@@ -56,8 +56,8 @@ export const useKyvernoHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
 
   return {
-    title: "Kyverno",
-    subtitle: "Enfore policies",
+    title: t('Hints.KyvernoHint.title'),
+    subtitle: t('Hints.KyvernoHint.subtitle'),
     iconSrc: '/kyverno.svg',
     iconAlt: 'Kyverno',
     iconStyle: { borderRadius: '0' }, // Vault icon should not be rounded
