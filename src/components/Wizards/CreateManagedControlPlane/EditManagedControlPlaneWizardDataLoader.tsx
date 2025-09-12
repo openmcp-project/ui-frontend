@@ -5,6 +5,7 @@ import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 import Loading from '../../Shared/Loading.tsx';
 import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
+import { ManagedControlPlaneInterface } from './mcp_type.ts';
 
 export type EditManagedControlPlaneWizardDataLoaderProps = {
   workspaceName?: string;
@@ -20,7 +21,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   setIsOpen,
 }) => {
   const { isLoading, data, error } = useApiResource(
-    ResourceObject(workspaceName ?? '', 'managedcontrolplanes', resourceName),
+    ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
     undefined,
     true,
     !isOpen,

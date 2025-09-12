@@ -37,8 +37,6 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
-  PROJECT_NAME_LABEL,
-  WORKSPACE_LABEL,
 } from '../../../lib/api/types/shared/keyNames.ts';
 import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
@@ -50,6 +48,7 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
+import { ManagedControlPlaneInterface } from './mcp_type.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -58,7 +57,7 @@ type CreateManagedControlPlaneWizardContainerProps = {
   workspaceName?: string;
   isEditMode: boolean;
   initialTemplateName?: string;
-  initialData?: any;
+  initialData?: ManagedControlPlaneInterface;
 };
 
 type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -195,7 +194,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
   const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name),
+    UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
   );
   const componentsList = watch('componentsList');
 
@@ -214,7 +213,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         if (isEditMode) {
           await triggerUpdate(
             CreateManagedControlPlane(
-              initialData.metadata.name,
+              initialData?.metadata?.name ?? '',
               `${projectName}--ws-${workspaceName}`,
               {
                 displayName,
@@ -354,10 +353,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const initialSelection = useMemo(() => {
     if (!isEditMode) return undefined;
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
-    const components = initialData.spec.components as any;
-    Object.keys(components).forEach((key) => {
+    const components = initialData?.spec.components;
+    Object.keys(components ?? {}).forEach((key) => {
       if (key === 'apiServer' || key === 'landscaper') return;
-      const value = components[key];
+      const value = components?.[key];
       if (key === 'crossplane') {
         selection[key] = { isSelected: true, version: value.version ?? '' };
         (value.providers ?? []).forEach((prov: { name: string; version: string }) => {
@@ -373,7 +372,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !isEditMode) return;
-    const roleBindings = initialData.spec.authorization.roleBindings ?? [];
+    const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
     const members: Member[] = roleBindings.flatMap((rb) =>
       (rb.subjects ?? []).map((s: any) => ({
         kind: s.kind,
@@ -382,11 +381,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         namespace: s.namespace,
       })),
     );
-    const labels = (initialData.metadata.labels as unknown as Record<string, string>) ?? {};
-    const annotations = (initialData.metadata.annotations as unknown as Record<string, string>) ?? {};
+    const labels = (initialData?.metadata.labels as unknown as Record<string, string>) ?? {};
+    const annotations = (initialData?.metadata.annotations as unknown as Record<string, string>) ?? {};
 
     reset({
-      name: initialData.metadata.name,
+      name: initialData?.metadata.name,
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
       chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL] ?? '',

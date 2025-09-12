@@ -1,8 +1,4 @@
-// ManagedControlPlane TypeScript interfaces generated from example JSON
-// These interfaces are intentionally permissive (optional fields, string unions with fallbacks)
-// to remain forward-compatible with the API while providing strong typing for known fields.
-
-export interface ManagedControlPlane {
+export interface ManagedControlPlaneInterface {
   apiVersion: 'core.openmcp.cloud/v1alpha1' | string;
   kind: 'ManagedControlPlane' | string;
   metadata: KubernetesObjectMeta;
