@@ -353,10 +353,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const initialSelection = useMemo(() => {
     if (!isEditMode) return undefined;
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
-    const components = initialData?.spec.components;
-    Object.keys(components ?? {}).forEach((key) => {
+    const componentsMap = (initialData?.spec.components ?? {}) as Record<string, any>;
+    Object.keys(componentsMap).forEach((key) => {
       if (key === 'apiServer' || key === 'landscaper') return;
-      const value = components?.[key];
+      const value = componentsMap[key];
       if (key === 'crossplane') {
         selection[key] = { isSelected: true, version: value.version ?? '' };
         (value.providers ?? []).forEach((prov: { name: string; version: string }) => {
