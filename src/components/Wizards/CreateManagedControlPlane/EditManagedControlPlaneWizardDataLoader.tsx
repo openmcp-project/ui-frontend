@@ -6,6 +6,7 @@ import Loading from '../../Shared/Loading.tsx';
 import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
 import { ManagedControlPlaneInterface } from './mcp_type.ts';
+import { BusyIndicator } from '@ui5/webcomponents-react';
 
 export type EditManagedControlPlaneWizardDataLoaderProps = {
   workspaceName?: string;
@@ -26,10 +27,11 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
     true,
     !isOpen,
   );
+
   if (isLoading) {
     return (
       <div className={styles.absolute}>
-        <Loading />
+        <BusyIndicator active />
       </div>
     );
   }
