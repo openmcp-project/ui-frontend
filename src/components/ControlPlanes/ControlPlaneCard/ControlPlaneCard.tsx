@@ -28,6 +28,8 @@ import { canConnectToMCP } from '../controlPlanes.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
+import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -39,7 +41,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
-
+  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
     PatchMCPResourceForDeletion(controlPlane.metadata.namespace, controlPlane.metadata.name),
   );
@@ -79,7 +81,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
               <ControlPlaneCardMenu
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                // setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
+                setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
               />
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButtonWithLoader
@@ -122,6 +124,13 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
           await deleteTrigger();
           toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
         }}
+      />
+      <EditManagedControlPlaneWizardDataLoader
+        isOpen={isEditManagedControlPlaneWizardOpen}
+        setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+        projectName={projectName}
+        workspaceName={namespace}
+        resourceName={name}
       />
     </>
   );

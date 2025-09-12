@@ -9,16 +9,14 @@ import { useTranslation } from 'react-i18next';
 type ControlPlanesListMenuProps = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
   isDeleteMcpButtonDisabled: boolean;
-  // setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteMcpIsOpen,
   isDeleteMcpButtonDisabled,
-  // setIsCreateManagedControlPlaneWizardOpen,
+  setIsEditManagedControlPlaneWizardOpen,
 }) => {
-  // const popoverRef = useRef<MenuDomRef>(null);
-
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -36,7 +34,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
-            // setIsCreateManagedControlPlaneWizardOpen(true);
+            setIsEditManagedControlPlaneWizardOpen(true);
           }
           if (action === 'deleteMcp') {
             setDialogDeleteMcpIsOpen(true);
@@ -48,12 +46,6 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           setMenuIsOpen(false);
         }}
       >
-        {/*<MenuItem*/}
-        {/*  key={'add'}*/}
-        {/*  text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}*/}
-        {/*  data-action="newManagedControlPlane"*/}
-        {/*  icon="add"*/}
-        {/*/>*/}
         <MenuItem
           key={'delete'}
           text={t('ControlPlaneCard.deleteMCP')}

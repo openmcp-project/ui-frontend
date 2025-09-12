@@ -110,15 +110,6 @@ export function MetadataForm({
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
-        <Input
-          className={styles.input}
-          id="name"
-          {...register('name')}
-          valueState={errors.name ? 'Negative' : 'None'}
-          valueStateMessage={<span>{errors.name?.message}</span>}
-          required
-          disabled={isEditMode}
-        />
 
         {resolvedNamePrefix || resolvedNameSuffix ? (
           <div className={styles.affixRow}>
@@ -140,6 +131,7 @@ export function MetadataForm({
               valueState={errors.name ? 'Negative' : 'None'}
               valueStateMessage={<span>{errors.name?.message}</span>}
               required
+              disabled={isEditMode}
               onInput={onNameCoreInput}
             />
             {resolvedNameSuffix ? (
@@ -160,6 +152,7 @@ export function MetadataForm({
             valueState={errors.name ? 'Negative' : 'None'}
             valueStateMessage={<span>{errors.name?.message}</span>}
             required
+            disabled={isEditMode}
           />
         )}
 
@@ -188,7 +181,9 @@ export function MetadataForm({
               />
             ) : null}
           </div>
-        ) : (        <Input id="displayName" {...register('displayName')} className={styles.input} />)}
+        ) : (
+          <Input id="displayName" {...register('displayName')} className={styles.input} />
+        )}
         <div>
           <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
         </div>
@@ -197,10 +192,16 @@ export function MetadataForm({
           value={watch?.('chargingTargetType') ?? ''}
           id={'chargingTargetType'}
           className={styles.input}
-         disabled={disableChargingFields} onChange={handleChargingTargetTypeChange}
+          disabled={disableChargingFields}
+          onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
-            <Option key={option.value} value={option.value} data-value={option.value} selected={currentChargingTargetType === option.value}>
+            <Option
+              key={option.value}
+              value={option.value}
+              data-value={option.value}
+              selected={currentChargingTargetType === option.value}
+            >
               {option.label}
             </Option>
           ))}
