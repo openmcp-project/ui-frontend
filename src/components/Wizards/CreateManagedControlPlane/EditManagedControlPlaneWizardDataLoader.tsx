@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
-
+import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 import Loading from '../../Shared/Loading.tsx';
 import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
@@ -25,20 +25,27 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
     true,
     !isOpen,
   );
-
-  if (isLoading) return <Loading />;
+  if (isLoading) {
+    return (
+      <div className={styles.absolute}>
+        <Loading />
+      </div>
+    );
+  }
   if (error || !data) {
     return null;
   }
 
   return (
-    <CreateManagedControlPlaneWizardContainer
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
-      workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
-      isEditMode={true}
-      initialData={data}
-    />
+    <>
+      <CreateManagedControlPlaneWizardContainer
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
+        workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
+        isEditMode={true}
+        initialData={data}
+      />
+    </>
   );
 };
