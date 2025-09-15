@@ -66,8 +66,8 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
 
     const newComponentsList = availableManagedComponentsListData.items
       .map((item) => {
-        const versions = sortVersions(item.status.versions);
-        const template = defaultComponents.find((dc) => dc.name === item.metadata.name);
+        const versions = sortVersions(item.status?.versions ?? []);
+        const template = defaultComponents.find((dc) => dc.name === (item.metadata?.name ?? ''));
         const templateVersion = template?.version;
         let selectedVersion = template
           ? templateVersion && versions.includes(templateVersion)
@@ -76,14 +76,14 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
           : (versions[0] ?? '');
         let isSelected = !!template;
 
-        const initSel = initialSelection?.[item.metadata.name];
+        const initSel = initialSelection?.[item.metadata?.name ?? ''];
         if (initSel) {
           // Override selection and version from initial selection if provided
           isSelected = Boolean(initSel.isSelected);
           selectedVersion = initSel.version && versions.includes(initSel.version) ? initSel.version : '';
         }
         return {
-          name: item.metadata.name,
+          name: item.metadata?.name ?? '',
           versions,
           selectedVersion,
           isSelected,
@@ -106,12 +106,12 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     const errs: string[] = [];
     defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
-      const item = items.find((it) => it.metadata.name === dc.name);
+      const item = items.find((it) => it.metadata?.name === dc.name);
       if (!item) {
         errs.push(`Component "${dc.name}" from template is not available.`);
         return;
       }
-      const versions: string[] = Array.isArray(item.status?.versions) ? item.status.versions : [];
+      const versions: string[] = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
       if (dc.version && !versions.includes(dc.version)) {
         errs.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
       }
@@ -145,15 +145,16 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   if (isLoading) {
     return <Loading />;
   }
+  console.log(error);
 
-  if (error) {
-    return <IllustratedError compact={true} />;
-  }
-
-  // Defensive: If the API returned no items, show error
-  if (!componentsList || componentsList.length === 0) {
-    return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
-  }
+  // if (error) {
+  //   return <IllustratedError compact={true} />;
+  // }
+  //
+  // // Defensive: If the API returned no items, show error
+  // if (!componentsList || componentsList.length === 0) {
+  //   return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
+  // }
 
   return (
     <ComponentsSelection
