@@ -27,11 +27,14 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
+import { ControlPlaneCardMenu } from '../../../components/ControlPlanes/ControlPlaneCard/ControlPlaneCardMenu.tsx';
+import { useState } from 'react';
+import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
-
+  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const {
     data: mcp,
     error,
@@ -88,6 +91,15 @@ export default function McpPage() {
                       resourceName={controlPlaneName}
                     />
                     <CopyKubeconfigButton />
+                    <ControlPlaneCardMenu
+                      setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                    />
+                    <EditManagedControlPlaneWizardDataLoader
+                      isOpen={isEditManagedControlPlaneWizardOpen}
+                      setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+                      workspaceName={mcp?.status?.access?.namespace}
+                      resourceName={controlPlaneName}
+                    />
                   </div>
                 }
               />

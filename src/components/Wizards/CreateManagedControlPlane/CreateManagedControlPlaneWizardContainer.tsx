@@ -48,7 +48,7 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
-import { ManagedControlPlaneInterface } from './mcp_type.ts';
+import { ManagedControlPlaneInterface } from '../../../lib/api/types/mcpResource.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
