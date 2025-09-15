@@ -29,7 +29,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
-import { resolveProviderType } from '../../../components/Graphs/graphUtils';
+import { resolveProviderType, generateColorMap } from '../../../components/Graphs/graphUtils';
 
 // Utility function to flatten managed resources
 const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -44,20 +44,6 @@ const flattenManagedResources = (managedResources: ManagedResourcesResponse): Ma
 const calculateProviderDistribution = (items: ManagedResourceItem[], providerConfigs: any[]) => {
   if (!items || items.length === 0) return { segments: [], totalProviders: 0 };
 
-  // Graph color palette (same as in graphUtils.ts)
-  const colors = [
-    '#FFC933', // MANGO 4
-    '#FF8AF0', // PINK 4
-    '#FEADC8', // RASPBERRY 4
-    '#2CE0BF', // TEAL 4
-    '#FF8CB2', // RED 4
-    '#B894FF', // INDIGO 4
-    '#049F9A', // TEAL 6
-    '#FA4F96', // RASPBERRY 6
-    '#F31DED', // PINK 6
-    '#7858FF', // INDIGO 6
-  ];
-
   // Count resources by provider type (same method as graph)
   const providerCounts: Record<string, number> = {};
   
@@ -67,12 +53,22 @@ const calculateProviderDistribution = (items: ManagedResourceItem[], providerCon
     providerCounts[providerType] = (providerCounts[providerType] || 0) + 1;
   });
 
+  // Create NodeData-like objects for color generation (reuse graph's color logic)
+  const nodeDataForColors = Object.keys(providerCounts).map(providerType => ({
+    providerType,
+    providerConfigName: '', // Not needed for color generation
+    fluxName: undefined
+  }));
+
+  // Generate colors using the same logic as the graph
+  const colorMap = generateColorMap(nodeDataForColors as any, 'source');
+
   // Convert to segments with percentages and counts
   const total = items.length;
   const segments = Object.entries(providerCounts)
-    .map(([provider, count], index) => ({
+    .map(([provider, count]) => ({
       percentage: Math.round((count / total) * 100),
-      color: colors[index % colors.length],
+      color: colorMap[provider] || '#BFBFBF', // fallback color
       label: provider.replace('provider-', '').toUpperCase(),
       count: count
     }))
@@ -319,15 +315,15 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
             {/* Right side cards - hide when any component is expanded */}
             {!expandedCard && (
               <>
-                {/* Right side: First medium component (GitOps) - DEACTIVATED */}
+                {/* Right side: First medium component (GitOps) - ACTIVATED */}
                 <BentoCard 
                   size="medium" 
                   gridColumn="9 / 13" 
                   gridRow="1 / 3"
-                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
+                  className={isExpanding ? styles.hidingCard : ''}
                 >
                   <ComponentCard
-                    enabled={true}
+                    enabled={!!mcp?.spec?.components?.flux}
                     version={mcp?.spec?.components?.flux?.version}
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
