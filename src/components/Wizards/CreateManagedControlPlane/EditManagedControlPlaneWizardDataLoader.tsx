@@ -41,14 +41,16 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
 
   return (
     <>
-      <CreateManagedControlPlaneWizardContainer
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
-        workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
-        isEditMode={true}
-        initialData={data}
-      />
+      {isOpen ? (
+        <CreateManagedControlPlaneWizardContainer
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
+          workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
+          isEditMode={true}
+          initialData={data}
+        />
+      ) : null}
     </>
   );
 };
