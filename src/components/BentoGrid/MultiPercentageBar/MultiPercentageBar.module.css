@@ -169,6 +169,35 @@
   }
 }
 
+/* Segment label inside the bar */
+.segmentLabel {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  animation: fadeInLabel calc(var(--animation-duration) * 1.5) ease-out forwards;
+  animation-delay: calc(var(--animation-duration) * 0.5);
+}
+
+@keyframes fadeInLabel {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
 /* Theme Support */
 [data-ui5-theme-root*="dark"] .container,
 [data-ui5-theme*="dark"] .container {

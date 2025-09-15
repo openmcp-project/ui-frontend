@@ -5,6 +5,7 @@ interface PercentageSegment {
   percentage: number;
   color: string;
   label: string;
+  count?: number; // Optional count for displaying inside segments
 }
 
 interface MultiPercentageBarProps {
@@ -24,6 +25,8 @@ interface MultiPercentageBarProps {
   className?: string;
   style?: React.CSSProperties;
   animationDuration?: number; // Animation duration in ms (for CSS custom property)
+  showSegmentLabels?: boolean; // Control whether to show labels inside segments
+  minSegmentWidthForLabel?: number; // Minimum percentage to show label inside segment
 }
 
 export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
@@ -43,6 +46,8 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   className,
   style,
   animationDuration = 400, // Match CSS default
+  showSegmentLabels = false,
+  minSegmentWidthForLabel = 15, // Only show label if segment is at least 15%
 }) => {
   // Memoize filtered segments
   const filteredSegments = useMemo(() => {
@@ -78,10 +83,10 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
       {showLabels && (
         <div className={styles.labelContainer}>
           <div className={styles.labelGroup}>
+            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
             {showPercentage && (
               <span className={`${styles.percentage} ${allHealthy ? styles.healthy : ''}`}>{primaryPercentage}%</span>
             )}
-            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
           </div>
         </div>
       )}
@@ -101,6 +106,13 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
           >
             {/* Wave animation overlay */}
             <div className={styles.waveOverlay} />
+            
+            {/* Segment label inside the bar */}
+            {showSegmentLabels && segment.percentage >= minSegmentWidthForLabel && (
+              <span className={styles.segmentLabel}>
+                {segment.count ? `${segment.label} ${segment.count}` : segment.label}
+              </span>
+            )}
           </div>
         ))}
       </div>

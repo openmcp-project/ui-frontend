@@ -6,7 +6,12 @@ import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
 import styles from './ComponentCard.module.css';
 import { GenericHintProps } from '../../../types/types';
 
-export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; size?: 'small' | 'medium' | 'large' | 'extra-large' }> = ({
+export const ComponentCard: React.FC<GenericHintProps & { 
+  onClick?: () => void; 
+  size?: 'small' | 'medium' | 'large' | 'extra-large';
+  secondarySegments?: Array<{ percentage: number; color: string; label: string }>;
+  secondaryLabel?: string;
+}> = ({
   enabled = false,
   version,
   allItems = [],
@@ -15,6 +20,8 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
   config,
   onClick,
   size = 'medium',
+  secondarySegments,
+  secondaryLabel = 'Secondary Metric',
 }) => {
   const { t } = useTranslation();
 
@@ -44,15 +51,16 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
         }
         className={cx(styles.card, {
           [styles.disabled]: !enabled,
-          [styles.clickable]: !!onClick,
+          [styles.clickable]: !!onClick && enabled,
         })}
-        onClick={onClick}
+        onClick={enabled ? onClick : undefined}
+
       >
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
 
         {/* Expand button */}
-        {onClick && (
+        {onClick && enabled && (
           <Button
             icon="sap-icon://expand"
             design="Transparent"
@@ -64,7 +72,9 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
           />
         )}
 
-        <div className={styles.contentContainer}>
+        <div className={
+          (size === 'large' || size === 'extra-large') ? styles.contentContainerMultiple : styles.contentContainer
+        }>
           <div className={
             size === 'small' ? styles.progressBarContainerSmall :
             size === 'medium' ? styles.progressBarContainerMedium :
@@ -89,6 +99,23 @@ export const ComponentCard: React.FC<GenericHintProps & { onClick?: () => void; 
                 'none'
               }
             />
+            
+            {/* Second progress bar only for large and extra-large cards */}
+            {(size === 'large' || size === 'extra-large') && secondarySegments && (
+              <MultiPercentageBar
+                segments={secondarySegments}
+                className={styles.progressBar}
+                label={secondaryLabel}
+                showPercentage={false}
+                isHealthy={false}
+                showOnlyNonZero={true}
+                barWidth="90%"
+                barHeight="12px"
+                barMaxWidth="none"
+                showSegmentLabels={true}
+                minSegmentWidthForLabel={12}
+              />
+            )}
           </div>
         </div>
       </Card>

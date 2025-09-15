@@ -48,6 +48,15 @@
   flex: 1;
 }
 
+.contentContainerMultiple {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0;
+  flex: 1;
+}
+
 .progressBarContainer {
   display: flex;
   gap: 8px;
@@ -74,7 +83,8 @@
 
 .progressBarContainerLarge {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
   width: 100%;
   max-width: none;
   padding: 0 1rem;

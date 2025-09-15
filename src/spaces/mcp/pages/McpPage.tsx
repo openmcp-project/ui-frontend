@@ -13,7 +13,7 @@ import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/cra
 import { useTranslation } from 'react-i18next';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
+import { useApiResource, useProvidersConfigResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
@@ -29,6 +29,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
+import { resolveProviderType } from '../../../components/Graphs/graphUtils';
 
 // Utility function to flatten managed resources
 const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -37,6 +38,51 @@ const flattenManagedResources = (managedResources: ManagedResourcesResponse): Ma
   return managedResources
     .filter((managedResource) => managedResource?.items)
     .flatMap((managedResource) => managedResource.items || []);
+};
+
+// Utility function to calculate provider distribution with graph colors
+const calculateProviderDistribution = (items: ManagedResourceItem[], providerConfigs: any[]) => {
+  if (!items || items.length === 0) return { segments: [], totalProviders: 0 };
+
+  // Graph color palette (same as in graphUtils.ts)
+  const colors = [
+    '#FFC933', // MANGO 4
+    '#FF8AF0', // PINK 4
+    '#FEADC8', // RASPBERRY 4
+    '#2CE0BF', // TEAL 4
+    '#FF8CB2', // RED 4
+    '#B894FF', // INDIGO 4
+    '#049F9A', // TEAL 6
+    '#FA4F96', // RASPBERRY 6
+    '#F31DED', // PINK 6
+    '#7858FF', // INDIGO 6
+  ];
+
+  // Count resources by provider type (same method as graph)
+  const providerCounts: Record<string, number> = {};
+  
+  items.forEach(item => {
+    const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
+    const providerType = resolveProviderType(providerConfigName, providerConfigs);
+    providerCounts[providerType] = (providerCounts[providerType] || 0) + 1;
+  });
+
+  // Convert to segments with percentages and counts
+  const total = items.length;
+  const segments = Object.entries(providerCounts)
+    .map(([provider, count], index) => ({
+      percentage: Math.round((count / total) * 100),
+      color: colors[index % colors.length],
+      label: provider.replace('provider-', '').toUpperCase(),
+      count: count
+    }))
+    .filter(segment => segment.percentage > 0)
+    .sort((a, b) => b.percentage - a.percentage);
+
+  return {
+    segments,
+    totalProviders: segments.length
+  };
 };
 
 export default function McpPage() {
@@ -93,15 +139,26 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     refreshInterval: resourcesInterval,
   });
 
+  // Fetch provider configs for distribution calculation
+  const { data: providerConfigsList } = useProvidersConfigResource({
+    refreshInterval: 60000,
+  });
+
   // Flatten all managed resources once and pass to components
   const allItems = useMemo(
     () => flattenManagedResources(managedResources ?? ([] as unknown as ManagedResourcesResponse)),
     [managedResources],
   );
 
+  // Calculate provider distribution for crossplane card
+  const providerDistribution = useMemo(
+    () => calculateProviderDistribution(allItems, providerConfigsList || []),
+    [allItems, providerConfigsList],
+  );
+
   // Get hint configurations
   const crossplaneConfig = useCrossplaneHintConfig();
-  const gitOpsConfig = useGitOpsHintConfig();
+  const gitOpsConfig = useGitOpsHintConfig(); // DEACTIVATED via enabled={false}
   const vaultConfig = useESOHintConfig();
   const veleroConfig = useKyvernoHintConfig();
 
@@ -190,6 +247,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     config={crossplaneConfig}
                     onClick={expandedCard === 'crossplane' ? handleCollapseExpanded : handleCrossplaneExpand}
                     size="large"
+                    secondarySegments={providerDistribution.segments}
+                    secondaryLabel={`Providers ${providerDistribution.totalProviders}`}
                   />
                   {expandedCard === 'crossplane' && (
                     <Button
@@ -209,7 +268,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               </BentoCard>
             )}
 
-            {/* GitOps component - shows when expanded */}
+            {/* GitOps component - shows when expanded - DEACTIVATED */}
             {expandedCard === 'gitops' && (
               <BentoCard 
                 size="large" 
@@ -219,7 +278,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               >
                 <div style={{ position: 'relative', height: '100%' }}>
                   <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
+                    enabled={true}
                     version={mcp?.spec?.components?.flux?.version}
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
@@ -260,15 +319,15 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
             {/* Right side cards - hide when any component is expanded */}
             {!expandedCard && (
               <>
-                {/* Right side: First medium component (GitOps) */}
+                {/* Right side: First medium component (GitOps) - DEACTIVATED */}
                 <BentoCard 
                   size="medium" 
                   gridColumn="9 / 13" 
                   gridRow="1 / 3"
-                  className={isExpanding ? styles.hidingCard : ''}
+                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
                   <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
+                    enabled={true}
                     version={mcp?.spec?.components?.flux?.version}
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
@@ -279,15 +338,15 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   />
                 </BentoCard>
 
-                {/* Right side: Second medium component (GitOps copy) */}
+                {/* Right side: Second medium component (GitOps copy) - DEACTIVATED */}
                 <BentoCard 
                   size="medium" 
                   gridColumn="9 / 13" 
                   gridRow="3 / 5"
-                  className={isExpanding ? styles.hidingCard : ''}
+                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
                   <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
+                    enabled={false}
                     version={mcp?.spec?.components?.flux?.version}
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
