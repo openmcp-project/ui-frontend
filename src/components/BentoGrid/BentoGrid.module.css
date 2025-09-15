@@ -11,11 +11,11 @@
 
 /* Base card styling */
 .bentoCard {
-  border-radius: 12px;
+  border-radius: 18px; /* Increased to match or slightly exceed ui5-card */
   overflow: hidden;
   background: var(--sapTile_Background);
   border: 1px solid var(--sapTile_BorderColor);
-  box-shadow: var(--sapContent_Shadow1);
+  box-shadow: var(--sapContent_Shadow0); /* Reduced shadow intensity */
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -23,7 +23,7 @@
 }
 
 .bentoCard:hover {
-  box-shadow: var(--sapContent_Shadow2);
+  box-shadow: var(--sapContent_Shadow1); /* Reduced hover shadow intensity */
   transform: translateY(-2px);
 }
 
