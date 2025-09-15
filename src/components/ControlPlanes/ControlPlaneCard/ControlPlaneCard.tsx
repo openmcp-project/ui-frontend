@@ -28,7 +28,7 @@ import { canConnectToMCP } from '../controlPlanes.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
-import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 
 interface Props {
@@ -128,7 +128,6 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
       <EditManagedControlPlaneWizardDataLoader
         isOpen={isEditManagedControlPlaneWizardOpen}
         setIsOpen={setIsEditManagedControlPlaneWizardOpen}
-        projectName={projectName}
         workspaceName={namespace}
         resourceName={name}
       />

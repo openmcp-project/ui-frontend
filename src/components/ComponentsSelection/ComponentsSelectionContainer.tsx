@@ -26,10 +26,7 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
   const isCrossplaneSelected = components.some(({ name, isSelected }) => name === 'crossplane' && isSelected);
   return components.filter((component) => {
     if (!component.isSelected) return false;
-    if (component.name?.includes('provider') && !isCrossplaneSelected) {
-      return false;
-    }
-    return true;
+    return !(component.name?.includes('provider') && !isCrossplaneSelected);
   });
 };
 
@@ -140,12 +137,11 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     });
 
     setComponentsList(updated);
-  }, [defaultComponents, componentsList, setComponentsList]);
+  }, [defaultComponents, componentsList, setComponentsList, initialSelection]);
 
   if (isLoading) {
     return <Loading />;
   }
-  console.log(error);
 
   if (error) {
     return <IllustratedError compact={true} />;
