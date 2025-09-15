@@ -147,14 +147,14 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   }
   console.log(error);
 
-  // if (error) {
-  //   return <IllustratedError compact={true} />;
-  // }
-  //
-  // // Defensive: If the API returned no items, show error
-  // if (!componentsList || componentsList.length === 0) {
-  //   return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
-  // }
+  if (error) {
+    return <IllustratedError compact={true} />;
+  }
+
+  // Defensive: If the API returned no items, show error
+  if (!componentsList || componentsList.length === 0) {
+    return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
+  }
 
   return (
     <ComponentsSelection
