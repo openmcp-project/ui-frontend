@@ -564,12 +564,15 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           data-step="componentSelection"
           disabled={isStepDisabled('componentSelection')}
         >
-          <ComponentsSelectionContainer
-            componentsList={componentsList ?? []}
-            setComponentsList={setComponentsList}
-            initialSelection={initialSelection}
-            managedControlPlaneTemplate={selectedTemplate}
-          />
+          {/* this condition is to remount the component from scratch to fix a bug with data loading */}
+          {selectedStep === 'componentSelection' && (
+            <ComponentsSelectionContainer
+              componentsList={componentsList ?? []}
+              setComponentsList={setComponentsList}
+              initialSelection={initialSelection}
+              managedControlPlaneTemplate={selectedTemplate}
+            />
+          )}
         </WizardStep>
         <WizardStep
           icon="activities"
