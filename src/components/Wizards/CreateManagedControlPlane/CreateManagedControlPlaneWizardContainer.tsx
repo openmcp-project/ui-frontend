@@ -150,9 +150,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         shouldValidate: true,
         shouldDirty: true,
       });
-    } else {
-      setValue('chargingTarget', '', { shouldValidate: true, shouldDirty: true });
-      setValue('chargingTargetType', '', { shouldValidate: true, shouldDirty: true });
     }
 
     setMetadataFormKey((k) => k + 1);
