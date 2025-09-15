@@ -162,7 +162,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       metadata: t('buttons.next'),
       members: t('buttons.next'),
       componentSelection: t('buttons.next'),
-      summarize: t('buttons.create'),
+      summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
       success: t('buttons.close'),
     }),
     [t],
@@ -489,7 +489,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   return (
     <Dialog
       stretch
-      headerText={t('createMCP.dialogTitle') || 'Create Managed Control Plane'}
+      headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitle')}
       open={isOpen}
       initialFocus="project-name-input"
       footer={
@@ -592,11 +592,19 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           selected={selectedStep === 'success'}
           data-step="success"
         >
-          <IllustratedBanner
-            illustrationName={IllustrationMessageType.SuccessScreen}
-            title={t('createMCP.titleText')}
-            subtitle={t('createMCP.subtitleText')}
-          />
+          {isEditMode ? (
+            <IllustratedBanner
+              illustrationName={IllustrationMessageType.SuccessScreen}
+              title={t('editMCP.titleText')}
+              subtitle={t('editMCP.subtitleText')}
+            />
+          ) : (
+            <IllustratedBanner
+              illustrationName={IllustrationMessageType.SuccessScreen}
+              title={t('createMCP.titleText')}
+              subtitle={t('createMCP.subtitleText')}
+            />
+          )}
         </WizardStep>
       </Wizard>
     </Dialog>

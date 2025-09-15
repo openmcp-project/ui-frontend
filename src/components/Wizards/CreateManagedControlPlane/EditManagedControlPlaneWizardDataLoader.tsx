@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
 import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
-import Loading from '../../Shared/Loading.tsx';
+
 import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
 import { ManagedControlPlaneInterface } from './mcp_type.ts';
