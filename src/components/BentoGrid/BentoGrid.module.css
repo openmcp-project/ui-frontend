@@ -27,7 +27,7 @@
   transform: translateY(-2px);
 }
 
-/* Card sizes are now explicitly positioned via gridColumn/gridRow props */
+/* Card sizes are explicitly positioned via gridColumn/gridRow props */
 /* Layout: 
    - Left: Extra large graph (8 cols x 4 rows) + Large crossplane (8 cols x 2 rows)
    - Right: Two medium GitOps (4 cols x 2 rows each) + Two small underneath (2 cols x 2 rows each)

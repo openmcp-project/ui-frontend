@@ -1,9 +1,8 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Button } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
-import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
@@ -183,6 +182,11 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     }, 300);
   };
 
+  // Add spacer at the bottom of the content
+  const BottomSpacer = () => (
+    <div style={{ height: '40px', backgroundColor: '#f9f9f9', marginTop: '16px', marginBottom: '32px' }}></div>
+  );
+
   return (
     <ObjectPage
       preserveHeaderStateOnClick={true}
@@ -245,21 +249,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     size="large"
                     secondarySegments={providerDistribution.segments}
                     secondaryLabel={`Providers ${providerDistribution.totalProviders}`}
+                    expanded={expandedCard === 'crossplane'} /* Add this prop to control icon */
                   />
-                  {expandedCard === 'crossplane' && (
-                    <Button
-                      icon="sap-icon://collapse"
-                      design="Default"
-                      onClick={handleCollapseExpanded}
-                      tooltip="Collapse to overview"
-                      style={{
-                        position: 'absolute',
-                        bottom: '8px',
-                        right: '8px',
-                        zIndex: 10
-                      }}
-                    />
-                  )}
                 </div>
               </BentoCard>
             )}
@@ -282,18 +273,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     config={gitOpsConfig}
                     onClick={handleCollapseExpanded}
                     size="large"
-                  />
-                  <Button
-                    icon="sap-icon://collapse"
-                    design="Default"
-                    onClick={handleCollapseExpanded}
-                    tooltip="Collapse to overview"
-                    style={{
-                      position: 'absolute',
-                      bottom: '8px',
-                      right: '8px',
-                      zIndex: 10
-                    }}
+                    expanded={true}
                   />
                 </div>
               </BentoCard>
@@ -395,21 +375,29 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
           {/* Tables section - outside the BentoGrid to maintain the 600px layout */}
           {expandedCard === 'crossplane' && (
             <div style={{ marginTop: '24px' }}>
-              <div className="crossplane-table-element">
-                <Providers />
-              </div>
-              <div className="crossplane-table-element">
-                <ProvidersConfig />
-              </div>
-              <div className="crossplane-table-element">
-                <ManagedResources />
-              </div>
+              <Panel headerText="Details">
+                <div style={{ marginTop: '24px' }}>
+                  <div className="crossplane-table-element">
+                    <Providers />
+                  </div>
+                  <div className="crossplane-table-element" style={{ marginTop: '16px' }}>
+                    <ProvidersConfig />
+                  </div>
+                  <div className="crossplane-table-element" style={{ marginTop: '16px' }}>
+                    <ManagedResources />
+                  </div>
+                </div>
+              </Panel>
+              <div style={{ height: '12px', backgroundColor: '#f5f5f5', marginBottom: '32px', borderRadius: '0 0 8px 8px' }}></div>
             </div>
           )}
           
           {expandedCard === 'gitops' && (
             <div style={{ marginTop: '24px' }}>
-              <FluxList />
+              <Panel headerText="Flux List">
+                <FluxList />
+              </Panel>
+              <div style={{ height: '12px', backgroundColor: '#f5f5f5', marginBottom: '32px', borderRadius: '0 0 8px 8px' }}></div>
             </div>
           )}
         </div>

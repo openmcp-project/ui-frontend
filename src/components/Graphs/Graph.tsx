@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { ReactFlow, Background, Controls, Node, BackgroundVariant } from '@xyflow/react';
+import { ReactFlow, Background, Controls, Node, BackgroundVariant, SelectionMode } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { Button, Popover } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
@@ -93,16 +93,20 @@ const Graph: React.FC<GraphProps> = ({ colorBy: initialColorBy = 'source' }) => 
           edges={edges}
           nodeTypes={nodeTypes}
           defaultViewport={{ x: 40, y: 40, zoom: 0.8 }}
-          minZoom={0.3}
-          maxZoom={3.0}
+          minZoom={0.2}
+          maxZoom={4.0}
           proOptions={{
             hideAttribution: true,
           }}
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
-          zoomOnScroll={true}
+          zoomOnScroll={false}
+          panOnScroll={false}
           panOnDrag={true}
+          selectionOnDrag={false}
+          selectionMode={SelectionMode.Partial}
+          preventScrolling={true}
         >
           <Background gap={20} variant={BackgroundVariant.Dots} bgColor='#ffffff' />
           <Controls showInteractive={false} />

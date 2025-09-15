@@ -11,6 +11,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
   size?: 'small' | 'medium' | 'large' | 'extra-large';
   secondarySegments?: Array<{ percentage: number; color: string; label: string }>;
   secondaryLabel?: string;
+  expanded?: boolean;
 }> = ({
   enabled = false,
   version,
@@ -22,6 +23,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
   size = 'medium',
   secondarySegments,
   secondaryLabel = 'Secondary Metric',
+  expanded = false, 
 }) => {
   const { t } = useTranslation();
 
@@ -59,11 +61,13 @@ export const ComponentCard: React.FC<GenericHintProps & {
         {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
 
-        {/* Expand button */}
+        {/* Expand/Collapse button */}
         {onClick && enabled && (
           <Button
-            icon="sap-icon://expand"
+            icon={expanded ? "sap-icon://collapse" : "sap-icon://expand"}
             design="Transparent"
+            tooltip={expanded ? "Collapse to overview" : "Expand details"}
+            style={{ zIndex: 1 }} /* Lower z-index */
             className={size === 'small' ? styles.expandButtonSmall : styles.expandButton}
             onClick={(e) => {
               e.stopPropagation();

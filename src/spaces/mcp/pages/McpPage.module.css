@@ -4,54 +4,46 @@
   width: 100%;
 }
 
-/* Dynamic expansion animations for bento grid */
 .expandedGrid {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Keep the original 600px height and 6-row structure */
 }
 
 .expandedCard {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  /* Reduced highlighting for component cards */
   border: 1px solid var(--sapObjectHeader_BorderColor) !important;
 }
 
 .expandedCard:hover {
-  transform: none !important; /* Remove hover transform */
-  box-shadow: var(--sapContent_Shadow1) !important; /* Keep normal shadow */
+  transform: none !important;
+  box-shadow: var(--sapContent_Shadow1) !important;
 }
 
-/* Non-interactive expanded card - no hover effects */
 .expandedCardNonInteractive {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none; /* Disable all interaction */
 }
 
 .expandedCardNonInteractive:hover {
-  transform: none !important; /* Override base card hover transform */
-  box-shadow: var(--sapContent_Shadow1) !important; /* Keep normal shadow */
+  transform: none !important;
+  box-shadow: var(--sapContent_Shadow1) !important;
 }
 
-/* Disabled/non-interactive card - no hover effects */
 .disabledCard {
-  pointer-events: none; /* Disable all interaction */
-  opacity: 0.6; /* Visual indication that it's disabled */
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .disabledCard:hover {
-  transform: none !important; /* Override base card hover transform */
-  box-shadow: var(--sapContent_Shadow1) !important; /* Keep normal shadow */
+  transform: none !important;
+  box-shadow: var(--sapContent_Shadow1) !important;
 }
 
-/* Non-interactive card (like graph) - no hover effects but allows internal interaction */
 .nonInteractiveCard {
-  /* Allow internal interaction but disable card-level hover effects */
   cursor: default;
 }
 
 .nonInteractiveCard:hover {
-  transform: none !important; /* Override base card hover transform */
-  box-shadow: var(--sapContent_Shadow1) !important; /* Keep normal shadow */
+  transform: none !important;
+  box-shadow: var(--sapContent_Shadow1) !important;
 }
 
 .hidingCard {
