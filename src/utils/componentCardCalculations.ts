@@ -13,6 +13,8 @@ export const HINT_COLORS = {
   inactive: '#e9e9e9ff',
   managed: '#28a745',
   progress: '#fd7e14',
+  roles: '#08848c', // Teal color for roles
+  flux: '#386ce4', // Blue color for flux/gitops
 } as const;
 
 /**
@@ -161,16 +163,15 @@ export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
 
   const progressValue = totalCount > 0 ? Math.round((fluxLabelCount / totalCount) * 100) : 0;
   const restPercentage = 100 - progressValue;
-  const progressColor = progressValue >= 70 ? HINT_COLORS.healthy : HINT_COLORS.progress;
 
   return {
     segments: [
-      { percentage: progressValue, color: progressColor, label: t('common.progress') },
+      { percentage: progressValue, color: HINT_COLORS.flux, label: t('common.progress') },
       { percentage: restPercentage, color: HINT_COLORS.inactive, label: t('common.remaining') },
     ],
     label: t('Hints.GitOpsHint.managed'),
     showPercentage: true,
-    isHealthy: progressValue >= 70,
+    isHealthy: false, // Don't apply green styling to GitOps labels
     showOnlyNonZero: true,
   };
 };
@@ -222,20 +223,33 @@ export const calculateMembersSegments: GenericHintSegmentCalculator = (
       showOnlyNonZero: true,
     };
   }
-  // Count the number of items with the flux label
-  const userAdmins = allItems.filter(
-    (user: any) =>
-      user?.subjects?.[0]?.kind == "User" && user?.role == "admin"
-  ).length;
+  // Count the number of roles and their distribution
+  const roleCounts: Record<string, number> = {};
+  
+  allItems.forEach((item: any) => {
+    const role = item?.role || 'unknown';
+    roleCounts[role] = (roleCounts[role] || 0) + 1;
+  });
+
+  const totalRoles = Object.keys(roleCounts).length;
+  
+  // Convert to segments with percentages and counts
+  const segments = Object.entries(roleCounts)
+    .map(([role, count]) => ({
+      percentage: Math.round((count / totalCount) * 100),
+      color: HINT_COLORS.roles, // All roles use the same teal color
+      label: role.charAt(0).toUpperCase() + role.slice(1),
+      count: count
+    }))
+    .filter(segment => segment.percentage > 0)
+    .sort((a, b) => b.percentage - a.percentage);
+
   return {
-    segments: [
-      { percentage: userAdmins / allItems.length * 100, color: HINT_COLORS.healthy, label: "Admin" },
-      { percentage: 100 - (userAdmins / allItems.length * 100), color: HINT_COLORS.inactive, label: "Viewer" },
-    ],
-    label: "Admins",
+    segments,
+    label: `Roles ${totalRoles}`,
     showPercentage: false,
-    isHealthy: true,
-    showOnlyNonZero: false,
+    isHealthy: false, // Changed to false to prevent green styling
+    showOnlyNonZero: true,
   };
 };
 

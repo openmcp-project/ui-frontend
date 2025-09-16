@@ -6,6 +6,7 @@ describe('MultiPercentageBar utilities', () => {
     percentage: number;
     color: string;
     label: string;
+    count?: number;
   }
 
   // Helper function to filter non-zero segments (simulating component logic)
@@ -111,6 +112,87 @@ describe('MultiPercentageBar utilities', () => {
       expect(result.total).toBe(0);
       expect(result.isValid).toBe(true);
       expect(result.segments).toBe(0);
+    });
+  });
+
+  describe('color configuration utilities', () => {
+    // Helper function to apply color overrides (simulating component logic)
+    const applyColorOverrides = (
+      segments: PercentageSegment[], 
+      overrides: Record<string, string>
+    ) => {
+      return segments.map(segment => ({
+        ...segment,
+        color: overrides[segment.label] || segment.color,
+      }));
+    };
+
+    it('applies color overrides correctly', () => {
+      const segments: PercentageSegment[] = [
+        { percentage: 60, color: '#28a745', label: 'Healthy' },
+        { percentage: 40, color: '#d22020ff', label: 'Unhealthy' },
+      ];
+
+      const overrides = {
+        'Healthy': '#00ff00',
+        'Unhealthy': '#ff0000',
+      };
+
+      const result = applyColorOverrides(segments, overrides);
+
+      expect(result[0].color).toBe('#00ff00');
+      expect(result[1].color).toBe('#ff0000');
+    });
+
+    it('keeps original colors when no overrides match', () => {
+      const segments: PercentageSegment[] = [
+        { percentage: 60, color: '#28a745', label: 'Healthy' },
+        { percentage: 40, color: '#d22020ff', label: 'Unknown' },
+      ];
+
+      const overrides = {
+        'Different': '#00ff00',
+      };
+
+      const result = applyColorOverrides(segments, overrides);
+
+      expect(result[0].color).toBe('#28a745');
+      expect(result[1].color).toBe('#d22020ff');
+    });
+  });
+
+  describe('label configuration utilities', () => {
+    // Helper function to determine if primary label should be hidden
+    const shouldHidePrimaryLabel = (
+      segments: PercentageSegment[], 
+      hideWhenSingleFull: boolean
+    ) => {
+      return hideWhenSingleFull && 
+        segments.length === 1 && 
+        segments[0]?.percentage === 100;
+    };
+
+    it('hides primary label when single segment is 100%', () => {
+      const segments: PercentageSegment[] = [
+        { percentage: 100, color: '#28a745', label: 'Complete' },
+      ];
+
+      expect(shouldHidePrimaryLabel(segments, true)).toBe(true);
+      expect(shouldHidePrimaryLabel(segments, false)).toBe(false);
+    });
+
+    it('shows primary label when multiple segments or not 100%', () => {
+      const multipleSegments: PercentageSegment[] = [
+        { percentage: 50, color: '#28a745', label: 'Healthy' },
+        { percentage: 50, color: '#d22020ff', label: 'Unhealthy' },
+      ];
+
+      const partialSegment: PercentageSegment[] = [
+        { percentage: 80, color: '#28a745', label: 'Partial' },
+      ];
+
+      expect(shouldHidePrimaryLabel(multipleSegments, true)).toBe(false);
+      expect(shouldHidePrimaryLabel(partialSegment, true)).toBe(false);
     });
   });
 });

@@ -55,7 +55,8 @@
 }
 
 .label,
-.percentage {
+.percentage,
+.count {
   font-size: var(--label-font-size);
   font-weight: 400;
   color: var(--sapTextColor, #374151);
@@ -66,6 +67,11 @@
 .percentage.healthy {
   color: green;
   font-weight: 700;
+}
+
+.count {
+  opacity: 0.7;
+  font-size: calc(var(--label-font-size) * 0.9);
 }
 
 /* Bar container */
@@ -198,6 +204,28 @@
   }
 }
 
+
+
+/* No animation class for disabled animations */
+.noAnimation {
+  animation: none !important;
+}
+
+.noAnimation .segment {
+  animation: none !important;
+  transform: scaleX(1) !important;
+}
+
+.noAnimation .segmentLabel {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1) !important;
+}
+
+.noAnimation .waveOverlay {
+  animation: none !important;
+}
+
 /* Theme Support */
 [data-ui5-theme-root*="dark"] .container,
 [data-ui5-theme*="dark"] .container {
@@ -210,3 +238,5 @@
 [data-ui5-theme*="dark"] .percentage {
   color: #ffffff;
 }
+
+

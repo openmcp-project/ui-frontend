@@ -87,9 +87,6 @@ export const ComponentCard: React.FC<GenericHintProps & {
             <MultiPercentageBar
               segments={hintState.segments}
               className={styles.progressBar}
-              label={hintState.label}
-              showPercentage={hintState.showPercentage}
-              isHealthy={hintState.isHealthy}
               showOnlyNonZero={hintState.showOnlyNonZero ?? true}
               barWidth={
                 size === 'small' ? '80%' :
@@ -102,6 +99,26 @@ export const ComponentCard: React.FC<GenericHintProps & {
                 size === 'medium' ? '600px' :
                 'none'
               }
+              labelConfig={{
+                position: 'above',
+                displayMode: 'primary', 
+                showPercentage: hintState.showPercentage,
+                showCount: hintState.label?.includes('Roles'),
+                primaryLabelText: hintState.label,
+                hideWhenSingleFull: false,
+              }}
+              animationConfig={{
+                enableWave: size !== 'medium',
+                enableTransitions: size !== 'medium',
+                duration: size === 'medium' ? 0 : 400,
+                staggerDelay: size === 'medium' ? 0 : 100,
+              }}
+              // Legacy props for backward compatibility
+              label={hintState.label}
+              showPercentage={hintState.showPercentage}
+              isHealthy={hintState.isHealthy}
+              showSegmentLabels={hintState.label?.includes('Roles')}
+              minSegmentWidthForLabel={12}
             />
             
             {/* Second progress bar only for large and extra-large cards */}
@@ -109,13 +126,23 @@ export const ComponentCard: React.FC<GenericHintProps & {
               <MultiPercentageBar
                 segments={secondarySegments}
                 className={styles.progressBar}
-                label={secondaryLabel}
-                showPercentage={false}
-                isHealthy={false}
                 showOnlyNonZero={true}
                 barWidth="90%"
                 barHeight="12px"
                 barMaxWidth="none"
+                labelConfig={{
+                  position: 'above',
+                  displayMode: 'primary',
+                  showPercentage: false,
+                  primaryLabelText: secondaryLabel,
+                  hideWhenSingleFull: false,
+                }}
+                animationConfig={{
+                  enableWave: true,
+                  enableTransitions: true,
+                  duration: 400,
+                  staggerDelay: 100,
+                }}
                 showSegmentLabels={true}
                 minSegmentWidthForLabel={12}
               />

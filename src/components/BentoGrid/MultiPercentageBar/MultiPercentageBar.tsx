@@ -1,6 +1,56 @@
 import React, { useMemo } from 'react';
 import styles from './MultiPercentageBar.module.css';
 
+/**
+ * MultiPercentageBar - A flexible, configurable progress bar component
+ * 
+ * Examples:
+ * 
+ * // Basic usage (backward compatible)
+ * <MultiPercentageBar 
+ *   segments={[
+ *     { percentage: 60, color: '#28a745', label: 'Healthy' },
+ *     { percentage: 40, color: '#d22020', label: 'Unhealthy' }
+ *   ]}
+ *   label="System Health"
+ *   showPercentage={true}
+ * />
+ * 
+ * // Advanced configuration with custom colors and labels inside chart
+ * <MultiPercentageBar 
+ *   segments={[
+ *     { percentage: 70, color: '#28a745', label: 'Active', count: 12 },
+ *     { percentage: 30, color: '#ffc107', label: 'Pending', count: 5 }
+ *   ]}
+ *   labelConfig={{
+ *     position: 'inside',
+ *     displayMode: 'all',
+ *     showPercentage: true,
+ *     showCount: true,
+ *     hideWhenSingleFull: true,
+ *   }}
+ *   colorConfig={{
+ *     overrides: { 'Active': '#00ff00', 'Pending': '#ffaa00' },
+ *     healthyThreshold: 70,
+ *     opacity: 0.9
+ *   }}
+ *   animationConfig={{
+ *     enableWave: false,
+ *     duration: 600
+ *   }}
+ * />
+ * 
+ * // Hide primary label when single segment is 100%
+ * <MultiPercentageBar 
+ *   segments={[{ percentage: 100, color: '#28a745', label: 'Complete' }]}
+ *   labelConfig={{
+ *     position: 'above',
+ *     displayMode: 'primary',
+ *     hideWhenSingleFull: true
+ *   }}
+ * />
+ */
+
 interface PercentageSegment {
   percentage: number;
   color: string;
@@ -8,92 +58,272 @@ interface PercentageSegment {
   count?: number; // Optional count for displaying inside segments
 }
 
+type LabelPosition = 'above' | 'inside' | 'none';
+type LabelDisplayMode = 'all' | 'primary' | 'custom';
+
+interface LabelConfig {
+  position: LabelPosition;
+  displayMode: LabelDisplayMode;
+  showPercentage?: boolean;
+  showCount?: boolean;
+  customLabels?: string[]; // Custom labels to show when displayMode is 'custom'
+  primaryLabelText?: string; // Override primary label text
+  fontSize?: string;
+  fontWeight?: 'normal' | 'bold' | number;
+  textColor?: string;
+  healthyTextColor?: string; // Color for healthy state
+  hideWhenSingleFull?: boolean; // Hide primary label when single segment is 100%
+}
+
+interface ColorConfig {
+  overrides?: Record<string, string>; // Override colors by segment label
+  healthyThreshold?: number; // Percentage threshold for healthy state
+  useGradients?: boolean; // Whether to use gradient effects
+  opacity?: number; // Overall opacity for segments
+}
+
+interface AnimationConfig {
+  duration?: number;
+  enableWave?: boolean;
+  staggerDelay?: number; // Delay between segment animations
+  enableTransitions?: boolean;
+}
+
 interface MultiPercentageBarProps {
   segments: PercentageSegment[];
-  label?: string;
   showOnlyNonZero?: boolean;
+  
+  // Layout props
   barWidth?: string;
   barMaxWidth?: string;
   barHeight?: string;
-  showLabels?: boolean;
-  showPercentage?: boolean; // Control whether to show percentage number
-  isHealthy?: boolean; // Control whether to style the text as healthy (green)
-  labelFontSize?: string;
   gap?: string;
   borderRadius?: string;
   backgroundColor?: string;
   className?: string;
   style?: React.CSSProperties;
-  animationDuration?: number; // Animation duration in ms (for CSS custom property)
-  showSegmentLabels?: boolean; // Control whether to show labels inside segments
-  minSegmentWidthForLabel?: number; // Minimum percentage to show label inside segment
+  
+  // Label configuration
+  labelConfig?: LabelConfig;
+  
+  // Color configuration
+  colorConfig?: ColorConfig;
+  
+  // Animation configuration
+  animationConfig?: AnimationConfig;
+  
+  // Legacy props for backward compatibility
+  label?: string;
+  showLabels?: boolean;
+  showPercentage?: boolean;
+  isHealthy?: boolean;
+  labelFontSize?: string;
+  animationDuration?: number;
+  showSegmentLabels?: boolean;
+  minSegmentWidthForLabel?: number;
 }
 
 export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   segments,
-  label,
   showOnlyNonZero = true,
+  
+  // Layout props
   barWidth = '80%',
   barMaxWidth = '400px',
   barHeight = '8px',
-  showLabels = true,
-  showPercentage = true,
-  isHealthy,
-  labelFontSize = '0.875rem',
   gap = '2px',
   borderRadius = '6px',
   backgroundColor,
   className,
   style,
-  animationDuration = 400, // Match CSS default
+  
+  // Configuration objects
+  labelConfig,
+  colorConfig,
+  animationConfig,
+  
+  // Legacy props (for backward compatibility)
+  label,
+  showLabels = true,
+  showPercentage = true,
+  isHealthy,
+  labelFontSize = '0.875rem',
+  animationDuration = 400,
   showSegmentLabels = false,
-  minSegmentWidthForLabel = 15, // Only show label if segment is at least 15%
+  minSegmentWidthForLabel = 15,
 }) => {
-  // Memoize filtered segments
-  const filteredSegments = useMemo(() => {
-    return showOnlyNonZero ? segments.filter((segment) => segment.percentage > 0) : segments;
-  }, [segments, showOnlyNonZero]);
+  // Merge legacy props with new config objects
+  const mergedLabelConfig: LabelConfig = useMemo(() => ({
+    position: showSegmentLabels ? 'inside' : showLabels ? 'above' : 'none',
+    displayMode: 'primary',
+    showPercentage: showPercentage,
+    showCount: false,
+    primaryLabelText: label,
+    fontSize: labelFontSize,
+    fontWeight: 'normal',
+    hideWhenSingleFull: false,
+    ...labelConfig,
+  }), [labelConfig, showSegmentLabels, showLabels, showPercentage, label, labelFontSize]);
 
-  if (filteredSegments.length === 0) {
+  const mergedColorConfig: ColorConfig = useMemo(() => ({
+    healthyThreshold: 100,
+    useGradients: false,
+    opacity: 1,
+    ...colorConfig,
+  }), [colorConfig]);
+
+  const mergedAnimationConfig: AnimationConfig = useMemo(() => ({
+    duration: animationDuration,
+    enableWave: true,
+    staggerDelay: 100,
+    enableTransitions: true,
+    ...animationConfig,
+  }), [animationConfig, animationDuration]);
+
+  // Memoize filtered segments with color overrides
+  const processedSegments = useMemo(() => {
+    const filtered = showOnlyNonZero ? segments.filter((segment) => segment.percentage > 0) : segments;
+    
+    return filtered.map((segment) => ({
+      ...segment,
+      color: mergedColorConfig.overrides?.[segment.label] || segment.color,
+    }));
+  }, [segments, showOnlyNonZero, mergedColorConfig.overrides]);
+
+  if (processedSegments.length === 0) {
     return null;
   }
 
-  const primaryPercentage = filteredSegments[0]?.percentage || 0;
-  const displayLabel = label || 'Healthy';
-  const allHealthy = isHealthy !== undefined ? isHealthy : primaryPercentage === 100;
+  const primarySegment = processedSegments[0];
+  const primaryPercentage = primarySegment?.percentage || 0;
+  
+  // Determine if the component is in a "healthy" state
+  const isHealthyState = isHealthy !== undefined 
+    ? isHealthy 
+    : primaryPercentage >= (mergedColorConfig.healthyThreshold || 100);
+  
+  // Determine if we should hide the primary label (single segment at 100%)
+  const shouldHidePrimaryLabel = mergedLabelConfig.hideWhenSingleFull && 
+    processedSegments.length === 1 && 
+    primaryPercentage === 100;
+
+  // Helper function to render labels above the bar
+  const renderAboveLabels = () => {
+    if (mergedLabelConfig.position !== 'above') return null;
+    
+    const labelsToShow = [];
+    
+    switch (mergedLabelConfig.displayMode) {
+      case 'primary':
+        if (!shouldHidePrimaryLabel) {
+          const displayText = mergedLabelConfig.primaryLabelText || processedSegments[0]?.label || 'Primary';
+          const isRolesLabel = displayText.toLowerCase().includes('roles');
+          labelsToShow.push({
+            text: displayText,
+            percentage: mergedLabelConfig.showPercentage ? primaryPercentage : undefined,
+            count: mergedLabelConfig.showCount ? processedSegments[0]?.count : undefined,
+            isHealthy: isHealthyState && !isRolesLabel, // Don't apply healthy styling to roles labels
+          });
+        }
+        break;
+      case 'all':
+        processedSegments.forEach((segment) => {
+          labelsToShow.push({
+            text: segment.label,
+            percentage: mergedLabelConfig.showPercentage ? segment.percentage : undefined,
+            count: mergedLabelConfig.showCount ? segment.count : undefined,
+            isHealthy: false, // Only primary should be styled as healthy
+          });
+        });
+        break;
+      case 'custom':
+        if (mergedLabelConfig.customLabels) {
+          mergedLabelConfig.customLabels.forEach((customLabel, index) => {
+            const segment = processedSegments[index];
+            if (segment) {
+              labelsToShow.push({
+                text: customLabel,
+                percentage: mergedLabelConfig.showPercentage ? segment.percentage : undefined,
+                count: mergedLabelConfig.showCount ? segment.count : undefined,
+                isHealthy: index === 0 ? isHealthyState : false,
+              });
+            }
+          });
+        }
+        break;
+    }
+
+    if (labelsToShow.length === 0) return null;
+
+    return (
+      <div className={styles.labelContainer}>
+        {labelsToShow.map((labelItem, index) => (
+          <div key={index} className={styles.labelGroup}>
+            <span 
+              className={`${styles.label} ${labelItem.isHealthy ? styles.healthy : ''}`}
+              style={{
+                color: mergedLabelConfig.textColor || (labelItem.isHealthy ? mergedLabelConfig.healthyTextColor : undefined),
+                fontSize: mergedLabelConfig.fontSize,
+                fontWeight: mergedLabelConfig.fontWeight,
+              }}
+            >
+              {labelItem.text}
+            </span>
+            {labelItem.percentage !== undefined && (
+              <span 
+                className={`${styles.percentage} ${labelItem.isHealthy ? styles.healthy : ''}`}
+                style={{
+                  color: mergedLabelConfig.textColor || (labelItem.isHealthy ? mergedLabelConfig.healthyTextColor : undefined),
+                  fontSize: mergedLabelConfig.fontSize,
+                  fontWeight: mergedLabelConfig.fontWeight,
+                }}
+              >
+                {labelItem.percentage}%
+              </span>
+            )}
+            {labelItem.count !== undefined && (
+              <span 
+                className={styles.count}
+                style={{
+                  color: mergedLabelConfig.textColor,
+                  fontSize: mergedLabelConfig.fontSize,
+                }}
+              >
+                ({labelItem.count})
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div
-      className={`${styles.container} ${className || ''}`}
+      className={`${styles.container} ${className || ''} ${mergedAnimationConfig.duration === 0 ? styles.noAnimation : ''}`}
       style={
         {
-          '--animation-duration': `${animationDuration}ms`,
+          '--animation-duration': `${mergedAnimationConfig.duration}ms`,
           '--bar-width': barWidth,
           '--bar-max-width': barMaxWidth,
           '--bar-height': barHeight,
           '--gap': gap,
           '--border-radius': borderRadius,
-          '--label-font-size': labelFontSize,
+          '--label-font-size': mergedLabelConfig.fontSize || '0.875rem',
           ...(backgroundColor && { '--background-color': backgroundColor }),
+          ...(mergedAnimationConfig.duration === 0 && {
+            animation: 'none',
+          }),
           ...style,
         } as React.CSSProperties
       }
     >
-      {/* Label */}
-      {showLabels && (
-        <div className={styles.labelContainer}>
-          <div className={styles.labelGroup}>
-            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
-            {showPercentage && (
-              <span className={`${styles.percentage} ${allHealthy ? styles.healthy : ''}`}>{primaryPercentage}%</span>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Labels above the bar */}
+      {renderAboveLabels()}
 
       {/* Progress bar */}
       <div className={styles.barContainer}>
-        {filteredSegments.map((segment, index) => (
+        {processedSegments.map((segment, index) => (
           <div
             key={`${segment.label}-${index}`}
             className={styles.segment}
@@ -101,16 +331,30 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
               {
                 '--segment-percentage': segment.percentage,
                 '--segment-color': segment.color,
+                opacity: mergedColorConfig.opacity,
+                ...(mergedAnimationConfig.duration === 0 && {
+                  animation: 'none',
+                  transform: 'scaleX(1)',
+                }),
               } as React.CSSProperties
             }
           >
             {/* Wave animation overlay */}
-            <div className={styles.waveOverlay} />
+            {mergedAnimationConfig.enableWave && <div className={styles.waveOverlay} />}
             
             {/* Segment label inside the bar */}
-            {showSegmentLabels && segment.percentage >= minSegmentWidthForLabel && (
-              <span className={styles.segmentLabel}>
-                {segment.count ? `${segment.label} ${segment.count}` : segment.label}
+            {mergedLabelConfig.position === 'inside' && segment.percentage >= (minSegmentWidthForLabel || 15) && (
+              <span 
+                className={styles.segmentLabel}
+                style={{
+                  fontSize: mergedLabelConfig.fontSize,
+                  fontWeight: mergedLabelConfig.fontWeight,
+                }}
+              >
+                {mergedLabelConfig.showCount && segment.count 
+                  ? `${segment.label} ${segment.count}` 
+                  : segment.label}
+                {mergedLabelConfig.showPercentage && ` ${segment.percentage}%`}
               </span>
             )}
           </div>
@@ -120,4 +364,12 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   );
 };
 
-export type { PercentageSegment, MultiPercentageBarProps };
+export type { 
+  PercentageSegment, 
+  MultiPercentageBarProps, 
+  LabelConfig, 
+  ColorConfig, 
+  AnimationConfig,
+  LabelPosition,
+  LabelDisplayMode
+};
