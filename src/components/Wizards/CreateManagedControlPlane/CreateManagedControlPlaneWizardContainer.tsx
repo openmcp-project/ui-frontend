@@ -58,6 +58,7 @@ type CreateManagedControlPlaneWizardContainerProps = {
   isEditMode: boolean;
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
+  isOnMcpPage?: boolean;
 };
 
 type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -72,6 +73,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   isEditMode = false,
   initialTemplateName,
   initialData,
+  isOnMcpPage = false,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -123,7 +125,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setValue,
     reset,
     watch,
-    getValues,
+
     formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
@@ -154,8 +156,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
-  console.log(getValues());
-  console.log(errors);
+
   const nextButtonText = useMemo(
     () => ({
       metadata: t('buttons.next'),
@@ -194,6 +195,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   );
   const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
     UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
+    undefined,
+    !!isOnMcpPage,
   );
   const componentsList = watch('componentsList');
 
@@ -571,6 +574,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 setComponentsList={setComponentsList}
                 initialSelection={initialSelection}
                 managedControlPlaneTemplate={selectedTemplate}
+                isOnMcpPage={isOnMcpPage}
               />
             )}
           </WizardStep>

@@ -16,6 +16,7 @@ export interface ComponentsSelectionProps {
   setComponentsList: (components: ComponentsListItem[]) => void;
   managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
   initialSelection?: Record<string, { isSelected: boolean; version: string }>;
+  isOnMcpPage?: boolean;
 }
 
 /**
@@ -42,8 +43,13 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   componentsList,
   managedControlPlaneTemplate,
   initialSelection,
+  isOnMcpPage,
 }) => {
-  const { data: availableManagedComponentsListData, error, isLoading } = useApiResource(ListManagedComponents());
+  const {
+    data: availableManagedComponentsListData,
+    error,
+    isLoading,
+  } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
   const { t } = useTranslation();
   const initialized = useRef(false);
   const [templateDefaultsError, setTemplateDefaultsError] = useState<string | null>(null);

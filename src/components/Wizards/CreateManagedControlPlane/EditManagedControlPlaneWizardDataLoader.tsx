@@ -5,14 +5,16 @@ import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 
 import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
-import { ManagedControlPlaneInterface } from './mcp_type.ts';
+
 import { BusyIndicator } from '@ui5/webcomponents-react';
+import { ManagedControlPlaneInterface } from '../../../lib/api/types/mcpResource.ts';
 
 export type EditManagedControlPlaneWizardDataLoaderProps = {
   workspaceName?: string;
   resourceName: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  isOnMcpPage?: boolean;
 };
 
 export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlaneWizardDataLoaderProps> = ({
@@ -20,6 +22,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   resourceName,
   isOpen,
   setIsOpen,
+  isOnMcpPage = false,
 }) => {
   const { isLoading, data, error } = useApiResource(
     ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
@@ -49,6 +52,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
           workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
           isEditMode={true}
           initialData={data}
+          isOnMcpPage={isOnMcpPage}
         />
       ) : null}
     </>

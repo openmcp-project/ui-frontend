@@ -7,10 +7,16 @@ import '@ui5/webcomponents-icons/dist/accept';
 import { useTranslation } from 'react-i18next';
 
 type ControlPlanesListMenuProps = {
+  setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
+  isDeleteMcpButtonDisabled: boolean;
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen }) => {
+export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
+  setDialogDeleteMcpIsOpen,
+  isDeleteMcpButtonDisabled,
+  setIsEditManagedControlPlaneWizardOpen,
+}) => {
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -30,6 +36,9 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           if (action === 'editMcp') {
             setIsEditManagedControlPlaneWizardOpen(true);
           }
+          if (action === 'deleteMcp') {
+            setDialogDeleteMcpIsOpen(true);
+          }
 
           setMenuIsOpen(false);
         }}
@@ -37,7 +46,20 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           setMenuIsOpen(false);
         }}
       >
-        <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
+        <MenuItem
+          key={'delete'}
+          text={t('ControlPlaneCard.deleteMCP')}
+          data-action="deleteMcp"
+          icon="delete"
+          disabled={isDeleteMcpButtonDisabled}
+        />
+        <MenuItem
+          key={'edit'}
+          text={t('ControlPlaneCard.editMCP')}
+          data-action="editMcp"
+          icon="edit"
+          disabled={isDeleteMcpButtonDisabled}
+        />
       </Menu>
     </>
   );

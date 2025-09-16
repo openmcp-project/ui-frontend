@@ -1,22 +1,12 @@
+import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
-import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
-import '@ui5/webcomponents-icons/dist/copy';
-import '@ui5/webcomponents-icons/dist/accept';
-
-import { useTranslation } from 'react-i18next';
-
 type ControlPlanesListMenuProps = {
-  setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
-  isDeleteMcpButtonDisabled: boolean;
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export const ControlPlanePageeMenu: FC<ControlPlanesListMenuProps> = ({
-  setDialogDeleteMcpIsOpen,
-  isDeleteMcpButtonDisabled,
-  setIsEditManagedControlPlaneWizardOpen,
-}) => {
+export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen }) => {
   const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -36,9 +26,6 @@ export const ControlPlanePageeMenu: FC<ControlPlanesListMenuProps> = ({
           if (action === 'editMcp') {
             setIsEditManagedControlPlaneWizardOpen(true);
           }
-          if (action === 'deleteMcp') {
-            setDialogDeleteMcpIsOpen(true);
-          }
 
           setMenuIsOpen(false);
         }}
@@ -46,20 +33,7 @@ export const ControlPlanePageeMenu: FC<ControlPlanesListMenuProps> = ({
           setMenuIsOpen(false);
         }}
       >
-        <MenuItem
-          key={'delete'}
-          text={t('ControlPlaneCard.deleteMCP')}
-          data-action="deleteMcp"
-          icon="delete"
-          disabled={isDeleteMcpButtonDisabled}
-        />
-        <MenuItem
-          key={'edit'}
-          text={t('ControlPlaneCard.editMCP')}
-          data-action="editMcp"
-          icon="edit"
-          disabled={isDeleteMcpButtonDisabled}
-        />
+        <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
       </Menu>
     </>
   );

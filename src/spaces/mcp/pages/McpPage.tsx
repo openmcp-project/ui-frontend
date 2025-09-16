@@ -99,6 +99,7 @@ export default function McpPage() {
                       setIsOpen={setIsEditManagedControlPlaneWizardOpen}
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceName={controlPlaneName}
+                      isOnMcpPage
                     />
                   </div>
                 }
