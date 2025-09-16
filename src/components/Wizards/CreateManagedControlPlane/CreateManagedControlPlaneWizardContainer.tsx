@@ -171,6 +171,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
       success: t('buttons.close'),
     }),
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [t],
   );
 
@@ -202,7 +204,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
     UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
     undefined,
-    !!isOnMcpPage,
+    isOnMcpPage,
   );
   const componentsList = watch('componentsList');
 
@@ -260,6 +262,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         return false;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [trigger, projectName, workspaceName, componentsList, templateAffixes],
   );
 
@@ -379,6 +382,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       }
     });
     return selection;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode]);
 
   // Prefill form when editing
@@ -404,6 +408,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       members,
       componentsList: componentsList ?? [],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
 
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
