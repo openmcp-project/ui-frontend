@@ -106,21 +106,21 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
       return;
     }
 
-    const errs: string[] = [];
+    const errors: string[] = [];
     defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
       const item = items.find((it) => it.metadata?.name === dc.name);
       if (!item) {
-        errs.push(`Component "${dc.name}" from template is not available.`);
+        errors.push(`Component "${dc.name}" from template is not available.`);
         return;
       }
       const versions: string[] = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
       if (dc.version && !versions.includes(dc.version)) {
-        errs.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
+        errors.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
       }
     });
 
-    setTemplateDefaultsError(errs.length ? errs.join('\n') : null);
+    setTemplateDefaultsError(errors.length ? errors.join('\n') : null);
   }, [availableManagedComponentsListData, defaultComponents]);
 
   useEffect(() => {
