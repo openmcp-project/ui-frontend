@@ -140,7 +140,7 @@ export function ManagedResources() {
   return (
     <>
       <Title level="H4">{t('ManagedResources.header')}</Title>
-
+      <br />
       {error && <IllustratedError details={error.message} />}
 
       {!error && (

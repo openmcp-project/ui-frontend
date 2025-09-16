@@ -89,6 +89,7 @@ export function ProvidersConfig() {
   return (
     <>
       <Title level="H4">{t('ProvidersConfig.headerProviderConfigs')}</Title>
+      <br />
       <AnalyticalTable
         columns={columns}
         data={rows ?? []}

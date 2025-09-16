@@ -138,7 +138,7 @@ export function Providers() {
   return (
     <>
       <Title level="H4">{t('Providers.headerProviders')}</Title>
-
+      <br />
       {error && <IllustratedError details={error.message} />}
 
       {!error && (

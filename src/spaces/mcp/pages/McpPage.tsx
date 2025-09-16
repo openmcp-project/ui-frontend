@@ -20,8 +20,17 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { BentoGrid, BentoCard, GraphCard, ComponentCard } from '../../../components/BentoGrid';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useESOHintConfig, useKyvernoHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
-import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
+import {
+  useCrossplaneHintConfig,
+  useGitOpsHintConfig,
+  useESOHintConfig,
+  useKyvernoHintConfig,
+  useMembersHintConfig,
+} from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
+import {
+  ManagedResourcesRequest,
+  ManagedResourcesResponse,
+} from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { ManagedResourceItem } from '../../../lib/shared/types';
 import { useMemo, useState } from 'react';
@@ -29,6 +38,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
+import MembersList from '../../../components/ControlPlane/MembersList.tsx';
 
 // Utility function to flatten managed resources
 const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -102,6 +112,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
   // Get hint configurations
   const crossplaneConfig = useCrossplaneHintConfig();
   const gitOpsConfig = useGitOpsHintConfig();
+  const membersConfig = useMembersHintConfig();
   const vaultConfig = useESOHintConfig();
   const veleroConfig = useKyvernoHintConfig();
 
@@ -118,6 +129,14 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     setIsExpanding(true);
     setTimeout(() => {
       setExpandedCard('gitops');
+      setIsExpanding(false);
+    }, 50);
+  };
+
+  const handleMembersExpand = () => {
+    setIsExpanding(true);
+    setTimeout(() => {
+      setExpandedCard('members');
       setIsExpanding(false);
     }, 50);
   };
@@ -174,9 +193,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
           <BentoGrid className={expandedCard ? styles.expandedGrid : ''}>
             {/* Left side: Crossplane component in large (top) - expands to full width when expanded */}
             {(!expandedCard || expandedCard === 'crossplane') && (
-              <BentoCard 
-                size="large" 
-                gridColumn={expandedCard === 'crossplane' ? "1 / 13" : "1 / 9"} 
+              <BentoCard
+                size="large"
+                gridColumn={expandedCard === 'crossplane' ? '1 / 13' : '1 / 9'}
                 gridRow="1 / 3"
                 className={expandedCard === 'crossplane' ? styles.expandedCard : ''}
               >
@@ -201,7 +220,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                         position: 'absolute',
                         bottom: '8px',
                         right: '8px',
-                        zIndex: 10
+                        zIndex: 10,
                       }}
                     />
                   )}
@@ -210,13 +229,38 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
             )}
 
             {/* GitOps component - shows when expanded */}
+            {expandedCard === 'members' && (
+              <BentoCard size="large" gridColumn="1 / 13" className={styles.expandedCard}>
+                <div style={{ position: 'relative' }}>
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.apiServer}
+                    version={''}
+                    allItems={mcp.spec?.authorization?.roleBindings}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={membersConfig}
+                    onClick={handleCollapseExpanded}
+                    size="large"
+                  />
+                  <Button
+                    icon="sap-icon://collapse"
+                    design="Default"
+                    onClick={handleCollapseExpanded}
+                    tooltip="Collapse to overview"
+                    style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: '8px',
+                      zIndex: 10,
+                    }}
+                  />
+                </div>
+              </BentoCard>
+            )}
+
+            {/* GitOps component - shows when expanded */}
             {expandedCard === 'gitops' && (
-              <BentoCard 
-                size="large" 
-                gridColumn="1 / 13" 
-                gridRow="1 / 3"
-                className={styles.expandedCard}
-              >
+              <BentoCard size="large" gridColumn="1 / 13" gridRow="1 / 3" className={styles.expandedCard}>
                 <div style={{ position: 'relative', height: '100%' }}>
                   <ComponentCard
                     enabled={!!mcp?.spec?.components?.flux}
@@ -237,7 +281,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                       position: 'absolute',
                       bottom: '8px',
                       right: '8px',
-                      zIndex: 10
+                      zIndex: 10,
                     }}
                   />
                 </div>
@@ -245,25 +289,26 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
             )}
 
             {/* Left side: Graph in extra-large (bottom) - expands to full width when any component is expanded */}
-            <BentoCard 
-              size="extra-large" 
-              gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
-              gridRow="3 / 7"
-              className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
-            >
-              <GraphCard 
-                title="Resource Dependencies" 
-                colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
-              />
-            </BentoCard>
+            {expandedCard === 'members' ? (
+              <></>
+            ) : (
+              <BentoCard
+                size="extra-large"
+                gridColumn={expandedCard ? '1 / 13' : '1 / 9'}
+                gridRow="3 / 7"
+                className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
+              >
+                <GraphCard title="Resource Dependencies" colorBy={expandedCard === 'gitops' ? 'flux' : 'source'} />
+              </BentoCard>
+            )}
 
             {/* Right side cards - hide when any component is expanded */}
             {!expandedCard && (
               <>
                 {/* Right side: First medium component (GitOps) */}
-                <BentoCard 
-                  size="medium" 
-                  gridColumn="9 / 13" 
+                <BentoCard
+                  size="medium"
+                  gridColumn="9 / 13"
                   gridRow="1 / 3"
                   className={isExpanding ? styles.hidingCard : ''}
                 >
@@ -280,28 +325,28 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 </BentoCard>
 
                 {/* Right side: Second medium component (GitOps copy) */}
-                <BentoCard 
-                  size="medium" 
-                  gridColumn="9 / 13" 
+                <BentoCard
+                  size="medium"
+                  gridColumn="9 / 13"
                   gridRow="3 / 5"
                   className={isExpanding ? styles.hidingCard : ''}
                 >
                   <ComponentCard
-                    enabled={!!mcp?.spec?.components?.flux}
-                    version={mcp?.spec?.components?.flux?.version}
-                    allItems={allItems}
+                    enabled={!!mcp?.spec?.components?.apiServer}
+                    version={''}
+                    allItems={mcp.spec?.authorization?.roleBindings}
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
-                    config={gitOpsConfig}
-                    onClick={handleGitOpsExpand}
+                    config={membersConfig}
+                    onClick={handleMembersExpand}
                     size="medium"
                   />
                 </BentoCard>
 
                 {/* Right side: First small component (Velero config) */}
-                <BentoCard 
-                  size="small" 
-                  gridColumn="9 / 11" 
+                <BentoCard
+                  size="small"
+                  gridColumn="9 / 11"
                   gridRow="5 / 7"
                   className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
@@ -317,9 +362,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 </BentoCard>
 
                 {/* Right side: Second small component (Vault) */}
-                <BentoCard 
-                  size="small" 
-                  gridColumn="11 / 13" 
+                <BentoCard
+                  size="small"
+                  gridColumn="11 / 13"
                   gridRow="5 / 7"
                   className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
@@ -351,10 +396,16 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               </div>
             </div>
           )}
-          
+
           {expandedCard === 'gitops' && (
             <div style={{ marginTop: '24px' }}>
               <FluxList />
+            </div>
+          )}
+
+          {expandedCard === 'members' && (
+            <div style={{ marginTop: '24px' }}>
+              <MembersList members={mcp?.spec?.authorization.roleBindings} />
             </div>
           )}
         </div>

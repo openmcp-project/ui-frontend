@@ -1,6 +1,7 @@
 import { ManagedResourceItem, Condition } from '../lib/shared/types';
 import { APIError } from '../lib/api/error';
 import { GenericHintSegmentCalculator, GenericHintState } from '../types/types';
+import { fa } from 'zod/v4/locales';
 
 
 /**
@@ -174,6 +175,78 @@ export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
     showOnlyNonZero: true,
   };
 };
+
+/**
+ * GitOps-specific segment calculation
+ */
+export const calculateMembersSegments: GenericHintSegmentCalculator = (
+  allItems: any[],
+  isLoading: boolean,
+  error: APIError | undefined,
+  enabled: boolean,
+  t: (key: string) => string,
+): GenericHintState => {
+
+  if (isLoading) {
+    return {
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.common.loading') }],
+      label: t('Hints.common.loading'),
+      showPercentage: false,
+      isHealthy: false,
+      showOnlyNonZero: true,
+    };
+  }
+
+  if (error) {
+    return {
+      segments: [{ percentage: 100, color: HINT_COLORS.unhealthy, label: t('Hints.common.errorLoadingResources') }],
+      label: t('Hints.common.errorLoadingResources'),
+      showPercentage: false,
+      isHealthy: false,
+      showOnlyNonZero: true,
+    };
+  }
+
+  if (!enabled) {
+    return {
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.GitOpsHint.inactive') }],
+      label: t('Hints.GitOpsHint.inactive'),
+      showPercentage: false,
+      isHealthy: false,
+      showOnlyNonZero: true,
+    };
+  }
+
+  const totalCount = allItems.length;
+
+  if (totalCount === 0) {
+    return {
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.GitOpsHint.noResources') }],
+      label: t('Hints.GitOpsHint.noResources'),
+      showPercentage: false,
+      isHealthy: false,
+      showOnlyNonZero: true,
+    };
+  }
+
+  // Count the number of items with the flux label
+  const userAdmins = allItems.filter(
+    (user: any) =>
+      user?.subjects?.[0]?.kind == "User" && user?.role == "admin"
+  ).length;
+
+  return {
+    segments: [
+      { percentage: userAdmins / allItems.length * 100, color: HINT_COLORS.healthy, label: "Admin" },
+      { percentage: 100 - (userAdmins / allItems.length * 100), color: HINT_COLORS.inactive, label: "Viewer" },
+    ],
+    label: "Admins",
+    showPercentage: false,
+    isHealthy: true,
+    showOnlyNonZero: false,
+  };
+};
+
 
 /**
  * Vault-specific segment calculation

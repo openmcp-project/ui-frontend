@@ -3,6 +3,7 @@ import { GenericHintConfig } from '../../../types/types';
 import {
   calculateCrossplaneSegments,
   calculateGitOpsSegments,
+  calculateMembersSegments,
   calculateVaultSegments,
 
 } from '../../../utils/hintsCardsRowCalculations';
@@ -33,6 +34,21 @@ export const useGitOpsHintConfig = (): GenericHintConfig => {
     scrollTarget: '.cp-page-section-gitops',
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateGitOpsSegments(allItems, isLoading, error, enabled, t),
+    // calculateHoverData: (allItems, enabled) => calculateGitOpsHoverDataGeneric(allItems, enabled, t),
+  };
+};
+
+export const useMembersHintConfig = (): GenericHintConfig => {
+  const { t } = useTranslation();
+
+  return {
+    title: t('Hints.MembersHint.title'),
+    subtitle: t('Hints.MembersHint.subtitle'),
+    iconSrc: '/members.png',
+    iconAlt: 'Members',
+    scrollTarget: '.cp-page-section-gitops',
+    calculateSegments: (allItems, isLoading, error, enabled) =>
+      calculateMembersSegments(allItems, isLoading, error, enabled, t),
     // calculateHoverData: (allItems, enabled) => calculateGitOpsHoverDataGeneric(allItems, enabled, t),
   };
 };
