@@ -19,10 +19,19 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { BentoGrid, BentoCard, GraphCard, ComponentCard } from '../../../components/BentoGrid';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useESOHintConfig, useKyvernoHintConfig, useMembersHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
-import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
+import {
+  useCrossplaneHintConfig,
+  useGitOpsHintConfig,
+  useESOHintConfig,
+  useKyvernoHintConfig,
+  useMembersHintConfig,
+} from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
+import {
+  ManagedResourcesRequest,
+  ManagedResourcesResponse,
+} from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
-import { ManagedResourceItem } from '../../../lib/shared/types';
+import { ManagedResourceItem, ProviderConfigs } from '../../../lib/shared/types';
 import { useMemo, useState } from 'react';
 import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
@@ -30,6 +39,16 @@ import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfi
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { MemberTable } from '../../../components/Members/MemberTable.tsx';
 import { resolveProviderType, generateColorMap } from '../../../components/Graphs/graphUtils';
+import { NodeData } from '../../../components/Graphs/types';
+
+interface RoleBinding {
+  role: string;
+  subjects: {
+    kind: string;
+    name: string;
+  }[];
+  namespace?: string;
+}
 
 // Utility function to flatten managed resources
 const flattenManagedResources = (managedResources: ManagedResourcesResponse): ManagedResourceItem[] => {
@@ -41,27 +60,27 @@ const flattenManagedResources = (managedResources: ManagedResourcesResponse): Ma
 };
 
 // Utility function to calculate provider distribution with graph colors
-const calculateProviderDistribution = (items: ManagedResourceItem[], providerConfigs: any[]) => {
+const calculateProviderDistribution = (items: ManagedResourceItem[], providerConfigs: ProviderConfigs[]) => {
   if (!items || items.length === 0) return { segments: [], totalProviders: 0 };
 
   // Count resources by provider type (same method as graph)
   const providerCounts: Record<string, number> = {};
-  
-  items.forEach(item => {
+
+  items.forEach((item) => {
     const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
     const providerType = resolveProviderType(providerConfigName, providerConfigs);
     providerCounts[providerType] = (providerCounts[providerType] || 0) + 1;
   });
 
   // Create NodeData-like objects for color generation (reuse graph's color logic)
-  const nodeDataForColors = Object.keys(providerCounts).map(providerType => ({
+  const nodeDataForColors = Object.keys(providerCounts).map((providerType) => ({
     providerType,
     providerConfigName: '', // Not needed for color generation
-    fluxName: undefined
+    fluxName: undefined,
   }));
 
   // Generate colors using the same logic as the graph
-  const colorMap = generateColorMap(nodeDataForColors as any, 'source');
+  const colorMap = generateColorMap(nodeDataForColors as NodeData[], 'source');
 
   // Convert to segments with percentages and counts
   const total = items.length;
@@ -70,14 +89,14 @@ const calculateProviderDistribution = (items: ManagedResourceItem[], providerCon
       percentage: Math.round((count / total) * 100),
       color: colorMap[provider] || '#BFBFBF', // fallback color
       label: provider.replace('provider-', '').toUpperCase(),
-      count: count
+      count: count,
     }))
-    .filter(segment => segment.percentage > 0)
+    .filter((segment) => segment.percentage > 0)
     .sort((a, b) => b.percentage - a.percentage);
 
   return {
     segments,
-    totalProviders: segments.length
+    totalProviders: segments.length,
   };
 };
 
@@ -226,12 +245,16 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
         hideTitleText
       >
         <div className={styles.mainContainer}>
-          <BentoGrid className={expandedCard === 'members' ? styles.expandedMembersGrid : expandedCard ? styles.expandedGrid : ''}>
+          <BentoGrid
+            className={
+              expandedCard === 'members' ? styles.expandedMembersGrid : expandedCard ? styles.expandedGrid : ''
+            }
+          >
             {/* Left side: Crossplane component in large (top) - expands to full width when expanded */}
             {(!expandedCard || expandedCard === 'crossplane') && (
-              <BentoCard 
-                size="large" 
-                gridColumn={expandedCard === 'crossplane' ? "1 / 13" : "1 / 9"} 
+              <BentoCard
+                size="large"
+                gridColumn={expandedCard === 'crossplane' ? '1 / 13' : '1 / 9'}
                 gridRow="1 / 3"
                 className={expandedCard === 'crossplane' ? styles.expandedCard : ''}
               >
@@ -243,11 +266,11 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={crossplaneConfig}
-                    onClick={expandedCard === 'crossplane' ? handleCollapseExpanded : handleCrossplaneExpand}
                     size="large"
                     secondarySegments={providerDistribution.segments}
                     secondaryLabel={`Providers ${providerDistribution.totalProviders}`}
-                    expanded={expandedCard === 'crossplane'} 
+                    expanded={expandedCard === 'crossplane'}
+                    onClick={expandedCard === 'crossplane' ? handleCollapseExpanded : handleCrossplaneExpand}
                   />
                 </div>
               </BentoCard>
@@ -255,12 +278,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
             {/* GitOps component - shows when expanded*/}
             {expandedCard === 'gitops' && (
-              <BentoCard 
-                size="large" 
-                gridColumn="1 / 13" 
-                gridRow="1 / 3"
-                className={styles.expandedCard}
-              >
+              <BentoCard size="large" gridColumn="1 / 13" gridRow="1 / 3" className={styles.expandedCard}>
                 <div className={styles.cardContentContainer}>
                   <ComponentCard
                     enabled={true}
@@ -269,9 +287,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={gitOpsConfig}
-                    onClick={handleCollapseExpanded}
                     size="large"
                     expanded={true}
+                    onClick={handleCollapseExpanded}
                   />
                 </div>
               </BentoCard>
@@ -279,12 +297,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
             {/* Members component - shows when expanded */}
             {expandedCard === 'members' && (
-              <BentoCard 
-                size="large" 
-                gridColumn="1 / 13" 
-                gridRow="1 / 7"
-                className={styles.expandedCard}
-              >
+              <BentoCard size="large" gridColumn="1 / 13" gridRow="1 / 7" className={styles.expandedCard}>
                 <div className={styles.cardContentContainer}>
                   <ComponentCard
                     enabled={!!mcp?.spec?.components?.apiServer}
@@ -293,9 +306,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={membersConfig}
-                    onClick={handleCollapseExpanded}
                     size="large"
                     expanded={true}
+                    onClick={handleCollapseExpanded}
                   />
                 </div>
               </BentoCard>
@@ -303,16 +316,13 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
             {/* Left side: Graph in extra-large (bottom) - expands to full width when any component is expanded, but hidden for members */}
             {expandedCard !== 'members' && (
-              <BentoCard 
-                size="extra-large" 
-                gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
+              <BentoCard
+                size="extra-large"
+                gridColumn={expandedCard ? '1 / 13' : '1 / 9'}
                 gridRow="3 / 7"
                 className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
               >
-                <GraphCard 
-                  title="Resource Dependencies" 
-                  colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
-                />
+                <GraphCard title="Resource Dependencies" colorBy={expandedCard === 'gitops' ? 'flux' : 'source'} />
               </BentoCard>
             )}
 
@@ -320,9 +330,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
             {!expandedCard && (
               <>
                 {/* Right side: First medium component (GitOps) - ACTIVATED */}
-                <BentoCard 
-                  size="medium" 
-                  gridColumn="9 / 13" 
+                <BentoCard
+                  size="medium"
+                  gridColumn="9 / 13"
                   gridRow="1 / 3"
                   className={isExpanding ? styles.hidingCard : ''}
                 >
@@ -333,15 +343,15 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={gitOpsConfig}
-                    onClick={handleGitOpsExpand}
                     size="medium"
+                    onClick={handleGitOpsExpand}
                   />
                 </BentoCard>
 
                 {/* Right side: Second medium component (Members) */}
-                <BentoCard 
-                  size="medium" 
-                  gridColumn="9 / 13" 
+                <BentoCard
+                  size="medium"
+                  gridColumn="9 / 13"
                   gridRow="3 / 5"
                   className={isExpanding ? styles.hidingCard : ''}
                 >
@@ -352,15 +362,15 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
                     config={membersConfig}
-                    onClick={handleMembersExpand}
                     size="medium"
+                    onClick={handleMembersExpand}
                   />
                 </BentoCard>
 
                 {/* Right side: First small component (Kyverno config) */}
-                <BentoCard 
-                  size="small" 
-                  gridColumn="9 / 11" 
+                <BentoCard
+                  size="small"
+                  gridColumn="9 / 11"
                   gridRow="5 / 7"
                   className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
@@ -376,9 +386,9 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 </BentoCard>
 
                 {/* Right side: Second small component (ESO) */}
-                <BentoCard 
-                  size="small" 
-                  gridColumn="11 / 13" 
+                <BentoCard
+                  size="small"
+                  gridColumn="11 / 13"
                   gridRow="5 / 7"
                   className={isExpanding ? styles.hidingCard : styles.disabledCard}
                 >
@@ -412,25 +422,25 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   </div>
                 </div>
               </Panel>
-              <div className={styles.detailsPanelBottom}></div>
+              <div className={styles.detailsPanelBottom} />
             </div>
           )}
-          
+
           {expandedCard === 'gitops' && (
             <div className={styles.tableSection}>
               <Panel headerText="Flux List">
                 <FluxList />
               </Panel>
-              <div className={styles.detailsPanelBottom}></div>
+              <div className={styles.detailsPanelBottom} />
             </div>
           )}
 
           {expandedCard === 'members' && (
             <div className={styles.tableSection}>
               <Panel headerText="Members List">
-                <MemberTable 
+                <MemberTable
                   members={
-                    mcp?.spec?.authorization?.roleBindings?.map((binding: any) => ({
+                    mcp?.spec?.authorization?.roleBindings?.map((binding: RoleBinding) => ({
                       name: (binding.subjects?.[0]?.name || 'Unknown').replace(/^openmcp:/, ''),
                       kind: binding.subjects?.[0]?.kind || 'Unknown',
                       roles: binding.role || [],
@@ -440,7 +450,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   requireAtLeastOneMember={false}
                 />
               </Panel>
-              <div className={styles.detailsPanelBottom}></div>
+              <div className={styles.detailsPanelBottom} />
             </div>
           )}
         </div>

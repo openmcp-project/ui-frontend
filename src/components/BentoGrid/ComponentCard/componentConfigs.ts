@@ -5,7 +5,6 @@ import {
   calculateGitOpsSegments,
   calculateMembersSegments,
   calculateVaultSegments,
-
 } from '../../../utils/componentCardCalculations';
 
 export const useCrossplaneHintConfig = (): GenericHintConfig => {

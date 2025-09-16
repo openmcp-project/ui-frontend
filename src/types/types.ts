@@ -1,18 +1,16 @@
 import { ReactNode } from 'react';
 import { APIError } from '../lib/api/error';
-import { ManagedResourceItem } from '../lib/shared/types';
 import { PercentageSegment } from '../components/BentoGrid/MultiPercentageBar/MultiPercentageBar';
 
-export interface GenericHintSegmentCalculator {
+export interface GenericHintSegmentCalculator<T = unknown> {
   (
-    allItems: ManagedResourceItem[],
+    allItems: T[],
     isLoading: boolean,
     error: APIError | undefined,
     enabled: boolean,
     t: (key: string) => string,
   ): GenericHintState;
 }
-
 
 export interface GenericHintState {
   segments: PercentageSegment[];
@@ -22,24 +20,24 @@ export interface GenericHintState {
   showOnlyNonZero?: boolean;
 }
 
-export interface GenericHintConfig {
+export interface GenericHintConfig<T = unknown> {
   title: string;
   subtitle: string;
   iconSrc: string;
   iconAlt: string;
   iconStyle?: React.CSSProperties;
   scrollTarget?: string;
-  calculateSegments: GenericHintSegmentCalculator;
-  renderHoverContent?: (allItems: ManagedResourceItem[], enabled: boolean) => ReactNode;
+  calculateSegments: GenericHintSegmentCalculator<T>;
+  renderHoverContent?: (allItems: T[], enabled: boolean) => ReactNode;
 }
 
-export interface GenericHintProps {
+export interface GenericHintProps<T = unknown> {
   enabled?: boolean;
   version?: string;
   onActivate?: () => void;
-  allItems?: ManagedResourceItem[];
+  allItems?: T[];
   isLoading?: boolean;
   error?: APIError;
-  config: GenericHintConfig;
+  config: GenericHintConfig<T>;
   height?: string | number;
 }

@@ -2,6 +2,9 @@ import { ManagedResourceItem, Condition } from '../lib/shared/types';
 import { APIError } from '../lib/api/error';
 import { GenericHintSegmentCalculator, GenericHintState } from '../types/types';
 
+interface MemberItem {
+  role?: string;
+}
 
 export const HINT_COLORS = {
   healthy: '#28a745',
@@ -143,7 +146,6 @@ export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
     };
   }
 
-
   const fluxLabelCount = allItems.filter(
     (item: ManagedResourceItem) =>
       item?.metadata?.labels &&
@@ -169,7 +171,7 @@ export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
  * Members-specific segment calculation
  */
 export const calculateMembersSegments: GenericHintSegmentCalculator = (
-  allItems: any[],
+  allItems: MemberItem[],
   isLoading: boolean,
   error: APIError | undefined,
   enabled: boolean,
@@ -214,23 +216,22 @@ export const calculateMembersSegments: GenericHintSegmentCalculator = (
   }
   // Count the number of roles and their distribution
   const roleCounts: Record<string, number> = {};
-  
-  allItems.forEach((item: any) => {
+
+  allItems.forEach((item: MemberItem) => {
     const role = item?.role || 'unknown';
     roleCounts[role] = (roleCounts[role] || 0) + 1;
   });
 
   const totalRoles = Object.keys(roleCounts).length;
-  
 
   const segments = Object.entries(roleCounts)
     .map(([role, count]) => ({
       percentage: Math.round((count / totalCount) * 100),
       color: HINT_COLORS.roles, // All roles use the same teal color
       label: role.charAt(0).toUpperCase() + role.slice(1),
-      count: count
+      count: count,
     }))
-    .filter(segment => segment.percentage > 0)
+    .filter((segment) => segment.percentage > 0)
     .sort((a, b) => b.percentage - a.percentage);
 
   return {

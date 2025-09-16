@@ -117,11 +117,8 @@ describe('MultiPercentageBar utilities', () => {
 
   describe('color configuration utilities', () => {
     // Helper function to apply color overrides (simulating component logic)
-    const applyColorOverrides = (
-      segments: PercentageSegment[], 
-      overrides: Record<string, string>
-    ) => {
-      return segments.map(segment => ({
+    const applyColorOverrides = (segments: PercentageSegment[], overrides: Record<string, string>) => {
+      return segments.map((segment) => ({
         ...segment,
         color: overrides[segment.label] || segment.color,
       }));
@@ -134,8 +131,8 @@ describe('MultiPercentageBar utilities', () => {
       ];
 
       const overrides = {
-        'Healthy': '#00ff00',
-        'Unhealthy': '#ff0000',
+        Healthy: '#00ff00',
+        Unhealthy: '#ff0000',
       };
 
       const result = applyColorOverrides(segments, overrides);
@@ -151,7 +148,7 @@ describe('MultiPercentageBar utilities', () => {
       ];
 
       const overrides = {
-        'Different': '#00ff00',
+        Different: '#00ff00',
       };
 
       const result = applyColorOverrides(segments, overrides);
@@ -163,19 +160,12 @@ describe('MultiPercentageBar utilities', () => {
 
   describe('label configuration utilities', () => {
     // Helper function to determine if primary label should be hidden
-    const shouldHidePrimaryLabel = (
-      segments: PercentageSegment[], 
-      hideWhenSingleFull: boolean
-    ) => {
-      return hideWhenSingleFull && 
-        segments.length === 1 && 
-        segments[0]?.percentage === 100;
+    const shouldHidePrimaryLabel = (segments: PercentageSegment[], hideWhenSingleFull: boolean) => {
+      return hideWhenSingleFull && segments.length === 1 && segments[0]?.percentage === 100;
     };
 
     it('hides primary label when single segment is 100%', () => {
-      const segments: PercentageSegment[] = [
-        { percentage: 100, color: '#28a745', label: 'Complete' },
-      ];
+      const segments: PercentageSegment[] = [{ percentage: 100, color: '#28a745', label: 'Complete' }];
 
       expect(shouldHidePrimaryLabel(segments, true)).toBe(true);
       expect(shouldHidePrimaryLabel(segments, false)).toBe(false);
@@ -187,9 +177,7 @@ describe('MultiPercentageBar utilities', () => {
         { percentage: 50, color: '#d22020ff', label: 'Unhealthy' },
       ];
 
-      const partialSegment: PercentageSegment[] = [
-        { percentage: 80, color: '#28a745', label: 'Partial' },
-      ];
+      const partialSegment: PercentageSegment[] = [{ percentage: 80, color: '#28a745', label: 'Partial' }];
 
       expect(shouldHidePrimaryLabel(multipleSegments, true)).toBe(false);
       expect(shouldHidePrimaryLabel(partialSegment, true)).toBe(false);

@@ -6,13 +6,15 @@ import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
 import styles from './ComponentCard.module.css';
 import { GenericHintProps } from '../../../types/types';
 
-export const ComponentCard: React.FC<GenericHintProps & { 
-  onClick?: () => void; 
-  size?: 'small' | 'medium' | 'large' | 'extra-large';
-  secondarySegments?: Array<{ percentage: number; color: string; label: string }>;
-  secondaryLabel?: string;
-  expanded?: boolean;
-}> = ({
+export const ComponentCard: React.FC<
+  GenericHintProps & {
+    onClick?: () => void;
+    size?: 'small' | 'medium' | 'large' | 'extra-large';
+    secondarySegments?: { percentage: number; color: string; label: string }[];
+    secondaryLabel?: string;
+    expanded?: boolean;
+  }
+> = ({
   enabled = false,
   version,
   allItems = [],
@@ -23,7 +25,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
   size = 'medium',
   secondarySegments,
   secondaryLabel = 'Secondary Metric',
-  expanded = false, 
+  expanded = false,
 }) => {
   const { t } = useTranslation();
   const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled, t);
@@ -60,9 +62,9 @@ export const ComponentCard: React.FC<GenericHintProps & {
         {/* Expand/Collapse button */}
         {onClick && enabled && (
           <Button
-            icon={expanded ? "sap-icon://collapse" : "sap-icon://expand"}
+            icon={expanded ? 'sap-icon://collapse' : 'sap-icon://expand'}
             design="Transparent"
-            tooltip={expanded ? "Collapse to overview" : "Expand details"}
+            tooltip={expanded ? 'Collapse to overview' : 'Expand details'}
             style={{ zIndex: 1 }}
             className={size === 'small' ? styles.expandButtonSmall : styles.expandButton}
             onClick={(e) => {
@@ -72,33 +74,31 @@ export const ComponentCard: React.FC<GenericHintProps & {
           />
         )}
 
-        <div className={
-          (size === 'large' || size === 'extra-large') ? styles.contentContainerMultiple : styles.contentContainer
-        }>
-          <div className={
-            size === 'small' ? styles.progressBarContainerSmall :
-            size === 'medium' ? styles.progressBarContainerMedium :
-            styles.progressBarContainerLarge
-          }>
+        <div
+          className={
+            size === 'large' || size === 'extra-large' ? styles.contentContainerMultiple : styles.contentContainer
+          }
+        >
+          <div
+            className={
+              size === 'small'
+                ? styles.progressBarContainerSmall
+                : size === 'medium'
+                  ? styles.progressBarContainerMedium
+                  : styles.progressBarContainerLarge
+            }
+          >
             <MultiPercentageBar
               segments={hintState.segments}
               className={styles.progressBar}
               showOnlyNonZero={hintState.showOnlyNonZero ?? true}
               isHealthy={hintState.isHealthy}
-              barWidth={
-                size === 'small' ? '80%' :
-                size === 'medium' ? '85%' :
-                '90%'
-              }
+              barWidth={size === 'small' ? '80%' : size === 'medium' ? '85%' : '90%'}
               barHeight={size === 'small' ? '8px' : '12px'}
-              barMaxWidth={
-                size === 'small' ? '400px' :
-                size === 'medium' ? '600px' :
-                'none'
-              }
+              barMaxWidth={size === 'small' ? '400px' : size === 'medium' ? '600px' : 'none'}
               labelConfig={{
                 position: 'above',
-                displayMode: 'primary', 
+                displayMode: 'primary',
                 showPercentage: hintState.showPercentage,
                 showCount: hintState.label?.includes('Roles'),
                 primaryLabelText: hintState.label,
@@ -113,7 +113,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
               showSegmentLabels={hintState.label?.includes('Roles')}
               minSegmentWidthForLabel={12}
             />
-            
+
             {/* Secondary chart for large and extra-large cards */}
             {(size === 'large' || size === 'extra-large') && secondarySegments && (
               <MultiPercentageBar

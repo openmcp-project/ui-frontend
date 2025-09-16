@@ -108,18 +108,18 @@ const Graph: React.FC<GraphProps> = ({ colorBy: initialColorBy = 'source' }) => 
           selectionMode={SelectionMode.Partial}
           preventScrolling={true}
         >
-          <Background gap={20} variant={BackgroundVariant.Dots} bgColor='#ffffff' />
+          <Background gap={20} variant={BackgroundVariant.Dots} bgColor="#ffffff" />
           <Controls showInteractive={false} />
         </ReactFlow>
-        
+
         {/* Legend and filter in bottom-right */}
         <div className={styles.bottomLegendContainer}>
           <Legend legendItems={legendItems} horizontal={true} />
           <Popover
             opener="filter-button"
             open={filterPopoverOpen}
-            onClose={() => setFilterPopoverOpen(false)}
             placement="Top"
+            onClose={() => setFilterPopoverOpen(false)}
           >
             <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <Button

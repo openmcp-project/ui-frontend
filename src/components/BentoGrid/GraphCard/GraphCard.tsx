@@ -9,11 +9,7 @@ export interface GraphCardProps {
   colorBy?: ColorBy;
 }
 
-export const GraphCard: React.FC<GraphCardProps> = ({ 
-  className = '',
-  colorBy = 'source'
-}) => {
-
+export const GraphCard: React.FC<GraphCardProps> = ({ className = '', colorBy = 'source' }) => {
   return (
     <div className={`${styles.container} ${className}`}>
       <div className={styles.simpleWrapper}>

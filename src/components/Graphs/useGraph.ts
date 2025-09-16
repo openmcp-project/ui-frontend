@@ -24,12 +24,12 @@ function buildGraph(
   treeData.forEach((n) => {
     const colorKey: string =
       colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
-    
+
     // Use provider/filter color for background tinting
     const borderColor = colorMap[colorKey] || '#ccc';
     // Convert the border color to a very light tint for background
     const backgroundColor = `${borderColor}08`; // Add 08 for ~3% opacity
-    
+
     const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
