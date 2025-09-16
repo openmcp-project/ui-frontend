@@ -93,6 +93,9 @@
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
+  "ComponentsSelection": {
+    "chooseVersion": "Please select version"
+  },
   "IllustratedBanner": {
     "titleMessage": "No Managed Control Planes found",
     "subtitleMessage": "Get started by creating your first Managed Control Plane.",

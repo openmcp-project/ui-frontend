@@ -123,7 +123,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const dialogHeader = memberToEdit ? t('EditMembers.editHeader') : t('EditMembers.addHeader') || 'Add member';
 
   return (
-    <Dialog open={open} headerText={dialogHeader}>
+    <Dialog open={open} headerText={dialogHeader} onClose={onClose}>
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
