@@ -48,7 +48,13 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
-import { ManagedControlPlaneInterface } from '../../../lib/api/types/mcpResource.ts';
+import {
+  ManagedControlPlaneInterface,
+  MCPComponentsSpec,
+  MCPCrossplaneComponent,
+  MCPVersionedComponent,
+  MCPSubject,
+} from '../../../lib/api/types/mcpResource.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -355,17 +361,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const initialSelection = useMemo(() => {
     if (!isEditMode) return undefined;
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
-    const componentsMap = (initialData?.spec.components ?? {}) as Record<string, any>;
-    Object.keys(componentsMap).forEach((key) => {
-      if (key === 'apiServer' || key === 'landscaper') return;
+    const componentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
+    (Object.keys(componentsMap) as (keyof MCPComponentsSpec)[]).forEach((key) => {
+      if (key === 'apiServer') return;
       const value = componentsMap[key];
       if (key === 'crossplane') {
-        selection[key] = { isSelected: true, version: value.version ?? '' };
-        (value.providers ?? []).forEach((prov: { name: string; version: string }) => {
+        const crossplane = (value as MCPCrossplaneComponent) ?? {};
+        selection[key as string] = { isSelected: true, version: crossplane.version ?? '' };
+        (crossplane.providers ?? []).forEach((prov) => {
           selection[prov.name] = { isSelected: true, version: prov.version ?? '' };
         });
       } else {
-        selection[key] = { isSelected: true, version: value.version ?? '' };
+        const versioned = value as MCPVersionedComponent | undefined;
+        if (versioned) {
+          selection[key as string] = { isSelected: true, version: versioned.version ?? '' };
+        }
       }
     });
     return selection;
@@ -376,10 +386,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     if (!isOpen || !isEditMode) return;
     const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
     const members: Member[] = roleBindings.flatMap((rb) =>
-      (rb.subjects ?? []).map((s: any) => ({
+      (rb.subjects ?? []).map((s: MCPSubject) => ({
         kind: s.kind,
         name: s.kind === 'User' && s.name?.includes(':') ? s.name.split(':').slice(1).join(':') : s.name,
-        roles: [rb.role],
+        roles: [normalizeMemberRole(rb.role)],
         namespace: s.namespace,
       })),
     );
