@@ -8,6 +8,11 @@
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.expandedMembersGrid {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 200px !important; /* Reduced height for members view without graph */
+}
+
 .expandedCard {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid var(--sapObjectHeader_BorderColor) !important;
@@ -67,4 +72,49 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Action bar styles */
+.actionsBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Main container styles */
+.mainContainer {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 16px;
+  padding-bottom: 12px;
+}
+
+/* Card content container */
+.cardContentContainer {
+  position: relative;
+  height: 100%;
+}
+
+/* Details panel bottom spacing */
+.detailsPanelBottom {
+  height: 12px;
+  background-color: #f5f5f5;
+  margin-bottom: 32px;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Table sections spacing */
+.tableSection {
+  margin-top: 24px;
+}
+
+.crossplaneTableElement {
+  margin-top: 16px;
+}
+
+/* First crossplane table element (no top margin) */  
+.crossplaneTableElementFirst {
+  margin-top: 24px;
 }

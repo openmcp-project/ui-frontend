@@ -79,6 +79,5 @@ export const ControlPlane = (
 ): Resource<ControlPlaneType> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
-    jq: '{ spec: .spec | {components},  status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
-  };
+    jq: '{ spec: .spec | {components, authorization},  status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',  };
 };

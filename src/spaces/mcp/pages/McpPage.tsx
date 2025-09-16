@@ -19,7 +19,7 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { BentoGrid, BentoCard, GraphCard, ComponentCard } from '../../../components/BentoGrid';
-import { useCrossplaneHintConfig, useGitOpsHintConfig, useESOHintConfig, useKyvernoHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
+import { useCrossplaneHintConfig, useGitOpsHintConfig, useESOHintConfig, useKyvernoHintConfig, useMembersHintConfig } from '../../../components/BentoGrid/ComponentCard/componentConfigs.ts';
 import { ManagedResourcesRequest, ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { ManagedResourceItem } from '../../../lib/shared/types';
@@ -28,6 +28,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
+import { MemberTable } from '../../../components/Members/MemberTable.tsx';
 import { resolveProviderType, generateColorMap } from '../../../components/Graphs/graphUtils';
 
 // Utility function to flatten managed resources
@@ -153,9 +154,10 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
   // Get hint configurations
   const crossplaneConfig = useCrossplaneHintConfig();
-  const gitOpsConfig = useGitOpsHintConfig(); // DEACTIVATED via enabled={false}
-  const vaultConfig = useESOHintConfig();
-  const veleroConfig = useKyvernoHintConfig();
+  const gitOpsConfig = useGitOpsHintConfig();
+  const membersConfig = useMembersHintConfig();
+  const esoConfig = useESOHintConfig();
+  const kyvernoConfig = useKyvernoHintConfig();
 
   // Handle component card clicks
   const handleCrossplaneExpand = () => {
@@ -174,6 +176,14 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
     }, 50);
   };
 
+  const handleMembersExpand = () => {
+    setIsExpanding(true);
+    setTimeout(() => {
+      setExpandedCard('members');
+      setIsExpanding(false);
+    }, 50);
+  };
+
   const handleCollapseExpanded = () => {
     setIsExpanding(true);
     setTimeout(() => {
@@ -181,11 +191,6 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
       setIsExpanding(false);
     }, 300);
   };
-
-  // Add spacer at the bottom of the content
-  const BottomSpacer = () => (
-    <div style={{ height: '40px', backgroundColor: '#f9f9f9', marginTop: '16px', marginBottom: '32px' }}></div>
-  );
 
   return (
     <ObjectPage
@@ -196,14 +201,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
           breadcrumbs={<BreadCrumbFeedbackHeader />}
           //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
           actionsBar={
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                gap: '0.5rem',
-              }}
-            >
+            <div className={styles.actionsBar}>
               <MCPHealthPopoverButton
                 mcpStatus={mcp?.status}
                 projectName={projectName!}
@@ -227,8 +225,8 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
         titleText={t('McpPage.overviewTitle')}
         hideTitleText
       >
-        <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', paddingTop: '16px', paddingBottom: '12px' }}>
-          <BentoGrid className={expandedCard ? styles.expandedGrid : ''}>
+        <div className={styles.mainContainer}>
+          <BentoGrid className={expandedCard === 'members' ? styles.expandedMembersGrid : expandedCard ? styles.expandedGrid : ''}>
             {/* Left side: Crossplane component in large (top) - expands to full width when expanded */}
             {(!expandedCard || expandedCard === 'crossplane') && (
               <BentoCard 
@@ -237,7 +235,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 gridRow="1 / 3"
                 className={expandedCard === 'crossplane' ? styles.expandedCard : ''}
               >
-                <div style={{ position: 'relative', height: '100%' }}>
+                <div className={styles.cardContentContainer}>
                   <ComponentCard
                     enabled={!!mcp?.spec?.components?.crossplane}
                     version={mcp?.spec?.components?.crossplane?.version}
@@ -249,13 +247,13 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     size="large"
                     secondarySegments={providerDistribution.segments}
                     secondaryLabel={`Providers ${providerDistribution.totalProviders}`}
-                    expanded={expandedCard === 'crossplane'} /* Add this prop to control icon */
+                    expanded={expandedCard === 'crossplane'} 
                   />
                 </div>
               </BentoCard>
             )}
 
-            {/* GitOps component - shows when expanded - DEACTIVATED */}
+            {/* GitOps component - shows when expanded*/}
             {expandedCard === 'gitops' && (
               <BentoCard 
                 size="large" 
@@ -263,7 +261,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                 gridRow="1 / 3"
                 className={styles.expandedCard}
               >
-                <div style={{ position: 'relative', height: '100%' }}>
+                <div className={styles.cardContentContainer}>
                   <ComponentCard
                     enabled={true}
                     version={mcp?.spec?.components?.flux?.version}
@@ -279,18 +277,44 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
               </BentoCard>
             )}
 
-            {/* Left side: Graph in extra-large (bottom) - expands to full width when any component is expanded */}
-            <BentoCard 
-              size="extra-large" 
-              gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
-              gridRow="3 / 7"
-              className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
-            >
-              <GraphCard 
-                title="Resource Dependencies" 
-                colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
-              />
-            </BentoCard>
+            {/* Members component - shows when expanded */}
+            {expandedCard === 'members' && (
+              <BentoCard 
+                size="large" 
+                gridColumn="1 / 13" 
+                gridRow="1 / 7"
+                className={styles.expandedCard}
+              >
+                <div className={styles.cardContentContainer}>
+                  <ComponentCard
+                    enabled={!!mcp?.spec?.components?.apiServer}
+                    version={''}
+                    allItems={mcp?.spec?.authorization?.roleBindings || []}
+                    isLoading={managedResourcesLoading}
+                    error={managedResourcesError}
+                    config={membersConfig}
+                    onClick={handleCollapseExpanded}
+                    size="large"
+                    expanded={true}
+                  />
+                </div>
+              </BentoCard>
+            )}
+
+            {/* Left side: Graph in extra-large (bottom) - expands to full width when any component is expanded, but hidden for members */}
+            {expandedCard !== 'members' && (
+              <BentoCard 
+                size="extra-large" 
+                gridColumn={expandedCard ? "1 / 13" : "1 / 9"} 
+                gridRow="3 / 7"
+                className={expandedCard ? styles.expandedCardNonInteractive : styles.nonInteractiveCard}
+              >
+                <GraphCard 
+                  title="Resource Dependencies" 
+                  colorBy={expandedCard === 'gitops' ? 'flux' : 'source'}
+                />
+              </BentoCard>
+            )}
 
             {/* Right side cards - hide when any component is expanded */}
             {!expandedCard && (
@@ -314,26 +338,26 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                   />
                 </BentoCard>
 
-                {/* Right side: Second medium component (GitOps copy) - DEACTIVATED */}
+                {/* Right side: Second medium component (Members) */}
                 <BentoCard 
                   size="medium" 
                   gridColumn="9 / 13" 
                   gridRow="3 / 5"
-                  className={isExpanding ? styles.hidingCard : styles.disabledCard}
+                  className={isExpanding ? styles.hidingCard : ''}
                 >
                   <ComponentCard
-                    enabled={false}
-                    version={mcp?.spec?.components?.flux?.version}
-                    allItems={allItems}
+                    enabled={!!mcp?.spec?.components?.apiServer}
+                    version={''}
+                    allItems={mcp?.spec?.authorization?.roleBindings || []}
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
-                    config={gitOpsConfig}
-                    onClick={handleGitOpsExpand}
+                    config={membersConfig}
+                    onClick={handleMembersExpand}
                     size="medium"
                   />
                 </BentoCard>
 
-                {/* Right side: First small component (Velero config) */}
+                {/* Right side: First small component (Kyverno config) */}
                 <BentoCard 
                   size="small" 
                   gridColumn="9 / 11" 
@@ -346,12 +370,12 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
-                    config={veleroConfig}
+                    config={kyvernoConfig}
                     size="small"
                   />
                 </BentoCard>
 
-                {/* Right side: Second small component (Vault) */}
+                {/* Right side: Second small component (ESO) */}
                 <BentoCard 
                   size="small" 
                   gridColumn="11 / 13" 
@@ -364,7 +388,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     allItems={allItems}
                     isLoading={managedResourcesLoading}
                     error={managedResourcesError}
-                    config={vaultConfig}
+                    config={esoConfig}
                     size="small"
                   />
                 </BentoCard>
@@ -374,30 +398,49 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
 
           {/* Tables section - outside the BentoGrid to maintain the 600px layout */}
           {expandedCard === 'crossplane' && (
-            <div style={{ marginTop: '24px' }}>
+            <div className={styles.tableSection}>
               <Panel headerText="Details">
-                <div style={{ marginTop: '24px' }}>
+                <div className={styles.crossplaneTableElementFirst}>
                   <div className="crossplane-table-element">
                     <Providers />
                   </div>
-                  <div className="crossplane-table-element" style={{ marginTop: '16px' }}>
+                  <div className={`crossplane-table-element ${styles.crossplaneTableElement}`}>
                     <ProvidersConfig />
                   </div>
-                  <div className="crossplane-table-element" style={{ marginTop: '16px' }}>
+                  <div className={`crossplane-table-element ${styles.crossplaneTableElement}`}>
                     <ManagedResources />
                   </div>
                 </div>
               </Panel>
-              <div style={{ height: '12px', backgroundColor: '#f5f5f5', marginBottom: '32px', borderRadius: '0 0 8px 8px' }}></div>
+              <div className={styles.detailsPanelBottom}></div>
             </div>
           )}
           
           {expandedCard === 'gitops' && (
-            <div style={{ marginTop: '24px' }}>
+            <div className={styles.tableSection}>
               <Panel headerText="Flux List">
                 <FluxList />
               </Panel>
-              <div style={{ height: '12px', backgroundColor: '#f5f5f5', marginBottom: '32px', borderRadius: '0 0 8px 8px' }}></div>
+              <div className={styles.detailsPanelBottom}></div>
+            </div>
+          )}
+
+          {expandedCard === 'members' && (
+            <div className={styles.tableSection}>
+              <Panel headerText="Members List">
+                <MemberTable 
+                  members={
+                    mcp?.spec?.authorization?.roleBindings?.map((binding: any) => ({
+                      name: (binding.subjects?.[0]?.name || 'Unknown').replace(/^openmcp:/, ''),
+                      kind: binding.subjects?.[0]?.kind || 'Unknown',
+                      roles: binding.role || [],
+                      namespace: binding.namespace || '',
+                    })) || []
+                  }
+                  requireAtLeastOneMember={false}
+                />
+              </Panel>
+              <div className={styles.detailsPanelBottom}></div>
             </div>
           )}
         </div>

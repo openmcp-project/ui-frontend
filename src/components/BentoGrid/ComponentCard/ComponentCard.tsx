@@ -35,7 +35,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
       <Card
         header={
           <CardHeader
-            additionalText={enabled ? `v${version ?? ''}` : undefined}
+            additionalText={enabled && version ? `v${version}` : undefined}
             avatar={
               <img
                 src={config.iconSrc}

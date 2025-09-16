@@ -16,6 +16,9 @@
     "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
+  "MemberList": {
+    
+  },
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
@@ -415,6 +418,12 @@
         "managed": "Managed",
         "unmanaged": "Unmanaged"
       }
+    },
+    "MembersHint": {
+      "title": "Members",
+      "subtitle": "Manage access to your Managed Control Plane",
+      "users": "Users",
+      "serviceAccounts": "Service Accounts"
     },
     "ESOHint": {
       "title": "ESO",

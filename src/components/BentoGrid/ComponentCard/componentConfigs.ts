@@ -3,9 +3,10 @@ import { GenericHintConfig } from '../../../types/types';
 import {
   calculateCrossplaneSegments,
   calculateGitOpsSegments,
+  calculateMembersSegments,
   calculateVaultSegments,
 
-} from '../../../utils/hintsCardsRowCalculations';
+} from '../../../utils/componentCardCalculations';
 
 export const useCrossplaneHintConfig = (): GenericHintConfig => {
   const { t } = useTranslation();
@@ -60,8 +61,23 @@ export const useKyvernoHintConfig = (): GenericHintConfig => {
     subtitle: t('Hints.KyvernoHint.subtitle'),
     iconSrc: '/kyverno.svg',
     iconAlt: 'Kyverno',
-    iconStyle: { borderRadius: '0' }, // Vault icon should not be rounded
+    iconStyle: { borderRadius: '0' }, // Kyverno icon should not be rounded
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateVaultSegments(allItems, isLoading, error, enabled, t),
+  };
+};
+
+export const useMembersHintConfig = (): GenericHintConfig => {
+  const { t } = useTranslation();
+
+  return {
+    title: t('Hints.MembersHint.title'),
+    subtitle: t('Hints.MembersHint.subtitle'),
+    iconSrc: '/members.svg',
+    iconAlt: 'Members',
+    iconStyle: { borderRadius: '0' }, // Members icon should not be rounded
+    calculateSegments: (allItems, isLoading, error, enabled) =>
+      calculateMembersSegments(allItems, isLoading, error, enabled, t),
+    // calculateHoverData: (allItems, enabled) => calculateGitOpsHoverDataGeneric(allItems, enabled, t),
   };
 };

@@ -5,7 +5,7 @@ import {
   calculateVaultSegments,
   calculateCrossplaneHoverData,
   HINT_COLORS,
-} from './hintsCardsRowCalculations';
+} from './componentCardCalculations';
 import { ManagedResourceItem, Condition } from '../lib/shared/types';
 import { APIError } from '../lib/api/error';
 
