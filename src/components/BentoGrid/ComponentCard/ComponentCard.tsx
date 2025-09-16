@@ -26,8 +26,6 @@ export const ComponentCard: React.FC<GenericHintProps & {
   expanded = false, 
 }) => {
   const { t } = useTranslation();
-
-  // Calculate segments and state using the provided calculator
   const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled, t);
 
   return (
@@ -56,9 +54,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
           [styles.clickable]: !!onClick && enabled,
         })}
         onClick={enabled ? onClick : undefined}
-
       >
-        {/* Disabled overlay */}
         {!enabled && <div className={styles.disabledOverlay} />}
 
         {/* Expand/Collapse button */}
@@ -67,7 +63,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
             icon={expanded ? "sap-icon://collapse" : "sap-icon://expand"}
             design="Transparent"
             tooltip={expanded ? "Collapse to overview" : "Expand details"}
-            style={{ zIndex: 1 }} /* Lower z-index */
+            style={{ zIndex: 1 }}
             className={size === 'small' ? styles.expandButtonSmall : styles.expandButton}
             onClick={(e) => {
               e.stopPropagation();
@@ -88,6 +84,7 @@ export const ComponentCard: React.FC<GenericHintProps & {
               segments={hintState.segments}
               className={styles.progressBar}
               showOnlyNonZero={hintState.showOnlyNonZero ?? true}
+              isHealthy={hintState.isHealthy}
               barWidth={
                 size === 'small' ? '80%' :
                 size === 'medium' ? '85%' :
@@ -113,15 +110,11 @@ export const ComponentCard: React.FC<GenericHintProps & {
                 duration: size === 'medium' ? 0 : 400,
                 staggerDelay: size === 'medium' ? 0 : 100,
               }}
-              // Legacy props for backward compatibility
-              label={hintState.label}
-              showPercentage={hintState.showPercentage}
-              isHealthy={hintState.isHealthy}
               showSegmentLabels={hintState.label?.includes('Roles')}
               minSegmentWidthForLabel={12}
             />
             
-            {/* Second progress bar only for large and extra-large cards */}
+            {/* Secondary chart for large and extra-large cards */}
             {(size === 'large' || size === 'extra-large') && secondarySegments && (
               <MultiPercentageBar
                 segments={secondarySegments}

@@ -2,53 +2,7 @@ import React, { useMemo } from 'react';
 import styles from './MultiPercentageBar.module.css';
 
 /**
- * MultiPercentageBar - A flexible, configurable progress bar component
- * 
- * Examples:
- * 
- * // Basic usage (backward compatible)
- * <MultiPercentageBar 
- *   segments={[
- *     { percentage: 60, color: '#28a745', label: 'Healthy' },
- *     { percentage: 40, color: '#d22020', label: 'Unhealthy' }
- *   ]}
- *   label="System Health"
- *   showPercentage={true}
- * />
- * 
- * // Advanced configuration with custom colors and labels inside chart
- * <MultiPercentageBar 
- *   segments={[
- *     { percentage: 70, color: '#28a745', label: 'Active', count: 12 },
- *     { percentage: 30, color: '#ffc107', label: 'Pending', count: 5 }
- *   ]}
- *   labelConfig={{
- *     position: 'inside',
- *     displayMode: 'all',
- *     showPercentage: true,
- *     showCount: true,
- *     hideWhenSingleFull: true,
- *   }}
- *   colorConfig={{
- *     overrides: { 'Active': '#00ff00', 'Pending': '#ffaa00' },
- *     healthyThreshold: 70,
- *     opacity: 0.9
- *   }}
- *   animationConfig={{
- *     enableWave: false,
- *     duration: 600
- *   }}
- * />
- * 
- * // Hide primary label when single segment is 100%
- * <MultiPercentageBar 
- *   segments={[{ percentage: 100, color: '#28a745', label: 'Complete' }]}
- *   labelConfig={{
- *     position: 'above',
- *     displayMode: 'primary',
- *     hideWhenSingleFull: true
- *   }}
- * />
+ * MultiPercentageBar - A configurable progress bar component with segments
  */
 
 interface PercentageSegment {
@@ -92,8 +46,8 @@ interface AnimationConfig {
 interface MultiPercentageBarProps {
   segments: PercentageSegment[];
   showOnlyNonZero?: boolean;
+  isHealthy?: boolean; // Override for healthy state from parent component
   
-  // Layout props
   barWidth?: string;
   barMaxWidth?: string;
   barHeight?: string;
@@ -103,22 +57,10 @@ interface MultiPercentageBarProps {
   className?: string;
   style?: React.CSSProperties;
   
-  // Label configuration
   labelConfig?: LabelConfig;
-  
-  // Color configuration
   colorConfig?: ColorConfig;
-  
-  // Animation configuration
   animationConfig?: AnimationConfig;
   
-  // Legacy props for backward compatibility
-  label?: string;
-  showLabels?: boolean;
-  showPercentage?: boolean;
-  isHealthy?: boolean;
-  labelFontSize?: string;
-  animationDuration?: number;
   showSegmentLabels?: boolean;
   minSegmentWidthForLabel?: number;
 }
@@ -126,8 +68,7 @@ interface MultiPercentageBarProps {
 export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   segments,
   showOnlyNonZero = true,
-  
-  // Layout props
+  isHealthy = false,
   barWidth = '80%',
   barMaxWidth = '400px',
   barHeight = '8px',
@@ -136,34 +77,22 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   backgroundColor,
   className,
   style,
-  
-  // Configuration objects
   labelConfig,
   colorConfig,
   animationConfig,
-  
-  // Legacy props (for backward compatibility)
-  label,
-  showLabels = true,
-  showPercentage = true,
-  isHealthy,
-  labelFontSize = '0.875rem',
-  animationDuration = 400,
   showSegmentLabels = false,
   minSegmentWidthForLabel = 15,
 }) => {
-  // Merge legacy props with new config objects
   const mergedLabelConfig: LabelConfig = useMemo(() => ({
-    position: showSegmentLabels ? 'inside' : showLabels ? 'above' : 'none',
+    position: showSegmentLabels ? 'inside' : 'above',
     displayMode: 'primary',
-    showPercentage: showPercentage,
+    showPercentage: false,
     showCount: false,
-    primaryLabelText: label,
-    fontSize: labelFontSize,
+    fontSize: '0.875rem',
     fontWeight: 'normal',
     hideWhenSingleFull: false,
     ...labelConfig,
-  }), [labelConfig, showSegmentLabels, showLabels, showPercentage, label, labelFontSize]);
+  }), [labelConfig, showSegmentLabels]);
 
   const mergedColorConfig: ColorConfig = useMemo(() => ({
     healthyThreshold: 100,
@@ -173,12 +102,12 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   }), [colorConfig]);
 
   const mergedAnimationConfig: AnimationConfig = useMemo(() => ({
-    duration: animationDuration,
+    duration: 400,
     enableWave: true,
     staggerDelay: 100,
     enableTransitions: true,
     ...animationConfig,
-  }), [animationConfig, animationDuration]);
+  }), [animationConfig]);
 
   // Memoize filtered segments with color overrides
   const processedSegments = useMemo(() => {
@@ -197,12 +126,6 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   const primarySegment = processedSegments[0];
   const primaryPercentage = primarySegment?.percentage || 0;
   
-  // Determine if the component is in a "healthy" state
-  const isHealthyState = isHealthy !== undefined 
-    ? isHealthy 
-    : primaryPercentage >= (mergedColorConfig.healthyThreshold || 100);
-  
-  // Determine if we should hide the primary label (single segment at 100%)
   const shouldHidePrimaryLabel = mergedLabelConfig.hideWhenSingleFull && 
     processedSegments.length === 1 && 
     primaryPercentage === 100;
@@ -222,7 +145,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
             text: displayText,
             percentage: mergedLabelConfig.showPercentage ? primaryPercentage : undefined,
             count: mergedLabelConfig.showCount ? processedSegments[0]?.count : undefined,
-            isHealthy: isHealthyState && !isRolesLabel, // Don't apply healthy styling to roles labels
+            isHealthy: isHealthy && !isRolesLabel,
           });
         }
         break;
@@ -245,7 +168,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
                 text: customLabel,
                 percentage: mergedLabelConfig.showPercentage ? segment.percentage : undefined,
                 count: mergedLabelConfig.showCount ? segment.count : undefined,
-                isHealthy: index === 0 ? isHealthyState : false,
+                isHealthy: index === 0 ? isHealthy : false,
               });
             }
           });

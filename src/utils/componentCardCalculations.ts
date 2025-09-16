@@ -3,23 +3,14 @@ import { APIError } from '../lib/api/error';
 import { GenericHintSegmentCalculator, GenericHintState } from '../types/types';
 
 
-/**
- * Common colors used across all hints
- */
 export const HINT_COLORS = {
   healthy: '#28a745',
   creating: '#0874f4',
   unhealthy: '#d22020ff',
   inactive: '#e9e9e9ff',
-  managed: '#28a745',
-  progress: '#fd7e14',
-  roles: '#08848c', // Teal color for roles
-  flux: '#386ce4', // Blue color for flux/gitops
+  roles: '#08848c',
+  flux: '#386ce4',
 } as const;
-
-/**
- * Crossplane-specific segment calculation
- */
 export const calculateCrossplaneSegments: GenericHintSegmentCalculator = (
   allItems: ManagedResourceItem[],
   isLoading: boolean,
@@ -68,8 +59,6 @@ export const calculateCrossplaneSegments: GenericHintSegmentCalculator = (
       showOnlyNonZero: true,
     };
   }
-
-  // Calculate health statistics
   const healthyCount = allItems.filter((item: ManagedResourceItem) => {
     const conditions = item.status?.conditions || [];
     const ready = conditions.find((c: Condition) => c.type === 'Ready' && c.status === 'True');
@@ -154,7 +143,7 @@ export const calculateGitOpsSegments: GenericHintSegmentCalculator = (
     };
   }
 
-  // Count the number of items with the flux label
+
   const fluxLabelCount = allItems.filter(
     (item: ManagedResourceItem) =>
       item?.metadata?.labels &&
@@ -233,7 +222,7 @@ export const calculateMembersSegments: GenericHintSegmentCalculator = (
 
   const totalRoles = Object.keys(roleCounts).length;
   
-  // Convert to segments with percentages and counts
+
   const segments = Object.entries(roleCounts)
     .map(([role, count]) => ({
       percentage: Math.round((count / totalCount) * 100),
