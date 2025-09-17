@@ -81,17 +81,25 @@
   width: var(--bar-width);
   max-width: var(--bar-max-width);
   background-color: var(--background-color);
-  border-radius: var(--border-radius);
+  border-radius: 0;
   padding: 2px;
   overflow: hidden;
 }
+.barContainer > :first-child {
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+}
+.barContainer > :last-child {
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
 
 /* Individual segments */
 .segment {
   flex: var(--segment-percentage);
   min-width: 10px;
   background-color: var(--segment-color);
-  border-radius: var(--border-radius);
   height: var(--bar-height);
   position: relative;
   overflow: hidden;
