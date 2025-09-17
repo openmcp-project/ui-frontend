@@ -55,6 +55,7 @@ import {
   MCPVersionedComponent,
   MCPSubject,
 } from '../../../lib/api/types/mcpResource.ts';
+import { stringify } from 'yaml';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -145,7 +146,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     },
     mode: 'onChange',
   });
-
+  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
+    name: '',
+    displayName: '',
+    chargingTarget: '',
+    chargingTargetType: '',
+    members: [],
+    componentsList: [],
+  });
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
 
@@ -162,6 +170,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
+  console.log(initialMcpDataWhenInEditMode);
 
   const nextButtonText = useMemo(
     () => ({
@@ -399,18 +408,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     );
     const labels = (initialData?.metadata.labels as unknown as Record<string, string>) ?? {};
     const annotations = (initialData?.metadata.annotations as unknown as Record<string, string>) ?? {};
-
-    reset({
-      name: initialData?.metadata.name,
+    const data = {
+      name: initialData?.metadata.name ?? '',
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
       chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL] ?? '',
       members,
       componentsList: componentsList ?? [],
-    });
+    };
+    reset(data);
+
+    setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
-
+  console.log('initialMcpDataWhenInEditMode');
+  console.log(initialMcpDataWhenInEditMode);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
@@ -467,7 +479,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
-
+  const setInitialComponentsListHandler = (components: ComponentsListItem[]) => {
+    if (!isEditMode) return;
+    setInitialMcpDataWhenInEditMode({ ...initialMcpDataWhenInEditMode, componentsList: components });
+  };
   useEffect(() => {
     if (selectedStep !== 'componentSelection') return;
     if (!selectedTemplate) return;
@@ -593,6 +608,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 initialSelection={initialSelection}
                 managedControlPlaneTemplate={selectedTemplate}
                 isOnMcpPage={isOnMcpPage}
+                setInitialComponentsList={setInitialComponentsListHandler}
               />
             )}
           </WizardStep>
@@ -604,6 +620,20 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             data-step="summarize"
           >
             <SummarizeStep
+              originalYamlString={stringify(
+                CreateManagedControlPlane(
+                  initialMcpDataWhenInEditMode.name,
+                  `${projectName}--ws-${workspaceName}`,
+                  {
+                    displayName: initialMcpDataWhenInEditMode.displayName,
+                    chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
+                    members: initialMcpDataWhenInEditMode.members,
+                    componentsList: initialMcpDataWhenInEditMode.componentsList,
+                    chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
+                  },
+                  idpPrefix,
+                ),
+              )}
               watch={watch}
               workspaceName={workspaceName}
               projectName={projectName}

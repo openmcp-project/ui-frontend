@@ -14,6 +14,7 @@ import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTe
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  setInitialComponentsList: (components: ComponentsListItem[]) => void;
   managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
   initialSelection?: Record<string, { isSelected: boolean; version: string }>;
   isOnMcpPage?: boolean;
@@ -44,6 +45,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   managedControlPlaneTemplate,
   initialSelection,
   isOnMcpPage,
+  setInitialComponentsList,
 }) => {
   const {
     data: availableManagedComponentsListData,
@@ -94,7 +96,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
         };
       })
       .filter((component) => !removeComponents.find((item) => item === component.name));
-
+    setInitialComponentsList(newComponentsList);
     setComponentsList(newComponentsList);
     initialized.current = true;
   }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);

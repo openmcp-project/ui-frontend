@@ -10,16 +10,26 @@ import YamlViewer from '../../Yaml/YamlViewer.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
+import YamlDiff from '../../Yaml/YamlDiff.tsx';
 
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
   workspaceName: string;
   componentsList?: ComponentsListItem[];
+  originalYamlString?: string;
 }
 
-export const SummarizeStep: React.FC<SummarizeStepProps> = ({ watch, projectName, workspaceName, componentsList }) => {
+export const SummarizeStep: React.FC<SummarizeStepProps> = ({
+  originalYamlString,
+  watch,
+  projectName,
+  workspaceName,
+  componentsList,
+}) => {
   const { t } = useTranslation();
+  console.log('componentsList');
+  console.log(componentsList);
   return (
     <>
       <Title>{t('common.summarize')}</Title>
@@ -48,23 +58,44 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({ watch, projectName
           </List>
         </div>
         <div>
-          <YamlViewer
-            yamlString={stringify(
-              CreateManagedControlPlane(
-                watch('name'),
-                `${projectName}--ws-${workspaceName}`,
-                {
-                  displayName: watch('displayName'),
-                  chargingTarget: watch('chargingTarget'),
-                  members: watch('members'),
-                  componentsList: componentsList ?? [],
-                  chargingTargetType: watch('chargingTargetType'),
-                },
-                idpPrefix,
-              ),
-            )}
-            filename={`mcp_${projectName}--ws-${workspaceName}`}
-          />
+          {originalYamlString ? (
+            <YamlDiff
+              originalYaml={originalYamlString ?? ''}
+              modifiedYaml={stringify(
+                CreateManagedControlPlane(
+                  watch('name'),
+                  `${projectName}--ws-${workspaceName}`,
+                  {
+                    displayName: watch('displayName'),
+                    chargingTarget: watch('chargingTarget'),
+                    members: watch('members'),
+                    componentsList: componentsList ?? [],
+                    chargingTargetType: watch('chargingTargetType'),
+                  },
+                  idpPrefix,
+                ),
+              )}
+            />
+          ) : (
+            <YamlViewer
+              originalYamlString={originalYamlString}
+              yamlString={stringify(
+                CreateManagedControlPlane(
+                  watch('name'),
+                  `${projectName}--ws-${workspaceName}`,
+                  {
+                    displayName: watch('displayName'),
+                    chargingTarget: watch('chargingTarget'),
+                    members: watch('members'),
+                    componentsList: componentsList ?? [],
+                    chargingTargetType: watch('chargingTargetType'),
+                  },
+                  idpPrefix,
+                ),
+              )}
+              filename={`mcp_${projectName}--ws-${workspaceName}`}
+            />
+          )}
         </div>
       </Grid>
     </>
