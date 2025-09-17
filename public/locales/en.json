@@ -429,7 +429,7 @@
       "serviceAccounts": "Service Accounts"
     },
     "ESOHint": {
-      "title": "ESO",
+      "title": "External Secrets",
       "subtitle": "Secure secrets with rotation",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
