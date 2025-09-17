@@ -97,7 +97,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
 
     setComponentsList(newComponentsList);
     initialized.current = true;
-  }, [availableManagedComponentsListData, setComponentsList, defaultComponents, initialSelection]);
+  }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);
 
   useEffect(() => {
     const items = availableManagedComponentsListData?.items ?? [];

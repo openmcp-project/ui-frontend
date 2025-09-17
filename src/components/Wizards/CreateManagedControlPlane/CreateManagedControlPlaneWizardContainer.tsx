@@ -515,6 +515,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {selectedStep !== 'metadata' && isEditMode && (
+                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
+                )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
                     <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
