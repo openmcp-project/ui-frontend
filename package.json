@@ -33,7 +33,7 @@
     "@fastify/session": "11.1.0",
     "@fastify/static": "8.2.0",
     "@fastify/vite": "8.2.0",
-    "@hookform/resolvers": "5.2.1",
+    "@hookform/resolvers": "5.2.2",
     "@sentry/node": "10.11.0",
     "@sentry/react": "10.11.0",
     "@sentry/vite-plugin": "4.3.0",
