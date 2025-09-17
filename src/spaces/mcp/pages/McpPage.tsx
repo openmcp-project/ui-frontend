@@ -40,7 +40,6 @@ import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { MemberTable } from '../../../components/Members/MemberTable.tsx';
 import { resolveProviderType, generateColorMap } from '../../../components/Graphs/graphUtils';
 import { NodeData } from '../../../components/Graphs/types';
-
 interface RoleBinding {
   role: string;
   subjects: {
@@ -139,6 +138,7 @@ export default function McpPage() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName: string }) {
   const { t } = useTranslation();
   const { projectName, workspaceName } = useParams();
@@ -443,7 +443,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
                     mcp?.spec?.authorization?.roleBindings?.map((binding: RoleBinding) => ({
                       name: (binding.subjects?.[0]?.name || 'Unknown').replace(/^openmcp:/, ''),
                       kind: binding.subjects?.[0]?.kind || 'Unknown',
-                      roles: binding.role || [],
+                      roles: binding.role ? [binding.role] : [],
                       namespace: binding.namespace || '',
                     })) || []
                   }
