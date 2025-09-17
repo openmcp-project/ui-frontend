@@ -168,7 +168,7 @@ describe('calculations', () => {
       expect(result.isHealthy).toBe(false); // < 70%
     });
 
-    it('marks as healthy when progress >= 70%', () => {
+    it('returns progress information when progress >= 70%', () => {
       const items = Array.from({ length: 10 }, (_, i) => {
         const item = createManagedResourceItem(`Pod${i}`);
         if (i < 8) {
@@ -183,11 +183,11 @@ describe('calculations', () => {
       const result = calculateGitOpsSegments(items, false, undefined, true, mockT);
 
       expect(result.segments[0].percentage).toBe(80);
-      expect(result.segments[0].color).toBe(HINT_COLORS.healthy);
-      expect(result.isHealthy).toBe(true);
+      expect(result.segments[0].color).toBe(HINT_COLORS.flux);
+      expect(result.isHealthy).toBe(false);
     });
 
-    it('uses progress color when progress < 70%', () => {
+    it('returns progress information when progress < 70%', () => {
       const items = Array.from({ length: 10 }, (_, i) => {
         const item = createManagedResourceItem(`Pod${i}`);
         if (i < 5) {
@@ -202,7 +202,7 @@ describe('calculations', () => {
       const result = calculateGitOpsSegments(items, false, undefined, true, mockT);
 
       expect(result.segments[0].percentage).toBe(50);
-      expect(result.segments[0].color).toBe(HINT_COLORS.progress);
+      expect(result.segments[0].color).toBe(HINT_COLORS.flux);
       expect(result.isHealthy).toBe(false);
     });
   });
