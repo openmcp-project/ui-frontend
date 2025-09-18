@@ -18,6 +18,7 @@ export interface ComponentsSelectionProps {
   managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
   initialSelection?: Record<string, { isSelected: boolean; version: string }>;
   isOnMcpPage?: boolean;
+  initializedComponents: React.RefObject<boolean>;
 }
 
 /**
@@ -46,6 +47,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   initialSelection,
   isOnMcpPage,
   setInitialComponentsList,
+  initializedComponents,
 }) => {
   const {
     data: availableManagedComponentsListData,
@@ -53,7 +55,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     isLoading,
   } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
   const { t } = useTranslation();
-  const initialized = useRef(false);
+
   const [templateDefaultsError, setTemplateDefaultsError] = useState<string | null>(null);
   const defaultComponents = useMemo<TemplateDefaultComponent[]>(
     () => managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [],
@@ -62,7 +64,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
 
   useEffect(() => {
     if (
-      initialized.current ||
+      initializedComponents.current ||
       !availableManagedComponentsListData?.items ||
       availableManagedComponentsListData.items.length === 0
     ) {
@@ -98,7 +100,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
       .filter((component) => !removeComponents.find((item) => item === component.name));
     setInitialComponentsList(newComponentsList);
     setComponentsList(newComponentsList);
-    initialized.current = true;
+    initializedComponents.current = true;
   }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);
 
   useEffect(() => {
@@ -126,7 +128,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   }, [availableManagedComponentsListData, defaultComponents]);
 
   useEffect(() => {
-    if (!initialized.current) return;
+    if (!initializedComponents.current) return;
     if (!defaultComponents?.length) return;
     if (!componentsList?.length) return;
     // If initialSelection is provided, do not auto-apply template defaults

@@ -124,7 +124,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   }, [isOpen, initialTemplateName]);
 
   const validationSchemaCreateManagedControlPlane = useMemo(() => createManagedControlPlaneSchema(t), [t]);
-
+  const initializedComponents = useRef(false);
   const {
     register,
     handleSubmit,
@@ -406,8 +406,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         namespace: s.namespace,
       })),
     );
-    const labels = (initialData?.metadata.labels as unknown as Record<string, string>) ?? {};
-    const annotations = (initialData?.metadata.annotations as unknown as Record<string, string>) ?? {};
+    const labels = (initialData?.metadata?.labels as unknown as Record<string, string>) ?? {};
+    const annotations = (initialData?.metadata?.annotations as unknown as Record<string, string>) ?? {};
     const data = {
       name: initialData?.metadata.name ?? '',
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
@@ -609,6 +609,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 managedControlPlaneTemplate={selectedTemplate}
                 isOnMcpPage={isOnMcpPage}
                 setInitialComponentsList={setInitialComponentsListHandler}
+                initializedComponents={initializedComponents}
               />
             )}
           </WizardStep>
