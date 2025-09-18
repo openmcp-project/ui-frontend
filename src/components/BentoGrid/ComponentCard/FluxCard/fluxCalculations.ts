@@ -82,7 +82,12 @@ export const calculateGitOpsSegments = (
   return {
     segments: [
       { percentage: progressValue, color: HINT_COLORS.flux, label: t('common.progress'), count: fluxLabelCount },
-      { percentage: restPercentage, color: HINT_COLORS.inactive, label: t('common.remaining'), count: totalCount - fluxLabelCount },
+      {
+        percentage: restPercentage,
+        color: HINT_COLORS.inactive,
+        label: t('common.remaining'),
+        count: totalCount - fluxLabelCount,
+      },
     ],
     label: t('Hints.GitOpsHint.managed'),
     showPercentage: true,
@@ -137,28 +142,26 @@ export const calculateFluxHealthSegments = (
   }
 
   // Count health states
-  const healthyCounts = fluxManagedItems.filter(
-    (item) => item?.status?.conditions?.some(
-      (condition: any) => condition.type === 'Ready' && condition.status === 'True'
-    )
+  const healthyCounts = fluxManagedItems.filter((item) =>
+    item?.status?.conditions?.some((condition: any) => condition.type === 'Ready' && condition.status === 'True'),
   ).length;
 
   const total = fluxManagedItems.length;
   const healthyPercentage = Math.round((healthyCounts / total) * 100);
   const remainingPercentage = 100 - healthyPercentage;
-  
+
   const segments = [
-    { 
-      percentage: healthyPercentage, 
+    {
+      percentage: healthyPercentage,
       color: HINT_COLORS.flux,
       label: t('common.healthy'),
-      count: healthyCounts 
+      count: healthyCounts,
     },
-    remainingPercentage > 0 && { 
-      percentage: remainingPercentage, 
-      color: HINT_COLORS.inactive, 
+    remainingPercentage > 0 && {
+      percentage: remainingPercentage,
+      color: HINT_COLORS.inactive,
       label: t('common.remaining'),
-      count: total - healthyCounts 
+      count: total - healthyCounts,
     },
   ].filter(Boolean) as { percentage: number; color: string; label: string; count: number }[];
 

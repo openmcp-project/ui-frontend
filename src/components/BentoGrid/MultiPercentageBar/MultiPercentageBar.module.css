@@ -7,7 +7,7 @@
   --gap: 2px;
   --border-radius: 6px;
   --label-font-size: 0.875rem;
-  --background-color: var(--sapBackgroundColor, #fafafa);
+  --background-color: transparent;
   
   display: flex;
   flex-direction: column;
@@ -63,17 +63,17 @@
 }
 
 .label.healthy {
-  color: green;
+  color: var(--healthy-color, #28a745);
   font-weight: 700;
 }
 
 .percentage.healthy {
-  color: green;
+  color: var(--healthy-color, #28a745);
   font-weight: 400 !important;
 }
 
 .count.healthy {
-  color: green;
+  color: var(--healthy-color, #28a745);
   font-weight: 400 !important;
 }
 
@@ -92,6 +92,21 @@
   border-radius: 0;
   padding: 2px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Animated reveal overlay for continuous animation */
+.barContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--background-color, transparent);
+  z-index: 1;
+  transform: translateX(-100%);
+  animation: revealBar var(--animation-duration) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .barContainer > :first-child {
   border-top-left-radius: var(--border-radius);
@@ -114,19 +129,7 @@
   
   /* Smooth transitions for flex changes */
   transition: flex var(--animation-duration) cubic-bezier(0.4, 0, 0.2, 1);
-  
-  /* Initial state for animation */
-  transform: scaleX(0);
-  transform-origin: left;
-  animation: growWidth var(--animation-duration) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
-/* Stagger the segment animations */
-.segment:nth-child(1) { animation-delay: 0ms; }
-.segment:nth-child(2) { animation-delay: 100ms; }
-.segment:nth-child(3) { animation-delay: 200ms; }
-.segment:nth-child(4) { animation-delay: 300ms; }
-.segment:nth-child(5) { animation-delay: 400ms; }
 
 /* Wave animation overlay */
 .waveOverlay {
@@ -191,20 +194,49 @@
   }
 }
 
+@keyframes revealBar {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* Segment label inside the bar */
 .segmentLabel {
   position: absolute;
   top: 50%;
-  left: 8px;
+  right: 6px;
   transform: translateY(-50%);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
+  color: var(--segment-label-color, white);
+  font-size: var(--segment-label-font-size, 0.75rem);
+  font-weight: var(--segment-label-font-weight, 500);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   pointer-events: none;
   z-index: 2;
   opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show segment labels on card hover */
+.showLabelsOnHover .segmentLabel {
+  opacity: 0;
+}
+
+/* This will be triggered by parent card hover */
+.showLabelsOnHover.showLabels .segmentLabel {
+  opacity: 1;
+}
+
+/* Direct control for showing labels */
+.showLabels .segmentLabel {
+  opacity: 1;
+}
+
+/* Default behavior - labels show with animation */
+.container:not(.showLabelsOnHover) .segmentLabel {
   animation: fadeInLabel calc(var(--animation-duration) * 1.5) ease-out forwards;
   animation-delay: calc(var(--animation-duration) * 0.5);
 }
@@ -227,6 +259,11 @@
   animation: none !important;
 }
 
+.noAnimation .barContainer::before {
+  animation: none !important;
+  transform: translateX(100%) !important;
+}
+
 .noAnimation .segment {
   animation: none !important;
   transform: scaleX(1) !important;
@@ -245,7 +282,7 @@
 /* Theme Support */
 [data-ui5-theme-root*="dark"] .container,
 [data-ui5-theme*="dark"] .container {
-  --background-color: #2a2a2a;
+  --background-color: transparent;
 }
 
 [data-ui5-theme-root*="dark"] .label,

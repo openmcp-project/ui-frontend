@@ -31,7 +31,7 @@ export const MembersCard = ({
 
   const membersState = useMemo(
     () => calculateMembersSegments(allItems, isLoading, error, enabled, t),
-    [allItems, isLoading, error, enabled, t]
+    [allItems, isLoading, error, enabled, t],
   );
 
   return (
@@ -43,9 +43,9 @@ export const MembersCard = ({
       iconStyle={{ borderRadius: '0', width: '45px', height: '45px' }}
       version={version}
       enabled={enabled}
-      onClick={onClick}
       expanded={expanded}
       size={size}
+      onClick={onClick}
     >
       <div className={styles.contentContainer}>
         <div
@@ -70,7 +70,10 @@ export const MembersCard = ({
               displayMode: 'primary',
               showPercentage: size === 'medium' ? false : membersState.showPercentage,
               showCount: false,
-              primaryLabelText: size === 'medium' ? membersState.label?.replace(/\s+\d+%?$/, '') || membersState.label : membersState.label,
+              primaryLabelText:
+                size === 'medium'
+                  ? membersState.label?.replace(/\s+\d+%?$/, '') || membersState.label
+                  : membersState.label,
               hideWhenSingleFull: false,
               fontWeight: 'bold',
             }}

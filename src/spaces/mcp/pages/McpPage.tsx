@@ -21,11 +21,10 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { ManagedResourcesRequest } from '../../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../../lib/shared/constants';
 import { useMemo } from 'react';
-import { useMcpBentoLayout } from '../views/McpBentoLayout';
+import { useMcpBentoLayout } from '../views/DefaultBento.tsx';
 import { CrossplaneDetailsTable } from '../views/CrossplaneDetailsTable';
-import { GitOpsDetailsTable } from '../views/GitOpsDetailsTable';
+import { GitOpsDetailsTable } from '../views/FluxDetailsTable.tsx';
 import { MembersDetailsTable } from '../views/MembersDetailsTable';
-
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -91,7 +90,7 @@ function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName:
   // Prepare member items from role bindings
   const memberItems = useMemo(
     () => (mcp?.spec?.authorization?.roleBindings || []).map((rb: any) => ({ role: rb.role })),
-    [mcp?.spec?.authorization?.roleBindings]
+    [mcp?.spec?.authorization?.roleBindings],
   );
 
   // Use the Bento layout hook which manages expansion state internally

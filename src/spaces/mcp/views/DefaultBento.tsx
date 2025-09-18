@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BentoGrid, BentoCard } from '../../../components/BentoGrid';
+import { BentoGrid, BentoCard } from '../../../components/BentoGrid/BentoGrid';
 import { GraphCard } from '../../../components/BentoGrid/GraphCard/GraphCard';
 import { CrossplaneCard } from '../../../components/BentoGrid/ComponentCard/CrossplaneCard/CrossplaneCard';
 import { FluxCard } from '../../../components/BentoGrid/ComponentCard/FluxCard/FluxCard';
@@ -56,9 +56,7 @@ export function useMcpBentoLayout({
 
   const bentoGrid = (
     <BentoGrid
-      className={
-        expandedCard === 'members' ? styles.expandedMembersGrid : expandedCard ? styles.expandedGrid : ''
-      }
+      className={expandedCard === 'members' ? styles.expandedMembersGrid : expandedCard ? styles.expandedGrid : ''}
     >
       {/* Crossplane Card - always rendered but changes size/position */}
       {(!expandedCard || expandedCard === 'crossplane') && (
@@ -133,13 +131,8 @@ export function useMcpBentoLayout({
       {/* Right side cards - only show when collapsed */}
       {!expandedCard && (
         <>
-          {/* GitOps Card */}
-          <BentoCard
-            size="medium"
-            gridColumn="9 / 13"
-            gridRow="1 / 3"
-            className={isExpanding ? styles.hidingCard : ''}
-          >
+          {/* Flux Card */}
+          <BentoCard size="medium" gridColumn="9 / 13" gridRow="1 / 3" className={isExpanding ? styles.hidingCard : ''}>
             <FluxCard
               enabled={!!mcp?.spec?.components?.flux}
               version={mcp?.spec?.components?.flux?.version}
@@ -152,12 +145,7 @@ export function useMcpBentoLayout({
           </BentoCard>
 
           {/* Members Card */}
-          <BentoCard
-            size="medium"
-            gridColumn="9 / 13"
-            gridRow="3 / 5"
-            className={isExpanding ? styles.hidingCard : ''}
-          >
+          <BentoCard size="medium" gridColumn="9 / 13" gridRow="3 / 5" className={isExpanding ? styles.hidingCard : ''}>
             <MembersCard
               enabled={!!mcp?.spec?.components?.apiServer}
               allItems={memberItems}

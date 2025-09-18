@@ -36,7 +36,7 @@ export const FluxCard = ({
 
   const fluxState = useMemo(
     () => calculateGitOpsSegments(allItems, isLoading, error, enabled, t),
-    [allItems, isLoading, error, enabled, t]
+    [allItems, isLoading, error, enabled, t],
   );
 
   return (
@@ -47,9 +47,9 @@ export const FluxCard = ({
       iconAlt="Flux"
       version={version}
       enabled={enabled}
-      onClick={onClick}
       expanded={expanded}
       size={size}
+      onClick={onClick}
     >
       <div
         className={
@@ -79,7 +79,8 @@ export const FluxCard = ({
               displayMode: 'primary',
               showPercentage: size === 'medium' ? false : fluxState.showPercentage,
               showCount: false,
-              primaryLabelText: size === 'medium' ? fluxState.label?.replace(/\s+\d+%?$/, '') || fluxState.label : fluxState.label,
+              primaryLabelText:
+                size === 'medium' ? fluxState.label?.replace(/\s+\d+%?$/, '') || fluxState.label : fluxState.label,
               hideWhenSingleFull: false,
               fontWeight: 'bold',
             }}
@@ -96,13 +97,7 @@ export const FluxCard = ({
 
         {/* Secondary chart container - rendered below the primary chart */}
         {(size === 'medium' || size === 'large' || size === 'extra-large') && secondarySegments && (
-          <div
-            className={
-              size === 'medium'
-                ? styles.progressBarContainerMedium
-                : styles.progressBarContainerLarge
-            }
-          >
+          <div className={size === 'medium' ? styles.progressBarContainerMedium : styles.progressBarContainerLarge}>
             <MultiPercentageBar
               segments={secondarySegments}
               className={styles.progressBar}
@@ -114,7 +109,8 @@ export const FluxCard = ({
                 position: 'above',
                 displayMode: 'primary',
                 showPercentage: false,
-                primaryLabelText: size === 'medium' ? secondaryLabel?.replace(/\s+\d+%?$/, '') || secondaryLabel : secondaryLabel,
+                primaryLabelText:
+                  size === 'medium' ? secondaryLabel?.replace(/\s+\d+%?$/, '') || secondaryLabel : secondaryLabel,
                 hideWhenSingleFull: false,
                 fontWeight: 'bold',
               }}

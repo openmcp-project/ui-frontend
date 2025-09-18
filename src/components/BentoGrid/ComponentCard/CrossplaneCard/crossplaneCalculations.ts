@@ -96,8 +96,18 @@ export const calculateCrossplaneSegments = (
   return {
     segments: [
       { percentage: healthyPercentage, color: HINT_COLORS.healthy, label: t('common.healthy'), count: healthyCount },
-      { percentage: creatingPercentage, color: HINT_COLORS.creating, label: t('common.creating'), count: creatingCount },
-      { percentage: unhealthyPercentage, color: HINT_COLORS.unhealthy, label: t('common.unhealthy'), count: unhealthyCount },
+      {
+        percentage: creatingPercentage,
+        color: HINT_COLORS.creating,
+        label: t('common.creating'),
+        count: creatingCount,
+      },
+      {
+        percentage: unhealthyPercentage,
+        color: HINT_COLORS.unhealthy,
+        label: t('common.unhealthy'),
+        count: unhealthyCount,
+      },
     ],
     label: t('Hints.CrossplaneHint.healthy'),
     showPercentage: true,
@@ -137,28 +147,26 @@ export const calculateCrossplaneHealthSegments = (
   }
 
   // Count health states for all Crossplane managed resources
-  const healthyCounts = allItems.filter(
-    (item) => item?.status?.conditions?.some(
-      (condition: any) => condition.type === 'Ready' && condition.status === 'True'
-    )
+  const healthyCounts = allItems.filter((item) =>
+    item?.status?.conditions?.some((condition: any) => condition.type === 'Ready' && condition.status === 'True'),
   ).length;
 
   const total = allItems.length;
   const healthyPercentage = Math.round((healthyCounts / total) * 100);
   const remainingPercentage = 100 - healthyPercentage;
-  
+
   const segments = [
-    { 
-      percentage: healthyPercentage, 
-      color: '#38d4bc', 
+    {
+      percentage: healthyPercentage,
+      color: '#38d4bc',
       label: t('common.healthy'),
-      count: healthyCounts 
+      count: healthyCounts,
     },
-    remainingPercentage > 0 && { 
-      percentage: remainingPercentage, 
-      color: HINT_COLORS.inactive, 
+    remainingPercentage > 0 && {
+      percentage: remainingPercentage,
+      color: HINT_COLORS.inactive,
       label: t('common.remaining'),
-      count: total - healthyCounts 
+      count: total - healthyCounts,
     },
   ].filter(Boolean) as { percentage: number; color: string; label: string; count: number }[];
 

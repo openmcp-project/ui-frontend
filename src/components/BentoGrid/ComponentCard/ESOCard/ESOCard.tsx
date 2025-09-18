@@ -32,7 +32,7 @@ export const ESOCard = ({
 
   const esoState = useMemo(
     () => calculateESOSegments(allItems, isLoading, error, enabled, t),
-    [allItems, isLoading, error, enabled, t]
+    [allItems, isLoading, error, enabled, t],
   );
 
   return (
@@ -43,9 +43,9 @@ export const ESOCard = ({
       iconAlt="ESO"
       version={version}
       enabled={enabled}
-      onClick={onClick}
       expanded={expanded}
       size={size}
+      onClick={onClick}
     >
       <div className={styles.contentContainer}>
         <div
@@ -70,7 +70,8 @@ export const ESOCard = ({
               displayMode: 'primary',
               showPercentage: size === 'medium' ? false : esoState.showPercentage,
               showCount: false,
-              primaryLabelText: size === 'medium' ? esoState.label?.replace(/\s+\d+%?$/, '') || esoState.label : esoState.label,
+              primaryLabelText:
+                size === 'medium' ? esoState.label?.replace(/\s+\d+%?$/, '') || esoState.label : esoState.label,
               hideWhenSingleFull: false,
               fontWeight: 'bold',
             }}

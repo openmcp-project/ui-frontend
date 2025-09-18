@@ -32,7 +32,7 @@ export const KyvernoCard = ({
 
   const kyvernoState = useMemo(
     () => calculateKyvernoSegments(allItems, isLoading, error, enabled, t),
-    [allItems, isLoading, error, enabled, t]
+    [allItems, isLoading, error, enabled, t],
   );
 
   return (
@@ -44,9 +44,9 @@ export const KyvernoCard = ({
       iconStyle={{ borderRadius: '0' }}
       version={version}
       enabled={enabled}
-      onClick={onClick}
       expanded={expanded}
       size={size}
+      onClick={onClick}
     >
       <div className={styles.contentContainer}>
         <div
@@ -71,7 +71,10 @@ export const KyvernoCard = ({
               displayMode: 'primary',
               showPercentage: size === 'medium' ? false : kyvernoState.showPercentage,
               showCount: false,
-              primaryLabelText: size === 'medium' ? kyvernoState.label?.replace(/\s+\d+%?$/, '') || kyvernoState.label : kyvernoState.label,
+              primaryLabelText:
+                size === 'medium'
+                  ? kyvernoState.label?.replace(/\s+\d+%?$/, '') || kyvernoState.label
+                  : kyvernoState.label,
               hideWhenSingleFull: false,
               fontWeight: 'bold',
             }}
