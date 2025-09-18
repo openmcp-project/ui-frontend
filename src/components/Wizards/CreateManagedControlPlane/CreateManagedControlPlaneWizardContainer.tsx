@@ -409,7 +409,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     const labels = (initialData?.metadata?.labels as unknown as Record<string, string>) ?? {};
     const annotations = (initialData?.metadata?.annotations as unknown as Record<string, string>) ?? {};
     const data = {
-      name: initialData?.metadata.name ?? '',
+      name: initialData?.metadata?.name ?? '',
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
       chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL] ?? '',
