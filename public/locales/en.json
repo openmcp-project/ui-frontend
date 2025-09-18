@@ -408,7 +408,7 @@
     },
     "GitOpsHint": {
       "title": "Flux",
-      "subtitle": "Persist desired state in code repsitories",
+      "subtitle": "Persist desired state in code repositories",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
       "noResources": "No Resources",
@@ -423,7 +423,7 @@
       "serviceAccounts": "Service Accounts"
     },
     "ESOHint": {
-      "title": "ESO",
+      "title": "External Secrets",
       "subtitle": "Secure secrets with rotation",
       "activeStatus": "Active v",
       "progressAvailable": "Available",
