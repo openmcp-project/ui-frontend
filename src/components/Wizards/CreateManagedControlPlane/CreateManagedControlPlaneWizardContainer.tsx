@@ -638,6 +638,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               workspaceName={workspaceName}
               projectName={projectName}
               componentsList={componentsList}
+              isEditMode={isEditMode}
             />
           </WizardStep>
           <WizardStep

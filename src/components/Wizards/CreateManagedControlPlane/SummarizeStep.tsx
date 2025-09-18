@@ -10,7 +10,7 @@ import YamlViewer from '../../Yaml/YamlViewer.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
-import YamlDiff from '../../Yaml/YamlDiff.tsx';
+import { YamlDiff } from '../../Yaml/YamlDiff.tsx';
 
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
@@ -18,6 +18,7 @@ interface SummarizeStepProps {
   workspaceName: string;
   componentsList?: ComponentsListItem[];
   originalYamlString?: string;
+  isEditMode?: boolean;
 }
 
 export const SummarizeStep: React.FC<SummarizeStepProps> = ({
@@ -26,10 +27,10 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
   projectName,
   workspaceName,
   componentsList,
+  isEditMode = false,
 }) => {
   const { t } = useTranslation();
-  console.log('componentsList');
-  console.log(componentsList);
+
   return (
     <>
       <Title>{t('common.summarize')}</Title>
@@ -58,7 +59,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
           </List>
         </div>
         <div>
-          {originalYamlString ? (
+          {isEditMode ? (
             <YamlDiff
               originalYaml={originalYamlString ?? ''}
               modifiedYaml={stringify(

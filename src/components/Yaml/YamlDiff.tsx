@@ -54,5 +54,3 @@ export const YamlDiff: FC<YamlDiffProps> = ({ originalYaml, modifiedYaml }) => {
     </div>
   );
 };
-
-export default YamlDiff;
