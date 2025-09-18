@@ -30,6 +30,7 @@ import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -50,6 +51,8 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
   );
 
   const name = controlPlane.metadata.name;
+  const displayName = controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
+  console.log(controlPlane);
   const namespace = controlPlane.metadata.namespace;
 
   const isSystemIdentityProviderEnabled = Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
@@ -65,7 +68,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
-                <Title level={TitleLevel.H5}>{name}</Title>
+                <Title level={TitleLevel.H5}>{displayName ?? name}</Title>
                 <Label>{workspace.metadata.name} </Label>
               </FlexBox>
               <div>

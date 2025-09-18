@@ -5,6 +5,10 @@ export type ListControlPlanesType = ControlPlaneType;
 export interface Metadata {
   name: string;
   namespace: string;
+  annotations: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [annotation: string]: any;
+  };
 }
 
 export interface ControlPlaneType {
@@ -68,7 +72,7 @@ export const ListControlPlanes = (
       projectName === null
         ? null
         : `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes`,
-    jq: '[.items[] |{spec: .spec | {authentication}, metadata: .metadata | {name, namespace}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
+    jq: '[.items[] |{spec: .spec | {authentication}, metadata: .metadata | {name, namespace, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
   };
 };
 
