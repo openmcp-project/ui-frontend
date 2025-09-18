@@ -85,7 +85,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 }) => {
   const mergedLabelConfig: LabelConfig = useMemo(
     () => ({
-      position: showSegmentLabels ? 'inside' : 'above',
+      position: 'above', // Always show above labels, segment labels are controlled separately
       displayMode: 'primary',
       showPercentage: false,
       showCount: false,
@@ -94,7 +94,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
       hideWhenSingleFull: false,
       ...labelConfig,
     }),
-    [labelConfig, showSegmentLabels],
+    [labelConfig],
   );
 
   const mergedColorConfig: ColorConfig = useMemo(
@@ -209,7 +209,6 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
                     mergedLabelConfig.textColor ||
                     (labelItem.isHealthy ? mergedLabelConfig.healthyTextColor : undefined),
                   fontSize: mergedLabelConfig.fontSize,
-                  fontWeight: mergedLabelConfig.fontWeight,
                 }}
               >
                 {labelItem.percentage}%
@@ -217,7 +216,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
             )}
             {labelItem.count !== undefined && (
               <span
-                className={styles.count}
+                className={`${styles.count} ${labelItem.isHealthy ? styles.healthy : ''}`}
                 style={{
                   color: mergedLabelConfig.textColor,
                   fontSize: mergedLabelConfig.fontSize,
@@ -277,7 +276,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
             {mergedAnimationConfig.enableWave && <div className={styles.waveOverlay} />}
 
             {/* Segment label inside the bar */}
-            {mergedLabelConfig.position === 'inside' && segment.percentage >= (minSegmentWidthForLabel || 15) && (
+            {showSegmentLabels && segment.percentage >= (minSegmentWidthForLabel || 15) && (
               <span
                 className={styles.segmentLabel}
                 style={{

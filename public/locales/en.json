@@ -357,7 +357,12 @@
     "unhealthy": "Unhealthy",
     "progress": "Managed",
     "remaining": "Remaining",
-    "active": "Active"
+    "active": "Active",
+    "inactive": "Inactive",
+    "providers": "Provider",
+    "health": "Health",
+    "serviceaccounts": "ServiceAccounts",
+    "loading": "Loading..."
   },
   "errors": {
     "installError": "Install error",
@@ -399,13 +404,7 @@
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "healthy": "Healthy",
-      "hoverContent": {
-        "totalResources": "Total Resources",
-        "healthy": "Healthy",
-        "creating": "Creating", 
-        "failing": "Failing"
-      }
+      "healthy": "Healthy"
     },
     "GitOpsHint": {
       "title": "Flux",
@@ -415,12 +414,7 @@
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "managed": "Managed",
-      "hoverContent": {
-        "totalResources": "Total Resources",
-        "managed": "Managed",
-        "unmanaged": "Unmanaged"
-      }
+      "managed": "Persisted"
     },
     "MembersHint": {
       "title": "Members",
