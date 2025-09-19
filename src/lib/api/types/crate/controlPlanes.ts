@@ -6,8 +6,7 @@ export interface Metadata {
   name: string;
   namespace: string;
   annotations: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [annotation: string]: any;
+    [annotation: string]: unknown;
   };
 }
 

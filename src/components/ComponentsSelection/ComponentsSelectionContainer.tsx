@@ -101,6 +101,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     setInitialComponentsList(newComponentsList);
     setComponentsList(newComponentsList);
     initializedComponents.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);
 
   useEffect(() => {
@@ -147,6 +148,7 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     });
 
     setComponentsList(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultComponents, componentsList, setComponentsList, initialSelection]);
 
   if (isLoading) {
@@ -157,7 +159,6 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     return <IllustratedError compact={true} />;
   }
 
-  // Defensive: If the API returned no items, show error
   if (!componentsList || componentsList.length === 0) {
     return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
   }
