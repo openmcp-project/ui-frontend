@@ -1,0 +1,29 @@
+.labelInput {
+  display: grid;
+  grid-template-columns: 12rem 3fr;
+}
+
+.substitutesContainer {
+}
+
+.substitutionRow {
+  display: grid;
+  grid-template-columns: 4fr 4fr auto;
+  column-gap: 0;
+}
+
+.labelContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-inline-end: 1rem;
+}
+
+.substituteLabelInput {
+  display: grid;
+  grid-template-columns: 6rem auto;
+}
+.substituteButtonContainer {
+  display: flex;
+  align-items: center;
+}

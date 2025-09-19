@@ -200,7 +200,7 @@
     "componentsTitle": "Components",
     "overviewTitle": "Overview",
     "crossplaneTitle": "Crossplane",
-    "gitOpsTitle": "GitOps",
+    "gitOpsTitle": "Flux",
     "landscapersTitle": "Landscapers",
     "graphTitle": "Graph"
   },

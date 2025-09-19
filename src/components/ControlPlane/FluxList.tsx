@@ -1,5 +1,16 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
-import { AnalyticalTableColumnDefinition, FlexBox, Title } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+  AnalyticalTableScaleWidthMode,
+  FlexBox,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarSpacer,
+} from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
@@ -170,24 +181,52 @@ export default function FluxList() {
 
   return (
     <>
-      <div className="crossplane-table-element">
-        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
-          <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
-          <YamlViewButton resourceObject={gitReposData} />
-        </FlexBox>
-        <ConfiguredAnalyticstable columns={gitReposColumns} isLoading={repoIsLoading} data={gitReposRows} />
-      </div>
-      <div className="crossplane-table-element">
-        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
-          <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
-          <YamlViewButton resourceObject={kustmizationData} />
-        </FlexBox>
-        <ConfiguredAnalyticstable
-          columns={kustomizationsColumns}
-          isLoading={kustomizationIsLoading}
-          data={kustomizationsRows}
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>GitRepositories (1)</Title>
+            <YamlViewButton resourceObject={gitReposData} />
+            <ToolbarSpacer />
+            <ToolbarButton design="Transparent" text="Create" />
+            <ToolbarSeparator />
+          </Toolbar>
+        }
+        className="crossplane-table-element"
+      >
+        <AnalyticalTable
+          columns={gitReposColumns}
+          data={gitReposRows}
+          minRows={1}
+          visibleRows={12}
+          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+          loading={repoIsLoading}
+          filterable
         />
-      </div>
+      </Panel>
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>Kustomizations (1)</Title>
+            <YamlViewButton resourceObject={gitReposData} />
+            <ToolbarSpacer />
+            <ToolbarButton design="Transparent" text="Create" />
+            <ToolbarSeparator />
+          </Toolbar>
+        }
+        className="crossplane-table-element"
+      >
+        <AnalyticalTable
+          columns={kustomizationsColumns}
+          data={kustomizationsRows}
+          minRows={1}
+          visibleRows={12}
+          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+          loading={kustomizationIsLoading}
+          filterable
+        />
+      </Panel>
     </>
   );
 }

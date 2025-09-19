@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader } from '@ui5/webcomponents-react';
+import { Button, Card, CardHeader, FlexBox, Link } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import cx from 'clsx';
 import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
@@ -7,6 +7,7 @@ import { styles } from '../HintsCardsRow';
 import { HoverContent } from '../CardHoverContent/CardHoverContent';
 import styles2 from './GenericHintCard.module.css';
 import { GenericHintProps } from '../../../types/types';
+import { useSplitter } from '../../../spaces/mcp/pages/SplitterContext.tsx';
 
 export const GenericHintCard: React.FC<GenericHintProps> = ({
   enabled = false,
@@ -15,6 +16,7 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
   isLoading,
   error,
   config,
+  onClick,
 }) => {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
@@ -36,9 +38,10 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
   return (
     <div className={styles2.container}>
       <Card
+        loading={isLoading}
         header={
           <CardHeader
-            additionalText={enabled ? `v${version ?? ''}` : undefined}
+            additionalText={enabled ? `v${version ?? ''}` : 'not installed'}
             avatar={
               <img
                 src={config.iconSrc}
@@ -51,30 +54,40 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
             }
             titleText={config.title}
             subtitleText={config.subtitle}
-            interactive={enabled}
+            interactive={true}
+            onClick={onClick}
           />
         }
         className={cx({
           [styles['disabled']]: !enabled,
         })}
         onClick={handleClick}
-        onMouseEnter={enabled ? () => setHovered(true) : undefined}
+        onMouseEnter={enabled ? () => setHovered(false) : undefined}
         onMouseLeave={enabled ? () => setHovered(false) : undefined}
       >
         {/* Disabled overlay */}
-        {!enabled && <div className={styles.disabledOverlay} />}
+        {/*!enabled && <div className={styles.disabledOverlay} />*/}
 
         <div className={styles2.contentContainer}>
-          <div className={styles2.progressBarContainer}>
-            <MultiPercentageBar
-              segments={hintState.segments}
-              className={styles2.progressBar}
-              label={hintState.label}
-              showPercentage={hintState.showPercentage}
-              isHealthy={hintState.isHealthy}
-              showOnlyNonZero={hintState.showOnlyNonZero ?? true}
-            />
-          </div>
+          {enabled ? (
+            <div className={styles2.progressBarContainer}>
+              <MultiPercentageBar
+                segments={hintState.segments}
+                className={styles2.progressBar}
+                label={hintState.label}
+                showPercentage={hintState.showPercentage}
+                isHealthy={hintState.isHealthy}
+                showOnlyNonZero={hintState.showOnlyNonZero ?? true}
+              />
+            </div>
+          ) : (
+            <FlexBox justifyContent="Center" style={{ alignItems: 'center', width: '100%', marginBottom: '0.5rem' }}>
+              <Button style={{ marginInline: '1rem' }} icon="sap-icon://add-product" onClick={() => alert('TODO')}>
+                Install Flux
+              </Button>
+              <Link style={{ marginRight: '1rem' }}>Learn about Flux</Link>
+            </FlexBox>
+          )}
         </div>
 
         {(() => {

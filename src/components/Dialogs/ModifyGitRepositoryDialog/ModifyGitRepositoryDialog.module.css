@@ -1,0 +1,16 @@
+.footer::part(endContent) {
+  padding-inline-end: 0;
+}
+
+.wizard::part(step-content) {
+  backxground-color: red;
+  xpadding: 0.1rem;
+}
+
+.wizard.ui5-wiz-content {
+  background-color: red;
+}
+
+.wizardStep {
+  background-color: green;
+}

@@ -38,25 +38,18 @@ export default function IntelligentBreadcrumbs() {
 
   return (
     <>
-      <Breadcrumbs onItemClick={navigateFromBreadcrumbs(navigate)}>
+      <Breadcrumbs design="NoCurrentPage" onItemClick={navigateFromBreadcrumbs(navigate)}>
         <BreadcrumbsItem href={`${PREFIX}/projects`}>
           <LandscapeLabel /> {t('IntelligentBreadcrumbs.homeLabel')}{' '}
         </BreadcrumbsItem>
         {projectName && (
           <>
-            <BreadcrumbsItem href={`${PREFIX}/projects`}>{t('IntelligentBreadcrumbs.projects')}</BreadcrumbsItem>
             <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>{projectName}</BreadcrumbsItem>
             {workspaceName && (
               <>
-                <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>
-                  {t('IntelligentBreadcrumbs.workspaces')}
-                </BreadcrumbsItem>
                 <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>{workspaceName}</BreadcrumbsItem>
-                {controlPlaneName && (
+                {false && controlPlaneName && (
                   <>
-                    <BreadcrumbsItem href={`${PREFIX}/projects/${projectName}`}>
-                      {t('IntelligentBreadcrumbs.mcps')}
-                    </BreadcrumbsItem>
                     <BreadcrumbsItem
                       href={`${PREFIX}/projects/${projectName}/workspaces/${workspaceName}/mcps/${controlPlaneName}`}
                     >

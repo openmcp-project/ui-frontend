@@ -38,7 +38,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   isHealthy,
   labelFontSize = '0.875rem',
   gap = '2px',
-  borderRadius = '6px',
+  borderRadius = '0px',
   backgroundColor,
   className,
   style,

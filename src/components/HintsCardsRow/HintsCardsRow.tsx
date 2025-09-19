@@ -11,6 +11,7 @@ import React, { useMemo } from 'react';
 
 interface HintsProps {
   mcp: ControlPlaneType;
+  navigate: (sectionId: string) => void;
 }
 
 // Export styles for use by hint components
@@ -25,7 +26,7 @@ export const flattenManagedResources = (managedResources: ManagedResourcesRespon
     .flatMap((managedResource) => managedResource.items || []);
 };
 
-const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
+const HintsCardsRow: React.FC<HintsProps> = ({ mcp, navigate }) => {
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -53,7 +54,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         justifyContent: 'space-between',
         alignItems: 'stretch',
         width: '100%',
-        maxWidth: '1280px',
+        //maxWidth: '1280px',
         margin: '0 auto',
 
         //This breaks the scrolling currently since its zIndex is higher than the header bar
@@ -69,6 +70,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={crossplaneConfig}
+        onClick={() => navigate('crossplane')}
       />
       <GenericHintCard
         enabled={!!mcp?.spec?.components?.flux}
@@ -77,6 +79,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={gitOpsConfig}
+        onClick={() => navigate('flux')}
       />
       <GenericHintCard
         enabled={false}

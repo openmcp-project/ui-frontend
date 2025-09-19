@@ -7,14 +7,15 @@ interface Props {
   title?: string;
   details?: string;
   compact?: boolean;
+  illustrationName?: IllustrationMessageType;
 }
 
-export default function IllustratedError({ title, details, compact }: Props) {
+export default function IllustratedError({ title, details, compact, illustrationName }: Props) {
   const { t } = useTranslation();
 
   return (
     <IllustratedBanner
-      illustrationName={IllustrationMessageType.SimpleError}
+      illustrationName={illustrationName ?? IllustrationMessageType.SimpleError}
       title={title ?? t('IllustratedError.titleText')}
       subtitle={details ?? t('IllustratedError.subtitleText')}
       compact={compact}

@@ -3,7 +3,12 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Panel,
   Title,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
@@ -88,29 +93,38 @@ export function ProvidersConfig() {
 
   return (
     <>
-      <Title level="H4">{t('ProvidersConfig.headerProviderConfigs')}</Title>
-      <AnalyticalTable
-        columns={columns}
-        data={rows ?? []}
-        minRows={1}
-        groupBy={['parent']}
-        scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-        loading={isLoading}
-        filterable
-        // Prevent the table from resetting when the data changes
-        retainColumnWidth
-        reactTableOptions={{
-          autoResetHiddenColumns: false,
-          autoResetPage: false,
-          autoResetExpanded: false,
-          autoResetGroupBy: false,
-          autoResetSelectedRows: false,
-          autoResetSortBy: false,
-          autoResetFilters: false,
-          autoResetRowState: false,
-          autoResetResize: false,
-        }}
-      />
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>{`Resources (${rows.length})`}</Title>
+            <ToolbarSpacer />
+          </Toolbar>
+        }
+      >
+        <AnalyticalTable
+          columns={columns}
+          data={rows ?? []}
+          minRows={1}
+          groupBy={['parent']}
+          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+          loading={isLoading}
+          filterable
+          // Prevent the table from resetting when the data changes
+          retainColumnWidth
+          reactTableOptions={{
+            autoResetHiddenColumns: false,
+            autoResetPage: false,
+            autoResetExpanded: false,
+            autoResetGroupBy: false,
+            autoResetSelectedRows: false,
+            autoResetSortBy: false,
+            autoResetFilters: false,
+            autoResetRowState: false,
+            autoResetResize: false,
+          }}
+        />
+      </Panel>
     </>
   );
 }

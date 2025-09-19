@@ -4,6 +4,9 @@ export type KustomizationsResponse = {
   items: [
     {
       spec: {
+        sourceRef?: {
+          name?: string;
+        };
         package: string;
       };
       kind: string;

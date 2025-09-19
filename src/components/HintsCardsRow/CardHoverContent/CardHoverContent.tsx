@@ -109,6 +109,7 @@ export const HoverContent: React.FC<HoverContentProps> = ({
               ]}
               style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
               noLegend={true}
+              noAnimation
               onClick={() => {}}
               onDataPointClick={() => {}}
               onLegendClick={() => {}}
@@ -119,6 +120,7 @@ export const HoverContent: React.FC<HoverContentProps> = ({
             dataset={processedDataset}
             dimensions={radarDimensions}
             measures={radarMeasures}
+            noAnimation
             style={{ width: '100%', height: '100%', minWidth: 280, minHeight: 280 }}
             noLegend={true}
           />

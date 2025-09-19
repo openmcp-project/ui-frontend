@@ -44,7 +44,13 @@ type MCPHealthPopoverButtonProps = {
   mcpName: string;
 };
 
-const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName }: MCPHealthPopoverButtonProps) => {
+// TODO: This is a temporary copy of MCPHealthPopoverButton because useSplitter can only be used in the context provider.
+const MCPHealthPopoverButtonWithSplitter = ({
+  mcpStatus,
+  projectName,
+  workspaceName,
+  mcpName,
+}: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
@@ -150,12 +156,23 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
     },
   ];
 
+  const splitter = useSplitter();
+
   return (
     <div className="component-title-row">
       <AnimatedHoverTextButton
         icon={getIconForOverallStatus(mcpStatus?.status)}
         text={mcpStatus?.status ?? ''}
-        onClick={handleOpenerClick}
+        onClick={() => {
+          //handleOpenerClick()
+          splitter.open(
+            <StatusTable
+              status={mcpStatus}
+              tableColumns={statusTableColumns}
+              githubIssuesLink={constructGithubIssuesLink()}
+            />,
+          );
+        }}
       />
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
         <StatusTable
@@ -168,7 +185,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
   );
 };
 
-export default MCPHealthPopoverButton;
+export default MCPHealthPopoverButtonWithSplitter;
 
 type StatusTableProps = {
   status: ControlPlaneStatusType | undefined;

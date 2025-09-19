@@ -3,7 +3,14 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Link,
+  ObjectStatus,
+  Panel,
   Title,
+  Toolbar,
+  ToolbarButton,
+  ToolbarSeparator,
+  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
@@ -38,9 +45,13 @@ type ResourceRow = {
   item: unknown;
   conditionReadyMessage: string;
   conditionSyncedMessage: string;
+  kustomization: string;
 };
 
-export function ManagedResources() {
+export interface ManagedResourcesProps {
+  onNavigateToKustomization: (kustomization: string) => void;
+}
+export function ManagedResources({ onNavigateToKustomization }: ManagedResourcesProps) {
   const { t } = useTranslation();
 
   const {
@@ -64,6 +75,19 @@ export function ManagedResources() {
       {
         Header: t('ManagedResources.tableHeaderCreated'),
         accessor: 'created',
+      },
+      {
+        Header: 'Managed by Kustomization',
+        accessor: 'kustomization',
+        hAlign: 'Left',
+        width: 125,
+        Filter: ({ column }) => <StatusFilter column={column} />,
+        Cell: (cellData: CellData<ResourceRow['kustomization']>) =>
+          cellData.cell.row.original?.kustomization ? (
+            <Link onClick={() => onNavigateToKustomization(cellData.cell.row.original!.kustomization)}>
+              {cellData.cell.row.original?.kustomization}
+            </Link>
+          ) : null,
       },
       {
         Header: t('ManagedResources.tableHeaderSynced'),
@@ -133,40 +157,49 @@ export function ManagedResources() {
             item: item,
             conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
             conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
+            kustomization: item.metadata?.labels?.['kustomize.toolkit.fluxcd.io/name'],
           };
         }),
       ) ?? [];
 
   return (
     <>
-      <Title level="H4">{t('ManagedResources.header')}</Title>
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>{`Resources (${rows.length})`}</Title>
+            <ToolbarSpacer />
+          </Toolbar>
+        }
+      >
+        {error && <IllustratedError details={error.message} />}
 
-      {error && <IllustratedError details={error.message} />}
-
-      {!error && (
-        <AnalyticalTable
-          columns={columns}
-          data={rows}
-          minRows={1}
-          groupBy={['kind']}
-          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-          loading={isLoading}
-          filterable
-          // Prevent the table from resetting when the data changes
-          retainColumnWidth
-          reactTableOptions={{
-            autoResetHiddenColumns: false,
-            autoResetPage: false,
-            autoResetExpanded: false,
-            autoResetGroupBy: false,
-            autoResetSelectedRows: false,
-            autoResetSortBy: false,
-            autoResetFilters: false,
-            autoResetRowState: false,
-            autoResetResize: false,
-          }}
-        />
-      )}
+        {!error && (
+          <AnalyticalTable
+            columns={columns}
+            data={rows}
+            minRows={1}
+            groupBy={['kind']}
+            scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+            loading={isLoading}
+            filterable
+            // Prevent the table from resetting when the data changes
+            retainColumnWidth
+            reactTableOptions={{
+              autoResetHiddenColumns: false,
+              autoResetPage: false,
+              autoResetExpanded: false,
+              autoResetGroupBy: false,
+              autoResetSelectedRows: false,
+              autoResetSortBy: false,
+              autoResetFilters: false,
+              autoResetRowState: false,
+              autoResetResize: false,
+            }}
+          />
+        )}
+      </Panel>
     </>
   );
 }

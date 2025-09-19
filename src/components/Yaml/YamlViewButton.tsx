@@ -7,6 +7,7 @@ import { stringify } from 'yaml';
 import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
 import { YamlIcon } from './YamlIcon.tsx';
 import { YamlViewDialog } from './YamlViewDialog.tsx';
+import { useSplitter } from '../../spaces/mcp/pages/SplitterContext.tsx';
 
 export type YamlViewButtonProps = {
   resourceObject: unknown;
@@ -14,6 +15,7 @@ export type YamlViewButtonProps = {
 
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const splitter = useSplitter();
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
 
@@ -39,7 +41,13 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
         onClick={() => {
-          setIsOpen(true);
+          //setIsOpen(true);
+          splitter.open(
+            <YamlViewer
+              yamlString={yamlString}
+              filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+            />,
+          );
         }}
       >
         <YamlIcon />
