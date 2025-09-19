@@ -20,11 +20,10 @@ describe('PathAwareBreadcrumbs', () => {
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     // Check that all breadcrumbs are rendered
-    cy.get("[data-testid='breadcrumb-item']").should('have.length', 4);
+    cy.get("[data-testid='breadcrumb-item']").should('have.length', 3);
     cy.get("[data-testid='breadcrumb-item']").eq(0).should('contain', '[LOCAL] Projects');
     cy.get("[data-testid='breadcrumb-item']").eq(1).should('contain', 'my-project');
     cy.get("[data-testid='breadcrumb-item']").eq(2).should('contain', 'my-workspace');
-    cy.get("[data-testid='breadcrumb-item']").eq(3).should('contain', 'my-control-plane');
   });
 
   it('navigates when clicking breadcrumbs for all path parameters', () => {
@@ -47,12 +46,6 @@ describe('PathAwareBreadcrumbs', () => {
     cy.wrap(null).then(() => {
       expect(lastNavigatedPath).to.equal('/mcp/projects/my-project');
     });
-
-    // Click on 'my-control-plane' > Navigate to 'my-control-plane'
-    cy.contains('my-control-plane').click();
-    cy.wrap(null).then(() => {
-      expect(lastNavigatedPath).to.equal('/mcp/projects/my-project/workspaces/my-workspace/mcps/my-control-plane');
-    });
   });
 
   it('renders only home breadcrumb when there are no path parameters', () => {
@@ -66,18 +59,17 @@ describe('PathAwareBreadcrumbs', () => {
   it('handles partial route parameters', () => {
     const fakeUseParams = (() => ({
       projectName: 'my-project',
-      workspaceName: 'my-workspace',
+      // No workspaceName
       // No controlPlaneName
     })) as typeof useParams;
 
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     // Should show 3 breadcrumbs
-    cy.get("[data-testid='breadcrumb-item']").should('have.length', 3);
+    cy.get("[data-testid='breadcrumb-item']").should('have.length', 2);
 
     // Verify data-target attributes
     cy.get("[data-testid='breadcrumb-item']").eq(0).should('contain', '[LOCAL] Projects');
     cy.get("[data-testid='breadcrumb-item']").eq(1).should('contain', 'my-project');
-    cy.get("[data-testid='breadcrumb-item']").eq(2).should('contain', 'my-workspace');
   });
 });

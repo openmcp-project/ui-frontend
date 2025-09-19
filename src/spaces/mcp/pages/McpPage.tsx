@@ -65,6 +65,7 @@ export default function McpPage() {
             titleArea={
               <ObjectPageTitle
                 header={controlPlaneName}
+                subHeader={t('Entities.ManagedControlPlane')}
                 breadcrumbs={<BreadcrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={

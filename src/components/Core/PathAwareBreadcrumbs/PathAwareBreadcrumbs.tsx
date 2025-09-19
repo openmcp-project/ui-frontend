@@ -14,7 +14,7 @@ export function PathAwareBreadcrumbs({
   useNavigate = _useNavigate,
   useParams = _useParams,
 }: PathAwareBreadcrumbsProps) {
-  const { projectName, workspaceName, controlPlaneName } = useParams();
+  const { projectName, workspaceName } = useParams();
   const { t } = useTranslation();
   const frontendConfig = useFrontendConfig();
   const navigate = useNavigate();
@@ -42,17 +42,6 @@ export function PathAwareBreadcrumbs({
           projectName,
         }),
       });
-
-      if (controlPlaneName) {
-        breadcrumbItems.push({
-          label: controlPlaneName,
-          path: generatePath(Routes.Mcp, {
-            projectName,
-            workspaceName,
-            controlPlaneName,
-          }),
-        });
-      }
     }
   }
 
