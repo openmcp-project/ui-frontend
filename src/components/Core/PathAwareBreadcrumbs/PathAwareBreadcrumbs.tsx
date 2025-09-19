@@ -1,17 +1,17 @@
 import { Breadcrumbs } from '@ui5/webcomponents-react';
 import { BreadcrumbsItem } from '@ui5/webcomponents-react/wrappers';
-import { generatePath, useNavigate as _useNavgigate, useParams as _useParams } from 'react-router-dom';
+import { generatePath, useNavigate as _useNavigate, useParams as _useParams } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 import { Routes } from '../../../Routes.ts';
 
 export interface PathAwareBreadcrumbsProps {
-  useNavigate?: typeof _useNavgigate;
+  useNavigate?: typeof _useNavigate;
   useParams?: typeof _useParams;
 }
 export function PathAwareBreadcrumbs({
-  useNavigate = _useNavgigate,
+  useNavigate = _useNavigate,
   useParams = _useParams,
 }: PathAwareBreadcrumbsProps) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
