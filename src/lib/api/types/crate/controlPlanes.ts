@@ -6,7 +6,7 @@ export interface Metadata {
   name: string;
   namespace: string;
   annotations: {
-    [annotation: string]: unknown;
+    'openmcp.cloud/display-name': string;
   };
 }
 

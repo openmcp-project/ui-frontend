@@ -51,8 +51,9 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
   );
 
   const name = controlPlane.metadata.name;
-  const displayName = controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
-  console.log(controlPlane);
+  const displayName =
+    controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION as keyof typeof controlPlane.metadata.annotations];
+
   const namespace = controlPlane.metadata.namespace;
 
   const isSystemIdentityProviderEnabled = Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
