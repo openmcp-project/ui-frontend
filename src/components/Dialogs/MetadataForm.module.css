@@ -1,3 +1,9 @@
+.affixRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .input {
   width: 100%;
   margin-bottom: 2rem;
