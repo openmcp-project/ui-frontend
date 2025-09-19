@@ -7,6 +7,14 @@
   flex: 1;
 }
 
+.inactiveContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 60px;
+}
+
 .progressBarContainer {
   display: flex;
   gap: 8px;

@@ -23,6 +23,8 @@ export interface CrossplaneState {
   showPercentage: boolean;
   isHealthy: boolean;
   showOnlyNonZero?: boolean;
+  hasData?: boolean;
+  healthyPercentage?: number;
 }
 
 export const calculateCrossplaneSegments = (
@@ -39,6 +41,8 @@ export const calculateCrossplaneSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
+      healthyPercentage: 0,
     };
   }
 
@@ -49,6 +53,8 @@ export const calculateCrossplaneSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
+      healthyPercentage: 0,
     };
   }
 
@@ -59,6 +65,8 @@ export const calculateCrossplaneSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
+      healthyPercentage: 0,
     };
   }
 
@@ -71,6 +79,8 @@ export const calculateCrossplaneSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
+      healthyPercentage: 0,
     };
   }
 
@@ -113,6 +123,8 @@ export const calculateCrossplaneSegments = (
     showPercentage: true,
     isHealthy: healthyPercentage === 100 && totalCount > 0,
     showOnlyNonZero: true,
+    hasData: true,
+    healthyPercentage, // Add the healthy percentage to the return value
   };
 };
 

@@ -8,6 +8,7 @@ export const HINT_COLORS = {
 
 export interface MemberItem {
   role?: string;
+  type?: 'user' | 'serviceaccount';
 }
 
 export interface MemberSegment {
@@ -23,6 +24,8 @@ export interface MemberState {
   showPercentage: boolean;
   isHealthy: boolean;
   showOnlyNonZero?: boolean;
+  totalCount?: number;
+  hasData?: boolean;
 }
 
 export const calculateMembersSegments = (
@@ -31,6 +34,7 @@ export const calculateMembersSegments = (
   error: APIError | undefined,
   enabled: boolean,
   t: (key: string) => string,
+  memberType: 'user' | 'serviceaccount' = 'user',
 ): MemberState => {
   if (isLoading) {
     return {
@@ -39,6 +43,7 @@ export const calculateMembersSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
   if (error) {
@@ -48,6 +53,7 @@ export const calculateMembersSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
   if (!enabled) {
@@ -57,22 +63,31 @@ export const calculateMembersSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
-  const totalCount = allItems.length;
+
+  // Filter items by type
+  const filteredItems = allItems.filter((item) => (item?.type || 'user') === memberType);
+  
+  const totalCount = filteredItems.length;
+  
   if (totalCount === 0) {
+    const labelKey = memberType === 'user' ? 'noMembers' : 'noServiceAccounts';
     return {
-      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t('Hints.MembersHint.noMembers') }],
-      label: t('Hints.MembersHint.noMembers'),
+      segments: [{ percentage: 100, color: HINT_COLORS.inactive, label: t(`Hints.MembersHint.${labelKey}`) || (memberType === 'user' ? 'No members' : 'No service accounts') }],
+      label: memberType === 'user' ? 'Users' : 'Service Accounts',
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
+  
   // Count the number of roles and their distribution
   const roleCounts: Record<string, number> = {};
 
-  allItems.forEach((item: MemberItem) => {
+  filteredItems.forEach((item: MemberItem) => {
     const role = item?.role || 'unknown';
     roleCounts[role] = (roleCounts[role] || 0) + 1;
   });
@@ -87,11 +102,15 @@ export const calculateMembersSegments = (
     .filter((segment) => segment.percentage > 0)
     .sort((a, b) => b.percentage - a.percentage);
 
+  const labelText = memberType === 'user' ? 'Users' : 'Service Accounts';
+  
   return {
     segments,
-    label: `Users ${totalCount}`,
-    showPercentage: false,
+    label: labelText,
+    showPercentage: true,
     isHealthy: false, // Changed to false to prevent green styling
     showOnlyNonZero: true,
+    totalCount, // Add totalCount to the state for separate display
+    hasData: true,
   };
 };

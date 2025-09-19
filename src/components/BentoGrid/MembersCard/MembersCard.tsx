@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BaseCard } from '../ComponentCard/BaseCard/BaseCard';
 import { MultiPercentageBar } from '../MultiPercentageBar/MultiPercentageBar';
@@ -28,9 +28,19 @@ export const MembersCard = ({
   size = 'medium',
 }: MembersCardProps) => {
   const { t } = useTranslation();
+  const [isUsersChartHovered, setIsUsersChartHovered] = useState(false);
+  const [isServiceAccountsChartHovered, setIsServiceAccountsChartHovered] = useState(false);
+  
+  // Show labels continuously only when explicitly expanded (coupled to expansion button)
+  const shouldShowLabelsAlways = expanded;
 
-  const membersState = useMemo(
-    () => calculateMembersSegments(allItems, isLoading, error, enabled, t),
+  const usersState = useMemo(
+    () => calculateMembersSegments(allItems, isLoading, error, enabled, t, 'user'),
+    [allItems, isLoading, error, enabled, t],
+  );
+
+  const serviceAccountsState = useMemo(
+    () => calculateMembersSegments(allItems, isLoading, error, enabled, t, 'serviceaccount'),
     [allItems, isLoading, error, enabled, t],
   );
 
@@ -47,7 +57,10 @@ export const MembersCard = ({
       size={size}
       onClick={onClick}
     >
-      <div className={styles.contentContainer}>
+      <div className={
+        size === 'large' || size === 'extra-large' ? styles.contentContainerMultiple : styles.contentContainer
+      }>
+        {/* Users chart container */}
         <div
           className={
             size === 'small'
@@ -56,26 +69,30 @@ export const MembersCard = ({
                 ? styles.progressBarContainerMedium
                 : styles.progressBarContainerLarge
           }
+          onMouseEnter={usersState.hasData ? () => setIsUsersChartHovered(true) : undefined}
+          onMouseLeave={usersState.hasData ? () => setIsUsersChartHovered(false) : undefined}
         >
           <MultiPercentageBar
-            segments={membersState.segments}
+            segments={usersState.segments.map(segment => ({
+              ...segment,
+              segmentLabel: segment.percentage > 15 ? `${segment.label}${segment.count !== undefined ? ` (${segment.count})` : ''}` : (segment.count || 0) > 0 ? `${segment.count}` : '',
+              segmentLabelColor: (segment.color === '#e9e9e9ff') ? 'black' : 'white'
+            }))}
             className={styles.progressBar}
-            showOnlyNonZero={membersState.showOnlyNonZero ?? true}
-            isHealthy={membersState.isHealthy}
+            showOnlyNonZero={usersState.showOnlyNonZero ?? true}
+            isHealthy={usersState.isHealthy}
             barWidth={size === 'small' ? '80%' : size === 'medium' ? '80%' : '90%'}
             barHeight={size === 'small' ? '10px' : size === 'medium' ? '16px' : '18px'}
             barMaxWidth={size === 'small' ? '400px' : size === 'medium' ? '500px' : 'none'}
             labelConfig={{
               position: 'above',
               displayMode: 'primary',
-              showPercentage: size === 'medium' ? false : membersState.showPercentage,
+              showPercentage: false,
               showCount: false,
-              primaryLabelText:
-                size === 'medium'
-                  ? membersState.label?.replace(/\s+\d+%?$/, '') || membersState.label
-                  : membersState.label,
+              primaryLabelText: isLoading ? t('Hints.common.loading') : usersState.label,
+              primaryLabelValue: isLoading ? undefined : (usersState.hasData ? usersState.totalCount : undefined),
               hideWhenSingleFull: false,
-              fontWeight: 'bold',
+              fontWeight: isLoading ? 'normal' : 'bold',
             }}
             animationConfig={{
               enableWave: size !== 'medium',
@@ -83,10 +100,58 @@ export const MembersCard = ({
               duration: size === 'medium' ? 0 : 400,
               staggerDelay: size === 'medium' ? 0 : 100,
             }}
-            showSegmentLabels={membersState.label?.includes('Users')}
+            showSegmentLabels={false}
+            showSegmentLabelsOnHover={true}
+            showLabels={usersState.hasData && (shouldShowLabelsAlways || isUsersChartHovered)}
             minSegmentWidthForLabel={12}
           />
         </div>
+
+        {/* Service Accounts chart container - rendered below the users chart */}
+        {(size === 'medium' || size === 'large' || size === 'extra-large') && (
+          <div 
+            className={size === 'medium' ? styles.progressBarContainerMedium : styles.progressBarContainerLarge}
+            onMouseEnter={serviceAccountsState.hasData ? () => setIsServiceAccountsChartHovered(true) : undefined}
+            onMouseLeave={serviceAccountsState.hasData ? () => setIsServiceAccountsChartHovered(false) : undefined}
+          >
+            <MultiPercentageBar
+              segments={isLoading ? 
+                [{ percentage: 100, color: '#e9e9e9ff', label: t('Hints.common.loading'), segmentLabel: t('Hints.common.loading'), segmentLabelColor: 'white' }] :
+                serviceAccountsState.segments.map(segment => ({
+                  ...segment,
+                  segmentLabel: segment.percentage > 15 ? `${segment.label}${segment.count !== undefined ? ` (${segment.count})` : ''}` : (segment.count || 0) > 0 ? `${segment.count}` : '',
+                  segmentLabelColor: (segment.color === '#e9e9e9ff') ? 'black' : 'white'
+                }))
+              }
+              className={styles.progressBar}
+              showOnlyNonZero={serviceAccountsState.showOnlyNonZero ?? true}
+              isHealthy={serviceAccountsState.isHealthy}
+              barWidth={size === 'medium' ? '80%' : '90%'}
+              barHeight={size === 'medium' ? '16px' : '18px'}
+              barMaxWidth={size === 'medium' ? '500px' : 'none'}
+              labelConfig={{
+                position: 'above',
+                displayMode: 'primary',
+                showPercentage: false,
+                showCount: false,
+                primaryLabelText: isLoading ? t('Hints.common.loading') : serviceAccountsState.label,
+                primaryLabelValue: isLoading ? undefined : (serviceAccountsState.hasData ? serviceAccountsState.totalCount : undefined),
+                hideWhenSingleFull: false,
+                fontWeight: isLoading ? 'normal' : 'bold',
+              }}
+              animationConfig={{
+                enableWave: size !== 'medium',
+                enableTransitions: size !== 'medium',
+                duration: size === 'medium' ? 0 : 400,
+                staggerDelay: size === 'medium' ? 0 : 100,
+              }}
+              showSegmentLabels={false}
+              showSegmentLabelsOnHover={true}
+              showLabels={serviceAccountsState.hasData && (shouldShowLabelsAlways || isServiceAccountsChartHovered)}
+              minSegmentWidthForLabel={12}
+            />
+          </div>
+        )}
       </div>
     </BaseCard>
   );

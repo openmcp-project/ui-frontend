@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BaseCard } from '../BaseCard/BaseCard';
+import { BaseCard, CardState } from '../BaseCard/BaseCard';
 import { MultiPercentageBar } from '../../MultiPercentageBar/MultiPercentageBar';
 import { ManagedResourceItem } from '../../../../lib/shared/types';
 import { APIError } from '../../../../lib/api/error';
@@ -16,6 +16,7 @@ interface ESOCardProps {
   onClick?: () => void;
   expanded?: boolean;
   size?: 'small' | 'medium' | 'large' | 'extra-large';
+  cardState?: CardState;
 }
 
 export const ESOCard = ({
@@ -27,6 +28,7 @@ export const ESOCard = ({
   onClick,
   expanded = false,
   size = 'medium',
+  cardState = 'coming-soon', // Default to coming-soon for ESO
 }: ESOCardProps) => {
   const { t } = useTranslation();
 
@@ -35,17 +37,24 @@ export const ESOCard = ({
     [allItems, isLoading, error, enabled, t],
   );
 
+  // Determine title based on size
+  const getTitle = () => {
+    if (size === 'small') return 'ESO';
+    return 'External Secrets Operator';
+  };
+
   return (
     <BaseCard
-      title={t('Hints.ESOHint.title')}
+      title={getTitle()}
       subtitle={t('Hints.ESOHint.subtitle')}
-      iconSrc="/eso.png"
+      iconSrc="/eso_light.png"
       iconAlt="ESO"
       version={version}
       enabled={enabled}
+      cardState={cardState}
       expanded={expanded}
       size={size}
-      onClick={onClick}
+      onClick={cardState === 'active' ? onClick : undefined}
     >
       <div className={styles.contentContainer}>
         <div
@@ -58,28 +67,27 @@ export const ESOCard = ({
           }
         >
           <MultiPercentageBar
-            segments={esoState.segments}
+            segments={cardState === 'active' ? esoState.segments : [{ percentage: 100, color: '#e0e0e0', label: 'Placeholder' }]}
             className={styles.progressBar}
-            showOnlyNonZero={esoState.showOnlyNonZero ?? true}
-            isHealthy={esoState.isHealthy}
+            showOnlyNonZero={cardState === 'active' ? (esoState.showOnlyNonZero ?? true) : false}
+            isHealthy={cardState === 'active' ? esoState.isHealthy : false}
             barWidth={size === 'small' ? '80%' : size === 'medium' ? '80%' : '90%'}
             barHeight={size === 'small' ? '10px' : size === 'medium' ? '16px' : '18px'}
             barMaxWidth={size === 'small' ? '400px' : size === 'medium' ? '500px' : 'none'}
             labelConfig={{
               position: 'above',
               displayMode: 'primary',
-              showPercentage: size === 'medium' ? false : esoState.showPercentage,
+              showPercentage: false, // Never show percentage for ESO
               showCount: false,
-              primaryLabelText:
-                size === 'medium' ? esoState.label?.replace(/\s+\d+%?$/, '') || esoState.label : esoState.label,
+              primaryLabelText: 'External Secrets',
               hideWhenSingleFull: false,
-              fontWeight: 'bold',
+              fontWeight: isLoading ? 'normal' : 'bold',
             }}
             animationConfig={{
-              enableWave: size !== 'medium',
-              enableTransitions: size !== 'medium',
-              duration: size === 'medium' ? 0 : 400,
-              staggerDelay: size === 'medium' ? 0 : 100,
+              enableWave: cardState === 'active' && size !== 'medium',
+              enableTransitions: cardState === 'active' && size !== 'medium',
+              duration: cardState === 'active' && size !== 'medium' ? 400 : 0,
+              staggerDelay: cardState === 'active' && size !== 'medium' ? 100 : 0,
             }}
             showSegmentLabels={false}
             minSegmentWidthForLabel={12}

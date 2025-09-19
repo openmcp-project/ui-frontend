@@ -4,6 +4,8 @@ import cx from 'clsx';
 import { ReactNode } from 'react';
 import styles from './BaseCard.module.css';
 
+type CardState = 'active' | 'inactive' | 'coming-soon';
+
 interface BaseCardProps {
   title: string;
   subtitle?: string;
@@ -12,6 +14,7 @@ interface BaseCardProps {
   iconStyle?: React.CSSProperties;
   version?: string;
   enabled: boolean;
+  cardState?: CardState; // New prop to handle card states
   onClick?: () => void;
   expanded?: boolean;
   size?: 'small' | 'medium' | 'large' | 'extra-large';
@@ -26,6 +29,7 @@ export const BaseCard = ({
   iconStyle,
   version,
   enabled,
+  cardState = 'active',
   onClick,
   expanded = false,
   size = 'medium',
@@ -33,12 +37,31 @@ export const BaseCard = ({
 }: BaseCardProps) => {
   const { t } = useTranslation();
 
+  // Determine if card should be interactive
+  const isInteractive = enabled && cardState === 'active';
+  
+  // Determine version display logic
+  const shouldShowVersion = enabled && cardState === 'active' && version;
+  const versionInSubtitle = size === 'small' && shouldShowVersion;
+  const versionInAdditionalText = !versionInSubtitle && shouldShowVersion;
+  
+  // Determine subtitle content
+  const getSubtitleContent = () => {
+    if (size === 'small') {
+      if (cardState === 'inactive') return t('common.inactive');
+      if (cardState === 'coming-soon') return t('common.comingSoon');
+      if (versionInSubtitle) return `v${version}`;
+      return undefined;
+    }
+    return subtitle;
+  };
+
   return (
     <div className={styles.container}>
       <Card
         header={
           <CardHeader
-            additionalText={enabled && version ? `v${version}` : undefined}
+            additionalText={versionInAdditionalText ? `v${version}` : undefined}
             avatar={
               <img
                 src={iconSrc}
@@ -50,19 +73,19 @@ export const BaseCard = ({
               />
             }
             titleText={title}
-            subtitleText={size === 'small' ? undefined : subtitle}
-            interactive={enabled}
+            subtitleText={getSubtitleContent()}
+            interactive={isInteractive}
           />
         }
         className={cx(styles.card, {
-          [styles.disabled]: !enabled,
-          [styles.clickable]: !!onClick && enabled,
+          [styles.disabled]: !enabled || cardState !== 'active',
+          [styles.clickable]: !!onClick && isInteractive,
         })}
-        onClick={enabled ? onClick : undefined}
+        onClick={isInteractive ? onClick : undefined}
       >
-        {!enabled && <div className={styles.disabledOverlay} />}
+        {(!enabled || cardState !== 'active') && <div className={styles.disabledOverlay} />}
 
-        {onClick && enabled && (
+        {onClick && isInteractive && (
           <Button
             icon={expanded ? 'sap-icon://collapse' : 'sap-icon://expand'}
             design="Transparent"
@@ -81,3 +104,5 @@ export const BaseCard = ({
     </div>
   );
 };
+
+export type { CardState };

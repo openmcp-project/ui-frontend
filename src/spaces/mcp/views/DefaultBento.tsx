@@ -170,6 +170,7 @@ export function useMcpBentoLayout({
               isLoading={isLoading}
               error={error}
               size="small"
+              cardState="coming-soon"
             />
           </BentoCard>
 
@@ -187,6 +188,7 @@ export function useMcpBentoLayout({
               isLoading={isLoading}
               error={error}
               size="small"
+              cardState="coming-soon"
             />
           </BentoCard>
         </>

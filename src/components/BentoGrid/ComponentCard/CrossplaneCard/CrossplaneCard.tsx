@@ -71,7 +71,7 @@ export const CrossplaneCard = ({
           size === 'large' || size === 'extra-large' ? styles.contentContainerMultiple : styles.contentContainer
         }
       >
-        {/* Primary chart container */}
+        {/* Health chart container - now primary */}
         <div
           className={
             size === 'small'
@@ -82,28 +82,30 @@ export const CrossplaneCard = ({
           }
         >
           <div 
-            onMouseEnter={() => setIsProviderChartHovered(true)}
-            onMouseLeave={() => setIsProviderChartHovered(false)}
+            onMouseEnter={crossplaneState.hasData ? () => setIsHealthChartHovered(true) : undefined}
+            onMouseLeave={crossplaneState.hasData ? () => setIsHealthChartHovered(false) : undefined}
           >
             <MultiPercentageBar
-              segments={secondarySegments.map(segment => ({
+              segments={crossplaneState.segments.map(segment => ({
                 ...segment,
-                segmentLabel: `${segment.label} (${segment.count})`, // Provider name (count) - percentage handled by component
-                segmentLabelColor: 'white'
+                segmentLabel: segment.percentage > 15 ? `${segment.label}${segment.count !== undefined ? ` (${segment.count})` : ''}` : (segment.count || 0) > 0 ? `${segment.count}` : '', // Status (count) - percentage handled by component
+                segmentLabelColor: (segment.color === '#e9e9e9ff') ? 'black' : 'white'
               }))}
               className={styles.progressBar}
-              showOnlyNonZero={true}
+              showOnlyNonZero={crossplaneState.showOnlyNonZero ?? true}
+              isHealthy={crossplaneState.isHealthy}
               barWidth={size === 'medium' ? '80%' : '90%'}
               barHeight={size === 'medium' ? '16px' : '18px'}
               barMaxWidth={size === 'medium' ? '500px' : 'none'}
               labelConfig={{
                 position: 'above',
                 displayMode: 'primary',
-                showPercentage: false, // Don't show percentage in primary label, only in segments
-                primaryLabelText: t('common.providers'),
-                primaryLabelValue: providerDistribution.totalProviders,
+                showPercentage: false, // Never show automatic percentage since we're using primaryLabelValue
+                showCount: false,
+                primaryLabelText: isLoading ? t('Hints.common.loading') : 'Health',
+                primaryLabelValue: isLoading ? undefined : `${crossplaneState.healthyPercentage || 0}%`,
                 hideWhenSingleFull: false,
-                fontWeight: 'bold', 
+                fontWeight: isLoading ? 'normal' : 'bold',
               }}
               animationConfig={{
                 enableWave: size !== 'medium',
@@ -111,42 +113,43 @@ export const CrossplaneCard = ({
                 duration: size === 'medium' ? 0 : 400,
                 staggerDelay: size === 'medium' ? 0 : 100,
               }}
-              showSegmentLabels={false} 
-              showSegmentLabelsOnHover={true} // Show segment labels only on hover
-              showLabels={shouldShowLabelsAlways || isProviderChartHovered} // Show continuously when expanded/large or on hover
+              showSegmentLabels={false}
+              showSegmentLabelsOnHover={true}
+              showLabels={crossplaneState.hasData && (shouldShowLabelsAlways || isHealthChartHovered)}
               minSegmentWidthForLabel={12}
             />
           </div>
         </div>
 
-        {/* Secondary chart container - rendered below the primary chart */}
-        {(size === 'medium' || size === 'large' || size === 'extra-large') && secondarySegments && (
+        {/* Provider chart container - now secondary */}
+        {(size === 'medium' || size === 'large' || size === 'extra-large') && (
           <div className={size === 'medium' ? styles.progressBarContainerMedium : styles.progressBarContainerLarge}>
             <div 
-              onMouseEnter={() => setIsHealthChartHovered(true)}
-              onMouseLeave={() => setIsHealthChartHovered(false)}
+              onMouseEnter={providerDistribution.segments.length > 0 ? () => setIsProviderChartHovered(true) : undefined}
+              onMouseLeave={providerDistribution.segments.length > 0 ? () => setIsProviderChartHovered(false) : undefined}
             >
               <MultiPercentageBar
-                segments={crossplaneState.segments.map(segment => ({
-                  ...segment,
-                  segmentLabel: `${segment.label} (${segment.count})`, // Status (count) - percentage handled by component
-                  segmentLabelColor: 'white'
-                }))}
+                segments={isLoading ? 
+                  [{ percentage: 100, color: '#e9e9e9ff', label: t('Hints.common.loading'), segmentLabel: t('Hints.common.loading'), segmentLabelColor: 'white' }] :
+                  secondarySegments.map(segment => ({
+                    ...segment,
+                    segmentLabel: segment.percentage > 15 ? `${segment.label} (${segment.count})` : (segment.count || 0) > 0 ? `${segment.count}` : '', // Provider name (count) - percentage handled by component
+                    segmentLabelColor: (segment.color === '#e9e9e9ff') ? 'black' : 'white'
+                  }))
+                }
                 className={styles.progressBar}
-                showOnlyNonZero={crossplaneState.showOnlyNonZero ?? true}
-                isHealthy={crossplaneState.isHealthy}
+                showOnlyNonZero={true}
                 barWidth={size === 'medium' ? '80%' : '90%'}
                 barHeight={size === 'medium' ? '16px' : '18px'}
                 barMaxWidth={size === 'medium' ? '500px' : 'none'}
                 labelConfig={{
                   position: 'above',
                   displayMode: 'primary',
-                  showPercentage: size === 'medium' ? false : crossplaneState.showPercentage, // Restore original logic
-                  showCount: false,
-                  primaryLabelText: 'Health',
-                  primaryLabelValue: undefined,
+                  showPercentage: false, // Don't show percentage in primary label, only in segments
+                  primaryLabelText: isLoading ? t('Hints.common.loading') : t('common.providers'),
+                  primaryLabelValue: isLoading ? undefined : providerDistribution.totalProviders,
                   hideWhenSingleFull: false,
-                  fontWeight: 'bold',
+                  fontWeight: isLoading ? 'normal' : 'bold',
                 }}
                 animationConfig={{
                   enableWave: size !== 'medium',
@@ -154,9 +157,9 @@ export const CrossplaneCard = ({
                   duration: size === 'medium' ? 0 : 400,
                   staggerDelay: size === 'medium' ? 0 : 100,
                 }}
-                showSegmentLabels={false}
-                showSegmentLabelsOnHover={true}
-                showLabels={shouldShowLabelsAlways || isHealthChartHovered} // Show continuously when expanded/large or on hover
+                showSegmentLabels={false} 
+                showSegmentLabelsOnHover={true} // Show segment labels only on hover
+                showLabels={providerDistribution.segments.length > 0 && (shouldShowLabelsAlways || isProviderChartHovered)} // Show continuously when expanded/large or on hover
                 minSegmentWidthForLabel={12}
               />
             </div>

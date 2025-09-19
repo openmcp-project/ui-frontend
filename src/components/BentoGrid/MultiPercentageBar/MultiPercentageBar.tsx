@@ -5,6 +5,18 @@ import styles from './MultiPercentageBar.module.css';
  * MultiPercentageBar - A configurable progress bar component with segments
  */
 
+// Utility function to truncate text from the left
+const truncateFromLeft = (text: string, maxLength: number, ellipsis: string = '…'): string => {
+  if (text.length <= maxLength) return text;
+  return ellipsis + text.slice(-(maxLength - ellipsis.length));
+};
+
+// Calculate approximate character width based on font size
+const getApproximateCharWidth = (fontSize: string = '0.75rem'): number => {
+  const numericSize = parseFloat(fontSize);
+  return numericSize * 0.6; // Rough approximation: 0.6 * font size
+};
+
 interface PercentageSegment {
   percentage: number;
   color: string;
@@ -33,6 +45,9 @@ interface LabelConfig {
   hideWhenSingleFull?: boolean; // Hide primary label when single segment is 100%
   segmentLabelFontSize?: string; // Font size for segment labels
   segmentLabelFontWeight?: 'normal' | 'bold' | number; // Font weight for segment labels
+  enableSegmentTruncation?: boolean; // Enable automatic truncation of segment labels
+  segmentTruncationEllipsis?: string; // Custom ellipsis for truncation (default: '…')
+  segmentTruncationDirection?: 'left' | 'right' | 'middle'; // Direction of truncation
 }
 
 interface ColorConfig {
@@ -106,6 +121,9 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
       healthyTextColor: '#28a745', // Default green, but now customizable
       segmentLabelFontSize: '0.75rem',
       segmentLabelFontWeight: 'normal',
+      enableSegmentTruncation: true, // Enable truncation by default
+      segmentTruncationEllipsis: '…',
+      segmentTruncationDirection: 'left',
       ...labelConfig,
     }),
     [labelConfig],
@@ -151,6 +169,55 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
 
   const shouldHidePrimaryLabel =
     mergedLabelConfig.hideWhenSingleFull && processedSegments.length === 1 && primaryPercentage === 100;
+
+  // Function to calculate truncated segment label
+  const getTruncatedSegmentLabel = (segment: PercentageSegment, segmentWidth: number): string => {
+    if (!mergedLabelConfig.enableSegmentTruncation) {
+      return segment.segmentLabel || 
+        (mergedLabelConfig.showCount && segment.count 
+          ? `${segment.label} ${segment.count}` 
+          : segment.label);
+    }
+
+    const baseLabel = segment.segmentLabel || segment.label;
+    const percentageText = mergedLabelConfig.showSegmentPercentage ? ` ${segment.percentage}%` : '';
+    const countText = mergedLabelConfig.showCount && segment.count ? ` ${segment.count}` : '';
+    const fullText = `${baseLabel}${countText}${percentageText}`;
+    
+    // Calculate available space (rough estimation)
+    const charWidth = getApproximateCharWidth(mergedLabelConfig.segmentLabelFontSize);
+    const availableChars = Math.floor((segmentWidth - 12) / charWidth); // 12px for padding
+    
+    if (availableChars <= 0 || fullText.length <= availableChars) {
+      return fullText;
+    }
+
+    // Reserve space for percentage and count if they exist
+    const reservedText = `${countText}${percentageText}`;
+    const availableForLabel = availableChars - reservedText.length;
+    
+    if (availableForLabel <= 1) {
+      return mergedLabelConfig.segmentTruncationEllipsis || '…';
+    }
+
+    let truncatedLabel = baseLabel;
+    if (mergedLabelConfig.segmentTruncationDirection === 'left') {
+      truncatedLabel = truncateFromLeft(baseLabel, availableForLabel, mergedLabelConfig.segmentTruncationEllipsis);
+    } else if (mergedLabelConfig.segmentTruncationDirection === 'right') {
+      const ellipsis = mergedLabelConfig.segmentTruncationEllipsis || '…';
+      truncatedLabel = baseLabel.length > availableForLabel 
+        ? baseLabel.slice(0, availableForLabel - ellipsis.length) + ellipsis
+        : baseLabel;
+    } else if (mergedLabelConfig.segmentTruncationDirection === 'middle') {
+      const ellipsis = mergedLabelConfig.segmentTruncationEllipsis || '…';
+      if (baseLabel.length > availableForLabel) {
+        const sideLength = Math.floor((availableForLabel - ellipsis.length) / 2);
+        truncatedLabel = baseLabel.slice(0, sideLength) + ellipsis + baseLabel.slice(-sideLength);
+      }
+    }
+
+    return `${truncatedLabel}${reservedText}`;
+  };
 
   // Helper function to render labels above the bar
   const renderAboveLabels = () => {
@@ -305,9 +372,10 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
             {mergedAnimationConfig.enableWave && <div className={styles.waveOverlay} />}
 
             {/* Segment label inside the bar */}
-            {(showSegmentLabels || segment.segmentLabel) && segment.percentage >= (minSegmentWidthForLabel || 15) && (
+            {(showSegmentLabels || (segment.segmentLabel && (!showSegmentLabelsOnHover || showLabels))) && segment.percentage >= (minSegmentWidthForLabel || 15) && (
               <span
                 className={styles.segmentLabel}
+                data-truncation={mergedLabelConfig.segmentTruncationDirection}
                 style={
                   {
                     '--segment-label-color': segment.segmentLabelColor || 'white',
@@ -319,12 +387,12 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
                   } as React.CSSProperties
                 }
               >
-                {segment.segmentLabel || 
-                  (mergedLabelConfig.showCount && segment.count 
-                    ? `${segment.label} ${segment.count}` 
-                    : segment.label)
-                }
-                {mergedLabelConfig.showSegmentPercentage && ` ${segment.percentage}%`}
+                {(() => {
+                  // Calculate segment width in pixels (approximate)
+                  const barMaxWidthPx = parseFloat(barMaxWidth.replace('px', '')) || 400;
+                  const segmentWidthPx = (segment.percentage / 100) * barMaxWidthPx;
+                  return getTruncatedSegmentLabel(segment, segmentWidthPx);
+                })()}
               </span>
             )}
           </div>

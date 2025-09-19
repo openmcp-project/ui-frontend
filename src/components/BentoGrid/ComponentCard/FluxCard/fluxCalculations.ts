@@ -19,6 +19,7 @@ export interface FluxState {
   showPercentage: boolean;
   isHealthy: boolean;
   showOnlyNonZero?: boolean;
+  hasData?: boolean;
 }
 
 export const calculateGitOpsSegments = (
@@ -35,6 +36,7 @@ export const calculateGitOpsSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
 
@@ -45,6 +47,7 @@ export const calculateGitOpsSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
 
@@ -55,6 +58,7 @@ export const calculateGitOpsSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
 
@@ -67,6 +71,7 @@ export const calculateGitOpsSegments = (
       showPercentage: false,
       isHealthy: false,
       showOnlyNonZero: true,
+      hasData: false,
     };
   }
 
@@ -93,6 +98,7 @@ export const calculateGitOpsSegments = (
     showPercentage: true,
     isHealthy: false, // Don't apply green styling to GitOps labels
     showOnlyNonZero: true,
+    hasData: true,
   };
 };
 
@@ -169,5 +175,83 @@ export const calculateFluxHealthSegments = (
     segments,
     healthyPercentage,
     isInactive: false,
+  };
+};
+
+export interface FluxResourceStatus {
+  segments: FluxSegment[];
+  totalResources: number;
+  hasData: boolean;
+}
+
+export const calculateFluxResourceStatus = (
+  gitRepos: any[] = [],
+  kustomizations: any[] = [],
+  t: (key: string) => string,
+): FluxResourceStatus => {
+  const allResources = [
+    ...(gitRepos.map(repo => ({
+      ...repo,
+      type: 'repository'
+    })) || []),
+    ...(kustomizations.map(kust => ({
+      ...kust,
+      type: 'kustomization'
+    })) || [])
+  ];
+
+  const totalResources = allResources.length;
+
+  if (totalResources === 0) {
+    return {
+      segments: [{ 
+        percentage: 100, 
+        color: HINT_COLORS.inactive, 
+        label: t('Hints.GitOpsHint.noResources') || 'No resources',
+        count: 0
+      }],
+      totalResources: 0,
+      hasData: false,
+    };
+  }
+
+  // Count ready vs not ready resources
+  const readyResources = allResources.filter(resource => {
+    const readyCondition = resource.status?.conditions?.find((c: any) => c.type === 'Ready');
+    return readyCondition?.status === 'True';
+  });
+
+  const notReadyResources = allResources.filter(resource => {
+    const readyCondition = resource.status?.conditions?.find((c: any) => c.type === 'Ready');
+    return readyCondition?.status !== 'True';
+  });
+
+  const readyCount = readyResources.length;
+  const notReadyCount = notReadyResources.length;
+
+  const segments: FluxSegment[] = [];
+
+  if (readyCount > 0) {
+    segments.push({
+      percentage: Math.round((readyCount / totalResources) * 100),
+      color: HINT_COLORS.flux, // Blue for Ready (matching primary chart)
+      label: t('common.ready') || 'Ready',
+      count: readyCount,
+    });
+  }
+
+  if (notReadyCount > 0) {
+    segments.push({
+      percentage: Math.round((notReadyCount / totalResources) * 100),
+      color: HINT_COLORS.inactive, // Gray for Not Ready (matching primary chart)
+      label: t('common.notReady') || 'Not Ready',
+      count: notReadyCount,
+    });
+  }
+
+  return {
+    segments,
+    totalResources,
+    hasData: true,
   };
 };

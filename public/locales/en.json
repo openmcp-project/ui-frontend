@@ -26,6 +26,7 @@
     "tableVersionHeader": "Revision",
     "noFluxError": "Please install flux to view this component",
     "gitOpsTitle": "GitOps",
+    "repositoriesTitle": "Repositories",
     "kustomizationsTitle": "Kustomizations",
     "undefinedError": "Something went wrong"
   },
@@ -349,6 +350,7 @@
     "btp": "BTP",
     "error": "Error",
     "ready": "Ready",
+    "notReady": "Not Ready",
     "synced": "Synced",
     "healthy": "Healthy",
     "installed": "Installed",
@@ -359,10 +361,12 @@
     "remaining": "Remaining",
     "active": "Active",
     "inactive": "Inactive",
+    "comingSoon": "Coming soon...",
     "providers": "Provider",
     "health": "Health",
     "serviceaccounts": "ServiceAccounts",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "resources": "Status"
   },
   "errors": {
     "installError": "Install error",

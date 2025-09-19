@@ -218,6 +218,52 @@
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 12px); /* Account for left and right padding */
+}
+
+/* Truncation variants */
+.segmentLabel[data-truncation="left"] {
+  direction: rtl;
+  text-align: right; /* Keep right alignment but use RTL for left truncation */
+  text-overflow: ellipsis;
+}
+
+.segmentLabel[data-truncation="right"] {
+  direction: ltr;
+  text-align: right;
+  text-overflow: ellipsis;
+}
+
+.segmentLabel[data-truncation="middle"] {
+  direction: ltr;
+  text-align: right;
+  text-overflow: ellipsis;
+}
+
+/* Enhanced truncation support with better fallbacks */
+.segmentLabel {
+  /* Use CSS text-overflow as a fallback for very small segments */
+  min-width: 0; /* Allow shrinking */
+  flex-shrink: 1; /* Allow flexible shrinking */
+}
+
+/* For right-to-left truncation (left truncation), we use a special technique */
+.segmentLabel[data-truncation="left"]::before {
+  content: '';
+  float: right;
+  width: 0;
+  white-space: nowrap;
+}
+
+/* Ensure text remains readable on different backgrounds */
+.segmentLabel {
+  /* Add subtle outline for better readability */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    1px 0 1px rgba(0, 0, 0, 0.2),
+    -1px 0 1px rgba(0, 0, 0, 0.2);
 }
 
 /* Show segment labels on card hover */
