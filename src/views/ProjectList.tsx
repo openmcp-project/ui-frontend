@@ -1,6 +1,6 @@
 import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
-import { BreadCrumbFeedbackHeader } from '../components/Core/IntelligentBreadcrumbs.tsx';
+import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 import { useTranslation } from 'react-i18next';
 
@@ -13,7 +13,7 @@ export default function ProjectsListView() {
       titleArea={
         <ObjectPageTitle
           header={t('ProjectsListView.pageTitle')}
-          breadcrumbs={<BreadCrumbFeedbackHeader />}
+          breadcrumbs={<BreadcrumbFeedbackHeader />}
           actionsBar={<ProjectListToolbar />}
         />
       }
