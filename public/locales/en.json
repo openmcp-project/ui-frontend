@@ -103,11 +103,8 @@
     "subtitleMessage": "Sorry, we couldn’t find what you are looking for.<br />The link may be incorrect or the {{entityType}} might have been removed.",
     "navigateHome": "Back to Homepage"
   },
-  "IntelligentBreadcrumbs": {
-    "homeLabel": "Home",
-    "projects": "Projects",
-    "workspaces": "Workspaces",
-    "mcps": "MCPs"
+  "PathAwareBreadcrumbs": {
+    "projectsLabel": "Projects"
   },
   "MCPContext": {
     "errorMessage": "An unknown error occurred"
