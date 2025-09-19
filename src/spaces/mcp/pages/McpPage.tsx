@@ -27,9 +27,11 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
-import { ControlPlaneCardMenu } from '../../../components/ControlPlanes/ControlPlaneCard/ControlPlaneCardMenu.tsx';
+
 import { useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -40,7 +42,7 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-
+  const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
   if (isLoading) {
     return <BusyIndicator active />;
   }
@@ -67,7 +69,7 @@ export default function McpPage() {
             preserveHeaderStateOnClick={true}
             titleArea={
               <ObjectPageTitle
-                header={controlPlaneName}
+                header={displayName ?? controlPlaneName}
                 breadcrumbs={<BreadCrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
@@ -91,7 +93,7 @@ export default function McpPage() {
                       resourceName={controlPlaneName}
                     />
                     <CopyKubeconfigButton />
-                    <ControlPlaneCardMenu
+                    <ControlPlanePageMenu
                       setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
                     />
                     <EditManagedControlPlaneWizardDataLoader
