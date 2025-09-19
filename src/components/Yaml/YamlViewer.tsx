@@ -1,14 +1,14 @@
 import { FC } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight, materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { createPatch, diffLines } from 'diff';
+
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme.ts';
-type YamlViewerProps = { originalYamlString?: string; yamlString: string; filename: string };
-const YamlViewer: FC<YamlViewerProps> = ({ originalYamlString, yamlString, filename }) => {
+type YamlViewerProps = { yamlString: string; filename: string };
+const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const toast = useToast();
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
@@ -16,7 +16,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ originalYamlString, yamlString, filen
     navigator.clipboard.writeText(yamlString);
     toast.show(t('yaml.copiedToClipboard'));
   };
-
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
@@ -29,16 +28,6 @@ const YamlViewer: FC<YamlViewerProps> = ({ originalYamlString, yamlString, filen
     window.URL.revokeObjectURL(url);
   };
 
-  const contentToRender =
-    originalYamlString !== undefined ? createPatch(`${filename}.yaml`, originalYamlString, yamlString) : yamlString;
-
-  // console.log(originalYamlString !== undefined ? diffLines(originalYamlString, yamlString) : yamlString);
-
-  const language = originalYamlString !== undefined ? 'diff' : 'yaml';
-  console.log('1');
-  console.log(yamlString);
-  console.log('2');
-  console.log(originalYamlString);
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
@@ -50,7 +39,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ originalYamlString, yamlString, filen
         </Button>
       </FlexBox>
       <SyntaxHighlighter
-        language={language}
+        language="yaml"
         style={isDarkTheme ? materialDark : materialLight}
         showLineNumbers
         lineNumberStyle={{
@@ -71,7 +60,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ originalYamlString, yamlString, filen
           },
         }}
       >
-        {contentToRender}
+        {yamlString}
       </SyntaxHighlighter>
     </div>
   );
