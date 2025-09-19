@@ -1,20 +1,22 @@
 import { PathAwareBreadcrumbs } from './PathAwareBreadcrumbs';
+import { useNavigate, useParams } from 'react-router-dom';
 
 describe('PathAwareBreadcrumbs', () => {
-  const navigateCalls = [];
-  const fakeUseNavigate = () => (path: string) => navigateCalls.push(path);
-  const fakeUseParams = () => ({
+  let lastNavigatedPath = '';
+  const fakeUseNavigate = (() => (path: string) => {
+    lastNavigatedPath = path;
+  }) as typeof useNavigate;
+  const fakeUseParams = (() => ({
     projectName: 'my-project',
     workspaceName: 'my-workspace',
     controlPlaneName: 'my-control-plane',
-  });
+  })) as typeof useParams;
 
   beforeEach(() => {
-    navigateCalls.length = 0;
+    lastNavigatedPath = '';
   });
 
   it('renders breadcrumbs for all path parameters', () => {
-    // @ts-ignore
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     // Check that all breadcrumbs are rendered
@@ -26,11 +28,6 @@ describe('PathAwareBreadcrumbs', () => {
   });
 
   it('navigates when clicking breadcrumbs for all path parameters', () => {
-    let lastNavigatedPath: string | null = null;
-    const fakeUseNavigate = () => (path: string) => {
-      lastNavigatedPath = path;
-    };
-    // @ts-ignore
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     // Navigate to '/'
@@ -59,22 +56,20 @@ describe('PathAwareBreadcrumbs', () => {
   });
 
   it('renders only home breadcrumb when there are no path parameters', () => {
-    const fakeUseParams = () => ({});
+    const fakeUseParams = (() => ({})) as typeof useParams;
 
-    // @ts-ignore
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     cy.get("[data-testid='breadcrumb-item']").should('have.length', 1);
   });
 
   it('handles partial route parameters', () => {
-    const fakeUseParams = () => ({
+    const fakeUseParams = (() => ({
       projectName: 'my-project',
       workspaceName: 'my-workspace',
       // No controlPlaneName
-    });
+    })) as typeof useParams;
 
-    // @ts-ignore
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
     // Should show 3 breadcrumbs
