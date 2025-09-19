@@ -69,7 +69,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
-                <Title level={TitleLevel.H5}>{displayName ?? name}</Title>
+                <Title level={TitleLevel.H5}>{!!displayName ? displayName : name}</Title>
                 <Label>{workspace.metadata.name} </Label>
               </FlexBox>
               <div>
