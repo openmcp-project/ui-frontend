@@ -411,7 +411,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       name: initialData?.metadata?.name ?? '',
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
-      chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL] ?? '',
+      chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL]?.toLowerCase() ?? '',
       members,
       componentsList: componentsList ?? [],
     };
