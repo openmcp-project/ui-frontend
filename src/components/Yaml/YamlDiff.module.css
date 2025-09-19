@@ -1,13 +1,11 @@
-/* Container wrapper to match YamlViewer spacing if needed */
 .container {
   width: 100%;
 }
 
-/* Line highlight colors for additions/removals */
 .added {
-  background-color: rgba(56, 142, 60, 0.18); /* green-ish */
+  background-color: rgba(56, 142, 60, 0.18);
 }
 
 .removed {
-  background-color: rgba(211, 47, 47, 0.18); /* red-ish */
+  background-color: rgba(211, 47, 47, 0.18);
 }
