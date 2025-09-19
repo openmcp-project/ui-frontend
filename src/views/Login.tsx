@@ -29,7 +29,11 @@ export default function LoginView() {
     >
       <Card style={{ width: 'fit-content' }}>
         <div style={{ margin: '1rem' }}>
-          <img className="logo" src="/co-logo-orchestrating.png" alt="Logo" />
+          <picture>
+            <source srcSet="co-logo-orchestrating.png" media="(prefers-color-scheme: light)" />
+            <source srcSet="co-logo-orchestrating-dark.png" media="(prefers-color-scheme: dark)" />
+            <img className="logo" src="/co-logo-orchestrating.png" alt="Logo" />
+          </picture>
           <div className="headline">{t('Login.welcomeMessage')}</div>
           <Text>{t('Login.description')}</Text>
           <Text>

@@ -16,6 +16,9 @@
     "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
+  "MemberList": {
+    
+  },
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
@@ -23,6 +26,7 @@
     "tableVersionHeader": "Revision",
     "noFluxError": "Please install flux to view this component",
     "gitOpsTitle": "GitOps",
+    "repositoriesTitle": "Repositories",
     "kustomizationsTitle": "Kustomizations",
     "undefinedError": "Something went wrong"
   },
@@ -346,6 +350,7 @@
     "btp": "BTP",
     "error": "Error",
     "ready": "Ready",
+    "notReady": "Not Ready",
     "synced": "Synced",
     "healthy": "Healthy",
     "installed": "Installed",
@@ -354,7 +359,14 @@
     "unhealthy": "Unhealthy",
     "progress": "Managed",
     "remaining": "Remaining",
-    "active": "Active"
+    "active": "Active",
+    "inactive": "Inactive",
+    "comingSoon": "Coming soon...",
+    "providers": "Provider",
+    "health": "Health",
+    "serviceaccounts": "ServiceAccounts",
+    "loading": "Loading...",
+    "resources": "Status"
   },
   "errors": {
     "installError": "Install error",
@@ -390,42 +402,46 @@
   "Hints": {
     "CrossplaneHint": {
       "title": "Crossplane",
-      "subtitle": "Managed Resources Readiness",
+      "subtitle": "Manage your cloud landscape in code",
       "activeStatus": "Active v",
-      "progressAvailable": "% Available",
+      "progressAvailable": "Available",
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "healthy": "Healthy",
-      "hoverContent": {
-        "totalResources": "Total Resources",
-        "healthy": "Healthy",
-        "creating": "Creating", 
-        "failing": "Failing"
-      }
+      "healthy": "Healthy"
     },
     "GitOpsHint": {
       "title": "Flux",
-      "subtitle": "GitOps Progress",
+      "subtitle": "Persist desired state in code repositories",
       "activeStatus": "Active v",
-      "progressAvailable": "% Available",
+      "progressAvailable": "Available",
       "noResources": "No Resources",
       "inactive": "Inactive",
       "activate": "Activate",
-      "managed": "Managed",
-      "hoverContent": {
-        "totalResources": "Total Resources",
-        "managed": "Managed",
-        "unmanaged": "Unmanaged"
-      }
+      "managed": "Persisted"
     },
-    "VaultHint": {
-      "title": "Vault",
-      "subtitle": "Rotating Secrets Progress",
+    "MembersHint": {
+      "title": "Members",
+      "subtitle": "Manage access to your Managed Control Plane",
+      "users": "Users",
+      "serviceAccounts": "Service Accounts"
+    },
+    "ESOHint": {
+      "title": "External Secrets",
+      "subtitle": "Secure secrets with rotation",
       "activeStatus": "Active v",
-      "progressAvailable": "% Available",
+      "progressAvailable": "Available",
       "noResources": "No Resources",
       "inactive": "Coming soon...",
+      "activate": "Activate"
+    },
+    "KyvernoHint": {
+      "title": "Kyverno",
+      "subtitle": "Enforce policies",
+      "activeStatus": "Active v",
+      "progressAvailable": "Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
       "activate": "Activate"
     },
     "common": {

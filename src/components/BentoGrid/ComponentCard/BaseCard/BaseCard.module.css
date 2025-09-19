@@ -1,0 +1,60 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.disabled {
+  opacity: 0.6;
+  user-select: none; 
+  pointer-events: none; 
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.disabledOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: transparent;
+  object-fit: cover;
+}
+
+.expandButton {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  min-width: 32px;
+  height: 32px;
+  z-index: 10;
+}
+
+.expandButtonSmall {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  min-width: 24px;
+  height: 24px;
+  z-index: 10;
+}

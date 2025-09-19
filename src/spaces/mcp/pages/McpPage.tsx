@@ -1,32 +1,30 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
-import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { BreadCrumbFeedbackHeader } from '../../../components/Core/IntelligentBreadcrumbs.tsx';
 
-import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
-import { Providers } from '../../../components/ControlPlane/Providers.tsx';
-import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
-import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
-import Graph from '../../../components/Graphs/Graph.tsx';
-import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
+import { ManagedResourcesRequest } from '../../../lib/api/types/crossplane/listManagedResources';
+import { resourcesInterval } from '../../../lib/shared/constants';
+import { useMemo } from 'react';
+import { useMcpBentoLayout } from '../views/DefaultBento.tsx';
+import { CrossplaneDetailsTable } from '../views/CrossplaneDetailsTable';
+import { GitOpsDetailsTable } from '../views/FluxDetailsTable.tsx';
+import { MembersDetailsTable } from '../views/MembersDetailsTable';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -60,130 +58,93 @@ export default function McpPage() {
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
-          <ObjectPage
-            preserveHeaderStateOnClick={true}
-            titleArea={
-              <ObjectPageTitle
-                header={controlPlaneName}
-                breadcrumbs={<BreadCrumbFeedbackHeader />}
-                //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
-                actionsBar={
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <MCPHealthPopoverButton
-                      mcpStatus={mcp?.status}
-                      projectName={projectName}
-                      workspaceName={workspaceName ?? ''}
-                      mcpName={controlPlaneName}
-                    />
-                    <YamlViewButtonWithLoader
-                      workspaceName={mcp?.status?.access?.namespace}
-                      resourceType={'managedcontrolplanes'}
-                      resourceName={controlPlaneName}
-                    />
-                    <CopyKubeconfigButton />
-                  </div>
-                }
-              />
-            }
-          >
-            <ObjectPageSection
-              className="cp-page-section-overview"
-              id="overview"
-              titleText={t('McpPage.overviewTitle')}
-              hideTitleText
-            >
-              <HintsCardsRow mcp={mcp} />
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-graph"
-              id="graph"
-              titleText={t('McpPage.graphTitle')}
-              hideTitleText
-            >
-              <Graph />
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-components"
-              id="components"
-              titleText={t('McpPage.componentsTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H2"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
-                noAnimation
-              >
-                <ComponentList mcp={mcp} />
-              </Panel>
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-crossplane"
-              id="crossplane"
-              titleText={t('McpPage.crossplaneTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
-                noAnimation
-              >
-                <div className="crossplane-table-element">
-                  <Providers />
-                </div>
-                <div className="crossplane-table-element">
-                  <ProvidersConfig />
-                </div>
-                <div className="crossplane-table-element">
-                  <ManagedResources />
-                </div>
-              </Panel>
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-landscapers"
-              id="landscapers"
-              titleText={t('McpPage.landscapersTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
-                noAnimation
-              >
-                <Landscapers />
-              </Panel>
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-gitops"
-              id="gitops"
-              titleText={t('McpPage.gitOpsTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}
-                noAnimation
-              >
-                <FluxList />
-              </Panel>
-            </ObjectPageSection>
-          </ObjectPage>
+          <McpPageContent mcp={mcp} controlPlaneName={controlPlaneName} />
         </WithinManagedControlPlane>
       </AuthProviderMcp>
     </McpContextProvider>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function McpPageContent({ mcp, controlPlaneName }: { mcp: any; controlPlaneName: string }) {
+  const { t } = useTranslation();
+  const { projectName, workspaceName } = useParams();
+
+  // Add managed resources API call within the MCP context
+  const {
+    data: managedResources,
+    isLoading: managedResourcesLoading,
+    error: managedResourcesError,
+  } = useApiResource(ManagedResourcesRequest, {
+    refreshInterval: resourcesInterval,
+  });
+
+  // Flatten managed resources
+  const allItems = useMemo(() => {
+    if (!managedResources || !Array.isArray(managedResources)) return [];
+    return managedResources
+      .filter((managedResource) => managedResource?.items)
+      .flatMap((managedResource) => managedResource.items || []);
+  }, [managedResources]);
+
+  // Prepare member items from role bindings
+  const memberItems = useMemo(
+    () => (mcp?.spec?.authorization?.roleBindings || []).map((rb: any) => ({ role: rb.role })),
+    [mcp?.spec?.authorization?.roleBindings],
+  );
+
+  // Use the Bento layout hook which manages expansion state internally
+  const { expandedCard, bentoGrid } = useMcpBentoLayout({
+    mcp,
+    allItems,
+    memberItems,
+    isLoading: managedResourcesLoading,
+    error: managedResourcesError,
+  });
+
+  return (
+    <ObjectPage
+      preserveHeaderStateOnClick={true}
+      titleArea={
+        <ObjectPageTitle
+          header={controlPlaneName}
+          breadcrumbs={<BreadCrumbFeedbackHeader />}
+          //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
+          actionsBar={
+            <div className={styles.actionsBar}>
+              <MCPHealthPopoverButton
+                mcpStatus={mcp?.status}
+                projectName={projectName!}
+                workspaceName={workspaceName ?? ''}
+                mcpName={controlPlaneName}
+              />
+              <YamlViewButtonWithLoader
+                workspaceName={mcp?.status?.access?.namespace}
+                resourceType={'managedcontrolplanes'}
+                resourceName={controlPlaneName}
+              />
+              <CopyKubeconfigButton />
+            </div>
+          }
+        />
+      }
+    >
+      <ObjectPageSection
+        className="cp-page-section-overview"
+        id="overview"
+        titleText={t('McpPage.overviewTitle')}
+        hideTitleText
+      >
+        <div className={styles.mainContainer}>
+          {/* Unified Bento Layout - Graph stays persistent */}
+          {bentoGrid}
+
+          {/* Render details tables based on expanded state */}
+          {expandedCard === 'crossplane' && <CrossplaneDetailsTable />}
+          {expandedCard === 'gitops' && <GitOpsDetailsTable />}
+          {expandedCard === 'members' && <MembersDetailsTable mcp={mcp} />}
+        </div>
+      </ObjectPageSection>
+    </ObjectPage>
   );
 }

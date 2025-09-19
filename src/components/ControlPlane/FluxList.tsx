@@ -172,7 +172,7 @@ export default function FluxList() {
     <>
       <div className="crossplane-table-element">
         <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
-          <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
+          <Title level="H4">{t('FluxList.repositoriesTitle') || 'Repositories'}</Title>
           <YamlViewButton resourceObject={gitReposData} />
         </FlexBox>
         <ConfiguredAnalyticstable columns={gitReposColumns} isLoading={repoIsLoading} data={gitReposRows} />

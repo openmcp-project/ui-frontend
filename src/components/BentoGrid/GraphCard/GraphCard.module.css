@@ -1,0 +1,28 @@
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--sapTile_Background);
+  border: 1px solid var(--sapTile_BorderColor);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.simpleWrapper {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  overflow: hidden;
+}
+
+/* Override the Graph component's fixed height globally within this wrapper */
+.simpleWrapper > div {
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}

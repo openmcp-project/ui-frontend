@@ -44,8 +44,8 @@ export function ShellBarComponent() {
         startButton={
           <div className={styles.container}>
             <div className={styles.logoWrapper}>
-              <img src="/logo.png" alt="MCP" className={styles.logo} />
-              <span className={styles.logoText}>MCP</span>
+              <img src="/logo.png" alt="ManagedControlPlane" className={styles.logo} />
+              <span className={styles.logoText}>ManagedControlPlane UI</span>
             </div>
           </div>
         }
