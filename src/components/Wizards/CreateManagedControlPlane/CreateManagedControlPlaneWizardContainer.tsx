@@ -170,7 +170,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
-  console.log(initialMcpDataWhenInEditMode);
 
   const nextButtonText = useMemo(
     () => ({
