@@ -421,8 +421,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
-  console.log('initialMcpDataWhenInEditMode');
-  console.log(initialMcpDataWhenInEditMode);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
