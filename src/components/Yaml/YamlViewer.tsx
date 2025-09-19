@@ -4,18 +4,14 @@ import { materialLight, materialDark } from 'react-syntax-highlighter/dist/esm/s
 
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlViewer.module.css';
-import { useToast } from '../../context/ToastContext.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme.ts';
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
-  const toast = useToast();
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(yamlString);
-    toast.show(t('yaml.copiedToClipboard'));
-  };
+  const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
@@ -31,7 +27,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
-        <Button icon="copy" onClick={copyToClipboard}>
+        <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
           {t('buttons.copy')}
         </Button>
         <Button icon="download" onClick={downloadYaml}>

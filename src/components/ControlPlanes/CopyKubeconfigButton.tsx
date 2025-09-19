@@ -1,5 +1,5 @@
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
-import { useToast } from '../../context/ToastContext.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRef, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 export default function CopyKubeconfigButton() {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const { show } = useToast();
+  const { copyToClipboard } = useCopyToClipboard();
   const { t } = useTranslation();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,14 +37,7 @@ export default function CopyKubeconfigButton() {
             return;
           }
           if (event.detail.item.dataset.action === 'copy') {
-            try {
-              navigator.clipboard.writeText(mcp.kubeconfig ?? '');
-              show(t('CopyKubeconfigButton.copiedMessage'));
-            } catch (error) {
-              //TODO: handle error, show error to user
-              show(`${t('CopyKubeconfigButton.failedMessage')} ${error}`);
-              console.error(error);
-            }
+            void copyToClipboard(mcp.kubeconfig ?? '');
           }
 
           setOpen(false);

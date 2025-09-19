@@ -1,5 +1,5 @@
 import { FlexBox, Button } from '@ui5/webcomponents-react';
-import { useToast } from '../../../context/ToastContext';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
 import '@ui5/webcomponents-icons/dist/copy';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
 
@@ -8,18 +8,7 @@ interface KubeCtlTerminalProps {
 }
 
 export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
-  const { show } = useToast();
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(command).then(
-      () => {
-        show('Command copied to clipboard');
-      },
-      (err) => {
-        console.error('Could not copy text: ', err);
-      },
-    );
-  };
+  const { copyToClipboard } = useCopyToClipboard();
 
   const FormattedCommand = () => {
     if (command.startsWith("echo '") && command.includes('apiVersion:')) {
@@ -91,7 +80,7 @@ export const KubectlTerminal = ({ command }: KubeCtlTerminalProps) => {
             }}
           />
         </FlexBox>
-        <Button icon="copy" design="Transparent" tooltip="Copy to clipboard" onClick={handleCopy} />
+        <Button icon="copy" design="Transparent" tooltip="Copy to clipboard" onClick={() => copyToClipboard(command)} />
       </FlexBox>
 
       <div style={{ padding: '12px 16px', overflowX: 'auto' }}>
