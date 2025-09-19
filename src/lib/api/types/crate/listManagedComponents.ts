@@ -1,50 +1,44 @@
 import { Resource } from '../resource';
 
-interface ManagedComponentList {
-  apiVersion: string;
-  kind: string;
-  items: ManagedComponent[];
-  metadata: ListMetadata;
+export interface ManagedComponentList {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: {
+    continue?: string;
+    resourceVersion?: string;
+    [key: string]: unknown;
+  };
+  items?: ManagedComponent[];
 }
 
-interface ListMetadata {
-  continue: string;
-  resourceVersion: string;
+export interface ManagedComponent {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: {
+    creationTimestamp?: string;
+    generation?: number;
+    managedFields?: ManagedField[];
+    name?: string;
+    resourceVersion?: string;
+    uid?: string;
+    [key: string]: unknown;
+  };
+  spec?: Record<string, unknown>;
+  status?: {
+    versions?: string[];
+    [key: string]: unknown;
+  };
 }
 
-interface ManagedComponent {
-  apiVersion: string;
-  kind: string;
-  metadata: ManagedComponentMetadata;
-  spec: Record<string, unknown>;
-  status: ManagedComponentStatus;
-}
-
-interface ManagedComponentMetadata {
-  creationTimestamp: string;
-  generation: number;
-  managedFields: ManagedField[];
-  name: string;
-  resourceVersion: string;
-  uid: string;
-}
-
-interface ManagedField {
-  apiVersion: string;
-  fieldsType: string;
-  fieldsV1: FieldsV1;
-  manager: string;
-  operation: string;
-  time: string;
+export interface ManagedField {
+  apiVersion?: string;
+  fieldsType?: string;
+  fieldsV1?: Record<string, unknown>;
+  manager?: string;
+  operation?: string;
+  time?: string;
   subresource?: string;
-}
-
-interface FieldsV1 {
-  [key: string]: never;
-}
-
-interface ManagedComponentStatus {
-  versions: string[];
+  [key: string]: unknown;
 }
 
 export const ListManagedComponents = (): Resource<ManagedComponentList> => {

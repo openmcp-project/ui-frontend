@@ -183,13 +183,16 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
           toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
         }}
       />
-      <CreateManagedControlPlaneWizardContainer
-        isOpen={isCreateManagedControlPlaneWizardOpen}
-        setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
-        projectName={projectNamespace}
-        workspaceName={workspaceName}
-        initialTemplateName={initialTemplateName}
-      />
+      {isCreateManagedControlPlaneWizardOpen ? (
+        <CreateManagedControlPlaneWizardContainer
+          isOpen={isCreateManagedControlPlaneWizardOpen}
+          setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+          projectName={projectNamespace}
+          workspaceName={workspaceName}
+          initialTemplateName={initialTemplateName}
+          isEditMode={false}
+        />
+      ) : null}
     </>
   );
 }

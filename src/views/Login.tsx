@@ -1,5 +1,5 @@
 import { useAuthOnboarding } from '../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { Button, Card, FlexBox, Text } from '@ui5/webcomponents-react';
+import { Button, Card, FlexBox, Link, Text } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import './login.css';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
@@ -31,12 +31,14 @@ export default function LoginView() {
         <div style={{ margin: '1rem' }}>
           <img className="logo" src="/co-logo-orchestrating.png" alt="Logo" />
           <div className="headline">{t('Login.welcomeMessage')}</div>
-          <Text>{t('Login.description')}</Text>
+
+          <Text className="description"> {t('Login.description')}</Text>
+
           <Text>
             <p>
-              <a href={documentationHomepage} target="_blank" rel="noreferrer">
+              <Link href={documentationHomepage} target="_blank" rel="noreferrer">
                 {t('Login.learnMore')}
-              </a>
+              </Link>
             </p>
           </Text>
           <div>
