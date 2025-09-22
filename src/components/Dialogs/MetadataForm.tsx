@@ -56,6 +56,7 @@ export function MetadataForm({
     const selectedOption = event.detail.selectedOption as HTMLElement;
     const value = selectedOption.dataset.value ?? '';
     setValue('chargingTargetType', value, { shouldValidate: true, shouldDirty: true });
+    setValue('chargingTarget', '', { shouldValidate: false, shouldDirty: true });
   };
 
   const chargingTypes: SelectOption[] = [
