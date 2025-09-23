@@ -1,4 +1,4 @@
-import { Button, Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
+import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
@@ -27,6 +27,11 @@ import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
+import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
+
+import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+
 interface Props {
   controlPlane: ListControlPlanesType;
   workspace: ListWorkspacesType;
@@ -37,7 +42,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
-
+  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
     PatchMCPResourceForDeletion(controlPlane.metadata.namespace, controlPlane.metadata.name),
   );
@@ -46,6 +51,9 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
   );
 
   const name = controlPlane.metadata.name;
+  const displayName =
+    controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION as keyof typeof controlPlane.metadata.annotations];
+
   const namespace = controlPlane.metadata.namespace;
 
   const isSystemIdentityProviderEnabled = Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
@@ -61,7 +69,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
           <FlexBox direction="Column">
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
-                <Title level={TitleLevel.H5}>{name}</Title>
+                <Title level={TitleLevel.H5}>{displayName ? displayName : name}</Title>
                 <Label>{workspace.metadata.name} </Label>
               </FlexBox>
               <div>
@@ -74,13 +82,10 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
               </div>
             </FlexBox>
             <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              <Button
-                design={'Transparent'}
-                icon="delete"
-                disabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                onClick={() => {
-                  setDialogDeleteMcpIsOpen(true);
-                }}
+              <ControlPlaneCardMenu
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
               />
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButtonWithLoader
@@ -123,6 +128,12 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
           await deleteTrigger();
           toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
         }}
+      />
+      <EditManagedControlPlaneWizardDataLoader
+        isOpen={isEditManagedControlPlaneWizardOpen}
+        setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+        workspaceName={namespace}
+        resourceName={name}
       />
     </>
   );

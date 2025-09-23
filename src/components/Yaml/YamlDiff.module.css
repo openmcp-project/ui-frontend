@@ -1,0 +1,11 @@
+.container {
+  width: 100%;
+}
+
+.added {
+  background-color: rgba(56, 142, 60, 0.18);
+}
+
+.removed {
+  background-color: rgba(211, 47, 47, 0.18);
+}
