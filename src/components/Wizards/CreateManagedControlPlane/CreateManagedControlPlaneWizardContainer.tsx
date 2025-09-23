@@ -87,7 +87,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
+  const [selectedStep, setSelectedStep] = useState<WizardStepType>('summarize');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
@@ -342,16 +342,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         case 'metadata':
           return false;
         case 'members':
-          return selectedStep === 'metadata' || !isValid;
+          return (selectedStep === 'metadata' && !isEditMode) || !isValid;
         case 'componentSelection':
-          return selectedStep === 'metadata' || selectedStep === 'members' || !isValid;
+          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
         case 'summarize':
           return (
-            selectedStep === 'metadata' ||
-            selectedStep === 'members' ||
-            selectedStep === 'componentSelection' ||
-            !isValid ||
-            hasMissingComponentVersions
+            ((selectedStep === 'metadata' ||
+              selectedStep === 'members' ||
+              selectedStep === 'componentSelection' ||
+              hasMissingComponentVersions) &&
+              !isEditMode) ||
+            !isValid
           );
         case 'success':
           return selectedStep !== 'success';
@@ -547,126 +548,127 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         data-testid="create-mcp-dialog"
         onClose={resetFormAndClose}
       >
-        <ErrorDialog ref={errorDialogRef} />
-        <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
-          <WizardStep
-            icon="create-form"
-            titleText={t('common.metadata')}
-            disabled={isStepDisabled('metadata')}
-            selected={selectedStep === 'metadata'}
-            data-step="metadata"
-          >
-            <MetadataForm
-              key={metadataFormKey}
-              watch={watch}
-              setValue={setValue}
-              register={register}
-              errors={errors}
-              isEditMode={isEditMode}
-              disableChargingFields={!!selectedTemplate}
-              namePrefix={templateAffixes.namePrefix}
-              displayNamePrefix={templateAffixes.displayNamePrefix}
-              nameSuffix={templateAffixes.nameSuffix}
-              displayNameSuffix={templateAffixes.displayNameSuffix}
-            />
-          </WizardStep>
-          <WizardStep
-            icon="user-edit"
-            titleText={t('common.members')}
-            selected={selectedStep === 'members'}
-            data-step="members"
-            disabled={isStepDisabled('members')}
-          >
-            <Form>
-              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-                <EditMembers
-                  members={watch('members')}
-                  isValidationError={!!errors.members}
-                  requireAtLeastOneMember={false}
-                  workspaceName={workspaceName}
-                  projectName={projectName}
-                  type={'mcp'}
-                  onMemberChanged={setMembers}
-                />
-              </FormGroup>
-            </Form>
-          </WizardStep>
-          <WizardStep
-            icon="add-product"
-            titleText={t('common.componentSelection')}
-            selected={selectedStep === 'componentSelection'}
-            data-step="componentSelection"
-            disabled={isStepDisabled('componentSelection')}
-          >
-            {/* this condition is to remount the component from scratch to fix a bug with data loading */}
-            {selectedStep === 'componentSelection' && (
-              <ComponentsSelectionProvider
-                componentsList={componentsList ?? []}
-                setComponentsList={setComponentsList}
-                initialSelection={initialSelection}
-                managedControlPlaneTemplate={selectedTemplate}
-                isOnMcpPage={isOnMcpPage}
-                setInitialComponentsList={setInitialComponentsListHandler}
-                initializedComponents={initializedComponents}
-              >
+        {' '}
+        <ComponentsSelectionProvider
+          componentsList={componentsList ?? []}
+          setComponentsList={setComponentsList}
+          initialSelection={initialSelection}
+          managedControlPlaneTemplate={selectedTemplate}
+          isOnMcpPage={isOnMcpPage}
+          setInitialComponentsList={setInitialComponentsListHandler}
+          initializedComponents={initializedComponents}
+        >
+          <ErrorDialog ref={errorDialogRef} />
+          <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
+            <WizardStep
+              icon="create-form"
+              titleText={t('common.metadata')}
+              disabled={isStepDisabled('metadata')}
+              selected={selectedStep === 'metadata'}
+              data-step="metadata"
+            >
+              <MetadataForm
+                key={metadataFormKey}
+                watch={watch}
+                setValue={setValue}
+                register={register}
+                errors={errors}
+                isEditMode={isEditMode}
+                disableChargingFields={!!selectedTemplate}
+                namePrefix={templateAffixes.namePrefix}
+                displayNamePrefix={templateAffixes.displayNamePrefix}
+                nameSuffix={templateAffixes.nameSuffix}
+                displayNameSuffix={templateAffixes.displayNameSuffix}
+              />
+            </WizardStep>
+            <WizardStep
+              icon="user-edit"
+              titleText={t('common.members')}
+              selected={selectedStep === 'members'}
+              data-step="members"
+              disabled={isStepDisabled('members')}
+            >
+              <Form>
+                <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+                  <EditMembers
+                    members={watch('members')}
+                    isValidationError={!!errors.members}
+                    requireAtLeastOneMember={false}
+                    workspaceName={workspaceName}
+                    projectName={projectName}
+                    type={'mcp'}
+                    onMemberChanged={setMembers}
+                  />
+                </FormGroup>
+              </Form>
+            </WizardStep>
+            <WizardStep
+              icon="add-product"
+              titleText={t('common.componentSelection')}
+              selected={selectedStep === 'componentSelection'}
+              data-step="componentSelection"
+              disabled={isStepDisabled('componentSelection')}
+            >
+              {/* this condition is to remount the component from scratch to fix a bug with data loading */}
+              {selectedStep === 'componentSelection' && (
                 <ComponentsSelectionContainer
                   componentsList={componentsList ?? []}
                   setComponentsList={setComponentsList}
                 />
-              </ComponentsSelectionProvider>
-            )}
-          </WizardStep>
-          <WizardStep
-            icon="activities"
-            titleText={t('common.summarize')}
-            disabled={isStepDisabled('summarize')}
-            selected={selectedStep === 'summarize'}
-            data-step="summarize"
-          >
-            <SummarizeStep
-              originalYamlString={stringify(
-                CreateManagedControlPlane(
-                  initialMcpDataWhenInEditMode.name,
-                  `${projectName}--ws-${workspaceName}`,
-                  {
-                    displayName: initialMcpDataWhenInEditMode.displayName,
-                    chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
-                    members: initialMcpDataWhenInEditMode.members,
-                    componentsList: initialMcpDataWhenInEditMode.componentsList,
-                    chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
-                  },
-                  idpPrefix,
-                ),
               )}
-              watch={watch}
-              workspaceName={workspaceName}
-              projectName={projectName}
-              componentsList={componentsList}
-              isEditMode={isEditMode}
-            />
-          </WizardStep>
-          <WizardStep
-            icon="activities"
-            titleText={t('common.success')}
-            disabled={isStepDisabled('success')}
-            selected={selectedStep === 'success'}
-            data-step="success"
-          >
-            {isEditMode ? (
-              <IllustratedBanner
-                illustrationName={IllustrationMessageType.SuccessScreen}
-                title={t('editMCP.titleText')}
-                subtitle={t('editMCP.subtitleText')}
+            </WizardStep>
+            <WizardStep
+              icon="activities"
+              titleText={t('common.summarize')}
+              disabled={isStepDisabled('summarize')}
+              selected={selectedStep === 'summarize'}
+              data-step="summarize"
+            >
+              <SummarizeStep
+                originalYamlString={stringify(
+                  CreateManagedControlPlane(
+                    initialMcpDataWhenInEditMode.name,
+                    `${projectName}--ws-${workspaceName}`,
+                    {
+                      displayName: initialMcpDataWhenInEditMode.displayName,
+                      chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
+                      members: initialMcpDataWhenInEditMode.members,
+                      componentsList: initialMcpDataWhenInEditMode.componentsList,
+                      chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
+                    },
+                    idpPrefix,
+                  ),
+                )}
+                watch={watch}
+                workspaceName={workspaceName}
+                projectName={projectName}
+                componentsList={componentsList}
+                isEditMode={isEditMode}
               />
-            ) : (
-              <IllustratedBanner
-                illustrationName={IllustrationMessageType.SuccessScreen}
-                title={t('createMCP.titleText')}
-                subtitle={t('createMCP.subtitleText')}
-              />
-            )}
-          </WizardStep>
-        </Wizard>
+            </WizardStep>
+            <WizardStep
+              icon="activities"
+              titleText={t('common.success')}
+              disabled={isStepDisabled('success')}
+              selected={selectedStep === 'success'}
+              data-step="success"
+            >
+              {isEditMode ? (
+                <IllustratedBanner
+                  illustrationName={IllustrationMessageType.SuccessScreen}
+                  title={t('editMCP.titleText')}
+                  subtitle={t('editMCP.subtitleText')}
+                />
+              ) : (
+                <IllustratedBanner
+                  illustrationName={IllustrationMessageType.SuccessScreen}
+                  title={t('createMCP.titleText')}
+                  subtitle={t('createMCP.subtitleText')}
+                />
+              )}
+            </WizardStep>
+          </Wizard>
+        </ComponentsSelectionProvider>
       </Dialog>
     </>
   );
