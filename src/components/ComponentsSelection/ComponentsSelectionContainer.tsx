@@ -1,24 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { ComponentsSelection } from './ComponentsSelection.tsx';
-
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import { sortVersions } from '../../utils/componentsVersions.ts';
-
-import { ListManagedComponents } from '../../lib/api/types/crate/listManagedComponents.ts';
-import { useApiResource } from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
-import { ComponentsListItem, removeComponents } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
-import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTemplate.ts';
+import { useComponentsSelection } from './ComponentsSelectionProvider.tsx';
 
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
-  setInitialComponentsList: (components: ComponentsListItem[]) => void;
-  managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
-  initialSelection?: Record<string, { isSelected: boolean; version: string }>;
-  isOnMcpPage?: boolean;
-  initializedComponents: React.RefObject<boolean>;
 }
 
 /**
@@ -34,123 +24,12 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
   });
 };
 
-type TemplateDefaultComponent = {
-  name: string;
-  version: string;
-  removable?: boolean;
-  versionChangeable?: boolean;
-};
-
 export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({
   setComponentsList,
   componentsList,
-  managedControlPlaneTemplate,
-  initialSelection,
-  isOnMcpPage,
-  setInitialComponentsList,
-  initializedComponents,
 }) => {
-  const {
-    data: availableManagedComponentsListData,
-    error,
-    isLoading,
-  } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
   const { t } = useTranslation();
-
-  const [templateDefaultsError, setTemplateDefaultsError] = useState<string | null>(null);
-  const defaultComponents = useMemo<TemplateDefaultComponent[]>(
-    () => managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [],
-    [managedControlPlaneTemplate],
-  );
-
-  useEffect(() => {
-    if (
-      initializedComponents.current ||
-      !availableManagedComponentsListData?.items ||
-      availableManagedComponentsListData.items.length === 0
-    ) {
-      return;
-    }
-
-    const newComponentsList = availableManagedComponentsListData.items
-      .map((item) => {
-        const versions = sortVersions(item.status?.versions ?? []);
-        const template = defaultComponents.find((dc) => dc.name === (item.metadata?.name ?? ''));
-        const templateVersion = template?.version;
-        let selectedVersion = template
-          ? templateVersion && versions.includes(templateVersion)
-            ? templateVersion
-            : ''
-          : (versions[0] ?? '');
-        let isSelected = !!template;
-
-        const initSel = initialSelection?.[item.metadata?.name ?? ''];
-        if (initSel) {
-          // Override selection and version from initial selection if provided
-          isSelected = Boolean(initSel.isSelected);
-          selectedVersion = initSel.version && versions.includes(initSel.version) ? initSel.version : '';
-        }
-        return {
-          name: item.metadata?.name ?? '',
-          versions,
-          selectedVersion,
-          isSelected,
-          documentationUrl: '',
-        };
-      })
-      .filter((component) => !removeComponents.find((item) => item === component.name));
-    setInitialComponentsList(newComponentsList);
-    setComponentsList(newComponentsList);
-    initializedComponents.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);
-
-  useEffect(() => {
-    const items = availableManagedComponentsListData?.items ?? [];
-    if (items.length === 0 || !defaultComponents.length) {
-      setTemplateDefaultsError(null);
-      return;
-    }
-
-    const errors: string[] = [];
-    defaultComponents.forEach((dc: TemplateDefaultComponent) => {
-      if (!dc?.name) return;
-      const item = items.find((it) => it.metadata?.name === dc.name);
-      if (!item) {
-        errors.push(`Component "${dc.name}" from template is not available.`);
-        return;
-      }
-      const versions: string[] = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
-      if (dc.version && !versions.includes(dc.version)) {
-        errors.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
-      }
-    });
-
-    setTemplateDefaultsError(errors.length ? errors.join('\n') : null);
-  }, [availableManagedComponentsListData, defaultComponents]);
-
-  useEffect(() => {
-    if (!initializedComponents.current) return;
-    if (!defaultComponents?.length) return;
-    if (!componentsList?.length) return;
-    // If initialSelection is provided, do not auto-apply template defaults
-    if (initialSelection && Object.keys(initialSelection).length > 0) return;
-
-    const anySelected = componentsList.some((c) => c.isSelected);
-    if (anySelected) return;
-
-    const updated = componentsList.map((c) => {
-      const template = defaultComponents.find((dc) => dc.name === c.name);
-      if (!template) return c;
-      const templateVersion = template.version;
-      const selectedVersion =
-        templateVersion && Array.isArray(c.versions) && c.versions.includes(templateVersion) ? templateVersion : '';
-      return { ...c, isSelected: true, selectedVersion };
-    });
-
-    setComponentsList(updated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultComponents, componentsList, setComponentsList, initialSelection]);
+  const { isLoading, error, templateDefaultsError } = useComponentsSelection();
 
   if (isLoading) {
     return <Loading />;

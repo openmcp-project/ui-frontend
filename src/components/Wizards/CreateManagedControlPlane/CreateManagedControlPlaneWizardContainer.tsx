@@ -44,6 +44,7 @@ import { APIError } from '../../../lib/api/error.ts';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
+import { ComponentsSelectionProvider } from '../../ComponentsSelection/ComponentsSelectionProvider.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
@@ -599,7 +600,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           >
             {/* this condition is to remount the component from scratch to fix a bug with data loading */}
             {selectedStep === 'componentSelection' && (
-              <ComponentsSelectionContainer
+              <ComponentsSelectionProvider
                 componentsList={componentsList ?? []}
                 setComponentsList={setComponentsList}
                 initialSelection={initialSelection}
@@ -607,7 +608,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 isOnMcpPage={isOnMcpPage}
                 setInitialComponentsList={setInitialComponentsListHandler}
                 initializedComponents={initializedComponents}
-              />
+              >
+                <ComponentsSelectionContainer
+                  componentsList={componentsList ?? []}
+                  setComponentsList={setComponentsList}
+                />
+              </ComponentsSelectionProvider>
             )}
           </WizardStep>
           <WizardStep
