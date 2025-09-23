@@ -67,9 +67,10 @@ type CreateManagedControlPlaneWizardContainerProps = {
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
   isOnMcpPage?: boolean;
+  initialSection?: WizardStepType;
 };
 
-type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
+export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
 const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
 
@@ -82,12 +83,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   initialTemplateName,
   initialData,
   isOnMcpPage = false,
+  initialSection,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
-  const [selectedStep, setSelectedStep] = useState<WizardStepType>('summarize');
+  const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);

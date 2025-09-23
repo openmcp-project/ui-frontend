@@ -1,4 +1,13 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import {
+  BusyIndicator,
+  Button,
+  FlexBox,
+  ObjectPage,
+  ObjectPageSection,
+  ObjectPageTitle,
+  Panel,
+  Title,
+} from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
@@ -32,17 +41,29 @@ import { useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+  const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
+    undefined | WizardStepType
+  >(undefined);
   const {
     data: mcp,
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
   const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
+  const onEditComponents = () => {
+    setEditManagedControlPlaneWizardSection('componentSelection');
+    setIsEditManagedControlPlaneWizardOpen(true);
+  };
+  const handleEditManagedControlPlaneWizardClose = () => {
+    setIsEditManagedControlPlaneWizardOpen(false);
+    setEditManagedControlPlaneWizardSection(undefined);
+  };
   if (isLoading) {
     return <BusyIndicator active />;
   }
@@ -98,10 +119,11 @@ export default function McpPage() {
                     />
                     <EditManagedControlPlaneWizardDataLoader
                       isOpen={isEditManagedControlPlaneWizardOpen}
-                      setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+                      setIsOpen={handleEditManagedControlPlaneWizardClose}
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceName={controlPlaneName}
                       isOnMcpPage
+                      initialSection={editManagedControlPlaneWizardSection}
                     />
                   </div>
                 }
@@ -134,7 +156,14 @@ export default function McpPage() {
                 className={styles.panel}
                 headerLevel="H2"
                 headerText="Panel"
-                header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
+                header={
+                  <FlexBox justifyContent={'SpaceBetween'} alignItems={'Center'} style={{ width: '100%' }}>
+                    <Title level="H3">{t('McpPage.componentsTitle')}</Title>{' '}
+                    <Button icon={'edit'} onClick={onEditComponents}>
+                      Edit components
+                    </Button>
+                  </FlexBox>
+                }
                 noAnimation
               >
                 <ComponentList mcp={mcp} />
