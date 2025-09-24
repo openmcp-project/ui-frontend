@@ -493,7 +493,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     selectedTemplate,
     initialSelection,
     isOnMcpPage,
-    (name, value, options) => setValue(name as any, value as any, options as any),
+    (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) =>
+      setValue(name, value, options),
     (components) =>
       setInitialMcpDataWhenInEditMode((prev) => ({
         ...prev,
