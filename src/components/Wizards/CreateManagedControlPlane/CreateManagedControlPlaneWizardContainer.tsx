@@ -90,7 +90,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-  console.log(initialData);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
@@ -219,8 +218,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     isOnMcpPage,
   );
   const componentsList = watch('componentsList');
-  console.log('componentsList');
-  console.log(componentsList);
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
     return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
