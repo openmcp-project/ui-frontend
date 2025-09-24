@@ -28,16 +28,21 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import Graph from '../../../components/Graphs/Graph.tsx';
 import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
 
+import { useState } from 'react';
+import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
-
+  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const {
     data: mcp,
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-
+  const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
   if (isLoading) {
     return <BusyIndicator active />;
   }
@@ -64,7 +69,7 @@ export default function McpPage() {
             preserveHeaderStateOnClick={true}
             titleArea={
               <ObjectPageTitle
-                header={controlPlaneName}
+                header={displayName ?? controlPlaneName}
                 subHeader={t('Entities.ManagedControlPlane')}
                 breadcrumbs={<BreadcrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
@@ -89,6 +94,16 @@ export default function McpPage() {
                       resourceName={controlPlaneName}
                     />
                     <CopyKubeconfigButton />
+                    <ControlPlanePageMenu
+                      setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                    />
+                    <EditManagedControlPlaneWizardDataLoader
+                      isOpen={isEditManagedControlPlaneWizardOpen}
+                      setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+                      workspaceName={mcp?.status?.access?.namespace}
+                      resourceName={controlPlaneName}
+                      isOnMcpPage
+                    />
                   </div>
                 }
               />

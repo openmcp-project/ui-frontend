@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ComponentsSelection } from './ComponentsSelection.tsx';
 
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -14,7 +14,11 @@ import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTe
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  setInitialComponentsList: (components: ComponentsListItem[]) => void;
   managedControlPlaneTemplate?: ManagedControlPlaneTemplate;
+  initialSelection?: Record<string, { isSelected: boolean; version: string }>;
+  isOnMcpPage?: boolean;
+  initializedComponents: React.RefObject<boolean>;
 }
 
 /**
@@ -25,9 +29,7 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
   const isCrossplaneSelected = components.some(({ name, isSelected }) => name === 'crossplane' && isSelected);
   return components.filter((component) => {
     if (!component.isSelected) return false;
-    if (component.name?.includes('provider') && !isCrossplaneSelected) {
-      return false;
-    }
+    if (component.name?.includes('provider') && !isCrossplaneSelected) return false;
     return true;
   });
 };
@@ -43,10 +45,18 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   setComponentsList,
   componentsList,
   managedControlPlaneTemplate,
+  initialSelection,
+  isOnMcpPage,
+  setInitialComponentsList,
+  initializedComponents,
 }) => {
-  const { data: availableManagedComponentsListData, error, isLoading } = useApiResource(ListManagedComponents());
+  const {
+    data: availableManagedComponentsListData,
+    error,
+    isLoading,
+  } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
   const { t } = useTranslation();
-  const initialized = useRef(false);
+
   const [templateDefaultsError, setTemplateDefaultsError] = useState<string | null>(null);
   const defaultComponents = useMemo<TemplateDefaultComponent[]>(
     () => managedControlPlaneTemplate?.spec?.spec?.components?.defaultComponents ?? [],
@@ -54,40 +64,50 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   );
 
   useEffect(() => {
-    const items = availableManagedComponentsListData?.items ?? [];
-
-    if (!items.length) {
-      if (!initialized.current) return;
-      setTemplateDefaultsError(null);
+    if (
+      initializedComponents.current ||
+      !availableManagedComponentsListData?.items ||
+      availableManagedComponentsListData.items.length === 0
+    ) {
       return;
     }
 
-    if (!initialized.current) {
-      const newComponentsList = items
-        .map((item) => {
-          const versions = sortVersions(item.status.versions);
-          const template = defaultComponents.find((dc) => dc.name === item.metadata.name);
-          const templateVersion = template?.version;
-          const selectedVersion = template
-            ? templateVersion && versions.includes(templateVersion)
-              ? templateVersion
-              : ''
-            : (versions[0] ?? '');
-          return {
-            name: item.metadata.name,
-            versions,
-            selectedVersion,
-            isSelected: !!template,
-            documentationUrl: '',
-          };
-        })
-        .filter((component) => !removeComponents.find((item) => item === component.name));
+    const newComponentsList = availableManagedComponentsListData.items
+      .map((item) => {
+        const versions = sortVersions(item.status?.versions ?? []);
+        const template = defaultComponents.find((dc) => dc.name === (item.metadata?.name ?? ''));
+        const templateVersion = template?.version;
+        let selectedVersion = template
+          ? templateVersion && versions.includes(templateVersion)
+            ? templateVersion
+            : ''
+          : (versions[0] ?? '');
+        let isSelected = !!template;
 
-      setComponentsList(newComponentsList);
-      initialized.current = true;
-    }
+        const initSel = initialSelection?.[item.metadata?.name ?? ''];
+        if (initSel) {
+          // Override selection and version from initial selection if provided
+          isSelected = Boolean(initSel.isSelected);
+          selectedVersion = initSel.version && versions.includes(initSel.version) ? initSel.version : '';
+        }
+        return {
+          name: item.metadata?.name ?? '',
+          versions,
+          selectedVersion,
+          isSelected,
+          documentationUrl: '',
+        };
+      })
+      .filter((component) => !removeComponents.find((item) => item === component.name));
+    setInitialComponentsList(newComponentsList);
+    setComponentsList(newComponentsList);
+    initializedComponents.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setComponentsList, defaultComponents, initialSelection, availableManagedComponentsListData?.items]);
 
-    if (!defaultComponents.length) {
+  useEffect(() => {
+    const items = availableManagedComponentsListData?.items ?? [];
+    if (items.length === 0 || !defaultComponents.length) {
       setTemplateDefaultsError(null);
       return;
     }
@@ -95,19 +115,42 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     const errors: string[] = [];
     defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
-      const item = items.find((it) => it.metadata.name === dc.name);
+      const item = items.find((it) => it.metadata?.name === dc.name);
       if (!item) {
         errors.push(`Component "${dc.name}" from template is not available.`);
         return;
       }
-      const versions: string[] = Array.isArray(item.status?.versions) ? item.status.versions : [];
+      const versions: string[] = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
       if (dc.version && !versions.includes(dc.version)) {
         errors.push(`Component "${dc.name}" version "${dc.version}" from template is not available.`);
       }
     });
 
     setTemplateDefaultsError(errors.length ? errors.join('\n') : null);
-  }, [availableManagedComponentsListData, defaultComponents, setComponentsList]);
+  }, [availableManagedComponentsListData, defaultComponents]);
+
+  useEffect(() => {
+    if (!initializedComponents.current) return;
+    if (!defaultComponents?.length) return;
+    if (!componentsList?.length) return;
+    // If initialSelection is provided, do not auto-apply template defaults
+    if (initialSelection && Object.keys(initialSelection).length > 0) return;
+
+    const anySelected = componentsList.some((c) => c.isSelected);
+    if (anySelected) return;
+
+    const updated = componentsList.map((c) => {
+      const template = defaultComponents.find((dc) => dc.name === c.name);
+      if (!template) return c;
+      const templateVersion = template.version;
+      const selectedVersion =
+        templateVersion && Array.isArray(c.versions) && c.versions.includes(templateVersion) ? templateVersion : '';
+      return { ...c, isSelected: true, selectedVersion };
+    });
+
+    setComponentsList(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultComponents, componentsList, setComponentsList, initialSelection]);
 
   if (isLoading) {
     return <Loading />;
@@ -117,7 +160,6 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
     return <IllustratedError compact={true} />;
   }
 
-  // Defensive: If the API returned no items, show error
   if (!componentsList || componentsList.length === 0) {
     return <IllustratedError title={t('componentsSelection.cannotLoad')} compact={true} />;
   }

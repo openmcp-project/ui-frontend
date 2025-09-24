@@ -28,6 +28,7 @@ export interface MetadataFormProps {
   displayNamePrefix?: string;
   nameSuffix?: string;
   displayNameSuffix?: string;
+  isEditMode?: boolean;
 }
 
 interface SelectOption {
@@ -42,6 +43,7 @@ export function MetadataForm({
   setValue,
   sideFormContent,
   requireChargingTarget = false,
+  isEditMode = false,
   disableChargingFields = false,
   namePrefix = '',
   displayNamePrefix = '',
@@ -129,6 +131,7 @@ export function MetadataForm({
               valueState={errors.name ? 'Negative' : 'None'}
               valueStateMessage={<span>{errors.name?.message}</span>}
               required
+              disabled={isEditMode}
               onInput={onNameCoreInput}
             />
             {resolvedNameSuffix ? (
@@ -149,6 +152,7 @@ export function MetadataForm({
             valueState={errors.name ? 'Negative' : 'None'}
             valueStateMessage={<span>{errors.name?.message}</span>}
             required
+            disabled={isEditMode}
           />
         )}
 
@@ -180,23 +184,28 @@ export function MetadataForm({
         ) : (
           <Input id="displayName" {...register('displayName')} className={styles.input} />
         )}
-
         <div>
           <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
         </div>
+
         <Select
+          value={watch?.('chargingTargetType') ?? ''}
           id={'chargingTargetType'}
           className={styles.input}
           disabled={disableChargingFields}
           onChange={handleChargingTargetTypeChange}
         >
           {chargingTypes.map((option) => (
-            <Option key={option.value} data-value={option.value} selected={currentChargingTargetType === option.value}>
+            <Option
+              key={option.value}
+              value={option.value}
+              data-value={option.value}
+              selected={currentChargingTargetType === option.value}
+            >
               {option.label}
             </Option>
           ))}
         </Select>
-
         <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
           {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
         </Label>

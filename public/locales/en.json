@@ -58,7 +58,10 @@
     "loadingErrorMessage": "Failed to list mcps in workspace"
   },
   "ControlPlaneCard": {
-    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed."
+    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
+    "editMCP": "Edit Managed Control Plane",
+    "deleteMCP": "Delete Managed Control Plane"
+
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -85,8 +88,6 @@
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
-    "copiedMessage": "Copied to Clipboard",
-    "failedMessage": "Failed to copy, Error:",
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
@@ -213,10 +214,6 @@
     "treeInstallation": "Installation",
     "treeExecution": "Execution",
     "noExecutionFound": "No Executions found"
-  },
-  "CopyButton": {
-    "copiedMessage": "Copied To Clipboard",
-    "failedMessage": "Failed to copy"
   },
   "DeleteWorkspaceDialog": {
     "title": "Delete a Workspace",
@@ -351,7 +348,9 @@
     "unhealthy": "Unhealthy",
     "progress": "Managed",
     "remaining": "Remaining",
-    "active": "Active"
+    "active": "Active",
+    "copyToClipboardSuccessToast": "Copied to clipboard",
+    "copyToClipboardFailedToast": "Failed to copy to clipboard"
   },
   "errors": {
     "installError": "Install error",
@@ -367,16 +366,21 @@
     "create": "Create",
     "close": "Close",
     "back": "Back",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "update": "Update"
   },
   "yaml": {
-    "copiedToClipboard": "YAML copied to clipboard!",
     "YAML": "File"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
     "titleText": "Managed Control Plane Created Successfully!",
     "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
+  },
+  "editMCP": {
+    "dialogTitle": "Edit Managed Control Plane",
+    "titleText": "Managed Control Plane Updated Successfully!",
+    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window."
   },
   "componentsSelection": {
     "selectComponents": "Select Components",
