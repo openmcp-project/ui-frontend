@@ -118,7 +118,6 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
-    "applicationName": "ManagedControlPlane UI",
     "betaButton": "Beta",
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "signOutButton": "Sign Out",

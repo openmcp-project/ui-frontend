@@ -21,7 +21,6 @@ export function ShellBarComponent() {
   const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
-  const { t } = useTranslation();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
@@ -47,7 +46,8 @@ export function ShellBarComponent() {
           <div className={styles.container}>
             <div className={styles.logoWrapper}>
               <img src={SapLogo} alt="SAP" className={styles.logo} />
-              <span className={styles.logoText}>{t('ShellBar.applicationName')}</span>
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <span className={styles.logoText}>ManagedControlPlane UI</span>
             </div>
           </div>
         }
