@@ -486,8 +486,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     isLoading: componentsLoading,
     error: componentsError,
     templateDefaultsError,
-  } = useComponentsSelectionData(selectedTemplate, initialSelection, isOnMcpPage, (name, value, options) =>
-    setValue(name as any, value as any, options as any),
+  } = useComponentsSelectionData(
+    selectedTemplate,
+    initialSelection,
+    isOnMcpPage,
+    (name, value, options) => setValue(name as any, value as any, options as any),
+    (components) =>
+      setInitialMcpDataWhenInEditMode((prev) => ({
+        ...prev,
+        componentsList: components,
+      })),
   );
   // Template application for components is handled inside the hook
 

@@ -17,6 +17,7 @@ export const useComponentsSelectionData = (
   initialSelection: Record<string, { isSelected: boolean; version: string }> | undefined,
   isOnMcpPage: boolean,
   setValue: (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) => void,
+  onComponentsInitialized?: (components: ComponentsListItem[]) => void,
 ): ComponentsHookResult => {
   const { data, error, isLoading } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
 
@@ -56,6 +57,9 @@ export const useComponentsSelectionData = (
       .filter((component) => !removeComponents.find((item) => item === component.name));
 
     setValue('componentsList', newComponentsList, { shouldValidate: false });
+    if (onComponentsInitialized) {
+      onComponentsInitialized(newComponentsList);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(data?.items), selectedTemplate, initialSelection]);
 
