@@ -44,7 +44,6 @@ import { APIError } from '../../../lib/api/error.ts';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
-import { ComponentsSelectionProvider } from '../../ComponentsSelection/ComponentsSelectionProvider.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
@@ -57,6 +56,7 @@ import {
   MCPSubject,
 } from '../../../lib/api/types/mcpResource.ts';
 import { stringify } from 'yaml';
+import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -90,7 +90,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-
+  console.log(initialData);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
@@ -129,7 +129,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   }, [isOpen, initialTemplateName]);
 
   const validationSchemaCreateManagedControlPlane = useMemo(() => createManagedControlPlaneSchema(t), [t]);
-  const initializedComponents = useRef(false);
   const {
     register,
     handleSubmit,
@@ -151,14 +150,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     },
     mode: 'onChange',
   });
-  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
-    name: '',
-    displayName: '',
-    chargingTarget: '',
-    chargingTargetType: '',
-    members: [],
-    componentsList: [],
-  });
+  // no-op: original snapshot for summarize is now built from current form state
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
 
@@ -220,7 +212,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     isOnMcpPage,
   );
   const componentsList = watch('componentsList');
-
+  console.log('componentsList');
+  console.log(componentsList);
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
     return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
@@ -335,7 +328,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const setComponentsList = useCallback(
     (components: ComponentsListItem[]) => {
-      setValue('componentsList', components, { shouldValidate: false });
+      setValue('componentsList', components, { shouldValidate: true });
     },
     [setValue],
   );
@@ -396,8 +389,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       }
     });
     return selection;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode]);
+  }, [isEditMode, initialData]);
 
   // Prefill form when editing
   useEffect(() => {
@@ -424,7 +416,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     };
     reset(data);
 
-    setInitialMcpDataWhenInEditMode(data);
+    // summarize step now uses current form values
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -483,42 +475,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
-  const setInitialComponentsListHandler = (components: ComponentsListItem[]) => {
-    if (isEditMode && isDuplicateMode) return;
-    setInitialMcpDataWhenInEditMode({ ...initialMcpDataWhenInEditMode, componentsList: components });
-  };
-  useEffect(() => {
-    if (selectedStep !== 'componentSelection') return;
-    if (!selectedTemplate) return;
-    if (appliedTemplateComponentsRef.current) return;
-
-    const defaults = (selectedTemplate?.spec?.spec?.components?.defaultComponents ??
-      []) as ManagedControlPlaneTemplate['spec']['spec']['components']['defaultComponents'];
-    if (!defaults?.length) {
-      appliedTemplateComponentsRef.current = true;
-      return;
-    }
-
-    const current = (watch('componentsList') ?? []) as ComponentsListItem[];
-    if (current.length > 0) {
-      appliedTemplateComponentsRef.current = true;
-      return;
-    }
-
-    const mapped = defaults
-      .filter((c) => !!c?.name && !!c?.version)
-      .map((c) => ({
-        name: String(c.name),
-        version: String(c.version),
-        selectedVersion: String(c.version),
-        selected: true,
-        removable: Boolean(c.removable),
-        versionChangeable: Boolean(c.versionChangeable),
-      })) as unknown as ComponentsListItem[];
-
-    setValue('componentsList', mapped, { shouldValidate: false });
-    appliedTemplateComponentsRef.current = true;
-  }, [selectedStep, selectedTemplate, watch, setValue]);
+  const {
+    isLoading: componentsLoading,
+    error: componentsError,
+    templateDefaultsError,
+  } = useComponentsSelectionData(selectedTemplate, initialSelection, isOnMcpPage, (name, value, options) =>
+    setValue(name as any, value as any, options as any),
+  );
+  // Template application for components is handled inside the hook
 
   if (!isOpen) return null;
 
@@ -553,126 +517,119 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         data-testid="create-mcp-dialog"
         onClose={resetFormAndClose}
       >
-        <ComponentsSelectionProvider
-          componentsList={componentsList ?? []}
-          setComponentsList={setComponentsList}
-          initialSelection={initialSelection}
-          managedControlPlaneTemplate={selectedTemplate}
-          isOnMcpPage={isOnMcpPage}
-          setInitialComponentsList={setInitialComponentsListHandler}
-          initializedComponents={initializedComponents}
-        >
-          <ErrorDialog ref={errorDialogRef} />
-          <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
-            <WizardStep
-              icon="create-form"
-              titleText={t('common.metadata')}
-              disabled={isStepDisabled('metadata')}
-              selected={selectedStep === 'metadata'}
-              data-step="metadata"
-            >
-              <MetadataForm
-                key={metadataFormKey}
-                watch={watch}
-                setValue={setValue}
-                register={register}
-                errors={errors}
-                isEditMode={isEditMode}
-                disableChargingFields={!!selectedTemplate}
-                namePrefix={templateAffixes.namePrefix}
-                displayNamePrefix={templateAffixes.displayNamePrefix}
-                nameSuffix={templateAffixes.nameSuffix}
-                displayNameSuffix={templateAffixes.displayNameSuffix}
+        <ErrorDialog ref={errorDialogRef} />
+        <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
+          <WizardStep
+            icon="create-form"
+            titleText={t('common.metadata')}
+            disabled={isStepDisabled('metadata')}
+            selected={selectedStep === 'metadata'}
+            data-step="metadata"
+          >
+            <MetadataForm
+              key={metadataFormKey}
+              watch={watch}
+              setValue={setValue}
+              register={register}
+              errors={errors}
+              isEditMode={isEditMode}
+              disableChargingFields={!!selectedTemplate}
+              namePrefix={templateAffixes.namePrefix}
+              displayNamePrefix={templateAffixes.displayNamePrefix}
+              nameSuffix={templateAffixes.nameSuffix}
+              displayNameSuffix={templateAffixes.displayNameSuffix}
+            />
+          </WizardStep>
+          <WizardStep
+            icon="user-edit"
+            titleText={t('common.members')}
+            selected={selectedStep === 'members'}
+            data-step="members"
+            disabled={isStepDisabled('members')}
+          >
+            <Form>
+              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+                <EditMembers
+                  members={watch('members')}
+                  isValidationError={!!errors.members}
+                  requireAtLeastOneMember={false}
+                  workspaceName={workspaceName}
+                  projectName={projectName}
+                  type={'mcp'}
+                  onMemberChanged={setMembers}
+                />
+              </FormGroup>
+            </Form>
+          </WizardStep>
+          <WizardStep
+            icon="add-product"
+            titleText={t('common.componentSelection')}
+            selected={selectedStep === 'componentSelection'}
+            data-step="componentSelection"
+            disabled={isStepDisabled('componentSelection')}
+          >
+            {/* this condition is to remount the component from scratch to fix a bug with data loading */}
+            {selectedStep === 'componentSelection' && (
+              <ComponentsSelectionContainer
+                componentsList={componentsList ?? []}
+                setComponentsList={setComponentsList}
+                isLoading={componentsLoading}
+                error={componentsError}
+                templateDefaultsError={templateDefaultsError || undefined}
               />
-            </WizardStep>
-            <WizardStep
-              icon="user-edit"
-              titleText={t('common.members')}
-              selected={selectedStep === 'members'}
-              data-step="members"
-              disabled={isStepDisabled('members')}
-            >
-              <Form>
-                <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-                  <EditMembers
-                    members={watch('members')}
-                    isValidationError={!!errors.members}
-                    requireAtLeastOneMember={false}
-                    workspaceName={workspaceName}
-                    projectName={projectName}
-                    type={'mcp'}
-                    onMemberChanged={setMembers}
-                  />
-                </FormGroup>
-              </Form>
-            </WizardStep>
-            <WizardStep
-              icon="add-product"
-              titleText={t('common.componentSelection')}
-              selected={selectedStep === 'componentSelection'}
-              data-step="componentSelection"
-              disabled={isStepDisabled('componentSelection')}
-            >
-              {/* this condition is to remount the component from scratch to fix a bug with data loading */}
-              {selectedStep === 'componentSelection' && (
-                <ComponentsSelectionContainer
-                  componentsList={componentsList ?? []}
-                  setComponentsList={setComponentsList}
-                />
+            )}
+          </WizardStep>
+          <WizardStep
+            icon="activities"
+            titleText={t('common.summarize')}
+            disabled={isStepDisabled('summarize')}
+            selected={selectedStep === 'summarize'}
+            data-step="summarize"
+          >
+            <SummarizeStep
+              originalYamlString={stringify(
+                CreateManagedControlPlane(
+                  watch('name'),
+                  `${projectName}--ws-${workspaceName}`,
+                  {
+                    displayName: watch('displayName'),
+                    chargingTarget: watch('chargingTarget'),
+                    members: watch('members'),
+                    componentsList: componentsList ?? [],
+                    chargingTargetType: watch('chargingTargetType'),
+                  },
+                  idpPrefix,
+                ),
               )}
-            </WizardStep>
-            <WizardStep
-              icon="activities"
-              titleText={t('common.summarize')}
-              disabled={isStepDisabled('summarize')}
-              selected={selectedStep === 'summarize'}
-              data-step="summarize"
-            >
-              <SummarizeStep
-                originalYamlString={stringify(
-                  CreateManagedControlPlane(
-                    initialMcpDataWhenInEditMode.name,
-                    `${projectName}--ws-${workspaceName}`,
-                    {
-                      displayName: initialMcpDataWhenInEditMode.displayName,
-                      chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
-                      members: initialMcpDataWhenInEditMode.members,
-                      componentsList: initialMcpDataWhenInEditMode.componentsList,
-                      chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
-                    },
-                    idpPrefix,
-                  ),
-                )}
-                watch={watch}
-                workspaceName={workspaceName}
-                projectName={projectName}
-                componentsList={componentsList}
-                isEditMode={isEditMode}
+              watch={watch}
+              workspaceName={workspaceName}
+              projectName={projectName}
+              componentsList={componentsList}
+              isEditMode={isEditMode}
+            />
+          </WizardStep>
+          <WizardStep
+            icon="activities"
+            titleText={t('common.success')}
+            disabled={isStepDisabled('success')}
+            selected={selectedStep === 'success'}
+            data-step="success"
+          >
+            {isEditMode ? (
+              <IllustratedBanner
+                illustrationName={IllustrationMessageType.SuccessScreen}
+                title={t('editMCP.titleText')}
+                subtitle={t('editMCP.subtitleText')}
               />
-            </WizardStep>
-            <WizardStep
-              icon="activities"
-              titleText={t('common.success')}
-              disabled={isStepDisabled('success')}
-              selected={selectedStep === 'success'}
-              data-step="success"
-            >
-              {isEditMode ? (
-                <IllustratedBanner
-                  illustrationName={IllustrationMessageType.SuccessScreen}
-                  title={t('editMCP.titleText')}
-                  subtitle={t('editMCP.subtitleText')}
-                />
-              ) : (
-                <IllustratedBanner
-                  illustrationName={IllustrationMessageType.SuccessScreen}
-                  title={t('createMCP.titleText')}
-                  subtitle={t('createMCP.subtitleText')}
-                />
-              )}
-            </WizardStep>
-          </Wizard>
-        </ComponentsSelectionProvider>
+            ) : (
+              <IllustratedBanner
+                illustrationName={IllustrationMessageType.SuccessScreen}
+                title={t('createMCP.titleText')}
+                subtitle={t('createMCP.subtitleText')}
+              />
+            )}
+          </WizardStep>
+        </Wizard>
       </Dialog>
     </>
   );
