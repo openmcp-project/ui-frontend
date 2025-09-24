@@ -65,11 +65,9 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
 
   // Initialize components list from API + template/defaults/initialSelection
   useEffect(() => {
-    if (
-      initializedComponents.current ||
-      !availableManagedComponentsListData?.items ||
-      availableManagedComponentsListData.items.length === 0
-    ) {
+    if (initializedComponents.current) {
+      return;
+    }
     if (!availableManagedComponentsListData?.items) {
       return;
     }
