@@ -46,7 +46,7 @@ export function ShellBarComponent() {
         startButton={
           <div className={styles.container}>
             <div className={styles.logoWrapper}>
-              <img src={SapLogo} alt="" className={styles.logo} />
+              <img src={SapLogo} alt="SAP" className={styles.logo} />
               <span className={styles.logoText}>{t('ShellBar.applicationName')}</span>
             </div>
           </div>
