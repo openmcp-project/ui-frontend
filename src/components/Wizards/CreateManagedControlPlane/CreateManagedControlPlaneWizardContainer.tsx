@@ -480,6 +480,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
   const {
     isLoading: componentsLoading,
