@@ -367,9 +367,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [selectedStep]);
 
-  // Prepare initial selections for components when editing
+  // Prepare initial selections for components when editing or duplicating
   const initialSelection = useMemo(() => {
-    if (!isEditMode) return undefined;
+    if (!isEditMode && !isDuplicateMode) return undefined;
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
     const componentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
     (Object.keys(componentsMap) as (keyof MCPComponentsSpec)[]).forEach((key) => {
@@ -389,7 +389,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       }
     });
     return selection;
-  }, [isEditMode, initialData]);
+  }, [isEditMode, isDuplicateMode, initialData]);
 
   // Prefill form when editing
   useEffect(() => {
