@@ -484,7 +484,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     appliedTemplateMembersRef.current = true;
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
   const setInitialComponentsListHandler = (components: ComponentsListItem[]) => {
-    if (!isEditMode) return;
+    if (isEditMode && isDuplicateMode) return;
     setInitialMcpDataWhenInEditMode({ ...initialMcpDataWhenInEditMode, componentsList: components });
   };
   useEffect(() => {
