@@ -4,11 +4,13 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
-import { useComponentsSelection } from './ComponentsSelectionProvider.tsx';
 
 export interface ComponentsSelectionProps {
   componentsList: ComponentsListItem[];
   setComponentsList: (components: ComponentsListItem[]) => void;
+  isLoading: boolean;
+  error: unknown;
+  templateDefaultsError?: string;
 }
 
 /**
@@ -27,11 +29,13 @@ export const getSelectedComponents = (components: ComponentsListItem[]) => {
 export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({
   setComponentsList,
   componentsList,
+  isLoading,
+  error,
+  templateDefaultsError,
 }) => {
   const { t } = useTranslation();
-  const { isLoading, error, templateDefaultsError, hasInitialized } = useComponentsSelection();
 
-  if (isLoading || !hasInitialized) {
+  if (isLoading) {
     return <Loading />;
   }
 
