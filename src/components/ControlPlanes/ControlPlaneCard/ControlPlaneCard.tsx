@@ -38,11 +38,22 @@ interface Props {
   projectName: string;
 }
 
-export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props) {
+type MCPWizardState = {
+  isOpen: boolean;
+  mode?: 'edit' | 'duplicate';
+};
+export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props) => {
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
-  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+  const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
+    isOpen: false,
+    mode: undefined,
+  });
+
+  const handleIsManagedControlPlaneWizardOpen = (isOpen: boolean, mode?: 'edit' | 'duplicate') => {
+    setManagedControlPlaneWizardState({ isOpen, mode });
+  };
   const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
     PatchMCPResourceForDeletion(controlPlane.metadata.namespace, controlPlane.metadata.name),
   );
@@ -85,7 +96,7 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
               <ControlPlaneCardMenu
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
               />
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButtonWithLoader
@@ -130,11 +141,12 @@ export function ControlPlaneCard({ controlPlane, workspace, projectName }: Props
         }}
       />
       <EditManagedControlPlaneWizardDataLoader
-        isOpen={isEditManagedControlPlaneWizardOpen}
-        setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+        isOpen={managedControlPlaneWizardState.isOpen}
+        setIsOpen={handleIsManagedControlPlaneWizardOpen}
         workspaceName={namespace}
         resourceName={name}
+        mode={managedControlPlaneWizardState.mode}
       />
     </>
   );
-}
+};

@@ -60,6 +60,7 @@
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit Managed Control Plane",
+    "duplicateMCP": "Duplicate Managed Control Plane",
     "deleteMCP": "Delete Managed Control Plane"
 
   },
@@ -383,7 +384,8 @@
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
     "titleText": "Managed Control Plane Created Successfully!",
-    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
+    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
+    "copySuffix": "-copy"
   },
   "editMCP": {
     "dialogTitle": "Edit Managed Control Plane",

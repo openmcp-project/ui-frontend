@@ -19,6 +19,7 @@ export type EditManagedControlPlaneWizardDataLoaderProps = {
   setIsOpen: (isOpen: boolean) => void;
   isOnMcpPage?: boolean;
   initialSection?: WizardStepType;
+  mode?: 'edit' | 'duplicate';
 };
 
 export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlaneWizardDataLoaderProps> = ({
@@ -28,6 +29,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   setIsOpen,
   isOnMcpPage = false,
   initialSection,
+  mode = 'edit',
 }) => {
   const { isLoading, data, error } = useApiResource(
     ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
@@ -55,7 +57,8 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
           setIsOpen={setIsOpen}
           projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
           workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
-          isEditMode={true}
+          isEditMode={mode === 'edit'}
+          isDuplicateMode={mode === 'duplicate'}
           initialData={data}
           isOnMcpPage={isOnMcpPage}
           initialSection={initialSection}

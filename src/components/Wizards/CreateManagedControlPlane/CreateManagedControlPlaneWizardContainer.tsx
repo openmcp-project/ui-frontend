@@ -63,7 +63,8 @@ type CreateManagedControlPlaneWizardContainerProps = {
   setIsOpen: (isOpen: boolean) => void;
   projectName?: string;
   workspaceName?: string;
-  isEditMode: boolean;
+  isEditMode?: boolean;
+  isDuplicateMode?: boolean;
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
   isOnMcpPage?: boolean;
@@ -80,6 +81,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   projectName = '',
   workspaceName = '',
   isEditMode = false,
+  isDuplicateMode = false,
   initialTemplateName,
   initialData,
   isOnMcpPage = false,
@@ -399,7 +401,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   // Prefill form when editing
   useEffect(() => {
-    if (!isOpen || !isEditMode) return;
+    if (!isOpen || !initialData) return;
     const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
     const members: Member[] = roleBindings.flatMap((rb) =>
       (rb.subjects ?? []).map((s: MCPSubject) => ({
@@ -409,10 +411,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         namespace: s.namespace,
       })),
     );
+    const name = initialData?.metadata?.name ?? '';
     const labels = (initialData?.metadata?.labels as unknown as Record<string, string>) ?? {};
     const annotations = (initialData?.metadata?.annotations as unknown as Record<string, string>) ?? {};
     const data = {
-      name: initialData?.metadata?.name ?? '',
+      name: isDuplicateMode && !!name ? `${name}${t('createMCP.copySuffix')}` : name,
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
       chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL]?.toLowerCase() ?? '',
@@ -550,7 +553,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         data-testid="create-mcp-dialog"
         onClose={resetFormAndClose}
       >
-        {' '}
         <ComponentsSelectionProvider
           componentsList={componentsList ?? []}
           setComponentsList={setComponentsList}
