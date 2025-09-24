@@ -95,7 +95,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
-
+  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
+    name: '',
+    displayName: '',
+    chargingTarget: '',
+    chargingTargetType: '',
+    members: [],
+    componentsList: [],
+  });
   // Here we will use OnboardingAPI to get all available templates
   const templates = useMemo<ManagedControlPlaneTemplate[]>(() => [], []);
 
@@ -415,10 +422,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       componentsList: componentsList ?? [],
     };
     reset(data);
-
+    setInitialMcpDataWhenInEditMode(data);
     // summarize step now uses current form values
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode]);
+  }, [isOpen, isEditMode, isDuplicateMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
@@ -589,14 +596,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             <SummarizeStep
               originalYamlString={stringify(
                 CreateManagedControlPlane(
-                  watch('name'),
+                  initialMcpDataWhenInEditMode.name,
                   `${projectName}--ws-${workspaceName}`,
                   {
-                    displayName: watch('displayName'),
-                    chargingTarget: watch('chargingTarget'),
-                    members: watch('members'),
-                    componentsList: componentsList ?? [],
-                    chargingTargetType: watch('chargingTargetType'),
+                    displayName: initialMcpDataWhenInEditMode.displayName,
+                    chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
+                    members: initialMcpDataWhenInEditMode.members,
+                    componentsList: initialMcpDataWhenInEditMode.componentsList,
+                    chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
                   },
                   idpPrefix,
                 ),
