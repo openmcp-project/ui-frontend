@@ -423,7 +423,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     };
     reset(data);
     setInitialMcpDataWhenInEditMode(data);
-    // summarize step now uses current form values
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode, isDuplicateMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
