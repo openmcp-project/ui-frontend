@@ -5,8 +5,8 @@ import * as Sentry from '@sentry/react';
 import { Button, Card, FlexBox, Text, Title } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
-import { useAuthOnboarding } from '../../auth/AuthContextOnboarding';
-import { useLink } from '../../../../lib/shared/useLink';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../auth/AuthContextOnboarding';
+import { useLink as _useLink } from '../../../../lib/shared/useLink';
 import { useTheme } from '../../../../hooks/useTheme';
 
 import LogoLight from '../../../../assets/images/co-logo-orchestrating.png';
@@ -14,8 +14,12 @@ import LogoDark from '../../../../assets/images/co-logo-orchestrating-dark.png';
 
 import styles from './SignInPage.module.css';
 
-export function SignInPage() {
-  const auth = useAuthOnboarding();
+export interface SignInPageProps {
+  useAuthOnboarding?: typeof _useAuthOnboarding;
+  useLink?: typeof _useLink;
+}
+export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _useLink }: SignInPageProps) {
+  const { login } = useAuthOnboarding();
   const { documentationHomepage } = useLink();
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
@@ -41,7 +45,7 @@ export function SignInPage() {
             <img className={styles.logo} src={isDarkTheme ? LogoDark : LogoLight} alt="" />
 
             <FlexBox direction="Column" alignItems="Center" gap="1em">
-              <Button design={ButtonDesign.Emphasized} onClick={() => void auth.login()}>
+              <Button design={ButtonDesign.Emphasized} onClick={() => void login()}>
                 {t('SignInPage.signInButton')}
               </Button>
             </FlexBox>
