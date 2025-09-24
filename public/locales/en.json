@@ -388,7 +388,8 @@
   "editMCP": {
     "dialogTitle": "Edit Managed Control Plane",
     "titleText": "Managed Control Plane Updated Successfully!",
-    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window."
+    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
+    "editComponents": "Edit components"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",

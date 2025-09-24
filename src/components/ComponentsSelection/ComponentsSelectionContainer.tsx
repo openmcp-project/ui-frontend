@@ -29,9 +29,9 @@ export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = 
   componentsList,
 }) => {
   const { t } = useTranslation();
-  const { isLoading, error, templateDefaultsError } = useComponentsSelection();
+  const { isLoading, error, templateDefaultsError, hasInitialized } = useComponentsSelection();
 
-  if (isLoading) {
+  if (isLoading || !hasInitialized) {
     return <Loading />;
   }
 

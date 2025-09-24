@@ -55,6 +55,7 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  // @ts-ignore
   const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
@@ -159,9 +160,7 @@ export default function McpPage() {
                 header={
                   <FlexBox justifyContent={'SpaceBetween'} alignItems={'Center'} style={{ width: '100%' }}>
                     <Title level="H3">{t('McpPage.componentsTitle')}</Title>{' '}
-                    <Button icon={'edit'} onClick={onEditComponents}>
-                      Edit components
-                    </Button>
+                    <Button tooltip={t('editMCP.editComponents')} icon={'edit'} onClick={onEditComponents} />
                   </FlexBox>
                 }
                 noAnimation

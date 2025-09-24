@@ -20,6 +20,7 @@ export type ComponentsSelectionContextValue = {
   isLoading: boolean;
   error: unknown;
   templateDefaultsError: string | null;
+  hasInitialized: boolean;
 };
 
 const ComponentsSelectionContext = createContext<ComponentsSelectionContextValue | undefined>(undefined);
@@ -69,12 +70,19 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
       !availableManagedComponentsListData?.items ||
       availableManagedComponentsListData.items.length === 0
     ) {
+    if (!availableManagedComponentsListData?.items) {
       return;
     }
-
+    if (availableManagedComponentsListData.items.length === 0) {
+      setInitialComponentsList([]);
+      setComponentsList([]);
+      initializedComponents.current = true;
+      return;
+    }
     const newComponentsList = availableManagedComponentsListData.items
       .map((item) => {
-        const versions = sortVersions(item.status?.versions ?? []);
+        const rawVersions = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
+        const versions = sortVersions(rawVersions);
         const template = defaultComponents.find((dc) => dc.name === (item.metadata?.name ?? ''));
         const templateVersion = template?.version;
         let selectedVersion = template
@@ -112,7 +120,6 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
       setTemplateDefaultsError(null);
       return;
     }
-
     const errors: string[] = [];
     defaultComponents.forEach((dc: TemplateDefaultComponent) => {
       if (!dc?.name) return;
@@ -136,7 +143,6 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
     if (!defaultComponents?.length) return;
     if (!componentsList?.length) return;
     if (initialSelection && Object.keys(initialSelection).length > 0) return;
-
     const anySelected = componentsList.some((c) => c.isSelected);
     if (anySelected) return;
 
@@ -144,8 +150,8 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
       const template = defaultComponents.find((dc) => dc.name === c.name);
       if (!template) return c;
       const templateVersion = template.version;
-      const selectedVersion =
-        templateVersion && Array.isArray(c.versions) && c.versions.includes(templateVersion) ? templateVersion : '';
+      const safeVersions = Array.isArray(c.versions) ? c.versions : [];
+      const selectedVersion = templateVersion && safeVersions.includes(templateVersion) ? templateVersion : '';
       return { ...c, isSelected: true, selectedVersion } as ComponentsListItem;
     });
 
@@ -157,6 +163,7 @@ export const ComponentsSelectionProvider: React.FC<ComponentsSelectionProviderPr
     isLoading: Boolean(isLoading),
     error,
     templateDefaultsError,
+    hasInitialized: Boolean(initializedComponents.current),
   };
 
   return <ComponentsSelectionContext.Provider value={value}>{children}</ComponentsSelectionContext.Provider>;
