@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ManagedControlPlaneTemplate } from '../../../lib/api/types/templates/mcpTemplate.ts';
-import { ComponentsListItem } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem, removeComponents } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ListManagedComponents } from '../../../lib/api/types/crate/listManagedComponents.ts';
 import { sortVersions } from '../../../utils/componentsVersions.ts';
-import { removeComponents } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 
 export type ComponentsHookResult = {
   isLoading: boolean;
