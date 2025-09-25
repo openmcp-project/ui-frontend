@@ -60,7 +60,7 @@
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit Managed Control Plane",
-    "duplicateMCP": "Duplicate Managed Control Plane",
+    "duplicateMCP": "Duplicate MCP config",
     "deleteMCP": "Delete Managed Control Plane"
 
   },
