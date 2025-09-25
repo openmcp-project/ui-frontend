@@ -558,8 +558,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 />
               </div>
               {isDuplicateMode && (
-                <div style={{ width: '50%', paddingRight: '1rem', paddingTop: '1rem' }}>
-                  <Infobox size={'sm'} variant={'warning'}>
+                <div style={{ width: '50%', paddingRight: '1rem', paddingTop: '2rem' }}>
+                  <Infobox size={'sm'}>
                     <Text>
                       <Trans
                         i18nKey="editMCP.duplicatingMCPInfo1"

@@ -3,7 +3,8 @@
   align-items: center;
   border-radius: 12px;
   padding: 1rem;
-  margin: 1rem 0;
+  margin: 0;
+  margin-bottom: 2rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
@@ -12,8 +13,8 @@
   flex-shrink: 0;
   width: 1.5rem;
   height: 1.5rem;
-  color: #fff;
-  margin-right: 1.25rem;
+  color: var(--sapBackgroundColor);
+  margin-right: 1rem;
 }
 
 .content {
@@ -62,39 +63,6 @@
 }
 
 .content > * {
-  color: #fff;
+  color: var(--sapBackgroundColor);
   line-height: 1.2rem;
 }
-
-.dark-mode {
-  .content > * {
-    color: #000;
-  }
-  .icon {
-    color: #000;
-  }
-}
-
-/* .variant-normal {
-  border-color: var(--sapNeutralTextColor);
-  background-color: var(--sapNeutralBackground);
-  color: var(--sapNeutralTextColor);
-}
-
-.variant-success {
-  border-color: var(--sapPositiveTextColor);
-  background-color: var(--sapPositiveBackground);
-  color: var(--sapPositiveTextColor);
-}
-
-.variant-warning {
-  border-color: var(--sapCriticalTextColor);
-  background-color: var(--sapCriticalBackground);
-  color: var(--sapCriticalTextColor);
-}
-
-.variant-danger {
-  border-color: var(--sapNegativeTextColor);
-  background-color: var(--sapErrorBackground);
-  color: var(--sapNegativeTextColor);
-} */

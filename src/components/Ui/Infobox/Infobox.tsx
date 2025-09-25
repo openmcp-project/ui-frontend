@@ -4,6 +4,7 @@ import { Icon } from '@ui5/webcomponents-react';
 
 import styles from './Infobox.module.css';
 import { useTheme } from '../../../hooks/useTheme';
+import FadeVisibility from '../FadeVisibility/FadeVisibility';
 
 interface LabelProps {
   id?: string;
