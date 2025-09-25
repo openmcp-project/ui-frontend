@@ -542,7 +542,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             data-step="metadata"
           >
             <FlexBox direction={'Row'} justifyContent={'SpaceBetween'} gap={16}>
-              <div style={{ border: '1px solid red', width: '50%' }}>
+              <div style={{ width: '50%' }}>
                 <MetadataForm
                   key={metadataFormKey}
                   watch={watch}
@@ -558,7 +558,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 />
               </div>
               {isDuplicateMode && (
-                <div style={{ border: '1px solid red', width: '50%' }}>
+                <div style={{ width: '50%', paddingRight: '1rem', paddingTop: '1rem' }}>
                   <Infobox size={'sm'} variant={'warning'}>
                     <Text>
                       <Trans

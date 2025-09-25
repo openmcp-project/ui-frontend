@@ -5,18 +5,21 @@
   padding: 1rem;
   margin: 1rem 0;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-  color: #fff;
 }
 
 .icon {
-  margin-right: 1rem;
   font-size: 4.5rem;
   flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  color: #fff;
+  margin: 0 1rem;
+  margin-right: 2rem;
 }
 
 .content {
   flex-grow: 1;
+  padding-right: 3rem;
 }
 
 .full-width {
@@ -57,4 +60,18 @@
 
 .content > *:not(:last-child) {
   margin-bottom: 1rem;
+}
+
+.content > * {
+  color: #fff;
+  line-height: 1.2rem;
+}
+
+.dark-mode {
+  .content > * {
+    color: #000;
+  }
+  .icon {
+    color: #000;
+  }
 }
