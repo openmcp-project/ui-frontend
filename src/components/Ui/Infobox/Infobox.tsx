@@ -4,7 +4,6 @@ import { Icon } from '@ui5/webcomponents-react';
 
 import styles from './Infobox.module.css';
 import { useTheme } from '../../../hooks/useTheme';
-import FadeVisibility from '../FadeVisibility/FadeVisibility';
 
 interface LabelProps {
   id?: string;
@@ -44,7 +43,6 @@ export const Infobox: React.FC<LabelProps> = ({
       [styles['variant-warning']]: variant === 'warning',
       [styles['variant-danger']]: variant === 'danger',
       [styles['full-width']]: fullWidth,
-      [styles['dark-mode']]: isDarkTheme,
     },
     className,
   );
@@ -52,9 +50,11 @@ export const Infobox: React.FC<LabelProps> = ({
   const iconName = icon || variantIcons[variant];
 
   return (
-    <div className={infoboxClasses} id={id}>
-      {iconName && <Icon name={iconName} className={styles.icon} />}
-      <div className={styles.content}>{children}</div>
+    <div className={cx(styles['wrapper'], { [styles['dark-mode']]: isDarkTheme })}>
+      <div className={infoboxClasses} id={id}>
+        {iconName && <Icon name={iconName} className={styles.icon} />}
+        <div className={styles.content}>{children}</div>
+      </div>
     </div>
   );
 };
