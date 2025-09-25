@@ -14,6 +14,13 @@ interface LabelProps {
   icon?: string;
 }
 
+const variantIcons = {
+  normal: 'message-information',
+  success: 'message-success',
+  warning: 'message-warning',
+  danger: 'message-error',
+};
+
 export const Infobox: React.FC<LabelProps> = ({
   id,
   size = 'md', // Default to medium size
@@ -38,9 +45,11 @@ export const Infobox: React.FC<LabelProps> = ({
     className,
   );
 
+  const iconName = icon || variantIcons[variant];
+
   return (
     <div className={infoboxClasses} id={id}>
-      {icon && <Icon name={icon} className={styles.icon} />}
+      {iconName && <Icon name={iconName} className={styles.icon} />}
       <div className={styles.content}>{children}</div>
     </div>
   );

@@ -7,12 +7,11 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
   color: #fff;
-  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .icon {
   margin-right: 1rem;
-  font-size: 1.5rem;
+  font-size: 4.5rem;
   flex-shrink: 0;
 }
 
@@ -54,4 +53,8 @@
 
 .variant-danger {
   background: linear-gradient(135deg, #e53935, #e35d5b);
+}
+
+.content > *:not(:last-child) {
+  margin-bottom: 1rem;
 }
