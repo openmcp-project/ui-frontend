@@ -435,52 +435,49 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     appliedTemplateComponentsRef.current = false;
   }, [selectedTemplateValue, isOpen]);
 
-  useEffect(
-    () => {
-      if (selectedStep !== 'members') return;
-      if (!selectedTemplate) return;
-      if (appliedTemplateMembersRef.current) return;
+  useEffect(() => {
+    if (selectedStep !== 'members') return;
+    if (!selectedTemplate) return;
+    if (appliedTemplateMembersRef.current) return;
 
-      const templateMembers = (selectedTemplate?.spec?.spec?.authorization?.defaultMembers ??
-        []) as ManagedControlPlaneTemplate['spec']['spec']['authorization']['defaultMembers'];
-      if (!templateMembers?.length) {
-        appliedTemplateMembersRef.current = true;
-        return;
-      }
-
-      const currentMembers = (watch('members') ?? []) as Member[];
-
-      let merged = currentMembers;
-      if (user?.email && !currentMembers.some((m) => m.name === user.email)) {
-        merged = [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }, ...currentMembers];
-      }
-
-      const mappedFromTemplate: Member[] = templateMembers
-        .map((m) => ({
-          name: stripIdpPrefix(String(m?.name ?? ''), idpPrefix),
-          roles: [normalizeMemberRole(m?.role)],
-          kind: normalizeMemberKind(m?.kind),
-        }))
-        .filter((m) => !!m.name);
-
-      const byName = new Map<string, Member>();
-      merged.forEach((m) => m?.name && byName.set(m.name, m));
-      mappedFromTemplate.forEach((m) => {
-        if (m.name && !byName.has(m.name)) byName.set(m.name, m);
-      });
-
-      const normalizedMembers = Array.from(byName.values()).map((m) => ({
-        ...m,
-        roles: (m.roles ?? []).length
-          ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
-          : [MemberRoles.view],
-      }));
-
-      setValue('members', normalizedMembers, { shouldValidate: true });
+    const templateMembers = (selectedTemplate?.spec?.spec?.authorization?.defaultMembers ??
+      []) as ManagedControlPlaneTemplate['spec']['spec']['authorization']['defaultMembers'];
+    if (!templateMembers?.length) {
       appliedTemplateMembersRef.current = true;
-    },
-    [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind],
-  );
+      return;
+    }
+
+    const currentMembers = (watch('members') ?? []) as Member[];
+
+    let merged = currentMembers;
+    if (user?.email && !currentMembers.some((m) => m.name === user.email)) {
+      merged = [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }, ...currentMembers];
+    }
+
+    const mappedFromTemplate: Member[] = templateMembers
+      .map((m) => ({
+        name: stripIdpPrefix(String(m?.name ?? ''), idpPrefix),
+        roles: [normalizeMemberRole(m?.role)],
+        kind: normalizeMemberKind(m?.kind),
+      }))
+      .filter((m) => !!m.name);
+
+    const byName = new Map<string, Member>();
+    merged.forEach((m) => m?.name && byName.set(m.name, m));
+    mappedFromTemplate.forEach((m) => {
+      if (m.name && !byName.has(m.name)) byName.set(m.name, m);
+    });
+
+    const normalizedMembers = Array.from(byName.values()).map((m) => ({
+      ...m,
+      roles: (m.roles ?? []).length
+        ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
+        : [MemberRoles.view],
+    }));
+
+    setValue('members', normalizedMembers, { shouldValidate: true });
+    appliedTemplateMembersRef.current = true;
+  }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
   const {
     isLoading: componentsLoading,
     error: componentsError,
