@@ -3,6 +3,7 @@ import cx from 'clsx';
 import { Icon } from '@ui5/webcomponents-react';
 
 import styles from './Infobox.module.css';
+import { useTheme } from '../../../hooks/useTheme';
 
 interface LabelProps {
   id?: string;
@@ -23,13 +24,14 @@ const variantIcons = {
 
 export const Infobox: React.FC<LabelProps> = ({
   id,
-  size = 'md', // Default to medium size
-  variant = 'normal', // Default to normal variant
+  size = 'md',
+  variant = 'normal',
   children,
   fullWidth = false,
   className,
   icon,
 }) => {
+  const { isDarkTheme } = useTheme();
   const infoboxClasses = cx(
     styles.infobox,
     {
@@ -41,6 +43,7 @@ export const Infobox: React.FC<LabelProps> = ({
       [styles['variant-warning']]: variant === 'warning',
       [styles['variant-danger']]: variant === 'danger',
       [styles['full-width']]: fullWidth,
+      [styles['dark-mode']]: isDarkTheme,
     },
     className,
   );
