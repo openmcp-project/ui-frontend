@@ -1,4 +1,5 @@
 .infobox {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   border-radius: 12px;
@@ -7,6 +8,7 @@
   margin-bottom: 2rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   overflow: hidden;
+  border: 3px solid rgba(255, 0, 0, 0.5);
 }
 
 .icon {
