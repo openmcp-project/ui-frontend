@@ -9,13 +9,11 @@
 }
 
 .icon {
-  font-size: 4.5rem;
   flex-shrink: 0;
   width: 1.5rem;
   height: 1.5rem;
   color: #fff;
-
-  margin-right: 1rem;
+  margin-right: 1.25rem;
 }
 
 .content {
@@ -44,19 +42,19 @@
 }
 
 .variant-normal {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: var(--sapNeutralTextColor);
 }
 
 .variant-success {
-  background: linear-gradient(135deg, #56ab2f, #a8e063);
+  background: var(--sapPositiveTextColor);
 }
 
 .variant-warning {
-  background: linear-gradient(135deg, #ffc837, #ff8008);
+  background: var(--sapCriticalTextColor);
 }
 
 .variant-danger {
-  background: linear-gradient(135deg, #e53935, #e35d5b);
+  background: var(--sapErrorTextColor);
 }
 
 .content > *:not(:last-child) {
@@ -76,3 +74,27 @@
     color: #000;
   }
 }
+
+/* .variant-normal {
+  border-color: var(--sapNeutralTextColor);
+  background-color: var(--sapNeutralBackground);
+  color: var(--sapNeutralTextColor);
+}
+
+.variant-success {
+  border-color: var(--sapPositiveTextColor);
+  background-color: var(--sapPositiveBackground);
+  color: var(--sapPositiveTextColor);
+}
+
+.variant-warning {
+  border-color: var(--sapCriticalTextColor);
+  background-color: var(--sapCriticalBackground);
+  color: var(--sapCriticalTextColor);
+}
+
+.variant-danger {
+  border-color: var(--sapNegativeTextColor);
+  background-color: var(--sapErrorBackground);
+  color: var(--sapNegativeTextColor);
+} */
