@@ -167,8 +167,8 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               );
             })
           ) : (
-            <Infobox fullWidth variant="success">
-              <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
+            <Infobox fullWidth variant="normal" icon="search">
+              <Text>{t('componentsSelection.noComponentsFound')}</Text>
             </Infobox>
           )}
         </div>
@@ -191,7 +191,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               ))}
             </List>
           ) : (
-            <Infobox fullWidth variant="success">
+            <Infobox fullWidth variant="success" icon="add">
               <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
             </Infobox>
           )}

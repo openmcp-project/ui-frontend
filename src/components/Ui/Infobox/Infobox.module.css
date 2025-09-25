@@ -1,16 +1,32 @@
 .infobox {
-  display: inline-block;
-  border: 1px solid;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  padding: 1rem;
   margin: 1rem 0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  color: #fff;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.icon {
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.content {
+  flex-grow: 1;
 }
 
 .full-width {
-  display: block;
-  margin: 0;
+  width: 100%;
+  margin: 1rem 0;
 }
 
 .size-sm {
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
 }
 
@@ -21,29 +37,21 @@
 
 .size-lg {
   padding: 1.5rem 2rem;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
 }
 
 .variant-normal {
-  border-color: var(--sapNeutralTextColor);
-  background-color: var(--sapNeutralBackground);
-  color: var(--sapNeutralTextColor);
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
 .variant-success {
-  border-color: var(--sapPositiveTextColor);
-  background-color: var(--sapPositiveBackground);
-  color: var(--sapPositiveTextColor);
+  background: linear-gradient(135deg, #56ab2f, #a8e063);
 }
 
 .variant-warning {
-  border-color: var(--sapCriticalTextColor);
-  background-color: var(--sapCriticalBackground);
-  color: var(--sapCriticalTextColor);
+  background: linear-gradient(135deg, #ffc837, #ff8008);
 }
 
 .variant-danger {
-  border-color: var(--sapNegativeTextColor);
-  background-color: var(--sapErrorBackground);
-  color: var(--sapNegativeTextColor);
+  background: linear-gradient(135deg, #e53935, #e35d5b);
 }

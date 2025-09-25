@@ -10,16 +10,18 @@ import {
   Bar,
   Button,
   Dialog,
+  FlexBox,
   Form,
   FormGroup,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
   WizardStep,
+  Text,
 } from '@ui5/webcomponents-react';
 
 import { SummarizeStep } from './SummarizeStep.tsx';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
@@ -57,6 +59,7 @@ import {
 } from '../../../lib/api/types/mcpResource.ts';
 import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
+import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -538,19 +541,38 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             selected={selectedStep === 'metadata'}
             data-step="metadata"
           >
-            <MetadataForm
-              key={metadataFormKey}
-              watch={watch}
-              setValue={setValue}
-              register={register}
-              errors={errors}
-              isEditMode={isEditMode}
-              disableChargingFields={!!selectedTemplate}
-              namePrefix={templateAffixes.namePrefix}
-              displayNamePrefix={templateAffixes.displayNamePrefix}
-              nameSuffix={templateAffixes.nameSuffix}
-              displayNameSuffix={templateAffixes.displayNameSuffix}
-            />
+            <FlexBox direction={'Row'} justifyContent={'SpaceBetween'} gap={16}>
+              <div style={{ border: '1px solid red', width: '50%' }}>
+                <MetadataForm
+                  key={metadataFormKey}
+                  watch={watch}
+                  setValue={setValue}
+                  register={register}
+                  errors={errors}
+                  isEditMode={isEditMode}
+                  disableChargingFields={!!selectedTemplate}
+                  namePrefix={templateAffixes.namePrefix}
+                  displayNamePrefix={templateAffixes.displayNamePrefix}
+                  nameSuffix={templateAffixes.nameSuffix}
+                  displayNameSuffix={templateAffixes.displayNameSuffix}
+                />
+              </div>
+              {isDuplicateMode && (
+                <div style={{ border: '1px solid red', width: '50%' }}>
+                  <Infobox size={'sm'} variant={'warning'}>
+                    <Text>
+                      <Trans
+                        i18nKey="editMCP.duplicatingMCPInfo1"
+                        components={{ span: <span className="mono-font" /> }}
+                      />
+                    </Text>
+                    <Text>
+                      <Trans i18nKey="editMCP.duplicatingMCPInfo2" components={{ b: <b /> }} />
+                    </Text>
+                  </Infobox>
+                </div>
+              )}
+            </FlexBox>
           </WizardStep>
           <WizardStep
             icon="user-edit"
