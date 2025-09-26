@@ -5,6 +5,9 @@ import {
   DynamicPage,
   DynamicPageTitle,
   FlexBox,
+  ObjectPage,
+  ObjectPageSection,
+  ObjectPageTitle,
   Title,
   Toolbar,
   ToolbarButton,
@@ -14,12 +17,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 
 import { useSplitter } from './SplitterContext.tsx';
-import { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ModifyGitRepositoryDialogStep1 } from '../../../components/Dialogs/ModifyGitRepositoryDialog/ModifyGitRepositoryDialogStep1.tsx';
 import { stringify } from 'yaml';
 import YamlViewer from '../../../components/Yaml/YamlViewer.tsx';
 import { BreadcrumbsItem } from '@ui5/webcomponents-react/wrappers';
-import IntelligentBreadcrumbs from '../../../components/Core/IntelligentBreadcrumbs.tsx';
+import IntelligentBreadcrumbs, { BreadCrumbFeedbackHeader } from '../../../components/Core/IntelligentBreadcrumbs.tsx';
 import { ModifyKustomizationForm } from './ModifyKustomizationForm.tsx';
 
 export function ModifyKustomizationPage() {
@@ -69,29 +72,13 @@ export function ModifyKustomizationPage() {
   }
 
   return (
-    <DynamicPage
+    <ObjectPage
       style={{ width: '100%' }}
       titleArea={
-        <DynamicPageTitle
-          heading={
-            <FlexBox alignItems={'Center'} gap="0.5rem">
-              <Button
-                icon="sap-icon://nav-back"
-                design="Transparent"
-                onClick={() => navigate('../..', { relative: 'path' })}
-              />
-              <Title size="H3">New Kustomization</Title>
-            </FlexBox>
-          }
-          breadcrumbs={
-            <Breadcrumbs design="NoCurrentPage">
-              <BreadcrumbsItem>[LOCAL] Home</BreadcrumbsItem>
-              <BreadcrumbsItem>webapp-playground (these breadcrumbs are fake)</BreadcrumbsItem>
-              <BreadcrumbsItem>development</BreadcrumbsItem>
-              <BreadcrumbsItem>playground-mcp</BreadcrumbsItem>
-            </Breadcrumbs>
-          }
-          navigationBar={
+        <ObjectPageTitle
+          header="New: Kustomization"
+          breadcrumbs={<BreadCrumbFeedbackHeader />}
+          actionsBar={
             !splitter.isAsideVisible ? (
               <Toolbar design="Transparent">
                 <ToolbarButton
@@ -100,11 +87,10 @@ export function ModifyKustomizationPage() {
                   onClick={openFakeSplitter}
                 />
               </Toolbar>
-            ) : null
+            ) : undefined
           }
         />
       }
-      showFooter
       footerArea={
         <Bar
           design="FloatingFooter"
@@ -122,6 +108,6 @@ export function ModifyKustomizationPage() {
       }
     >
       <ModifyKustomizationForm />
-    </DynamicPage>
+    </ObjectPage>
   );
 }

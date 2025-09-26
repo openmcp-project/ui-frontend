@@ -109,7 +109,11 @@ export default function McpPage() {
             preserveHeaderStateOnClick={true}
             titleArea={
               <ObjectPageTitle
-                header={controlPlaneName}
+                header={
+                  <Title level="H2" size="H2">
+                    {controlPlaneName}
+                  </Title>
+                }
                 subHeader="Managed Control Plane"
                 breadcrumbs={<BreadCrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
