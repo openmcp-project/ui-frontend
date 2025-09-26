@@ -59,9 +59,9 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit Managed Control Plane",
+    "editMCP": "Edit ManagedControlPlane",
     "duplicateMCP": "Duplicate ManagedControlPlane",
-    "deleteMCP": "Delete Managed Control Plane"
+    "deleteMCP": "Delete ManagedControlPlane"
 
   },
   "ControlPlaneListAllWorkspaces": {
