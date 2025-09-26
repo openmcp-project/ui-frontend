@@ -60,6 +60,7 @@ import {
 import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
+import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -512,7 +513,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           <Bar
             design="Footer"
             endContent={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
                   <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
                 )}
@@ -542,7 +543,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             data-step="metadata"
           >
             <FlexBox direction={'Row'} justifyContent={'SpaceBetween'} gap={16}>
-              <div style={{ width: '50%' }}>
+              <div className={styles.metadataForm}>
                 <MetadataForm
                   key={metadataFormKey}
                   watch={watch}
@@ -558,7 +559,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 />
               </div>
               {isDuplicateMode && (
-                <div style={{ width: '50%', paddingRight: '1rem', paddingTop: '2rem' }}>
+                <div className={styles.infoboxContainer}>
                   <Infobox size={'sm'}>
                     <Text>
                       <Trans

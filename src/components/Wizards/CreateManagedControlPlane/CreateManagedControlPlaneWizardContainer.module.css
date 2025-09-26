@@ -1,0 +1,15 @@
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metadataForm {
+  width: 50%;
+}
+
+.infoboxContainer {
+  width: 50%;
+  padding-right: 1rem;
+  padding-top: 2rem;
+}
