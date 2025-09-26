@@ -8,9 +8,11 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import React, { useMemo } from 'react';
+import { McpPageSectionId } from '../../spaces/mcp/pages/McpPage.tsx';
 
 interface HintsProps {
   mcp: ControlPlaneType;
+  onNavigateToMcpSection: (sectionId: McpPageSectionId) => void;
 }
 
 // Export styles for use by hint components
@@ -25,7 +27,7 @@ export const flattenManagedResources = (managedResources: ManagedResourcesRespon
     .flatMap((managedResource) => managedResource.items || []);
 };
 
-const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
+const HintsCardsRow: React.FC<HintsProps> = ({ mcp, onNavigateToMcpSection }) => {
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -69,6 +71,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={crossplaneConfig}
+        onClick={() => onNavigateToMcpSection('crossplane')}
       />
       <GenericHintCard
         enabled={!!mcp?.spec?.components?.flux}
@@ -77,6 +80,7 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp }) => {
         isLoading={managedResourcesLoading}
         error={managedResourcesError}
         config={gitOpsConfig}
+        onClick={() => onNavigateToMcpSection('flux')}
       />
       <GenericHintCard
         enabled={false}

@@ -3,7 +3,10 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Panel,
   Title,
+  Toolbar,
+  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
@@ -139,33 +142,41 @@ export function ManagedResources() {
 
   return (
     <>
-      <Title level="H4">{t('ManagedResources.header')}</Title>
-
       {error && <IllustratedError details={error.message} />}
 
       {!error && (
-        <AnalyticalTable
-          columns={columns}
-          data={rows}
-          minRows={1}
-          groupBy={['kind']}
-          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-          loading={isLoading}
-          filterable
-          // Prevent the table from resetting when the data changes
-          retainColumnWidth
-          reactTableOptions={{
-            autoResetHiddenColumns: false,
-            autoResetPage: false,
-            autoResetExpanded: false,
-            autoResetGroupBy: false,
-            autoResetSelectedRows: false,
-            autoResetSortBy: false,
-            autoResetFilters: false,
-            autoResetRowState: false,
-            autoResetResize: false,
-          }}
-        />
+        <Panel
+          fixed
+          header={
+            <Toolbar>
+              <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
+              <ToolbarSpacer />
+            </Toolbar>
+          }
+        >
+          <AnalyticalTable
+            columns={columns}
+            data={rows}
+            minRows={1}
+            groupBy={['kind']}
+            scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+            loading={isLoading}
+            filterable
+            // Prevent the table from resetting when the data changes
+            retainColumnWidth
+            reactTableOptions={{
+              autoResetHiddenColumns: false,
+              autoResetPage: false,
+              autoResetExpanded: false,
+              autoResetGroupBy: false,
+              autoResetSelectedRows: false,
+              autoResetSortBy: false,
+              autoResetFilters: false,
+              autoResetRowState: false,
+              autoResetResize: false,
+            }}
+          />
+        </Panel>
       )}
     </>
   );
