@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import cx from 'clsx';
+import { Icon } from '@ui5/webcomponents-react';
 
 import styles from './Infobox.module.css';
 
@@ -10,15 +11,24 @@ interface LabelProps {
   children: ReactNode;
   fullWidth?: boolean;
   className?: string;
+  icon?: string;
 }
+
+const variantIcons = {
+  normal: 'message-information',
+  success: 'message-success',
+  warning: 'message-warning',
+  danger: 'message-error',
+};
 
 export const Infobox: React.FC<LabelProps> = ({
   id,
-  size = 'md', // Default to medium size
-  variant = 'normal', // Default to normal variant
+  size = 'md',
+  variant = 'normal',
   children,
   fullWidth = false,
   className,
+  icon,
 }) => {
   const infoboxClasses = cx(
     styles.infobox,
@@ -35,11 +45,12 @@ export const Infobox: React.FC<LabelProps> = ({
     className,
   );
 
+  const iconName = icon || variantIcons[variant];
+
   return (
-    <div>
-      <span className={infoboxClasses} id={id}>
-        {children}
-      </span>
+    <div className={infoboxClasses} id={id}>
+      {iconName && <Icon name={iconName} className={styles.icon} />}
+      <div className={styles.content}>{children}</div>
     </div>
   );
 };

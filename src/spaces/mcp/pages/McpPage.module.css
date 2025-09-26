@@ -3,3 +3,14 @@
   margin: 0.1em auto -8px auto;
   width: 100%;
 }
+
+.actionsBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.panelHeader {
+  width: 100%;
+}

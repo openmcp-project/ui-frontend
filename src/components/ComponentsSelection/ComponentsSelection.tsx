@@ -101,7 +101,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
       />
 
       <Grid>
-        <div data-layout-span="XL8 L8 M8 S8">
+        <div data-layout-span="XL7 L7 M7 S7">
           {searchResults.length > 0 ? (
             searchResults.map((component) => {
               const providerDisabled = isProviderDisabled(component);
@@ -167,13 +167,13 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               );
             })
           ) : (
-            <Infobox fullWidth variant="success">
-              <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
+            <Infobox fullWidth variant="normal" icon="search">
+              <Text>{t('componentsSelection.noComponentsFound')}</Text>
             </Infobox>
           )}
         </div>
 
-        <div data-layout-span="XL4 L4 M4 S4">
+        <div data-layout-span="XL5 L5 M5 S5">
           {templateDefaultsError ? (
             <div style={{ marginBottom: 8 }}>
               <IllustratedError title={templateDefaultsError} compact />
@@ -191,7 +191,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
               ))}
             </List>
           ) : (
-            <Infobox fullWidth variant="success">
+            <Infobox variant="success" icon="add">
               <Text>{t('componentsSelection.pleaseSelectComponents')}</Text>
             </Infobox>
           )}
