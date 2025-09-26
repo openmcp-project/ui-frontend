@@ -1,0 +1,21 @@
+.container {
+  height: 100vh;
+}
+
+.cardContent {
+  padding: 2rem 3rem;
+}
+
+.heading {
+  margin-bottom: 0.75rem;
+}
+
+.description {
+  font-size: 1.25em;
+}
+
+.logo {
+  width: 240px;
+  height: 290px;
+  margin: 3rem;
+}
