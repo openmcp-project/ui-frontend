@@ -3,7 +3,10 @@ import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
 import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 
-import { CreateManagedControlPlaneWizardContainer } from './CreateManagedControlPlaneWizardContainer.tsx';
+import {
+  CreateManagedControlPlaneWizardContainer,
+  WizardStepType,
+} from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
 
 import { BusyIndicator } from '@ui5/webcomponents-react';
@@ -15,6 +18,8 @@ export type EditManagedControlPlaneWizardDataLoaderProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   isOnMcpPage?: boolean;
+  initialSection?: WizardStepType;
+  mode?: 'edit' | 'duplicate';
 };
 
 export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlaneWizardDataLoaderProps> = ({
@@ -23,6 +28,8 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   isOpen,
   setIsOpen,
   isOnMcpPage = false,
+  initialSection,
+  mode = 'edit',
 }) => {
   const { isLoading, data, error } = useApiResource(
     ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
@@ -50,9 +57,11 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
           setIsOpen={setIsOpen}
           projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
           workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
-          isEditMode={true}
+          isEditMode={mode === 'edit'}
+          isDuplicateMode={mode === 'duplicate'}
           initialData={data}
           isOnMcpPage={isOnMcpPage}
+          initialSection={initialSection}
         />
       ) : null}
     </>

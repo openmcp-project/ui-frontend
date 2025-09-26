@@ -1,3 +1,10 @@
 .section {
   margin-block: 1.5rem 3rem;
 }
+
+.actionsBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 0.5rem;
+}

@@ -79,7 +79,6 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
             />
           ) : (
             <YamlViewer
-              originalYamlString={originalYamlString}
               yamlString={stringify(
                 CreateManagedControlPlane(
                   watch('name'),

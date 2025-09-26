@@ -4,12 +4,13 @@ import {
   Panel,
   Title,
   Toolbar,
+  ToolbarButton,
   ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { useTranslation } from 'react-i18next';
 
-export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
+export default function ComponentList({ mcp, onEditClick }: { mcp: ControlPlaneType; onEditClick: () => void }) {
   const { t } = useTranslation();
 
   const data = [
@@ -53,6 +54,7 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
         <Toolbar>
           <Title>{t('common.itemsCount', { count: data.length })}</Title>
           <ToolbarSpacer />
+          <ToolbarButton tooltip={t('editMCP.editComponents')} design="Transparent" icon="edit" onClick={onEditClick} />
         </Toolbar>
       }
     >

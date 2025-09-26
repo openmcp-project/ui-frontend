@@ -55,8 +55,9 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit Managed Control Plane",
-    "deleteMCP": "Delete Managed Control Plane"
+    "editMCP": "Edit ManagedControlPlane",
+    "duplicateMCP": "Duplicate ManagedControlPlane",
+    "deleteMCP": "Delete ManagedControlPlane"
 
   },
   "ControlPlaneListAllWorkspaces": {
@@ -378,18 +379,23 @@
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
     "titleText": "Managed Control Plane Created Successfully!",
-    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window."
+    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
+    "copySuffix": "-copy"
   },
   "editMCP": {
     "dialogTitle": "Edit Managed Control Plane",
     "titleText": "Managed Control Plane Updated Successfully!",
-    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window."
+    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
+    "editComponents": "Edit components",
+    "duplicatingMCPInfo1": "Duplicating a <span>ManagedControlPlane</span> will only create a <span>ManagedControlPlane</span> with the same configuration. ",
+    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",
     "selectedComponents": "Selected Components",
     "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
-    "cannotLoad": "Cannot load components list"
+    "cannotLoad": "Cannot load components list",
+    "noComponentsFound": "No components found matching your search."
   },
   "Hints": {
     "CrossplaneHint": {

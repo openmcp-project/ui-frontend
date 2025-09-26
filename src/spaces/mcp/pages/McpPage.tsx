@@ -14,8 +14,6 @@ import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
-
-import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
@@ -38,7 +36,9 @@ import { useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
+import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -46,13 +46,27 @@ export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+  const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
+    undefined | WizardStepType
+  >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
   const {
     data: mcp,
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-  const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
+  const displayName =
+    mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
+      ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
+      : undefined;
+  const onEditComponents = () => {
+    setEditManagedControlPlaneWizardSection('componentSelection');
+    setIsEditManagedControlPlaneWizardOpen(true);
+  };
+  const handleEditManagedControlPlaneWizardClose = () => {
+    setIsEditManagedControlPlaneWizardOpen(false);
+    setEditManagedControlPlaneWizardSection(undefined);
+  };
   if (isLoading) {
     return <BusyIndicator active />;
   }
@@ -84,14 +98,7 @@ export default function McpPage() {
                 breadcrumbs={<BreadcrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem',
-                    }}
-                  >
+                  <div className={styles.actionsBar}>
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
                       projectName={projectName}
@@ -109,10 +116,11 @@ export default function McpPage() {
                     />
                     <EditManagedControlPlaneWizardDataLoader
                       isOpen={isEditManagedControlPlaneWizardOpen}
-                      setIsOpen={setIsEditManagedControlPlaneWizardOpen}
+                      setIsOpen={handleEditManagedControlPlaneWizardClose}
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceName={controlPlaneName}
                       isOnMcpPage
+                      initialSection={editManagedControlPlaneWizardSection}
                     />
                   </div>
                 }
@@ -130,13 +138,11 @@ export default function McpPage() {
               >
                 <HintsCardsRow mcp={mcp} onNavigateToMcpSection={(sectionId) => setSelectedSectionId(sectionId)} />
               </ObjectPageSubSection>
-
               <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
                 <Graph />
               </ObjectPageSubSection>
-
               <ObjectPageSubSection id="components" titleText={t('McpPage.componentsTitle')} className={styles.section}>
-                <ComponentList mcp={mcp} />
+                <ComponentList mcp={mcp} onEditClick={onEditComponents} />
               </ObjectPageSubSection>
             </ObjectPageSection>
 
