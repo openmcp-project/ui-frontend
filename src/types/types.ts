@@ -50,4 +50,5 @@ export interface GenericHintProps {
   isLoading?: boolean;
   error?: APIError;
   config: GenericHintConfig;
+  onClick?: () => void;
 }

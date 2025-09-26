@@ -1,4 +1,10 @@
-import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
+import {
+  BusyIndicator,
+  ObjectPage,
+  ObjectPageSection,
+  ObjectPageSubSection,
+  ObjectPageTitle,
+} from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
@@ -9,7 +15,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 
-import FluxList from '../../../components/ControlPlane/FluxList.tsx';
+import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
@@ -32,11 +38,15 @@ import { useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
+
+export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+  const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
   const {
     data: mcp,
     error,
@@ -66,7 +76,7 @@ export default function McpPage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ObjectPage
-            preserveHeaderStateOnClick={true}
+            mode="IconTabBar"
             titleArea={
               <ObjectPageTitle
                 header={displayName ?? controlPlaneName}
@@ -108,94 +118,67 @@ export default function McpPage() {
                 }
               />
             }
+            selectedSectionId={selectedSectionId}
+            onSelectedSectionChange={() => setSelectedSectionId(undefined)}
           >
-            <ObjectPageSection
-              className="cp-page-section-overview"
-              id="overview"
-              titleText={t('McpPage.overviewTitle')}
-              hideTitleText
-            >
-              <HintsCardsRow mcp={mcp} />
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-graph"
-              id="graph"
-              titleText={t('McpPage.graphTitle')}
-              hideTitleText
-            >
-              <Graph />
-            </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-components"
-              id="components"
-              titleText={t('McpPage.componentsTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H2"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.componentsTitle')}</Title>}
-                noAnimation
+            <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
+              <ObjectPageSubSection
+                id="dashboard"
+                titleText={t('McpPage.dashboardTitle')}
+                hideTitleText
+                className={styles.section}
               >
+                <HintsCardsRow mcp={mcp} onNavigateToMcpSection={(sectionId) => setSelectedSectionId(sectionId)} />
+              </ObjectPageSubSection>
+
+              <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
+                <Graph />
+              </ObjectPageSubSection>
+
+              <ObjectPageSubSection id="components" titleText={t('McpPage.componentsTitle')} className={styles.section}>
                 <ComponentList mcp={mcp} />
-              </Panel>
+              </ObjectPageSubSection>
             </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-crossplane"
-              id="crossplane"
-              titleText={t('McpPage.crossplaneTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.crossplaneTitle')}</Title>}
-                noAnimation
+
+            <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
+              <ObjectPageSubSection id="providers" titleText={t('McpPage.providersTitle')} className={styles.section}>
+                <Providers />
+              </ObjectPageSubSection>
+              <ObjectPageSubSection
+                id="provider-configs"
+                titleText={t('McpPage.providerConfigsTitle')}
+                className={styles.section}
               >
-                <div className="crossplane-table-element">
-                  <Providers />
-                </div>
-                <div className="crossplane-table-element">
-                  <ProvidersConfig />
-                </div>
-                <div className="crossplane-table-element">
-                  <ManagedResources />
-                </div>
-              </Panel>
+                <ProvidersConfig />
+              </ObjectPageSubSection>
+              <ObjectPageSubSection
+                id="managed-resources"
+                titleText={t('McpPage.managedResourcesTitle')}
+                className={styles.section}
+              >
+                <ManagedResources />
+              </ObjectPageSubSection>
             </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-landscapers"
-              id="landscapers"
-              titleText={t('McpPage.landscapersTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.landscapersTitle')}</Title>}
-                noAnimation
+
+            <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
+              <ObjectPageSubSection
+                id="git-repositories"
+                titleText={t('McpPage.gitRepositoriesTitle')}
+                className={styles.section}
               >
-                <Landscapers />
-              </Panel>
+                <GitRepositories />
+              </ObjectPageSubSection>
+              <ObjectPageSubSection
+                id="kustomizations"
+                titleText={t('McpPage.kustomizationsTitle')}
+                className={styles.section}
+              >
+                <Kustomizations />
+              </ObjectPageSubSection>
             </ObjectPageSection>
-            <ObjectPageSection
-              className="cp-page-section-gitops"
-              id="gitops"
-              titleText={t('McpPage.gitOpsTitle')}
-              hideTitleText
-            >
-              <Panel
-                className={styles.panel}
-                headerLevel="H3"
-                headerText="Panel"
-                header={<Title level="H3">{t('McpPage.gitOpsTitle')}</Title>}
-                noAnimation
-              >
-                <FluxList />
-              </Panel>
+
+            <ObjectPageSection id="landscapers" titleText={t('McpPage.landscapersTitle')} className={styles.section}>
+              <Landscapers />
             </ObjectPageSection>
           </ObjectPage>
         </WithinManagedControlPlane>

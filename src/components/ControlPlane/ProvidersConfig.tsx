@@ -3,7 +3,10 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Panel,
   Title,
+  Toolbar,
+  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
@@ -87,8 +90,15 @@ export function ProvidersConfig() {
   );
 
   return (
-    <>
-      <Title level="H4">{t('ProvidersConfig.headerProviderConfigs')}</Title>
+    <Panel
+      fixed
+      header={
+        <Toolbar>
+          <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
+          <ToolbarSpacer />
+        </Toolbar>
+      }
+    >
       <AnalyticalTable
         columns={columns}
         data={rows ?? []}
@@ -111,6 +121,6 @@ export function ProvidersConfig() {
           autoResetResize: false,
         }}
       />
-    </>
+    </Panel>
   );
 }

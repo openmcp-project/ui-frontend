@@ -1,4 +1,11 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarSpacer,
+} from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
 import { useTranslation } from 'react-i18next';
 
@@ -40,8 +47,16 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
   ];
 
   return (
-    <div>
+    <Panel
+      fixed
+      header={
+        <Toolbar>
+          <Title>{t('common.itemsCount', { count: data.length })}</Title>
+          <ToolbarSpacer />
+        </Toolbar>
+      }
+    >
       <AnalyticalTable scaleWidthMode="Smart" columns={componentTableColumns} minRows={0} data={data} />
-    </div>
+    </Panel>
   );
 }

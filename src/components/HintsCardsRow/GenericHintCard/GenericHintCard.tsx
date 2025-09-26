@@ -15,6 +15,7 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
   isLoading,
   error,
   config,
+  onClick,
 }) => {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
@@ -57,7 +58,7 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
         className={cx({
           [styles['disabled']]: !enabled,
         })}
-        onClick={handleClick}
+        onClick={() => (enabled ? onClick?.() : null)}
         onMouseEnter={enabled ? () => setHovered(true) : undefined}
         onMouseLeave={enabled ? () => setHovered(false) : undefined}
       >
