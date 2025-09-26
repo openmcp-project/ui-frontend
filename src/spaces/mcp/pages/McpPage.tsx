@@ -95,14 +95,7 @@ export default function McpPage() {
                 breadcrumbs={<BreadCrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem',
-                    }}
-                  >
+                  <div className={styles.actionsBar}>
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
                       projectName={projectName}
@@ -158,7 +151,7 @@ export default function McpPage() {
                 headerLevel="H2"
                 headerText="Panel"
                 header={
-                  <FlexBox justifyContent={'SpaceBetween'} alignItems={'Center'} style={{ width: '100%' }}>
+                  <FlexBox justifyContent={'SpaceBetween'} alignItems={'Center'} className={styles.panelHeader}>
                     <Title level="H3">{t('McpPage.componentsTitle')}</Title>{' '}
                     <Button tooltip={t('editMCP.editComponents')} icon={'edit'} onClick={onEditComponents} />
                   </FlexBox>
