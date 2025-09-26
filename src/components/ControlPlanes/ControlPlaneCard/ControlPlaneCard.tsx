@@ -142,7 +142,7 @@ export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props
       />
       <EditManagedControlPlaneWizardDataLoader
         isOpen={managedControlPlaneWizardState.isOpen}
-        setIsOpen={handleIsManagedControlPlaneWizardOpen}
+        setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
         workspaceName={namespace}
         resourceName={name}
         mode={managedControlPlaneWizardState.mode}
