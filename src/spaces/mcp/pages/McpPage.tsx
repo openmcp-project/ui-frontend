@@ -16,7 +16,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { BreadCrumbFeedbackHeader } from '../../../components/Core/IntelligentBreadcrumbs.tsx';
+import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 
 import FluxList from '../../../components/ControlPlane/FluxList.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
@@ -92,7 +92,8 @@ export default function McpPage() {
             titleArea={
               <ObjectPageTitle
                 header={displayName ?? controlPlaneName}
-                breadcrumbs={<BreadCrumbFeedbackHeader />}
+                subHeader={t('Entities.ManagedControlPlane')}
+                breadcrumbs={<BreadcrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
                   <div className={styles.actionsBar}>

@@ -6,7 +6,7 @@
     "signInButton": "Sign in"
   },
   "Entities": {
-    "ManagedControlPlane": "Managed Control Plane",
+    "ManagedControlPlane": "ManagedControlPlane",
     "Project": "Project",
     "Workspace": "Workspace",
     "Users": "Users",
@@ -89,8 +89,6 @@
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
-    "copiedMessage": "Copied to Clipboard",
-    "failedMessage": "Failed to copy, Error:",
     "menuDownload": "Download",
     "menuCopy": "Copy to clipboard"
   },
@@ -107,11 +105,8 @@
     "subtitleMessage": "Sorry, we couldn’t find what you are looking for.<br />The link may be incorrect or the {{entityType}} might have been removed.",
     "navigateHome": "Back to Homepage"
   },
-  "IntelligentBreadcrumbs": {
-    "homeLabel": "Home",
-    "projects": "Projects",
-    "workspaces": "Workspaces",
-    "mcps": "MCPs"
+  "PathAwareBreadcrumbs": {
+    "projectsLabel": "Projects"
   },
   "MCPContext": {
     "errorMessage": "An unknown error occurred"
@@ -220,10 +215,6 @@
     "treeInstallation": "Installation",
     "treeExecution": "Execution",
     "noExecutionFound": "No Executions found"
-  },
-  "CopyButton": {
-    "copiedMessage": "Copied To Clipboard",
-    "failedMessage": "Failed to copy"
   },
   "DeleteWorkspaceDialog": {
     "title": "Delete a Workspace",
@@ -358,7 +349,9 @@
     "unhealthy": "Unhealthy",
     "progress": "Managed",
     "remaining": "Remaining",
-    "active": "Active"
+    "active": "Active",
+    "copyToClipboardSuccessToast": "Copied to clipboard",
+    "copyToClipboardFailedToast": "Failed to copy to clipboard"
   },
   "errors": {
     "installError": "Install error",
@@ -378,7 +371,6 @@
     "update": "Update"
   },
   "yaml": {
-    "copiedToClipboard": "YAML copied to clipboard!",
     "YAML": "File"
   },
   "createMCP": {
