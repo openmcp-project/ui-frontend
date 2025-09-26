@@ -55,8 +55,10 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-  // @ts-ignore
-  const displayName = mcp?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION];
+  const displayName =
+    mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
+      ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
+      : undefined;
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);
