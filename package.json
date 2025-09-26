@@ -34,8 +34,8 @@
     "@fastify/static": "8.2.0",
     "@fastify/vite": "8.2.0",
     "@hookform/resolvers": "5.2.2",
-    "@sentry/node": "10.13.0",
-    "@sentry/react": "10.13.0",
+    "@sentry/node": "10.14.0",
+    "@sentry/react": "10.14.0",
     "@sentry/vite-plugin": "4.3.0",
     "@ui5/webcomponents": "2.14.0",
     "@ui5/webcomponents-fiori": "2.14.0",
@@ -47,7 +47,7 @@
     "dagre": "0.8.5",
     "diff": "^8.0.2",
     "dotenv": "17.2.2",
-    "fastify": "5.6.0",
+    "fastify": "5.6.1",
     "fastify-plugin": "5.0.1",
     "graphql": "16.11.0",
     "graphql-config": "5.1.5",
@@ -95,7 +95,7 @@
     "prettier": "3.6.2",
     "tsx": "4.20.5",
     "typescript": "5.9.2",
-    "typescript-eslint": "8.44.0",
+    "typescript-eslint": "8.44.1",
     "vite": "7.1.7",
     "vitest": "3.2.4"
   }
