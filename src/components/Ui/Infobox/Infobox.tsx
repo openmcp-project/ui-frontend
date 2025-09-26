@@ -3,7 +3,6 @@ import cx from 'clsx';
 import { Icon } from '@ui5/webcomponents-react';
 
 import styles from './Infobox.module.css';
-import { useTheme } from '../../../hooks/useTheme';
 
 interface LabelProps {
   id?: string;

@@ -1,13 +1,12 @@
 .infobox {
   display: flex;
   align-items: center;
-  border-radius: 12px;
+  border-radius: 1rem;
   padding: 1rem;
   margin: 0;
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   margin-bottom: 2rem;
-  border-radius: 15px;
 }
 
 .icon {
@@ -15,12 +14,13 @@
   width: 1.5rem;
   height: 1.5rem;
   color: var(--sapBackgroundColor);
-  margin-right: 0.75rem;
+  margin-right: 1rem;
 }
 
 .content {
   flex-grow: 1;
   padding-right: 0.5rem;
+  color: var(--sapBackgroundColor);
 }
 
 .full-width {

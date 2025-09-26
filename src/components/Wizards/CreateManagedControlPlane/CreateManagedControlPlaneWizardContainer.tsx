@@ -159,7 +159,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     },
     mode: 'onChange',
   });
-  // no-op: original snapshot for summarize is now built from current form state
+
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
 
@@ -364,7 +364,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           return false;
       }
     },
-    [selectedStep, isValid, hasMissingComponentVersions],
+    [selectedStep, isValid, hasMissingComponentVersions, isEditMode],
   );
 
   const onBackClick = useCallback(() => {
