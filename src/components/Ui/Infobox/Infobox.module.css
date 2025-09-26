@@ -1,26 +1,13 @@
-.wrapper {
-  width: 100%;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8), rgba(0, 0, 2055, 0.2)) border-box;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  box-sizing: border-box;
-  padding: 2px;
-  margin-bottom: 2rem;
-  border-radius: 15px;
-}
-
-.wrapper.dark-mode {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2))
-    border-box;
-}
-
 .infobox {
-  padding: 3px;
   display: flex;
   align-items: center;
   border-radius: 12px;
   padding: 1rem;
   margin: 0;
   overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  margin-bottom: 2rem;
+  border-radius: 15px;
 }
 
 .icon {

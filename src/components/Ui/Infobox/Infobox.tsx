@@ -31,7 +31,6 @@ export const Infobox: React.FC<LabelProps> = ({
   className,
   icon,
 }) => {
-  const { isDarkTheme } = useTheme();
   const infoboxClasses = cx(
     styles.infobox,
     {
@@ -50,11 +49,9 @@ export const Infobox: React.FC<LabelProps> = ({
   const iconName = icon || variantIcons[variant];
 
   return (
-    <div className={cx(styles['wrapper'], { [styles['dark-mode']]: isDarkTheme })}>
-      <div className={infoboxClasses} id={id}>
-        {iconName && <Icon name={iconName} className={styles.icon} />}
-        <div className={styles.content}>{children}</div>
-      </div>
+    <div className={infoboxClasses} id={id}>
+      {iconName && <Icon name={iconName} className={styles.icon} />}
+      <div className={styles.content}>{children}</div>
     </div>
   );
 };
