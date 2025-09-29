@@ -115,7 +115,11 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
           onToggle={() => !forceDeletion && setAdvancedCollapsed((v) => !v)}
         >
           <FlexBox direction="Column" className={styles.advancedOptionsContent}>
-            <CheckBox checked={forceDeletion} text={t('ManagedResources.forceDeletion')} onChange={handleForceDeletionChange} />
+            <CheckBox
+              checked={forceDeletion}
+              text={t('ManagedResources.forceDeletion')}
+              onChange={handleForceDeletionChange}
+            />
             <MessageStrip design="Critical" hideCloseButton>
               <span>{t('ManagedResources.forceWarningLine')}</span>
             </MessageStrip>
