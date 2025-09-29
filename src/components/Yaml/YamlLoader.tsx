@@ -1,5 +1,5 @@
 import { YamlViewButtonProps } from './YamlViewButtonWithLoader.tsx';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import { stringify } from 'yaml';
 
@@ -29,6 +29,15 @@ export const YamlLoader: FC<YamlLoaderProps> = ({
     true,
   );
   const { t } = useTranslation();
+  const yamlString = useMemo(() => {
+    if (isLoading || error) return '';
+    return stringify(removeManagedFieldsProperty(data as Resource, showOnlyImportantData));
+  }, [data, error, isLoading, showOnlyImportantData]);
+
+  const yamlStringToCopy = useMemo(() => {
+    if (isLoading || error) return '';
+    return stringify(removeManagedFieldsProperty(data as Resource, false));
+  }, [data, error, isLoading]);
   if (isLoading) return <Loading />;
   if (error) {
     return <IllustratedError details={t('common.cannotLoadData')} />;
@@ -36,8 +45,8 @@ export const YamlLoader: FC<YamlLoaderProps> = ({
 
   return (
     <YamlViewer
-      yamlString={stringify(removeManagedFieldsProperty(data as Resource, showOnlyImportantData))}
-      yamlStringToCopy={stringify(removeManagedFieldsProperty(data as Resource, false))}
+      yamlString={yamlString}
+      yamlStringToCopy={yamlStringToCopy}
       filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
       setShowOnlyImportantData={setShowOnlyImportantData}
       showOnlyImportantData={showOnlyImportantData}

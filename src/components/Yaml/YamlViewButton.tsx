@@ -23,7 +23,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
   }, [resource, showOnlyImportantData]);
   const yamlStringToCopy = useMemo(() => {
     return stringify(removeManagedFieldsProperty(resource, false));
-  }, [resource, showOnlyImportantData]);
+  }, [resource]);
   return (
     <span>
       <YamlViewDialog
