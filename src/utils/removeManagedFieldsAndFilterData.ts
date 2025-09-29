@@ -23,7 +23,7 @@ export type Resource = {
   status?: unknown;
 };
 
-export const removeManagedFieldsProperty = (resourceObject: Resource, showOnlyImportantData: boolean) => {
+export const removeManagedFieldsAndFilterData = (resourceObject: Resource, showOnlyImportantData: boolean) => {
   console.log(resourceObject);
   if (resourceObject?.metadata?.managedFields) {
     return {

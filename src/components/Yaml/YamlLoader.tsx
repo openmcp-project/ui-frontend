@@ -9,7 +9,7 @@ import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import YamlViewer from './YamlViewer.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
-import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
+import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 interface YamlLoaderProps extends YamlViewButtonProps {
   showOnlyImportantData?: boolean;
@@ -31,12 +31,12 @@ export const YamlLoader: FC<YamlLoaderProps> = ({
   const { t } = useTranslation();
   const yamlString = useMemo(() => {
     if (isLoading || error) return '';
-    return stringify(removeManagedFieldsProperty(data as Resource, showOnlyImportantData));
+    return stringify(removeManagedFieldsAndFilterData(data as Resource, showOnlyImportantData));
   }, [data, error, isLoading, showOnlyImportantData]);
 
   const yamlStringToCopy = useMemo(() => {
     if (isLoading || error) return '';
-    return stringify(removeManagedFieldsProperty(data as Resource, false));
+    return stringify(removeManagedFieldsAndFilterData(data as Resource, false));
   }, [data, error, isLoading]);
   if (isLoading) return <Loading />;
   if (error) {
