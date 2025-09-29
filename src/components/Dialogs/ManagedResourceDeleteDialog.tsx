@@ -59,15 +59,13 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
 
   const isConfirmed = confirmationText === resourceName;
 
-  const { trigger: deleteTrigger, isMutating: isMutatingDelete } = useApiResourceMutation<DeleteManagedResourceType>(
+  const { trigger: deleteTrigger} = useApiResourceMutation<DeleteManagedResourceType>(
     DeleteMCPManagedResource(apiVersion, pluralKind, resourceName),
   );
 
-  const { trigger: patchTrigger, isMutating: isMutatingPatch } = useApiResourceMutation<undefined>(
+  const { trigger: patchTrigger} = useApiResourceMutation<undefined>(
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName),
   );
-
-  const isMutating = isMutatingDelete || isMutatingPatch;
 
   const handleForceDeletionChange = () => {
     setForceDeletion(!forceDeletion);
@@ -127,10 +125,10 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
         </Panel>
 
         <FlexBox justifyContent="End" className={styles.actions}>
-          <Button design="Transparent" disabled={isMutating} onClick={onClose}>
+          <Button design="Transparent" onClick={onClose}>
             {t('buttons.cancel')}
           </Button>
-          <Button design={ButtonDesign.Negative} disabled={isMutating || !isConfirmed} onClick={handleDelete}>
+          <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleDelete}>
             {t('DeleteConfirmationDialog.deleteButton')}
           </Button>
         </FlexBox>
