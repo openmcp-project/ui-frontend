@@ -8,6 +8,8 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme.ts';
 type YamlViewerProps = { yamlString: string; filename: string };
+
+const IS_YAML_DOWNLOAD_ENABLED = false; // to disable download button for yaml files due to stakeholders decision
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
@@ -30,9 +32,11 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
         <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
           {t('buttons.copy')}
         </Button>
-        <Button icon="download" onClick={downloadYaml}>
-          {t('buttons.download')}
-        </Button>
+        {IS_YAML_DOWNLOAD_ENABLED && (
+          <Button icon="download" onClick={downloadYaml}>
+            {t('buttons.download')}
+          </Button>
+        )}
       </FlexBox>
       <SyntaxHighlighter
         language="yaml"
