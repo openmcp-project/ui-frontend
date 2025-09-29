@@ -11,7 +11,18 @@ import YamlViewer from './YamlViewer.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
 
-export const YamlLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
+interface YamlLoaderProps extends YamlViewButtonProps {
+  showOnlyImportantData?: boolean;
+  setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
+}
+
+export const YamlLoader: FC<YamlLoaderProps> = ({
+  workspaceName,
+  resourceType,
+  resourceName,
+  showOnlyImportantData = false,
+  setShowOnlyImportantData,
+}) => {
   const { isLoading, data, error } = useApiResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,
@@ -25,8 +36,10 @@ export const YamlLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceTyp
 
   return (
     <YamlViewer
-      yamlString={stringify(removeManagedFieldsProperty(data as Resource, true))}
+      yamlString={stringify(removeManagedFieldsProperty(data as Resource, showOnlyImportantData))}
       filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
+      setShowOnlyImportantData={setShowOnlyImportantData}
+      showOnlyImportantData={showOnlyImportantData}
     />
   );
 };

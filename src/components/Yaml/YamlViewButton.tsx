@@ -13,12 +13,13 @@ export type YamlViewButtonProps = {
 };
 
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
+  const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
 
   const yamlString = useMemo(() => {
-    return stringify(removeManagedFieldsProperty(resource));
+    return stringify(removeManagedFieldsProperty(resource, showOnlyImportantData));
   }, [resource]);
   return (
     <span>
@@ -29,6 +30,8 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
           <YamlViewer
             yamlString={yamlString}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+            setShowOnlyImportantData={setShowOnlyImportantData}
+            showOnlyImportantData={showOnlyImportantData}
           />
         }
       />

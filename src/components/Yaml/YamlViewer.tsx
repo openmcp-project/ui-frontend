@@ -7,7 +7,12 @@ import styles from './YamlViewer.module.css';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme.ts';
-type YamlViewerProps = { yamlString: string; filename: string };
+type YamlViewerProps = {
+  yamlString: string;
+  filename: string;
+  showOnlyImportantData?: boolean;
+  setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
+};
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const { t } = useTranslation();
   const { isDarkTheme } = useTheme();
