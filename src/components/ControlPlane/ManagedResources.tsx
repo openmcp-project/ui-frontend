@@ -3,52 +3,24 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
-  Button,
   Title,
-  Menu,
-  MenuItem,
-  MenuDomRef,
 } from '@ui5/webcomponents-react';
 import { useApiResource, useCRDItemsMapping } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
-import '@ui5/webcomponents-icons/dist/sys-enter-2';
-import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import { resourcesInterval } from '../../lib/shared/constants';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { FC, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ManagedResourceItem } from '../../lib/shared/types.ts';
 import { ManagedResourceDeleteDialog } from '../Dialogs/ManagedResourceDeleteDialog.tsx';
+import { RowActionsMenu } from './ManagedResourcesActionMenu.tsx';
 
 const getItemKey = (item: ManagedResourceItem): string => `${item.kind}-${item.metadata.name}`;
-
-const RowActionsMenu: FC<{
-  item: ManagedResourceItem;
-  onOpen: (item: ManagedResourceItem) => void;
-  isDeleting: boolean;
-}> = ({ item, onOpen, isDeleting }) => {
-  const { t } = useTranslation();
-  const popoverRef = useRef<MenuDomRef>(null);
-
-  return (
-    <>
-      <Button icon="overflow" icon-end disabled={isDeleting} onClick={() => onOpen(item)} />
-      <Menu
-        ref={popoverRef}
-        onItemClick={() => {
-          onOpen(item);
-        }}
-      >
-        <MenuItem text={t('ManagedResources.deleteAction')} icon="delete" />
-      </Menu>
-    </>
-  );
-};
 
 interface CellData<T> {
   cell: {
