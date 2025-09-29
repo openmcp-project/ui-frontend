@@ -79,12 +79,12 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
 
   const handleDelete = async () => {
     if (!item) return;
-    
+
     onDeleteStart(item);
 
     try {
       await deleteTrigger({ data: { force } });
-      
+
       if (force) {
         await patchTrigger({ data: { force } });
       }
