@@ -20,7 +20,10 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
 
   const yamlString = useMemo(() => {
     return stringify(removeManagedFieldsProperty(resource, showOnlyImportantData));
-  }, [resource]);
+  }, [resource, showOnlyImportantData]);
+  const yamlStringToCopy = useMemo(() => {
+    return stringify(removeManagedFieldsProperty(resource, false));
+  }, [resource, showOnlyImportantData]);
   return (
     <span>
       <YamlViewDialog
@@ -28,6 +31,7 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         setIsOpen={setIsOpen}
         dialogContent={
           <YamlViewer
+            yamlStringToCopy={yamlStringToCopy}
             yamlString={yamlString}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             setShowOnlyImportantData={setShowOnlyImportantData}

@@ -26,6 +26,7 @@ export const YamlViewDialog: FC<YamlViewDialogProps> = ({
     <Dialog
       open={isOpen}
       stretch
+      initialFocus={'closeButton'}
       footer={
         <Bar
           startContent={
@@ -39,7 +40,7 @@ export const YamlViewDialog: FC<YamlViewDialogProps> = ({
           }
           design="Footer"
           endContent={
-            <Button design="Emphasized" onClick={() => setIsOpen(false)}>
+            <Button design="Emphasized" id={'closeButton'} onClick={() => setIsOpen(false)}>
               {t('common.close')}
             </Button>
           }

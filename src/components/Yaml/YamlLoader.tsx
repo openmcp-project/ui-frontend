@@ -37,6 +37,7 @@ export const YamlLoader: FC<YamlLoaderProps> = ({
   return (
     <YamlViewer
       yamlString={stringify(removeManagedFieldsProperty(data as Resource, showOnlyImportantData))}
+      yamlStringToCopy={stringify(removeManagedFieldsProperty(data as Resource, false))}
       filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
       setShowOnlyImportantData={setShowOnlyImportantData}
       showOnlyImportantData={showOnlyImportantData}
