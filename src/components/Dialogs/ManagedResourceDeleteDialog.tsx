@@ -32,13 +32,13 @@ type Props = {
 
 export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onClose, item, onDeleteStart }) => {
   const { t } = useTranslation();
-  const [force, setForce] = useState(false);
+  const [forceDeletion, setForceDeletion] = useState(false);
   const [advancedCollapsed, setAdvancedCollapsed] = useState(true);
   const [confirmationText, setConfirmationText] = useState('');
 
   useEffect(() => {
     if (!open) {
-      setForce(false);
+      setForceDeletion(false);
       setAdvancedCollapsed(true);
       setConfirmationText('');
     }
@@ -70,11 +70,8 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
   const isMutating = isMutatingDelete || isMutatingPatch;
 
   const handleForceDeletionChange = () => {
-    setForce((prev) => {
-      const next = !prev;
-      if (next) setAdvancedCollapsed(false);
-      return next;
-    });
+    setForceDeletion(!forceDeletion);
+    if (!forceDeletion) setAdvancedCollapsed(false);
   };
 
   const handleDelete = async () => {
@@ -83,10 +80,10 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
     onDeleteStart(item);
 
     try {
-      await deleteTrigger({ data: { force } });
+      await deleteTrigger({ data: { force: forceDeletion } });
 
-      if (force) {
-        await patchTrigger({ data: { force } });
+      if (forceDeletion) {
+        await patchTrigger({ data: { force: forceDeletion } });
       }
     } catch (_) {
       // Ignore errors - item can be deleted before patch and it's ok.
@@ -114,11 +111,11 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
         <Panel
           headerText={t('ManagedResources.advancedOptions')}
           collapsed={advancedCollapsed}
-          fixed={force}
-          onToggle={() => !force && setAdvancedCollapsed((v) => !v)}
+          fixed={forceDeletion}
+          onToggle={() => !forceDeletion && setAdvancedCollapsed((v) => !v)}
         >
           <FlexBox direction="Column" className={styles.advancedOptionsContent}>
-            <CheckBox checked={force} text={t('ManagedResources.forceDeletion')} onChange={handleForceDeletionChange} />
+            <CheckBox checked={forceDeletion} text={t('ManagedResources.forceDeletion')} onChange={handleForceDeletionChange} />
             <MessageStrip design="Critical" hideCloseButton>
               <span>{t('ManagedResources.forceWarningLine')}</span>
             </MessageStrip>
