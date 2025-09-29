@@ -7,7 +7,7 @@ export interface DeleteManagedResourceType {
 
 export const PatchResourceForForceDeletionBody = {
   metadata: {
-    finalizers: {},
+    finalizers: null,
   },
 };
 
@@ -20,7 +20,7 @@ export const PatchResourceForForceDeletion = (
     path: `/apis/${apiVersion}/${kind}/${resourceName}/`,
     method: 'PATCH',
     jq: undefined,
-    body: undefined,
+    body: JSON.stringify(PatchResourceForForceDeletionBody),
   };
 };
 

@@ -80,10 +80,10 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
     onDeleteStart(item);
 
     try {
-      await deleteTrigger({ data: { force: forceDeletion } });
+      await deleteTrigger();
 
       if (forceDeletion) {
-        await patchTrigger({ data: { force: forceDeletion } });
+        await patchTrigger();
       }
     } catch (_) {
       // Ignore errors - item can be deleted before patch and it's ok.
