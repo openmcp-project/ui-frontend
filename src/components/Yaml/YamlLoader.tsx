@@ -25,7 +25,7 @@ export const YamlLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceTyp
 
   return (
     <YamlViewer
-      yamlString={stringify(removeManagedFieldsProperty(data as Resource))}
+      yamlString={stringify(removeManagedFieldsProperty(data as Resource, true))}
       filename={`${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`}
     />
   );
