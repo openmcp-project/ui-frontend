@@ -59,11 +59,11 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
 
   const isConfirmed = confirmationText === resourceName;
 
-  const { trigger: deleteTrigger} = useApiResourceMutation<DeleteManagedResourceType>(
+  const { trigger: deleteTrigger } = useApiResourceMutation<DeleteManagedResourceType>(
     DeleteMCPManagedResource(apiVersion, pluralKind, resourceName),
   );
 
-  const { trigger: patchTrigger} = useApiResourceMutation<undefined>(
+  const { trigger: patchTrigger } = useApiResourceMutation<undefined>(
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName),
   );
 
