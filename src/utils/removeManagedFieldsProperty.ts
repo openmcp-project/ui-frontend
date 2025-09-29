@@ -1,3 +1,5 @@
+import { LAST_APPLIED_CONFIGURATION_ANNOTATION } from '../lib/api/types/shared/keyNames';
+
 export type Resource = {
   apiVersion: string;
   kind: string;
@@ -7,7 +9,7 @@ export type Resource = {
     namespace?: string;
     labels?: Record<string, string>;
     annotations?: {
-      'kubectl.kubernetes.io/last-applied-configuration'?: string;
+      [LAST_APPLIED_CONFIGURATION_ANNOTATION]?: string;
       [key: string]: string | undefined;
     };
     managedFields?: unknown;
@@ -31,9 +33,9 @@ export const removeManagedFieldsProperty = (resourceObject: Resource, showOnlyIm
         managedFields: undefined,
         annotations: {
           ...resourceObject.metadata.annotations,
-          'kubectl.kubernetes.io/last-applied-configuration': showOnlyImportantData
+          [LAST_APPLIED_CONFIGURATION_ANNOTATION]: showOnlyImportantData
             ? undefined
-            : resourceObject?.metadata?.annotations?.['kubectl.kubernetes.io/last-applied-configuration'],
+            : resourceObject?.metadata?.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION],
         },
         generation: showOnlyImportantData ? undefined : resourceObject?.metadata?.generation,
         uid: showOnlyImportantData ? undefined : resourceObject?.metadata?.uid,
@@ -50,9 +52,9 @@ export const removeManagedFieldsProperty = (resourceObject: Resource, showOnlyIm
           managedFields: undefined,
           annotations: {
             ...resourceObject.metadata.annotations,
-            'kubectl.kubernetes.io/last-applied-configuration': showOnlyImportantData
+            [LAST_APPLIED_CONFIGURATION_ANNOTATION]: showOnlyImportantData
               ? undefined
-              : resourceObject?.metadata?.annotations?.['kubectl.kubernetes.io/last-applied-configuration'],
+              : resourceObject?.metadata?.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION],
           },
           generation: showOnlyImportantData ? undefined : resourceObject?.metadata?.generation,
           uid: showOnlyImportantData ? undefined : resourceObject?.metadata?.uid,
