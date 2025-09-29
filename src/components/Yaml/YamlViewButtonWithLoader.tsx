@@ -10,19 +10,29 @@ export type YamlViewButtonProps = {
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
+  showOnlyImportantYamlProperties: boolean;
 };
 
 export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
+  const [showOnlyImportantYamlProperties, setShowOnlyImportantYamlProperties] = useState<boolean>(true);
+  console.log(showOnlyImportantYamlProperties);
   return (
     <span>
       <YamlViewDialog
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         dialogContent={
-          <YamlLoader workspaceName={workspaceName} resourceName={resourceName} resourceType={resourceType} />
+          <YamlLoader
+            workspaceName={workspaceName}
+            resourceName={resourceName}
+            resourceType={resourceType}
+            showOnlyImportantYamlProperties
+          />
         }
+        showOnlyImportantYamlProperties={showOnlyImportantYamlProperties}
+        setShowOnlyImportantYamlProperties={setShowOnlyImportantYamlProperties}
       />
 
       <Button

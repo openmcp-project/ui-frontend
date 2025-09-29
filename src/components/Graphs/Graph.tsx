@@ -8,9 +8,9 @@ import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
-import YamlViewer from '../Yaml/YamlViewer';
+import YamlViewer from '../Yaml/YamlViewer.tsx';
 import { stringify } from 'yaml';
-import { removeManagedFieldsProperty } from '../../utils/removeManagedFieldsProperty';
+import { removeManagedFieldsPropertyAndFilterFields } from '../../utils/removeManagedFieldsPropertyAndFilterFields.ts';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
@@ -44,7 +44,7 @@ const Graph: React.FC = () => {
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
-    () => (yamlResource ? stringify(removeManagedFieldsProperty(yamlResource)) : ''),
+    () => (yamlResource ? stringify(removeManagedFieldsPropertyAndFilterFields(yamlResource)) : ''),
     [yamlResource],
   );
 
