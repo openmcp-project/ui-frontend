@@ -7,6 +7,7 @@ import styles from './YamlViewer.module.css';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../hooks/useTheme.ts';
+import { Editor } from '@monaco-editor/react';
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const { t } = useTranslation();
@@ -34,30 +35,31 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           {t('buttons.download')}
         </Button>
       </FlexBox>
-      <SyntaxHighlighter
-        language="yaml"
-        style={isDarkTheme ? materialDark : materialLight}
-        showLineNumbers
-        lineNumberStyle={{
-          paddingRight: '20px',
-          minWidth: '40px',
-          textAlign: 'right',
-        }}
-        customStyle={{
-          margin: 0,
-          padding: '20px',
-          borderRadius: '4px',
-          fontSize: '1rem',
-          background: 'transparent',
-        }}
-        codeTagProps={{
-          style: {
-            whiteSpace: 'pre-wrap',
-          },
-        }}
-      >
-        {yamlString}
-      </SyntaxHighlighter>
+      <Editor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
+      {/*<SyntaxHighlighter*/}
+      {/*  language="yaml"*/}
+      {/*  style={isDarkTheme ? materialDark : materialLight}*/}
+      {/*  showLineNumbers*/}
+      {/*  lineNumberStyle={{*/}
+      {/*    paddingRight: '20px',*/}
+      {/*    minWidth: '40px',*/}
+      {/*    textAlign: 'right',*/}
+      {/*  }}*/}
+      {/*  customStyle={{*/}
+      {/*    margin: 0,*/}
+      {/*    padding: '20px',*/}
+      {/*    borderRadius: '4px',*/}
+      {/*    fontSize: '1rem',*/}
+      {/*    background: 'transparent',*/}
+      {/*  }}*/}
+      {/*  codeTagProps={{*/}
+      {/*    style: {*/}
+      {/*      whiteSpace: 'pre-wrap',*/}
+      {/*    },*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {yamlString}*/}
+      {/*</SyntaxHighlighter>*/}
     </div>
   );
 };
