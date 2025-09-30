@@ -12,5 +12,5 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
   const { theme, ...rest } = props;
   const computedTheme = theme ?? (isDarkTheme ? VS_CODE_DARK_PLUS : VS_CODE_LIGHT_PLUS);
 
-  return <DiffEditor theme={computedTheme} {...rest} />;
+  return <DiffEditor height={'50vh'} theme={computedTheme} {...rest} />;
 };
