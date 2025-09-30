@@ -44,8 +44,9 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
     }
   }, [open]);
 
-  const { apiVersion, resourceName, pluralKind } = useMemo(
+  const { apiVersion, resourceName, pluralKind, namespace } = useMemo(
     () => ({
+      namespace: item?.metadata?.namespace ?? '',
       apiVersion: item?.apiVersion ?? '',
       resourceName: item?.metadata?.name ?? '',
       pluralKind: item ? getPluralKind(item, kindMapping) : '',
@@ -60,11 +61,11 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
   const isConfirmed = confirmationText === resourceName;
 
   const { trigger: deleteTrigger } = useApiResourceMutation<DeleteManagedResourceType>(
-    DeleteMCPManagedResource(apiVersion, pluralKind, resourceName),
+    DeleteMCPManagedResource(apiVersion, pluralKind, resourceName, namespace),
   );
 
   const { trigger: patchTrigger } = useApiResourceMutation<undefined>(
-    PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName),
+    PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
   const handleForceDeletionChange = () => {

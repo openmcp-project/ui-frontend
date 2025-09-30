@@ -19,6 +19,7 @@ import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ManagedResourceItem } from '../../lib/shared/types.ts';
 import { ManagedResourceDeleteDialog } from '../Dialogs/ManagedResourceDeleteDialog.tsx';
 import { RowActionsMenu } from './ManagedResourcesActionMenu.tsx';
+import styles from './ManagedResources.module.css';
 
 const getItemKey = (item: ManagedResourceItem): string => `${item.kind}-${item.metadata.name}`;
 
@@ -173,7 +174,7 @@ export function ManagedResources() {
             item: item,
             conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
             conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
-            style: isDeleting ? { opacity: 0.5, pointerEvents: 'none' } : undefined,
+            className: isDeleting ? styles.deletingRow : undefined,
           };
         }),
       ) ?? [];

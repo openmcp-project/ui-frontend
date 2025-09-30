@@ -13,11 +13,19 @@ export const PatchResourceForForceDeletionBody = {
 
 export const PatchResourceForForceDeletion = (
   apiVersion: string,
-  kind: string,
+  pluralKind: string,
   resourceName: string,
+  namespace?: string,
 ): Resource<undefined> => {
+  // If namespace is provided, use namespaced path; otherwise, use cluster-scoped path
+  const basePath = `/apis/${apiVersion}`;
+
+  const path = namespace
+    ? `${basePath}/namespaces/${namespace}/${pluralKind}/${resourceName}`
+    : `${basePath}/${pluralKind}/${resourceName}`;
+
   return {
-    path: `/apis/${apiVersion}/${kind}/${resourceName}/`,
+    path: path,
     method: 'PATCH',
     jq: undefined,
     body: JSON.stringify(PatchResourceForForceDeletionBody),
@@ -26,11 +34,18 @@ export const PatchResourceForForceDeletion = (
 
 export const DeleteMCPManagedResource = (
   apiVersion: string,
-  kind: string,
+  pluralKind: string,
   resourceName: string,
+  namespace?: string,
 ): Resource<undefined> => {
+  // If namespace is provided, use namespaced path; otherwise, use cluster-scoped path
+  const basePath = `/apis/${apiVersion}`;
+
+  const path = namespace
+    ? `${basePath}/namespaces/${namespace}/${pluralKind}/${resourceName}`
+    : `${basePath}/${pluralKind}/${resourceName}`;
   return {
-    path: `/apis/${apiVersion}/${kind}/${resourceName}/`,
+    path: path,
     method: 'DELETE',
     jq: undefined,
     body: undefined,
