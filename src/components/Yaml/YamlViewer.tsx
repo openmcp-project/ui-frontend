@@ -1,17 +1,16 @@
 import { FC } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { materialLight, materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
 import { Button, FlexBox } from '@ui5/webcomponents-react';
-import styles from './YamlViewer.module.css';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../hooks/useTheme.ts';
 import { Editor } from '@monaco-editor/react';
+import { configureYaml } from '../../lib/monaco.ts';
+
+import styles from './YamlViewer.module.css';
+
 type YamlViewerProps = { yamlString: string; filename: string };
 const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   const { t } = useTranslation();
-  const { isDarkTheme } = useTheme();
+  // const { isDarkTheme } = useTheme();
   const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });
@@ -35,31 +34,18 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           {t('buttons.download')}
         </Button>
       </FlexBox>
-      <Editor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
-      {/*<SyntaxHighlighter*/}
-      {/*  language="yaml"*/}
-      {/*  style={isDarkTheme ? materialDark : materialLight}*/}
-      {/*  showLineNumbers*/}
-      {/*  lineNumberStyle={{*/}
-      {/*    paddingRight: '20px',*/}
-      {/*    minWidth: '40px',*/}
-      {/*    textAlign: 'right',*/}
-      {/*  }}*/}
-      {/*  customStyle={{*/}
-      {/*    margin: 0,*/}
-      {/*    padding: '20px',*/}
-      {/*    borderRadius: '4px',*/}
-      {/*    fontSize: '1rem',*/}
-      {/*    background: 'transparent',*/}
-      {/*  }}*/}
-      {/*  codeTagProps={{*/}
-      {/*    style: {*/}
-      {/*      whiteSpace: 'pre-wrap',*/}
-      {/*    },*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  {yamlString}*/}
-      {/*</SyntaxHighlighter>*/}
+      <Editor
+        height="90vh"
+        defaultLanguage="yaml"
+        defaultValue={yamlString}
+        beforeMount={(monaco) => {
+          try {
+            configureYaml(monaco);
+          } catch (e) {
+            console.error('YAML configure error', e);
+          }
+        }}
+      />
     </div>
   );
 };
