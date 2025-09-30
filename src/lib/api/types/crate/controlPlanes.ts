@@ -5,8 +5,10 @@ export type ListControlPlanesType = ControlPlaneType;
 export interface Metadata {
   name: string;
   namespace: string;
+  creationTimestamp: string;
   annotations: {
     'openmcp.cloud/display-name': string;
+    'openmcp.cloud/created-by': string;
   };
 }
 
@@ -82,6 +84,6 @@ export const ControlPlane = (
 ): Resource<ControlPlaneType> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
-    jq: '{ spec: .spec | {components}, metadata: .metadata | {name, namespace, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
+    jq: '{ spec: .spec | {components}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
   };
 };

@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: var(--sapFontSize);
+}
+
+.label {
+  color: var(--sapContent_LabelColor);
+}
