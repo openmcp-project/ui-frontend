@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
-import { Editor } from '@monaco-editor/react';
+import { YamlEditor } from '../YamlEditor/YamlEditor';
 
 import styles from './YamlViewer.module.css';
 
@@ -33,7 +33,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           {t('buttons.download')}
         </Button>
       </FlexBox>
-      <Editor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
+      <YamlEditor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
     </div>
   );
 };

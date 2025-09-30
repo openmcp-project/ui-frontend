@@ -1,9 +1,6 @@
 import { FC, useMemo } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { materialLight, materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { diffLines } from 'diff';
 import styles from './YamlDiff.module.css';
-import { useTheme } from '../../hooks/useTheme.ts';
 
 type YamlDiffProps = {
   originalYaml: string;
@@ -11,46 +8,55 @@ type YamlDiffProps = {
 };
 
 export const YamlDiff: FC<YamlDiffProps> = ({ originalYaml, modifiedYaml }) => {
-  const { isDarkTheme } = useTheme();
-
   const hunks = useMemo(() => diffLines(originalYaml ?? '', modifiedYaml ?? ''), [originalYaml, modifiedYaml]);
 
-  const { content, lineKinds } = useMemo(() => {
-    const lines: string[] = [];
+  const { lines, lineKinds } = useMemo(() => {
+    const _lines: string[] = [];
     const kinds: ('added' | 'removed' | 'context')[] = [];
     hunks.forEach((part) => {
       const prefix = part.added ? '+' : part.removed ? '-' : ' ';
       const kind: 'added' | 'removed' | 'context' = part.added ? 'added' : part.removed ? 'removed' : 'context';
       const partLines = part.value.replace(/\n$/, '').split('\n');
       partLines.forEach((line) => {
-        lines.push(`${prefix}${line}`);
+        _lines.push(`${prefix}${line}`);
         kinds.push(kind);
       });
     });
-    return { content: lines.join('\n'), lineKinds: kinds };
+    return { lines: _lines, lineKinds: kinds };
   }, [hunks]);
 
-  const lineNumberStyle = useMemo(() => ({ paddingRight: '20px', minWidth: '40px', textAlign: 'right' as const }), []);
+  const lineNumberStyle: React.CSSProperties = useMemo(
+    () => ({ paddingRight: 20, minWidth: 40, textAlign: 'right', opacity: 0.7 }),
+    [],
+  );
+
+  const containerStyle: React.CSSProperties = useMemo(
+    () => ({
+      margin: 0,
+      padding: 20,
+      borderRadius: 4,
+      fontSize: '1rem',
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      background: 'transparent',
+      whiteSpace: 'pre-wrap',
+    }),
+    [],
+  );
 
   return (
     <div className={styles.container}>
-      <SyntaxHighlighter
-        language="diff"
-        style={isDarkTheme ? materialDark : materialLight}
-        showLineNumbers
-        wrapLongLines
-        lineNumberStyle={lineNumberStyle}
-        lineProps={(lineNumber) => {
-          const kind = lineKinds[lineNumber - 1];
-          if (kind === 'added') return { className: styles.added };
-          if (kind === 'removed') return { className: styles.removed };
-          return {};
-        }}
-        customStyle={{ margin: 0, padding: '20px', borderRadius: '4px', fontSize: '1rem', background: 'transparent' }}
-        codeTagProps={{ style: { whiteSpace: 'pre-wrap' } }}
-      >
-        {content}
-      </SyntaxHighlighter>
+      <div style={containerStyle}>
+        {lines.map((text, idx) => {
+          const kind = lineKinds[idx];
+          const className = kind === 'added' ? styles.added : kind === 'removed' ? styles.removed : undefined;
+          return (
+            <div key={idx} className={className} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 12 }}>
+              <span style={lineNumberStyle}>{idx + 1}</span>
+              <span>{text}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
