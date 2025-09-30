@@ -24,7 +24,6 @@ export type Resource = {
 };
 
 export const removeManagedFieldsAndFilterData = (resourceObject: Resource, showOnlyImportantData: boolean) => {
-  console.log(resourceObject);
   if (resourceObject?.metadata?.managedFields) {
     return {
       ...resourceObject,
