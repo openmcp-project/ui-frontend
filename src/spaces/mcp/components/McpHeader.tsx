@@ -3,7 +3,6 @@ import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts'
 import styles from './McpHeader.module.css';
 import { formatDateAsTimeAgo } from '../../../utils/i18n/timeAgo.ts';
 import { useTranslation } from 'react-i18next';
-import { Button, Icon } from '@ui5/webcomponents-react';
 
 export interface McpHeaderProps {
   mcp: ControlPlaneType;
@@ -17,6 +16,9 @@ export function McpHeader({ mcp }: McpHeaderProps) {
     month: 'long',
     year: 'numeric',
   });
+
+  const createdBy = mcp.metadata.annotations?.['openmcp.cloud/created-by'];
+
   return (
     <div className={styles.container}>
       <div className={styles.grid}>
@@ -28,8 +30,12 @@ export function McpHeader({ mcp }: McpHeaderProps) {
           {created} ({formatDateAsTimeAgo(mcp.metadata.creationTimestamp)})
         </span>
 
-        <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-        <span>{mcp.metadata.annotations['openmcp.cloud/created-by']}</span>
+        {createdBy ? (
+          <>
+            <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
+            <span>{createdBy}</span>
+          </>
+        ) : null}
       </div>
     </div>
   );

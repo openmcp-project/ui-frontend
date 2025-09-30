@@ -6,9 +6,9 @@ export interface Metadata {
   name: string;
   namespace: string;
   creationTimestamp: string;
-  annotations: {
+  annotations?: {
     'openmcp.cloud/display-name': string;
-    'openmcp.cloud/created-by': string;
+    'openmcp.cloud/created-by'?: string;
   };
 }
 

@@ -5,7 +5,7 @@
 .grid {
   display: grid;
   grid-template-columns: auto auto;
-  gap: 6px 12px;
+  gap: 0.375rem 0.75rem;
   align-items: center;
   font-size: var(--sapFontSize);
 }
