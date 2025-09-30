@@ -44,7 +44,7 @@ const Graph: React.FC = () => {
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
-    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource)) : ''),
+    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource, false)) : ''),
     [yamlResource],
   );
 
