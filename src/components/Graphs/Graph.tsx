@@ -44,6 +44,11 @@ const Graph: React.FC = () => {
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
+    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource as unknown as Resource, true)) : ''),
+    [yamlResource],
+  );
+
+  const yamlStringToCopy = useMemo(
     () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource as unknown as Resource, false)) : ''),
     [yamlResource],
   );
@@ -134,7 +139,9 @@ const Graph: React.FC = () => {
       <YamlViewDialog
         isOpen={yamlDialogOpen}
         setIsOpen={setYamlDialogOpen}
-        dialogContent={<YamlViewer yamlString={yamlString} yamlStringToCopy={yamlString} filename={yamlFilename} />}
+        dialogContent={
+          <YamlViewer yamlString={yamlString} yamlStringToCopy={yamlStringToCopy} filename={yamlFilename} />
+        }
       />
     </div>
   );
