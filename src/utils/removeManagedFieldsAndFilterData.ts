@@ -23,44 +23,42 @@ export type Resource = {
   status?: unknown;
 };
 
-export const removeManagedFieldsAndFilterData = (resourceObject: Resource, showOnlyImportantData: boolean) => {
-  if (resourceObject?.metadata?.managedFields) {
-    return {
-      ...resourceObject,
-      metadata: {
-        ...resourceObject.metadata,
-        managedFields: undefined,
-        annotations: {
-          ...resourceObject.metadata.annotations,
-          [LAST_APPLIED_CONFIGURATION_ANNOTATION]: showOnlyImportantData
-            ? undefined
-            : resourceObject?.metadata?.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION],
-        },
-        generation: showOnlyImportantData ? undefined : resourceObject?.metadata?.generation,
-        uid: showOnlyImportantData ? undefined : resourceObject?.metadata?.uid,
-      },
-    };
+const cleanUpResource = (
+  resource: Omit<Resource, 'items'>,
+  showOnlyImportantData: boolean,
+): Omit<Resource, 'items'> => {
+  const newResource = { ...resource };
+
+  if (newResource.metadata) {
+    newResource.metadata = { ...newResource.metadata };
+    delete newResource.metadata.managedFields;
+
+    if (showOnlyImportantData) {
+      if (newResource.metadata.annotations) {
+        newResource.metadata.annotations = { ...newResource.metadata.annotations };
+        delete newResource.metadata.annotations[LAST_APPLIED_CONFIGURATION_ANNOTATION];
+      }
+      delete newResource.metadata.generation;
+      delete newResource.metadata.uid;
+    }
   }
-  if (resourceObject?.items) {
+
+  return newResource;
+};
+
+export const removeManagedFieldsAndFilterData = (
+  resourceObject: Resource,
+  showOnlyImportantData: boolean,
+): Resource => {
+  if (!resourceObject) {
+    return {} as Resource;
+  }
+  if (resourceObject.items) {
     return {
-      ...resourceObject,
-      items: resourceObject.items.map((item) => ({
-        ...item,
-        metadata: {
-          ...item.metadata,
-          managedFields: undefined,
-          annotations: {
-            ...item.metadata.annotations,
-            [LAST_APPLIED_CONFIGURATION_ANNOTATION]: showOnlyImportantData
-              ? undefined
-              : resourceObject?.metadata?.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION],
-          },
-          generation: showOnlyImportantData ? undefined : resourceObject?.metadata?.generation,
-          uid: showOnlyImportantData ? undefined : resourceObject?.metadata?.uid,
-        },
-      })),
+      ...cleanUpResource(resourceObject, showOnlyImportantData),
+      items: resourceObject.items.map((item) => cleanUpResource(item, showOnlyImportantData)),
     };
   }
 
-  return resourceObject;
+  return cleanUpResource(resourceObject, showOnlyImportantData);
 };
