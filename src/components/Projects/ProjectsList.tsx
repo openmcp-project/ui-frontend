@@ -1,4 +1,4 @@
-import { AnalyticalTable, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
 
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -12,6 +12,7 @@ import { t } from 'i18next';
 import { YamlViewButtonWithLoader } from '../Yaml/YamlViewButtonWithLoader.tsx';
 import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { YamlEditorButton } from '../Yaml/YamlEditorButton';
 
 type ProjectListRow = {
   projectName: string;
@@ -42,7 +43,7 @@ export default function ProjectsList() {
       }) ?? [],
     [data],
   );
-  const stabilizedColumns = useMemo(
+  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
@@ -102,6 +103,25 @@ export default function ProjectsList() {
               resourceType={'projects'}
               resourceName={instance.cell.row.original?.projectName}
             />
+          </div>
+        ),
+      },
+      {
+        Header: 'Edit',
+        accessor: 'edit',
+        width: 75,
+        disableFilters: true,
+        hAlign: 'Center' as const,
+        Cell: () => (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <YamlEditorButton />
           </div>
         ),
       },

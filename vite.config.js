@@ -3,6 +3,9 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { viteFastify } from '@fastify/vite/plugin';
 import react from '@vitejs/plugin-react';
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
+
+const monacoPlugin = monacoEditorPlugin.default ?? monacoEditorPlugin;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +14,7 @@ export default defineConfig({
   plugins: [
     viteFastify({ spa: true }),
     react(),
+    monacoPlugin({}),
     sentryVitePlugin({
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,

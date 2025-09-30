@@ -1,0 +1,28 @@
+.editorContainer {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.submitButton {
+  margin-top: 1rem;
+}
+
+.errorOutput {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.errorOutput h3 {
+  margin-top: 0;
+}
+
+.errorOutput pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
