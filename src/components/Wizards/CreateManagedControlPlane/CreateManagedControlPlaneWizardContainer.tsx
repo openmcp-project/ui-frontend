@@ -10,16 +10,18 @@ import {
   Bar,
   Button,
   Dialog,
+  FlexBox,
   Form,
   FormGroup,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
   WizardStep,
+  Text,
 } from '@ui5/webcomponents-react';
 
 import { SummarizeStep } from './SummarizeStep.tsx';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
@@ -56,19 +58,24 @@ import {
   MCPSubject,
 } from '../../../lib/api/types/mcpResource.ts';
 import { stringify } from 'yaml';
+import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
+import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
+import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName?: string;
   workspaceName?: string;
-  isEditMode: boolean;
+  isEditMode?: boolean;
+  isDuplicateMode?: boolean;
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
   isOnMcpPage?: boolean;
+  initialSection?: WizardStepType;
 };
 
-type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
+export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
 const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
 
@@ -78,19 +85,27 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   projectName = '',
   workspaceName = '',
   isEditMode = false,
+  isDuplicateMode = false,
   initialTemplateName,
   initialData,
   isOnMcpPage = false,
+  initialSection,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-
-  const [selectedStep, setSelectedStep] = useState<WizardStepType>('metadata');
+  const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
-
+  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
+    name: '',
+    displayName: '',
+    chargingTarget: '',
+    chargingTargetType: '',
+    members: [],
+    componentsList: [],
+  });
   // Here we will use OnboardingAPI to get all available templates
   const templates = useMemo<ManagedControlPlaneTemplate[]>(() => [], []);
 
@@ -124,7 +139,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   }, [isOpen, initialTemplateName]);
 
   const validationSchemaCreateManagedControlPlane = useMemo(() => createManagedControlPlaneSchema(t), [t]);
-  const initializedComponents = useRef(false);
   const {
     register,
     handleSubmit,
@@ -146,14 +160,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     },
     mode: 'onChange',
   });
-  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
-    name: '',
-    displayName: '',
-    chargingTarget: '',
-    chargingTargetType: '',
-    members: [],
-    componentsList: [],
-  });
+
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
 
@@ -215,7 +222,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     isOnMcpPage,
   );
   const componentsList = watch('componentsList');
-
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
     return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
@@ -330,7 +336,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const setComponentsList = useCallback(
     (components: ComponentsListItem[]) => {
-      setValue('componentsList', components, { shouldValidate: false });
+      setValue('componentsList', components, { shouldValidate: true });
     },
     [setValue],
   );
@@ -341,16 +347,17 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         case 'metadata':
           return false;
         case 'members':
-          return selectedStep === 'metadata' || !isValid;
+          return (selectedStep === 'metadata' && !isEditMode) || !isValid;
         case 'componentSelection':
-          return selectedStep === 'metadata' || selectedStep === 'members' || !isValid;
+          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
         case 'summarize':
           return (
-            selectedStep === 'metadata' ||
-            selectedStep === 'members' ||
-            selectedStep === 'componentSelection' ||
-            !isValid ||
-            hasMissingComponentVersions
+            ((selectedStep === 'metadata' ||
+              selectedStep === 'members' ||
+              selectedStep === 'componentSelection' ||
+              hasMissingComponentVersions) &&
+              !isEditMode) ||
+            !isValid
           );
         case 'success':
           return selectedStep !== 'success';
@@ -358,7 +365,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           return false;
       }
     },
-    [selectedStep, isValid, hasMissingComponentVersions],
+    [selectedStep, isValid, hasMissingComponentVersions, isEditMode],
   );
 
   const onBackClick = useCallback(() => {
@@ -368,9 +375,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [selectedStep]);
 
-  // Prepare initial selections for components when editing
+  // Prepare initial selections for components when editing or duplicating
   const initialSelection = useMemo(() => {
-    if (!isEditMode) return undefined;
+    if (!isEditMode && !isDuplicateMode) return undefined;
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
     const componentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
     (Object.keys(componentsMap) as (keyof MCPComponentsSpec)[]).forEach((key) => {
@@ -390,12 +397,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       }
     });
     return selection;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode]);
+  }, [isEditMode, isDuplicateMode, initialData]);
 
   // Prefill form when editing
   useEffect(() => {
-    if (!isOpen || !isEditMode) return;
+    if (!isOpen || !initialData) return;
     const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
     const members: Member[] = roleBindings.flatMap((rb) =>
       (rb.subjects ?? []).map((s: MCPSubject) => ({
@@ -405,10 +411,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         namespace: s.namespace,
       })),
     );
+    const name = initialData?.metadata?.name ?? '';
     const labels = (initialData?.metadata?.labels as unknown as Record<string, string>) ?? {};
     const annotations = (initialData?.metadata?.annotations as unknown as Record<string, string>) ?? {};
     const data = {
-      name: initialData?.metadata?.name ?? '',
+      name: isDuplicateMode && !!name ? `${name}${t('createMCP.copySuffix')}` : name,
       displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
       chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
       chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL]?.toLowerCase() ?? '',
@@ -416,10 +423,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       componentsList: componentsList ?? [],
     };
     reset(data);
-
     setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode]);
+  }, [isOpen, isEditMode, isDuplicateMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
@@ -476,42 +482,23 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
-  const setInitialComponentsListHandler = (components: ComponentsListItem[]) => {
-    if (!isEditMode) return;
-    setInitialMcpDataWhenInEditMode({ ...initialMcpDataWhenInEditMode, componentsList: components });
-  };
-  useEffect(() => {
-    if (selectedStep !== 'componentSelection') return;
-    if (!selectedTemplate) return;
-    if (appliedTemplateComponentsRef.current) return;
-
-    const defaults = (selectedTemplate?.spec?.spec?.components?.defaultComponents ??
-      []) as ManagedControlPlaneTemplate['spec']['spec']['components']['defaultComponents'];
-    if (!defaults?.length) {
-      appliedTemplateComponentsRef.current = true;
-      return;
-    }
-
-    const current = (watch('componentsList') ?? []) as ComponentsListItem[];
-    if (current.length > 0) {
-      appliedTemplateComponentsRef.current = true;
-      return;
-    }
-
-    const mapped = defaults
-      .filter((c) => !!c?.name && !!c?.version)
-      .map((c) => ({
-        name: String(c.name),
-        version: String(c.version),
-        selectedVersion: String(c.version),
-        selected: true,
-        removable: Boolean(c.removable),
-        versionChangeable: Boolean(c.versionChangeable),
-      })) as unknown as ComponentsListItem[];
-
-    setValue('componentsList', mapped, { shouldValidate: false });
-    appliedTemplateComponentsRef.current = true;
-  }, [selectedStep, selectedTemplate, watch, setValue]);
+  const {
+    isLoading: componentsLoading,
+    error: componentsError,
+    templateDefaultsError,
+  } = useComponentsSelectionData(
+    selectedTemplate,
+    initialSelection,
+    isOnMcpPage,
+    (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) =>
+      setValue(name, value, options),
+    (components) =>
+      setInitialMcpDataWhenInEditMode((prev) => ({
+        ...prev,
+        componentsList: components,
+      })),
+  );
+  // Template application for components is handled inside the hook
 
   if (!isOpen) return null;
 
@@ -526,7 +513,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           <Bar
             design="Footer"
             endContent={
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
                   <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
                 )}
@@ -555,19 +542,38 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             selected={selectedStep === 'metadata'}
             data-step="metadata"
           >
-            <MetadataForm
-              key={metadataFormKey}
-              watch={watch}
-              setValue={setValue}
-              register={register}
-              errors={errors}
-              isEditMode={isEditMode}
-              disableChargingFields={!!selectedTemplate}
-              namePrefix={templateAffixes.namePrefix}
-              displayNamePrefix={templateAffixes.displayNamePrefix}
-              nameSuffix={templateAffixes.nameSuffix}
-              displayNameSuffix={templateAffixes.displayNameSuffix}
-            />
+            <FlexBox direction={'Row'} justifyContent={'SpaceBetween'} gap={16}>
+              <div className={styles.metadataForm}>
+                <MetadataForm
+                  key={metadataFormKey}
+                  watch={watch}
+                  setValue={setValue}
+                  register={register}
+                  errors={errors}
+                  isEditMode={isEditMode}
+                  disableChargingFields={!!selectedTemplate}
+                  namePrefix={templateAffixes.namePrefix}
+                  displayNamePrefix={templateAffixes.displayNamePrefix}
+                  nameSuffix={templateAffixes.nameSuffix}
+                  displayNameSuffix={templateAffixes.displayNameSuffix}
+                />
+              </div>
+              {isDuplicateMode && (
+                <div className={styles.infoboxContainer}>
+                  <Infobox size={'sm'}>
+                    <Text>
+                      <Trans
+                        i18nKey="editMCP.duplicatingMCPInfo1"
+                        components={{ span: <span className="mono-font" /> }}
+                      />
+                    </Text>
+                    <Text>
+                      <Trans i18nKey="editMCP.duplicatingMCPInfo2" components={{ b: <b /> }} />
+                    </Text>
+                  </Infobox>
+                </div>
+              )}
+            </FlexBox>
           </WizardStep>
           <WizardStep
             icon="user-edit"
@@ -602,11 +608,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               <ComponentsSelectionContainer
                 componentsList={componentsList ?? []}
                 setComponentsList={setComponentsList}
-                initialSelection={initialSelection}
-                managedControlPlaneTemplate={selectedTemplate}
-                isOnMcpPage={isOnMcpPage}
-                setInitialComponentsList={setInitialComponentsListHandler}
-                initializedComponents={initializedComponents}
+                isLoading={componentsLoading}
+                error={componentsError}
+                templateDefaultsError={templateDefaultsError || undefined}
               />
             )}
           </WizardStep>

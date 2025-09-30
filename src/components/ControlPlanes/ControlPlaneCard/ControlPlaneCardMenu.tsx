@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 type ControlPlanesListMenuProps = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
   isDeleteMcpButtonDisabled: boolean;
-  setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  setIsEditManagedControlPlaneWizardOpen: (isOpen: boolean, mode?: 'edit' | 'duplicate') => void;
 };
 
 export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
@@ -34,7 +34,10 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
-            setIsEditManagedControlPlaneWizardOpen(true);
+            setIsEditManagedControlPlaneWizardOpen(true, 'edit');
+          }
+          if (action === 'duplicateMcp') {
+            setIsEditManagedControlPlaneWizardOpen(true, 'duplicate');
           }
           if (action === 'deleteMcp') {
             setDialogDeleteMcpIsOpen(true);
@@ -53,6 +56,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           icon="delete"
           disabled={isDeleteMcpButtonDisabled}
         />
+        <MenuItem key={'duplicate'} text={t('ControlPlaneCard.duplicateMCP')} data-action="duplicateMcp" icon="copy" />
         <MenuItem
           key={'edit'}
           text={t('ControlPlaneCard.editMCP')}

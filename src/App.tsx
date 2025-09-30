@@ -1,7 +1,7 @@
 import AppRouter from './AppRouter';
 import { useAuthOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import '@ui5/webcomponents-icons/dist/AllIcons.d.ts';
-import LoginView from './views/Login.tsx';
+import { SignInPage } from './spaces/onboarding/pages/SignInPage/SignInPage.tsx';
 import { BusyIndicator } from '@ui5/webcomponents-react';
 import * as Sentry from '@sentry/react';
 
@@ -13,7 +13,7 @@ function App() {
   }
 
   if (!auth.isAuthenticated) {
-    return <LoginView />;
+    return <SignInPage />;
   }
 
   Sentry.setUser({
