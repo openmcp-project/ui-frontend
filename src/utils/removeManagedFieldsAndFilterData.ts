@@ -50,7 +50,7 @@ export const removeManagedFieldsAndFilterData = (resourceObject: Resource, showO
           ...item.metadata,
           managedFields: undefined,
           annotations: {
-            ...resourceObject.metadata.annotations,
+            ...item.metadata.annotations,
             [LAST_APPLIED_CONFIGURATION_ANNOTATION]: showOnlyImportantData
               ? undefined
               : resourceObject?.metadata?.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION],
