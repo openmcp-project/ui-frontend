@@ -6,11 +6,11 @@ import styles from './YamlViewer.module.css';
 import { YamlIcon } from './YamlIcon.tsx';
 import { YamlViewDialog } from './YamlViewDialog.tsx';
 
-export interface YamlViewButtonProps {
+export type YamlViewButtonProps = {
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
-}
+};
 
 export const YamlViewButtonWithLoader: FC<YamlViewButtonProps> = ({ workspaceName, resourceType, resourceName }) => {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
