@@ -38,6 +38,8 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
             showOnlyImportantData={showOnlyImportantData}
           />
         }
+        setShowOnlyImportantData={setShowOnlyImportantData}
+        showOnlyImportantData={showOnlyImportantData}
       />
 
       <Button
