@@ -3,7 +3,6 @@ import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
 import { Editor } from '@monaco-editor/react';
-import { configureYaml } from '../../lib/monaco.ts';
 
 import styles from './YamlViewer.module.css';
 
@@ -34,18 +33,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           {t('buttons.download')}
         </Button>
       </FlexBox>
-      <Editor
-        height="90vh"
-        defaultLanguage="yaml"
-        defaultValue={yamlString}
-        beforeMount={(monaco) => {
-          try {
-            configureYaml(monaco);
-          } catch (e) {
-            console.error('YAML configure error', e);
-          }
-        }}
-      />
+      <Editor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
     </div>
   );
 };
