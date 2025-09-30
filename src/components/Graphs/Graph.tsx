@@ -10,7 +10,7 @@ import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
 import YamlViewer from '../Yaml/YamlViewer';
 import { stringify } from 'yaml';
-import { removeManagedFieldsAndFilterData } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
@@ -44,7 +44,7 @@ const Graph: React.FC = () => {
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
 
   const yamlString = useMemo(
-    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource, false)) : ''),
+    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource as unknown as Resource, false)) : ''),
     [yamlResource],
   );
 
@@ -134,7 +134,7 @@ const Graph: React.FC = () => {
       <YamlViewDialog
         isOpen={yamlDialogOpen}
         setIsOpen={setYamlDialogOpen}
-        dialogContent={<YamlViewer yamlString={yamlString} filename={yamlFilename} />}
+        dialogContent={<YamlViewer yamlString={yamlString} yamlStringToCopy={yamlString} filename={yamlFilename} />}
       />
     </div>
   );
