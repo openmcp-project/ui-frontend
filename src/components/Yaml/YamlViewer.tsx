@@ -33,7 +33,7 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
           {t('buttons.download')}
         </Button>
       </FlexBox>
-      <YamlEditor height="90vh" defaultLanguage="yaml" defaultValue={yamlString} />
+      <YamlEditor height="90vh" defaultValue={yamlString} />
     </div>
   );
 };
