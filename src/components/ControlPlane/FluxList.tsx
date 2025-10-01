@@ -11,6 +11,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 export default function FluxList() {
   const { data: gitReposData, error: repoErr, isLoading: repoIsLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -81,7 +82,7 @@ export default function FluxList() {
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
         ),
       },
     ],
@@ -125,7 +126,9 @@ export default function FluxList() {
         width: 75,
         accessor: 'yaml',
         disableFilters: true,
-        Cell: (cellData: CellData<FluxRow>) => <YamlViewButton resourceObject={cellData.cell.row.original?.item} />,
+        Cell: (cellData: CellData<FluxRow>) => (
+          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
+        ),
       },
     ],
     [t],
@@ -173,14 +176,14 @@ export default function FluxList() {
       <div className="crossplane-table-element">
         <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
           <Title level="H4">{t('FluxList.gitOpsTitle')}</Title>
-          <YamlViewButton resourceObject={gitReposData} />
+          <YamlViewButton variant="resource" resource={gitReposData as unknown as Resource} />
         </FlexBox>
         <ConfiguredAnalyticstable columns={gitReposColumns} isLoading={repoIsLoading} data={gitReposRows} />
       </div>
       <div className="crossplane-table-element">
         <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={'0.5em'}>
           <Title level="H4">{t('FluxList.kustomizationsTitle')}</Title>
-          <YamlViewButton resourceObject={kustmizationData} />
+          <YamlViewButton variant="resource" resource={kustmizationData as unknown as Resource} />
         </FlexBox>
         <ConfiguredAnalyticstable
           columns={kustomizationsColumns}
