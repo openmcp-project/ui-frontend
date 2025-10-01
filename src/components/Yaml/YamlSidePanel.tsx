@@ -25,7 +25,7 @@ export interface YamlSidePanelProps {
   filename: string;
 }
 export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
-  const [showOnlyImportantData, setShowOnlyImportantData] = useState(false);
+  const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
 
