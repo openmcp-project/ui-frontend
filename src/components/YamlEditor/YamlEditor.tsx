@@ -9,13 +9,19 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'>;
 // Simple wrapper that forwards all props to Monaco Editor
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
-  const { theme, ...rest } = props;
+  const { theme, options, ...rest } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
+
+  const enforcedOptions = {
+    ...options,
+    minimap: { enabled: false },
+  };
 
   return (
     <Editor
       {...rest}
       theme={computedTheme}
+      options={enforcedOptions}
       // Force YAML language for this editor wrapper
       language="yaml"
     />
