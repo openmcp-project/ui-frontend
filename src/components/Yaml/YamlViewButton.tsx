@@ -1,58 +1,66 @@
 import { Button } from '@ui5/webcomponents-react';
-import { FC, useMemo, useState } from 'react';
-import styles from './YamlViewer.module.css';
+import styles from './YamlViewButton.module.css';
 import { useTranslation } from 'react-i18next';
-import YamlViewer from './YamlViewer.tsx';
-import { stringify } from 'yaml';
-import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { YamlIcon } from './YamlIcon.tsx';
-import { YamlViewDialog } from './YamlViewDialog.tsx';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from './YamlSidePanel.tsx';
+import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
 
-export type YamlViewButtonProps = {
-  resourceObject: unknown;
-};
+export interface YamlViewButtonResourceProps {
+  variant: 'resource';
+  resource: Resource;
+}
+export interface YamlViewButtonLoaderProps {
+  variant: 'loader';
+  workspaceName?: string;
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceName: string;
+}
+export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
 
-export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
-  const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
+export function YamlViewButton(props: YamlViewButtonProps) {
   const { t } = useTranslation();
-  const resource = resourceObject as Resource;
+  const { openInAside } = useSplitter();
 
-  const yamlString = useMemo(() => {
-    return stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData));
-  }, [resource, showOnlyImportantData]);
-  const yamlStringToCopy = useMemo(() => {
-    return stringify(removeManagedFieldsAndFilterData(resource, false));
-  }, [resource]);
+  const openSplitterSidePanel = () => {
+    switch (props.variant) {
+      case 'resource': {
+        const { resource } = props;
+        openInAside(
+          <YamlSidePanel
+            resource={props.resource}
+            filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+          />,
+        );
+        break;
+      }
+
+      case 'loader': {
+        const { workspaceName, resourceType, resourceName } = props;
+        openInAside(
+          <YamlSidePanelWithLoader
+            workspaceName={workspaceName}
+            resourceType={resourceType}
+            resourceName={resourceName}
+          />,
+        );
+        break;
+      }
+    }
+  };
+
   return (
     <span>
-      <YamlViewDialog
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        dialogContent={
-          <YamlViewer
-            yamlStringToCopy={yamlStringToCopy}
-            yamlString={yamlString}
-            filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
-            setShowOnlyImportantData={setShowOnlyImportantData}
-            showOnlyImportantData={showOnlyImportantData}
-          />
-        }
-        setShowOnlyImportantData={setShowOnlyImportantData}
-        showOnlyImportantData={showOnlyImportantData}
-      />
-
       <Button
         className={styles.button}
-        design={'Transparent'}
+        design="Transparent"
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
-        onClick={() => {
-          setIsOpen(true);
-        }}
+        onClick={openSplitterSidePanel}
       >
         <YamlIcon />
       </Button>
     </span>
   );
-};
+}

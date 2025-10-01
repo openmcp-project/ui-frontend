@@ -1,0 +1,9 @@
+.splitter {
+  width: 100%;
+  height: calc(100% - 3.25rem);
+}
+
+.asideContent {
+  width: 100%;
+  background-color: var(--sapGroup_TitleBackground);
+}
