@@ -1,6 +1,6 @@
 .splitter {
   width: 100%;
-  height: calc(100% - 3.25rem);
+  height: calc(100% - 3.25rem); /* subtract height of ShellBar */
 }
 
 .asideContent {
