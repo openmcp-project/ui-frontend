@@ -11,6 +11,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 export function GitRepositories() {
   const { data, error, isLoading } = useApiResource(FluxRequest); //404 if component not enabled
@@ -75,7 +76,7 @@ export function GitRepositories() {
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
         ),
       },
     ],
@@ -112,7 +113,7 @@ export function GitRepositories() {
       header={
         <Toolbar>
           <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <YamlViewButton resourceObject={data} />
+          <YamlViewButton variant="resource" resource={data as unknown as Resource} />
           <ToolbarSpacer />
         </Toolbar>
       }

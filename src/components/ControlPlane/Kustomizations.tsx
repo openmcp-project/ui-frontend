@@ -10,6 +10,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 export function Kustomizations() {
   const { data, error, isLoading } = useApiResource(FluxKustomization); //404 if component not enabled
@@ -70,7 +71,9 @@ export function Kustomizations() {
         width: 75,
         accessor: 'yaml',
         disableFilters: true,
-        Cell: (cellData: CellData<FluxRow>) => <YamlViewButton resourceObject={cellData.cell.row.original?.item} />,
+        Cell: (cellData: CellData<FluxRow>) => (
+          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
+        ),
       },
     ],
     [t],
@@ -105,7 +108,7 @@ export function Kustomizations() {
       header={
         <Toolbar>
           <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <YamlViewButton resourceObject={data} />
+          <YamlViewButton variant="resource" resource={data as unknown as Resource} />
           <ToolbarSpacer />
         </Toolbar>
       }
