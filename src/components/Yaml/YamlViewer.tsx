@@ -6,8 +6,18 @@ import { YamlEditor } from '../YamlEditor/YamlEditor';
 
 import styles from './YamlViewer.module.css';
 
-type YamlViewerProps = { yamlString: string; filename: string };
-const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
+type YamlViewerProps = {
+  yamlString: string;
+  yamlStringToCopy: string;
+  filename: string;
+  showOnlyImportantData?: boolean;
+  setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
+};
+
+// Download button is hidden now due to stakeholder request
+const SHOW_DOWNLOAD_BUTTON = false;
+
+const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCopy }) => {
   const { t } = useTranslation();
   // const { isDarkTheme } = useTheme();
   const { copyToClipboard } = useCopyToClipboard();
@@ -26,12 +36,14 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
-        <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
+        <Button icon="copy" onClick={() => copyToClipboard(yamlStringToCopy)}>
           {t('buttons.copy')}
         </Button>
-        <Button icon="download" onClick={downloadYaml}>
-          {t('buttons.download')}
-        </Button>
+        {SHOW_DOWNLOAD_BUTTON && (
+          <Button icon="download" onClick={downloadYaml}>
+            {t('buttons.download')}
+          </Button>
+        )}
       </FlexBox>
       <YamlEditor height="90vh" defaultValue={yamlString} />
     </div>
