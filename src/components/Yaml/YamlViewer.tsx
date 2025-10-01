@@ -19,7 +19,6 @@ const SHOW_DOWNLOAD_BUTTON = false;
 
 export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCopy }) => {
   const { t } = useTranslation();
-  // const { isDarkTheme } = useTheme();
   const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
     const blob = new Blob([yamlString], { type: 'text/yaml' });
@@ -32,7 +31,7 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
-  console.log(yamlString);
+
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>

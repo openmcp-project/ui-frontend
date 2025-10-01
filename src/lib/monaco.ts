@@ -13,25 +13,6 @@ loader.config({ monaco });
 export const GITHUB_LIGHT_DEFAULT = 'github-light-default';
 export const GITHUB_DARK_DEFAULT = 'github-dark-default';
 
-// Lightweight RGBA helper
-function rgba(hex: string, alpha: number) {
-  const h = hex.replace('#', '');
-  const v =
-    h.length === 3
-      ? h
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : h;
-  const n = parseInt(v, 16);
-  // If parse fails, fallback to transparent
-  if (Number.isNaN(n)) return `rgba(0,0,0,${alpha})`;
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 // Inlined GitHub Light Default editor colors (subset focused on Monaco editor UI)
 const GITHUB_LIGHT_EDITOR_COLORS: monaco.editor.IColors = {
   'editor.foreground': '#1f2328',
@@ -39,13 +20,13 @@ const GITHUB_LIGHT_EDITOR_COLORS: monaco.editor.IColors = {
   'editorWidget.background': '#f6f8fa',
   'editor.lineHighlightBackground': '#eaeef2',
   'editorCursor.foreground': '#0969da',
-  'editor.selectionBackground': rgba('#0969da', 0.2),
-  'editor.inactiveSelectionBackground': rgba('#0969da', 0.07),
-  'editor.selectionHighlightBackground': rgba('#1a7f37', 0.25),
+  'editor.selectionBackground': '#0969da33', // 20% opacity
+  'editor.inactiveSelectionBackground': '#0969da12', // 7% opacity
+  'editor.selectionHighlightBackground': '#1a7f3740', // 25% opacity
   'editorLineNumber.foreground': '#8c959f',
   'editorLineNumber.activeForeground': '#1f2328',
-  'editorIndentGuide.background': rgba('#1f2328', 0.12),
-  'editorIndentGuide.activeBackground': rgba('#1f2328', 0.24),
+  'editorIndentGuide.background': '#1f23281f', // 12% opacity
+  'editorIndentGuide.activeBackground': '#1f23283d', // 24% opacity
   'editorGutter.background': '#ffffff',
   'editorHoverWidget.background': '#f6f8fa',
   'editorHoverWidget.border': '#d0d7de',
@@ -53,8 +34,8 @@ const GITHUB_LIGHT_EDITOR_COLORS: monaco.editor.IColors = {
   'editorSuggestWidget.border': '#d0d7de',
   'editorWidget.border': '#d0d7de',
   'editorWhitespace.foreground': '#d0d7de',
-  'editor.wordHighlightBackground': rgba('#afb8c1', 0.5),
-  'editor.wordHighlightStrongBackground': rgba('#afb8c1', 0.3),
+  'editor.wordHighlightBackground': '#afb8c180', // 50% opacity
+  'editor.wordHighlightStrongBackground': '#afb8c14d', // 30% opacity
 };
 
 // Inlined GitHub Dark Default editor colors (subset focused on Monaco editor UI)
@@ -64,13 +45,13 @@ const GITHUB_DARK_EDITOR_COLORS: monaco.editor.IColors = {
   'editorWidget.background': '#161b22',
   'editor.lineHighlightBackground': '#161b22',
   'editorCursor.foreground': '#2f81f7',
-  'editor.selectionBackground': rgba('#2f81f7', 0.2),
-  'editor.inactiveSelectionBackground': rgba('#2f81f7', 0.07),
-  'editor.selectionHighlightBackground': rgba('#2ea043', 0.25),
+  'editor.selectionBackground': '#2f81f733', // 20% opacity
+  'editor.inactiveSelectionBackground': '#2f81f712', // 7% opacity
+  'editor.selectionHighlightBackground': '#2ea04340', // 25% opacity
   'editorLineNumber.foreground': '#6e7681',
   'editorLineNumber.activeForeground': '#e6edf3',
-  'editorIndentGuide.background': rgba('#e6edf3', 0.12),
-  'editorIndentGuide.activeBackground': rgba('#e6edf3', 0.24),
+  'editorIndentGuide.background': '#e6edf31f', // 12% opacity
+  'editorIndentGuide.activeBackground': '#e6edf33d', // 24% opacity
   'editorGutter.background': '#0d1117',
   'editorHoverWidget.background': '#161b22',
   'editorHoverWidget.border': '#30363d',
@@ -78,8 +59,8 @@ const GITHUB_DARK_EDITOR_COLORS: monaco.editor.IColors = {
   'editorSuggestWidget.border': '#30363d',
   'editorWidget.border': '#30363d',
   'editorWhitespace.foreground': '#484f58',
-  'editor.wordHighlightBackground': rgba('#6e7681', 0.5),
-  'editor.wordHighlightStrongBackground': rgba('#6e7681', 0.3),
+  'editor.wordHighlightBackground': '#6e768180', // 50% opacity
+  'editor.wordHighlightStrongBackground': '#6e76814d', // 30% opacity
 };
 
 export const configureMonaco = () => {

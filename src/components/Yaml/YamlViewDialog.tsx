@@ -2,7 +2,7 @@ import { Bar, Button, CheckBox, Dialog } from '@ui5/webcomponents-react';
 
 import { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-
+import styles from './YamlViewDialog.module.css';
 export type YamlViewDialogProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -51,7 +51,7 @@ export const YamlViewDialog: FC<YamlViewDialogProps> = ({
         setIsOpen(false);
       }}
     >
-      {isOpen && dialogContent}
+      <div className={styles.wrapper}>{isOpen && dialogContent}</div>
     </Dialog>
   );
 };
