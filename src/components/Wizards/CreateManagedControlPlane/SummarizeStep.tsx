@@ -6,7 +6,7 @@ import {
   ComponentsListItem,
   CreateManagedControlPlane,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
-import YamlViewer from '../../Yaml/YamlViewer.tsx';
+import { YamlViewer } from '../../Yaml/YamlViewer.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
@@ -30,7 +30,20 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
   isEditMode = false,
 }) => {
   const { t } = useTranslation();
-
+  const yamlString = stringify(
+    CreateManagedControlPlane(
+      watch('name'),
+      `${projectName}--ws-${workspaceName}`,
+      {
+        displayName: watch('displayName'),
+        chargingTarget: watch('chargingTarget'),
+        members: watch('members'),
+        componentsList: componentsList ?? [],
+        chargingTargetType: watch('chargingTargetType'),
+      },
+      idpPrefix,
+    ),
+  );
   return (
     <>
       <Title>{t('common.summarize')}</Title>
@@ -78,23 +91,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
               )}
             />
           ) : (
-            <YamlViewer
-              yamlString={stringify(
-                CreateManagedControlPlane(
-                  watch('name'),
-                  `${projectName}--ws-${workspaceName}`,
-                  {
-                    displayName: watch('displayName'),
-                    chargingTarget: watch('chargingTarget'),
-                    members: watch('members'),
-                    componentsList: componentsList ?? [],
-                    chargingTargetType: watch('chargingTargetType'),
-                  },
-                  idpPrefix,
-                ),
-              )}
-              filename={`mcp_${projectName}--ws-${workspaceName}`}
-            />
+            <YamlViewer yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
           )}
         </div>
       </Grid>

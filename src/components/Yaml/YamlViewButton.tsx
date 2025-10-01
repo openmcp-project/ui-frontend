@@ -2,7 +2,7 @@ import { Button } from '@ui5/webcomponents-react';
 import { FC, useMemo, useState } from 'react';
 import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
-import YamlViewer from './YamlViewer.tsx';
+import { YamlViewer } from './YamlViewer.tsx';
 import { stringify } from 'yaml';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { YamlIcon } from './YamlIcon.tsx';

@@ -8,7 +8,7 @@ import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
 import { YamlViewDialog } from '../Yaml/YamlViewDialog';
-import YamlViewer from '../Yaml/YamlViewer';
+import { YamlViewer } from '../Yaml/YamlViewer';
 import { stringify } from 'yaml';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useTranslation } from 'react-i18next';

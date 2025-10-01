@@ -8,7 +8,7 @@ import styles from './YamlViewer.module.css';
 
 type YamlViewerProps = {
   yamlString: string;
-  yamlStringToCopy: string;
+  yamlStringToCopy?: string;
   filename: string;
   showOnlyImportantData?: boolean;
   setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
@@ -32,11 +32,11 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
-
+  console.log(yamlString);
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
-        <Button icon="copy" onClick={() => copyToClipboard(yamlStringToCopy)}>
+        <Button icon="copy" onClick={() => copyToClipboard(yamlStringToCopy ?? yamlString)}>
           {t('buttons.copy')}
         </Button>
         {SHOW_DOWNLOAD_BUTTON && (
@@ -45,7 +45,8 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
           </Button>
         )}
       </FlexBox>
-      <YamlEditor height="90vh" defaultValue={yamlString} />
+
+      <YamlEditor key={yamlString} height="90vh" defaultValue={yamlString} />
     </div>
   );
 };
