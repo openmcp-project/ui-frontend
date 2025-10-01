@@ -42,7 +42,7 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
         {...rest}
         theme={computedTheme}
         options={simplifiedOptions}
-        height="90vh"
+        height="100%"
         // Force YAML language for both panes
         language="yaml"
       />

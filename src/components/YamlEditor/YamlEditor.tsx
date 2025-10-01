@@ -22,6 +22,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       {...rest}
       theme={computedTheme}
       options={enforcedOptions}
+      height="100%"
       // Force YAML language for this editor wrapper
       language="yaml"
     />
