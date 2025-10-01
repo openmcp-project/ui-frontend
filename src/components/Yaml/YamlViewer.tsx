@@ -17,7 +17,7 @@ type YamlViewerProps = {
 // Download button is hidden now due to stakeholder request
 const SHOW_DOWNLOAD_BUTTON = false;
 
-const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCopy }) => {
+export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCopy }) => {
   const { t } = useTranslation();
   // const { isDarkTheme } = useTheme();
   const { copyToClipboard } = useCopyToClipboard();
@@ -49,5 +49,3 @@ const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCop
     </div>
   );
 };
-
-export default YamlViewer;
