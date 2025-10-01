@@ -6,7 +6,8 @@ import {
   ComponentsListItem,
   CreateManagedControlPlane,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
-import { YamlViewer } from '../../Yaml/YamlViewer.tsx';
+
+import YamlPanel from '../../Yaml/YamlPanel.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
@@ -91,7 +92,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
               )}
             />
           ) : (
-            <YamlViewer yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
+            <YamlPanel yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
           )}
         </div>
       </Grid>

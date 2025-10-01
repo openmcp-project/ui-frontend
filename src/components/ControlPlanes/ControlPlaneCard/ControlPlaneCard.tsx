@@ -22,13 +22,13 @@ import {
   PatchMCPResourceForDeletionBody,
 } from '../../../lib/api/types/crate/deleteMCP.ts';
 
-import { YamlViewButtonWithLoader } from '../../Yaml/YamlViewButtonWithLoader.tsx';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
+
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
-
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 
@@ -99,7 +99,8 @@ export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props
                 setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
               />
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
-                <YamlViewButtonWithLoader
+                <YamlViewButton
+                  variant="loader"
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}

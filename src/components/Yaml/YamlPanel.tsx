@@ -1,23 +1,16 @@
 import { FC } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
+import styles from './YamlPanel.module.css';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useTranslation } from 'react-i18next';
-import { YamlEditor } from '../YamlEditor/YamlEditor';
-
-import styles from './YamlViewer.module.css';
-
-type YamlViewerProps = {
+import { SHOW_DOWNLOAD_BUTTON } from './YamlSidePanel.tsx';
+import { YamlViewer } from './YamlViewer.tsx';
+type YamlPanelProps = {
   yamlString: string;
-  yamlStringToCopy?: string;
   filename: string;
-  showOnlyImportantData?: boolean;
-  setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
 };
 
-// Download button is hidden now due to stakeholder request
-const SHOW_DOWNLOAD_BUTTON = false;
-
-export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStringToCopy }) => {
+const YamlPanel: FC<YamlPanelProps> = ({ yamlString, filename }) => {
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
@@ -35,7 +28,7 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
   return (
     <div className={styles.container}>
       <FlexBox className={styles.buttons} direction="Row" justifyContent="End" alignItems="Baseline" gap={16}>
-        <Button icon="copy" onClick={() => copyToClipboard(yamlStringToCopy ?? yamlString)}>
+        <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
           {t('buttons.copy')}
         </Button>
         {SHOW_DOWNLOAD_BUTTON && (
@@ -44,10 +37,9 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
           </Button>
         )}
       </FlexBox>
-
-      {/* Use controlled value with a stable model path to update content without remounting */}
-      <YamlEditor value={yamlString} path={`${filename}.yaml`} options={{ readOnly: true }} />
+      <YamlViewer yamlString={yamlString} />
     </div>
   );
 };
 
+export default YamlPanel;
