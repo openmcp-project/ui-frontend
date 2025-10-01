@@ -46,7 +46,8 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, yamlStri
         )}
       </FlexBox>
 
-      <YamlEditor key={yamlString} height="90vh" defaultValue={yamlString} />
+      {/* Use controlled value with a stable model path to update content without remounting */}
+      <YamlEditor height="90vh" value={yamlString} path={`${filename}.yaml`} options={{ readOnly: true }} />
     </div>
   );
 };
