@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
 import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import YamlViewer from './YamlViewer.tsx';
+import { YamlViewer } from './YamlViewer.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
