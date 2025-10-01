@@ -4,7 +4,7 @@ import styles from './YamlViewer.module.css';
 import { useTranslation } from 'react-i18next';
 import YamlViewer from './YamlViewer.tsx';
 import { stringify } from 'yaml';
-import { removeManagedFieldsProperty, Resource } from '../../utils/removeManagedFieldsProperty.ts';
+import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { YamlIcon } from './YamlIcon.tsx';
 import { YamlViewDialog } from './YamlViewDialog.tsx';
 
@@ -13,12 +13,16 @@ export type YamlViewButtonProps = {
 };
 
 export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
+  const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const resource = resourceObject as Resource;
 
   const yamlString = useMemo(() => {
-    return stringify(removeManagedFieldsProperty(resource));
+    return stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData));
+  }, [resource, showOnlyImportantData]);
+  const yamlStringToCopy = useMemo(() => {
+    return stringify(removeManagedFieldsAndFilterData(resource, false));
   }, [resource]);
   return (
     <span>
@@ -27,10 +31,15 @@ export const YamlViewButton: FC<YamlViewButtonProps> = ({ resourceObject }) => {
         setIsOpen={setIsOpen}
         dialogContent={
           <YamlViewer
+            yamlStringToCopy={yamlStringToCopy}
             yamlString={yamlString}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+            setShowOnlyImportantData={setShowOnlyImportantData}
+            showOnlyImportantData={showOnlyImportantData}
           />
         }
+        setShowOnlyImportantData={setShowOnlyImportantData}
+        showOnlyImportantData={showOnlyImportantData}
       />
 
       <Button
