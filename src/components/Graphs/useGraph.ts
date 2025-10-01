@@ -100,9 +100,12 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
   const treeData = useMemo(() => {
     if (!managedResources || !providerConfigsList) return [];
     const allNodesMap = new Map<string, NodeData>();
+
     managedResources.forEach((group: ManagedResourceGroup) => {
       group.items?.forEach((item: ManagedResourceItem) => {
-        const id = item?.metadata?.name;
+        const name = item?.metadata?.name;
+        const apiVersion = item?.apiVersion ?? '';
+        const id = `${name}-${apiVersion}`;
         const kind = item?.kind;
         const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
         const providerType = resolveProviderType(providerConfigName, providerConfigsList);
@@ -135,23 +138,10 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
           globalaccountTrustConfigurationRef,
         } = extractRefs(item);
 
-        const parentId = serviceManagerRef || subaccountRef;
-        const extraRefs = [
-          spaceRef,
-          orgRef,
-          cloudManagementRef,
-          directoryRef,
-          entitlementRef,
-          globalAccountRef,
-          orgRoleRef,
-          spaceMembersRef,
-          cloudFoundryEnvironmentRef,
-          kymaEnvironmentRef,
-          roleCollectionRef,
-          roleCollectionAssignmentRef,
-          subaccountTrustConfigurationRef,
-          globalaccountTrustConfigurationRef,
-        ].filter(Boolean) as string[];
+        const createReferenceIdWithApiVersion = (referenceName: string | undefined) => {
+          if (!referenceName) return undefined;
+          return `${referenceName}-${apiVersion}`;
+        };
 
         if (id) {
           allNodesMap.set(id, {
@@ -164,14 +154,32 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
             transitionTime: statusCond?.lastTransitionTime ?? '',
             statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
             fluxName,
-            parentId,
-            extraRefs,
+            parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
+            extraRefs: [
+              spaceRef,
+              orgRef,
+              cloudManagementRef,
+              directoryRef,
+              entitlementRef,
+              globalAccountRef,
+              orgRoleRef,
+              spaceMembersRef,
+              cloudFoundryEnvironmentRef,
+              kymaEnvironmentRef,
+              roleCollectionRef,
+              roleCollectionAssignmentRef,
+              subaccountTrustConfigurationRef,
+              globalaccountTrustConfigurationRef,
+            ]
+              .map(createReferenceIdWithApiVersion)
+              .filter(Boolean) as string[],
             item,
             onYamlClick,
           });
         }
       });
     });
+
     return Array.from(allNodesMap.values());
   }, [managedResources, providerConfigsList, onYamlClick]);
 
