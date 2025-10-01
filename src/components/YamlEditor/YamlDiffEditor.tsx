@@ -1,7 +1,7 @@
 import { DiffEditor } from '@monaco-editor/react';
 import type { ComponentProps } from 'react';
 import { useTheme } from '../../hooks/useTheme';
-import { VS_CODE_DARK_PLUS, VS_CODE_LIGHT_PLUS } from '../../lib/monaco.ts';
+import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 
 // Reuse all props from the underlying Monaco DiffEditor component, except language (we force YAML)
 export type YamlDiffEditorProps = Omit<
@@ -13,7 +13,7 @@ export type YamlDiffEditorProps = Omit<
 export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { theme, options, ...rest } = props;
-  const computedTheme = theme ?? (isDarkTheme ? VS_CODE_DARK_PLUS : VS_CODE_LIGHT_PLUS);
+  const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
   const simplifiedOptions = {
     // Start from consumer-provided options, then enforce our simplified look
