@@ -17,6 +17,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 interface CellData<T> {
   cell: {
@@ -107,7 +108,7 @@ export function ManagedResources() {
         disableFilters: true,
         Cell: (cellData: CellData<ResourceRow>) =>
           cellData.cell.row.original?.item ? (
-            <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
           ) : undefined,
       },
     ],

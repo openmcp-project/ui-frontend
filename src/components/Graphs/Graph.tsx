@@ -7,14 +7,13 @@ import '@xyflow/react/dist/style.css';
 import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
-import { YamlViewDialog } from '../Yaml/YamlViewDialog';
-import YamlViewer from '../Yaml/YamlViewer';
-import { stringify } from 'yaml';
-import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import { useTheme } from '../../hooks/useTheme';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
@@ -31,33 +30,22 @@ const nodeTypes = {
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
+  const { openInAside } = useSplitter();
   const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('provider');
-  const [yamlDialogOpen, setYamlDialogOpen] = useState(false);
-  const [yamlResource, setYamlResource] = useState<ManagedResourceItem | null>(null);
 
-  const handleYamlClick = useCallback((item: ManagedResourceItem) => {
-    setYamlResource(item);
-    setYamlDialogOpen(true);
-  }, []);
+  const handleYamlClick = useCallback(
+    (item: ManagedResourceItem) => {
+      const yamlFilename = item
+        ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}`
+        : '';
+
+      openInAside(<YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />);
+    },
+    [openInAside],
+  );
 
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
-
-  const yamlString = useMemo(
-    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource as unknown as Resource, true)) : ''),
-    [yamlResource],
-  );
-
-  const yamlStringToCopy = useMemo(
-    () => (yamlResource ? stringify(removeManagedFieldsAndFilterData(yamlResource as unknown as Resource, false)) : ''),
-    [yamlResource],
-  );
-
-  const yamlFilename = useMemo(() => {
-    if (!yamlResource) return '';
-    const { kind, metadata } = yamlResource;
-    return `${kind ?? ''}${metadata?.name ? '_' : ''}${metadata?.name ?? ''}`;
-  }, [yamlResource]);
 
   const legendItems: LegendItem[] = useMemo(
     () =>
@@ -136,13 +124,6 @@ const Graph: React.FC = () => {
           </Panel>
         </ReactFlow>
       </div>
-      <YamlViewDialog
-        isOpen={yamlDialogOpen}
-        setIsOpen={setYamlDialogOpen}
-        dialogContent={
-          <YamlViewer yamlString={yamlString} yamlStringToCopy={yamlStringToCopy} filename={yamlFilename} />
-        }
-      />
     </div>
   );
 };
