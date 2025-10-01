@@ -22,6 +22,7 @@ import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 interface CellData<T> {
   cell: {
@@ -113,7 +114,7 @@ export function Providers() {
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData: CellData<ProvidersRow>) => (
-          <YamlViewButton resourceObject={cellData.cell.row.original?.item} />
+          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
         ),
       },
     ],

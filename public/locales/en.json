@@ -1,9 +1,9 @@
 {
-  "Login": {
-    "welcomeMessage": "Welcome to openMCP UI",
-    "description": "Your place to manage your openMCPs, see your installed components and managed resources!",
-    "learnMore": "Learn more in our documentation",
-    "signInButton": "Sign in"
+  "SignInPage": {
+    "welcomeMessage": "Welcome to ManagedControlPlane UI",
+    "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
+    "learnMoreLink": "Learn about ManagedControlPlanes",
+    "signInButton": "Sign In"
   },
   "Entities": {
     "ManagedControlPlane": "ManagedControlPlane",
@@ -374,7 +374,8 @@
     "update": "Update"
   },
   "yaml": {
-    "YAML": "File"
+    "YAML": "File",
+    "showOnlyImportant": "Show only important fields"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

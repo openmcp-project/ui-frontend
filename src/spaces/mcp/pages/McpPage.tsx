@@ -24,7 +24,7 @@ import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
-import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
+import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
@@ -105,7 +105,8 @@ export default function McpPage() {
                       workspaceName={workspaceName ?? ''}
                       mcpName={controlPlaneName}
                     />
-                    <YamlViewButtonWithLoader
+                    <YamlViewButton
+                      variant="loader"
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceType={'managedcontrolplanes'}
                       resourceName={controlPlaneName}

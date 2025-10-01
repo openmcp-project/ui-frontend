@@ -16,6 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 import { useMemo } from 'react';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 type Rows = {
   parent: string;
@@ -82,7 +83,7 @@ export function ProvidersConfig() {
         disableFilters: true,
         Cell: (cellData: CellData<Rows>) =>
           cellData.cell.row.original?.resource ? (
-            <YamlViewButton resourceObject={cellData.cell.row.original?.resource} />
+            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.resource as Resource} />
           ) : undefined,
       },
     ],
