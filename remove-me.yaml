@@ -1,0 +1,19 @@
+apiVersion: core.openmcp.cloud/v1alpha1
+kind: Project
+metadata:
+  annotations:
+    core.openmcp.cloud/created-by: system:serviceaccount:velero:velero
+  creationTimestamp: 2025-02-04T14:15:38Z
+  finalizers:
+    - core.openmcp.cloud
+  generation: 5
+  labels:
+    openmcp.cloud.sap/charging-target: 8b7fcd40-9784-4c4c-bcd6-f1a7c7ce9566
+    openmcp.cloud.sap/charging-target-type: btp
+    velero.io/backup-name: crate-20250204131044
+    velero.io/restore-name: crate-20250204151534
+  name: webapp-playground
+  resourceVersion: '57186282'
+  uid: fb2553a9-02bc-4db7-b4e3-a6204f6decb3
+status:
+  namespace: project-webapp-playground
