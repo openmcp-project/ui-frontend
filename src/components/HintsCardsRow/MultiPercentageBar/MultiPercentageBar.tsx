@@ -44,17 +44,25 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   style,
   animationDuration = 400, // Match CSS default
 }) => {
-  // Memoize filtered segments
+  // Memoize filtered segments for rendering only
   const filteredSegments = useMemo(() => {
-    return showOnlyNonZero ? segments.filter((segment) => segment.percentage > 0) : segments;
+    if (showOnlyNonZero) {
+      const nonZeroSegments = segments.filter((segment) => segment.percentage > 0);
+      if (nonZeroSegments.length === 0 && segments.length > 0) {
+        return segments;
+      }
+      return nonZeroSegments;
+    }
+    return segments;
   }, [segments, showOnlyNonZero]);
 
   if (filteredSegments.length === 0) {
     return null;
   }
 
-  const primaryPercentage = filteredSegments[0]?.percentage || 0;
-  const displayLabel = label || 'Healthy';
+  const primarySegment = segments[0];
+  const primaryPercentage = primarySegment?.percentage || 0;
+  const displayLabel = label || primarySegment?.label || 'Healthy';
   const allHealthy = isHealthy !== undefined ? isHealthy : primaryPercentage === 100;
 
   return (
@@ -78,10 +86,10 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
       {showLabels && (
         <div className={styles.labelContainer}>
           <div className={styles.labelGroup}>
+            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
             {showPercentage && (
               <span className={`${styles.percentage} ${allHealthy ? styles.healthy : ''}`}>{primaryPercentage}%</span>
             )}
-            <span className={`${styles.label} ${allHealthy ? styles.healthy : ''}`}>{displayLabel}</span>
           </div>
         </div>
       )}
