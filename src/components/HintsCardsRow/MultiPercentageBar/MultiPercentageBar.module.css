@@ -1,6 +1,6 @@
 /* CSS Variables for customization */
 .container {
-  --animation-duration: 600ms;
+  --animation-duration: 0ms;
   --bar-width: 80%;
   --bar-max-width: 400px;
   --bar-height: 8px;
@@ -8,14 +8,14 @@
   --border-radius: 6px;
   --label-font-size: 0.875rem;
   --background-color: var(--sapBackgroundColor, #fafafa);
-  
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   width: 100%;
   padding-bottom: 8px;
-  
+
   /* Initial animation */
   animation: fadeInUp var(--animation-duration) ease-out;
 }
@@ -25,15 +25,15 @@
   .container {
     animation: fadeIn var(--animation-duration) ease-out;
   }
-  
+
   .segment {
     transition: none !important;
   }
-  
+
   .waveOverlay {
     animation: none !important;
   }
-  
+
   .percentage {
     animation: none !important;
   }
@@ -59,7 +59,9 @@
   font-size: var(--label-font-size);
   font-weight: 400;
   color: var(--sapTextColor, #374151);
-  transition: color 0.3s ease, font-weight 0.3s ease;
+  transition:
+    color 0.3s ease,
+    font-weight 0.3s ease;
 }
 
 .label.healthy,
@@ -89,10 +91,10 @@
   height: var(--bar-height);
   position: relative;
   overflow: hidden;
-  
+
   /* Smooth transitions for flex changes */
   transition: flex var(--animation-duration) cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Initial state for animation */
   transform: scaleX(0);
   transform-origin: left;
@@ -100,33 +102,45 @@
 }
 
 /* Stagger the segment animations */
-.segment:nth-child(1) { animation-delay: 0ms; }
-.segment:nth-child(2) { animation-delay: 100ms; }
-.segment:nth-child(3) { animation-delay: 200ms; }
-.segment:nth-child(4) { animation-delay: 300ms; }
-.segment:nth-child(5) { animation-delay: 400ms; }
+/*.segment:nth-child(1) {
+  animation-delay: 0ms;
+}
+.segment:nth-child(2) {
+  animation-delay: 100ms;
+}
+.segment:nth-child(3) {
+  animation-delay: 200ms;
+}
+.segment:nth-child(4) {
+  animation-delay: 300ms;
+}
+.segment:nth-child(5) {
+  animation-delay: 400ms;
+}*/
 
 /* Wave animation overlay */
+/*
 .waveOverlay {
   position: absolute;
   top: 0;
   left: -80%;
   width: 80%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.15) 25%, 
-    rgba(255, 255, 255, 0.25) 50%, 
-    rgba(255, 255, 255, 0.15) 75%, 
-    transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 25%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 100%
+  );
   border-radius: var(--border-radius);
   pointer-events: none;
-  
-  /* Continuous wave animation */
+
   animation: wave 3s ease-in-out infinite;
   animation-delay: var(--animation-duration);
 }
-
+*/
 /* Keyframe animations */
 @keyframes fadeInUp {
   from {
@@ -170,14 +184,14 @@
 }
 
 /* Theme Support */
-[data-ui5-theme-root*="dark"] .container,
-[data-ui5-theme*="dark"] .container {
+[data-ui5-theme-root*='dark'] .container,
+[data-ui5-theme*='dark'] .container {
   --background-color: #2a2a2a;
 }
 
-[data-ui5-theme-root*="dark"] .label,
-[data-ui5-theme*="dark"] .label,
-[data-ui5-theme-root*="dark"] .percentage,
-[data-ui5-theme*="dark"] .percentage {
+[data-ui5-theme-root*='dark'] .label,
+[data-ui5-theme*='dark'] .label,
+[data-ui5-theme-root*='dark'] .percentage,
+[data-ui5-theme*='dark'] .percentage {
   color: #ffffff;
 }

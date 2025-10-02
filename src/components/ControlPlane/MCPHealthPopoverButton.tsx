@@ -26,6 +26,7 @@ import { useLink } from '../../lib/shared/useLink.ts';
 import TooltipCell from '../Shared/TooltipCell.tsx';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import { useSplitter } from '../../spaces/mcp/pages/SplitterContext.tsx';
+import { Conditions } from '../Conditions/Conditions.tsx';
 
 interface CellData<T> {
   cell: {
@@ -164,11 +165,12 @@ const MCPHealthPopoverButton = ({
         {mcpStatus?.status ?? ''}
       </ObjectStatus>
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
-        <StatusTable
+        <Conditions conditions={mcpStatus?.conditions} />
+        {/*<StatusTable
           status={mcpStatus}
           tableColumns={statusTableColumns}
           githubIssuesLink={constructGithubIssuesLink()}
-        />
+        />*/}
       </Popover>
     </div>
   );

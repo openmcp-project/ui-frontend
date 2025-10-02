@@ -18,22 +18,27 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
     {
       name: 'Crossplane',
       version: mcp.spec?.components.crossplane?.version,
+      version2: mcp.spec?.components.crossplane?.version,
     },
     {
       name: 'BTP Service Operator',
       version: mcp.spec?.components.btpServiceOperator?.version,
+      version2: mcp.spec?.components.btpServiceOperator?.version,
     },
     {
       name: 'External Secrets Operator',
       version: mcp.spec?.components.externalSecretsOperator?.version,
+      version2: mcp.spec?.components.externalSecretsOperator?.version,
     },
     {
       name: 'Kyverno',
       version: mcp.spec?.components.kyverno?.version,
+      version2: mcp.spec?.components.kyverno?.version,
     },
     {
       name: 'Flux',
       version: mcp.spec?.components.flux?.version,
+      version2: mcp.spec?.components.flux?.version,
     },
   ].filter((item) => item.version !== undefined);
 
@@ -43,8 +48,14 @@ export default function ComponentList({ mcp }: { mcp: ControlPlaneType }) {
       accessor: 'name',
     },
     {
-      Header: t('ComponentList.tableVersionHeader'),
+      Header: 'Installed Version',
       accessor: 'version',
+      hAlign: 'End',
+    },
+    {
+      Header: 'Latest Version',
+      accessor: 'version2',
+      hAlign: 'End',
     },
   ];
 

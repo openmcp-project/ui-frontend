@@ -1,4 +1,4 @@
-import { FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
+import { BusyIndicator, Card, CardHeader, FlexBox, FlexBoxDirection } from '@ui5/webcomponents-react';
 import { GenericHintCard } from './GenericHintCard/GenericHintCard';
 import { useCrossplaneHintConfig, useGitOpsHintConfig, useVaultHintConfig } from './GenericHintCard/genericHintConfigs';
 
@@ -8,6 +8,7 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import React, { useMemo } from 'react';
+import { ComponentCard } from '../ComponentCard.tsx';
 
 interface HintsProps {
   mcp: ControlPlaneType;
@@ -47,49 +48,75 @@ const HintsCardsRow: React.FC<HintsProps> = ({ mcp, navigate }) => {
   const vaultConfig = useVaultHintConfig();
 
   return (
-    <FlexBox
-      direction={FlexBoxDirection.Row}
-      style={{
-        gap: '12px',
-        justifyContent: 'space-between',
-        alignItems: 'stretch',
-        width: '100%',
-        //maxWidth: '1280px',
-        margin: '0 auto',
-
-        //This breaks the scrolling currently since its zIndex is higher than the header bar
-        height: '150px',
-        zIndex: 2,
-        position: 'relative',
-      }}
-    >
-      <GenericHintCard
-        enabled={!!mcp?.spec?.components?.crossplane}
-        version={mcp?.spec?.components?.crossplane?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={crossplaneConfig}
-        onClick={() => navigate('crossplane')}
-      />
-      <GenericHintCard
-        enabled={!!mcp?.spec?.components?.flux}
-        version={mcp?.spec?.components?.flux?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={gitOpsConfig}
-        onClick={() => navigate('flux')}
-      />
-      <GenericHintCard
-        enabled={false}
-        version={mcp?.spec?.components?.externalSecretsOperator?.version}
-        allItems={allItems}
-        isLoading={managedResourcesLoading}
-        error={managedResourcesError}
-        config={vaultConfig}
-      />
-    </FlexBox>
+    <>
+      {managedResourcesLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <BusyIndicator active />
+        </div>
+      ) : (
+        <div
+          style={{
+            padding: '0.5rem',
+            paddingBottom: '1rem',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+            gap: '1.5rem',
+          }}
+        >
+          <ComponentCard
+            componentName="Crossplane"
+            imgSrc="/crossplane-icon.png"
+            subtitle="Compose cloud infrastructure"
+            version="v1.4.24"
+            installed={true}
+            percentage={35}
+            label="Healthy"
+            onClick={() => navigate('crossplane')}
+          />
+          <ComponentCard
+            componentName="Flux"
+            imgSrc="/flux.png"
+            subtitle="GitOps for Kubernetes automating continuous sync and delivery"
+            version="v3.2.31"
+            installed={true}
+            percentage={68}
+            label="Managed"
+            onClick={() => navigate('flux')}
+          />
+          <ComponentCard
+            componentName="Vault"
+            imgSrc="/vault.png"
+            subtitle="Security and secrets management"
+            version="not installed"
+            installed={false}
+          />
+          <ComponentCard
+            componentName="Landscapers"
+            imgSrc="/landscaper.svg"
+            subtitle="Automate cross‑dependent Kubernetes deployments"
+            version="v1.40.2"
+            installed={true}
+            percentage={97}
+            label="Planted"
+            onClick={() => navigate('landscapers')}
+          />
+          <ComponentCard
+            componentName="Kyverno"
+            imgSrc="/kyverno.svg"
+            subtitle="Kubernetes-native policy as code for secure, compliant clusters"
+            version="not installed"
+            installed={false}
+          />
+          <ComponentCard
+            componentName="External Secrets Operator"
+            imgSrc="/eso_light.png"
+            subtitle="Secrets sync from external providers with policy‑driven control"
+            version="not installed"
+            installed={false}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

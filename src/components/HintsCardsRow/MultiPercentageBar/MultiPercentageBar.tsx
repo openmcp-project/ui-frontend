@@ -42,7 +42,7 @@ export const MultiPercentageBar: React.FC<MultiPercentageBarProps> = ({
   backgroundColor,
   className,
   style,
-  animationDuration = 400, // Match CSS default
+  animationDuration = 0, // Match CSS default
 }) => {
   // Memoize filtered segments
   const filteredSegments = useMemo(() => {

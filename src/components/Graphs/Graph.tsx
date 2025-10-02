@@ -94,8 +94,9 @@ const Graph: React.FC = () => {
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
-          zoomOnScroll={true}
-          panOnDrag={true}
+          zoomOnScroll={false}
+          panOnScroll={false}
+          preventScrolling={false}
         >
           <Controls showInteractive={false} />
           <Background />
