@@ -36,7 +36,6 @@ export interface GenericHintConfig {
   iconSrc: string;
   iconAlt: string;
   iconStyle?: React.CSSProperties;
-  scrollTarget?: string;
   calculateSegments: GenericHintSegmentCalculator;
   calculateHoverData?: HoverDataCalculator;
   renderHoverContent?: (allItems: ManagedResourceItem[], enabled: boolean) => ReactNode;
@@ -50,4 +49,5 @@ export interface GenericHintProps {
   isLoading?: boolean;
   error?: APIError;
   config: GenericHintConfig;
+  onClick?: () => void;
 }
