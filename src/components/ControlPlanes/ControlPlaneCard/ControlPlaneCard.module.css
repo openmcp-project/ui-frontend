@@ -1,5 +1,6 @@
 .card {
   margin: 0.75rem 0.75rem 0.75rem 0;
+  min-width: min-content;
 }
 
 .container {

@@ -1,4 +1,4 @@
-import { Button, FlexBox, Grid, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
@@ -161,7 +161,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
               }
             />
           ) : (
-            <Grid defaultSpan="XL4 L4 M7 S12">
+            <FlexBox wrap={'Wrap'} gap={'1rem'}>
               {controlplanes?.map((cp) => (
                 <ControlPlaneCard
                   key={`${cp.metadata.name}--${cp.metadata.namespace}`}
@@ -170,7 +170,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
                   workspace={workspace}
                 />
               ))}
-            </Grid>
+            </FlexBox>
           )}
         </Panel>
       </ObjectPageSection>
