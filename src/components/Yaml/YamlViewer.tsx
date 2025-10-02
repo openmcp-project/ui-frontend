@@ -6,10 +6,7 @@ import styles from './YamlViewer.module.css';
 
 type YamlViewerProps = {
   yamlString: string;
-  yamlStringToCopy?: string;
   filename: string;
-  showOnlyImportantData?: boolean;
-  setShowOnlyImportantData?: (showOnlyImportantData: boolean) => void;
 };
 
 export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
