@@ -161,16 +161,18 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
               }
             />
           ) : (
-            <FlexBox wrap={'Wrap'} gap={'1rem'}>
-              {controlplanes?.map((cp) => (
-                <ControlPlaneCard
-                  key={`${cp.metadata.name}--${cp.metadata.namespace}`}
-                  controlPlane={cp}
-                  projectName={projectName}
-                  workspace={workspace}
-                />
-              ))}
-            </FlexBox>
+            <div className={styles.wrapper}>
+              <div className={styles.grid}>
+                {controlplanes?.map((cp) => (
+                  <ControlPlaneCard
+                    key={`${cp.metadata.name}--${cp.metadata.namespace}`}
+                    controlPlane={cp}
+                    projectName={projectName}
+                    workspace={workspace}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </Panel>
       </ObjectPageSection>
