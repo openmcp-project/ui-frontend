@@ -7,14 +7,14 @@ import '@xyflow/react/dist/style.css';
 import { NodeData, ColorBy } from './types';
 import CustomNode from './CustomNode';
 import { Legend, LegendItem } from './Legend';
-
-import {  Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import { useTheme } from '../../hooks/useTheme';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+
 
 
 const nodeTypes = {
