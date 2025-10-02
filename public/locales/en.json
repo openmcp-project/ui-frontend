@@ -371,7 +371,8 @@
     "update": "Update"
   },
   "yaml": {
-    "YAML": "File"
+    "YAML": "File",
+    "showOnlyImportant": "Show only important fields"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
