@@ -16,8 +16,8 @@ export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
   return (
     <div className={styles.container}>
       {/* Use controlled value with a stable model path to update content without remounting */}
-      <div>.</div>
-      <YamlEditor value={yamlString} path={`${filename}.yaml`} options={{ readOnly: true }} />
+
+      <YamlEditor value={yamlString} path={`${filename}.yaml`} options={{ readOnly: false }} />
     </div>
   );
 };

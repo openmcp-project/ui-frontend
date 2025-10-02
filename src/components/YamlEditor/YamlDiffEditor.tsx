@@ -34,18 +34,17 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
     scrollBeyondLastLine: false,
     renderMarginRevertIcon: false,
     automaticLayout: true,
+    readOnly: true,
   };
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '50vh' }}>
-      <DiffEditor
-        {...rest}
-        theme={computedTheme}
-        options={simplifiedOptions}
-        height="100%"
-        // Force YAML language for both panes
-        language="yaml"
-      />
-    </div>
+    <DiffEditor
+      {...rest}
+      theme={computedTheme}
+      options={simplifiedOptions}
+      height="100%"
+      // Force YAML language for both panes
+      language="yaml"
+    />
   );
 };
