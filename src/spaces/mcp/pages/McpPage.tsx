@@ -1,6 +1,7 @@
 import {
   BusyIndicator,
   ObjectPage,
+  ObjectPageHeader,
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
@@ -39,6 +40,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
+import { McpHeader } from '../components/McpHeader.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -128,6 +130,11 @@ export default function McpPage() {
               />
             }
             selectedSectionId={selectedSectionId}
+            headerArea={
+              <ObjectPageHeader>
+                <McpHeader mcp={mcp} />
+              </ObjectPageHeader>
+            }
             onSelectedSectionChange={() => setSelectedSectionId(undefined)}
           >
             <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>

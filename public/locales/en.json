@@ -205,6 +205,11 @@
     "kustomizationsTitle": "Kustomizations",
     "landscapersTitle": "Landscapers"
   },
+  "McpHeader": {
+    "nameLabel": "Name",
+    "createdByLabel": "Created By",
+    "createdOnLabel": "Created On"
+  },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
   },
