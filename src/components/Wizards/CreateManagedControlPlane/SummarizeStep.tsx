@@ -11,8 +11,9 @@ import YamlPanel from '../../Yaml/YamlPanel.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
-import { YamlDiff } from '../../Yaml/YamlDiff.tsx';
 
+import styles from './SummarizeStep.module.css';
+import { YamlDiff } from './YamlDiff.tsx';
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
@@ -46,7 +47,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
     ),
   );
   return (
-    <>
+    <div className={styles.wrapper}>
       <Title>{t('common.summarize')}</Title>
       <Grid defaultSpan="XL6 L6 M6 S6">
         <div>
@@ -96,6 +97,6 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
           )}
         </div>
       </Grid>
-    </>
+    </div>
   );
 };

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-import { YamlDiffEditor } from '../YamlEditor/YamlDiffEditor.tsx';
 import styles from './YamlDiff.module.css';
+import { YamlDiffEditor } from '../../YamlEditor/YamlDiffEditor.tsx';
 type YamlDiffProps = {
   originalYaml: string;
   modifiedYaml: string;

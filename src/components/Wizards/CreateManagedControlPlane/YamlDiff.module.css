@@ -1,0 +1,8 @@
+.container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(50% - 2rem);
+  right: 0;
+  overflow: hidden;
+}

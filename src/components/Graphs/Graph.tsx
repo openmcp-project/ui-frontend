@@ -15,8 +15,6 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
-
-
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
     <CustomNode

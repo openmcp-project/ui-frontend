@@ -37,14 +37,5 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
     readOnly: true,
   };
 
-  return (
-    <DiffEditor
-      {...rest}
-      theme={computedTheme}
-      options={simplifiedOptions}
-      height="100%"
-      // Force YAML language for both panes
-      language="yaml"
-    />
-  );
+  return <DiffEditor {...rest} theme={computedTheme} options={simplifiedOptions} height="100%" language="yaml" />;
 };
