@@ -3,6 +3,7 @@ import {
   Button,
   FlexBox,
   ObjectPage,
+  ObjectPageHeader,
   ObjectPageSection,
   ObjectPageTitle,
   Panel,
@@ -42,6 +43,7 @@ import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wiz
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { McpHeader } from '../components/McpHeader.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -126,6 +128,11 @@ export default function McpPage() {
                   </div>
                 }
               />
+            }
+            headerArea={
+              <ObjectPageHeader>
+                <McpHeader mcp={mcp} />
+              </ObjectPageHeader>
             }
           >
             <ObjectPageSection
