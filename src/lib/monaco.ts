@@ -64,8 +64,9 @@ const GITHUB_DARK_EDITOR_COLORS: monaco.editor.IColors = {
 
 export const configureMonaco = () => {
   // Route YAML language to monaco-yaml worker, everything else to the default editor worker
-  MonacoEnvironment = {
-    getWorker: (_moduleId: string, label: string): Worker => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (self as any).MonacoEnvironment = {
+    getWorker: (_: string, label: string) => {
       if (label === 'yaml') {
         return new YamlWorker();
       }
