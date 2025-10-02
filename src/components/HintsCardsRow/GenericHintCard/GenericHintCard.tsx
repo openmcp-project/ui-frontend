@@ -23,18 +23,6 @@ export const GenericHintCard: React.FC<GenericHintProps> = ({
   // Calculate segments and state using the provided calculator
   const hintState = config.calculateSegments(allItems, isLoading || false, error, enabled, t);
 
-  // Handle click navigation if scroll target is provided
-  /*
-  const handleClick =
-    enabled && config.scrollTarget
-      ? () => {
-          const el = document.querySelector(config.scrollTarget!);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
-      : undefined; */
-
   return (
     <div className={styles2.container}>
       <Card
