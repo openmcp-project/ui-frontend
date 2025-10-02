@@ -1,0 +1,27 @@
+.container {
+  display: flex;
+  gap: 48px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.375rem 0.75rem;
+  align-items: center;
+  font-size: var(--sapFontSize);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+}
+
+.tileHeader {
+  color: #1d2d3e;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.label {
+  color: var(--sapContent_LabelColor);
+}

@@ -15,6 +15,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import styles from './ShellBar.module.css';
+import { BetaButton } from './BetaButton.tsx';
 
 export function ShellBarComponent() {
   const auth = useAuthOnboarding();
@@ -42,12 +43,15 @@ export function ShellBarComponent() {
         hidden={window.location.href.includes('compact-mode')}
         profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
         startButton={
-          <div className={styles.container}>
-            <div className={styles.logoWrapper}>
-              <img src="/logo.png" alt="MCP" className={styles.logo} />
-              <span className={styles.logoText}>MCP</span>
+          <>
+            <div className={styles.container}>
+              <div className={styles.logoWrapper}>
+                <img src="/logo.png" alt="MCP" className={styles.logo} />
+                <span className={styles.logoText}>MCP</span>
+              </div>
+              <BetaButton />
             </div>
-          </div>
+          </>
         }
         onProfileClick={onProfileClick}
       />

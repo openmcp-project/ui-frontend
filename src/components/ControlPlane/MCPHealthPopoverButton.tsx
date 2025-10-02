@@ -7,6 +7,7 @@ import {
   Button,
   PopoverDomRef,
   ButtonDomRef,
+  ObjectStatus,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -38,19 +39,26 @@ interface CellData<T> {
 }
 
 type MCPHealthPopoverButtonProps = {
+  large?: boolean;
   mcpStatus: ControlPlaneStatusType | undefined;
   projectName: string;
   workspaceName: string;
   mcpName: string;
 };
 
-const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName }: MCPHealthPopoverButtonProps) => {
+const MCPHealthPopoverButton = ({
+  large,
+  mcpStatus,
+  projectName,
+  workspaceName,
+  mcpName,
+}: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
 
-  const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+  const handleOpenerClick = (event: any) => {
     if (popoverRef.current) {
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = event.target;
       setOpen((prev) => !prev);
@@ -152,11 +160,9 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
 
   return (
     <div className="component-title-row">
-      <AnimatedHoverTextButton
-        icon={getIconForOverallStatus(mcpStatus?.status)}
-        text={mcpStatus?.status ?? ''}
-        onClick={handleOpenerClick}
-      />
+      <ObjectStatus large={large} showDefaultIcon interactive state="Critical" onClick={(e) => handleOpenerClick(e)}>
+        {mcpStatus?.status ?? ''}
+      </ObjectStatus>
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
         <StatusTable
           status={mcpStatus}

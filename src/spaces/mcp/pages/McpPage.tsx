@@ -18,6 +18,7 @@ import {
   SplitterLayout,
   Title,
   ToolbarButton,
+  Toolbar,
 } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
@@ -40,21 +41,18 @@ import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
-import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
-import HintsCardsRow, { flattenManagedResources } from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
+import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
 import GitRepositories from '../../../components/ControlPlane/GitRepositories.tsx';
 import Kustomizations from '../../../components/ControlPlane/Kustomizations.tsx';
-import { MySplitterLayout, SplitterProvider } from './SplitterContext.tsx';
-import MCPHealthPopoverButtonWithSplitter from '../../../components/ControlPlane/MCPHealthPopoverButtonWithSplitter.tsx';
-import React, { useMemo, useRef, useState } from 'react';
-import { GenericHintCard } from '../../../components/HintsCardsRow/GenericHintCard/GenericHintCard.tsx';
-import { ManagedResourcesResponse } from '../../../lib/api/types/crossplane/listManagedResources.ts';
+import { useRef, useState } from 'react';
 import { GitOpsHints } from '../../../components/ControlPlane/GitOpsHints.tsx';
+import { YamlViewButtonWithLoader } from '../../../components/Yaml/YamlViewButtonWithLoader.tsx';
+import { McpHeader } from '../components/McpHeader.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -63,11 +61,12 @@ export default function McpPage() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | undefined>();
   const [selectedSubSectionId, setSelectedSubSectionId] = useState<string | undefined>();
 
-  const [isHeaderToggled, setIsHeaderToggled] = useState(true);
-
   const [componentsView, setComponentsView] = useState('grid');
 
   const scrollIntoViewRef = useRef(null);
+
+  const [isHeaderAreaVisible, setIsHeaderAreaVisible] = useState(true);
+
   const {
     data: mcp,
     error,
@@ -118,57 +117,31 @@ export default function McpPage() {
                 breadcrumbs={<BreadCrumbFeedbackHeader />}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    {
-                      <MCPHealthPopoverButtonWithSplitter
+                  <Toolbar>
+                    {!isHeaderAreaVisible ? (
+                      <MCPHealthPopoverButton
                         mcpStatus={mcp?.status}
                         projectName={projectName}
                         workspaceName={workspaceName ?? ''}
                         mcpName={controlPlaneName}
                       />
-                    }
+                    ) : null}
                     <YamlViewButtonWithLoader
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceType={'managedcontrolplanes'}
                       resourceName={controlPlaneName}
                     />
                     <CopyKubeconfigButton />
-                  </div>
+                  </Toolbar>
                 }
               />
             }
             headerArea={
               <ObjectPageHeader>
-                <FlexBox alignItems="Center" wrap="Wrap">
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'auto 1fr',
-                      gap: '4px 16px',
-                      alignItems: 'center',
-                      fontSize: '14px',
-                    }}
-                  >
-                    <Label>Display name</Label>
-                    <div>Display name (fake)</div>
-
-                    <Label>Created on</Label>
-                    <div>17 September 2025 (x days ago)</div>
-
-                    <Label>Created by</Label>
-                    <div>name.name@domain.com</div>
-                  </div>
-                </FlexBox>
+                <McpHeader mcp={mcp} />
               </ObjectPageHeader>
             }
-            onToggleHeaderArea={(e) => setIsHeaderToggled(e)}
+            onToggleHeaderArea={(e) => setIsHeaderAreaVisible(e)}
             onSelectedSectionChange={(x) => {
               setSelectedSectionId(undefined);
               setSelectedSubSectionId(undefined);
