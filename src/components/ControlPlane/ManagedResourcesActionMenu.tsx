@@ -1,28 +1,43 @@
-import { FC, useRef } from 'react';
+import { FC, useRef, useState } from 'react';
 import { Button, Menu, MenuItem, MenuDomRef } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { ManagedResourceItem } from '../../lib/shared/types';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import type { Ui5CustomEvent, ButtonDomRef } from '@ui5/webcomponents-react';
 
 interface RowActionsMenuProps {
   item: ManagedResourceItem;
   onOpen: (item: ManagedResourceItem) => void;
-  isDeleting: boolean;
 }
 
-export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen, isDeleting }) => {
+export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen }) => {
   const { t } = useTranslation();
   const popoverRef = useRef<MenuDomRef>(null);
+  const [open, setOpen] = useState(false);
+
+  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    if (popoverRef.current && e.currentTarget) {
+      popoverRef.current.opener = e.currentTarget as unknown as HTMLElement;
+      setOpen((prev) => !prev);
+    }
+  };
 
   return (
     <>
-      <Button icon="overflow" icon-end disabled={isDeleting} onClick={() => onOpen(item)} />
+      <Button icon="overflow" design="Transparent" onClick={handleOpenerClick} />
       <Menu
         ref={popoverRef}
-        onItemClick={() => {
-          onOpen(item);
+        open={open}
+        onItemClick={(event) => {
+          const element = event.detail.item as HTMLElement;
+          const action = element.dataset.action;
+          if (action === 'delete') {
+            onOpen(item);
+          }
+          setOpen(false);
         }}
       >
-        <MenuItem text={t('ManagedResources.deleteAction')} icon="delete" />
+        <MenuItem text={t('ManagedResources.deleteAction')} icon="delete" data-action="delete" />
       </Menu>
     </>
   );

@@ -1,4 +1,4 @@
-import { FC, useState, useMemo, useEffect } from 'react';
+import { FC, useState, useEffect } from 'react';
 import {
   Button,
   CheckBox,
@@ -11,26 +11,19 @@ import {
 } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { ManagedResourceItem } from '../../lib/shared/types';
-import { useApiResourceMutation } from '../../lib/api/useApiResource';
-import {
-  DeleteManagedResourceType,
-  DeleteMCPManagedResource,
-  PatchResourceForForceDeletion,
-} from '../../lib/api/types/crate/deleteResource';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { DeleteConfirmationForm } from './DeleteConfirmationForm.tsx';
 import styles from './ManagedResourceDeleteDialog.module.css';
-import { getPluralKind } from '../Helper/getPluralKind.ts';
 
 type Props = {
-  kindMapping: Record<string, string>;
   open: boolean;
   onClose: () => void;
   item: ManagedResourceItem | null;
-  onDeleteStart: (item: ManagedResourceItem) => void;
+  onDeletionConfirmed?: (item: ManagedResourceItem, force: boolean) => void;
+  onCanceled?: () => void;
 };
 
-export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onClose, item, onDeleteStart }) => {
+export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, onDeletionConfirmed, onCanceled }) => {
   const { t } = useTranslation();
   const [forceDeletion, setForceDeletion] = useState(false);
   const [advancedCollapsed, setAdvancedCollapsed] = useState(true);
@@ -44,15 +37,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
     }
   }, [open]);
 
-  const { apiVersion, resourceName, pluralKind, namespace } = useMemo(
-    () => ({
-      namespace: item?.metadata?.namespace ?? '',
-      apiVersion: item?.apiVersion ?? '',
-      resourceName: item?.metadata?.name ?? '',
-      pluralKind: item ? getPluralKind(item, kindMapping) : '',
-    }),
-    [item, kindMapping],
-  );
+  const resourceName = item?.metadata?.name ?? '';
 
   const onConfirmationInputChange = (event: Ui5CustomEvent<InputDomRef>) => {
     setConfirmationText(event.target.value);
@@ -60,35 +45,23 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
 
   const isConfirmed = confirmationText === resourceName;
 
-  const { trigger: deleteTrigger } = useApiResourceMutation<DeleteManagedResourceType>(
-    DeleteMCPManagedResource(apiVersion, pluralKind, resourceName, namespace),
-  );
-
-  const { trigger: patchTrigger } = useApiResourceMutation<undefined>(
-    PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
-  );
-
   const handleForceDeletionChange = () => {
     setForceDeletion(!forceDeletion);
     if (!forceDeletion) setAdvancedCollapsed(false);
   };
 
-  const handleDelete = async () => {
-    if (!item) return;
-
-    onDeleteStart(item);
-
-    try {
-      await deleteTrigger();
-
-      if (forceDeletion) {
-        await patchTrigger();
-      }
-    } catch (_) {
-      // Ignore errors - item can be deleted before patch and it's ok.
+  const handleDelete = () => {
+    if (item && onDeletionConfirmed) {
+      onDeletionConfirmed(item, forceDeletion);
     }
-
     onClose();
+  };
+
+  const handleCancel = () => {
+    onClose();
+    if (onCanceled) {
+      onCanceled();
+    }
   };
 
   return (
@@ -96,7 +69,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
       open={open}
       headerText={t('ManagedResources.deleteDialogTitle')}
       className={styles.dialog}
-      onClose={onClose}
+      onClose={handleCancel}
     >
       <FlexBox direction="Column" className={styles.content}>
         <DeleteConfirmationForm
@@ -126,7 +99,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ kindMapping, open, onCl
         </Panel>
 
         <FlexBox justifyContent="End" className={styles.actions}>
-          <Button design="Transparent" onClick={onClose}>
+          <Button design="Transparent" onClick={handleCancel}>
             {t('buttons.cancel')}
           </Button>
           <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleDelete}>

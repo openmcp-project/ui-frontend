@@ -5,7 +5,7 @@ import {
   AnalyticalTableScaleWidthMode,
   Title,
 } from '@ui5/webcomponents-react';
-import { useApiResource, useCRDItemsMapping } from '../../lib/api/useApiResource';
+import { useApiResource, useApiResourceMutation } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
@@ -19,9 +19,13 @@ import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ManagedResourceItem } from '../../lib/shared/types.ts';
 import { ManagedResourceDeleteDialog } from '../Dialogs/ManagedResourceDeleteDialog.tsx';
 import { RowActionsMenu } from './ManagedResourcesActionMenu.tsx';
-import styles from './ManagedResources.module.css';
-
-const getItemKey = (item: ManagedResourceItem): string => `${item.kind}-${item.metadata.name}`;
+import { useToast } from '../../context/ToastContext.tsx';
+import {
+  DeleteManagedResourceType,
+  DeleteMCPManagedResource,
+  PatchResourceForForceDeletion,
+} from '../../lib/api/types/crate/deleteResource';
+import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 
 interface CellData<T> {
   cell: {
@@ -47,9 +51,8 @@ type ResourceRow = {
 
 export function ManagedResources() {
   const { t } = useTranslation();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ManagedResourceItem | null>(null);
-  const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
+  const toast = useToast();
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
 
   const {
     data: managedResources,
@@ -59,19 +62,20 @@ export function ManagedResources() {
     refreshInterval: resourcesInterval,
   });
 
-  const openDeleteDialog = (item: ManagedResourceItem) => {
-    setSelectedItem(item);
-    setDeleteDialogOpen(true);
-  };
+  const { getPluralKind, isLoading: isLoadingPluralNames, error: pluralNamesError } = useResourcePluralNames();
 
-  const handleDeleteStart = (item: ManagedResourceItem) => {
-    const itemKey = getItemKey(item);
-    setDeletingItems((prev) => new Set(prev.add(itemKey)));
-  };
+  const resourceName = pendingDeleteItem?.metadata?.name ?? '';
+  const apiVersion = pendingDeleteItem?.apiVersion ?? '';
+  const pluralKind = pendingDeleteItem ? getPluralKind(pendingDeleteItem.kind) : '';
+  const namespace = pendingDeleteItem?.metadata?.namespace ?? '';
 
-  const { data: kindMapping } = useCRDItemsMapping({
-    refreshInterval: resourcesInterval,
-  });
+  const { trigger: deleteTrigger } = useApiResourceMutation<DeleteManagedResourceType>(
+    DeleteMCPManagedResource(apiVersion, pluralKind, resourceName, namespace),
+  );
+
+  const { trigger: patchTrigger } = useApiResourceMutation<undefined>(
+    PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
+  );
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
@@ -134,22 +138,20 @@ export function ManagedResources() {
         },
       },
       {
-        Header: ' ',
+        Header: t('ManagedResources.actionColumnHeader'),
         hAlign: 'Center',
         width: 60,
         disableFilters: true,
         Cell: (cellData: CellData<ResourceRow>) => {
           const item = cellData.cell.row.original?.item as ManagedResourceItem;
-          const itemKey = item ? getItemKey(item) : '';
-          const isDeleting = deletingItems.has(itemKey);
 
           return cellData.cell.row.original?.item ? (
-            <RowActionsMenu item={item} isDeleting={isDeleting} onOpen={openDeleteDialog} />
+            <RowActionsMenu item={item} onOpen={openDeleteDialog} />
           ) : undefined;
         },
       },
     ],
-    [t, deletingItems],
+    [t],
   );
 
   const rows: ResourceRow[] =
@@ -157,9 +159,6 @@ export function ManagedResources() {
       ?.filter((managedResource) => managedResource.items)
       .flatMap((managedResource) =>
         managedResource.items?.map((item) => {
-          const itemKey = getItemKey(item);
-          const isDeleting = deletingItems.has(itemKey);
-
           const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
           const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
 
@@ -174,18 +173,38 @@ export function ManagedResources() {
             item: item,
             conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
             conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
-            className: isDeleting ? styles.deletingRow : undefined,
           };
         }),
       ) ?? [];
+
+  const openDeleteDialog = (item: ManagedResourceItem) => {
+    setPendingDeleteItem(item);
+  };
+
+  const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
+    toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
+
+    try {
+      await deleteTrigger();
+
+      if (force) {
+        await patchTrigger();
+      }
+    } catch (_) {
+      // Ignore errors - will be handled by the mutation hook
+    }
+  };
+
+  const combinedError = error || pluralNamesError;
+  const combinedLoading = isLoading || isLoadingPluralNames;
 
   return (
     <>
       <Title level="H4">{t('ManagedResources.header')}</Title>
 
-      {error && <IllustratedError details={error.message} />}
+      {combinedError && <IllustratedError details={combinedError.message} />}
 
-      {!error && (
+      {!combinedError && (
         <>
           <AnalyticalTable
             columns={columns}
@@ -193,7 +212,7 @@ export function ManagedResources() {
             minRows={1}
             groupBy={['kind']}
             scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-            loading={isLoading}
+            loading={combinedLoading}
             filterable
             retainColumnWidth
             reactTableOptions={{
@@ -209,11 +228,10 @@ export function ManagedResources() {
             }}
           />
           <ManagedResourceDeleteDialog
-            kindMapping={kindMapping}
-            open={deleteDialogOpen}
-            item={selectedItem}
-            onClose={() => setDeleteDialogOpen(false)}
-            onDeleteStart={handleDeleteStart}
+            open={!!pendingDeleteItem}
+            item={pendingDeleteItem}
+            onClose={() => setPendingDeleteItem(null)}
+            onDeletionConfirmed={handleDeletionConfirmed}
           />
         </>
       )}

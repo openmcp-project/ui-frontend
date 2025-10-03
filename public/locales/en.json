@@ -43,7 +43,9 @@
     "deleteDialogTitle": "Delete resource",
     "advancedOptions": "Advanced options",
     "forceDeletion": "Force deletion",
-    "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped."
+    "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped.",
+    "deleteStarted": "Deleting {{resourceName}} initialized",
+    "actionColumnHeader": " "
   },
   "ProvidersConfig": {
     "headerProviderConfigs": "Provider Configs",
