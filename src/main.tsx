@@ -1,3 +1,4 @@
+import { configureMonaco } from './lib/monaco.ts';
 import React, { Suspense } from 'react';
 import './index.css';
 import App from './App';
@@ -17,6 +18,8 @@ import { useTranslation } from 'react-i18next';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
+
+configureMonaco();
 
 const ErrorFallback = ({ error }: FallbackProps) => {
   const { t } = useTranslation();
