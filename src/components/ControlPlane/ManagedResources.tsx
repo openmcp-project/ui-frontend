@@ -3,7 +3,10 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Panel,
   Title,
+  Toolbar,
+  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import { useApiResource, useApiResourceMutation } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
@@ -205,28 +208,38 @@ export function ManagedResources() {
       {combinedError && <IllustratedError details={combinedError.message} />}
 
       {!combinedError && (
-        <>
+        <Panel
+          fixed
+          header={
+            <Toolbar>
+              <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
+              <ToolbarSpacer />
+            </Toolbar>
+          }
+        >
+          <>
           <AnalyticalTable
-            columns={columns}
-            data={rows}
-            minRows={1}
-            groupBy={['kind']}
-            scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-            loading={combinedLoading}
-            filterable
-            retainColumnWidth
-            reactTableOptions={{
-              autoResetHiddenColumns: false,
-              autoResetPage: false,
-              autoResetExpanded: false,
-              autoResetGroupBy: false,
-              autoResetSelectedRows: false,
-              autoResetSortBy: false,
-              autoResetFilters: false,
-              autoResetRowState: false,
-              autoResetResize: false,
-            }}
-          />
+              columns={columns}
+              data={rows}
+              minRows={1}
+              groupBy={['kind']}
+              scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+              loading={combinedLoading}
+              filterable
+                retainColumnWidth
+              reactTableOptions={{
+                autoResetHiddenColumns: false,
+                autoResetPage: false,
+                autoResetExpanded: false,
+                autoResetGroupBy: false,
+                autoResetSelectedRows: false,
+                autoResetSortBy: false,
+                autoResetFilters: false,
+                autoResetRowState: false,
+                autoResetResize: false,
+              }}
+            />
+        
           <ManagedResourceDeleteDialog
             open={!!pendingDeleteItem}
             item={pendingDeleteItem}
@@ -234,6 +247,7 @@ export function ManagedResources() {
             onDeletionConfirmed={handleDeletionConfirmed}
           />
         </>
+        </Panel>
       )}
     </>
   );

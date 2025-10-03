@@ -57,8 +57,8 @@ export function PathAwareBreadcrumbs({
         }
       }}
     >
-      {breadcrumbItems.map((item) => (
-        <BreadcrumbsItem key={item.path} data-target={item.path} data-testid="breadcrumb-item">
+      {breadcrumbItems.map((item, index) => (
+        <BreadcrumbsItem key={index} data-target={item.path} data-testid="breadcrumb-item">
           {item.label}
         </BreadcrumbsItem>
       ))}

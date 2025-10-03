@@ -16,7 +16,6 @@ export const useCrossplaneHintConfig = (): GenericHintConfig => {
     subtitle: t('Hints.CrossplaneHint.subtitle'),
     iconSrc: '/crossplane-icon.png',
     iconAlt: 'Crossplane',
-    scrollTarget: '.crossplane-table-element',
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateCrossplaneSegments(allItems, isLoading, error, enabled, t),
     calculateHoverData: (allItems, enabled) => calculateCrossplaneHoverDataGeneric(allItems, enabled, t),
@@ -31,7 +30,6 @@ export const useGitOpsHintConfig = (): GenericHintConfig => {
     subtitle: t('Hints.GitOpsHint.subtitle'),
     iconSrc: '/flux.png',
     iconAlt: 'Flux',
-    scrollTarget: '.cp-page-section-gitops',
     calculateSegments: (allItems, isLoading, error, enabled) =>
       calculateGitOpsSegments(allItems, isLoading, error, enabled, t),
     calculateHoverData: (allItems, enabled) => calculateGitOpsHoverDataGeneric(allItems, enabled, t),

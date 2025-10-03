@@ -22,8 +22,6 @@
     "tableCreatedHeader": "Created",
     "tableVersionHeader": "Revision",
     "noFluxError": "Please install flux to view this component",
-    "gitOpsTitle": "GitOps",
-    "kustomizationsTitle": "Kustomizations",
     "undefinedError": "Something went wrong"
   },
   "ProvidersList": {
@@ -32,7 +30,6 @@
     "tableCreatedHeader": "Created"
   },
   "ManagedResources": {
-    "header": "Managed Resources",
     "tableHeaderKind": "Kind",
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
@@ -48,7 +45,6 @@
     "actionColumnHeader": " "
   },
   "ProvidersConfig": {
-    "headerProviderConfigs": "Provider Configs",
     "tableHeaderProvider": "Provider",
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
@@ -204,12 +200,23 @@
   },
   "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",
-    "componentsTitle": "Components",
     "overviewTitle": "Overview",
+    "dashboardTitle": "Dashboard",
+    "graphTitle": "Graph",
+    "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
-    "gitOpsTitle": "GitOps",
-    "landscapersTitle": "Landscapers",
-    "graphTitle": "Graph"
+    "providersTitle": "Providers",
+    "providerConfigsTitle": "ProviderConfigs",
+    "managedResourcesTitle": "Managed Resources",
+    "fluxTitle": "Flux",
+    "gitRepositoriesTitle": "GitRepositories",
+    "kustomizationsTitle": "Kustomizations",
+    "landscapersTitle": "Landscapers"
+  },
+  "McpHeader": {
+    "nameLabel": "Name",
+    "createdByLabel": "Created By",
+    "createdOnLabel": "Created On"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"
@@ -304,7 +311,6 @@
     "learnButton": "Learn how to do this in code"
   },
   "Providers": {
-    "headerProviders": "Providers",
     "tableHeaderVersion": "Version",
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
@@ -359,7 +365,9 @@
     "remaining": "Remaining",
     "active": "Active",
     "copyToClipboardSuccessToast": "Copied to clipboard",
-    "copyToClipboardFailedToast": "Failed to copy to clipboard"
+    "copyToClipboardFailedToast": "Failed to copy to clipboard",
+    "resourcesCount": "Resources ({{count}})",
+    "itemsCount": "Items ({{count}})"
   },
   "errors": {
     "installError": "Install error",
