@@ -203,8 +203,6 @@ export function ManagedResources() {
 
   return (
     <>
-      <Title level="H4">{t('ManagedResources.header')}</Title>
-
       {combinedError && <IllustratedError details={combinedError.message} />}
 
       {!combinedError && (
