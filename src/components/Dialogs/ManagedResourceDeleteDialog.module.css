@@ -1,0 +1,15 @@
+.dialog {
+  width: 520px;
+}
+
+.content {
+  gap: 0.75rem;
+}
+
+.advancedOptionsContent {
+  gap: 0.5rem;
+}
+
+.actions {
+  gap: 0.5rem;
+}

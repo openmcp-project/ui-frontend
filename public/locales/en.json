@@ -34,7 +34,15 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderSynced": "Synced",
-    "tableHeaderReady": "Ready"
+    "tableHeaderReady": "Ready",
+    "tableHeaderDelete": "Delete",
+    "deleteAction": "Delete resource",
+    "deleteDialogTitle": "Delete resource",
+    "advancedOptions": "Advanced options",
+    "forceDeletion": "Force deletion",
+    "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped.",
+    "deleteStarted": "Deleting {{resourceName}} initialized",
+    "actionColumnHeader": " "
   },
   "ProvidersConfig": {
     "tableHeaderProvider": "Provider",
