@@ -1,10 +1,7 @@
 .graphContainer {
   display: flex;
   height: 600px;
-  border: 1px solid var(--sapList_BorderColor, #ddd);
-  border-radius: 16px;
   overflow: hidden;
-  background-color: var(--sapBackgroundColor, #fafafa);
   font-family: var(--sapFontFamily);
 }
 
