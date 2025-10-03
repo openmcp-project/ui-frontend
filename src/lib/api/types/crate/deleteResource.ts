@@ -28,7 +28,7 @@ export const PatchResourceForForceDeletion = (
     path: path,
     method: 'PATCH',
     jq: undefined,
-    body: JSON.stringify(PatchResourceForForceDeletionBody),
+    body: undefined,
   };
 };
 

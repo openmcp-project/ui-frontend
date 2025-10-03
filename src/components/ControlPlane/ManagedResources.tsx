@@ -27,6 +27,7 @@ import {
   DeleteManagedResourceType,
   DeleteMCPManagedResource,
   PatchResourceForForceDeletion,
+  PatchResourceForForceDeletionBody,
 } from '../../lib/api/types/crate/deleteResource';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 
@@ -76,7 +77,7 @@ export function ManagedResources() {
     DeleteMCPManagedResource(apiVersion, pluralKind, resourceName, namespace),
   );
 
-  const { trigger: patchTrigger } = useApiResourceMutation<undefined>(
+  const { trigger: patchTrigger } = useApiResourceMutation<DeleteManagedResourceType>(
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
@@ -188,13 +189,16 @@ export function ManagedResources() {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
 
     try {
-      await deleteTrigger();
 
+      await deleteTrigger();
+      
       if (force) {
-        await patchTrigger();
+        await patchTrigger(PatchResourceForForceDeletionBody);
       }
     } catch (_) {
       // Ignore errors - will be handled by the mutation hook
+    } finally {
+      setPendingDeleteItem(null);
     }
   };
 
@@ -241,7 +245,7 @@ export function ManagedResources() {
           <ManagedResourceDeleteDialog
             open={!!pendingDeleteItem}
             item={pendingDeleteItem}
-            onClose={() => setPendingDeleteItem(null)}
+            onClose={() => {}}
             onDeletionConfirmed={handleDeletionConfirmed}
           />
         </>
