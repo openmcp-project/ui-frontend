@@ -189,9 +189,8 @@ export function ManagedResources() {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
 
     try {
-
       await deleteTrigger();
-      
+
       if (force) {
         await patchTrigger(PatchResourceForForceDeletionBody);
       }
@@ -220,7 +219,7 @@ export function ManagedResources() {
           }
         >
           <>
-          <AnalyticalTable
+            <AnalyticalTable
               columns={columns}
               data={rows}
               minRows={1}
@@ -228,7 +227,7 @@ export function ManagedResources() {
               scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
               loading={combinedLoading}
               filterable
-                retainColumnWidth
+              retainColumnWidth
               reactTableOptions={{
                 autoResetHiddenColumns: false,
                 autoResetPage: false,
@@ -241,14 +240,14 @@ export function ManagedResources() {
                 autoResetResize: false,
               }}
             />
-        
-          <ManagedResourceDeleteDialog
-            open={!!pendingDeleteItem}
-            item={pendingDeleteItem}
-            onClose={() => {}}
-            onDeletionConfirmed={handleDeletionConfirmed}
-          />
-        </>
+
+            <ManagedResourceDeleteDialog
+              open={!!pendingDeleteItem}
+              item={pendingDeleteItem}
+              onClose={() => {}}
+              onDeletionConfirmed={handleDeletionConfirmed}
+            />
+          </>
         </Panel>
       )}
     </>
