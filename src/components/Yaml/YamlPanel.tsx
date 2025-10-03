@@ -37,7 +37,7 @@ const YamlPanel: FC<YamlPanelProps> = ({ yamlString, filename }) => {
           </Button>
         )}
       </FlexBox>
-      <YamlViewer yamlString={yamlString} />
+      <YamlViewer yamlString={yamlString} filename={filename} />
     </div>
   );
 };
