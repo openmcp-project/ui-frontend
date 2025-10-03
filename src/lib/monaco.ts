@@ -64,15 +64,16 @@ const GITHUB_DARK_EDITOR_COLORS: monaco.editor.IColors = {
 
 export const configureMonaco = () => {
   // Route YAML language to monaco-yaml worker, everything else to the default editor worker
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (self as any).MonacoEnvironment = {
-    getWorker: (_: string, label: string) => {
-      if (label === 'yaml') {
-        return new YamlWorker();
-      }
-      return new EditorWorker();
-    },
-  };
+  if (typeof window !== 'undefined') {
+    window.MonacoEnvironment = {
+      getWorker: (_moduleId: string, label: string): Worker => {
+        if (label === 'yaml') {
+          return new YamlWorker();
+        }
+        return new EditorWorker();
+      },
+    };
+  }
 
   monaco.editor.defineTheme(GITHUB_LIGHT_DEFAULT, {
     base: 'vs',
