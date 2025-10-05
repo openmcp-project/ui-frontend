@@ -40,6 +40,7 @@ const cleanUpResource = (
       }
       delete newResource.metadata.generation;
       delete newResource.metadata.uid;
+      delete newResource.metadata.resourceVersion;
     }
   }
 
