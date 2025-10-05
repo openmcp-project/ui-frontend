@@ -5,8 +5,8 @@ import { resourcesInterval } from '../../lib/shared/constants';
 import { Node, Edge, Position, MarkerType } from '@xyflow/react';
 import dagre from 'dagre';
 import { NodeData, ColorBy } from './types';
-import { extractRefs, generateColorMap, getStatusCondition, resolveProviderType } from './graphUtils';
-import { ManagedResourceGroup, ManagedResourceItem } from '../../lib/shared/types';
+import { buildTreeData, generateColorMap } from './graphUtils';
+import { ManagedResourceItem } from '../../lib/shared/types';
 
 const nodeWidth = 250;
 const nodeHeight = 60;
@@ -97,91 +97,10 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
   const loading = managedResourcesLoading || providerConfigsLoading;
   const error = managedResourcesError || providerConfigsError;
 
-  const treeData = useMemo(() => {
-    if (!managedResources || !providerConfigsList) return [];
-    const allNodesMap = new Map<string, NodeData>();
-
-    managedResources.forEach((group: ManagedResourceGroup) => {
-      group.items?.forEach((item: ManagedResourceItem) => {
-        const name = item?.metadata?.name;
-        const apiVersion = item?.apiVersion ?? '';
-        const id = `${name}-${apiVersion}`;
-        const kind = item?.kind;
-        const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
-        const providerType = resolveProviderType(providerConfigName, providerConfigsList);
-        const statusCond = getStatusCondition(item?.status?.conditions);
-        const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
-
-        let fluxName: string | undefined;
-        const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
-        if (labelsMap) {
-          const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
-          if (key) fluxName = labelsMap[key];
-        }
-
-        const {
-          subaccountRef,
-          serviceManagerRef,
-          spaceRef,
-          orgRef,
-          cloudManagementRef,
-          directoryRef,
-          entitlementRef,
-          globalAccountRef,
-          orgRoleRef,
-          spaceMembersRef,
-          cloudFoundryEnvironmentRef,
-          kymaEnvironmentRef,
-          roleCollectionRef,
-          roleCollectionAssignmentRef,
-          subaccountTrustConfigurationRef,
-          globalaccountTrustConfigurationRef,
-        } = extractRefs(item);
-
-        const createReferenceIdWithApiVersion = (referenceName: string | undefined) => {
-          if (!referenceName) return undefined;
-          return `${referenceName}-${apiVersion}`;
-        };
-
-        if (id) {
-          allNodesMap.set(id, {
-            id,
-            label: id,
-            type: kind,
-            providerConfigName,
-            providerType,
-            status,
-            transitionTime: statusCond?.lastTransitionTime ?? '',
-            statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
-            fluxName,
-            parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
-            extraRefs: [
-              spaceRef,
-              orgRef,
-              cloudManagementRef,
-              directoryRef,
-              entitlementRef,
-              globalAccountRef,
-              orgRoleRef,
-              spaceMembersRef,
-              cloudFoundryEnvironmentRef,
-              kymaEnvironmentRef,
-              roleCollectionRef,
-              roleCollectionAssignmentRef,
-              subaccountTrustConfigurationRef,
-              globalaccountTrustConfigurationRef,
-            ]
-              .map(createReferenceIdWithApiVersion)
-              .filter(Boolean) as string[],
-            item,
-            onYamlClick,
-          });
-        }
-      });
-    });
-
-    return Array.from(allNodesMap.values());
-  }, [managedResources, providerConfigsList, onYamlClick]);
+  const treeData = useMemo(
+    () => buildTreeData(managedResources, providerConfigsList, onYamlClick),
+    [managedResources, providerConfigsList, onYamlClick],
+  );
 
   const colorMap = useMemo(() => generateColorMap(treeData, colorBy), [treeData, colorBy]);
 
