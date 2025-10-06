@@ -376,11 +376,14 @@
     "close": "Close",
     "back": "Back",
     "cancel": "Cancel",
-    "update": "Update"
+    "update": "Update",
+    "applyChanges": "Apply changes"
   },
   "yaml": {
     "YAML": "File",
-    "showOnlyImportant": "Show only important fields"
+    "showOnlyImportant": "Show only important fields",
+    "panelTitle": "YAML",
+    "editorTitle": "YAML Editor"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

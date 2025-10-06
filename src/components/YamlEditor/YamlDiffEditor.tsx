@@ -18,6 +18,7 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
   const simplifiedOptions = {
     // Start from consumer-provided options, then enforce our simplified look
     ...options,
+    isKubernetes: true,
     scrollbar: {
       ...(options?.scrollbar ?? {}),
       useShadows: false,

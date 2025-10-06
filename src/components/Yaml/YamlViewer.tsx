@@ -7,12 +7,13 @@ import styles from './YamlViewer.module.css';
 type YamlViewerProps = {
   yamlString: string;
   filename: string;
+  isEdit?: boolean;
 };
 
-export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename }) => {
+export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false }) => {
   return (
     <div className={styles.container}>
-      <YamlEditor value={yamlString} path={`${filename}.yaml`} options={{ readOnly: true }} />
+      <YamlEditor value={yamlString} path={`${filename}.yaml`} isEdit={isEdit} options={{ readOnly: !isEdit }} />
     </div>
   );
 };

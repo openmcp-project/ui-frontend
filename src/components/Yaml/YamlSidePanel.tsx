@@ -14,6 +14,7 @@ import { YamlViewer } from './YamlViewer.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState } from 'react';
 import { stringify } from 'yaml';
+import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
@@ -26,13 +27,20 @@ export interface YamlSidePanelProps {
 }
 export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
+  const isEdit = true; // Currently always editing YAML (YamlViewer receives isEdit=true)
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
 
   const yamlStringToDisplay = useMemo(() => {
+    if (isEdit) {
+      return stringify(convertToResourceConfig(resource));
+    }
     return stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData));
   }, [resource, showOnlyImportantData]);
   const yamlStringToCopy = useMemo(() => {
+    if (isEdit) {
+      return stringify(convertToResourceConfig(resource));
+    }
     return stringify(removeManagedFieldsAndFilterData(resource, false));
   }, [resource]);
 
@@ -55,14 +63,16 @@ export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
       fixed
       header={
         <Toolbar>
-          <Title>YAML</Title>
+          <Title>{t('yaml.panelTitle')}</Title>
           <ToolbarSpacer />
           <FlexBox>
-            <CheckBox
-              text={t('yaml.showOnlyImportant')}
-              checked={showOnlyImportantData}
-              onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
-            />
+            {!isEdit && (
+              <CheckBox
+                text={t('yaml.showOnlyImportant')}
+                checked={showOnlyImportantData}
+                onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
+              />
+            )}
           </FlexBox>
           <ToolbarButton
             design="Transparent"
@@ -89,7 +99,7 @@ export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
       }
     >
       <div className={styles.content}>
-        <YamlViewer yamlString={yamlStringToDisplay} />
+        <YamlViewer yamlString={yamlStringToDisplay} filename={filename} isEdit={isEdit} />
       </div>
     </Panel>
   );
