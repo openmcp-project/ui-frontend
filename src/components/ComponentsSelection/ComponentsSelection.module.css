@@ -14,6 +14,12 @@
   background: color-mix(in srgb, var(--sapBackgroundColor) 98%, #000 2%);
 }
 
+@media (prefers-color-scheme: dark) {
+  .row.providerRow {
+    background: color-mix(in srgb, var(--sapBackgroundColor) 97%, #fff 3%);
+  }
+}
+
 .row.providerRow:hover {
   background: var(--sapList_Hover_Background);
 }

@@ -52,7 +52,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
     return filtered.sort((a, b) => {
       const isCrossplaneA = a.name === 'crossplane';
       const isCrossplaneB = b.name === 'crossplane';
-      
+
       if (isCrossplaneA && !isCrossplaneB) return -1;
       if (isCrossplaneB && !isCrossplaneA) return 1;
 
