@@ -31,7 +31,6 @@
   inset-inline-start: 1.6rem;
   width: 2px;
   background: var(--sapList_BorderColor);
-  border-radius: 2px;
 }
 
 .providerRow :global(ui5-checkbox) {
