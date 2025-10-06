@@ -3,3 +3,32 @@
   background: var(--sapBackgroundColor);
   border-bottom: 1px solid var(--sapList_BorderColor);
 }
+
+.row:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.row.providerRow {
+  position: relative;
+  padding-inline-start: calc(1rem + 16px);
+  background: color-mix(in srgb, var(--sapBackgroundColor) 98%, #000 2%);
+}
+
+.row.providerRow:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.row.providerRow::before {
+  content: "";
+  position: absolute;
+  inset-block: 6px;
+  inset-inline-start: 1.6rem;
+  width: 2px;
+  background: var(--sapList_BorderColor);
+  border-radius: 2px;
+}
+
+.providerRow .checkBox {
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
