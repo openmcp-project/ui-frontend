@@ -244,7 +244,7 @@ export function ManagedResources() {
             <ManagedResourceDeleteDialog
               open={!!pendingDeleteItem}
               item={pendingDeleteItem}
-              onClose={() => {}}
+              onClose={() => setPendingDeleteItem(null)}
               onDeletionConfirmed={handleDeletionConfirmed}
             />
           </>
