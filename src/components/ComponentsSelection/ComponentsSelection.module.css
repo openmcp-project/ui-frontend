@@ -34,7 +34,7 @@
   border-radius: 2px;
 }
 
-.providerRow .checkBox {
-  font-size: 0.875rem;
-  opacity: 0.85;
+.providerRow :global(ui5-checkbox) {
+  transform: scale(0.9);
+  transform-origin: left center;
 }
