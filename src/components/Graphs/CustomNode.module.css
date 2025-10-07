@@ -47,8 +47,13 @@
   margin-right: 6px;
 }
 
-.handleHidden {
-  visibility: hidden;
+.handleTop {
+  opacity: 0;
+  top: 5px;
+}
+.handleBottom {
+  opacity: 0;
+  bottom: 5px;
 }
 
 :global([data-theme='dark']) .nodeContainer {

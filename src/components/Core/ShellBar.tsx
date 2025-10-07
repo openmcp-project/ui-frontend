@@ -49,7 +49,7 @@ export function ShellBarComponent() {
                 <img src="/logo.png" alt="MCP" className={styles.logo} />
                 <span className={styles.logoText}>MCP</span>
               </div>
-              <BetaButton />
+              {/**<BetaButton />**/}
             </div>
           </>
         }

@@ -2,6 +2,8 @@ import { Condition } from '../../lib/shared/types.ts';
 import { MessageItem, MessageView, Text } from '@ui5/webcomponents-react';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 import { CopyButton } from '../Shared/CopyButton.tsx';
+import YamlViewer from '../Yaml/YamlViewer.tsx';
+import yaml from 'js-yaml';
 
 export interface ConditionsProps {
   conditions: Condition[];
@@ -51,6 +53,8 @@ export function Conditions({ conditions }: ConditionsProps) {
           </div>
 
           <CopyButton style={{ marginTop: '16px' }} text={'Copy'} />
+
+          <YamlViewer yamlString={yaml.dump(condition)} filename="xx" />
         </MessageItem>
       ))}
     </MessageView>

@@ -15,8 +15,20 @@ import { useTranslation } from 'react-i18next';
 import { useGraph } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
 import { useTheme } from '../../hooks/useTheme';
+import { node } from 'globals';
+import GroupNode from './GroupNode.tsx';
 
 const nodeTypes = {
+  custom_group: (props: NodeProps<Node<NodeData, 'custom_group'>>) => (
+    <GroupNode
+      label={props.data.label}
+      type={props.data.type}
+      status={props.data.status}
+      transitionTime={props.data.transitionTime}
+      statusMessage={props.data.statusMessage}
+      onYamlClick={() => props.data.onYamlClick(props.data.item)}
+    />
+  ),
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
     <CustomNode
       label={props.data.label}
@@ -42,6 +54,27 @@ const Graph: React.FC = () => {
   }, []);
 
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
+
+  console.log('nodes', nodes);
+  /*  nodes.map((node) => ({
+    ...node,
+    //parentId: 'HELLO',
+  }));
+  if (nodes?.length === 8) {
+    nodes.unshift({
+      id: 'HELLO',
+      type: 'group',
+      data: { label: 'X' },
+      position: { x: 0, y: 0 },
+      style: {
+        width: 170,
+        height: 140,
+      },
+    });
+  }
+*/
+  console.log('edges', edges);
+  console.log('colorMap', colorMap);
 
   const yamlString = useMemo(
     () => (yamlResource ? stringify(removeManagedFieldsProperty(yamlResource)) : ''),
@@ -84,8 +117,7 @@ const Graph: React.FC = () => {
           edges={edges}
           nodeTypes={nodeTypes}
           defaultEdgeOptions={{
-            style: { stroke: '#888', strokeWidth: 1.5 },
-            markerEnd: { type: MarkerType.ArrowClosed },
+            style: { stroke: '#999', strokeWidth: 2 },
           }}
           fitView
           proOptions={{
@@ -99,8 +131,8 @@ const Graph: React.FC = () => {
           preventScrolling={false}
         >
           <Controls showInteractive={false} />
-          <Background />
-          <Panel position="top-left">
+
+          <Panel position="bottom-right">
             <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
               <fieldset className={styles.fieldsetReset}>
                 <div className={styles.graphHeader}>
@@ -127,9 +159,10 @@ const Graph: React.FC = () => {
               </fieldset>
             </FlexBox>
           </Panel>
-          <Panel position="top-right">
+
+          {/*<Panel position="top-right">
             <Legend legendItems={legendItems} />
-          </Panel>
+          </Panel>*/}
         </ReactFlow>
       </div>
       <YamlViewDialog
