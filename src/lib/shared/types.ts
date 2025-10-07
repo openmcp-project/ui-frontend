@@ -31,6 +31,13 @@ export interface ProviderConfigItem {
     count: string;
     users: string;
   };
+  spec: {
+    names: {
+      kind: string;
+      plural: string;
+      singular: string;
+    };
+  };
   apiVersion?: string;
 }
 
@@ -51,7 +58,9 @@ export type ManagedResourceItem = {
   metadata: {
     name: string;
     creationTimestamp: string;
+    resourceVersion: string;
     labels: [];
+    namespace?: string;
   };
   apiVersion?: string;
   spec?: {

@@ -1,4 +1,5 @@
 import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { Text } from '@ui5/webcomponents-react';
 
 import styles from './McpHeader.module.css';
 import { formatDateAsTimeAgo } from '../../../utils/i18n/timeAgo.ts';
@@ -23,17 +24,17 @@ export function McpHeader({ mcp }: McpHeaderProps) {
     <div className={styles.container}>
       <div className={styles.grid}>
         <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
-        <span>{mcp.metadata.name}</span>
+        <Text>{mcp.metadata.name}</Text>
 
         <span className={styles.label}>{t('McpHeader.createdOnLabel')}</span>
-        <span>
+        <Text>
           {created} ({formatDateAsTimeAgo(mcp.metadata.creationTimestamp)})
-        </span>
+        </Text>
 
         {createdBy ? (
           <>
             <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-            <span>{createdBy}</span>
+            <Text>{createdBy}</Text>
           </>
         ) : null}
       </div>
