@@ -22,9 +22,9 @@ describe('McpHeader', () => {
 
     cy.mount(<McpHeader mcp={mcp} />);
 
-    cy.contains('span', 'my-control-plane').should('be.visible');
-    cy.contains('span', 'alice@example.com').should('be.visible');
-    cy.contains('span', `${creationDateAsString} (2 days ago)`).should('be.visible');
+    cy.contains('my-control-plane').should('be.visible');
+    cy.contains('alice@example.com').should('be.visible');
+    cy.contains(`${creationDateAsString} (2 days ago)`).should('be.visible');
   });
 
   it('renders with missing MCP metadata', () => {
@@ -44,7 +44,7 @@ describe('McpHeader', () => {
 
     cy.mount(<McpHeader mcp={mcp} />);
 
-    cy.contains('span', 'my-control-plane').should('be.visible');
-    cy.contains('span', `${creationDateAsString} (2 days ago)`).should('be.visible');
+    cy.contains('my-control-plane').should('be.visible');
+    cy.contains(`${creationDateAsString} (2 days ago)`).should('be.visible');
   });
 });

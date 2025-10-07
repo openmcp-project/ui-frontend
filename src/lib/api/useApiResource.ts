@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from 'react';
+import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
@@ -36,6 +36,37 @@ export const useApiResource = <T>(
     error: error as APIError,
     isLoading: isLoading,
     isValidating: isValidating,
+  };
+};
+
+export const useCRDItemsMapping = (config?: SWRConfiguration) => {
+  const apiConfig = useContext(ApiConfigContext);
+  const { data, error, isValidating, isLoading } = useSWR(
+    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
+    ([path, apiConfig]) =>
+      fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
+    config,
+  );
+
+  const kindMapping = useMemo(() => {
+    if (!data?.items) {
+      return {};
+    }
+
+    return data.items.reduce((kinds: Record<string, string>, item) => {
+      const { singular, plural } = item.spec.names as { singular?: string; plural?: string; kind: string };
+      if (singular && plural) {
+        kinds[singular] = plural;
+      }
+      return kinds;
+    }, {});
+  }, [data]);
+
+  return {
+    data: kindMapping,
+    error,
+    isValidating,
+    isLoading,
   };
 };
 
