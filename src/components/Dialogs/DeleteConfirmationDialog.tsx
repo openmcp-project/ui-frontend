@@ -1,10 +1,10 @@
 import { ReactNode, useState } from 'react';
-import { Bar, Button, Dialog, Input, InputDomRef, Label } from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, InputDomRef } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
-import styles from './DeleteConfirmationDialog.module.css';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
+import { DeleteConfirmationForm } from './DeleteConfirmationForm.tsx';
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
@@ -67,26 +67,13 @@ export function DeleteConfirmationDialog({
         />
       }
     >
-      <div className={styles.dialogContent}>
-        <span className={styles.message}>
-          <Trans
-            i18nKey="DeleteConfirmationDialog.deleteMessage"
-            values={{ resourceName }}
-            components={{
-              b: <b />,
-            }}
-          />
-        </span>
-        <Label className={styles.confirmLabel} for="mcp-name-input">
-          {t('DeleteConfirmationDialog.deleteConfirmation', { resourceName })}
-        </Label>
-        <Input
-          id="mcp-name-input"
-          value={confirmationText}
-          className={styles.confirmationInput}
-          onInput={onConfirmationInputChange}
-        />
-      </div>
+      <DeleteConfirmationForm
+        resourceName={resourceName}
+        confirmationText={confirmationText}
+        deleteMessageKey="DeleteConfirmationDialog.deleteMessage"
+        deleteConfirmationLabel={t('DeleteConfirmationDialog.deleteConfirmation', { resourceName })}
+        onConfirmationInputChange={onConfirmationInputChange}
+      />
     </Dialog>
   );
 }
