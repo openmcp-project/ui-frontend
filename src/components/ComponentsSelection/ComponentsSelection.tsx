@@ -40,10 +40,31 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
   const selectedComponents = useMemo(() => getSelectedComponents(componentsList), [componentsList]);
 
+  const isProvider = useCallback((componentName: string) => {
+    return componentName.includes('provider') && componentName !== 'crossplane';
+  }, []);
+
   const searchResults = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-    return componentsList.filter(({ name }) => name.toLowerCase().includes(lowerSearch));
-  }, [componentsList, searchTerm]);
+    const filtered = componentsList.filter(({ name }) => name.toLowerCase().includes(lowerSearch));
+
+    // Sort components: crossplane first, then providers, then rest
+    return filtered.sort((a, b) => {
+      const isCrossplaneA = a.name === 'crossplane';
+      const isCrossplaneB = b.name === 'crossplane';
+
+      if (isCrossplaneA && !isCrossplaneB) return -1;
+      if (isCrossplaneB && !isCrossplaneA) return 1;
+
+      const isProviderA = isProvider(a.name);
+      const isProviderB = isProvider(b.name);
+
+      if (isProviderA && !isProviderB) return -1;
+      if (isProviderB && !isProviderA) return 1;
+
+      return a.name.localeCompare(b.name);
+    });
+  }, [componentsList, searchTerm, isProvider]);
 
   const handleSelectionChange = useCallback(
     (e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) => {
@@ -105,10 +126,12 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
           {searchResults.length > 0 ? (
             searchResults.map((component) => {
               const providerDisabled = isProviderDisabled(component);
+              const isProviderComponent = isProvider(component.name);
+
               return (
                 <FlexBox
                   key={component.name}
-                  className={styles.row}
+                  className={`${styles.row} ${isProviderComponent ? styles.providerRow : ''}`}
                   gap={10}
                   justifyContent="SpaceBetween"
                   data-testid={`component-row-${component.name}`}
@@ -120,6 +143,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
                     checked={component.isSelected}
                     disabled={providerDisabled}
                     aria-label={component.name}
+                    className={isProviderComponent ? styles.checkBox : ''}
                     onChange={handleSelectionChange}
                   />
                   <FlexBox gap={10} justifyContent="SpaceBetween" alignItems="Baseline">

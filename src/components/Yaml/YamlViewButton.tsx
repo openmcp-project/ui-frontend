@@ -2,6 +2,7 @@ import { Button } from '@ui5/webcomponents-react';
 import styles from './YamlViewButton.module.css';
 import { useTranslation } from 'react-i18next';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+
 import { YamlIcon } from './YamlIcon.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
