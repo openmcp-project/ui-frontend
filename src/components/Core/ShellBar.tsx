@@ -14,6 +14,7 @@ import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/S
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import SapLogo from '../../assets/images/sap-logo.svg';
 import styles from './ShellBar.module.css';
 
 export function ShellBarComponent() {
@@ -44,8 +45,9 @@ export function ShellBarComponent() {
         startButton={
           <div className={styles.container}>
             <div className={styles.logoWrapper}>
-              <img src="/logo.png" alt="MCP" className={styles.logo} />
-              <span className={styles.logoText}>MCP</span>
+              <img src={SapLogo} alt="SAP" className={styles.logo} />
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <span className={styles.logoText}>ManagedControlPlane UI</span>
             </div>
           </div>
         }
