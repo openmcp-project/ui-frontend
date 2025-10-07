@@ -3,3 +3,37 @@
   background: var(--sapBackgroundColor);
   border-bottom: 1px solid var(--sapList_BorderColor);
 }
+
+.row:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.row.providerRow {
+  position: relative;
+  padding-inline-start: calc(1rem + 16px);
+  background: color-mix(in srgb, var(--sapBackgroundColor) 98%, #000 2%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .row.providerRow {
+    background: color-mix(in srgb, var(--sapBackgroundColor) 97%, #fff 3%);
+  }
+}
+
+.row.providerRow:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.row.providerRow::before {
+  content: "";
+  position: absolute;
+  inset-block: 6px;
+  inset-inline-start: 1.6rem;
+  width: 2px;
+  background: var(--sapList_BorderColor);
+}
+
+.providerRow :global(ui5-checkbox) {
+  transform: scale(0.9);
+  transform-origin: left center;
+}
