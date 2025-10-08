@@ -81,6 +81,10 @@ export default function McpPage() {
     return <IllustratedError details={error?.message} />;
   }
 
+  const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;
+  const isComponentInstalledFlux = !!mcp.spec?.components.flux;
+  const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
+
   return (
     <McpContextProvider
       context={{
@@ -154,46 +158,52 @@ export default function McpPage() {
               </ObjectPageSubSection>
             </ObjectPageSection>
 
-            <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
-              <ObjectPageSubSection id="providers" titleText={t('McpPage.providersTitle')} className={styles.section}>
-                <Providers />
-              </ObjectPageSubSection>
-              <ObjectPageSubSection
-                id="provider-configs"
-                titleText={t('McpPage.providerConfigsTitle')}
-                className={styles.section}
-              >
-                <ProvidersConfig />
-              </ObjectPageSubSection>
-              <ObjectPageSubSection
-                id="managed-resources"
-                titleText={t('McpPage.managedResourcesTitle')}
-                className={styles.section}
-              >
-                <ManagedResources />
-              </ObjectPageSubSection>
-            </ObjectPageSection>
+            {isComponentInstalledCrossplane && (
+              <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
+                <ObjectPageSubSection id="providers" titleText={t('McpPage.providersTitle')} className={styles.section}>
+                  <Providers />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="provider-configs"
+                  titleText={t('McpPage.providerConfigsTitle')}
+                  className={styles.section}
+                >
+                  <ProvidersConfig />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="managed-resources"
+                  titleText={t('McpPage.managedResourcesTitle')}
+                  className={styles.section}
+                >
+                  <ManagedResources />
+                </ObjectPageSubSection>
+              </ObjectPageSection>
+            )}
 
-            <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
-              <ObjectPageSubSection
-                id="git-repositories"
-                titleText={t('McpPage.gitRepositoriesTitle')}
-                className={styles.section}
-              >
-                <GitRepositories />
-              </ObjectPageSubSection>
-              <ObjectPageSubSection
-                id="kustomizations"
-                titleText={t('McpPage.kustomizationsTitle')}
-                className={styles.section}
-              >
-                <Kustomizations />
-              </ObjectPageSubSection>
-            </ObjectPageSection>
+            {isComponentInstalledFlux && (
+              <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
+                <ObjectPageSubSection
+                  id="git-repositories"
+                  titleText={t('McpPage.gitRepositoriesTitle')}
+                  className={styles.section}
+                >
+                  <GitRepositories />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="kustomizations"
+                  titleText={t('McpPage.kustomizationsTitle')}
+                  className={styles.section}
+                >
+                  <Kustomizations />
+                </ObjectPageSubSection>
+              </ObjectPageSection>
+            )}
 
-            <ObjectPageSection id="landscapers" titleText={t('McpPage.landscapersTitle')} className={styles.section}>
-              <Landscapers />
-            </ObjectPageSection>
+            {isComponentInstalledLandscaper && (
+              <ObjectPageSection id="landscapers" titleText={t('McpPage.landscapersTitle')} className={styles.section}>
+                <Landscapers />
+              </ObjectPageSection>
+            )}
           </ObjectPage>
         </WithinManagedControlPlane>
       </AuthProviderMcp>
