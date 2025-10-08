@@ -86,6 +86,7 @@ export function ManagedResources() {
     openInAside(
       <Fragment key={identityKey}>
         <YamlSidePanel
+          isEdit={true}
           resource={item as unknown as Resource}
           filename={`${item.kind}_${item.metadata.name}`}
           onApply={async (parsed) => await handleResourcePatch(item, parsed)}
