@@ -37,6 +37,14 @@ import { ApiConfigContext } from '../Shared/k8s';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 
+interface StatusFilterColumn {
+  filterValue?: string;
+  setFilter?: (value?: string) => void;
+}
+interface CellRow<T> {
+  original: T;
+}
+
 type ResourceRow = {
   kind: string;
   name: string;
@@ -45,7 +53,7 @@ type ResourceRow = {
   syncedTransitionTime: string;
   ready: boolean;
   readyTransitionTime: string;
-  item: unknown;
+  item: ManagedResourceItem;
   conditionReadyMessage: string;
   conditionSyncedMessage: string;
 };
@@ -142,9 +150,9 @@ export function ManagedResources() {
           accessor: 'synced',
           hAlign: 'Center',
           width: 125,
-          Filter: ({ column }: any) => <StatusFilter column={column} />,
-          Cell: ({ row }: any) => {
-            const original = row.original as ResourceRow;
+          Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
             return original?.synced != null ? (
               <ResourceStatusCell
                 isOk={original.synced}
@@ -161,9 +169,9 @@ export function ManagedResources() {
           accessor: 'ready',
           hAlign: 'Center',
           width: 125,
-          Filter: ({ column }: any) => <StatusFilter column={column} />,
-          Cell: ({ row }: any) => {
-            const original = row.original as ResourceRow;
+          Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
             return original?.ready != null ? (
               <ResourceStatusCell
                 isOk={original.ready}
@@ -181,8 +189,8 @@ export function ManagedResources() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: any) => {
-            const original = row.original as ResourceRow;
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
             return original?.item ? (
               <YamlViewButton variant="resource" resource={original.item as Resource} />
             ) : undefined;
@@ -193,9 +201,9 @@ export function ManagedResources() {
           hAlign: 'Center',
           width: 60,
           disableFilters: true,
-          Cell: ({ row }: any) => {
-            const original = row.original as ResourceRow;
-            const item = original?.item as ManagedResourceItem;
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
+            const item = original?.item;
             return item ? <RowActionsMenu item={item} onOpen={openDeleteDialog} onEdit={openEditPanel} /> : undefined;
           },
         },
@@ -243,7 +251,7 @@ export function ManagedResources() {
           if (e instanceof APIError && errorDialogRef.current) {
             errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
           }
-          throw e; // rethrow to outer catch
+          throw e;
         }
       }
     } catch (e) {

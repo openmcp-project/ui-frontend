@@ -29,7 +29,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
     }
   }, [value]);
 
-  const enforcedOptions = useMemo(
+  const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
       ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
       readOnly: isEdit ? false : (options?.readOnly ?? true),
@@ -65,8 +65,8 @@ export const YamlEditor = (props: YamlEditorProps) => {
           await onApply(jsObj, editorContent);
         }
       } catch (e: unknown) {
-        if (e && typeof e === 'object' && 'message' in e) {
-          setValidationErrors([String((e as any).message)]);
+        if (e instanceof Error) {
+          setValidationErrors([e.message]);
         } else {
           setValidationErrors(['Unknown YAML parse error']);
         }
@@ -93,7 +93,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           {...rest}
           value={isEdit ? editorContent : value}
           theme={computedTheme}
-          options={enforcedOptions as any}
+          options={enforcedOptions}
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
