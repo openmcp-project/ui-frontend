@@ -15,7 +15,7 @@ import IllustratedError from '../Shared/IllustratedError';
 import { resourcesInterval } from '../../lib/shared/constants';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useContext, useRef } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -30,15 +30,12 @@ import {
   PatchResourceForForceDeletionBody,
 } from '../../lib/api/types/crate/deleteResource';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
-
-interface CellData<T> {
-  cell: {
-    value: T | null; // null for grouping rows
-    row: {
-      original?: ResourceRow; // missing for grouping rows
-    };
-  };
-}
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { fetchApiServerJson } from '../../lib/api/fetch';
+import { ApiConfigContext } from '../Shared/k8s';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { APIError } from '../../lib/api/error.ts';
 
 type ResourceRow = {
   kind: string;
@@ -56,7 +53,10 @@ type ResourceRow = {
 export function ManagedResources() {
   const { t } = useTranslation();
   const toast = useToast();
+  const { openInAside } = useSplitter();
+  const apiConfig = useContext(ApiConfigContext);
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const {
     data: managedResources,
@@ -81,80 +81,121 @@ export function ManagedResources() {
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('ManagedResources.tableHeaderKind'),
-        accessor: 'kind',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderName'),
-        accessor: 'name',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderCreated'),
-        accessor: 'created',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderSynced'),
-        accessor: 'synced',
-        hAlign: 'Center',
-        width: 125,
-        Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<ResourceRow['synced']>) =>
-          cellData.cell.row.original?.synced != null ? (
-            <ResourceStatusCell
-              isOk={cellData.cell.row.original?.synced}
-              transitionTime={cellData.cell.row.original?.syncedTransitionTime}
-              positiveText={t('common.synced')}
-              negativeText={t('errors.syncError')}
-              message={cellData.cell.row.original?.conditionSyncedMessage}
-            />
-          ) : null,
-      },
-      {
-        Header: t('ManagedResources.tableHeaderReady'),
-        accessor: 'ready',
-        hAlign: 'Center',
-        width: 125,
-        Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<ResourceRow['ready']>) =>
-          cellData.cell.row.original?.ready != null ? (
-            <ResourceStatusCell
-              isOk={cellData.cell.row.original?.ready}
-              transitionTime={cellData.cell.row.original?.readyTransitionTime}
-              positiveText={t('common.ready')}
-              negativeText={'Not ready'}
-              message={cellData.cell.row.original?.conditionReadyMessage}
-            />
-          ) : null,
-      },
-      {
-        Header: t('yaml.YAML'),
-        hAlign: 'Center',
-        width: 75,
-        accessor: 'yaml',
-        disableFilters: true,
-        Cell: (cellData: CellData<ResourceRow>) => {
-          return cellData.cell.row.original?.item ? (
-            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
-          ) : undefined;
-        },
-      },
-      {
-        Header: t('ManagedResources.actionColumnHeader'),
-        hAlign: 'Center',
-        width: 60,
-        disableFilters: true,
-        Cell: (cellData: CellData<ResourceRow>) => {
-          const item = cellData.cell.row.original?.item as ManagedResourceItem;
+  const openEditPanel = (item: ManagedResourceItem) => {
+    openInAside(
+      <YamlSidePanel
+        resource={item as unknown as Resource}
+        filename={`${item.kind}_${item.metadata.name}`}
+        onApply={async (parsed) => await handleResourcePatch(item, parsed)}
+      />,
+    );
+  };
 
-          return cellData.cell.row.original?.item ? (
-            <RowActionsMenu item={item} onOpen={openDeleteDialog} />
-          ) : undefined;
+  const handleResourcePatch = async (item: ManagedResourceItem, parsed: unknown): Promise<boolean> => {
+    const resourceName = item?.metadata?.name ?? '';
+    const apiVersion = item?.apiVersion ?? '';
+    const pluralKind = getPluralKind(item.kind);
+    const namespace = item?.metadata?.namespace;
+
+    toast.show(t('ManagedResources.patchStarted', { resourceName }));
+
+    try {
+      const basePath = `/apis/${apiVersion}`;
+      const path = namespace
+        ? `${basePath}/namespaces/${namespace}/${pluralKind}/${resourceName}`
+        : `${basePath}/${pluralKind}/${resourceName}`;
+
+      await fetchApiServerJson(path, apiConfig, undefined, 'PATCH', JSON.stringify(parsed));
+      toast.show(t('ManagedResources.patchSuccess', { resourceName }));
+      return true;
+    } catch (e) {
+      toast.show(t('ManagedResources.patchError', { resourceName }));
+      if (e instanceof APIError && errorDialogRef.current) {
+        errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+      }
+      console.error('Failed to patch resource', e);
+      return false;
+    }
+  };
+
+  const columns = useMemo<AnalyticalTableColumnDefinition[]>(
+    () =>
+      [
+        {
+          Header: t('ManagedResources.tableHeaderKind'),
+          accessor: 'kind',
         },
-      },
-    ],
+        {
+          Header: t('ManagedResources.tableHeaderName'),
+          accessor: 'name',
+        },
+        {
+          Header: t('ManagedResources.tableHeaderCreated'),
+          accessor: 'created',
+        },
+        {
+          Header: t('ManagedResources.tableHeaderSynced'),
+          accessor: 'synced',
+          hAlign: 'Center',
+          width: 125,
+          Filter: ({ column }: any) => <StatusFilter column={column} />,
+          Cell: ({ row }: any) => {
+            const original = row.original as ResourceRow;
+            return original?.synced != null ? (
+              <ResourceStatusCell
+                isOk={original.synced}
+                transitionTime={original.syncedTransitionTime}
+                positiveText={t('common.synced')}
+                negativeText={t('errors.syncError')}
+                message={original.conditionSyncedMessage}
+              />
+            ) : null;
+          },
+        },
+        {
+          Header: t('ManagedResources.tableHeaderReady'),
+          accessor: 'ready',
+          hAlign: 'Center',
+          width: 125,
+          Filter: ({ column }: any) => <StatusFilter column={column} />,
+          Cell: ({ row }: any) => {
+            const original = row.original as ResourceRow;
+            return original?.ready != null ? (
+              <ResourceStatusCell
+                isOk={original.ready}
+                transitionTime={original.readyTransitionTime}
+                positiveText={t('common.ready')}
+                negativeText={t('errors.notReady')}
+                message={original.conditionReadyMessage}
+              />
+            ) : null;
+          },
+        },
+        {
+          Header: t('yaml.YAML'),
+          hAlign: 'Center',
+          width: 75,
+          accessor: 'yaml',
+          disableFilters: true,
+          Cell: ({ row }: any) => {
+            const original = row.original as ResourceRow;
+            return original?.item ? (
+              <YamlViewButton variant="resource" resource={original.item as Resource} />
+            ) : undefined;
+          },
+        },
+        {
+          Header: t('ManagedResources.actionColumnHeader'),
+          hAlign: 'Center',
+          width: 60,
+          disableFilters: true,
+          Cell: ({ row }: any) => {
+            const original = row.original as ResourceRow;
+            const item = original?.item as ManagedResourceItem;
+            return item ? <RowActionsMenu item={item} onOpen={openDeleteDialog} onEdit={openEditPanel} /> : undefined;
+          },
+        },
+      ] as AnalyticalTableColumnDefinition[],
     [t],
   );
 
@@ -192,10 +233,19 @@ export function ManagedResources() {
       await deleteTrigger();
 
       if (force) {
-        await patchTrigger(PatchResourceForForceDeletionBody);
+        try {
+          await patchTrigger(PatchResourceForForceDeletionBody);
+        } catch (e) {
+          if (e instanceof APIError && errorDialogRef.current) {
+            errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+          }
+          throw e; // rethrow to outer catch
+        }
       }
-    } catch (_) {
-      // Ignore errors - will be handled by the mutation hook
+    } catch (e) {
+      if (e instanceof APIError && errorDialogRef.current) {
+        errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+      }
     } finally {
       setPendingDeleteItem(null);
     }
@@ -247,6 +297,7 @@ export function ManagedResources() {
               onClose={() => setPendingDeleteItem(null)}
               onDeletionConfirmed={handleDeletionConfirmed}
             />
+            <ErrorDialog ref={errorDialogRef} />
           </>
         </Panel>
       )}

@@ -7,26 +7,30 @@ import {
   ToolbarButton,
   ToolbarSeparator,
   ToolbarSpacer,
+  Button,
 } from '@ui5/webcomponents-react';
-
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
 import { YamlViewer } from './YamlViewer.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
+import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
 export interface YamlSidePanelProps {
   resource: Resource;
   filename: string;
+  onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>; // optional apply handler when in edit mode
 }
-export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
+export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   const isEdit = true; // Currently always editing YAML (YamlViewer receives isEdit=true)
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
@@ -36,13 +40,13 @@ export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
       return stringify(convertToResourceConfig(resource));
     }
     return stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData));
-  }, [resource, showOnlyImportantData]);
+  }, [resource, showOnlyImportantData, isEdit]);
   const yamlStringToCopy = useMemo(() => {
     if (isEdit) {
       return stringify(convertToResourceConfig(resource));
     }
     return stringify(removeManagedFieldsAndFilterData(resource, false));
-  }, [resource]);
+  }, [resource, isEdit]);
 
   const { copyToClipboard } = useCopyToClipboard();
   const handleDownloadClick = () => {
@@ -56,6 +60,21 @@ export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
+
+  const handleApplyWrapper = useCallback(
+    async (parsed: unknown, yaml: string) => {
+      if (!onApply) return;
+      try {
+        const result = await onApply(parsed, yaml);
+        if (result === true) {
+          setIsSuccess(true);
+        }
+      } catch (_) {
+        // onApply handles its own error display (toast/dialog)
+      }
+    },
+    [onApply],
+  );
 
   return (
     <Panel
@@ -99,7 +118,25 @@ export function YamlSidePanel({ resource, filename }: YamlSidePanelProps) {
       }
     >
       <div className={styles.content}>
-        <YamlViewer yamlString={yamlStringToDisplay} filename={filename} isEdit={isEdit} />
+        {isSuccess ? (
+          <FlexBox direction="Column" style={{ gap: '1rem', padding: '1rem', alignItems: 'center' }}>
+            <IllustratedBanner
+              illustrationName={IllustrationMessageType.SuccessScreen}
+              title={t('yaml.applySuccess')}
+              subtitle={t('yaml.applySuccess2')}
+            />
+            <Button design="Emphasized" onClick={closeAside}>
+              {t('common.close')}
+            </Button>
+          </FlexBox>
+        ) : (
+          <YamlViewer
+            yamlString={yamlStringToDisplay}
+            filename={filename}
+            isEdit={isEdit}
+            onApply={handleApplyWrapper}
+          />
+        )}
       </div>
     </Panel>
   );

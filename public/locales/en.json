@@ -37,11 +37,15 @@
     "tableHeaderReady": "Ready",
     "tableHeaderDelete": "Delete",
     "deleteAction": "Delete resource",
+    "editAction": "Edit resource",
     "deleteDialogTitle": "Delete resource",
     "advancedOptions": "Advanced options",
     "forceDeletion": "Force deletion",
     "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped.",
     "deleteStarted": "Deleting {{resourceName}} initialized",
+    "patchStarted": "Updating {{resourceName}} initialized",
+    "patchSuccess": "Updated {{resourceName}}",
+    "patchError": "Failed to update {{resourceName}}",
     "actionColumnHeader": " "
   },
   "ProvidersConfig": {
@@ -373,7 +377,8 @@
     "installError": "Install error",
     "syncError": "Sync error",
     "error": "Error",
-    "notHealthy": "Not healthy"
+    "notHealthy": "Not healthy",
+    "notReady": "Not ready"
   },
   "buttons": {
     "viewResource": "View resource",
@@ -391,7 +396,9 @@
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
     "panelTitle": "YAML",
-    "editorTitle": "YAML Editor"
+    "editorTitle": "YAML Editor",
+    "applySuccess": "Changes applied successfully",
+    "applySuccess2": "You can safely close this panel."
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

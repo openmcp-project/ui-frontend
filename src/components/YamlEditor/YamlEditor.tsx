@@ -12,13 +12,14 @@ import * as monaco from 'monaco-editor';
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
   // When true, editor becomes editable and an Apply changes button & validation appear
   isEdit?: boolean;
+  onApply?: (parsed: unknown, yaml: string) => void; // callback when user applies valid YAML
 };
 
 // Simple wrapper that forwards all props to Monaco Editor, enhanced with edit/apply capability
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
-  const { theme, options, value, defaultValue, onChange, isEdit = false, ...rest } = props;
+  const { theme, options, value, defaultValue, onChange, isEdit = false, onApply, ...rest } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
   // Maintain internal state only in edit mode; otherwise rely on provided value (viewer mode)
@@ -35,11 +36,10 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   const enforcedOptions = useMemo(
     () => ({
-      ...options,
+      ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
       readOnly: isEdit ? false : (options?.readOnly ?? true),
       minimap: { enabled: false },
-      isKubernetes: true,
-      wordWrap: 'on',
+      wordWrap: 'on' as const,
       scrollBeyondLastLine: false,
     }),
     [options, isEdit],
@@ -56,26 +56,31 @@ export const YamlEditor = (props: YamlEditorProps) => {
   );
 
   const handleApply = useCallback(() => {
-    setAttemptedApply(true);
-    try {
-      const doc = parseDocument(code);
-      if (doc.errors && doc.errors.length) {
-        setErrors(doc.errors.map((e) => e.message));
-        return;
+    const run = async () => {
+      setAttemptedApply(true);
+      try {
+        const doc = parseDocument(code);
+        if (doc.errors && doc.errors.length) {
+          setErrors(doc.errors.map((e) => e.message));
+          return;
+        }
+        setErrors([]);
+        const jsObj = doc.toJS();
+        if (onApply) {
+          await onApply(jsObj, code);
+        } else {
+          console.log('Parsed YAML object:', jsObj);
+        }
+      } catch (e: unknown) {
+        if (e && typeof e === 'object' && 'message' in e) {
+          setErrors([String((e as any).message)]);
+        } else {
+          setErrors(['Unknown YAML parse error']);
+        }
       }
-      setErrors([]);
-      const jsObj = doc.toJS();
-
-      console.log('Parsed YAML object:', jsObj);
-    } catch (e: unknown) {
-      if (e && typeof e === 'object' && 'message' in e) {
-        // @ts-expect-error narrowing message
-        setErrors([String(e.message)]);
-      } else {
-        setErrors(['Unknown YAML parse error']);
-      }
-    }
-  }, [code]);
+    };
+    run();
+  }, [code, onApply]);
 
   const showErrors = isEdit && attemptedApply && errors.length > 0;
 
@@ -95,7 +100,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           {...rest}
           value={isEdit ? code : value}
           theme={computedTheme}
-          options={enforcedOptions}
+          options={enforcedOptions as any}
           height="100%"
           language="yaml"
           onChange={handleInternalChange}

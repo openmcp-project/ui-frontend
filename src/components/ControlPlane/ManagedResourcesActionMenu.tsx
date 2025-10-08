@@ -7,10 +7,11 @@ import type { Ui5CustomEvent, ButtonDomRef } from '@ui5/webcomponents-react';
 
 interface RowActionsMenuProps {
   item: ManagedResourceItem;
-  onOpen: (item: ManagedResourceItem) => void;
+  onOpen: (item: ManagedResourceItem) => void; // delete dialog open
+  onEdit: (item: ManagedResourceItem) => void; // open YAML editor for patch
 }
 
-export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen }) => {
+export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen, onEdit }) => {
   const { t } = useTranslation();
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
@@ -33,10 +34,13 @@ export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen }) => {
           const action = element.dataset.action;
           if (action === 'delete') {
             onOpen(item);
+          } else if (action === 'edit') {
+            onEdit(item);
           }
           setOpen(false);
         }}
       >
+        <MenuItem text={t('ManagedResources.editAction', 'Edit')} icon="edit" data-action="edit" />
         <MenuItem text={t('ManagedResources.deleteAction')} icon="delete" data-action="delete" />
       </Menu>
     </>
