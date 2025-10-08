@@ -8,29 +8,24 @@ import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor';
 
-// Reuse all props from the underlying Monaco Editor component, except language (we force YAML)
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
-  // When true, editor becomes editable and an Apply changes button & validation appear
   isEdit?: boolean;
-  onApply?: (parsed: unknown, yaml: string) => void; // callback when user applies valid YAML
+  onApply?: (parsed: unknown, yaml: string) => void;
 };
 
-// Simple wrapper that forwards all props to Monaco Editor, enhanced with edit/apply capability
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
   const { theme, options, value, defaultValue, onChange, isEdit = false, onApply, ...rest } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
-  // Maintain internal state only in edit mode; otherwise rely on provided value (viewer mode)
-  const [code, setCode] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
-  const [errors, setErrors] = useState<string[]>([]);
-  const [attemptedApply, setAttemptedApply] = useState(false);
+  const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [applyAttempted, setApplyAttempted] = useState(false);
 
-  // Keep internal state in sync when value prop changes in non-edit mode
   useEffect(() => {
     if (typeof value !== 'undefined') {
-      setCode(value.toString());
+      setEditorContent(value.toString());
     }
   }, [value]);
 
@@ -45,10 +40,10 @@ export const YamlEditor = (props: YamlEditorProps) => {
     [options, isEdit],
   );
 
-  const handleInternalChange = useCallback(
+  const handleEditorChange = useCallback(
     (val: string | undefined) => {
       if (isEdit) {
-        setCode(val ?? '');
+        setEditorContent(val ?? '');
       }
       onChange?.(val ?? '', undefined as unknown as monaco.editor.IModelContentChangedEvent);
     },
@@ -57,32 +52,30 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   const handleApply = useCallback(() => {
     const run = async () => {
-      setAttemptedApply(true);
+      setApplyAttempted(true);
       try {
-        const doc = parseDocument(code);
+        const doc = parseDocument(editorContent);
         if (doc.errors && doc.errors.length) {
-          setErrors(doc.errors.map((e) => e.message));
+          setValidationErrors(doc.errors.map((e) => e.message));
           return;
         }
-        setErrors([]);
+        setValidationErrors([]);
         const jsObj = doc.toJS();
         if (onApply) {
-          await onApply(jsObj, code);
-        } else {
-          console.log('Parsed YAML object:', jsObj);
+          await onApply(jsObj, editorContent);
         }
       } catch (e: unknown) {
         if (e && typeof e === 'object' && 'message' in e) {
-          setErrors([String((e as any).message)]);
+          setValidationErrors([String((e as any).message)]);
         } else {
-          setErrors(['Unknown YAML parse error']);
+          setValidationErrors(['Unknown YAML parse error']);
         }
       }
     };
     run();
-  }, [code, onApply]);
+  }, [editorContent, onApply]);
 
-  const showErrors = isEdit && attemptedApply && errors.length > 0;
+  const showValidationErrors = isEdit && applyAttempted && validationErrors.length > 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
@@ -98,18 +91,18 @@ export const YamlEditor = (props: YamlEditorProps) => {
       <div style={{ flex: 1, minHeight: 0 }}>
         <Editor
           {...rest}
-          value={isEdit ? code : value}
+          value={isEdit ? editorContent : value}
           theme={computedTheme}
           options={enforcedOptions as any}
           height="100%"
           language="yaml"
-          onChange={handleInternalChange}
+          onChange={handleEditorChange}
         />
       </div>
-      {showErrors && (
+      {showValidationErrors && (
         <Panel headerText="Output" style={{ marginTop: '0.5rem' }}>
           <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-            {errors.map((err, idx) => (
+            {validationErrors.map((err, idx) => (
               <li key={idx} style={{ listStyle: 'disc', fontFamily: 'monospace' }}>
                 {err}
               </li>

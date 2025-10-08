@@ -7,8 +7,8 @@ import type { Ui5CustomEvent, ButtonDomRef } from '@ui5/webcomponents-react';
 
 interface RowActionsMenuProps {
   item: ManagedResourceItem;
-  onOpen: (item: ManagedResourceItem) => void; // delete dialog open
-  onEdit: (item: ManagedResourceItem) => void; // open YAML editor for patch
+  onOpen: (item: ManagedResourceItem) => void;
+  onEdit: (item: ManagedResourceItem) => void;
 }
 
 export const RowActionsMenu: FC<RowActionsMenuProps> = ({ item, onOpen, onEdit }) => {

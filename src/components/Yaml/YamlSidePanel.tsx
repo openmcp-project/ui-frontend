@@ -27,7 +27,7 @@ export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due 
 export interface YamlSidePanelProps {
   resource: Resource;
   filename: string;
-  onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>; // optional apply handler when in edit mode
+  onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
 }
 export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSidePanelProps) {
@@ -75,9 +75,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
       if (result === true) {
         setMode('success');
       }
-    } catch (_) {
-      // upstream handles error messaging
-    }
+    } catch (_) {}
   }, [onApply, editedYaml, parsedObject]);
 
   const handleGoBack = () => setMode('edit');
