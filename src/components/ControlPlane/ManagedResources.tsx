@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Fragment, useMemo, useState, useContext, useRef } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -15,7 +16,6 @@ import IllustratedError from '../Shared/IllustratedError';
 import { resourcesInterval } from '../../lib/shared/constants';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo, useState, useContext, useRef } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -82,12 +82,15 @@ export function ManagedResources() {
   );
 
   const openEditPanel = (item: ManagedResourceItem) => {
+    const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
     openInAside(
-      <YamlSidePanel
-        resource={item as unknown as Resource}
-        filename={`${item.kind}_${item.metadata.name}`}
-        onApply={async (parsed) => await handleResourcePatch(item, parsed)}
-      />,
+      <Fragment key={identityKey}>
+        <YamlSidePanel
+          resource={item as unknown as Resource}
+          filename={`${item.kind}_${item.metadata.name}`}
+          onApply={async (parsed) => await handleResourcePatch(item, parsed)}
+        />
+      </Fragment>,
     );
   };
 

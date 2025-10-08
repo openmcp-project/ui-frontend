@@ -39,16 +39,8 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
   const { t } = useTranslation();
 
   const originalYaml = useMemo(() => stringify(convertToResourceConfig(resource)), [resource]);
-  // yamlStringToDisplay used for editor when in edit mode
-  const yamlStringToDisplay = useMemo(() => {
-    if (mode === 'edit') {
-      return editedYaml ?? originalYaml;
-    }
-    return editedYaml ?? originalYaml;
-  }, [mode, editedYaml, originalYaml]);
-
+  const yamlStringToDisplay = useMemo(() => editedYaml ?? originalYaml, [editedYaml, originalYaml]);
   const yamlStringToCopy = useMemo(() => originalYaml, [originalYaml]);
-
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
@@ -63,14 +55,12 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
     window.URL.revokeObjectURL(url);
   };
 
-  // First apply from editor: validate -> store edited YAML -> go to review
   const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {
     setParsedObject(parsed);
     setEditedYaml(yaml);
     setMode('review');
   }, []);
 
-  // User confirms diff -> perform patch
   const handleConfirmPatch = useCallback(async () => {
     if (!onApply || !editedYaml) return;
     try {
@@ -79,13 +69,11 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
         setMode('success');
       }
     } catch (_) {
-      // Stay on review mode; error dialog & toast handled upstream
+      // upstream handles error messaging
     }
   }, [onApply, editedYaml, parsedObject]);
 
-  const handleGoBack = () => {
-    setMode('edit');
-  };
+  const handleGoBack = () => setMode('edit');
 
   return (
     <Panel
@@ -108,7 +96,7 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
             design="Transparent"
             icon="copy"
             text={t('buttons.copy')}
-            onClick={() => copyToClipboard(mode === 'edit' ? yamlStringToDisplay : (editedYaml ?? originalYaml))}
+            onClick={() => copyToClipboard(yamlStringToDisplay)}
           />
           {SHOW_DOWNLOAD_BUTTON ? (
             <ToolbarButton
