@@ -398,7 +398,11 @@
     "panelTitle": "YAML",
     "editorTitle": "YAML Editor",
     "applySuccess": "Changes applied successfully",
-    "applySuccess2": "You can safely close this panel."
+    "applySuccess2": "Your resource update was submitted.",
+    "diffConfirmTitle": "Review changes",
+    "diffConfirmMessage": "Are you sure that you want to apply these changes?",
+    "diffNo": "No, go back",
+    "diffYes": "Yes"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

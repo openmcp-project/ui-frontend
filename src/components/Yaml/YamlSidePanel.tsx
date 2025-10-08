@@ -16,10 +16,11 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
-import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
@@ -30,25 +31,26 @@ export interface YamlSidePanelProps {
 }
 export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const isEdit = true; // Currently always editing YAML (YamlViewer receives isEdit=true)
+  const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
+  const [editedYaml, setEditedYaml] = useState<string | null>(null);
+  const [parsedObject, setParsedObject] = useState<unknown>(null);
+  const isEdit = true; // Always edit mode in this context
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
 
+  const originalYaml = useMemo(() => stringify(convertToResourceConfig(resource)), [resource]);
+  // yamlStringToDisplay used for editor when in edit mode
   const yamlStringToDisplay = useMemo(() => {
-    if (isEdit) {
-      return stringify(convertToResourceConfig(resource));
+    if (mode === 'edit') {
+      return editedYaml ?? originalYaml;
     }
-    return stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData));
-  }, [resource, showOnlyImportantData, isEdit]);
-  const yamlStringToCopy = useMemo(() => {
-    if (isEdit) {
-      return stringify(convertToResourceConfig(resource));
-    }
-    return stringify(removeManagedFieldsAndFilterData(resource, false));
-  }, [resource, isEdit]);
+    return editedYaml ?? originalYaml;
+  }, [mode, editedYaml, originalYaml]);
+
+  const yamlStringToCopy = useMemo(() => originalYaml, [originalYaml]);
 
   const { copyToClipboard } = useCopyToClipboard();
+
   const handleDownloadClick = () => {
     const blob = new Blob([yamlStringToCopy], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
@@ -61,20 +63,29 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
     window.URL.revokeObjectURL(url);
   };
 
-  const handleApplyWrapper = useCallback(
-    async (parsed: unknown, yaml: string) => {
-      if (!onApply) return;
-      try {
-        const result = await onApply(parsed, yaml);
-        if (result === true) {
-          setIsSuccess(true);
-        }
-      } catch (_) {
-        // onApply handles its own error display (toast/dialog)
+  // First apply from editor: validate -> store edited YAML -> go to review
+  const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {
+    setParsedObject(parsed);
+    setEditedYaml(yaml);
+    setMode('review');
+  }, []);
+
+  // User confirms diff -> perform patch
+  const handleConfirmPatch = useCallback(async () => {
+    if (!onApply || !editedYaml) return;
+    try {
+      const result = await onApply(parsedObject, editedYaml);
+      if (result === true) {
+        setMode('success');
       }
-    },
-    [onApply],
-  );
+    } catch (_) {
+      // Stay on review mode; error dialog & toast handled upstream
+    }
+  }, [onApply, editedYaml, parsedObject]);
+
+  const handleGoBack = () => {
+    setMode('edit');
+  };
 
   return (
     <Panel
@@ -97,7 +108,7 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
             design="Transparent"
             icon="copy"
             text={t('buttons.copy')}
-            onClick={() => copyToClipboard(yamlStringToCopy)}
+            onClick={() => copyToClipboard(mode === 'edit' ? yamlStringToDisplay : (editedYaml ?? originalYaml))}
           />
           {SHOW_DOWNLOAD_BUTTON ? (
             <ToolbarButton
@@ -118,8 +129,8 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
       }
     >
       <div className={styles.content}>
-        {isSuccess ? (
-          <FlexBox direction="Column" style={{ gap: '1rem', padding: '1rem', alignItems: 'center' }}>
+        {mode === 'success' && (
+          <FlexBox direction="Column" className={styles.successContainer}>
             <IllustratedBanner
               illustrationName={IllustrationMessageType.SuccessScreen}
               title={t('yaml.applySuccess')}
@@ -129,12 +140,34 @@ export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProp
               {t('common.close')}
             </Button>
           </FlexBox>
-        ) : (
+        )}
+        {mode === 'review' && (
+          <FlexBox direction="Column" className={styles.reviewContainer}>
+            <div className={styles.stickyHeader}>
+              <div className={styles.stickyHeaderInner}>
+                <Title level="H5">{t('yaml.diffConfirmTitle')}</Title>
+                <p className={styles.diffConfirmMessage}>{t('yaml.diffConfirmMessage')}</p>
+              </div>
+              <FlexBox className={styles.reviewButtons}>
+                <Button design="Transparent" onClick={handleGoBack}>
+                  {t('yaml.diffNo')}
+                </Button>
+                <Button design="Emphasized" onClick={handleConfirmPatch}>
+                  {t('yaml.diffYes', 'Yes')}
+                </Button>
+              </FlexBox>
+            </div>
+            <div>
+              <YamlDiff originalYaml={originalYaml} modifiedYaml={editedYaml ?? originalYaml} />
+            </div>
+          </FlexBox>
+        )}
+        {mode === 'edit' && (
           <YamlViewer
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={isEdit}
-            onApply={handleApplyWrapper}
+            onApply={handleApplyFromEditor}
           />
         )}
       </div>
