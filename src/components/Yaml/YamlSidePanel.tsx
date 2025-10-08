@@ -16,7 +16,7 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
-import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -28,17 +28,24 @@ export interface YamlSidePanelProps {
   resource: Resource;
   filename: string;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>; // optional apply handler when in edit mode
+  isEdit?: boolean;
 }
-export function YamlSidePanel({ resource, filename, onApply }: YamlSidePanelProps) {
+export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
   const [parsedObject, setParsedObject] = useState<unknown>(null);
-  const isEdit = true; // Always edit mode in this context
+
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
 
-  const originalYaml = useMemo(() => stringify(convertToResourceConfig(resource)), [resource]);
+  const originalYaml = useMemo(
+    () =>
+      isEdit
+        ? stringify(convertToResourceConfig(resource))
+        : stringify(removeManagedFieldsAndFilterData(resource, showOnlyImportantData)),
+    [isEdit, resource, showOnlyImportantData],
+  );
   const yamlStringToDisplay = useMemo(() => editedYaml ?? originalYaml, [editedYaml, originalYaml]);
   const yamlStringToCopy = useMemo(() => originalYaml, [originalYaml]);
   const { copyToClipboard } = useCopyToClipboard();
