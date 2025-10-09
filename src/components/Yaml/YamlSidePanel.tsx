@@ -70,12 +70,11 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
 
   const handleConfirmPatch = useCallback(async () => {
     if (!onApply || !editedYaml) return;
-    try {
-      const result = await onApply(parsedObject, editedYaml);
-      if (result === true) {
-        setMode('success');
-      }
-    } catch (_) {}
+
+    const result = await onApply(parsedObject, editedYaml);
+    if (result === true) {
+      setMode('success');
+    }
   }, [onApply, editedYaml, parsedObject]);
 
   const handleGoBack = () => setMode('edit');
