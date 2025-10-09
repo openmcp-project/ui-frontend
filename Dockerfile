@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM node:24-slim@sha256:3e69116c924bfcba6c6979aff60d966c37aef56d488ce091c69d442ebec9f103 AS build-stage
+FROM node:24-slim@sha256:c0eadb278e6b0b608681b359291592692979133567710eaa703d6f989f33c6c1 AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
