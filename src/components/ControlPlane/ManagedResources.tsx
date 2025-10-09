@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment, useMemo, useState, useContext, useRef } from 'react';
+import { Fragment, useMemo, useState, useContext, useRef, useCallback } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -32,10 +32,12 @@ import {
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
-import { fetchApiServerJson } from '../../lib/api/fetch';
+
 import { ApiConfigContext } from '../Shared/k8s';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
+
+import { handleResourcePatch } from '../../lib/api/types/crossplane/handleResourcePatch.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -89,46 +91,36 @@ export function ManagedResources() {
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
-  const openEditPanel = (item: ManagedResourceItem) => {
-    const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
-    openInAside(
-      <Fragment key={identityKey}>
-        <YamlSidePanel
-          isEdit={true}
-          resource={item as unknown as Resource}
-          filename={`${item.kind}_${item.metadata.name}`}
-          onApply={async (parsed) => await handleResourcePatch(item, parsed)}
-        />
-      </Fragment>,
-    );
-  };
+  const openDeleteDialog = useCallback((item: ManagedResourceItem) => {
+    setPendingDeleteItem(item);
+  }, []);
 
-  const handleResourcePatch = async (item: ManagedResourceItem, parsed: unknown): Promise<boolean> => {
-    const resourceName = item?.metadata?.name ?? '';
-    const apiVersion = item?.apiVersion ?? '';
-    const pluralKind = getPluralKind(item.kind);
-    const namespace = item?.metadata?.namespace;
-
-    toast.show(t('ManagedResources.patchStarted', { resourceName }));
-
-    try {
-      const basePath = `/apis/${apiVersion}`;
-      const path = namespace
-        ? `${basePath}/namespaces/${namespace}/${pluralKind}/${resourceName}`
-        : `${basePath}/${pluralKind}/${resourceName}`;
-
-      await fetchApiServerJson(path, apiConfig, undefined, 'PATCH', JSON.stringify(parsed));
-      toast.show(t('ManagedResources.patchSuccess', { resourceName }));
-      return true;
-    } catch (e) {
-      toast.show(t('ManagedResources.patchError', { resourceName }));
-      if (e instanceof APIError && errorDialogRef.current) {
-        errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-      }
-      console.error('Failed to patch resource', e);
-      return false;
-    }
-  };
+  const openEditPanel = useCallback(
+    (item: ManagedResourceItem) => {
+      const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
+      openInAside(
+        <Fragment key={identityKey}>
+          <YamlSidePanel
+            isEdit={true}
+            resource={item as unknown as Resource}
+            filename={`${item.kind}_${item.metadata.name}`}
+            onApply={async (parsed) =>
+              await handleResourcePatch({
+                item,
+                parsed,
+                getPluralKind,
+                apiConfig,
+                t,
+                toast,
+                errorDialogRef,
+              })
+            }
+          />
+        </Fragment>,
+      );
+    },
+    [openInAside, getPluralKind, apiConfig, t, toast, errorDialogRef],
+  );
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
@@ -208,7 +200,7 @@ export function ManagedResources() {
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t],
+    [t, openEditPanel, openDeleteDialog],
   );
 
   const rows: ResourceRow[] =
@@ -234,10 +226,6 @@ export function ManagedResources() {
         }),
       ) ?? [];
 
-  const openDeleteDialog = (item: ManagedResourceItem) => {
-    setPendingDeleteItem(item);
-  };
-
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
 
@@ -251,7 +239,7 @@ export function ManagedResources() {
           if (e instanceof APIError && errorDialogRef.current) {
             errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
           }
-          throw e;
+          // already handled
         }
       }
     } catch (e) {
