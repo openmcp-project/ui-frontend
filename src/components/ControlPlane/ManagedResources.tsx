@@ -192,7 +192,7 @@ export function ManagedResources() {
           Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
             const { original } = row;
             return original?.item ? (
-              <YamlViewButton variant="resource" resource={original.item as Resource} />
+              <YamlViewButton variant="resource" resource={original.item as unknown as Resource} />
             ) : undefined;
           },
         },
