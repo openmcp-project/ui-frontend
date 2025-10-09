@@ -41,11 +41,11 @@ export const YamlEditor = (props: YamlEditorProps) => {
   );
 
   const handleEditorChange = useCallback(
-    (val: string | undefined) => {
+    (val: string | undefined, event?: monaco.editor.IModelContentChangedEvent) => {
       if (isEdit) {
         setEditorContent(val ?? '');
       }
-      onChange?.(val ?? '', undefined as unknown as monaco.editor.IModelContentChangedEvent);
+      onChange?.(val ?? '', event);
     },
     [isEdit, onChange],
   );
