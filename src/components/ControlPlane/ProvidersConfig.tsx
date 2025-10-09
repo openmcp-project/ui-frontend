@@ -15,7 +15,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ProviderConfigsRowActionsMenu } from './ProviderConfigsActionMenu.tsx';
@@ -35,13 +35,8 @@ type Rows = {
   resource: ProviderConfigItem;
 };
 
-interface CellData<T> {
-  cell: {
-    value: T | null; // null for grouping rows
-    row: {
-      original?: Rows; // missing for grouping rows
-    };
-  };
+interface CellRow<T> {
+  original: T;
 }
 
 export function ProvidersConfig() {
@@ -77,14 +72,14 @@ export function ProvidersConfig() {
     (item: ProviderConfigItem) => {
       const identityKey = `${item.kind}:${item.metadata.name}`;
       openInAside(
-        <>
+        <Fragment key={identityKey}>
           <YamlSidePanel
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
             onApply={async (parsed) =>
               await handleResourcePatch({
-                item: item as unknown as any, // cast to align with expected shape
+                item,
                 parsed,
                 getPluralKind,
                 apiConfig,
@@ -94,53 +89,54 @@ export function ProvidersConfig() {
               })
             }
           />
-        </>,
+        </Fragment>,
       );
     },
     [openInAside, getPluralKind, apiConfig, t, toast],
   );
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('ProvidersConfig.tableHeaderProvider'),
-        accessor: 'parent',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderName'),
-        accessor: 'name',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderUsage'),
-        accessor: 'usage',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderCreated'),
-        accessor: 'created',
-      },
-      {
-        Header: t('yaml.YAML'),
-        hAlign: 'Center',
-        width: 75,
-        accessor: 'yaml',
-        disableFilters: true,
-        Cell: (cellData: CellData<Rows>) =>
-          cellData.cell.row.original?.resource ? (
-            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.resource as unknown as Resource} />
-          ) : undefined,
-      },
-      {
-        Header: t('ManagedResources.actionColumnHeader'),
-        hAlign: 'Center',
-        width: 60,
-        disableFilters: true,
-        accessor: 'actions',
-        Cell: (cellData: CellData<Rows>) => {
-          const item = cellData.cell.row.original?.resource;
-          return item ? <ProviderConfigsRowActionsMenu item={item} onEdit={openEditPanel} /> : undefined;
+  const columns = useMemo(
+    () =>
+      [
+        {
+          Header: t('ProvidersConfig.tableHeaderProvider'),
+          accessor: 'parent',
         },
-      },
-    ],
+        {
+          Header: t('ProvidersConfig.tableHeaderName'),
+          accessor: 'name',
+        },
+        {
+          Header: t('ProvidersConfig.tableHeaderUsage'),
+          accessor: 'usage',
+        },
+        {
+          Header: t('ProvidersConfig.tableHeaderCreated'),
+          accessor: 'created',
+        },
+        {
+          Header: t('yaml.YAML'),
+          hAlign: 'Center',
+          width: 75,
+          accessor: 'yaml',
+          disableFilters: true,
+          Cell: ({ row }: { row: CellRow<Rows> }) => {
+            const item = row.original?.resource;
+            return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
+          },
+        },
+        {
+          Header: t('ManagedResources.actionColumnHeader'),
+          hAlign: 'Center',
+          width: 60,
+          disableFilters: true,
+          accessor: 'actions',
+          Cell: ({ row }: { row: CellRow<Rows> }) => {
+            const item = row.original?.resource;
+            return item ? <ProviderConfigsRowActionsMenu item={item} onEdit={openEditPanel} /> : undefined;
+          },
+        },
+      ] as AnalyticalTableColumnDefinition[],
     [t, openEditPanel],
   );
 
