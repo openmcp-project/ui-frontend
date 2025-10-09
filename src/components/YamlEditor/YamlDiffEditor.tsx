@@ -16,7 +16,6 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
 
   const diffEditorOptions = {
     ...options,
-    isKubernetes: true,
     scrollbar: {
       ...(options?.scrollbar ?? {}),
       useShadows: false,
