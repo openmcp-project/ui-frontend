@@ -51,15 +51,26 @@
 .labelGroup {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.label,
 .percentage {
   font-size: var(--label-font-size);
-  font-weight: 400;
+  font-weight: 600;
   color: var(--sapTextColor, #374151);
   transition: color 0.3s ease, font-weight 0.3s ease;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.label {
+  font-size: var(--label-font-size);
+  font-weight: 400;
+  color: var(--sapTextColor, #6b7280);
+  transition: color 0.3s ease, font-weight 0.3s ease;
+  flex: 1;
 }
 
 .label.healthy,
