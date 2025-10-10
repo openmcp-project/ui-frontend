@@ -15,16 +15,13 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ProviderConfigsRowActionsMenu } from './ProviderConfigsActionMenu.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
-import { handleResourcePatch } from '../../lib/api/types/crossplane/handleResourcePatch.ts';
-import { useToast } from '../../context/ToastContext.tsx';
-import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
-import { ApiConfigContext } from '../Shared/k8s';
+import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 type Rows = {
@@ -42,17 +39,14 @@ interface CellRow<T> {
 export function ProvidersConfig() {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
-  const toast = useToast();
-  const apiConfig = useContext(ApiConfigContext);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const handlePatch = useHandleResourcePatch(errorDialogRef);
 
   const rows: Rows[] = [];
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
     refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
   });
-
-  const { getPluralKind } = useResourcePluralNames();
 
   if (providerConfigsList) {
     providerConfigsList.forEach((provider) => {
@@ -77,25 +71,15 @@ export function ProvidersConfig() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            onApply={async (parsed) =>
-              await handleResourcePatch({
-                item,
-                parsed,
-                getPluralKind,
-                apiConfig,
-                t,
-                toast,
-                errorDialogRef,
-              })
-            }
+            onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
       );
     },
-    [openInAside, getPluralKind, apiConfig, t, toast],
+    [openInAside, handlePatch],
   );
 
-  const columns = useMemo(
+  const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
         {

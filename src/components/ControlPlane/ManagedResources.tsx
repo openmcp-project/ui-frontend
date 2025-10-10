@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment, useMemo, useState, useContext, useRef, useCallback } from 'react';
+import { Fragment, useMemo, useState, useRef, useCallback } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -32,12 +32,9 @@ import {
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
-
-import { ApiConfigContext } from '../Shared/k8s';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
-
-import { handleResourcePatch } from '../../lib/api/types/crossplane/handleResourcePatch.ts';
+import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -64,9 +61,9 @@ export function ManagedResources() {
   const { t } = useTranslation();
   const toast = useToast();
   const { openInAside } = useSplitter();
-  const apiConfig = useContext(ApiConfigContext);
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const handlePatch = useHandleResourcePatch(errorDialogRef);
 
   const {
     data: managedResources,
@@ -104,22 +101,12 @@ export function ManagedResources() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            onApply={async (parsed) =>
-              await handleResourcePatch({
-                item,
-                parsed,
-                getPluralKind,
-                apiConfig,
-                t,
-                toast,
-                errorDialogRef,
-              })
-            }
+            onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
       );
     },
-    [openInAside, getPluralKind, apiConfig, t, toast, errorDialogRef],
+    [openInAside, handlePatch],
   );
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
