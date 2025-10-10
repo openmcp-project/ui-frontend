@@ -19,8 +19,8 @@ export const useApiResource = <T>(
   const apiConfig = useContext(ApiConfigContext);
 
   const { data, error, isLoading, isValidating } = useSWR(
-    disable || resource.path === null ? null : [resource.path, apiConfig],
-    ([path, apiConfig]) =>
+    disable || resource.path === null ? null : [resource.path, apiConfig, excludeMcpConfig],
+    ([path, apiConfig, excludeMcpConfig]) =>
       fetchApiServerJson<T>(
         path,
         excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : apiConfig,
