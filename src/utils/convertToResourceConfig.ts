@@ -5,9 +5,9 @@ import type { Resource } from './removeManagedFieldsAndFilterData';
  * Convert an in-cluster Resource (which may contain status and server-populated metadata)
  * into a lean manifest suitable for applying with kubectl.
  * Rules:
- *  - Keep: apiVersion, kind, metadata.name, metadata.namespace, metadata.labels, metadata.annotations (except LAST_APPLIED_CONFIGURATION_ANNOTATION), metadata.finalizers, spec.
+ *  - Keep: apiVersion, kind, metadata.name, metadata.namespace, metadata.labels, metadata.annotations (except LAST_APPLIED_CONFIGURATION_ANNOTATION), spec.
  *  - Remove: metadata.managedFields, metadata.resourceVersion, metadata.uid, metadata.generation, metadata.creationTimestamp,
- *            LAST_APPLIED_CONFIGURATION_ANNOTATION annotation, status.
+ *            LAST_APPLIED_CONFIGURATION_ANNOTATION annotation, status, metadata.finalizers.
  *  - If a List (has items), convert each item recursively.
  */
 export const convertToResourceConfig = (resourceObject: Resource | undefined | null): Resource => {
@@ -40,9 +40,10 @@ export const convertToResourceConfig = (resourceObject: Resource | undefined | n
       }, {});
     }
   }
-  if (resourceObject.metadata?.finalizers && resourceObject.metadata.finalizers.length > 0) {
-    base.metadata.finalizers = [...resourceObject.metadata.finalizers];
-  }
+  // Finalizers are not included in a lean manifest
+  // if (resourceObject.metadata?.finalizers && resourceObject.metadata.finalizers.length > 0) {
+  //   base.metadata.finalizers = [...resourceObject.metadata.finalizers];
+  // }
   if (resourceObject.spec !== undefined) {
     base.spec = resourceObject.spec;
   }

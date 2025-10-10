@@ -36,7 +36,7 @@ describe('convertToResourceConfig', () => {
     expect(output.metadata.name).toEqual('example');
     expect(output.metadata.namespace).toEqual('demo-ns');
     expect(output.metadata.labels).toEqual({ app: 'demo' });
-    expect(output.metadata.finalizers).toEqual(['protect']);
+    expect(output.metadata).not.toHaveProperty('finalizers');
     expect(output.spec).toEqual({ foo: 'bar' });
 
     // Remove unwanted
@@ -50,7 +50,6 @@ describe('convertToResourceConfig', () => {
     // Custom annotation kept
     expect(output.metadata.annotations?.['custom/anno']).toEqual('keep-me');
     // Status removed
-    // @ts-expect-error status intentionally absent
     expect(output.status).toBeUndefined();
   });
 
@@ -68,13 +67,11 @@ describe('convertToResourceConfig', () => {
     out.items?.forEach((item) => {
       expect(item.metadata.annotations?.[LAST_APPLIED_CONFIGURATION_ANNOTATION]).toBeUndefined();
       expect(item.metadata.labels).toEqual({ app: 'demo' });
-      // @ts-expect-error status intentionally absent
       expect(item.status).toBeUndefined();
     });
   });
 
   it('returns empty object shape when input is null/undefined', () => {
-    // @ts-expect-error test invalid input
     const out = convertToResourceConfig(null);
     expect(out).toBeInstanceOf(Object);
   });
