@@ -57,13 +57,13 @@ export interface CreateManagedControlPlaneType {
   spec: Spec;
 }
 
-// rename is used to make creation of MCP working properly
-const replaceComponentsName: Record<string, string> = {
+const componentNameMap: Record<string, string> = {
   'sap-btp-service-operator': 'btpServiceOperator',
   'external-secrets': 'externalSecretsOperator',
 };
 
-export const removeComponents = ['cert-manager'];
+export const removedComponents = ['cert-manager'];
+export const removeComponents = removedComponents; // backward compatibility alias
 
 export const CreateManagedControlPlane = (
   name: string,
@@ -77,7 +77,7 @@ export const CreateManagedControlPlane = (
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  const selectedComponentsListObject: Components =
+  const selectedComponents: Components =
     optional?.componentsList
       ?.filter(
         (component) =>
@@ -85,8 +85,8 @@ export const CreateManagedControlPlane = (
       )
       .map((component) => ({
         ...component,
-        name: Object.prototype.hasOwnProperty.call(replaceComponentsName, component.name)
-          ? replaceComponentsName[component.name]
+        name: Object.prototype.hasOwnProperty.call(componentNameMap, component.name)
+          ? componentNameMap[component.name]
           : component.name,
       }))
       .reduce((acc, item) => {
@@ -97,17 +97,17 @@ export const CreateManagedControlPlane = (
     ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
 
-  const providersListObject: Provider[] =
+  const selectedProviders: Provider[] =
     optional?.componentsList
       ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
       })) ?? [];
-  const crossplaneWithProvidersListObject = {
+  const crossplaneWithProviders = {
     crossplane: {
       version: crossplaneComponent?.selectedVersion ?? '',
-      providers: providersListObject,
+      providers: selectedProviders,
     },
   };
 
@@ -128,9 +128,9 @@ export const CreateManagedControlPlane = (
     spec: {
       authentication: { enableSystemIdentityProvider: true },
       components: {
-        ...selectedComponentsListObject,
+        ...selectedComponents,
         apiServer: { type: 'GardenerDedicated' },
-        ...(crossplaneComponent ? crossplaneWithProvidersListObject : {}),
+        ...(crossplaneComponent ? crossplaneWithProviders : {}),
       },
       authorization: {
         roleBindings:

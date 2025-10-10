@@ -3,7 +3,6 @@ import type { ComponentProps } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 
-// Reuse all props from the underlying Monaco DiffEditor component, except language (we force YAML)
 export type YamlDiffEditorProps = Omit<
   ComponentProps<typeof DiffEditor>,
   'language' | 'defaultLanguage' | 'originalLanguage' | 'modifiedLanguage'
@@ -15,8 +14,7 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
   const { theme, options, ...rest } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
-  const simplifiedOptions = {
-    // Start from consumer-provided options, then enforce our simplified look
+  const diffEditorOptions = {
     ...options,
     scrollbar: {
       ...(options?.scrollbar ?? {}),
@@ -37,5 +35,5 @@ export const YamlDiffEditor = (props: YamlDiffEditorProps) => {
     readOnly: true,
   };
 
-  return <DiffEditor {...rest} theme={computedTheme} options={simplifiedOptions} height="100%" language="yaml" />;
+  return <DiffEditor {...rest} theme={computedTheme} options={diffEditorOptions} height="100%" language="yaml" />;
 };
