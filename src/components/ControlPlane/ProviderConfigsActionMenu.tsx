@@ -1,9 +1,7 @@
-import { FC, useRef, useState } from 'react';
-import { Button, Menu, MenuItem, MenuDomRef } from '@ui5/webcomponents-react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProviderConfigItem } from '../../lib/shared/types';
-import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
-import type { Ui5CustomEvent, ButtonDomRef } from '@ui5/webcomponents-react';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
 
 interface ProviderConfigsRowActionsMenuProps {
   item: ProviderConfigItem;
@@ -12,33 +10,15 @@ interface ProviderConfigsRowActionsMenuProps {
 
 export const ProviderConfigsRowActionsMenu: FC<ProviderConfigsRowActionsMenuProps> = ({ item, onEdit }) => {
   const { t } = useTranslation();
-  const popoverRef = useRef<MenuDomRef>(null);
-  const [open, setOpen] = useState(false);
 
-  const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
-    if (popoverRef.current && e.currentTarget) {
-      popoverRef.current.opener = e.currentTarget as unknown as HTMLElement;
-      setOpen((prev) => !prev);
-    }
-  };
+  const actions: ActionItem<ProviderConfigItem>[] = [
+    {
+      key: 'edit',
+      text: t('ManagedResources.editAction', 'Edit'),
+      icon: 'edit',
+      onClick: onEdit,
+    },
+  ];
 
-  return (
-    <>
-      <Button icon="overflow" design="Transparent" onClick={handleOpenerClick} />
-      <Menu
-        ref={popoverRef}
-        open={open}
-        onItemClick={(event) => {
-          const element = event.detail.item as HTMLElement;
-          const action = element.dataset.action;
-          if (action === 'edit') {
-            onEdit(item);
-          }
-          setOpen(false);
-        }}
-      >
-        <MenuItem text={t('ManagedResources.editAction', 'Edit')} icon="edit" data-action="edit" />
-      </Menu>
-    </>
-  );
+  return <ActionsMenu item={item} actions={actions} />;
 };
