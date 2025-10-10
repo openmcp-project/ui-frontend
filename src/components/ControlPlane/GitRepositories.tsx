@@ -2,7 +2,7 @@ import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
 import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer } from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
-import { FluxRequest, GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
+import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
