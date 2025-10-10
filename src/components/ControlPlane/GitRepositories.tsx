@@ -15,7 +15,13 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { GitRepositoriesRowActionsMenu, GitRepoItem } from './GitRepositoriesActionMenu.tsx';
+import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
+
+export type GitRepoItem = GitReposResponse['items'][0] & {
+  apiVersion?: string;
+  metadata: GitReposResponse['items'][0]['metadata'] & { namespace?: string };
+};
 
 interface CellRow<T> {
   original: T;
@@ -104,10 +110,19 @@ export function GitRepositories() {
           width: 60,
           disableFilters: true,
           accessor: 'actions',
-          Cell: ({ row }: { row: CellRow<FluxRow> }) =>
-            row.original?.item ? (
-              <GitRepositoriesRowActionsMenu item={row.original?.item} onEdit={openEditPanel} />
-            ) : undefined,
+          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+            const item = row.original?.item;
+            if (!item) return undefined;
+            const actions: ActionItem<GitRepoItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                onClick: openEditPanel,
+              },
+            ];
+            return <ActionsMenu item={item} actions={actions} />;
+          },
         },
       ] as AnalyticalTableColumnDefinition[],
     [t, openEditPanel],

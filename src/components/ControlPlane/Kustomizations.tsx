@@ -15,7 +15,13 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { KustomizationsRowActionsMenu, KustomizationItem } from './KustomizationsActionMenu.tsx';
+import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
+
+export type KustomizationItem = KustomizationsResponse['items'][0] & {
+  apiVersion?: string;
+  metadata: KustomizationsResponse['items'][0]['metadata'] & { namespace?: string };
+};
 
 export function Kustomizations() {
   const { data, error, isLoading } = useApiResource(FluxKustomization); //404 if component not enabled
@@ -99,10 +105,19 @@ export function Kustomizations() {
           width: 60,
           disableFilters: true,
           accessor: 'actions',
-          Cell: ({ row }: { row: CellRow<FluxRow> }) =>
-            row.original?.item ? (
-              <KustomizationsRowActionsMenu item={row.original.item} onEdit={openEditPanel} />
-            ) : undefined,
+          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+            const item = row.original?.item;
+            if (!item) return undefined;
+            const actions: ActionItem<KustomizationItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                onClick: openEditPanel,
+              },
+            ];
+            return <ActionsMenu item={item} actions={actions} />;
+          },
         },
       ] as AnalyticalTableColumnDefinition[],
     [t, openEditPanel],

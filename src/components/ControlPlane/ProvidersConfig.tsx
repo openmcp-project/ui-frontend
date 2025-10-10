@@ -18,7 +18,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { Fragment, useCallback, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
-import { ProviderConfigsRowActionsMenu } from './ProviderConfigsActionMenu.tsx';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
@@ -117,7 +117,16 @@ export function ProvidersConfig() {
           accessor: 'actions',
           Cell: ({ row }: { row: CellRow<Rows> }) => {
             const item = row.original?.resource;
-            return item ? <ProviderConfigsRowActionsMenu item={item} onEdit={openEditPanel} /> : undefined;
+            if (!item) return undefined;
+            const actions: ActionItem<ProviderConfigItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                onClick: openEditPanel,
+              },
+            ];
+            return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],

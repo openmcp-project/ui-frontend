@@ -21,7 +21,7 @@ import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ManagedResourceItem } from '../../lib/shared/types.ts';
 import { ManagedResourceDeleteDialog } from '../Dialogs/ManagedResourceDeleteDialog.tsx';
-import { RowActionsMenu } from './ManagedResourcesActionMenu.tsx';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
 import { useToast } from '../../context/ToastContext.tsx';
 import {
   DeleteManagedResourceType,
@@ -183,7 +183,32 @@ export function ManagedResources() {
           Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
             const { original } = row;
             const item = original?.item;
-            return item ? <RowActionsMenu item={item} onOpen={openDeleteDialog} onEdit={openEditPanel} /> : undefined;
+            if (!item) return undefined;
+
+            // Flux-managed check for disabling Edit
+            const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
+              'kustomize.toolkit.fluxcd.io/name'
+            ];
+            const isFluxManaged =
+              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
+
+            const actions: ActionItem<ManagedResourceItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                disabled: isFluxManaged,
+                onClick: openEditPanel,
+              },
+              {
+                key: 'delete',
+                text: t('ManagedResources.deleteAction'),
+                icon: 'delete',
+                onClick: openDeleteDialog,
+              },
+            ];
+
+            return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],
