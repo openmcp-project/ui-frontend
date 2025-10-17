@@ -61,7 +61,7 @@ describe('<Kpi>', () => {
     });
   });
 
-  context('kpiType="none"', () => {
+  context('kpiType="enabled"', () => {
     it('renders nothing', () => {
       mount({ kpiType: 'enabled' });
 
