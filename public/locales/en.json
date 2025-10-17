@@ -16,6 +16,33 @@
     "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
+  "ComponentCard": {
+    "notInstalledLabel": "not installed",
+    "installButton": "Install {{component}}"
+  },
+  "componentCardCrossplane": {
+    "description": "Compose cloud infrastructure",
+    "progress": "Healthy",
+    "progressCount": "Healthy: {{count}} of {{total}} resources"
+  },
+  "componentCardFlux": {
+    "description": "GitOps for Kubernetes automating continuous sync and delivery",
+    "progress": "Managed",
+    "progressCount": "Managed: {{count}} of {{total}} resources"
+  },
+  "componentCardLandscaper": {
+    "description": "Automate cross‑dependent Kubernetes deployments"
+  },
+  "componentCardKyverno": {
+    "description": "Kubernetes-native policy as code for secure and compliant infrastructure"
+  },
+  "componentCardEso": {
+    "description": "Manage and sync credentials from your secret store"
+  },
+  "Kpi": {
+    "installed": "Installed",
+    "error": "There was a problem loading this data. Please try again later."
+  },
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
@@ -424,7 +451,7 @@
       "hoverContent": {
         "totalResources": "Total Resources",
         "healthy": "Healthy",
-        "creating": "Creating", 
+        "creating": "Creating",
         "failing": "Failing"
       }
     },

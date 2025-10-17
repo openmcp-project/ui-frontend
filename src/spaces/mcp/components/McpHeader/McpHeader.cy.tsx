@@ -1,5 +1,5 @@
-import { McpHeader } from './McpHeader';
-import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { McpHeader } from './McpHeader.tsx';
+import { ControlPlaneType } from '../../../../lib/api/types/crate/controlPlanes.ts';
 
 describe('McpHeader', () => {
   it('renders MCP metadata', () => {

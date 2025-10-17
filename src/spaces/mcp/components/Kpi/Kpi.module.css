@@ -1,0 +1,19 @@
+.progressContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 4px;
+}
+
+.progressIndicator {
+  padding-inline: 0;
+  padding-block: 0.5rem;
+}
+
+.enabledContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}

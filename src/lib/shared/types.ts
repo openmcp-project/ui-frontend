@@ -59,7 +59,7 @@ export type ManagedResourceItem = {
     name: string;
     creationTimestamp: string;
     resourceVersion: string;
-    labels: [];
+    labels: Record<string, string>;
     namespace?: string;
   };
   apiVersion?: string;
