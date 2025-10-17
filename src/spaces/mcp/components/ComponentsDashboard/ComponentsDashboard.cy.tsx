@@ -18,7 +18,7 @@ describe('ComponentsDashboard', () => {
   it('renders all component cards with names, descriptions, and versions', () => {
     mount();
 
-    cy.get('.ui5-card-header').should('have.length', 6);
+    cy.get('.ui5-card-header').should('have.length', 5);
 
     cy.get('.ui5-card-header')
       .eq(0)
@@ -44,11 +44,6 @@ describe('ComponentsDashboard', () => {
       .eq(4)
       .should('contain.text', 'External Secrets Operator')
       .and('contain.text', 'Manage and sync credentials from your secret store');
-
-    cy.get('.ui5-card-header')
-      .eq(5)
-      .should('contain.text', 'Velero')
-      .and('contain.text', 'Safely back up, restore, recover, and migrate Kubernetes resources');
   });
 
   it('calls onInstallButtonClick when Install is clicked on each card', () => {
@@ -68,10 +63,7 @@ describe('ComponentsDashboard', () => {
     cy.contains('ui5-card', 'External Secrets Operator').within(() => {
       cy.contains('Install').click();
     });
-    cy.contains('ui5-card', 'Velero').within(() => {
-      cy.contains('Install').click();
-    });
 
-    cy.get('@onInstall').should('have.callCount', 5);
+    cy.get('@onInstall').should('have.callCount', 4);
   });
 });
