@@ -3,6 +3,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -15,7 +16,7 @@ import IllustratedError from '../Shared/IllustratedError';
 import { resourcesInterval } from '../../lib/shared/constants';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -57,6 +58,7 @@ export function ManagedResources() {
   const { t } = useTranslation();
   const toast = useToast();
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
+  const tableInstanceRef = useRef<any>(null);
 
   const {
     data: managedResources,
@@ -201,6 +203,18 @@ export function ManagedResources() {
     }
   };
 
+  const handleExpandAll = () => {
+    if (tableInstanceRef.current?.toggleAllRowsExpanded) {
+      tableInstanceRef.current.toggleAllRowsExpanded(true);
+    }
+  };
+
+  const handleCollapseAll = () => {
+    if (tableInstanceRef.current?.toggleAllRowsExpanded) {
+      tableInstanceRef.current.toggleAllRowsExpanded(false);
+    }
+  };
+
   const combinedError = error || pluralNamesError;
   const combinedLoading = isLoading || isLoadingPluralNames;
 
@@ -215,11 +229,18 @@ export function ManagedResources() {
             <Toolbar>
               <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
               <ToolbarSpacer />
+              <Button onClick={handleExpandAll} design="Transparent">
+                Expand All
+              </Button>
+              <Button onClick={handleCollapseAll} design="Transparent">
+                Collapse All
+              </Button>
             </Toolbar>
           }
         >
           <>
             <AnalyticalTable
+              tableInstance={tableInstanceRef}
               columns={columns}
               data={rows}
               minRows={1}
