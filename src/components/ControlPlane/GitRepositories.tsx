@@ -3,84 +3,129 @@ import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer }
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
-import { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo } from 'react';
+import { Fragment, useCallback, useMemo, useRef } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
+
+export type GitRepoItem = GitReposResponse['items'][0] & {
+  apiVersion?: string;
+  metadata: GitReposResponse['items'][0]['metadata'] & { namespace?: string };
+};
+
+interface CellRow<T> {
+  original: T;
+}
 
 export function GitRepositories() {
   const { data, error, isLoading } = useApiResource(FluxRequest); //404 if component not enabled
   const { t } = useTranslation();
-
-  interface CellData<T> {
-    cell: {
-      value: T | null; // null for grouping rows
-      row: {
-        original?: FluxRow; // missing for grouping rows
-      };
-    };
-  }
+  const { openInAside } = useSplitter();
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const handlePatch = useHandleResourcePatch(errorDialogRef);
 
   type FluxRow = {
     name: string;
     created: string;
     isReady: boolean;
     statusUpdateTime?: string;
-    item: unknown;
+    item: GitRepoItem;
     readyMessage: string;
+    revision?: string;
   };
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('FluxList.tableNameHeader'),
-        accessor: 'name',
-        minWidth: 250,
-      },
-      {
-        Header: t('FluxList.tableCreatedHeader'),
-        accessor: 'created',
-      },
-      {
-        Header: t('FluxList.tableVersionHeader'),
-        accessor: 'revision',
-      },
-      {
-        Header: t('FluxList.tableStatusHeader'),
-        accessor: 'status',
-        width: 125,
-        hAlign: 'Center',
-        Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<FluxRow>) =>
-          cellData.cell.row.original?.isReady != null ? (
-            <ResourceStatusCell
-              positiveText={t('common.ready')}
-              negativeText={t('errors.error')}
-              isOk={cellData.cell.row.original?.isReady}
-              transitionTime={
-                cellData.cell.row.original?.statusUpdateTime ? cellData.cell.row.original?.statusUpdateTime : ''
-              }
-              message={cellData.cell.row.original?.readyMessage}
-            />
-          ) : null,
-      },
-      {
-        Header: t('yaml.YAML'),
-        hAlign: 'Center',
-        width: 75,
-        accessor: 'yaml',
-        disableFilters: true,
-        Cell: (cellData: CellData<KustomizationsResponse['items']>) => (
-          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
-        ),
-      },
-    ],
-    [t],
+  const openEditPanel = useCallback(
+    (item: GitRepoItem) => {
+      const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
+      openInAside(
+        <Fragment key={identityKey}>
+          <YamlSidePanel
+            isEdit={true}
+            resource={item as unknown as Resource}
+            filename={`${item.kind}_${item.metadata.name}`}
+            onApply={async (parsed) => await handlePatch(item, parsed)}
+          />
+        </Fragment>,
+      );
+    },
+    [openInAside, handlePatch],
+  );
+
+  const columns = useMemo<AnalyticalTableColumnDefinition[]>(
+    () =>
+      [
+        {
+          Header: t('FluxList.tableNameHeader'),
+          accessor: 'name',
+          minWidth: 250,
+        },
+        {
+          Header: t('FluxList.tableCreatedHeader'),
+          accessor: 'created',
+        },
+        {
+          Header: t('FluxList.tableVersionHeader'),
+          accessor: 'revision',
+        },
+        {
+          Header: t('FluxList.tableStatusHeader'),
+          accessor: 'status',
+          width: 125,
+          hAlign: 'Center',
+          Filter: ({ column }) => <StatusFilter column={column} />,
+          Cell: ({ row }: { row: CellRow<FluxRow> }) =>
+            row.original?.isReady != null ? (
+              <ResourceStatusCell
+                positiveText={t('common.ready')}
+                negativeText={t('errors.error')}
+                isOk={row.original?.isReady}
+                transitionTime={row.original?.statusUpdateTime ? row.original?.statusUpdateTime : ''}
+                message={row.original?.readyMessage}
+              />
+            ) : null,
+        },
+        {
+          Header: t('yaml.YAML'),
+          hAlign: 'Center',
+          width: 75,
+          accessor: 'yaml',
+          disableFilters: true,
+          Cell: ({ row }: { row: CellRow<FluxRow> }) => (
+            <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />
+          ),
+        },
+        {
+          Header: t('ManagedResources.actionColumnHeader'),
+          hAlign: 'Center',
+          width: 60,
+          disableFilters: true,
+          accessor: 'actions',
+          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+            const item = row.original?.item;
+            if (!item) return undefined;
+            const actions: ActionItem<GitRepoItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                onClick: openEditPanel,
+              },
+            ];
+            return <ActionsMenu item={item} actions={actions} />;
+          },
+        },
+      ] as AnalyticalTableColumnDefinition[],
+    [t, openEditPanel],
   );
 
   if (error) {
@@ -102,7 +147,12 @@ export function GitRepositories() {
         statusUpdateTime: readyObject?.lastTransitionTime,
         revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
         created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-        item: item,
+        item: {
+          ...item,
+          kind: 'GitRepository',
+          apiVersion: 'source.toolkit.fluxcd.io/v1',
+          metadata: { ...item.metadata },
+        } as GitRepoItem,
         readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
       };
     }) ?? [];
@@ -118,7 +168,10 @@ export function GitRepositories() {
         </Toolbar>
       }
     >
-      <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+      <>
+        <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+        <ErrorDialog ref={errorDialogRef} />
+      </>
     </Panel>
   );
 }

@@ -15,28 +15,33 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { useMemo } from 'react';
+import { Fragment, useCallback, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { ProviderConfigItem } from '../../lib/shared/types.ts';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 type Rows = {
   parent: string;
   name: string;
   usage: string;
   created: string;
-  resource: unknown;
+  resource: ProviderConfigItem;
 };
 
-interface CellData<T> {
-  cell: {
-    value: T | null; // null for grouping rows
-    row: {
-      original?: Rows; // missing for grouping rows
-    };
-  };
+interface CellRow<T> {
+  original: T;
 }
 
 export function ProvidersConfig() {
   const { t } = useTranslation();
+  const { openInAside } = useSplitter();
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const handlePatch = useHandleResourcePatch(errorDialogRef);
+
   const rows: Rows[] = [];
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
@@ -57,37 +62,75 @@ export function ProvidersConfig() {
     });
   }
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('ProvidersConfig.tableHeaderProvider'),
-        accessor: 'parent',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderName'),
-        accessor: 'name',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderUsage'),
-        accessor: 'usage',
-      },
-      {
-        Header: t('ProvidersConfig.tableHeaderCreated'),
-        accessor: 'created',
-      },
-      {
-        Header: t('yaml.YAML'),
-        hAlign: 'Center',
-        width: 75,
-        accessor: 'yaml',
-        disableFilters: true,
-        Cell: (cellData: CellData<Rows>) =>
-          cellData.cell.row.original?.resource ? (
-            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.resource as Resource} />
-          ) : undefined,
-      },
-    ],
-    [t],
+  const openEditPanel = useCallback(
+    (item: ProviderConfigItem) => {
+      const identityKey = `${item.kind}:${item.metadata.name}`;
+      openInAside(
+        <Fragment key={identityKey}>
+          <YamlSidePanel
+            isEdit={true}
+            resource={item as unknown as Resource}
+            filename={`${item.kind}_${item.metadata.name}`}
+            onApply={async (parsed) => await handlePatch(item, parsed)}
+          />
+        </Fragment>,
+      );
+    },
+    [openInAside, handlePatch],
+  );
+
+  const columns = useMemo<AnalyticalTableColumnDefinition[]>(
+    () =>
+      [
+        {
+          Header: t('ProvidersConfig.tableHeaderProvider'),
+          accessor: 'parent',
+        },
+        {
+          Header: t('ProvidersConfig.tableHeaderName'),
+          accessor: 'name',
+        },
+        {
+          Header: t('ProvidersConfig.tableHeaderUsage'),
+          accessor: 'usage',
+        },
+        {
+          Header: t('ProvidersConfig.tableHeaderCreated'),
+          accessor: 'created',
+        },
+        {
+          Header: t('yaml.YAML'),
+          hAlign: 'Center',
+          width: 75,
+          accessor: 'yaml',
+          disableFilters: true,
+          Cell: ({ row }: { row: CellRow<Rows> }) => {
+            const item = row.original?.resource;
+            return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
+          },
+        },
+        {
+          Header: t('ManagedResources.actionColumnHeader'),
+          hAlign: 'Center',
+          width: 60,
+          disableFilters: true,
+          accessor: 'actions',
+          Cell: ({ row }: { row: CellRow<Rows> }) => {
+            const item = row.original?.resource;
+            if (!item) return undefined;
+            const actions: ActionItem<ProviderConfigItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                onClick: openEditPanel,
+              },
+            ];
+            return <ActionsMenu item={item} actions={actions} />;
+          },
+        },
+      ] as AnalyticalTableColumnDefinition[],
+    [t, openEditPanel],
   );
 
   return (
@@ -100,28 +143,31 @@ export function ProvidersConfig() {
         </Toolbar>
       }
     >
-      <AnalyticalTable
-        columns={columns}
-        data={rows ?? []}
-        minRows={1}
-        groupBy={['parent']}
-        scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-        loading={isLoading}
-        filterable
-        // Prevent the table from resetting when the data changes
-        retainColumnWidth
-        reactTableOptions={{
-          autoResetHiddenColumns: false,
-          autoResetPage: false,
-          autoResetExpanded: false,
-          autoResetGroupBy: false,
-          autoResetSelectedRows: false,
-          autoResetSortBy: false,
-          autoResetFilters: false,
-          autoResetRowState: false,
-          autoResetResize: false,
-        }}
-      />
+      <>
+        <AnalyticalTable
+          columns={columns}
+          data={rows ?? []}
+          minRows={1}
+          groupBy={['parent']}
+          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+          loading={isLoading}
+          filterable
+          // Prevent the table from resetting when the data changes
+          retainColumnWidth
+          reactTableOptions={{
+            autoResetHiddenColumns: false,
+            autoResetPage: false,
+            autoResetExpanded: false,
+            autoResetGroupBy: false,
+            autoResetSelectedRows: false,
+            autoResetSortBy: false,
+            autoResetFilters: false,
+            autoResetRowState: false,
+            autoResetResize: false,
+          }}
+        />
+        <ErrorDialog ref={errorDialogRef} />
+      </>
     </Panel>
   );
 }

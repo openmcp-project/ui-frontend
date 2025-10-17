@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Fragment, useMemo, useState, useRef, useCallback } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -15,13 +16,12 @@ import IllustratedError from '../Shared/IllustratedError';
 import { resourcesInterval } from '../../lib/shared/constants';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo, useState } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ManagedResourceItem } from '../../lib/shared/types.ts';
 import { ManagedResourceDeleteDialog } from '../Dialogs/ManagedResourceDeleteDialog.tsx';
-import { RowActionsMenu } from './ManagedResourcesActionMenu.tsx';
+import { ActionsMenu, type ActionItem } from './ActionsMenu';
 import { useToast } from '../../context/ToastContext.tsx';
 import {
   DeleteManagedResourceType,
@@ -30,14 +30,18 @@ import {
   PatchResourceForForceDeletionBody,
 } from '../../lib/api/types/crate/deleteResource';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
+import { useSplitter } from '../Splitter/SplitterContext.tsx';
+import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
+import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { APIError } from '../../lib/api/error.ts';
+import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 
-interface CellData<T> {
-  cell: {
-    value: T | null; // null for grouping rows
-    row: {
-      original?: ResourceRow; // missing for grouping rows
-    };
-  };
+interface StatusFilterColumn {
+  filterValue?: string;
+  setFilter?: (value?: string) => void;
+}
+interface CellRow<T> {
+  original: T;
 }
 
 type ResourceRow = {
@@ -48,7 +52,7 @@ type ResourceRow = {
   syncedTransitionTime: string;
   ready: boolean;
   readyTransitionTime: string;
-  item: unknown;
+  item: ManagedResourceItem;
   conditionReadyMessage: string;
   conditionSyncedMessage: string;
 };
@@ -56,7 +60,10 @@ type ResourceRow = {
 export function ManagedResources() {
   const { t } = useTranslation();
   const toast = useToast();
+  const { openInAside } = useSplitter();
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const handlePatch = useHandleResourcePatch(errorDialogRef);
 
   const {
     data: managedResources,
@@ -81,81 +88,131 @@ export function ManagedResources() {
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('ManagedResources.tableHeaderKind'),
-        accessor: 'kind',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderName'),
-        accessor: 'name',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderCreated'),
-        accessor: 'created',
-      },
-      {
-        Header: t('ManagedResources.tableHeaderSynced'),
-        accessor: 'synced',
-        hAlign: 'Center',
-        width: 125,
-        Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<ResourceRow['synced']>) =>
-          cellData.cell.row.original?.synced != null ? (
-            <ResourceStatusCell
-              isOk={cellData.cell.row.original?.synced}
-              transitionTime={cellData.cell.row.original?.syncedTransitionTime}
-              positiveText={t('common.synced')}
-              negativeText={t('errors.syncError')}
-              message={cellData.cell.row.original?.conditionSyncedMessage}
-            />
-          ) : null,
-      },
-      {
-        Header: t('ManagedResources.tableHeaderReady'),
-        accessor: 'ready',
-        hAlign: 'Center',
-        width: 125,
-        Filter: ({ column }) => <StatusFilter column={column} />,
-        Cell: (cellData: CellData<ResourceRow['ready']>) =>
-          cellData.cell.row.original?.ready != null ? (
-            <ResourceStatusCell
-              isOk={cellData.cell.row.original?.ready}
-              transitionTime={cellData.cell.row.original?.readyTransitionTime}
-              positiveText={t('common.ready')}
-              negativeText={'Not ready'}
-              message={cellData.cell.row.original?.conditionReadyMessage}
-            />
-          ) : null,
-      },
-      {
-        Header: t('yaml.YAML'),
-        hAlign: 'Center',
-        width: 75,
-        accessor: 'yaml',
-        disableFilters: true,
-        Cell: (cellData: CellData<ResourceRow>) => {
-          return cellData.cell.row.original?.item ? (
-            <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
-          ) : undefined;
-        },
-      },
-      {
-        Header: t('ManagedResources.actionColumnHeader'),
-        hAlign: 'Center',
-        width: 60,
-        disableFilters: true,
-        Cell: (cellData: CellData<ResourceRow>) => {
-          const item = cellData.cell.row.original?.item as ManagedResourceItem;
+  const openDeleteDialog = useCallback((item: ManagedResourceItem) => {
+    setPendingDeleteItem(item);
+  }, []);
 
-          return cellData.cell.row.original?.item ? (
-            <RowActionsMenu item={item} onOpen={openDeleteDialog} />
-          ) : undefined;
+  const openEditPanel = useCallback(
+    (item: ManagedResourceItem) => {
+      const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
+      openInAside(
+        <Fragment key={identityKey}>
+          <YamlSidePanel
+            isEdit={true}
+            resource={item as unknown as Resource}
+            filename={`${item.kind}_${item.metadata.name}`}
+            onApply={async (parsed) => await handlePatch(item, parsed)}
+          />
+        </Fragment>,
+      );
+    },
+    [openInAside, handlePatch],
+  );
+
+  const columns = useMemo<AnalyticalTableColumnDefinition[]>(
+    () =>
+      [
+        {
+          Header: t('ManagedResources.tableHeaderKind'),
+          accessor: 'kind',
         },
-      },
-    ],
-    [t],
+        {
+          Header: t('ManagedResources.tableHeaderName'),
+          accessor: 'name',
+        },
+        {
+          Header: t('ManagedResources.tableHeaderCreated'),
+          accessor: 'created',
+        },
+        {
+          Header: t('ManagedResources.tableHeaderSynced'),
+          accessor: 'synced',
+          hAlign: 'Center',
+          width: 125,
+          Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
+            return original?.synced != null ? (
+              <ResourceStatusCell
+                isOk={original.synced}
+                transitionTime={original.syncedTransitionTime}
+                positiveText={t('common.synced')}
+                negativeText={t('errors.syncError')}
+                message={original.conditionSyncedMessage}
+              />
+            ) : null;
+          },
+        },
+        {
+          Header: t('ManagedResources.tableHeaderReady'),
+          accessor: 'ready',
+          hAlign: 'Center',
+          width: 125,
+          Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
+            return original?.ready != null ? (
+              <ResourceStatusCell
+                isOk={original.ready}
+                transitionTime={original.readyTransitionTime}
+                positiveText={t('common.ready')}
+                negativeText={t('errors.notReady')}
+                message={original.conditionReadyMessage}
+              />
+            ) : null;
+          },
+        },
+        {
+          Header: t('yaml.YAML'),
+          hAlign: 'Center',
+          width: 75,
+          accessor: 'yaml',
+          disableFilters: true,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
+            return original?.item ? (
+              <YamlViewButton variant="resource" resource={original.item as unknown as Resource} />
+            ) : undefined;
+          },
+        },
+        {
+          Header: t('ManagedResources.actionColumnHeader'),
+          hAlign: 'Center',
+          width: 60,
+          disableFilters: true,
+          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+            const { original } = row;
+            const item = original?.item;
+            if (!item) return undefined;
+
+            // Flux-managed check for disabling Edit
+            const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
+              'kustomize.toolkit.fluxcd.io/name'
+            ];
+            const isFluxManaged =
+              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
+
+            const actions: ActionItem<ManagedResourceItem>[] = [
+              {
+                key: 'edit',
+                text: t('ManagedResources.editAction', 'Edit'),
+                icon: 'edit',
+                disabled: isFluxManaged,
+                onClick: openEditPanel,
+              },
+              {
+                key: 'delete',
+                text: t('ManagedResources.deleteAction'),
+                icon: 'delete',
+                onClick: openDeleteDialog,
+              },
+            ];
+
+            return <ActionsMenu item={item} actions={actions} />;
+          },
+        },
+      ] as AnalyticalTableColumnDefinition[],
+    [t, openEditPanel, openDeleteDialog],
   );
 
   const rows: ResourceRow[] =
@@ -181,10 +238,6 @@ export function ManagedResources() {
         }),
       ) ?? [];
 
-  const openDeleteDialog = (item: ManagedResourceItem) => {
-    setPendingDeleteItem(item);
-  };
-
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
 
@@ -192,10 +245,19 @@ export function ManagedResources() {
       await deleteTrigger();
 
       if (force) {
-        await patchTrigger(PatchResourceForForceDeletionBody);
+        try {
+          await patchTrigger(PatchResourceForForceDeletionBody);
+        } catch (e) {
+          if (e instanceof APIError && errorDialogRef.current) {
+            errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+          }
+          // already handled
+        }
       }
-    } catch (_) {
-      // Ignore errors - will be handled by the mutation hook
+    } catch (e) {
+      if (e instanceof APIError && errorDialogRef.current) {
+        errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+      }
     } finally {
       setPendingDeleteItem(null);
     }
@@ -247,6 +309,7 @@ export function ManagedResources() {
               onClose={() => setPendingDeleteItem(null)}
               onDeletionConfirmed={handleDeletionConfirmed}
             />
+            <ErrorDialog ref={errorDialogRef} />
           </>
         </Panel>
       )}
