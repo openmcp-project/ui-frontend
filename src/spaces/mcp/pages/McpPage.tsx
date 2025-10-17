@@ -31,7 +31,6 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
-import HintsCardsRow from '../../../components/HintsCardsRow/HintsCardsRow.tsx';
 
 import { useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
@@ -40,7 +39,8 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
-import { McpHeader } from '../components/McpHeader.tsx';
+import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
+import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -138,13 +138,12 @@ export default function McpPage() {
             onSelectedSectionChange={() => setSelectedSectionId(undefined)}
           >
             <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
-              <ObjectPageSubSection
-                id="dashboard"
-                titleText={t('McpPage.dashboardTitle')}
-                hideTitleText
-                className={styles.section}
-              >
-                <HintsCardsRow mcp={mcp} onNavigateToMcpSection={(sectionId) => setSelectedSectionId(sectionId)} />
+              <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
+                <ComponentsDashboard
+                  components={mcp.spec?.components}
+                  onInstallButtonClick={onEditComponents}
+                  onNavigateToMcpSection={(sectionId) => setSelectedSectionId(sectionId)}
+                />
               </ObjectPageSubSection>
               <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
                 <Graph />

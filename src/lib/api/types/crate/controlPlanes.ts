@@ -31,6 +31,7 @@ export interface ControlPlaneComponentsType {
   externalSecretsOperator: ControlPlaneComponentsSpecType | undefined;
   kyverno: ControlPlaneComponentsSpecType | undefined;
   flux: ControlPlaneComponentsSpecType | undefined;
+  landscaper: unknown;
 }
 
 export interface ControlPlaneComponentsSpecType {
