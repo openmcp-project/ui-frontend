@@ -83,9 +83,9 @@ tasks:
     desc: "Extracts image reference from OCM component and runs it. Usage: task test:run-from-ocm -- <version>"
     cmds:
       - |
-        IMAGE_REF=$(ocm get resources {{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}} --repo {{.OCM_OUTPUT_DIR}} -o json | jq -r '.resources[0].access.imageReference')
+        IMAGE_REF=$(ocm get resources {{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}} --repo {{.OCM_OUTPUT_DIR}} -o json | jq -r '.items[0].element.access.imageReference')
         echo "Running image from OCM component: $IMAGE_REF"
-        docker run --rm -p 3000:3000 $IMAGE_REF
+        docker run --rm -p 5173:5173 --env-file {{.ROOT_DIR}}/.env $IMAGE_REF
     vars:
       OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
 
@@ -105,16 +105,17 @@ tasks:
   local:build-and-push:
     desc: "Builds and pushes image to local registry. Usage: task local:build-and-push TAG=v0.0.1"
     cmds:
-      - docker build -t {{.LOCAL_DOCKER_IMAGE}} .
-      - docker push {{.LOCAL_DOCKER_IMAGE}}
+      - docker build -t localhost:5000/mcp-ui-frontend:{{.TAG}} .
+      - docker push localhost:5000/mcp-ui-frontend:{{.TAG}}
+    vars:
+      TAG: '{{.TAG | default "latest"}}'
 
   local:build-ocm:
-    desc: "Builds OCM component with local registry reference. Usage: task local:build-ocm -- <version>"
+    desc: "Builds OCM component with local registry reference (uses --skip-digest-generation for local testing). Usage: task local:build-ocm -- <version>"
     cmds:
       - rm -rf {{.OCM_OUTPUT_DIR}}
       - |
-        ocm add components --create --force --copy-resources --complete \
-          --lookup {{.LOCAL_REGISTRY}} \
+        ocm add components --create --force --skip-digest-generation \
           --file {{.OCM_OUTPUT_DIR}} \
           {{.OCM_DESCRIPTOR_LOCAL}} -- \
           VERSION={{.OCM_COMPONENT_VERSION}} \
@@ -130,6 +131,8 @@ tasks:
     cmds:
       - task: local:start-registry
       - task: local:build-and-push
+        vars:
+          TAG: "{{.TAG}}"
       - task: local:build-ocm
         vars:
           CLI_ARGS: "{{.TAG}}"
