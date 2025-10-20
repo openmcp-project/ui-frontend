@@ -1,0 +1,13 @@
+name: ${COMPONENT_NAME}
+version: ${VERSION}
+provider:
+  name: ${PROVIDER}
+sources: []
+componentReferences: []
+resources:
+  - name: mcp-ui-frontend-image
+    type: ociImage
+    version: ${VERSION}
+    access:
+      type: ociArtifact
+      imageReference: localhost:5000/mcp-ui-frontend:${VERSION}
