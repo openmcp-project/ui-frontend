@@ -19,6 +19,7 @@ vars:
   OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
   OCM_OUTPUT_DIR: "{{.ROOT_DIR}}/.ctf"
   OCM_DESCRIPTOR: "{{.ROOT_DIR}}/ocm/component-descriptor.yaml"
+  OCM_DESCRIPTOR_LOCAL: "{{.ROOT_DIR}}/ocm/component-descriptor-local.yaml"
 
 tasks:
   default:
@@ -115,14 +116,12 @@ tasks:
         ocm add components --create --force --copy-resources --complete \
           --lookup {{.LOCAL_REGISTRY}} \
           --file {{.OCM_OUTPUT_DIR}} \
-          {{.OCM_DESCRIPTOR}} -- \
+          {{.OCM_DESCRIPTOR_LOCAL}} -- \
           VERSION={{.OCM_COMPONENT_VERSION}} \
           COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
           PROVIDER={{.OCM_PROVIDER}}
     vars:
       OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
-    env:
-      REGISTRY: "{{.LOCAL_REGISTRY}}"
 
   # This is full workflow to create local registry, build, push, create OCM and run application locally.
   
