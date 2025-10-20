@@ -8,6 +8,17 @@ export const getStatusCondition = (conditions?: Condition[]): Condition | undefi
   return conditions.find((c) => c.type === 'Ready' || c.type === 'Healthy');
 };
 
+export const resolveProviderTypeFromApiVersion = (apiVersion: string): string => {
+  // Extract domain from apiVersion (e.g. "account.btp.sap.crossplane.io/v1alpha1" -> "account.btp.sap.crossplane.io")
+  const domain = apiVersion.split('/')[0] || '';
+
+  // Remove "account" to normalize provider names
+  // e.g "account.btp.sap.crossplane.io" -> "btp.sap.crossplane.io"
+  const normalizedDomain = domain.replace(/^account\./, '');
+
+  return normalizedDomain || 'unknown';
+};
+
 export const resolveProviderType = (configName: string, providerConfigsList: ProviderConfigs[]): string => {
   for (const configList of providerConfigsList || []) {
     const match = configList.items?.find((item) => item.metadata?.name === configName);
@@ -98,7 +109,7 @@ export function buildTreeData(
       const id = `${name}-${apiVersion}`;
       const kind = item?.kind;
       const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
-      const providerType = resolveProviderType(providerConfigName, providerConfigsList);
+      const providerType = resolveProviderTypeFromApiVersion(apiVersion);
       const statusCond = getStatusCondition(item?.status?.conditions);
       const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
 
