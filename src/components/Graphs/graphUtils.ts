@@ -19,23 +19,6 @@ export const resolveProviderTypeFromApiVersion = (apiVersion: string): string =>
   return normalizedDomain || 'unknown';
 };
 
-export const resolveProviderType = (configName: string, providerConfigsList: ProviderConfigs[]): string => {
-  for (const configList of providerConfigsList || []) {
-    const match = configList.items?.find((item) => item.metadata?.name === configName);
-
-    if (match) {
-      const apiVersion = match.apiVersion?.toLowerCase() || '';
-      if (apiVersion.includes('btp')) return 'provider-btp';
-      if (apiVersion.includes('cloudfoundry')) return 'provider-cf';
-      if (apiVersion.includes('gardener')) return 'provider-gardener';
-      if (apiVersion.includes('kubernetes')) return 'provider-kubernetes';
-      return apiVersion || configName;
-    }
-  }
-
-  return configName;
-};
-
 export const generateColorMap = (items: NodeData[], colorBy: string): Record<string, string> => {
   const colors = [
     '#FFC933', // MANGO 4
