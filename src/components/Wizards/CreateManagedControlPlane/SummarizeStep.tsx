@@ -77,6 +77,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
           {isEditMode ? (
             <YamlDiff
               originalYaml={originalYamlString ?? ''}
+              absolutePosition={true}
               modifiedYaml={stringify(
                 CreateManagedControlPlane(
                   watch('name'),

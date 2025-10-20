@@ -8,3 +8,39 @@
   height: 100%;
   width: 100%;
 }
+
+.successContainer {
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+}
+
+.reviewContainer {
+  gap: 1rem;
+  min-height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  height: 6rem;
+  padding: 1rem;
+  padding-bottom: 1.5rem;
+  z-index: 1;
+  background: var(--sapBackgroundColor);
+}
+
+.stickyHeaderInner {
+  padding: 0 1rem;
+}
+
+.diffConfirmMessage {
+  margin-top: 0.5rem;
+}
+
+.reviewButtons {
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
