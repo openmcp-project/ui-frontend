@@ -40,10 +40,7 @@ export const convertToResourceConfig = (resourceObject: Resource | undefined | n
       }, {});
     }
   }
-  // Finalizers are not included in a lean manifest
-  if (resourceObject.metadata?.finalizers && resourceObject.metadata.finalizers.length > 0) {
-    base.metadata.finalizers = [...resourceObject.metadata.finalizers];
-  }
+
   if (resourceObject.spec !== undefined) {
     base.spec = resourceObject.spec;
   }
