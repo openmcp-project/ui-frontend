@@ -11,8 +11,14 @@ export interface YamlSidePanelWithLoaderProps {
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
+  isEdit?: boolean;
 }
-export function YamlSidePanelWithLoader({ workspaceName, resourceType, resourceName }: YamlSidePanelWithLoaderProps) {
+export function YamlSidePanelWithLoader({
+  workspaceName,
+  resourceType,
+  resourceName,
+  isEdit = false,
+}: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
   const { isLoading, data, error } = useApiResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
@@ -25,5 +31,5 @@ export function YamlSidePanelWithLoader({ workspaceName, resourceType, resourceN
 
   const filename = `${workspaceName ? `${workspaceName}_` : ''}${resourceType}_${resourceName}`;
 
-  return <YamlSidePanel resource={data as Resource} filename={filename} />;
+  return <YamlSidePanel resource={data as Resource} filename={filename} isEdit={isEdit} />;
 }
