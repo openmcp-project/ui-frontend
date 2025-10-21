@@ -57,6 +57,8 @@ export interface CreateManagedControlPlaneType {
   spec: Spec;
 }
 
+export const removeComponents = ['cert-manager'];
+
 // rename is used to make creation of MCP working properly
 export const replaceComponentsName: { originalName: string; replaceName: string }[] = [
   { originalName: 'sap-btp-service-operator', replaceName: 'btpServiceOperator' },
