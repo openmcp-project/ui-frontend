@@ -58,8 +58,7 @@ export interface CreateManagedControlPlaneType {
 }
 
 // rename is used to make creation of MCP working properly
-type ReplaceComponentName = { originalName: string; replaceName: string };
-const replaceComponentsName: ReplaceComponentName[] = [
+export const replaceComponentsName: { originalName: string; replaceName: string }[] = [
   { originalName: 'sap-btp-service-operator', replaceName: 'btpServiceOperator' },
   { originalName: 'external-secrets', replaceName: 'externalSecretsOperator' },
 ];
