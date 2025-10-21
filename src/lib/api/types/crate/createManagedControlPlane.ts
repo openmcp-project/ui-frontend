@@ -58,12 +58,11 @@ export interface CreateManagedControlPlaneType {
 }
 
 // rename is used to make creation of MCP working properly
-const replaceComponentsName: Record<string, string> = {
-  'sap-btp-service-operator': 'btpServiceOperator',
-  'external-secrets': 'externalSecretsOperator',
-};
-
-export const removeComponents = ['cert-manager'];
+type ReplaceComponentName = { originalName: string; replaceName: string };
+const replaceComponentsName: ReplaceComponentName[] = [
+  { originalName: 'sap-btp-service-operator', replaceName: 'btpServiceOperator' },
+  { originalName: 'external-secrets', replaceName: 'externalSecretsOperator' },
+];
 
 export const CreateManagedControlPlane = (
   name: string,
@@ -83,12 +82,13 @@ export const CreateManagedControlPlane = (
         (component) =>
           component.isSelected && !component.name.includes('provider') && !component.name.includes('crossplane'),
       )
-      .map((component) => ({
-        ...component,
-        name: Object.prototype.hasOwnProperty.call(replaceComponentsName, component.name)
-          ? replaceComponentsName[component.name]
-          : component.name,
-      }))
+      .map((component) => {
+        const mapping = replaceComponentsName.find((m) => m.originalName === component.name);
+        return {
+          ...component,
+          name: mapping ? mapping.replaceName : component.name,
+        };
+      })
       .reduce((acc, item) => {
         acc[item.name] = { version: item.selectedVersion };
         return acc;
