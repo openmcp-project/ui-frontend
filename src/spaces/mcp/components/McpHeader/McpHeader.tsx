@@ -1,8 +1,8 @@
-import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneType } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { Text } from '@ui5/webcomponents-react';
 
 import styles from './McpHeader.module.css';
-import { formatDateAsTimeAgo } from '../../../utils/i18n/timeAgo.ts';
+import { formatDateAsTimeAgo } from '../../../../utils/i18n/timeAgo.ts';
 import { useTranslation } from 'react-i18next';
 
 export interface McpHeaderProps {
