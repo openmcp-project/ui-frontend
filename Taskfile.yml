@@ -2,15 +2,10 @@ version: "3"
 
 vars:
   # Variables for Docker image
-  REGISTRY: ghcr.io/openmcp-project
+  REGISTRY: {{.REGISTRY | default (print "ghcr.io/openmcp-project") }}
   IMAGE_NAME: mcp-ui-frontend
   IMAGE_TAG: '{{.TAG | default "latest"}}'
   DOCKER_IMAGE: "{{.REGISTRY}}/{{.IMAGE_NAME}}:{{.IMAGE_TAG}}"
-
-  # Variables for local testing
-  LOCAL_REGISTRY: localhost:5000
-  LOCAL_IMAGE_NAME: mcp-ui-frontend
-  LOCAL_DOCKER_IMAGE: "{{.LOCAL_REGISTRY}}/{{.LOCAL_IMAGE_NAME}}:{{.IMAGE_TAG}}"
 
   # Variables for OCM component
   OCM_COMPONENT_NAME: github.com/openmcp-project/ui
@@ -19,7 +14,6 @@ vars:
   OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
   OCM_OUTPUT_DIR: "{{.ROOT_DIR}}/.ctf"
   OCM_DESCRIPTOR: "{{.ROOT_DIR}}/ocm/component-descriptor.yaml"
-  OCM_DESCRIPTOR_LOCAL: "{{.ROOT_DIR}}/ocm/component-descriptor-local.yaml"
 
 tasks:
   default:
@@ -32,8 +26,7 @@ tasks:
     cmds:
       - rm -rf {{.OCM_OUTPUT_DIR}}
       - |
-        ocm add components --create --force --copy-resources \
-          --complete \
+        ocm add components --create \
           --lookup {{.OCM_TARGET_REPO}} \
           --file {{.OCM_OUTPUT_DIR}} \
           {{.OCM_DESCRIPTOR}} -- \
@@ -48,97 +41,14 @@ tasks:
     cmds:
       - |
         ocm transfer ctf \
-          --copy-resources \
-          --enforce --overwrite \
           {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}}
 
-  # Those tasks are only for local testing purposes
-
-  test:inspect-ocm:
-    desc: "Inspects the locally built OCM component. Usage: task test:inspect-ocm -- <version>"
-    cmds:
-      - echo "--- Component Details ---"
-      - ocm get component -o yaml {{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}} --repo {{.OCM_OUTPUT_DIR}}
-      - echo "\n--- Component Resources ---"
-      - ocm get resources -o wide {{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}} --repo {{.OCM_OUTPUT_DIR}}
-    vars:
-      OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
-
-  test:build-image:
+  build:image:local:
     desc: "Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test"
     cmds:
       - docker build -t {{.DOCKER_IMAGE}} .
 
-  test:publish-image:
+  publish:image:local:
     desc: "Publishes the docker image for local testing. Usage: task test:publish-image TAG=v-local-test"
     cmds:
       - docker push {{.DOCKER_IMAGE}}
-
-  test:run:
-    desc: "Runs the locally built image in a docker container. Usage: task test:run TAG=v-local-test"
-    cmds:
-      - docker run --rm -p 3000:3000 {{.DOCKER_IMAGE}}
-
-  test:run-from-ocm:
-    desc: "Extracts image reference from OCM component and runs it. Usage: task test:run-from-ocm -- <version>"
-    cmds:
-      - |
-        IMAGE_REF=$(ocm get resources {{.OCM_COMPONENT_NAME}}:{{.OCM_COMPONENT_VERSION}} --repo {{.OCM_OUTPUT_DIR}} -o json | jq -r '.items[0].element.access.imageReference')
-        echo "Running image from OCM component: $IMAGE_REF"
-        docker run --rm -p 5173:5173 --env-file {{.ROOT_DIR}}/.env $IMAGE_REF
-    vars:
-      OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
-
-  local:start-registry:
-    desc: "Starts a local Docker registry on localhost:5000"
-    cmds:
-      - docker run -d -p 5000:5000 --name registry --rm registry:2
-    status:
-      - docker ps | grep -q registry
-
-  local:stop-registry:
-    desc: "Stops the local Docker registry"
-    cmds:
-      - docker stop registry
-    ignore_error: true
-
-  local:build-and-push:
-    desc: "Builds and pushes image to local registry. Usage: task local:build-and-push TAG=v0.0.1"
-    cmds:
-      - docker build -t localhost:5000/mcp-ui-frontend:{{.TAG}} .
-      - docker push localhost:5000/mcp-ui-frontend:{{.TAG}}
-    vars:
-      TAG: '{{.TAG | default "latest"}}'
-
-  local:build-ocm:
-    desc: "Builds OCM component with local registry reference (uses --skip-digest-generation for local testing). Usage: task local:build-ocm -- <version>"
-    cmds:
-      - rm -rf {{.OCM_OUTPUT_DIR}}
-      - |
-        ocm add components --create --force --skip-digest-generation \
-          --file {{.OCM_OUTPUT_DIR}} \
-          {{.OCM_DESCRIPTOR_LOCAL}} -- \
-          VERSION={{.OCM_COMPONENT_VERSION}} \
-          COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
-          PROVIDER={{.OCM_PROVIDER}}
-    vars:
-      OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
-
-  # This is full workflow to create local registry, build, push, create OCM and run application locally.
-  
-  local:test-full-flow:
-    desc: "Full local test: start registry, build, push, create OCM, run. Usage: task local:test-full-flow TAG=v0.0.1"
-    cmds:
-      - task: local:start-registry
-      - task: local:build-and-push
-        vars:
-          TAG: "{{.TAG}}"
-      - task: local:build-ocm
-        vars:
-          CLI_ARGS: "{{.TAG}}"
-      - task: test:inspect-ocm
-        vars:
-          CLI_ARGS: "{{.TAG}}"
-      - task: test:run-from-ocm
-        vars:
-          CLI_ARGS: "{{.TAG}}"
