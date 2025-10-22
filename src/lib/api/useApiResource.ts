@@ -33,7 +33,7 @@ export const useApiResource = <T>(
 
   return {
     data,
-    error: error as APIError,
+    error: error as APIError | undefined,
     isLoading: isLoading,
     isValidating: isValidating,
   };
