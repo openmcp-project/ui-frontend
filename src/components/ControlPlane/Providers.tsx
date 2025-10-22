@@ -26,7 +26,7 @@ import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 interface CellData<T> {
   cell: {
-    value: T | undefined;
+    value: T | null;
     row: {
       original: Record<string, unknown>;
     };
