@@ -24,14 +24,13 @@ import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
-interface CellData<T> {
+type CellInstance = {
   cell: {
-    value: T | null;
     row: {
       original: Record<string, unknown>;
     };
   };
-}
+};
 
 type ProvidersRow = {
   name: string;
@@ -78,7 +77,7 @@ export function Providers() {
         width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
-        Cell: (cellData: CellData<string>) =>
+        Cell: (cellData: CellInstance) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
               isOk={cellData.cell.row.original?.installed === 'true'}
@@ -96,7 +95,7 @@ export function Providers() {
         width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
-        Cell: (cellData: CellData<string>) =>
+        Cell: (cellData: CellInstance) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
               isOk={cellData.cell.row.original?.healthy === 'true'}
@@ -113,7 +112,7 @@ export function Providers() {
         width: 75,
         accessor: 'yaml',
         disableFilters: true,
-        Cell: (cellData: CellData<string>) => (
+        Cell: (cellData: CellInstance) => (
           <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
         ),
       },

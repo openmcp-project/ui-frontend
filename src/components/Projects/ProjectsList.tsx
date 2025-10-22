@@ -121,7 +121,7 @@ export default function ProjectsList() {
               alignItems: 'center',
             }}
           >
-            <ProjectsListItemMenu projectName={instance.cell.row.original?.projectName ?? ''} />
+            <ProjectsListItemMenu projectName={(instance.cell.row.original?.projectName as string) ?? ''} />
           </div>
         ),
       },
