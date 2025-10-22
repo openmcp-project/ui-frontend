@@ -25,7 +25,7 @@ type MemberTableProps = {
 type CellInstance = {
   cell: {
     row: {
-      original: MemberTableRow;
+      original: Record<string, unknown>;
     };
   };
 };
@@ -81,7 +81,7 @@ export const MemberTable: FC<MemberTableProps> = ({
             icon="edit"
             design="Transparent"
             onClick={() => {
-              const selectedMember = instance.cell.row.original._member;
+              const selectedMember = instance.cell.row.original._member as Member;
               onEditMember(selectedMember);
             }}
           />
@@ -89,7 +89,7 @@ export const MemberTable: FC<MemberTableProps> = ({
             design="Transparent"
             icon="delete"
             onClick={() => {
-              const selectedMemberEmail = instance.cell.row.original.email;
+              const selectedMemberEmail = instance.cell.row.original.email as string;
               onDeleteMember(selectedMemberEmail);
             }}
           />
