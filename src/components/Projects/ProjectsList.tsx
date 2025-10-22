@@ -20,9 +20,9 @@ type ProjectListRow = {
 
 type ProjectListCellInstance<T> = {
   cell: {
-    value: string;
+    value: T | undefined;
     row: {
-      original: T;
+      original: Record<string, unknown>;
     };
   };
 };
@@ -47,7 +47,7 @@ export default function ProjectsList() {
       {
         Header: t('ProjectsListView.title'),
         accessor: 'projectName',
-        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
+        Cell: (instance: ProjectListCellInstance<string>) => (
           <Link
             design={'Emphasized'}
             style={{
@@ -57,7 +57,7 @@ export default function ProjectsList() {
               paddingBottom: '0.5rem',
             }}
             onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName}`);
+              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
             }}
           >
             {instance.cell.value}
@@ -68,7 +68,7 @@ export default function ProjectsList() {
         Header: 'Namespace',
         accessor: 'nameSpace',
         width: 340,
-        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
+        Cell: (instance: ProjectListCellInstance<string>) => (
           <div
             style={{
               display: 'flex',
@@ -79,7 +79,7 @@ export default function ProjectsList() {
               cursor: 'pointer',
             }}
           >
-            <CopyButton text={instance.cell.value} />
+            <CopyButton text={instance.cell.value ?? ''} />
           </div>
         ),
       },
@@ -89,7 +89,7 @@ export default function ProjectsList() {
         width: 75,
         disableFilters: true,
         hAlign: 'Center' as const,
-        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
+        Cell: (instance: ProjectListCellInstance<string>) => (
           <div
             style={{
               width: '100%',
@@ -101,7 +101,7 @@ export default function ProjectsList() {
             <YamlViewButton
               variant="loader"
               resourceType={'projects'}
-              resourceName={instance.cell.row.original?.projectName}
+              resourceName={instance.cell.row.original?.projectName as string}
             />
           </div>
         ),
@@ -112,7 +112,7 @@ export default function ProjectsList() {
         width: 60,
         disableFilters: true,
         hAlign: 'Center' as const,
-        Cell: (instance: ProjectListCellInstance<ProjectListRow>) => (
+        Cell: (instance: ProjectListCellInstance<string>) => (
           <div
             style={{
               width: '100%',
@@ -121,7 +121,7 @@ export default function ProjectsList() {
               alignItems: 'center',
             }}
           >
-            <ProjectsListItemMenu projectName={instance.cell.row.original?.projectName ?? ''} />
+            <ProjectsListItemMenu projectName={(instance.cell.row.original?.projectName as string) ?? ''} />
           </div>
         ),
       },
