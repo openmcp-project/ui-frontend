@@ -34,14 +34,31 @@ export const YamlEditor = (props: YamlEditorProps) => {
       ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
       readOnly: isEdit ? false : (options?.readOnly ?? true),
       minimap: { enabled: false },
-      wordWrap: 'on' as const,
       scrollBeyondLastLine: false,
+      tabSize: 2,
+      insertSpaces: true,
+      detectIndentation: false,
+      wordWrap: 'on',
+      folding: true,
+      foldingStrategy: 'indentation',
+      quickSuggestions: {
+        other: true,
+        comments: false,
+        strings: true,
+      },
+      suggestOnTriggerCharacters: true,
+      glyphMargin: true,
+      formatOnPaste: true,
+      formatOnType: true,
+      fontSize: 13,
+      lineHeight: 20,
+      renderWhitespace: 'boundary',
     }),
     [options, isEdit],
   );
 
   const handleEditorChange = useCallback(
-    (val: string | undefined, event?: monaco.editor.IModelContentChangedEvent) => {
+    (val: string | undefined, event: monaco.editor.IModelContentChangedEvent) => {
       if (isEdit) {
         setEditorContent(val ?? '');
       }
@@ -100,8 +117,8 @@ export const YamlEditor = (props: YamlEditorProps) => {
         />
       </div>
       {showValidationErrors && (
-        <Panel headerText="Output" style={{ marginTop: '0.5rem' }}>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+        <Panel headerText="Validation Errors" style={{ marginTop: '0.5rem' }}>
+          <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--sapNegativeColor)' }}>
             {validationErrors.map((err, idx) => (
               <li key={idx} style={{ listStyle: 'disc', fontFamily: 'monospace' }}>
                 {err}
