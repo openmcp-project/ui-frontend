@@ -64,3 +64,12 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build OCM component
+        run: task build:ocm
+        env:
+          IMAGE_VERSION: "main"
+          OCM_COMPONENT_VERSION: "v0.0.0-main"
+
+      - name: Publish OCM component
+        run: task publish:ocm

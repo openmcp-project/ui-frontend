@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       nextVersion:
-        description: 'specify the release version in the semver format v[major].[minor].[patch] e.g. v0.0.0'
+        description: "specify the release version in the semver format v[major].[minor].[patch] e.g. v0.0.0"
         required: true
 
 # base permissions for all jobs should be minimal
@@ -82,7 +82,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build OCM component
-        run: task build:ocm -- ${{ github.event.inputs.nextVersion }}
+        run: task build:ocm
+        env:
+          OCM_COMPONENT_VERSION: ${{ github.event.inputs.nextVersion }}
 
       - name: Publish OCM component
         run: task publish:ocm

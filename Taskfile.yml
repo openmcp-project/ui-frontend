@@ -1,19 +1,19 @@
-version: "3"
+version: '3'
 
 vars:
   # Variables for Docker image
-  REGISTRY: {{.REGISTRY | default (print "ghcr.io/openmcp-project") }}
+  REGISTRY: '{{.REGISTRY | default (print "ghcr.io/openmcp-project") }}'
   IMAGE_NAME: mcp-ui-frontend
   IMAGE_TAG: '{{.TAG | default "latest"}}'
-  DOCKER_IMAGE: "{{.REGISTRY}}/{{.IMAGE_NAME}}:{{.IMAGE_TAG}}"
+  DOCKER_IMAGE: '{{.REGISTRY}}/{{.IMAGE_NAME}}:{{.IMAGE_TAG}}'
 
   # Variables for OCM component
   OCM_COMPONENT_NAME: github.com/openmcp-project/ui
   OCM_COMPONENT_VERSION: '{{.OCM_COMPONENT_VERSION | default .IMAGE_TAG}}'
   OCM_PROVIDER: openmcp-project
   OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
-  OCM_OUTPUT_DIR: "{{.ROOT_DIR}}/.ctf"
-  OCM_DESCRIPTOR: "{{.ROOT_DIR}}/ocm/component-descriptor.yaml"
+  OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
+  OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
 
 tasks:
   default:
@@ -22,7 +22,7 @@ tasks:
       - task --list
 
   build:ocm:
-    desc: "Builds the ocm component. Usage: task build:ocm -- <version>"
+    desc: 'Builds the ocm component. Usage: task build:ocm'
     cmds:
       - rm -rf {{.OCM_OUTPUT_DIR}}
       - |
@@ -31,24 +31,25 @@ tasks:
           --file {{.OCM_OUTPUT_DIR}} \
           {{.OCM_DESCRIPTOR}} -- \
           VERSION={{.OCM_COMPONENT_VERSION}} \
+          IMAGE_VERSION={{.IMAGE_VERSION}} \
           COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
           PROVIDER={{.OCM_PROVIDER}}
     vars:
-      OCM_COMPONENT_VERSION: '{{.CLI_ARGS}}'
+      IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
 
   publish:ocm:
-    desc: "Publishes the ocm component to the registry."
+    desc: 'Publishes the ocm component to the registry.'
     cmds:
       - |
         ocm transfer ctf \
           {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}}
 
   build:image:local:
-    desc: "Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test"
+    desc: 'Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test'
     cmds:
       - docker build -t {{.DOCKER_IMAGE}} .
 
   publish:image:local:
-    desc: "Publishes the docker image for local testing. Usage: task test:publish-image TAG=v-local-test"
+    desc: 'Publishes the docker image for local testing. Usage: task test:publish-image TAG=v-local-test'
     cmds:
       - docker push {{.DOCKER_IMAGE}}
