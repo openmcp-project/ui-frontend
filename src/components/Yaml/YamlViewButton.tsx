@@ -30,6 +30,7 @@ export function YamlViewButton(props: YamlViewButtonProps) {
         const { resource } = props;
         openInAside(
           <YamlSidePanel
+            isEdit={false}
             resource={props.resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
           />,
@@ -41,6 +42,7 @@ export function YamlViewButton(props: YamlViewButtonProps) {
         const { workspaceName, resourceType, resourceName } = props;
         openInAside(
           <YamlSidePanelWithLoader
+            isEdit={false}
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}

@@ -59,7 +59,6 @@ export interface CreateManagedControlPlaneType {
 
 export const removeComponents = ['cert-manager'];
 
-// rename is used to make creation of MCP working properly
 export const replaceComponentsName: { originalName: string; replaceName: string }[] = [
   { originalName: 'sap-btp-service-operator', replaceName: 'btpServiceOperator' },
   { originalName: 'external-secrets', replaceName: 'externalSecretsOperator' },
@@ -77,7 +76,7 @@ export const CreateManagedControlPlane = (
   },
   idpPrefix?: string,
 ): CreateManagedControlPlaneType => {
-  const selectedComponentsListObject: Components =
+  const selectedComponents: Components =
     optional?.componentsList
       ?.filter(
         (component) =>
@@ -98,17 +97,17 @@ export const CreateManagedControlPlane = (
     ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
 
-  const providersListObject: Provider[] =
+  const selectedProviders: Provider[] =
     optional?.componentsList
       ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
       })) ?? [];
-  const crossplaneWithProvidersListObject = {
+  const crossplaneWithProviders = {
     crossplane: {
       version: crossplaneComponent?.selectedVersion ?? '',
-      providers: providersListObject,
+      providers: selectedProviders,
     },
   };
 
@@ -129,9 +128,9 @@ export const CreateManagedControlPlane = (
     spec: {
       authentication: { enableSystemIdentityProvider: true },
       components: {
-        ...selectedComponentsListObject,
+        ...selectedComponents,
         apiServer: { type: 'GardenerDedicated' },
-        ...(crossplaneComponent ? crossplaneWithProvidersListObject : {}),
+        ...(crossplaneComponent ? crossplaneWithProviders : {}),
       },
       authorization: {
         roleBindings:

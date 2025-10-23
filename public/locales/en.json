@@ -16,6 +16,33 @@
     "tableComponentHeader": "Name",
     "tableVersionHeader": "Version"
   },
+  "ComponentCard": {
+    "notInstalledLabel": "not installed",
+    "installButton": "Install {{component}}"
+  },
+  "componentCardCrossplane": {
+    "description": "Compose cloud infrastructure",
+    "progress": "Healthy",
+    "progressCount": "Healthy: {{count}} of {{total}} resources"
+  },
+  "componentCardFlux": {
+    "description": "GitOps for Kubernetes automating continuous sync and delivery",
+    "progress": "Managed",
+    "progressCount": "Managed: {{count}} of {{total}} resources"
+  },
+  "componentCardLandscaper": {
+    "description": "Automate cross‑dependent Kubernetes deployments"
+  },
+  "componentCardKyverno": {
+    "description": "Kubernetes-native policy as code for secure and compliant infrastructure"
+  },
+  "componentCardEso": {
+    "description": "Manage and sync credentials from your secret store"
+  },
+  "Kpi": {
+    "installed": "Installed",
+    "error": "There was a problem loading this data. Please try again later."
+  },
   "FluxList": {
     "tableNameHeader": "Name",
     "tableStatusHeader": "Status",
@@ -37,11 +64,15 @@
     "tableHeaderReady": "Ready",
     "tableHeaderDelete": "Delete",
     "deleteAction": "Delete resource",
+    "editAction": "Edit resource",
     "deleteDialogTitle": "Delete resource",
     "advancedOptions": "Advanced options",
     "forceDeletion": "Force deletion",
     "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped.",
     "deleteStarted": "Deleting {{resourceName}} initialized",
+    "patchStarted": "Updating {{resourceName}} initialized",
+    "patchSuccess": "Updated {{resourceName}}",
+    "patchError": "Failed to update {{resourceName}}",
     "actionColumnHeader": " "
   },
   "ProvidersConfig": {
@@ -373,7 +404,8 @@
     "installError": "Install error",
     "syncError": "Sync error",
     "error": "Error",
-    "notHealthy": "Not healthy"
+    "notHealthy": "Not healthy",
+    "notReady": "Not ready"
   },
   "buttons": {
     "viewResource": "View resource",
@@ -384,11 +416,20 @@
     "close": "Close",
     "back": "Back",
     "cancel": "Cancel",
-    "update": "Update"
+    "update": "Update",
+    "applyChanges": "Apply changes"
   },
   "yaml": {
     "YAML": "File",
-    "showOnlyImportant": "Show only important fields"
+    "showOnlyImportant": "Show only important fields",
+    "panelTitle": "YAML",
+    "editorTitle": "YAML Editor",
+    "applySuccess2": "The Managed Control Plane will reconcile this resource shortly.",
+    "applySuccess": "Update submitted ",
+    "diffConfirmTitle": "Review changes",
+    "diffConfirmMessage": "Are you sure that you want to apply these changes?",
+    "diffNo": "No, go back",
+    "diffYes": "Yes"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
@@ -424,7 +465,7 @@
       "hoverContent": {
         "totalResources": "Total Resources",
         "healthy": "Healthy",
-        "creating": "Creating", 
+        "creating": "Creating",
         "failing": "Failing"
       }
     },
