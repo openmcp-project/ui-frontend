@@ -71,10 +71,6 @@ jobs:
           sbom: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.nextVersion }}
 
-      - name: Install OCM CLI
-        run: |
-          sudo curl -sL https://raw.githubusercontent.com/open-component-model/ocm/main/install.sh | sudo bash
-
       - name: Install Go-Task
         uses: arduino/setup-task@v2
         with:

@@ -15,6 +15,10 @@ vars:
   OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
   OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
 
+  ROOT_DIR2: '{{.ROOT_DIR | trimSuffix "/common" | trimSuffix "/hack"}}'
+  LOCALBIN: '{{ env "LOCALBIN" | default ( .LOCALBIN | default (print .ROOT_DIR2 "/.bin") ) }}'
+  OCM: '{{ .OCM | default (print .LOCALBIN "/ocm") }}'
+
 tasks:
   default:
     desc: Show available tasks
@@ -23,10 +27,12 @@ tasks:
 
   build:ocm:
     desc: 'Builds the ocm component. Usage: task build:ocm'
+    deps:
+      - install:ocm
     cmds:
       - rm -rf {{.OCM_OUTPUT_DIR}}
       - |
-        ocm add components --create \
+        {{.OCM}} add components --create \
           --lookup {{.OCM_TARGET_REPO}} \
           --file {{.OCM_OUTPUT_DIR}} \
           {{.OCM_DESCRIPTOR}} -- \
@@ -39,9 +45,11 @@ tasks:
 
   publish:ocm:
     desc: 'Publishes the ocm component to the registry.'
+    deps:
+      - install:ocm
     cmds:
       - |
-        ocm transfer ctf \
+        {{.OCM}} transfer ctf \
           {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}}
 
   build:image:local:
@@ -53,3 +61,36 @@ tasks:
     desc: 'Publishes the docker image for local testing. Usage: task test:publish-image TAG=v-local-test'
     cmds:
       - docker push {{.DOCKER_IMAGE}}
+
+  localbin:
+    desc: '  Ensure that the folder specified in LOCALBIN exists.'
+    run: once
+    requires:
+      vars:
+        - LOCALBIN
+    status:
+      - test -d {{.LOCALBIN}}
+    cmds:
+      - 'echo "localbin: {{.LOCALBIN}}"'
+      - mkdir -p {{.LOCALBIN}}
+    internal: true
+
+  install:ocm:
+    desc: '  Ensure that the ocm CLI is installed.'
+    run: once
+    requires:
+      vars:
+        - OCM
+    deps:
+      - localbin
+    status:
+      - 'test -x "{{.OCM}}"'
+      - '"{{.OCM}}" --version | grep -q "{{.OCM_VERSION | trimPrefix "v"}}"'
+    vars:
+      # renovate: datasource=github-releases depName=ocm packageName=open-component-model/ocm
+      OCM_VERSION: '{{ env "OCM_VERSION" | default ( .OCM_VERSION | default "v0.30.0" ) }}'
+      tmpdir:
+        sh: 'mktemp -d'
+    cmds:
+      - 'curl -sSfL https://ocm.software/install.sh | OCM_VERSION="{{.OCM_VERSION | trimPrefix "v"}}" bash -s "{{.tmpdir}}"'
+      - 'mv "{{.tmpdir}}/ocm" "{{.OCM}}"'

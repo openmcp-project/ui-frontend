@@ -27,10 +27,6 @@ jobs:
       attestations: write
 
     steps:
-      - name: Install OCM CLI
-        run: |
-          sudo curl -sL https://raw.githubusercontent.com/open-component-model/ocm/main/install.sh | sudo bash
-
       - name: Install Go-Task
         uses: arduino/setup-task@v2
         with:
