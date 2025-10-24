@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getStatusCondition, resolveProviderType, generateColorMap, buildTreeData } from './graphUtils';
+import { getStatusCondition, resolveProviderTypeFromApiVersion, generateColorMap, buildTreeData } from './graphUtils';
 import { ProviderConfigs, ManagedResourceGroup, ManagedResourceItem } from '../../lib/shared/types';
 
 describe('getStatusCondition', () => {
@@ -26,41 +26,24 @@ describe('getStatusCondition', () => {
   });
 });
 
-describe('resolveProviderType', () => {
-  it('returns correct providerType if found', () => {
-    const configs: ProviderConfigs[] = [
-      {
-        provider: 'provider-a',
-        items: [
-          { metadata: { name: 'foo' }, apiVersion: 'btp/v1' },
-          { metadata: { name: 'bar' }, apiVersion: 'cloudfoundry/v1' },
-        ],
-      },
-      {
-        provider: 'provider-b',
-        items: [{ metadata: { name: 'baz' }, apiVersion: 'gardener/v1' }],
-      },
-    ] as any;
-    expect(resolveProviderType('foo', configs)).toBe('provider-btp');
-    expect(resolveProviderType('bar', configs)).toBe('provider-cf');
-    expect(resolveProviderType('baz', configs)).toBe('provider-gardener');
+describe('resolveProviderTypeFromApiVersion', () => {
+  it('extracts domain from apiVersion and removes "account." prefix', () => {
+    expect(resolveProviderTypeFromApiVersion('account.btp.sap.crossplane.io/v1alpha1')).toBe('btp.sap.crossplane.io');
   });
 
-  it('returns apiVersion or configName if no match for known providers', () => {
-    const configs: ProviderConfigs[] = [
-      {
-        provider: 'provider-a',
-        items: [{ metadata: { name: 'other' }, apiVersion: 'custom/v1' }],
-      },
-    ] as any;
-    expect(resolveProviderType('other', configs)).toBe('custom/v1');
+  it('extracts domain from apiVersion without "account." prefix', () => {
+    expect(resolveProviderTypeFromApiVersion('cloudfoundry.crossplane.io/v1alpha1')).toBe('cloudfoundry.crossplane.io');
+    expect(resolveProviderTypeFromApiVersion('gardener.crossplane.io/v1beta1')).toBe('gardener.crossplane.io');
+    expect(resolveProviderTypeFromApiVersion('kubernetes.crossplane.io/v1')).toBe('kubernetes.crossplane.io');
   });
 
-  it('returns configName if not found', () => {
-    const configs: ProviderConfigs[] = [
-      { provider: 'provider-a', items: [{ metadata: { name: 'foo' }, apiVersion: 'btp/v1' }] },
-    ] as any;
-    expect(resolveProviderType('notfound', configs)).toBe('notfound');
+  it('returns "unknown" for empty apiVersion', () => {
+    expect(resolveProviderTypeFromApiVersion('')).toBe('unknown');
+  });
+
+  it('handles apiVersion without version part', () => {
+    expect(resolveProviderTypeFromApiVersion('btp.sap.crossplane.io')).toBe('btp.sap.crossplane.io');
+    expect(resolveProviderTypeFromApiVersion('account.btp.sap.crossplane.io')).toBe('btp.sap.crossplane.io');
   });
 });
 
