@@ -30,6 +30,10 @@ export default defineConfig({
     }),
   ],
 
+  test: {
+    environment: 'jsdom',
+  },
+
   build: {
     sourcemap: true,
     target: 'esnext', // Support top-level await

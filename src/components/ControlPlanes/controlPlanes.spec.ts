@@ -16,6 +16,7 @@ const createControlPlane = (conditions: ControlPlaneStatusCondition[]): ControlP
   metadata: {
     name: '',
     namespace: '',
+    creationTimestamp: '2024-01-01T00:00:00Z',
   },
   spec: {
     authentication: {
@@ -27,6 +28,7 @@ const createControlPlane = (conditions: ControlPlaneStatusCondition[]): ControlP
       externalSecretsOperator: undefined,
       kyverno: undefined,
       flux: undefined,
+      landscaper: undefined,
     },
   },
   status: {
