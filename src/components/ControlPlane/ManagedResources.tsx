@@ -171,6 +171,12 @@ export function ManagedResources() {
           disableFilters: true,
           Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
             const { original } = row;
+            // Flux-managed check for disabling Edit
+            const fluxLabelValue = (
+              original?.item?.metadata?.labels as unknown as Record<string, unknown> | undefined
+            )?.['kustomize.toolkit.fluxcd.io/name'];
+            const isFluxManaged =
+              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
             return original?.item ? (
               <YamlViewButton
                 variant="resource"
@@ -179,6 +185,8 @@ export function ManagedResources() {
                   <Button
                     icon={'edit'}
                     design={'Transparent'}
+                    disabled={isFluxManaged}
+                    tooltip={t('yaml.fluxManaged')}
                     onClick={() => {
                       openEditPanel(original?.item);
                     }}
@@ -214,6 +222,7 @@ export function ManagedResources() {
                 icon: 'edit',
                 disabled: isFluxManaged,
                 onClick: openEditPanel,
+                tooltip: isFluxManaged ? t('yaml.fluxManaged') : undefined,
               },
               {
                 key: 'delete',

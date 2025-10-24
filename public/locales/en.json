@@ -430,7 +430,8 @@
     "diffConfirmMessage": "Are you sure that you want to apply these changes?",
     "diffNo": "No, go back",
     "diffYes": "Yes",
-    "validationErrors": "Validation errors"
+    "validationErrors": "Validation errors",
+    "fluxManaged": "This resource is managed by Flux and cannot be edited here"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

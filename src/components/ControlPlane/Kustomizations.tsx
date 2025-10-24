@@ -1,5 +1,12 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
-import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTableColumnDefinition,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarSpacer,
+  Button,
+} from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
@@ -95,9 +102,26 @@ export function Kustomizations() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<FluxRow> }) => (
-            <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />
-          ),
+          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+            const item = row.original?.item;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  <Button
+                    icon={'edit'}
+                    design={'Transparent'}
+                    onClick={() => {
+                      openEditPanel(item);
+                    }}
+                  >
+                    {t('buttons.edit')}
+                  </Button>
+                }
+              />
+            ) : undefined;
+          },
         },
         {
           Header: t('ManagedResources.actionColumnHeader'),
