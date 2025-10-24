@@ -17,6 +17,7 @@ import { Dispatch, RefObject, SetStateAction, useRef, useState } from 'react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
 import { useTranslation } from 'react-i18next';
 import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
@@ -35,7 +36,7 @@ export function FeedbackButton() {
     setFeedbackPopoverOpen(!feedbackPopoverOpen);
   };
 
-  const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, { value: string; previousValue: string }>) => {
+  const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
     const newValue = event.target.value;
     setFeedbackMessage(newValue);
   };
@@ -98,15 +99,7 @@ const FeedbackPopover = ({
   rating: number;
   onFeedbackSent: () => void;
   feedbackMessage: string;
-  onFeedbackMessageChange: (
-    event: Ui5CustomEvent<
-      TextAreaDomRef,
-      {
-        value: string;
-        previousValue: string;
-      }
-    >,
-  ) => void;
+  onFeedbackMessageChange: (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => void;
   feedbackSent: boolean;
 }) => {
   const { t } = useTranslation();

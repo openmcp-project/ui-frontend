@@ -45,7 +45,9 @@ export const YamlEditor = (props: YamlEditorProps) => {
       if (isEdit) {
         setEditorContent(val ?? '');
       }
-      onChange?.(val ?? '', event);
+      if (event) {
+        onChange?.(val ?? '', event);
+      }
     },
     [isEdit, onChange],
   );
