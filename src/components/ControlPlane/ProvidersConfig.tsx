@@ -3,6 +3,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -106,7 +107,23 @@ export function ProvidersConfig() {
           disableFilters: true,
           Cell: ({ row }: { row: CellRow<Rows> }) => {
             const item = row.original?.resource;
-            return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  <Button
+                    icon={'edit'}
+                    design={'Transparent'}
+                    onClick={() => {
+                      openEditPanel(item);
+                    }}
+                  >
+                    {t('buttons.edit')}
+                  </Button>
+                }
+              />
+            ) : undefined;
           },
         },
         {

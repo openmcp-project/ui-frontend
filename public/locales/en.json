@@ -417,19 +417,20 @@
     "back": "Back",
     "cancel": "Cancel",
     "update": "Update",
-    "applyChanges": "Apply changes"
+    "applyChanges": "Apply changes",
+    "edit": "Edit"
   },
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
     "panelTitle": "YAML",
-    "editorTitle": "YAML Editor",
     "applySuccess2": "The Managed Control Plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",
     "diffConfirmMessage": "Are you sure that you want to apply these changes?",
     "diffNo": "No, go back",
-    "diffYes": "Yes"
+    "diffYes": "Yes",
+    "validationErrors": "Validation errors"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",

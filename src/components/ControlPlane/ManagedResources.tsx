@@ -4,6 +4,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -171,7 +172,21 @@ export function ManagedResources() {
           Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
             const { original } = row;
             return original?.item ? (
-              <YamlViewButton variant="resource" resource={original.item as unknown as Resource} />
+              <YamlViewButton
+                variant="resource"
+                resource={original.item as unknown as Resource}
+                toolbarContent={
+                  <Button
+                    icon={'edit'}
+                    design={'Transparent'}
+                    onClick={() => {
+                      openEditPanel(original?.item);
+                    }}
+                  >
+                    {t('buttons.edit')}
+                  </Button>
+                }
+              />
             ) : undefined;
           },
         },

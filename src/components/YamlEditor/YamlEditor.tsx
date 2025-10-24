@@ -1,12 +1,13 @@
 import { Editor } from '@monaco-editor/react';
 import type { ComponentProps } from 'react';
-import { Button, Panel, Toolbar, ToolbarSpacer, Title } from '@ui5/webcomponents-react';
+import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor';
+import styles from './YamlEditor.module.css';
 
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
   isEdit?: boolean;
@@ -43,7 +44,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       foldingStrategy: 'indentation',
       quickSuggestions: {
         other: true,
-        comments: false,
+        comments: true,
         strings: true,
       },
       suggestOnTriggerCharacters: true,
@@ -95,17 +96,15 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const showValidationErrors = isEdit && applyAttempted && validationErrors.length > 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+    <div className={styles.container}>
       {isEdit && (
         <Toolbar design="Solid">
-          <Title>{t('yaml.editorTitle')}</Title>
-          <ToolbarSpacer />
-          <Button design="Emphasized" onClick={handleApply}>
-            {t('buttons.applyChanges', 'Apply changes')}
+          <Button className={styles.applyButton} design="Emphasized" onClick={handleApply}>
+            {t('buttons.applyChanges')}
           </Button>
         </Toolbar>
       )}
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div className={styles.editorWrapper}>
         <Editor
           {...rest}
           value={isEdit ? editorContent : value}
@@ -117,10 +116,10 @@ export const YamlEditor = (props: YamlEditorProps) => {
         />
       </div>
       {showValidationErrors && (
-        <Panel headerText="Validation Errors" style={{ marginTop: '0.5rem' }}>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--sapNegativeColor)' }}>
+        <Panel headerText={t('yaml.validationErrors')} className={styles.validationPanel}>
+          <ul className={styles.validationList}>
             {validationErrors.map((err, idx) => (
-              <li key={idx} style={{ listStyle: 'disc', fontFamily: 'monospace' }}>
+              <li key={idx} className={styles.validationListItem}>
                 {err}
               </li>
             ))}

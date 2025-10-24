@@ -13,7 +13,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import { useTranslation } from 'react-i18next';
 import { YamlViewer } from './YamlViewer.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -29,8 +29,9 @@ export interface YamlSidePanelProps {
   filename: string;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
+  toolbarContent?: JSX.Element;
 }
-export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSidePanelProps) {
+export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
       fixed
       header={
         <Toolbar>
-          <Title>{t('yaml.panelTitle')}</Title>
+          {toolbarContent ?? <Title>{t('yaml.panelTitle')}</Title>}
           <ToolbarSpacer />
           <FlexBox>
             {!isEdit && (
