@@ -1,0 +1,13 @@
+name: ${COMPONENT_NAME}
+version: ${VERSION}
+provider:
+  name: ${PROVIDER}
+sources: []
+componentReferences: []
+resources:
+  - name: mcp-ui-frontend-image
+    type: ociImage
+    version: ${VERSION}
+    access:
+      type: ociArtifact
+      imageReference: ghcr.io/openmcp-project/mcp-ui-frontend:${IMAGE_VERSION}
