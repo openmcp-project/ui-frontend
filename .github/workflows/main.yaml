@@ -78,4 +78,4 @@ jobs:
           OCM_COMPONENT_VERSION: "v0.0.0-main"
 
       - name: Publish OCM component
-        run: task publish:ocm
+        run: task publish:ocm OCM_TRANSFER_ARGS="--overwrite"
