@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { Button, Menu, MenuItem, MenuDomRef } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import type { Ui5CustomEvent, ButtonDomRef } from '@ui5/webcomponents-react';
-import tooltipCell from '../Shared/TooltipCell.tsx';
 
 export type ActionItem<T> = {
   key: string;
