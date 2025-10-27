@@ -1,4 +1,4 @@
-import { AnalyticalTable, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
 
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
@@ -18,15 +18,6 @@ type ProjectListRow = {
   nameSpace: string;
 };
 
-type ProjectListCellInstance<T> = {
-  cell: {
-    value: T | undefined;
-    row: {
-      original: Record<string, unknown>;
-    };
-  };
-};
-
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error } = useApiResource(ListProjectNames, {
@@ -42,12 +33,12 @@ export default function ProjectsList() {
       }) ?? [],
     [data],
   );
-  const stabilizedColumns = useMemo(
+  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
         accessor: 'projectName',
-        Cell: (instance: ProjectListCellInstance<string>) => (
+        Cell: (instance) => (
           <Link
             design={'Emphasized'}
             style={{
@@ -68,7 +59,7 @@ export default function ProjectsList() {
         Header: 'Namespace',
         accessor: 'nameSpace',
         width: 340,
-        Cell: (instance: ProjectListCellInstance<string>) => (
+        Cell: (instance) => (
           <div
             style={{
               display: 'flex',
@@ -89,7 +80,7 @@ export default function ProjectsList() {
         width: 75,
         disableFilters: true,
         hAlign: 'Center' as const,
-        Cell: (instance: ProjectListCellInstance<string>) => (
+        Cell: (instance) => (
           <div
             style={{
               width: '100%',
@@ -112,7 +103,7 @@ export default function ProjectsList() {
         width: 60,
         disableFilters: true,
         hAlign: 'Center' as const,
-        Cell: (instance: ProjectListCellInstance<string>) => (
+        Cell: (instance) => (
           <div
             style={{
               width: '100%',

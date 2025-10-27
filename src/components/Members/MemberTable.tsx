@@ -22,14 +22,6 @@ type MemberTableProps = {
   requireAtLeastOneMember: boolean;
 };
 
-type CellInstance = {
-  cell: {
-    row: {
-      original: Record<string, unknown>;
-    };
-  };
-};
-
 export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
@@ -49,7 +41,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       Header: t('MemberTable.columnTypeHeader'),
       accessor: 'kind',
       width: 145,
-      Cell: (instance: CellInstance) => {
+      Cell: (instance) => {
         const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
         return (
           <FlexBox gap={'0.5rem'} wrap={'NoWrap'}>
@@ -75,7 +67,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       Header: '',
       id: 'edit',
       width: 100,
-      Cell: (instance: CellInstance) => (
+      Cell: (instance) => (
         <FlexBox gap={'0.5rem'} justifyContent={'SpaceBetween'}>
           <Button
             icon="edit"

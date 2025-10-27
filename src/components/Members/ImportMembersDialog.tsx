@@ -25,15 +25,6 @@ import { useTranslation } from 'react-i18next';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { TFunction } from 'i18next';
 
-interface CellData<T> {
-  cell: {
-    value: T | undefined;
-    row: {
-      original: Record<string, unknown>;
-    };
-  };
-}
-
 type FilteredFor = 'All' | 'Users' | 'ServiceAccounts';
 type SourceType = 'Workspace' | 'Project';
 type TableRow = {
@@ -100,7 +91,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         Header: t('MemberTable.columnTypeHeader'),
         accessor: 'kind',
         width: 145,
-        Cell: (instance: CellData<string>) => {
+        Cell: (instance) => {
           const original = instance.cell.row.original as TableRow;
           const kind = ACCOUNT_TYPES.find(({ value }) => value === original.kind);
           return (

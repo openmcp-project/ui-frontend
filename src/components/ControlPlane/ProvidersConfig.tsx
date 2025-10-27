@@ -32,10 +32,6 @@ type Rows = {
   resource: ProviderConfigItem;
 };
 
-interface CellRow<T> {
-  original: T;
-}
-
 export function ProvidersConfig() {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
@@ -104,7 +100,7 @@ export function ProvidersConfig() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<Rows> }) => {
+          Cell: ({ row }) => {
             const item = row.original?.resource;
             return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
           },
@@ -115,7 +111,7 @@ export function ProvidersConfig() {
           width: 60,
           disableFilters: true,
           accessor: 'actions',
-          Cell: ({ row }: { row: CellRow<Rows> }) => {
+          Cell: ({ row }) => {
             const item = row.original?.resource;
             if (!item) return undefined;
             const actions: ActionItem<ProviderConfigItem>[] = [

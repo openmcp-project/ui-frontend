@@ -25,15 +25,6 @@ import { useLink } from '../../lib/shared/useLink.ts';
 import TooltipCell from '../Shared/TooltipCell.tsx';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 
-interface CellData<T> {
-  cell: {
-    value: T | undefined;
-    row: {
-      original: Record<string, unknown>;
-    };
-  };
-}
-
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
   projectName: string;
@@ -97,7 +88,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.statusHeader'),
       accessor: 'status',
       width: 50,
-      Cell: (instance: CellData<string>) => {
+      Cell: (instance) => {
         const isReady = instance.cell.value === 'True';
         return (
           <Icon
@@ -111,7 +102,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.typeHeader'),
       accessor: 'type',
       width: 150,
-      Cell: (instance: CellData<string>) => {
+      Cell: (instance) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -119,7 +110,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.messageHeader'),
       accessor: 'message',
       width: 350,
-      Cell: (instance: CellData<string>) => {
+      Cell: (instance) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -127,7 +118,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.reasonHeader'),
       accessor: 'reason',
       width: 100,
-      Cell: (instance: CellData<string>) => {
+      Cell: (instance) => {
         return <TooltipCell>{instance.cell.value}</TooltipCell>;
       },
     },
@@ -135,7 +126,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       Header: t('MCPHealthPopoverButton.transitionHeader'),
       accessor: 'lastTransitionTime',
       width: 125,
-      Cell: (instance: CellData<string>) => {
+      Cell: (instance) => {
         const rawDate = instance.cell.value;
         const date = new Date(rawDate as string);
         return (
