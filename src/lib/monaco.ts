@@ -90,7 +90,6 @@ export const configureMonaco = () => {
     colors: GITHUB_DARK_EDITOR_COLORS,
   });
 
-  // Configure monaco-yaml for Kubernetes resources
   configureMonacoYaml(monaco, {
     enableSchemaRequest: true,
     hover: true,
@@ -99,9 +98,8 @@ export const configureMonaco = () => {
     format: true,
     schemas: [
       {
-        // Official Kubernetes schema
         uri: 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.29.0-standalone-strict/all.json',
-        fileMatch: ['*'], // Apply to all YAML files
+        fileMatch: ['*'],
       },
     ],
   });

@@ -172,7 +172,6 @@ export function ManagedResources() {
           disableFilters: true,
           Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
             const { original } = row;
-            // Flux-managed check for disabling Edit
             const fluxLabelValue = (
               original?.item?.metadata?.labels as unknown as Record<string, unknown> | undefined
             )?.['kustomize.toolkit.fluxcd.io/name'];
@@ -211,7 +210,6 @@ export function ManagedResources() {
             const item = original?.item;
             if (!item) return undefined;
 
-            // Flux-managed check for disabling Edit
             const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
               'kustomize.toolkit.fluxcd.io/name'
             ];
