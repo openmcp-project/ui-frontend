@@ -15,7 +15,7 @@
     "lint": "npm run lint:eslint && npm run lint:package-json",
     "lint:eslint": "eslint ./src --report-unused-disable-directives --max-warnings 0",
     "lint:eslint:fix": "eslint ./src --fix",
-    "lint:package-json": "npx npmPkgJsonLint .",
+    "lint:package-json": "npmPkgJsonLint .",
     "preview": "vite preview",
     "test:vi": "vitest",
     "test:cy": "cypress run --component --browser chrome",
