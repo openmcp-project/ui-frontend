@@ -1,0 +1,96 @@
+version: '3'
+
+vars:
+  # Variables for Docker image
+  REGISTRY: '{{.REGISTRY | default (print "ghcr.io/openmcp-project") }}'
+  IMAGE_NAME: mcp-ui-frontend
+  IMAGE_TAG: '{{.TAG | default "latest"}}'
+  DOCKER_IMAGE: '{{.REGISTRY}}/{{.IMAGE_NAME}}:{{.IMAGE_TAG}}'
+
+  # Variables for OCM component
+  OCM_COMPONENT_NAME: github.com/openmcp-project/ui
+  OCM_COMPONENT_VERSION: '{{.OCM_COMPONENT_VERSION | default .IMAGE_TAG}}'
+  OCM_PROVIDER: openmcp-project
+  OCM_TARGET_REPO: '{{.OCM_TARGET_REPO | default (print .REGISTRY "/components") }}'
+  OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
+  OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
+
+  ROOT_DIR2: '{{.ROOT_DIR | trimSuffix "/common" | trimSuffix "/hack"}}'
+  LOCALBIN: '{{ env "LOCALBIN" | default ( .LOCALBIN | default (print .ROOT_DIR2 "/.bin") ) }}'
+  OCM: '{{ .OCM | default (print .LOCALBIN "/ocm") }}'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:ocm:
+    desc: 'Builds the ocm component. Usage: task build:ocm'
+    deps:
+      - install:ocm
+    cmds:
+      - rm -rf {{.OCM_OUTPUT_DIR}}
+      - |
+        {{.OCM}} add components --create \
+          --lookup {{.OCM_TARGET_REPO}} \
+          --file {{.OCM_OUTPUT_DIR}} \
+          {{.OCM_DESCRIPTOR}} -- \
+          VERSION={{.OCM_COMPONENT_VERSION}} \
+          IMAGE_VERSION={{.IMAGE_VERSION}} \
+          COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
+          PROVIDER={{.OCM_PROVIDER}}
+    vars:
+      IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
+
+  publish:ocm:
+    desc: 'Publishes the ocm component to the registry. Usage: task publish:ocm [OCM_TRANSFER_ARGS="--overwrite"]'
+    deps:
+      - install:ocm
+    cmds:
+      - |
+        {{.OCM}} transfer ctf \
+          {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}} {{.OCM_TRANSFER_ARGS}}
+
+  build:image:local:
+    desc: 'Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test'
+    cmds:
+      - docker build -t {{.DOCKER_IMAGE}} .
+
+  publish:image:local:
+    desc: 'Publishes the docker image for local testing. Usage: task test:publish-image TAG=v-local-test'
+    cmds:
+      - docker push {{.DOCKER_IMAGE}}
+
+  localbin:
+    desc: '  Ensure that the folder specified in LOCALBIN exists.'
+    run: once
+    requires:
+      vars:
+        - LOCALBIN
+    status:
+      - test -d {{.LOCALBIN}}
+    cmds:
+      - 'echo "localbin: {{.LOCALBIN}}"'
+      - mkdir -p {{.LOCALBIN}}
+    internal: true
+
+  install:ocm:
+    desc: '  Ensure that the ocm CLI is installed.'
+    run: once
+    requires:
+      vars:
+        - OCM
+    deps:
+      - localbin
+    status:
+      - 'test -x "{{.OCM}}"'
+      - '"{{.OCM}}" --version | grep -q "{{.OCM_VERSION | trimPrefix "v"}}"'
+    vars:
+      # renovate: datasource=github-releases depName=ocm packageName=open-component-model/ocm
+      OCM_VERSION: '{{ env "OCM_VERSION" | default ( .OCM_VERSION | default "v0.30.0" ) }}'
+      tmpdir:
+        sh: 'mktemp -d'
+    cmds:
+      - 'curl -sSfL https://ocm.software/install.sh | OCM_VERSION="{{.OCM_VERSION | trimPrefix "v"}}" bash -s "{{.tmpdir}}"'
+      - 'mv "{{.tmpdir}}/ocm" "{{.OCM}}"'

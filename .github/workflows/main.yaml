@@ -27,6 +27,12 @@ jobs:
       attestations: write
 
     steps:
+      - name: Install Go-Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
@@ -64,3 +70,12 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build OCM component
+        run: task build:ocm
+        env:
+          IMAGE_VERSION: "main"
+          OCM_COMPONENT_VERSION: "v0.0.0-main"
+
+      - name: Publish OCM component
+        run: task publish:ocm OCM_TRANSFER_ARGS="--overwrite"
