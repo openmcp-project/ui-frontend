@@ -91,16 +91,9 @@ export const configureMonaco = () => {
   });
 
   configureMonacoYaml(monaco, {
-    enableSchemaRequest: true,
     hover: true,
     completion: true,
     validate: true,
     format: true,
-    schemas: [
-      {
-        uri: 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.29.0-standalone-strict/all.json',
-        fileMatch: ['*'],
-      },
-    ],
   });
 };
