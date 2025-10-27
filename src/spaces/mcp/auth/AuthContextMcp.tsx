@@ -2,17 +2,26 @@ import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
+import { RoleBinding } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { useAuthOnboarding } from '../../onboarding/auth/AuthContextOnboarding.tsx';
 
 interface AuthContextMcpType {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: Error | null;
   login: () => void;
+  hasMCPAdminRights: boolean;
 }
 
 const AuthContextMcp = createContext<AuthContextMcpType | null>(null);
 
-export function AuthProviderMcp({ children }: { children: ReactNode }) {
+export function AuthProviderMcp({ children, mcpUsers = [] }: { children: ReactNode; mcpUsers?: RoleBinding[] }) {
+  const auth = useAuthOnboarding();
+  const userEmail = auth.user?.email;
+
+  const matchingRoleBinding = mcpUsers.find((roleBinding) => roleBinding.subjects[0]?.name?.includes(userEmail ?? ''));
+  const hasMCPAdminRights = matchingRoleBinding?.role === 'admin';
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -59,7 +68,9 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     window.location.replace(`/api/auth/mcp/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
   };
 
-  return <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
+  return (
+    <AuthContextMcp value={{ isLoading, isAuthenticated, error, login, hasMCPAdminRights }}>{children}</AuthContextMcp>
+  );
 }
 
 export const useAuthMcp = () => {

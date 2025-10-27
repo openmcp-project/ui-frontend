@@ -36,6 +36,7 @@ import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -109,7 +110,7 @@ export function ManagedResources() {
     },
     [openInAside, handlePatch],
   );
-
+  const { hasMCPAdminRights } = useAuthMcp();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -182,17 +183,19 @@ export function ManagedResources() {
                 variant="resource"
                 resource={original.item as unknown as Resource}
                 toolbarContent={
-                  <Button
-                    icon={'edit'}
-                    design={'Transparent'}
-                    disabled={isFluxManaged}
-                    tooltip={t('yaml.fluxManaged')}
-                    onClick={() => {
-                      openEditPanel(original?.item);
-                    }}
-                  >
-                    {t('buttons.edit')}
-                  </Button>
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      disabled={isFluxManaged}
+                      tooltip={t('yaml.fluxManaged')}
+                      onClick={() => {
+                        openEditPanel(original?.item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
                 }
               />
             ) : undefined;
@@ -222,13 +225,15 @@ export function ManagedResources() {
                 icon: 'edit',
                 disabled: isFluxManaged,
                 onClick: openEditPanel,
-                tooltip: isFluxManaged ? t('yaml.fluxManaged') : undefined,
+                tooltip: isFluxManaged && hasMCPAdminRights ? t('yaml.fluxManaged') : undefined,
               },
+
               {
                 key: 'delete',
                 text: t('ManagedResources.deleteAction'),
                 icon: 'delete',
                 onClick: openDeleteDialog,
+                disabled: !hasMCPAdminRights,
               },
             ];
 

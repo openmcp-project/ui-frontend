@@ -24,6 +24,7 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 type Rows = {
   parent: string;
@@ -79,7 +80,7 @@ export function ProvidersConfig() {
     },
     [openInAside, handlePatch],
   );
-
+  const { hasMCPAdminRights } = useAuthMcp();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -112,15 +113,17 @@ export function ProvidersConfig() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  <Button
-                    icon={'edit'}
-                    design={'Transparent'}
-                    onClick={() => {
-                      openEditPanel(item);
-                    }}
-                  >
-                    {t('buttons.edit')}
-                  </Button>
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
                 }
               />
             ) : undefined;
@@ -141,6 +144,7 @@ export function ProvidersConfig() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;

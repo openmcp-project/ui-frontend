@@ -24,6 +24,7 @@ import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandle
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -50,7 +51,7 @@ export function GitRepositories() {
     readyMessage: string;
     revision?: string;
   };
-
+  const { hasMCPAdminRights } = useAuthMcp();
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
@@ -114,15 +115,17 @@ export function GitRepositories() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  <Button
-                    icon={'edit'}
-                    design={'Transparent'}
-                    onClick={() => {
-                      openEditPanel(item);
-                    }}
-                  >
-                    {t('buttons.edit')}
-                  </Button>
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
                 }
               />
             ) : undefined;
@@ -143,6 +146,7 @@ export function GitRepositories() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;

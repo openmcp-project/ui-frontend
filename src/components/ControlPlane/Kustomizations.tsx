@@ -24,6 +24,7 @@ import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandle
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -66,7 +67,7 @@ export function Kustomizations() {
     },
     [openInAside, handlePatch],
   );
-
+  const { hasMCPAdminRights } = useAuthMcp();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -109,15 +110,17 @@ export function Kustomizations() {
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
-                  <Button
-                    icon={'edit'}
-                    design={'Transparent'}
-                    onClick={() => {
-                      openEditPanel(item);
-                    }}
-                  >
-                    {t('buttons.edit')}
-                  </Button>
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
                 }
               />
             ) : undefined;
@@ -138,6 +141,7 @@ export function Kustomizations() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;

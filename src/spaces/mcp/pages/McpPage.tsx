@@ -93,7 +93,7 @@ export default function McpPage() {
         name: controlPlaneName,
       }}
     >
-      <AuthProviderMcp>
+      <AuthProviderMcp mcpUsers={mcp?.spec?.authorization?.roleBindings}>
         <WithinManagedControlPlane>
           <ObjectPage
             mode="IconTabBar"
