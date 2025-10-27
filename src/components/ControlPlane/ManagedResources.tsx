@@ -42,9 +42,6 @@ interface StatusFilterColumn {
   filterValue?: string;
   setFilter?: (value?: string) => void;
 }
-interface CellRow<T> {
-  original: T;
-}
 
 type ResourceRow = {
   kind: string;
@@ -132,7 +129,7 @@ export function ManagedResources() {
           hAlign: 'Center',
           width: 125,
           Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
-          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+          Cell: ({ row }) => {
             const { original } = row;
             return original?.synced != null ? (
               <ResourceStatusCell
@@ -151,7 +148,7 @@ export function ManagedResources() {
           hAlign: 'Center',
           width: 125,
           Filter: ({ column }: { column: StatusFilterColumn }) => <StatusFilter column={column} />,
-          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+          Cell: ({ row }) => {
             const { original } = row;
             return original?.ready != null ? (
               <ResourceStatusCell
@@ -170,7 +167,7 @@ export function ManagedResources() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+          Cell: ({ row }) => {
             const { original } = row;
             const fluxLabelValue = (
               original?.item?.metadata?.labels as unknown as Record<string, unknown> | undefined
@@ -205,7 +202,7 @@ export function ManagedResources() {
           hAlign: 'Center',
           width: 60,
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<ResourceRow> }) => {
+          Cell: ({ row }) => {
             const { original } = row;
             const item = original?.item;
             if (!item) return undefined;

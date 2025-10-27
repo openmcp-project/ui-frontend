@@ -38,10 +38,6 @@ export function Kustomizations() {
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
 
-  interface CellRow<T> {
-    original: T;
-  }
-
   type FluxRow = {
     name: string;
     created: string;
@@ -86,7 +82,7 @@ export function Kustomizations() {
           width: 125,
           hAlign: 'Center',
           Filter: ({ column }) => <StatusFilter column={column} />,
-          Cell: ({ row }: { row: CellRow<FluxRow> }) =>
+          Cell: ({ row }) =>
             row.original?.isReady != null ? (
               <ResourceStatusCell
                 positiveText={t('common.ready')}
@@ -103,7 +99,7 @@ export function Kustomizations() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+          Cell: ({ row }) => {
             const item = row.original?.item;
             return item ? (
               <YamlViewButton
@@ -132,7 +128,7 @@ export function Kustomizations() {
           width: 60,
           disableFilters: true,
           accessor: 'actions',
-          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+          Cell: ({ row }) => {
             const item = row.original?.item;
             if (!item) return undefined;
             const actions: ActionItem<KustomizationItem>[] = [
