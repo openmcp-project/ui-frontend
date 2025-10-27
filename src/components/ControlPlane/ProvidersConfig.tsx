@@ -147,7 +147,7 @@ export function ProvidersConfig() {
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, openEditPanel, hasMCPAdminRights],
   );
 
   return (

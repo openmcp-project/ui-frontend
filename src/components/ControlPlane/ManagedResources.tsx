@@ -236,7 +236,7 @@ export function ManagedResources() {
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, openDeleteDialog],
+    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights],
   );
 
   const rows: ResourceRow[] =

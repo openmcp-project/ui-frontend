@@ -144,7 +144,7 @@ export function Kustomizations() {
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, openEditPanel, hasMCPAdminRights],
   );
 
   if (error) {

@@ -149,7 +149,7 @@ export function GitRepositories() {
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, hasMCPAdminRights, openEditPanel],
   );
 
   if (error) {
