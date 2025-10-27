@@ -22,7 +22,7 @@ import {
 
 import { SummarizeStep } from './SummarizeStep.tsx';
 import { Trans, useTranslation } from 'react-i18next';
-import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
@@ -62,6 +62,7 @@ import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.tsx';
 
 // Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
 const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
@@ -84,6 +85,8 @@ type CreateManagedControlPlaneWizardContainerProps = {
   initialData?: ManagedControlPlaneInterface;
   isOnMcpPage?: boolean;
   initialSection?: WizardStepType;
+  useCreateManagedControlPlane?: typeof _useCreateManagedControlPlane;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -101,6 +104,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   initialData,
   isOnMcpPage = false,
   initialSection,
+  useCreateManagedControlPlane = _useCreateManagedControlPlane,
+  useAuthOnboarding = _useAuthOnboarding,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -227,6 +232,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
+  const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
   const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
     UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
     undefined,
@@ -261,7 +267,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             ),
           );
         } else {
-          await trigger(
+          await createManagedControlPlane(
             CreateManagedControlPlane(
               finalName,
               `${projectName}--ws-${workspaceName}`,
