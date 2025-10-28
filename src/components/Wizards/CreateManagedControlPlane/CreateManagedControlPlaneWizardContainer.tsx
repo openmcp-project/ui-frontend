@@ -22,7 +22,7 @@ import {
 
 import { SummarizeStep } from './SummarizeStep.tsx';
 import { Trans, useTranslation } from 'react-i18next';
-import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
@@ -34,6 +34,7 @@ import {
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
   UpdateManagedControlPlaneResource,
+  replaceComponentsName,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
   CHARGING_TARGET_LABEL,
@@ -61,6 +62,17 @@ import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.tsx';
+
+// Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
+const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
+  const remappedEntries = Object.entries(components).map(([key, value]) => {
+    const mapping = replaceComponentsName.find((m) => m.replaceName === key);
+    const newKey = mapping ? mapping.originalName : key;
+    return [newKey, value] as const;
+  });
+  return Object.fromEntries(remappedEntries) as MCPComponentsSpec;
+};
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -73,6 +85,8 @@ type CreateManagedControlPlaneWizardContainerProps = {
   initialData?: ManagedControlPlaneInterface;
   isOnMcpPage?: boolean;
   initialSection?: WizardStepType;
+  useCreateManagedControlPlane?: typeof _useCreateManagedControlPlane;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -90,6 +104,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   initialData,
   isOnMcpPage = false,
   initialSection,
+  useCreateManagedControlPlane = _useCreateManagedControlPlane,
+  useAuthOnboarding = _useAuthOnboarding,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -216,6 +232,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
+  const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
   const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
     UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
     undefined,
@@ -250,7 +267,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             ),
           );
         } else {
-          await trigger(
+          await createManagedControlPlane(
             CreateManagedControlPlane(
               finalName,
               `${projectName}--ws-${workspaceName}`,
@@ -378,8 +395,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   // Prepare initial selections for components when editing or duplicating
   const initialSelection = useMemo(() => {
     if (!isEditMode && !isDuplicateMode) return undefined;
+
+    const originalComponentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
+    const componentsMap = remapComponentsKeysToOriginalNames(originalComponentsMap);
+
     const selection: Record<string, { isSelected: boolean; version: string }> = {};
-    const componentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
     (Object.keys(componentsMap) as (keyof MCPComponentsSpec)[]).forEach((key) => {
       if (key === 'apiServer') return;
       const value = componentsMap[key];

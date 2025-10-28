@@ -44,13 +44,13 @@ tasks:
       IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
 
   publish:ocm:
-    desc: 'Publishes the ocm component to the registry.'
+    desc: 'Publishes the ocm component to the registry. Usage: task publish:ocm [OCM_TRANSFER_ARGS="--overwrite"]'
     deps:
       - install:ocm
     cmds:
       - |
         {{.OCM}} transfer ctf \
-          {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}}
+          {{.OCM_OUTPUT_DIR}} {{.OCM_TARGET_REPO}} {{.OCM_TRANSFER_ARGS}}
 
   build:image:local:
     desc: 'Builds the docker image for local testing. Usage: task test:build-image TAG=v-local-test'

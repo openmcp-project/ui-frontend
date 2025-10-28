@@ -91,8 +91,9 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         Header: t('MemberTable.columnTypeHeader'),
         accessor: 'kind',
         width: 145,
-        Cell: (instance: { cell: { row: { original: TableRow } } }) => {
-          const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
+        Cell: (instance) => {
+          const original = instance.cell.row.original as TableRow;
+          const kind = ACCOUNT_TYPES.find(({ value }) => value === original.kind);
           return (
             <FlexBox gap={'0.5rem'} wrap={'NoWrap'}>
               <Icon name={kind?.icon} accessibleName={kind?.label} showTooltip />
