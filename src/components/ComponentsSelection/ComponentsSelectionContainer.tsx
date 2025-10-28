@@ -2,7 +2,7 @@ import React from 'react';
 import { ComponentsSelection } from './ComponentsSelection.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
-import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { ComponentsListItem, replaceComponentsName } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useTranslation } from 'react-i18next';
 
 export interface ComponentsSelectionProps {
@@ -19,11 +19,16 @@ export interface ComponentsSelectionProps {
  */
 export const getSelectedComponents = (components: ComponentsListItem[]) => {
   const isCrossplaneSelected = components.some(({ name, isSelected }) => name === 'crossplane' && isSelected);
-  return components.filter((component) => {
-    if (!component.isSelected) return false;
-    if (component.name?.includes('provider') && !isCrossplaneSelected) return false;
-    return true;
-  });
+
+  return components
+    .filter(({ isSelected, name }) => isSelected && (isCrossplaneSelected || !name?.includes('provider')))
+    .map((component) => {
+      const mapping = replaceComponentsName.find((m) => m.replaceName === component.name);
+      return {
+        ...component,
+        name: mapping ? mapping.originalName : component.name,
+      };
+    });
 };
 
 export const ComponentsSelectionContainer: React.FC<ComponentsSelectionProps> = ({

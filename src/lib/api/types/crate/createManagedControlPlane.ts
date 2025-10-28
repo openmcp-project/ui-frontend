@@ -57,13 +57,12 @@ export interface CreateManagedControlPlaneType {
   spec: Spec;
 }
 
-const componentNameMap: Record<string, string> = {
-  'sap-btp-service-operator': 'btpServiceOperator',
-  'external-secrets': 'externalSecretsOperator',
-};
+export const removeComponents = ['cert-manager'];
 
-export const removedComponents = ['cert-manager'];
-export const removeComponents = removedComponents; // backward compatibility alias
+export const replaceComponentsName: { originalName: string; replaceName: string }[] = [
+  { originalName: 'sap-btp-service-operator', replaceName: 'btpServiceOperator' },
+  { originalName: 'external-secrets', replaceName: 'externalSecretsOperator' },
+];
 
 export const CreateManagedControlPlane = (
   name: string,
@@ -83,12 +82,13 @@ export const CreateManagedControlPlane = (
         (component) =>
           component.isSelected && !component.name.includes('provider') && !component.name.includes('crossplane'),
       )
-      .map((component) => ({
-        ...component,
-        name: Object.prototype.hasOwnProperty.call(componentNameMap, component.name)
-          ? componentNameMap[component.name]
-          : component.name,
-      }))
+      .map((component) => {
+        const mapping = replaceComponentsName.find((m) => m.originalName === component.name);
+        return {
+          ...component,
+          name: mapping ? mapping.replaceName : component.name,
+        };
+      })
       .reduce((acc, item) => {
         acc[item.name] = { version: item.selectedVersion };
         return acc;
