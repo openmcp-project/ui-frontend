@@ -17,9 +17,14 @@ const AuthContextMcp = createContext<AuthContextMcpType | null>(null);
 
 export function AuthProviderMcp({ children, mcpUsers = [] }: { children: ReactNode; mcpUsers?: RoleBinding[] }) {
   const auth = useAuthOnboarding();
+
   const userEmail = auth.user?.email;
 
-  const matchingRoleBinding = mcpUsers.find((roleBinding) => roleBinding.subjects[0]?.name?.includes(userEmail ?? ''));
+  const matchingRoleBinding = mcpUsers.find(
+    (roleBinding) =>
+      Array.isArray(roleBinding.subjects) &&
+      roleBinding.subjects.some((subject) => subject?.name?.includes(userEmail ?? '')),
+  );
   const hasMCPAdminRights = matchingRoleBinding?.role === 'admin';
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);

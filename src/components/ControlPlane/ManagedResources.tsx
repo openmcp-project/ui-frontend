@@ -56,6 +56,19 @@ type ResourceRow = {
   conditionSyncedMessage: string;
 };
 
+/**
+ * Checks if a resource is managed by Flux based on the kustomize.toolkit.fluxcd.io/name label
+ */
+const isResourceFluxManaged = (item: ManagedResourceItem | undefined): boolean => {
+  if (!item) return false;
+
+  const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
+    'kustomize.toolkit.fluxcd.io/name'
+  ];
+
+  return fluxLabelValue != null && (typeof fluxLabelValue !== 'string' || fluxLabelValue.trim() !== '');
+};
+
 export function ManagedResources() {
   const { t } = useTranslation();
   const toast = useToast();
@@ -169,11 +182,7 @@ export function ManagedResources() {
           disableFilters: true,
           Cell: ({ row }) => {
             const { original } = row;
-            const fluxLabelValue = (
-              original?.item?.metadata?.labels as unknown as Record<string, unknown> | undefined
-            )?.['kustomize.toolkit.fluxcd.io/name'];
-            const isFluxManaged =
-              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
+            const isFluxManaged = isResourceFluxManaged(original?.item);
             return original?.item ? (
               <YamlViewButton
                 variant="resource"
@@ -207,11 +216,7 @@ export function ManagedResources() {
             const item = original?.item;
             if (!item) return undefined;
 
-            const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
-              'kustomize.toolkit.fluxcd.io/name'
-            ];
-            const isFluxManaged =
-              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
+            const isFluxManaged = isResourceFluxManaged(item);
 
             const actions: ActionItem<ManagedResourceItem>[] = [
               {
