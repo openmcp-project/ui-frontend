@@ -10,7 +10,7 @@ export const getStatusCondition = (conditions?: Condition[]): Condition | undefi
 
 export const resolveProviderTypeFromApiVersion = (apiVersion: string): string => {
   // Extract domain from apiVersion (e.g. "account.btp.sap.crossplane.io/v1alpha1" -> "account.btp.sap.crossplane.io")
-  const domain = apiVersion.split('/')[0] || '';
+  const domain = apiVersion?.split('/')[0] || '';
 
   // Remove "account" to normalize provider names
   // e.g "account.btp.sap.crossplane.io" -> "btp.sap.crossplane.io"
