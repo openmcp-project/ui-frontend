@@ -193,7 +193,6 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
           projectName={projectNamespace}
           workspaceName={workspaceName}
           initialTemplateName={initialTemplateName}
-          isEditMode={false}
         />
       ) : null}
     </>
