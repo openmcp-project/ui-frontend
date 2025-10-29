@@ -21,7 +21,8 @@
     "test:cy": "cypress run --component --browser chrome",
     "test:cy:open": "cypress open --component --browser chrome",
     "generate-graphql-types": "graphql-codegen --config graphql.config.yaml",
-    "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch"
+    "generate-graphql-types:watch": "graphql-codegen --config graphql.config.yaml --watch",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@apollo/client": "3.14.0",

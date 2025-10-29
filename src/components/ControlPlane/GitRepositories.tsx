@@ -23,10 +23,6 @@ export type GitRepoItem = GitReposResponse['items'][0] & {
   metadata: GitReposResponse['items'][0]['metadata'] & { namespace?: string };
 };
 
-interface CellRow<T> {
-  original: T;
-}
-
 export function GitRepositories() {
   const { data, error, isLoading } = useApiResource(FluxRequest); //404 if component not enabled
   const { t } = useTranslation();
@@ -83,7 +79,7 @@ export function GitRepositories() {
           width: 125,
           hAlign: 'Center',
           Filter: ({ column }) => <StatusFilter column={column} />,
-          Cell: ({ row }: { row: CellRow<FluxRow> }) =>
+          Cell: ({ row }) =>
             row.original?.isReady != null ? (
               <ResourceStatusCell
                 positiveText={t('common.ready')}
@@ -100,9 +96,7 @@ export function GitRepositories() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }: { row: CellRow<FluxRow> }) => (
-            <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />
-          ),
+          Cell: ({ row }) => <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />,
         },
         {
           Header: t('ManagedResources.actionColumnHeader'),
@@ -110,7 +104,7 @@ export function GitRepositories() {
           width: 60,
           disableFilters: true,
           accessor: 'actions',
-          Cell: ({ row }: { row: CellRow<FluxRow> }) => {
+          Cell: ({ row }) => {
             const item = row.original?.item;
             if (!item) return undefined;
             const actions: ActionItem<GitRepoItem>[] = [

@@ -52,7 +52,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
   const errorView = createErrorView(cpsError);
   const shouldCollapsePanel = !!errorView;
 
-  function createErrorView(error: APIError) {
+  function createErrorView(error: APIError | undefined) {
     if (error) {
       if (error.status === 403) {
         return (

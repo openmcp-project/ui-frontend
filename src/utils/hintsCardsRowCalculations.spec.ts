@@ -28,7 +28,8 @@ describe('calculations', () => {
     metadata: {
       name: 'test-resource',
       creationTimestamp: '2023-01-01T00:00:00Z',
-      labels: [],
+      resourceVersion: '1',
+      labels: {},
     },
     status: {
       conditions,

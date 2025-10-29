@@ -24,15 +24,6 @@ import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
-interface CellData<T> {
-  cell: {
-    value: T | null;
-    row: {
-      original?: ProvidersRow;
-    };
-  };
-}
-
 type ProvidersRow = {
   name: string;
   version: string;
@@ -78,14 +69,14 @@ export function Providers() {
         width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
-        Cell: (cellData: CellData<ProvidersRow['installed']>) =>
+        Cell: (cellData) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
               isOk={cellData.cell.row.original?.installed === 'true'}
-              transitionTime={cellData.cell.row.original?.installedTransitionTime}
+              transitionTime={cellData.cell.row.original?.installedTransitionTime as string}
               positiveText={t('common.installed')}
               negativeText={t('errors.installError')}
-              message={cellData.cell.row.original?.installedMessage}
+              message={cellData.cell.row.original?.installedMessage as string}
             />
           ) : null,
       },
@@ -96,14 +87,14 @@ export function Providers() {
         width: 125,
         Filter: ({ column }) => <StatusFilter column={column} />,
         filter: 'equals',
-        Cell: (cellData: CellData<ProvidersRow['healthy']>) =>
+        Cell: (cellData) =>
           cellData.cell.row.original?.installed != null ? (
             <ResourceStatusCell
               isOk={cellData.cell.row.original?.healthy === 'true'}
-              transitionTime={cellData.cell.row.original?.healthyTransitionTime}
+              transitionTime={cellData.cell.row.original?.healthyTransitionTime as string}
               positiveText={t('common.healthy')}
               negativeText={t('errors.notHealthy')}
-              message={cellData.cell.row.original?.healthyMessage}
+              message={cellData.cell.row.original?.healthyMessage as string}
             />
           ) : null,
       },
@@ -113,7 +104,7 @@ export function Providers() {
         width: 75,
         accessor: 'yaml',
         disableFilters: true,
-        Cell: (cellData: CellData<ProvidersRow>) => (
+        Cell: (cellData) => (
           <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
         ),
       },
