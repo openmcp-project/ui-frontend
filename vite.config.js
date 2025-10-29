@@ -30,6 +30,21 @@ export default defineConfig({
     }),
   ],
 
+  resolve: {
+    alias: {
+      path: 'path-browserify',
+    },
+  },
+
+  optimizeDeps: {
+    include: ['path-browserify'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
+
   test: {
     environment: 'jsdom',
   },
@@ -37,5 +52,9 @@ export default defineConfig({
   build: {
     sourcemap: true,
     target: 'esnext', // Support top-level await
+    commonjsOptions: {
+      include: [/path-browserify/, /node_modules/],
+      transformMixedEsModules: true,
+    },
   },
 });

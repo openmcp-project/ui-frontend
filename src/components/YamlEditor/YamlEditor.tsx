@@ -8,6 +8,7 @@ import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
+import type { JSONSchema } from 'monaco-yaml';
 import styles from './YamlEditor.module.css';
 import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
 
@@ -446,6 +447,9 @@ export const serviceInstanceSchema = openapiSchemaToJsonSchema({
   type: 'object',
 });
 
+// Track if monaco-yaml has been configured globally
+let monacoYamlConfigured = false;
+
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
@@ -463,21 +467,24 @@ export const YamlEditor = (props: YamlEditorProps) => {
   }, [value]);
 
   useEffect(() => {
-    // Configure YAML validation with Kubernetes schema from openapi.json
-    configureMonacoYaml(monaco, {
-      enableSchemaRequest: true,
-      hover: true,
-      completion: true,
-      validate: true,
-      format: true,
-      schemas: [
-        {
-          schema: serviceInstanceSchema,
-          fileMatch: ['*'],
-          uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
-        },
-      ],
-    });
+    // Configure YAML validation with schema only once
+    if (!monacoYamlConfigured) {
+      monacoYamlConfigured = true;
+      configureMonacoYaml(monaco, {
+        enableSchemaRequest: true,
+        hover: true,
+        completion: true,
+        validate: true,
+        format: true,
+        schemas: [
+          {
+            schema: serviceInstanceSchema as JSONSchema,
+            fileMatch: ['*'],
+            uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
+          },
+        ],
+      });
+    }
   }, []);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
