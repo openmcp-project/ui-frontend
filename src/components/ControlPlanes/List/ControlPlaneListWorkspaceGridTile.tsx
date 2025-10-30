@@ -22,18 +22,18 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
+import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
 
 interface Props {
   projectName: string;
   workspace: ListWorkspacesType;
-  useDeleteWorkspace?: typeof useDeleteWorkspace;
+  useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
-  useDeleteWorkspace: useDeleteWorkspaceHook = useDeleteWorkspace,
+  useDeleteWorkspace: useDeleteWorkspaceHook = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
