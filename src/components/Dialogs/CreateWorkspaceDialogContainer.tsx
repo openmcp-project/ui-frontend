@@ -25,8 +25,8 @@ export function CreateWorkspaceDialogContainer({
   isOpen,
   setIsOpen,
   project = '',
-  useCreateWorkspace: useCreateWorkspace = _useCreateWorkspace,
-  useAuthOnboarding: useAuthOnboarding = _useAuthOnboarding,
+  useCreateWorkspace = _useCreateWorkspace,
+  useAuthOnboarding = _useAuthOnboarding,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;

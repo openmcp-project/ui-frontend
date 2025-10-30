@@ -33,7 +33,7 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
-  useDeleteWorkspace: useDeleteWorkspace = _useDeleteWorkspace,
+  useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
