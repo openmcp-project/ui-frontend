@@ -24,14 +24,17 @@ function buildGraph(
   treeData.forEach((n) => {
     const colorKey: string =
       colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
-    const node: Node<NodeData> = {
+    const borderColor = colorMap[colorKey] || '#ccc';
+    const backgroundColor = `${borderColor}08`; 
+      
+      const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
       data: { ...n },
       style: {
-        border: `2px solid ${colorMap[colorKey] || '#ccc'}`,
+        border: `2px solid ${borderColor}`,
         borderRadius: 8,
-        backgroundColor: 'var(--sapTile_Background, #fff)',
+        backgroundColor,
         width: nodeWidth,
         height: nodeHeight,
       },
@@ -53,8 +56,7 @@ function buildGraph(
         id: `e-${n.parentId}-${n.id}`,
         source: n.parentId,
         target: n.id,
-        markerEnd: { type: MarkerType.ArrowClosed },
-      });
+        style: { strokeWidth: 2, stroke: '#888' },    });
     }
     n.extraRefs?.forEach((refId) => {
       if (nodeMap.has(refId)) {
@@ -63,7 +65,7 @@ function buildGraph(
           id: `e-${refId}-${n.id}`,
           source: refId,
           target: n.id,
-          markerEnd: { type: MarkerType.ArrowClosed },
+          style: { strokeWidth: 2, stroke: '#888' },
         });
       }
     });
