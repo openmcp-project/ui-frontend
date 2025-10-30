@@ -26,6 +26,17 @@ export function YamlSidePanelWithLoader({
     true,
   );
 
+  // Load custom resource definition for the resource
+  const { data: crdData } = useApiResource(
+    {
+      path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/workspaces.core.openmcp.cloud`,
+    },
+    undefined,
+    true,
+  );
+
+  console.log('Custom Resource Definitions:', crdData);
+
   if (isLoading) return <Loading />;
   if (error) return <IllustratedError details={t('common.cannotLoadData')} />;
 

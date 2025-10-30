@@ -159,7 +159,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           <YamlViewer
             yamlString={yamlStringToDisplay}
             filename={filename}
-            isEdit={isEdit}
+            isEdit={false}
             onApply={handleApplyFromEditor}
           />
         )}

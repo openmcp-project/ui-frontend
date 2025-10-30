@@ -18,7 +18,8 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
 };
 
 export const serviceInstanceSchema = openapiSchemaToJsonSchema({
-  description: 'A ServiceInstance allows to manage a ServiceInstance in BTP',
+  description: 'Workspace is the Schema for the workspaces API',
+  type: 'object',
   properties: {
     apiVersion: {
       description:
@@ -34,417 +35,108 @@ export const serviceInstanceSchema = openapiSchemaToJsonSchema({
       type: 'object',
     },
     spec: {
-      description: 'A ServiceInstanceSpec defines the desired state of a ServiceInstance.',
+      description: 'WorkspaceSpec defines the desired state of Workspace',
+      type: 'object',
       properties: {
-        deletionPolicy: {
-          default: 'Delete',
-          description:
-            'DeletionPolicy specifies what will happen to the underlying external\nwhen this managed resource is deleted - either "Delete" or "Orphan" the\nexternal resource.\nThis field is planned to be deprecated in favor of the ManagementPolicies\nfield in a future release. Currently, both could be set independently and\nnon-default values would be honored if the feature flag is enabled.\nSee the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223',
-          enum: ['Orphan', 'Delete'],
-          type: 'string',
-        },
-        forProvider: {
-          description: 'ServiceInstanceParameters are the configurable fields of a ServiceInstance.',
-          properties: {
-            name: {
-              description: 'Name of the service instance in btp, required',
-              type: 'string',
-            },
-            offeringName: {
-              description: 'Name of the service offering',
-              type: 'string',
-            },
-            parameterSecretRefs: {
-              description: 'Parameters stored in secret, will be merged with spec parameters',
-              items: {
-                description: 'A SecretKeySelector is a reference to a secret key in an arbitrary namespace.',
-                properties: {
-                  key: {
-                    description: 'The key to select.',
-                    type: 'string',
-                  },
-                  name: {
-                    description: 'Name of the secret.',
-                    type: 'string',
-                  },
-                  namespace: {
-                    description: 'Namespace of the secret.',
-                    type: 'string',
-                  },
-                },
-                required: ['key', 'name', 'namespace'],
-                type: 'object',
-              },
-              type: 'array',
-            },
-            parameters: {
-              description:
-                'Parameters in JSON or YAML format, will be merged with yaml parameters and secret parameters, will overwrite duplicated keys from secrets',
-              type: 'object',
-              'x-kubernetes-preserve-unknown-fields': true,
-            },
-            planName: {
-              description: 'Name of the service plan of that offering',
-              type: 'string',
-            },
-            serviceManagerRef: {
-              description: 'A Reference to a named object.',
-              properties: {
-                name: {
-                  description: 'Name of the referenced object.',
-                  type: 'string',
-                },
-                policy: {
-                  description: 'Policies for referencing.',
-                  properties: {
-                    resolution: {
-                      default: 'Required',
-                      description:
-                        "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                      enum: ['Required', 'Optional'],
-                      type: 'string',
-                    },
-                    resolve: {
-                      description:
-                        "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                      enum: ['Always', 'IfNotPresent'],
-                      type: 'string',
-                    },
-                  },
-                  type: 'object',
-                },
-              },
-              required: ['name'],
-              type: 'object',
-            },
-            serviceManagerSecret: {
-              type: 'string',
-            },
-            serviceManagerSecretNamespace: {
-              type: 'string',
-            },
-            serviceManagerSelector: {
-              description: 'A Selector selects an object.',
-              properties: {
-                matchControllerRef: {
-                  description:
-                    'MatchControllerRef ensures an object with the same controller reference\nas the selecting object is selected.',
-                  type: 'boolean',
-                },
-                matchLabels: {
-                  additionalProperties: {
-                    type: 'string',
-                  },
-                  description: 'MatchLabels ensures an object with matching labels is selected.',
-                  type: 'object',
-                },
-                policy: {
-                  description: 'Policies for selection.',
-                  properties: {
-                    resolution: {
-                      default: 'Required',
-                      description:
-                        "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                      enum: ['Required', 'Optional'],
-                      type: 'string',
-                    },
-                    resolve: {
-                      description:
-                        "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                      enum: ['Always', 'IfNotPresent'],
-                      type: 'string',
-                    },
-                  },
-                  type: 'object',
-                },
-              },
-              type: 'object',
-            },
-            subaccountId: {
-              description: '(String) The ID of the subaccount.\nThe ID of the subaccount.',
-              type: 'string',
-            },
-            subaccountRef: {
-              description: 'Reference to a Subaccount in account to populate subaccountId.',
-              properties: {
-                name: {
-                  description: 'Name of the referenced object.',
-                  type: 'string',
-                },
-                policy: {
-                  description: 'Policies for referencing.',
-                  properties: {
-                    resolution: {
-                      default: 'Required',
-                      description:
-                        "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                      enum: ['Required', 'Optional'],
-                      type: 'string',
-                    },
-                    resolve: {
-                      description:
-                        "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                      enum: ['Always', 'IfNotPresent'],
-                      type: 'string',
-                    },
-                  },
-                  type: 'object',
-                },
-              },
-              required: ['name'],
-              type: 'object',
-            },
-            subaccountSelector: {
-              description: 'Selector for a Subaccount in account to populate subaccountId.',
-              properties: {
-                matchControllerRef: {
-                  description:
-                    'MatchControllerRef ensures an object with the same controller reference\nas the selecting object is selected.',
-                  type: 'boolean',
-                },
-                matchLabels: {
-                  additionalProperties: {
-                    type: 'string',
-                  },
-                  description: 'MatchLabels ensures an object with matching labels is selected.',
-                  type: 'object',
-                },
-                policy: {
-                  description: 'Policies for selection.',
-                  properties: {
-                    resolution: {
-                      default: 'Required',
-                      description:
-                        "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                      enum: ['Required', 'Optional'],
-                      type: 'string',
-                    },
-                    resolve: {
-                      description:
-                        "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                      enum: ['Always', 'IfNotPresent'],
-                      type: 'string',
-                    },
-                  },
-                  type: 'object',
-                },
-              },
-              type: 'object',
-            },
-          },
-          required: ['name'],
-          type: 'object',
-        },
-        managementPolicies: {
-          default: ['*'],
-          description:
-            'THIS IS A BETA FIELD. It is on by default but can be opted out\nthrough a Crossplane feature flag.\nManagementPolicies specify the array of actions Crossplane is allowed to\ntake on the managed and external resources.\nThis field is planned to replace the DeletionPolicy field in a future\nrelease. Currently, both could be set independently and non-default\nvalues would be honored if the feature flag is enabled. If both are\ncustom, the DeletionPolicy field will be ignored.\nSee the design doc for more information: https://github.com/crossplane/crossplane/blob/499895a25d1a1a0ba1604944ef98ac7a1a71f197/design/design-doc-observe-only-resources.md?plain=1#L223\nand this one: https://github.com/crossplane/crossplane/blob/444267e84783136daa93568b364a5f01228cacbe/design/one-pager-ignore-changes.md',
-          items: {
-            description:
-              'A ManagementAction represents an action that the Crossplane controllers\ncan take on an external resource.',
-            enum: ['Observe', 'Create', 'Update', 'Delete', 'LateInitialize', '*'],
-            type: 'string',
-          },
+        members: {
+          description: 'Members is a list of workspace members.',
           type: 'array',
-        },
-        providerConfigRef: {
-          default: {
-            name: 'default',
-          },
-          description:
-            'ProviderConfigReference specifies how the provider that will be used to\ncreate, observe, update, and delete this managed resource should be\nconfigured.',
-          properties: {
-            name: {
-              description: 'Name of the referenced object.',
-              type: 'string',
-            },
-            policy: {
-              description: 'Policies for referencing.',
-              properties: {
-                resolution: {
-                  default: 'Required',
-                  description:
-                    "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                  enum: ['Required', 'Optional'],
+          items: {
+            type: 'object',
+            required: ['kind', 'name', 'roles'],
+            properties: {
+              kind: {
+                description: 'Kind of object being referenced. Can be "User", "Group", or "ServiceAccount".',
+                type: 'string',
+                enum: ['User', 'Group', 'ServiceAccount'],
+              },
+              name: {
+                description: 'Name of the object being referenced.',
+                type: 'string',
+              },
+              namespace: {
+                description:
+                  'Namespace of the referenced object. Required if Kind is "ServiceAccount". Must not be specified if Kind is "User" or "Group".',
+                type: 'string',
+              },
+              roles: {
+                description: 'Roles defines a list of roles that this workspace member should have.',
+                type: 'array',
+                items: {
                   type: 'string',
-                },
-                resolve: {
-                  description:
-                    "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                  enum: ['Always', 'IfNotPresent'],
-                  type: 'string',
+                  enum: ['admin', 'view'],
                 },
               },
-              type: 'object',
             },
-          },
-          required: ['name'],
-          type: 'object',
-        },
-        publishConnectionDetailsTo: {
-          description:
-            'PublishConnectionDetailsTo specifies the connection secret config which\ncontains a name, metadata and a reference to secret store config to\nwhich any connection details for this managed resource should be written.\nConnection details frequently include the endpoint, username,\nand password required to connect to the managed resource.',
-          properties: {
-            configRef: {
-              default: {
-                name: 'default',
+            'x-kubernetes-validations': [
+              {
+                rule: "self.kind == 'ServiceAccount' || !has(self.__namespace__)",
+                message: 'Namespace must not be specified if Kind is User or Group',
               },
-              description:
-                'SecretStoreConfigRef specifies which secret store config should be used\nfor this ConnectionSecret.',
-              properties: {
-                name: {
-                  description: 'Name of the referenced object.',
-                  type: 'string',
-                },
-                policy: {
-                  description: 'Policies for referencing.',
-                  properties: {
-                    resolution: {
-                      default: 'Required',
-                      description:
-                        "Resolution specifies whether resolution of this reference is required.\nThe default is 'Required', which means the reconcile will fail if the\nreference cannot be resolved. 'Optional' means this reference will be\na no-op if it cannot be resolved.",
-                      enum: ['Required', 'Optional'],
-                      type: 'string',
-                    },
-                    resolve: {
-                      description:
-                        "Resolve specifies when this reference should be resolved. The default\nis 'IfNotPresent', which will attempt to resolve the reference only when\nthe corresponding field is not present. Use 'Always' to resolve the\nreference on every reconcile.",
-                      enum: ['Always', 'IfNotPresent'],
-                      type: 'string',
-                    },
-                  },
-                  type: 'object',
-                },
+              {
+                rule: "self.kind != 'ServiceAccount' || has(self.__namespace__)",
+                message: 'Namespace is required for ServiceAccount',
               },
-              required: ['name'],
-              type: 'object',
-            },
-            metadata: {
-              description: 'Metadata is the metadata for connection secret.',
-              properties: {
-                annotations: {
-                  additionalProperties: {
-                    type: 'string',
-                  },
-                  description:
-                    'Annotations are the annotations to be added to connection secret.\n- For Kubernetes secrets, this will be used as "metadata.annotations".\n- It is up to Secret Store implementation for others store types.',
-                  type: 'object',
-                },
-                labels: {
-                  additionalProperties: {
-                    type: 'string',
-                  },
-                  description:
-                    'Labels are the labels/tags to be added to connection secret.\n- For Kubernetes secrets, this will be used as "metadata.labels".\n- It is up to Secret Store implementation for others store types.',
-                  type: 'object',
-                },
-                type: {
-                  description:
-                    'Type is the SecretType for the connection secret.\n- Only valid for Kubernetes Secret Stores.',
-                  type: 'string',
-                },
-              },
-              type: 'object',
-            },
-            name: {
-              description: 'Name is the name of the connection secret.',
-              type: 'string',
-            },
+            ],
           },
-          required: ['name'],
-          type: 'object',
-        },
-        writeConnectionSecretToRef: {
-          description:
-            'WriteConnectionSecretToReference specifies the namespace and name of a\nSecret to which any connection details for this managed resource should\nbe written. Connection details frequently include the endpoint, username,\nand password required to connect to the managed resource.\nThis field is planned to be replaced in a future release in favor of\nPublishConnectionDetailsTo. Currently, both could be set independently\nand connection details would be published to both without affecting\neach other.',
-          properties: {
-            name: {
-              description: 'Name of the secret.',
-              type: 'string',
-            },
-            namespace: {
-              description: 'Namespace of the secret.',
-              type: 'string',
-            },
-          },
-          required: ['name', 'namespace'],
-          type: 'object',
         },
       },
-      required: ['forProvider'],
-      type: 'object',
     },
     status: {
-      description: 'A ServiceInstanceStatus represents the observed state of a ServiceInstance.',
+      description: 'WorkspaceStatus defines the observed state of Workspace',
+      type: 'object',
+      required: ['namespace'],
       properties: {
-        atProvider: {
-          description: 'ServiceInstanceObservation are the observable fields of a ServiceInstance.',
-          properties: {
-            id: {
-              type: 'string',
-            },
-            serviceplanId: {
-              description: 'The ID of the service plan as resolved by the ServiceManager',
-              type: 'string',
-            },
-          },
-          type: 'object',
-        },
         conditions: {
-          description: 'Conditions of the resource.',
+          type: 'array',
           items: {
-            description: 'A Condition that may apply to a resource.',
+            description: 'Condition is part of all conditions that a project/ workspace can have.',
+            type: 'object',
+            required: ['status', 'type'],
             properties: {
+              details: {
+                description:
+                  'Details is an object that can contain additional information about the condition.\nThe content is specific to the condition type.',
+                'x-kubernetes-preserve-unknown-fields': true,
+              },
               lastTransitionTime: {
                 description:
-                  'LastTransitionTime is the last time this condition transitioned from one\nstatus to another.',
-                format: 'date-time',
+                  'LastTransitionTime is the time when the condition last transitioned from one status to another.',
                 type: 'string',
+                format: 'date-time',
               },
               message: {
-                description:
-                  "A Message containing details about this condition's last transition from\none status to another, if any.",
+                description: 'Message is a human-readable message indicating details about the condition.',
                 type: 'string',
               },
-              observedGeneration: {
-                description:
-                  'ObservedGeneration represents the .metadata.generation that the condition was set based upon.\nFor instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date\nwith respect to the current state of the instance.',
-                format: 'int64',
-                type: 'integer',
-              },
               reason: {
-                description: "A Reason for this condition's last transition from one status to another.",
+                description: 'Reason is the reason for the condition.',
                 type: 'string',
               },
               status: {
-                description: 'Status of this condition; is it currently True, False, or Unknown?',
+                description: 'Status is the status of the condition.',
                 type: 'string',
+                enum: ['True', 'False', 'Unknown'],
               },
               type: {
-                description:
-                  'Type of this condition. At most one of each condition type may apply to\na resource at any point in time.',
+                description: 'Type is the type of the condition.',
                 type: 'string',
               },
             },
-            required: ['lastTransitionTime', 'reason', 'status', 'type'],
-            type: 'object',
           },
-          type: 'array',
-          'x-kubernetes-list-map-keys': ['type'],
-          'x-kubernetes-list-type': 'map',
         },
-        observedGeneration: {
-          description:
-            'ObservedGeneration is the latest metadata.generation\nwhich resulted in either a ready state, or stalled due to error\nit can not recover from without human intervention.',
-          format: 'int64',
-          type: 'integer',
+        namespace: {
+          type: 'string',
         },
       },
-      type: 'object',
     },
   },
-  required: ['spec'],
-  type: 'object',
+  'x-kubernetes-validations': [
+    {
+      rule: 'size(self.metadata.name) <= 25',
+      message: 'Name must not be longer than 25 characters',
+    },
+  ],
 });
 
 // Track if monaco-yaml has been configured globally

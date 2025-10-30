@@ -10,11 +10,12 @@ import {
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
+import { CustomResourceDefinitions } from '../../lib/api/types/k8s/listCustomResourceDefinition';
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { Fragment, useCallback, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useMemo, useRef, useEffect } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -33,6 +34,7 @@ export type KustomizationItem = KustomizationsResponse['items'][0] & {
 
 export function Kustomizations() {
   const { data, error, isLoading } = useApiResource(FluxKustomization); //404 if component not enabled
+  const { data: crdData } = useApiResource(CustomResourceDefinitions);
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -64,6 +66,11 @@ export function Kustomizations() {
     [openInAside, handlePatch],
   );
   const { hasMCPAdminRights } = useAuthMcp();
+
+  useEffect(() => {
+    console.log('Custom Resource Definitions:', crdData);
+  }, [crdData]);
+
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -146,6 +153,10 @@ export function Kustomizations() {
       ] as AnalyticalTableColumnDefinition[],
     [t, openEditPanel, hasMCPAdminRights],
   );
+
+  useEffect(() => {
+    console.log('CRD Data:', data);
+  }, [data]);
 
   if (error) {
     return (
