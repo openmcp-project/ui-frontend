@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { useApiResource, useProvidersConfigResource } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { resourcesInterval } from '../../lib/shared/constants';
-import { Node, Edge, Position, MarkerType } from '@xyflow/react';
+import { Node, Edge, Position } from '@xyflow/react';
 import dagre from 'dagre';
 import { NodeData, ColorBy } from './types';
 import { buildTreeData, generateColorMap } from './graphUtils';
@@ -25,9 +25,9 @@ function buildGraph(
     const colorKey: string =
       colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
     const borderColor = colorMap[colorKey] || '#ccc';
-    const backgroundColor = `${borderColor}08`; 
-      
-      const node: Node<NodeData> = {
+    const backgroundColor = `${borderColor}08`;
+
+    const node: Node<NodeData> = {
       id: n.id,
       type: 'custom',
       data: { ...n },
@@ -56,7 +56,8 @@ function buildGraph(
         id: `e-${n.parentId}-${n.id}`,
         source: n.parentId,
         target: n.id,
-        style: { strokeWidth: 2, stroke: '#888' },    });
+        style: { strokeWidth: 2, stroke: '#888' },
+      });
     }
     n.extraRefs?.forEach((refId) => {
       if (nodeMap.has(refId)) {

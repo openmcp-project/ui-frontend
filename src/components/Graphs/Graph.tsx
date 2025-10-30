@@ -96,12 +96,12 @@ const Graph: React.FC = () => {
         </ReactFlow>
 
         <div className={styles.topLegendContainer}>
-          <Legend legendItems={legendItems}/>
+          <Legend legendItems={legendItems} />
           <Popover
             opener="filter-button"
             open={filterPopoverOpen}
-            onClose={() => setFilterPopoverOpen(false)}
             placement="Top"
+            onClose={() => setFilterPopoverOpen(false)}
           >
             <div className={styles.popoverButtonContainer}>
               <Button
