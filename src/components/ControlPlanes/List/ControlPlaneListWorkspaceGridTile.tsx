@@ -7,12 +7,10 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ListWorkspacesType, isWorkspaceReady } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { useMemo, useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
-import { DeleteWorkspaceResource, DeleteWorkspaceType } from '../../../lib/api/types/crate/deleteWorkspace.ts';
-import { useApiResourceMutation, useApiResource } from '../../../lib/api/useApiResource.ts';
+import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteWorkspace } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteWorkspace.tsx';
-import { useToast } from '../../../context/ToastContext.tsx';
 import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
@@ -24,13 +22,19 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
 
 interface Props {
   projectName: string;
   workspace: ListWorkspacesType;
+  useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
 
-export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Props) {
+export function ControlPlaneListWorkspaceGridTile({
+  projectName,
+  workspace,
+  useDeleteWorkspace = _useDeleteWorkspace,
+}: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
@@ -40,13 +44,10 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
 
   const { t } = useTranslation();
 
-  const toast = useToast();
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
   const { data: controlplanes, error: cpsError } = useApiResource(ListControlPlanes(projectName, workspaceName));
-  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
-    DeleteWorkspaceResource(projectNamespace, workspaceName),
-  );
+  const { deleteWorkspace } = useDeleteWorkspace(projectName, projectNamespace, workspaceName);
 
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
@@ -181,10 +182,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
         kubectl={<KubectlDeleteWorkspace projectName={projectName} resourceName={workspaceName} />}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
-        onDeletionConfirmed={async () => {
-          await trigger();
-          toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
-        }}
+        onDeletionConfirmed={deleteWorkspace}
       />
       {isCreateManagedControlPlaneWizardOpen ? (
         <CreateManagedControlPlaneWizardContainer
