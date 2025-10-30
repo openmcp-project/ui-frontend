@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import { projectnameToNamespace } from '../../utils';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { useCreateWorkspace } from '../../hooks/useCreateWorkspace.tsx';
+import { useCreateWorkspace as _useCreateWorkspace } from '../../hooks/useCreateWorkspace.ts';
+import { APIError } from '../../lib/api/error.ts';
+import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -23,14 +25,14 @@ export function CreateWorkspaceDialogContainer({
   isOpen,
   setIsOpen,
   project = '',
-  useCreateWorkspace: useCreateWorkspaceHook = useCreateWorkspace,
-  useAuthOnboarding: useAuthOnboardingHook = useAuthOnboarding,
+  useCreateWorkspace: useCreateWorkspaceHook = _useCreateWorkspace,
+  useAuthOnboarding: useAuthOnboardingHook = _useAuthOnboarding,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   project?: string;
-  useCreateWorkspace?: typeof useCreateWorkspace;
-  useAuthOnboarding?: typeof useAuthOnboarding;
+  useCreateWorkspace?: typeof _useCreateWorkspace;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
@@ -56,7 +58,8 @@ export function CreateWorkspaceDialogContainer({
   const username = user?.email;
   const namespace = projectnameToNamespace(project);
 
-  const { createWorkspace, errorDialogRef } = useCreateWorkspaceHook(project, namespace);
+  const { createWorkspace } = useCreateWorkspaceHook(project, namespace);
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {
     resetField('name');
@@ -78,20 +81,28 @@ export function CreateWorkspaceDialogContainer({
     name,
     displayName,
     chargingTarget,
+    chargingTargetType,
     members,
   }: OnCreatePayload): Promise<boolean> => {
-    const success = await createWorkspace({
-      name,
-      displayName,
-      chargingTarget,
-      members,
-    });
-
-    if (success) {
+    try {
+      await createWorkspace({
+        name,
+        displayName,
+        chargingTarget,
+        chargingTargetType,
+        members,
+      });
       setIsOpen(false);
+      return true;
+    } catch (e) {
+      console.error(e);
+      if (e instanceof APIError) {
+        if (errorDialogRef.current) {
+          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
+        }
+      }
+      return false;
     }
-
-    return success;
   };
 
   return (

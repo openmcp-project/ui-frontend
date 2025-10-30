@@ -22,7 +22,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.tsx';
+import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
 
 interface Props {
   projectName: string;

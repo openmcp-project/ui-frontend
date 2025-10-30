@@ -54,13 +54,11 @@ describe('useCreateWorkspace', () => {
     const renderHookResult = renderHook(() => useCreateWorkspace('test-project', 'test-project--ns'));
     const { createWorkspace } = renderHookResult.result.current;
 
-    let result: boolean = false;
     await act(async () => {
-      result = await createWorkspace(mockWorkspaceData);
+      await createWorkspace(mockWorkspaceData);
     });
 
     // ASSERT
-    expect(result).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const call = fetchMock.mock.calls[0];
@@ -88,7 +86,7 @@ describe('useCreateWorkspace', () => {
     expect(parsedBody.spec.members[0].name).toBe('user@domain.com');
   });
 
-  it('should return false on API error', async () => {
+  it('should throw error on API failure', async () => {
     // ARRANGE
     fetchMock.mockRejectedValue(new Error('API Error'));
 
@@ -103,12 +101,9 @@ describe('useCreateWorkspace', () => {
     const renderHookResult = renderHook(() => useCreateWorkspace('test-project', 'test-project--ns'));
     const { createWorkspace } = renderHookResult.result.current;
 
-    let result: boolean = true;
-    await act(async () => {
-      result = await createWorkspace(mockWorkspaceData);
-    });
-
     // ASSERT
-    expect(result).toBe(false);
+    await act(async () => {
+      await expect(createWorkspace(mockWorkspaceData)).rejects.toThrow('API Error');
+    });
   });
 });

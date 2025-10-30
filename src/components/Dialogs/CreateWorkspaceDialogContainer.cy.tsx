@@ -3,15 +3,13 @@ import { useCreateWorkspace, CreateWorkspaceParams } from '../../hooks/useCreate
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
 
 describe('CreateWorkspaceDialogContainer', () => {
-  let createWorkspacePayload: Omit<CreateWorkspaceParams, 'namespace'> | null = null;
+  let createWorkspacePayload: CreateWorkspaceParams | null = null;
 
   const fakeUseCreateWorkspace: typeof useCreateWorkspace = () => ({
-    createWorkspace: async (data: Omit<CreateWorkspaceParams, 'namespace'>): Promise<boolean> => {
+    createWorkspace: async (data: CreateWorkspaceParams): Promise<void> => {
       createWorkspacePayload = data;
-      return true;
     },
     isLoading: false,
-    errorDialogRef: { current: null },
   });
 
   const fakeUseAuthOnboarding = (() => ({
@@ -41,6 +39,7 @@ describe('CreateWorkspaceDialogContainer', () => {
       name: 'test-workspace',
       displayName: 'Test Workspace Display Name',
       chargingTarget: '12345678-1234-1234-1234-123456789abc',
+      chargingTargetType: 'btp',
       members: [
         {
           name: 'name@domain.com',
@@ -127,11 +126,10 @@ describe('CreateWorkspaceDialogContainer', () => {
 
   it('should not close dialog when creation fails', () => {
     const failingUseCreateWorkspace: typeof useCreateWorkspace = () => ({
-      createWorkspace: async (): Promise<boolean> => {
-        return false; // Simulate failure
+      createWorkspace: async (): Promise<void> => {
+        throw new Error('Creation failed'); // Simulate failure by throwing error
       },
       isLoading: false,
-      errorDialogRef: { current: null },
     });
 
     const setIsOpen = cy.stub();
