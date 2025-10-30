@@ -14,16 +14,10 @@ export function useDeleteWorkspace(projectName: string, projectNamespace: string
   );
   const revalidate = useRevalidateApiResource(ListWorkspaces(projectName));
 
-  const deleteWorkspace = useCallback(async (): Promise<boolean> => {
-    try {
-      await trigger();
-      await revalidate();
-      toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
-      return true;
-    } catch (e) {
-      console.error('Failed to delete workspace:', e);
-      return false;
-    }
+  const deleteWorkspace = useCallback(async (): Promise<void> => {
+    await trigger();
+    await revalidate();
+    toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
   }, [trigger, revalidate, toast, t]);
 
   return {

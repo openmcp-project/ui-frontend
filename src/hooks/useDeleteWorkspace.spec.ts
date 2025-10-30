@@ -40,13 +40,11 @@ describe('useDeleteWorkspace', () => {
     const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
-    let result: boolean = false;
     await act(async () => {
-      result = await deleteWorkspace();
+      await deleteWorkspace();
     });
 
     // ASSERT
-    expect(result).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const call = fetchMock.mock.calls[0];
@@ -66,7 +64,7 @@ describe('useDeleteWorkspace', () => {
     );
   });
 
-  it('should return false on API error', async () => {
+  it('should throw error on API failure', async () => {
     // ARRANGE
     fetchMock.mockRejectedValue(new Error('API Error'));
 
@@ -74,16 +72,13 @@ describe('useDeleteWorkspace', () => {
     const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
-    let result: boolean = true;
-    await act(async () => {
-      result = await deleteWorkspace();
-    });
-
     // ASSERT
-    expect(result).toBe(false);
+    await act(async () => {
+      await expect(deleteWorkspace()).rejects.toThrow('API Error');
+    });
   });
 
-  it('should return false on network error', async () => {
+  it('should throw error on network failure', async () => {
     // ARRANGE
     fetchMock.mockRejectedValue(new TypeError('Network error'));
 
@@ -91,13 +86,10 @@ describe('useDeleteWorkspace', () => {
     const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
-    let result: boolean = true;
-    await act(async () => {
-      result = await deleteWorkspace();
-    });
-
     // ASSERT
-    expect(result).toBe(false);
+    await act(async () => {
+      await expect(deleteWorkspace()).rejects.toThrow('Network error');
+    });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
