@@ -25,8 +25,8 @@ export function CreateWorkspaceDialogContainer({
   isOpen,
   setIsOpen,
   project = '',
-  useCreateWorkspace: useCreateWorkspaceHook = _useCreateWorkspace,
-  useAuthOnboarding: useAuthOnboardingHook = _useAuthOnboarding,
+  useCreateWorkspace: useCreateWorkspace = _useCreateWorkspace,
+  useAuthOnboarding: useAuthOnboarding = _useAuthOnboarding,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -53,12 +53,12 @@ export function CreateWorkspaceDialogContainer({
       chargingTargetType: '',
     },
   });
-  const { user } = useAuthOnboardingHook();
+  const { user } = useAuthOnboarding();
 
   const username = user?.email;
   const namespace = projectnameToNamespace(project);
 
-  const { createWorkspace } = useCreateWorkspaceHook(project, namespace);
+  const { createWorkspace } = useCreateWorkspace(project, namespace);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {

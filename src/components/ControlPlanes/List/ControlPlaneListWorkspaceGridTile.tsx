@@ -33,7 +33,7 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
-  useDeleteWorkspace: useDeleteWorkspaceHook = _useDeleteWorkspace,
+  useDeleteWorkspace: useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
@@ -47,7 +47,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
   const { data: controlplanes, error: cpsError } = useApiResource(ListControlPlanes(projectName, workspaceName));
-  const { deleteWorkspace } = useDeleteWorkspaceHook(projectName, projectNamespace, workspaceName);
+  const { deleteWorkspace } = useDeleteWorkspace(projectName, projectNamespace, workspaceName);
 
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
