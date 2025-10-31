@@ -10,7 +10,7 @@ vi.mock('../context/ToastContext', () => ({
   }),
 }));
 
-describe.only('useDeleteManagedControlPlane', () => {
+describe('useDeleteManagedControlPlane', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
