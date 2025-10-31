@@ -104,7 +104,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
   const fakeUseManagedControlPlanesQuery: typeof useManagedControlPlanesQuery = () => ({
     managedControlPlanes: fakeManagedControlPlanes,
     error: undefined,
-    isLoading: false,
   });
 
   beforeEach(() => {
