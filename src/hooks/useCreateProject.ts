@@ -17,7 +17,7 @@ export function useCreateProject() {
   const { t } = useTranslation();
   const toast = useToast();
 
-  const { trigger, isMutating } = useApiResourceMutation<CreateProjectType>(CreateProjectResource());
+  const { trigger } = useApiResourceMutation<CreateProjectType>(CreateProjectResource());
 
   const createProject = useCallback(
     async ({ name, displayName, chargingTarget, chargingTargetType, members }: CreateProjectParams): Promise<void> => {
@@ -35,7 +35,6 @@ export function useCreateProject() {
   );
 
   return {
-    createProject,
-    isLoading: isMutating,
+    createProject
   };
 }

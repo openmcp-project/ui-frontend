@@ -9,7 +9,7 @@ export function useDeleteProject(projectName: string) {
   const { t } = useTranslation();
   const toast = useToast();
 
-  const { trigger, isMutating } = useApiResourceMutation<DeleteWorkspaceType>(DeleteProjectResource(projectName));
+  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(DeleteProjectResource(projectName));
 
   const deleteProject = useCallback(async (): Promise<void> => {
     await trigger();
@@ -17,7 +17,6 @@ export function useDeleteProject(projectName: string) {
   }, [trigger, toast, t]);
 
   return {
-    deleteProject,
-    isDeleting: isMutating,
+    deleteProject
   };
 }
