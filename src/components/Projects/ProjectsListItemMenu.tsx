@@ -7,23 +7,25 @@ import '@ui5/webcomponents-icons/dist/accept';
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.tsx';
 
-import { useToast } from '../../context/ToastContext.tsx';
-import { useApiResourceMutation } from '../../lib/api/useApiResource.ts';
-import { DeleteWorkspaceType } from '../../lib/api/types/crate/deleteWorkspace.ts';
-import { DeleteProjectResource } from '../../lib/api/types/crate/deleteProject.ts';
+import { useDeleteProject as _useDeleteProject } from '../../hooks/useDeleteProject.ts';
 import { KubectlDeleteProject } from '../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteProject.tsx';
 
 type ProjectsListItemMenuProps = {
   projectName: string;
+  useDeleteProject?: typeof _useDeleteProject;
 };
 
-export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({ projectName }) => {
+export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
+  projectName,
+  useDeleteProject = _useDeleteProject,
+}) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
   const { t } = useTranslation();
-  const toast = useToast();
-  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(DeleteProjectResource(projectName));
+
+  const { deleteProject } = useDeleteProject(projectName);
+
   const handleOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     e.stopImmediatePropagation();
     e.stopPropagation();
@@ -59,10 +61,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({ projectNam
           kubectl={<KubectlDeleteProject projectName={projectName} />}
           isOpen={dialogDeleteProjectIsOpen}
           setIsOpen={setDialogDeleteProjectIsOpen}
-          onDeletionConfirmed={async () => {
-            await trigger();
-            toast.show(t('ProjectsListView.deleteConfirmationDialog'));
-          }}
+          onDeletionConfirmed={deleteProject}
         />
       )}
     </div>
