@@ -27,7 +27,13 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
 
   return (
     <>
-      <Button ref={buttonRef} icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button
+        ref={buttonRef}
+        icon="overflow"
+        icon-end
+        data-testid="ControlPlaneCardMenu-opener"
+        onClick={handleOpenerClick}
+      />
       <Menu
         open={menuIsOpen}
         opener={buttonRef.current}
