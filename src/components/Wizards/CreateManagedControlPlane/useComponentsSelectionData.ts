@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ManagedControlPlaneTemplate } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { ComponentsListItem, removeComponents } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
-import { ListManagedComponents } from '../../../lib/api/types/crate/listManagedComponents.ts';
 import { sortVersions } from '../../../utils/componentsVersions.ts';
+import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
 
 export type ComponentsHookResult = {
   isLoading: boolean;
@@ -14,11 +13,11 @@ export type ComponentsHookResult = {
 export const useComponentsSelectionData = (
   selectedTemplate: ManagedControlPlaneTemplate | undefined,
   initialSelection: Record<string, { isSelected: boolean; version: string }> | undefined,
-  isOnMcpPage: boolean,
   setValue: (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) => void,
   onComponentsInitialized?: (components: ComponentsListItem[]) => void,
+  useComponentsQuery: typeof _useComponentsQuery = _useComponentsQuery,
 ): ComponentsHookResult => {
-  const { data, error, isLoading } = useApiResource(ListManagedComponents(), undefined, !!isOnMcpPage);
+  const { components: data, error, isLoading } = useComponentsQuery();
 
   useEffect(() => {
     const items = data?.items ?? [];

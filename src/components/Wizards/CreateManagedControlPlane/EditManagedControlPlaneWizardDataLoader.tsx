@@ -17,7 +17,6 @@ export type EditManagedControlPlaneWizardDataLoaderProps = {
   resourceName: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  isOnMcpPage?: boolean;
   initialSection?: WizardStepType;
   mode?: 'edit' | 'duplicate';
 };
@@ -27,7 +26,6 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   resourceName,
   isOpen,
   setIsOpen,
-  isOnMcpPage = false,
   initialSection,
   mode = 'edit',
 }) => {
@@ -60,7 +58,6 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
           isEditMode={mode === 'edit'}
           isDuplicateMode={mode === 'duplicate'}
           initialData={data}
-          isOnMcpPage={isOnMcpPage}
           initialSection={initialSection}
         />
       ) : null}
