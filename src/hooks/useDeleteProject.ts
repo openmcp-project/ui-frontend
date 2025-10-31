@@ -17,6 +17,6 @@ export function useDeleteProject(projectName: string) {
   }, [trigger, toast, t]);
 
   return {
-    deleteProject
+    deleteProject,
   };
 }

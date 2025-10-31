@@ -35,6 +35,6 @@ export function useCreateProject() {
   );
 
   return {
-    createProject
+    createProject,
   };
 }
