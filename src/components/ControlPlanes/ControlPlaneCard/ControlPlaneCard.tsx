@@ -14,16 +14,7 @@ import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
 import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
-import {
-  DeleteMCPResource,
-  DeleteMCPType,
-  PatchMCPResourceForDeletion,
-  PatchMCPResourceForDeletionBody,
-} from '../../../lib/api/types/crate/deleteMCP.ts';
-
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
-import { useToast } from '../../../context/ToastContext.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
@@ -31,20 +22,26 @@ import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 
 interface Props {
   controlPlane: ListControlPlanesType;
   workspace: ListWorkspacesType;
   projectName: string;
+  useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
 }
 
 type MCPWizardState = {
   isOpen: boolean;
   mode?: 'edit' | 'duplicate';
 };
-export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props) => {
+export const ControlPlaneCard = ({
+  controlPlane,
+  workspace,
+  projectName,
+  useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
+}: Props) => {
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
-  const toast = useToast();
   const { t } = useTranslation();
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
@@ -54,11 +51,9 @@ export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props
   const handleIsManagedControlPlaneWizardOpen = (isOpen: boolean, mode?: 'edit' | 'duplicate') => {
     setManagedControlPlaneWizardState({ isOpen, mode });
   };
-  const { trigger: patchTrigger } = useApiResourceMutation<DeleteMCPType>(
-    PatchMCPResourceForDeletion(controlPlane.metadata.namespace, controlPlane.metadata.name),
-  );
-  const { trigger: deleteTrigger } = useApiResourceMutation<DeleteMCPType>(
-    DeleteMCPResource(controlPlane.metadata.namespace, controlPlane.metadata.name),
+  const { deleteManagedControlPlane } = useDeleteManagedControlPlane(
+    controlPlane.metadata.namespace,
+    controlPlane.metadata.name,
   );
 
   const name = controlPlane.metadata.name;
@@ -135,11 +130,7 @@ export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props
         }
         isOpen={dialogDeleteMcpIsOpen}
         setIsOpen={setDialogDeleteMcpIsOpen}
-        onDeletionConfirmed={async () => {
-          await patchTrigger(PatchMCPResourceForDeletionBody);
-          await deleteTrigger();
-          toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
-        }}
+        onDeletionConfirmed={deleteManagedControlPlane}
       />
       <EditManagedControlPlaneWizardDataLoader
         isOpen={managedControlPlaneWizardState.isOpen}

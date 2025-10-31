@@ -9,7 +9,7 @@ export function useDeleteWorkspace(projectName: string, projectNamespace: string
   const { t } = useTranslation();
   const toast = useToast();
 
-  const { trigger, isMutating } = useApiResourceMutation<DeleteWorkspaceType>(
+  const { trigger } = useApiResourceMutation<DeleteWorkspaceType>(
     DeleteWorkspaceResource(projectNamespace, workspaceName),
   );
   const revalidate = useRevalidateApiResource(ListWorkspaces(projectName));
@@ -22,6 +22,5 @@ export function useDeleteWorkspace(projectName: string, projectNamespace: string
 
   return {
     deleteWorkspace,
-    isDeleting: isMutating,
   };
 }

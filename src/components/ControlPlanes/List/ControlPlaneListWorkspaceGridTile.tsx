@@ -7,11 +7,9 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ListWorkspacesType, isWorkspaceReady } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { useMemo, useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { KubectlDeleteWorkspace } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteWorkspace.tsx';
-import { ListControlPlanes } from '../../../lib/api/types/crate/controlPlanes.ts';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
@@ -23,16 +21,19 @@ import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
+import { useManagedControlPlanesQuery as _useManagedControlPlanesQuery } from '../../../hooks/useManagedControlPlanesQuery.ts';
 
 interface Props {
   projectName: string;
   workspace: ListWorkspacesType;
+  useManagedControlPlanesQuery?: typeof _useManagedControlPlanesQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  useManagedControlPlanesQuery = _useManagedControlPlanesQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
@@ -46,7 +47,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: controlplanes, error: cpsError } = useApiResource(ListControlPlanes(projectName, workspaceName));
+  const { managedControlPlanes, error: cpsError } = useManagedControlPlanesQuery(projectName, workspaceName);
   const { deleteWorkspace } = useDeleteWorkspace(projectName, projectNamespace, workspaceName);
 
   const { mcpCreationGuide } = useLink();
@@ -138,7 +139,7 @@ export function ControlPlaneListWorkspaceGridTile({
         >
           {errorView ? (
             errorView
-          ) : controlplanes?.length === 0 ? (
+          ) : managedControlPlanes?.length === 0 ? (
             <IllustratedBanner
               title={t('IllustratedBanner.titleMessage')}
               subtitle={t('IllustratedBanner.subtitleMessage')}
@@ -164,10 +165,10 @@ export function ControlPlaneListWorkspaceGridTile({
           ) : (
             <div className={styles.wrapper}>
               <div className={styles.grid}>
-                {controlplanes?.map((cp) => (
+                {managedControlPlanes?.map((mcp) => (
                   <ControlPlaneCard
-                    key={`${cp.metadata.name}--${cp.metadata.namespace}`}
-                    controlPlane={cp}
+                    key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
+                    controlPlane={mcp}
                     projectName={projectName}
                     workspace={workspace}
                   />
