@@ -26,10 +26,10 @@
   position: sticky;
   top: 0;
   height: 6rem;
-  padding: 1rem;
-  padding-bottom: 1.5rem;
+  padding: 1rem 1rem 1.5rem;
   z-index: 1;
   background: var(--sapBackgroundColor);
+  border-radius: 1rem;
 }
 
 .stickyHeaderInner {

@@ -7,6 +7,7 @@ import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
+import { configureMonacoYaml } from 'monaco-yaml';
 
 // Use ESM monaco to avoid loading AMD loader from CDN
 loader.config({ monaco });
@@ -87,5 +88,12 @@ export const configureMonaco = () => {
     inherit: true,
     rules: [],
     colors: GITHUB_DARK_EDITOR_COLORS,
+  });
+
+  configureMonacoYaml(monaco, {
+    hover: true,
+    completion: true,
+    validate: true,
+    format: true,
   });
 };

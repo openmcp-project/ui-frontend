@@ -1,5 +1,12 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
-import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTableColumnDefinition,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarSpacer,
+  Button,
+} from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
@@ -17,6 +24,7 @@ import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandle
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -39,7 +47,6 @@ export function GitRepositories() {
     readyMessage: string;
     revision?: string;
   };
-
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
@@ -56,6 +63,7 @@ export function GitRepositories() {
     },
     [openInAside, handlePatch],
   );
+  const hasMCPAdminRights = useHasMcpAdminRights();
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
@@ -96,7 +104,28 @@ export function GitRepositories() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }) => <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />,
+          Cell: ({ row }) => {
+            const item = row.original?.item;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined;
+          },
         },
         {
           Header: t('ManagedResources.actionColumnHeader'),
@@ -113,13 +142,14 @@ export function GitRepositories() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, hasMCPAdminRights, openEditPanel],
   );
 
   if (error) {
