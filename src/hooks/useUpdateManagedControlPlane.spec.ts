@@ -1,16 +1,16 @@
 import { act, renderHook } from '@testing-library/react';
-import { useCreateManagedControlPlane } from './useCreateManagedControlPlane.ts';
-import { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
-
 import { describe, it, expect, vi, afterEach, Mock } from 'vitest';
 import { assertNonNullish, assertString } from '../utils/test/vitest-utils.ts';
 
-describe('useCreateManagedControlPlane', () => {
+import { useUpdateManagedControlPlane } from './useUpdateManagedControlPlane.ts';
+import { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
+
+describe('useUpdateManagedControlPlane', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should perform a valid request', async () => {
+  it('should perform a valid update request', async () => {
     // ARRANGE
     const mockData: CreateManagedControlPlaneType = {
       apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -81,11 +81,11 @@ describe('useCreateManagedControlPlane', () => {
     global.fetch = fetchMock;
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateManagedControlPlane('projectName', 'workspaceName'));
-    const { mutate: create } = renderHookResult.result.current;
+    const renderHookResult = renderHook(() => useUpdateManagedControlPlane('projectName', 'workspaceName', 'mcpName'));
+    const { mutate: update } = renderHookResult.result.current;
 
     await act(async () => {
-      await create(mockData);
+      await update(mockData);
     });
 
     // ASSERT
@@ -95,15 +95,16 @@ describe('useCreateManagedControlPlane', () => {
     assertNonNullish(init);
     const { method, headers, body } = init;
 
+    // URL should include namespace and the specific resource name
     expect(url).toContain(
-      '/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/projectName--ws-workspaceName/managedcontrolplanes',
+      '/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/projectName--ws-workspaceName/managedcontrolplanes/mcpName',
     );
 
-    expect(method).toBe('POST');
+    expect(method).toBe('PATCH');
 
     expect(headers).toEqual(
       expect.objectContaining({
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/merge-patch+json',
         'X-use-crate': 'true',
       }),
     );

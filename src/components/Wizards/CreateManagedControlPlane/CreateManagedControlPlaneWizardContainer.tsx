@@ -33,7 +33,6 @@ import {
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
-  UpdateManagedControlPlaneResource,
   replaceComponentsName,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
@@ -62,7 +61,9 @@ import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
-import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.tsx';
+import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
+import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
+import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
 
 // Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
 const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
@@ -83,10 +84,11 @@ type CreateManagedControlPlaneWizardContainerProps = {
   isDuplicateMode?: boolean;
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
-  isOnMcpPage?: boolean;
   initialSection?: WizardStepType;
   useCreateManagedControlPlane?: typeof _useCreateManagedControlPlane;
+  useUpdateManagedControlPlane?: typeof _useUpdateManagedControlPlane;
   useAuthOnboarding?: typeof _useAuthOnboarding;
+  useComponentsQuery?: typeof _useComponentsQuery;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -102,10 +104,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   isDuplicateMode = false,
   initialTemplateName,
   initialData,
-  isOnMcpPage = false,
   initialSection,
   useCreateManagedControlPlane = _useCreateManagedControlPlane,
+  useUpdateManagedControlPlane = _useUpdateManagedControlPlane,
   useAuthOnboarding = _useAuthOnboarding,
+  useComponentsQuery = _useComponentsQuery,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -233,10 +236,10 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
   const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
-  const { trigger: triggerUpdate } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    UpdateManagedControlPlaneResource(projectName, workspaceName, initialData?.metadata?.name ?? ''),
-    undefined,
-    isOnMcpPage,
+  const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
+    projectName,
+    workspaceName,
+    initialData?.metadata?.name ?? '',
   );
   const componentsList = watch('componentsList');
   const hasMissingComponentVersions = useMemo(() => {
@@ -252,7 +255,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         const normalizedType = (chargingTargetType ?? '').trim().toUpperCase();
 
         if (isEditMode) {
-          await triggerUpdate(
+          await updateManagedControlPlane(
             CreateManagedControlPlane(
               initialData?.metadata?.name ?? '',
               `${projectName}--ws-${workspaceName}`,
@@ -509,7 +512,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   } = useComponentsSelectionData(
     selectedTemplate,
     initialSelection,
-    isOnMcpPage,
     (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) =>
       setValue(name, value, options),
     (components) =>
@@ -517,6 +519,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         ...prev,
         componentsList: components,
       })),
+    useComponentsQuery,
   );
   // Template application for components is handled inside the hook
 
