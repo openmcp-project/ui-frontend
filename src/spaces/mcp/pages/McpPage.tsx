@@ -28,6 +28,7 @@ import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
+import { useHasMcpAdminRights } from '../auth/useHasMcpAdminRights.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
@@ -93,7 +94,7 @@ export default function McpPage() {
         name: controlPlaneName,
       }}
     >
-      <AuthProviderMcp mcpUsers={mcp?.spec?.authorization?.roleBindings}>
+      <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ObjectPage
             mode="IconTabBar"

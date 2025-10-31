@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext } from 'react';
-import { ControlPlane as ManagedControlPlaneResource } from '../api/types/crate/controlPlanes.ts';
+import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useApiResource } from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
@@ -15,6 +15,7 @@ interface Mcp {
   secretName?: string;
   secretKey?: string;
   kubeconfig?: string;
+  roleBindings?: RoleBinding[];
 }
 
 interface Props {
@@ -44,6 +45,7 @@ export const McpContextProvider = ({ children, context }: Props) => {
     return <></>;
   }
   context.kubeconfig = kubeconfig.data;
+  context.roleBindings = mcp.data?.spec?.authorization?.roleBindings;
   return <McpContext.Provider value={context}>{children}</McpContext.Provider>;
 };
 

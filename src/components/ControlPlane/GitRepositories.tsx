@@ -24,7 +24,7 @@ import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandle
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -47,7 +47,6 @@ export function GitRepositories() {
     readyMessage: string;
     revision?: string;
   };
-  const { hasMCPAdminRights } = useAuthMcp();
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
@@ -64,6 +63,7 @@ export function GitRepositories() {
     },
     [openInAside, handlePatch],
   );
+  const hasMCPAdminRights = useHasMcpAdminRights();
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>

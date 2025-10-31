@@ -36,7 +36,7 @@ import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -120,7 +120,7 @@ export function ManagedResources() {
     },
     [openInAside, handlePatch],
   );
-  const { hasMCPAdminRights } = useAuthMcp();
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
