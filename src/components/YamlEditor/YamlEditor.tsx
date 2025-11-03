@@ -671,7 +671,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       formatOnType: true,
       fontSize: 13,
       lineHeight: 20,
-      renderWhitespace: 'boundary',
+      // renderWhitespace: 'boundary',
     }),
     [options, isEdit],
   );
