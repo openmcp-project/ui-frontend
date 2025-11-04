@@ -4,7 +4,7 @@ import styles from './YamlSummarize.module.css';
 import { useTranslation } from 'react-i18next';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
 import { SHOW_DOWNLOAD_BUTTON } from '../../Yaml/YamlSidePanel.tsx';
-import { YamlViewer } from '../../Yaml/YamlViewer.tsx';
+import { YamlViewerWrapper } from '../../Yaml/YamlViewerWrapper.tsx';
 
 type YamlPanelProps = {
   yamlString: string;
@@ -38,7 +38,7 @@ const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename }) => {
           </Button>
         )}
       </FlexBox>
-      <YamlViewer yamlString={yamlString} filename={filename} isEdit={false} />
+      <YamlViewerWrapper yamlString={yamlString} filename={filename} isEdit={false} />
     </div>
   );
 };

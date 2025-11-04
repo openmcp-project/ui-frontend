@@ -4,7 +4,7 @@ import { YamlEditor } from '../YamlEditor/YamlEditor';
 
 import styles from './YamlViewer.module.css';
 
-type YamlViewerProps = {
+export type YamlViewerProps = {
   yamlString: string;
   filename: string;
   isEdit?: boolean;
