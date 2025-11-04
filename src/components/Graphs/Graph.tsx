@@ -100,7 +100,7 @@ const Graph: React.FC = () => {
           <Popover
             opener="filter-button"
             open={filterPopoverOpen}
-            placement="Top"
+            placement="Bottom"
             onClose={() => setFilterPopoverOpen(false)}
           >
             <div className={styles.popoverButtonContainer}>

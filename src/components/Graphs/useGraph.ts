@@ -25,6 +25,7 @@ function buildGraph(
     const colorKey: string =
       colorBy === 'source' ? n.providerType : colorBy === 'flux' ? (n.fluxName ?? 'default') : n.providerConfigName;
     const borderColor = colorMap[colorKey] || '#ccc';
+    // 8% opacity for background
     const backgroundColor = `${borderColor}08`;
 
     const node: Node<NodeData> = {

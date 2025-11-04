@@ -1,7 +1,7 @@
 .graphContainer {
   display: flex;
   height: 600px;
-  overflow: hidden;
+  padding: 2px; 
   font-family: var(--sapFontFamily);
   position: relative;
 }
@@ -10,7 +10,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: var(--sapTile_Background, #fff);
 }
 
 .topLegendContainer {
@@ -19,6 +19,7 @@
   right: 1rem;              
   display: flex;
   align-items: center;
+  
   z-index: 2;
 }
 
@@ -29,7 +30,8 @@
   padding: 4px;
   border-radius: 8px;
   transition: background-color 0.2s ease;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--sapTile_Background, #fff);
+  border: 1px solid var(--sapList_BorderColor, #ccc);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-left: 0.5rem;
 }
@@ -82,7 +84,6 @@
 .popoverButtonContainer {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   padding: 0.5rem;
 }
 
