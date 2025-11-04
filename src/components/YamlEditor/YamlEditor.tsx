@@ -2,7 +2,7 @@ import { Editor } from '@monaco-editor/react';
 import type { ComponentProps } from 'react';
 import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
@@ -614,12 +614,25 @@ let monacoYamlConfigured = false;
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
-  const { theme, options, value, defaultValue, onChange, isEdit = false, onApply, ...rest } = props;
+  const {
+    theme,
+    options,
+    value,
+    defaultValue,
+    onChange,
+    isEdit = false,
+    onApply,
+    onMount: parentOnMount,
+    ...rest
+  } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
   const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
+
+  // Ref to the wrapper to scope global key handlers
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (typeof value !== 'undefined') {
@@ -646,6 +659,31 @@ export const YamlEditor = (props: YamlEditorProps) => {
         ],
       });
     }
+  }, []);
+
+  // Capture Space at the window level before document-level handlers and stop propagation if inside editor
+  useEffect(() => {
+    const isInsideWrapper = (target: EventTarget | null): boolean => {
+      if (!wrapperRef.current || !(target instanceof Node)) return false;
+      return wrapperRef.current.contains(target);
+    };
+
+    const handler = (e: KeyboardEvent) => {
+      // Normalize different browsers: e.key can be ' ' or 'Spacebar'. Prefer code when available.
+      const isSpace = e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+      if (!isSpace) return;
+      if (isInsideWrapper(e.target)) {
+        // allow default so Monaco inserts a space, but stop propagation to prevent global handlers
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', handler, true);
+    window.addEventListener('keyup', handler, true);
+    return () => {
+      window.removeEventListener('keydown', handler, true);
+      window.removeEventListener('keyup', handler, true);
+    };
   }, []);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
@@ -688,6 +726,27 @@ export const YamlEditor = (props: YamlEditorProps) => {
     [isEdit, onChange],
   );
 
+  // Stop key events from bubbling to parent components (e.g., UI5 toolbars) which may intercept Space
+  const handleEditorMount = useCallback(
+    (editorInstance: monaco.editor.IStandaloneCodeEditor, monacoApi: typeof monaco) => {
+      const stopIfSpace = (ev: monaco.IKeyboardEvent) => {
+        const be = ev.browserEvent as KeyboardEvent;
+        const isSpace = be.code === 'Space' || be.key === ' ' || be.key === 'Spacebar';
+        if (isSpace) be.stopPropagation();
+      };
+
+      editorInstance.onKeyDown(stopIfSpace);
+      editorInstance.onKeyUp(stopIfSpace);
+
+      // Call parent onMount with strong types, avoid any casts
+      const typedParentOnMount = parentOnMount as
+        | ((editor: monaco.editor.IStandaloneCodeEditor, monacoNs: typeof monaco) => void)
+        | undefined;
+      typedParentOnMount?.(editorInstance, monacoApi);
+    },
+    [parentOnMount],
+  );
+
   const handleApply = useCallback(() => {
     const run = async () => {
       setApplyAttempted(true);
@@ -724,7 +783,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           </Button>
         </Toolbar>
       )}
-      <div className={styles.editorWrapper}>
+      <div ref={wrapperRef} className={styles.editorWrapper}>
         <Editor
           {...rest}
           value={isEdit ? editorContent : value}
@@ -733,6 +792,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
+          onMount={handleEditorMount}
         />
       </div>
       {showValidationErrors && (

@@ -29,7 +29,7 @@ export function YamlSidePanelWithLoader({
   // Load custom resource definition for the resource
   const { data: crdData } = useApiResource(
     {
-      path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/workspaces.core.openmcp.cloud`,
+      path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/`,
     },
     undefined,
     true,
