@@ -9,7 +9,7 @@ import {
   Toolbar,
   ToolbarSpacer,
 } from '@ui5/webcomponents-react';
-import { useApiResource, useApiResourceMutation } from '../../lib/api/useApiResource';
+import { useApiResource, useApiResourceMutation as _useApiResourceMutation } from '../../lib/api/useApiResource';
 import { ManagedResourcesRequest } from '../../lib/api/types/crossplane/listManagedResources';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import IllustratedError from '../Shared/IllustratedError';
@@ -34,7 +34,7 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
-import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { useHandleResourcePatch as _useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -54,7 +54,13 @@ type ResourceRow = {
   conditionSyncedMessage: string;
 };
 
-export function ManagedResources() {
+export function ManagedResources({
+  useApiResourceMutation = _useApiResourceMutation,
+  useHandleResourcePatch = _useHandleResourcePatch,
+}: {
+  useApiResourceMutation?: typeof _useApiResourceMutation;
+  useHandleResourcePatch?: typeof _useHandleResourcePatch;
+} = {}) {
   const { t } = useTranslation();
   const toast = useToast();
   const { openInAside } = useSplitter();

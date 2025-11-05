@@ -17,7 +17,7 @@ export type ActionsMenuProps<T> = {
   buttonIcon?: string;
 };
 
-export function ActionsMenu<T>({ item, actions, buttonIcon = 'overflow' }: ActionsMenuProps<T>) {
+export function ActionsMenu<T>({ item, actions }: ActionsMenuProps<T>) {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
 
@@ -30,10 +30,11 @@ export function ActionsMenu<T>({ item, actions, buttonIcon = 'overflow' }: Actio
 
   return (
     <>
-      <Button icon={buttonIcon} design="Transparent" onClick={handleOpenerClick} />
+      <Button icon="overflow" design="Transparent" data-testid="ActionsMenu-opener" onClick={handleOpenerClick} />
       <Menu
         ref={popoverRef}
         open={open}
+        data-component-name="ActionsMenu"
         onItemClick={(event) => {
           const element = event.detail.item as HTMLElement & { disabled?: boolean };
           const actionKey = element.dataset.actionKey;
