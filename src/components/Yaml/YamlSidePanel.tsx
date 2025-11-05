@@ -11,7 +11,7 @@ import {
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
-import { YamlViewerWrapper } from './YamlViewerWrapper.tsx';
+import { CustomResourceDefinitionName, YamlViewerSchemaLoader } from './YamlViewerSchemaLoader.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
@@ -30,8 +30,16 @@ export interface YamlSidePanelProps {
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
   toolbarContent?: JSX.Element;
+  customResourceDefinitionName?: CustomResourceDefinitionName;
 }
-export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent }: YamlSidePanelProps) {
+export function YamlSidePanel({
+  resource,
+  filename,
+  onApply,
+  isEdit,
+  toolbarContent,
+  customResourceDefinitionName,
+}: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -156,10 +164,11 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           </FlexBox>
         )}
         {mode === 'edit' && (
-          <YamlViewerWrapper
+          <YamlViewerSchemaLoader
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={true}
+            customResourceDefinitionName={customResourceDefinitionName}
             onApply={handleApplyFromEditor}
           />
         )}

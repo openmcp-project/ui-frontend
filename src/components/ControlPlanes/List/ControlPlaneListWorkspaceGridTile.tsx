@@ -124,6 +124,7 @@ export function ControlPlaneListWorkspaceGridTile({ projectName, workspace }: Pr
                   workspaceName={workspace.metadata.namespace}
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
+                  customResourceDefinitionName={'workspaces.core.openmcp.cloud'}
                 />
                 <ControlPlanesListMenu
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}

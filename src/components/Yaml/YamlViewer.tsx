@@ -4,12 +4,12 @@ import { YamlEditor } from '../YamlEditor/YamlEditor';
 
 import styles from './YamlViewer.module.css';
 
-export type YamlViewerProps = {
+export interface YamlViewerProps {
   yamlString: string;
   filename: string;
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
-};
+}
 
 export const YamlViewer: FC<YamlViewerProps> = ({ yamlString, filename, isEdit = false, onApply }) => {
   return (

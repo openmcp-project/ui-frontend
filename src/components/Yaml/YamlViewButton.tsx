@@ -8,6 +8,7 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
 import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
 import { JSX } from 'react';
+import { CustomResourceDefinitionName } from './YamlViewerSchemaLoader.tsx';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -19,6 +20,7 @@ export interface YamlViewButtonLoaderProps {
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
+  customResourceDefinitionName?: CustomResourceDefinitionName;
 }
 export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
 
@@ -36,6 +38,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
             resource={resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             toolbarContent={toolbarContent}
+            customResourceDefinitionName={'workspaces.core.openmcp.cloud'}
           />,
         );
         break;
@@ -49,6 +52,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}
+            customResourceDefinitionName={'workspaces.core.openmcp.cloud'}
           />,
         );
         break;
