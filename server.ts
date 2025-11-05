@@ -94,6 +94,9 @@ if (DYNATRACE_SCRIPT_URL) {
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
@@ -101,6 +104,12 @@ fastify.register(helmet, {
       // @ts-ignore
       'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
+  },
+  // Needed for https enforcement
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
   },
 });
 
