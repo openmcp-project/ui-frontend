@@ -14,6 +14,7 @@ export interface YamlViewButtonResourceProps {
   variant: 'resource';
   resource: Resource;
   toolbarContent?: JSX.Element;
+  customResourceDefinitionName?: CustomResourceDefinitionName;
 }
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
@@ -24,7 +25,7 @@ export interface YamlViewButtonLoaderProps {
 }
 export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
 
-export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
+export function YamlViewButton({ variant, customResourceDefinitionName, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
 
@@ -34,11 +35,11 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
         const { resource, toolbarContent } = props as YamlViewButtonResourceProps;
         openInAside(
           <YamlSidePanel
-            isEdit={true}
+            isEdit={false}
             resource={resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             toolbarContent={toolbarContent}
-            customResourceDefinitionName={'workspaces.core.openmcp.cloud'}
+            customResourceDefinitionName={customResourceDefinitionName}
           />,
         );
         break;
@@ -48,11 +49,11 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
         const { workspaceName, resourceType, resourceName } = props as YamlViewButtonLoaderProps;
         openInAside(
           <YamlSidePanelWithLoader
-            isEdit={true}
+            isEdit={false}
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}
-            customResourceDefinitionName={'workspaces.core.openmcp.cloud'}
+            customResourceDefinitionName={customResourceDefinitionName}
           />,
         );
         break;

@@ -167,7 +167,7 @@ export function YamlSidePanel({
           <YamlViewerSchemaLoader
             yamlString={yamlStringToDisplay}
             filename={filename}
-            isEdit={true}
+            isEdit={isEdit}
             customResourceDefinitionName={customResourceDefinitionName}
             onApply={handleApplyFromEditor}
           />

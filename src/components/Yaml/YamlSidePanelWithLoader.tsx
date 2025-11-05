@@ -6,6 +6,8 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
+import { CustomResourceDefinitionObject } from '../../lib/api/types/crate/customResourceDefinitionObject.ts';
+import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
 import { CustomResourceDefinitionName } from './YamlViewerSchemaLoader.tsx';
 
 export interface YamlSidePanelWithLoaderProps {
@@ -28,6 +30,15 @@ export function YamlSidePanelWithLoader({
     undefined,
     true,
   );
+
+  // Load custom resource definition for the resource
+  const { data: crdData } = useApiResource<CustomResourceDefinition>(
+    CustomResourceDefinitionObject(resourceType),
+    undefined,
+    true,
+  );
+
+  console.log('Custom Resource Definition:', crdData);
 
   if (isLoading) return <Loading />;
   if (error) return <IllustratedError details={t('common.cannotLoadData')} />;
