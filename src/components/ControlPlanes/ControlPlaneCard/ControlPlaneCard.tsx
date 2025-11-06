@@ -104,7 +104,7 @@ export const ControlPlaneCard = ({ controlPlane, workspace, projectName }: Props
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}
-                  customResourceDefinitionName={'managedcontrolplanes.core.openmcp.cloud'}
+                  customResourceDefinitionName={'managedcontrolplanes'}
                 />
                 {showWarningBecauseOfDisabledSystemIdentityProvider && (
                   <Infobox size="sm" variant="warning">

@@ -32,6 +32,7 @@ export interface YamlSidePanelProps {
   toolbarContent?: JSX.Element;
   customResourceDefinitionName?: CustomResourceDefinitionName;
 }
+
 export function YamlSidePanel({
   resource,
   filename,
@@ -87,6 +88,9 @@ export function YamlSidePanel({
   }, [onApply, editedYaml, parsedObject]);
 
   const handleGoBack = () => setMode('edit');
+
+  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
+  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
 
   return (
     <Panel
@@ -169,6 +173,8 @@ export function YamlSidePanel({
             filename={filename}
             isEdit={isEdit}
             customResourceDefinitionName={customResourceDefinitionName}
+            apiGroupName={apiGroupName}
+            apiVersion={apiVersion}
             onApply={handleApplyFromEditor}
           />
         )}

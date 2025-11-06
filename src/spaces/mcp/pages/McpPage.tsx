@@ -116,7 +116,7 @@ export default function McpPage() {
                       workspaceName={mcp?.status?.access?.namespace}
                       resourceType={'managedcontrolplanes'}
                       resourceName={controlPlaneName}
-                      customResourceDefinitionName={'managedcontrolplanes.core.openmcp.cloud'}
+                      customResourceDefinitionName={'managedcontrolplanes'}
                     />
                     <CopyKubeconfigButton />
                     <ControlPlanePageMenu
