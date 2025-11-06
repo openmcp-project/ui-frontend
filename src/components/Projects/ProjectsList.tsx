@@ -93,6 +93,7 @@ export default function ProjectsList() {
               variant="loader"
               resourceType={'projects'}
               resourceName={instance.cell.row.original?.projectName as string}
+              customResourceDefinitionName={'projects'}
             />
           </div>
         ),
