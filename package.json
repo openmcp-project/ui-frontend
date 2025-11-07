@@ -28,6 +28,7 @@
     "@apollo/client": "3.14.0",
     "@fastify/autoload": "6.3.1",
     "@fastify/cookie": "11.0.2",
+    "@fastify/cors": "^11.1.0",
     "@fastify/env": "5.0.3",
     "@fastify/helmet": "13.0.2",
     "@fastify/http-proxy": "11.3.0",

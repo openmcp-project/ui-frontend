@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
+import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -63,6 +64,29 @@ if (
 
 const fastify = Fastify({
   logger: true,
+});
+
+fastify.register(cors, {
+  origin: isLocalDev
+    ? true // Allow all origins in local development
+    : (origin, callback) => {
+        // In production, validate against allowed origins
+        // @ts-ignore
+        const allowedOrigins = fastify.config.ALLOWED_CORS_ORIGINS
+          ? // @ts-ignore
+            fastify.config.ALLOWED_CORS_ORIGINS.split(',').map((o) => o.trim())
+          : // @ts-ignore
+            [fastify.config.POST_LOGIN_REDIRECT]; // Fallback to POST_LOGIN_REDIRECT
+
+        console.log('Allowed Origin:', allowedOrigins, !origin || allowedOrigins.includes(origin));
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
+        }
+      },
+  methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'],
+  credentials: true, // Required for cookie-based sessions
 });
 
 Sentry.setupFastifyErrorHandler(fastify);
