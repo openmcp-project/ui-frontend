@@ -78,7 +78,6 @@ fastify.register(cors, {
           : // @ts-ignore
             [fastify.config.POST_LOGIN_REDIRECT]; // Fallback to POST_LOGIN_REDIRECT
 
-        console.log('Allowed Origin:', allowedOrigins, !origin || allowedOrigins.includes(origin));
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
