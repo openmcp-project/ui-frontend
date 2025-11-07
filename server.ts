@@ -12,8 +12,6 @@ import { injectDynatraceTag } from './server/config/dynatrace.js';
 
 dotenv.config();
 
-console.log(process.env);
-
 const { DYNATRACE_SCRIPT_URL } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
