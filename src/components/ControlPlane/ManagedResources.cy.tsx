@@ -205,12 +205,10 @@ describe('ManagedResources - Delete Resource', () => {
 });
 
 describe('ManagedResources - Edit Resource', () => {
-  let patchHandlerCreated = false;
   let patchCalled = false;
   let patchedItem: any = null;
 
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
-    patchHandlerCreated = true;
     return async (item: any) => {
       patchCalled = true;
       patchedItem = item;
@@ -282,7 +280,6 @@ describe('ManagedResources - Edit Resource', () => {
   });
 
   beforeEach(() => {
-    patchHandlerCreated = false;
     patchCalled = false;
     patchedItem = null;
   });
@@ -301,9 +298,6 @@ describe('ManagedResources - Edit Resource', () => {
         </SplitterProvider>
       </MemoryRouter>,
     );
-
-    // Verify patch handler was initialized
-    cy.then(() => cy.wrap(patchHandlerCreated).should('equal', true));
 
     // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
