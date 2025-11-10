@@ -142,10 +142,10 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
                 <p className={styles.diffConfirmMessage}>{t('yaml.diffConfirmMessage')}</p>
               </div>
               <FlexBox className={styles.reviewButtons}>
-                <Button design="Transparent" onClick={handleGoBack} data-testid="yaml-cancel-confirmation-button">
+                <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
                   {t('yaml.diffNo')}
                 </Button>
-                <Button design="Emphasized" onClick={handleConfirmPatch} data-testid="yaml-confirm-button">
+                <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
                   {t('yaml.diffYes', 'Yes')}
                 </Button>
               </FlexBox>

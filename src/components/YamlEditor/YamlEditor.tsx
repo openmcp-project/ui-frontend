@@ -85,7 +85,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
         <Toolbar design="Solid">
           <Title>{t('yaml.editorTitle')}</Title>
           <ToolbarSpacer />
-          <Button design="Emphasized" onClick={handleApply} data-testid="yaml-apply-button">
+          <Button design="Emphasized" data-testid="yaml-apply-button" onClick={handleApply}>
             {t('buttons.applyChanges', 'Apply changes')}
           </Button>
         </Toolbar>

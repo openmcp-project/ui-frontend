@@ -332,8 +332,8 @@ describe('ManagedResources - Edit Resource', () => {
 
     // Verify patch was called
     cy.then(() => {
-      expect(patchCalled).to.equal(true);
-      expect(patchedItem).to.not.be.null;
+      cy.wrap(patchCalled).should('equal', true);
+      cy.wrap(patchedItem).should('not.be.null');
     });
   });
 });
