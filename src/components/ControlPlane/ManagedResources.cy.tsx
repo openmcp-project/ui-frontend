@@ -212,6 +212,7 @@ describe('ManagedResources - Edit Resource', () => {
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
     patchHandlerCreated = true;
     return async (item: any) => {
+      cy.log('Patch handler called!');
       patchCalled = true;
       patchedItem = item;
       return true;
@@ -316,15 +317,27 @@ describe('ManagedResources - Edit Resource', () => {
     cy.contains('test-subaccount').should('be.visible');
 
     // Verify patch not called yet
-    cy.then(() => cy.wrap(patchCalled).should('equal', false));
+    cy.then(() => {
+      cy.log(`patchCalled before Apply: ${patchCalled}`);
+      cy.wrap(patchCalled).should('equal', false);
+    });
 
     // Click Apply button
     cy.contains('Apply changes').click();
 
-    // Confirm in dialog
+    // Wait for dialog and confirm
+    cy.get('ui5-dialog', { timeout: 10000 }).should('exist');
     cy.contains('Yes').click({ force: true });
 
+    // Give it time to process
+    cy.wait(2000);
+
     // Verify patch was called
+    cy.then(() => {
+      cy.log(`patchCalled after Apply: ${patchCalled}`);
+      cy.log(`patchedItem: ${JSON.stringify(patchedItem)}`);
+    });
+
     cy.then(() => cy.wrap(patchCalled).should('equal', true));
     cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
   });
