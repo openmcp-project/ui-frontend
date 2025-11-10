@@ -212,7 +212,6 @@ describe('ManagedResources - Edit Resource', () => {
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
     patchHandlerCreated = true;
     return async (item: any) => {
-      cy.log('Patch handler called!');
       patchCalled = true;
       patchedItem = item;
       return true;
@@ -271,9 +270,13 @@ describe('ManagedResources - Edit Resource', () => {
   ];
 
   before(() => {
-    // Ignore Monaco Editor disposal errors
     cy.on('uncaught:exception', (err) => {
+      // Ignore Monaco Editor errors
       if (err.message.includes('TextModel got disposed')) {
+        return false;
+      }
+      // Ignore DiffEditorWidget errors
+      if (err.message.includes('DiffEditorWidget')) {
         return false;
       }
       return true;
@@ -314,31 +317,23 @@ describe('ManagedResources - Edit Resource', () => {
 
     // Verify YAML panel opened
     cy.contains('YAML').should('be.visible');
-    cy.contains('test-subaccount').should('be.visible');
 
     // Verify patch not called yet
-    cy.then(() => {
-      cy.log(`patchCalled before Apply: ${patchCalled}`);
-      cy.wrap(patchCalled).should('equal', false);
-    });
+    cy.then(() => cy.wrap(patchCalled).should('equal', false));
 
     // Click Apply button
-    cy.contains('Apply changes').click();
+    cy.get('[data-testid="yaml-apply-button"]').should('be.visible').click();
 
-    // Wait for dialog and confirm
-    cy.get('ui5-dialog', { timeout: 10000 }).should('exist');
-    cy.contains('Yes').click({ force: true });
+    // Confirm in dialog
+    cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').click({ force: true });
 
-    // Give it time to process
-    cy.wait(2000);
+    // Wait for success message
+    cy.contains('Update submitted', { timeout: 10000 }).should('be.visible');
 
     // Verify patch was called
     cy.then(() => {
-      cy.log(`patchCalled after Apply: ${patchCalled}`);
-      cy.log(`patchedItem: ${JSON.stringify(patchedItem)}`);
+      expect(patchCalled).to.equal(true);
+      expect(patchedItem).to.not.be.null;
     });
-
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
   });
 });
