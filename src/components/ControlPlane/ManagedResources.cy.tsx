@@ -205,15 +205,17 @@ describe('ManagedResources - Delete Resource', () => {
 });
 
 describe('ManagedResources - Edit Resource', () => {
-  let patchHandlerCreated = false;
-  let patchCalled = false;
-  let patchedItem: any = null;
+  const state = {
+    patchHandlerCreated: false,
+    patchCalled: false,
+    patchedItem: null as any,
+  };
 
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
-    patchHandlerCreated = true;
+    state.patchHandlerCreated = true;
     return async (item: any) => {
-      patchCalled = true;
-      patchedItem = item;
+      state.patchCalled = true;
+      state.patchedItem = item;
       return true;
     };
   };
@@ -271,11 +273,9 @@ describe('ManagedResources - Edit Resource', () => {
 
   before(() => {
     cy.on('uncaught:exception', (err) => {
-      // Ignore Monaco Editor errors
       if (err.message.includes('TextModel got disposed')) {
         return false;
       }
-      // Ignore DiffEditorWidget errors
       if (err.message.includes('DiffEditorWidget')) {
         return false;
       }
@@ -284,9 +284,9 @@ describe('ManagedResources - Edit Resource', () => {
   });
 
   beforeEach(() => {
-    patchHandlerCreated = false;
-    patchCalled = false;
-    patchedItem = null;
+    state.patchHandlerCreated = false;
+    state.patchCalled = false;
+    state.patchedItem = null;
   });
 
   it('opens edit panel and can apply changes', () => {
@@ -305,7 +305,7 @@ describe('ManagedResources - Edit Resource', () => {
     );
 
     // Verify patch handler was initialized
-    cy.then(() => cy.wrap(patchHandlerCreated).should('equal', true));
+    cy.then(() => cy.wrap(state.patchHandlerCreated).should('equal', true));
 
     // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
@@ -319,7 +319,7 @@ describe('ManagedResources - Edit Resource', () => {
     cy.contains('YAML').should('be.visible');
 
     // Verify patch not called yet
-    cy.then(() => cy.wrap(patchCalled).should('equal', false));
+    cy.then(() => cy.wrap(state.patchCalled).should('equal', false));
 
     // Click Apply button
     cy.get('[data-testid="yaml-apply-button"]').should('be.visible').click();
@@ -330,10 +330,8 @@ describe('ManagedResources - Edit Resource', () => {
     // Wait for success message
     cy.contains('Update submitted', { timeout: 10000 }).should('be.visible');
 
-    // Verify patch was called
-    cy.then(() => {
-      cy.wrap(patchCalled).should('equal', true);
-      cy.wrap(patchedItem).should('not.be.null');
-    });
+    // Verify patch was called - use should callback to access current value
+    cy.wrap(state).its('patchCalled').should('equal', true);
+    cy.wrap(state).its('patchedItem').should('not.be.null');
   });
 });
