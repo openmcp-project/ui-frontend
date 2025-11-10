@@ -3,9 +3,11 @@ import { ManagedResources } from './ManagedResources.tsx';
 import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
 import { ManagedResourceGroup } from '../../lib/shared/types.ts';
 import { MemoryRouter } from 'react-router-dom';
-import { useApiResourceMutation } from '../../lib/api/useApiResource.ts';
+import { useApiResourceMutation, useApiResource } from '../../lib/api/useApiResource.ts';
 import '@ui5/webcomponents-cypress-commands';
-import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
+import { SplitterLayout } from '../Splitter/SplitterLayout.tsx';
+import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 
 describe('ManagedResources - Delete Resource', () => {
   let deleteCalled = false;
@@ -30,6 +32,24 @@ describe('ManagedResources - Delete Resource', () => {
     };
   };
 
+  const fakeUseApiResource: typeof useApiResource = (): any => {
+    return {
+      data: mockManagedResources,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: async () => undefined,
+    };
+  };
+
+  const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
+    return {
+      getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
+      isLoading: false,
+      error: undefined,
+    };
+  };
+
   const mockManagedResources: ManagedResourceGroup[] = [
     {
       items: [
@@ -63,30 +83,6 @@ describe('ManagedResources - Delete Resource', () => {
     },
   ];
 
-  before(() => {
-    // Set up interceptors once for all tests
-    cy.intercept('GET', '**/managed', {
-      statusCode: 200,
-      body: mockManagedResources,
-    }).as('getManagedResources');
-
-    cy.intercept('GET', '**/customresourcedefinitions*', {
-      statusCode: 200,
-      body: {
-        items: [
-          {
-            spec: {
-              names: {
-                kind: 'Subaccount',
-                plural: 'subaccounts',
-              },
-            },
-          },
-        ],
-      },
-    }).as('getCRDs');
-  });
-
   beforeEach(() => {
     deleteCalled = false;
     patchCalled = false;
@@ -97,24 +93,33 @@ describe('ManagedResources - Delete Resource', () => {
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ManagedResources useApiResourceMutation={fakeUseApiResourceMutation} />
+          <ManagedResources
+            useApiResourceMutation={fakeUseApiResourceMutation}
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+          />
         </SplitterProvider>
       </MemoryRouter>,
     );
 
-    cy.wait('@getManagedResources');
-    cy.wait('@getCRDs');
-
+    // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
-    cy.wait(500);
-
     cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
+
+    // Type confirmation text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
 
+    // Verify delete not called yet
     cy.then(() => cy.wrap(deleteCalled).should('equal', false));
+
+    // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+
+    // Verify delete was called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
   });
 
@@ -122,83 +127,62 @@ describe('ManagedResources - Delete Resource', () => {
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ManagedResources useApiResourceMutation={fakeUseApiResourceMutation} />
+          <ManagedResources
+            useApiResourceMutation={fakeUseApiResourceMutation}
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+          />
         </SplitterProvider>
       </MemoryRouter>,
     );
 
-    cy.wait(1000);
-
+    // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
-    cy.wait(500);
-
     cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
     // Expand Advanced section
     cy.contains('Advanced').click();
-    cy.wait(500);
 
-    // Click directly on "Force deletion" text - this should toggle the checkbox
+    // Enable force deletion checkbox
     cy.contains('Force deletion').click({ force: true });
-    cy.wait(500);
 
+    // Type confirmation text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
 
+    // Verify neither delete nor patch called yet
     cy.then(() => cy.wrap(deleteCalled).should('equal', false));
     cy.then(() => cy.wrap(patchCalled).should('equal', false));
 
+    // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
-    cy.wait(2000);
-
-    cy.then(() => {
-      cy.log(`deleteCalled: ${deleteCalled}, patchCalled: ${patchCalled}`);
-    });
-
+    // Verify both delete and patch were called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
     cy.then(() => cy.wrap(patchCalled).should('equal', true));
   });
 
   it('keeps delete button disabled until confirmation text is entered', () => {
-    // Setup interceptors for this test
-    cy.intercept('GET', '**/managed', {
-      statusCode: 200,
-      body: mockManagedResources,
-    }).as('getManagedResourcesValidation');
-
-    cy.intercept('GET', '**/customresourcedefinitions*', {
-      statusCode: 200,
-      body: {
-        items: [
-          {
-            spec: {
-              names: {
-                kind: 'Subaccount',
-                plural: 'subaccounts',
-              },
-            },
-          },
-        ],
-      },
-    }).as('getCRDsValidation');
-
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ManagedResources useApiResourceMutation={fakeUseApiResourceMutation} />
+          <ManagedResources
+            useApiResourceMutation={fakeUseApiResourceMutation}
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+          />
         </SplitterProvider>
       </MemoryRouter>,
     );
 
-    cy.wait('@getManagedResourcesValidation');
-    cy.wait('@getCRDsValidation');
-
+    // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
-    cy.wait(500);
-
     cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
@@ -207,18 +191,13 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Type wrong text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('wrong-text');
-    cy.wait(300);
 
     // Delete button should still be disabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
-    // Clear input by selecting all and deleting
+    // Clear input and type correct text
     cy.get('ui5-dialog[open]').find('ui5-input').find('input[id*="inner"]').clear({ force: true });
-    cy.wait(300);
-
-    // Type correct text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
-    cy.wait(300);
 
     // Delete button should now be enabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled');
@@ -227,11 +206,33 @@ describe('ManagedResources - Delete Resource', () => {
 
 describe('ManagedResources - Edit Resource', () => {
   let patchHandlerCreated = false;
+  let patchCalled = false;
+  let patchedItem: any = null;
 
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
     patchHandlerCreated = true;
-    return async () => {
+    return async (item: any) => {
+      patchCalled = true;
+      patchedItem = item;
       return true;
+    };
+  };
+
+  const fakeUseApiResource: typeof useApiResource = (): any => {
+    return {
+      data: mockManagedResources,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: async () => undefined,
+    };
+  };
+
+  const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
+    return {
+      getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
+      isLoading: false,
+      error: undefined,
     };
   };
 
@@ -269,60 +270,62 @@ describe('ManagedResources - Edit Resource', () => {
   ];
 
   before(() => {
-    cy.intercept('GET', '**/managed', {
-      statusCode: 200,
-      body: mockManagedResources,
-    }).as('getManagedResources');
-
-    cy.intercept('GET', '**/customresourcedefinitions*', {
-      statusCode: 200,
-      body: {
-        items: [
-          {
-            spec: {
-              names: {
-                kind: 'Subaccount',
-                plural: 'subaccounts',
-              },
-            },
-          },
-        ],
-      },
-    }).as('getCRDs');
+    // Ignore Monaco Editor disposal errors
+    cy.on('uncaught:exception', (err) => {
+      if (err.message.includes('TextModel got disposed')) {
+        return false;
+      }
+      return true;
+    });
   });
 
   beforeEach(() => {
     patchHandlerCreated = false;
+    patchCalled = false;
+    patchedItem = null;
   });
 
-  it('initializes patch handler and edit button is available', () => {
+  it('opens edit panel and can apply changes', () => {
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ManagedResources useHandleResourcePatch={fakeUseHandleResourcePatch} />
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+            />
+          </SplitterLayout>
         </SplitterProvider>
       </MemoryRouter>,
     );
 
-    cy.wait('@getManagedResources');
-    cy.wait('@getCRDs');
-
     // Verify patch handler was initialized
     cy.then(() => cy.wrap(patchHandlerCreated).should('equal', true));
 
+    // Expand resource group
     cy.get('button[aria-label*="xpand"]').first().click({ force: true });
-    cy.wait(500);
-
     cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Edit
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-
-    // Verify Edit button exists
-    cy.contains('Edit').should('exist');
-
-    // Verify Edit button is not disabled (check separately)
-    cy.contains('Edit').should('not.have.attr', 'disabled');
-
-    // Click Edit button
     cy.contains('Edit').click({ force: true });
+
+    // Verify YAML panel opened
+    cy.contains('YAML').should('be.visible');
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Verify patch not called yet
+    cy.then(() => cy.wrap(patchCalled).should('equal', false));
+
+    // Click Apply button
+    cy.contains('Apply changes').click();
+
+    // Confirm in dialog
+    cy.contains('Yes').click({ force: true });
+
+    // Verify patch was called
+    cy.then(() => cy.wrap(patchCalled).should('equal', true));
+    cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
   });
 });

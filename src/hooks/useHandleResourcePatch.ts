@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ApiConfigContext } from '../../../../components/Shared/k8s';
-import { useToast } from '../../../../context/ToastContext.tsx';
-import { useResourcePluralNames } from '../../../../hooks/useResourcePluralNames';
-import { ErrorDialogHandle } from '../../../../components/Shared/ErrorMessageBox.tsx';
-import { fetchApiServerJson } from '../../fetch.ts';
-import { APIError } from '../../error.ts';
+import { ApiConfigContext } from '../components/Shared/k8s/index.ts';
+import { useToast } from '../context/ToastContext.tsx';
+import { useResourcePluralNames } from './useResourcePluralNames.ts';
+import { ErrorDialogHandle } from '../components/Shared/ErrorMessageBox.tsx';
+import { fetchApiServerJson } from '../lib/api/fetch.ts';
+import { APIError } from '../lib/api/error.ts';
 
 export type PatchableResourceRef = {
   kind: string;

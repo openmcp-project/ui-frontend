@@ -34,7 +34,7 @@ export function ActionsMenu<T>({ item, actions }: ActionsMenuProps<T>) {
       <Menu
         ref={popoverRef}
         open={open}
-        data-component-name="ActionsMenu"
+        data-testid="ActionsMenu"
         onItemClick={(event) => {
           const element = event.detail.item as HTMLElement & { disabled?: boolean };
           const actionKey = element.dataset.actionKey;
