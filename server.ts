@@ -84,7 +84,7 @@ fastify.register(cors, {
           callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
         }
       },
-  methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'],
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true, // Required for cookie-based sessions
 });
 
