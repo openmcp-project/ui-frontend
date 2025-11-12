@@ -69,7 +69,6 @@ export function ProvidersConfig() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            customResourceDefinitionName={'providerconfigs'}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
@@ -109,7 +108,6 @@ export function ProvidersConfig() {
               <YamlViewButton
                 variant="resource"
                 resource={item as unknown as Resource}
-                customResourceDefinitionName={'providerconfigs'}
                 toolbarContent={
                   hasMCPAdminRights ? (
                     <Button

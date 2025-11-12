@@ -57,7 +57,6 @@ export function GitRepositories() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            customResourceDefinitionName={'gitrepositories'}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
@@ -111,7 +110,6 @@ export function GitRepositories() {
               <YamlViewButton
                 variant="resource"
                 resource={item as unknown as Resource}
-                customResourceDefinitionName={'gitrepositories'}
                 toolbarContent={
                   hasMCPAdminRights ? (
                     <Button

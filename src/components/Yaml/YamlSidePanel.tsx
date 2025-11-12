@@ -11,7 +11,7 @@ import {
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
-import { CustomResourceDefinitionName, YamlViewerSchemaLoader } from './YamlViewerSchemaLoader.tsx';
+import { YamlViewerSchemaLoader } from './YamlViewerSchemaLoader.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
@@ -31,19 +31,10 @@ export interface YamlSidePanelProps {
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
   toolbarContent?: JSX.Element;
-  customResourceDefinitionName?: CustomResourceDefinitionName;
   apiConfig?: ApiConfig;
 }
 
-export function YamlSidePanel({
-  resource,
-  filename,
-  onApply,
-  isEdit,
-  toolbarContent,
-  customResourceDefinitionName,
-  apiConfig,
-}: YamlSidePanelProps) {
+export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent, apiConfig }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -94,6 +85,7 @@ export function YamlSidePanel({
 
   const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
   const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
+  const kind = resource?.kind;
 
   return (
     <Panel
@@ -175,10 +167,10 @@ export function YamlSidePanel({
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={isEdit}
-            customResourceDefinitionName={customResourceDefinitionName}
             apiGroupName={apiGroupName}
             apiVersion={apiVersion}
             apiConfig={apiConfig}
+            kind={kind}
             onApply={handleApplyFromEditor}
           />
         )}

@@ -99,7 +99,6 @@ export const ControlPlaneCard = ({
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}
-                  customResourceDefinitionName={'managedcontrolplanes'}
                 />
                 {showWarningBecauseOfDisabledSystemIdentityProvider && (
                   <Infobox size="sm" variant="warning">

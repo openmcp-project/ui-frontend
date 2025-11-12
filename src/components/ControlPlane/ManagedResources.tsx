@@ -110,7 +110,6 @@ export function ManagedResources() {
       openInAside(
         <Fragment key={identityKey}>
           <YamlSidePanel
-            customResourceDefinitionName={'cloudmanagements'}
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
@@ -186,7 +185,6 @@ export function ManagedResources() {
             const isFluxManaged = isResourceFluxManaged(original?.item);
             return original?.item ? (
               <YamlViewButton
-                customResourceDefinitionName={'cloudmanagements'}
                 variant="resource"
                 resource={original.item as unknown as Resource}
                 toolbarContent={

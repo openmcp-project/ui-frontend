@@ -126,7 +126,6 @@ export function ControlPlaneListWorkspaceGridTile({
                   workspaceName={workspace.metadata.namespace}
                   resourceName={workspaceName}
                   resourceType={'workspaces'}
-                  customResourceDefinitionName={'workspaces'}
                 />
                 <ControlPlanesListMenu
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}

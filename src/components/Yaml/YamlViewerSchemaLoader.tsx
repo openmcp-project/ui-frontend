@@ -7,40 +7,33 @@ import { CustomResourceDefinition } from '../../types/customResourceDefinition.t
 import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
 
 import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
+import { getCustomResourceDefinitionPluralName } from '../../utils/getPluralName.ts';
 
 interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
-  customResourceDefinitionName?: CustomResourceDefinitionName;
   apiVersion: string;
   apiGroupName: string;
   apiConfig?: ApiConfig;
+  kind?: string;
 }
 
-export type CustomResourceDefinitionName =
-  | 'workspaces'
-  | 'projects'
-  | 'managedcontrolplanes'
-  | 'providerconfigs'
-  | 'providers'
-  | 'cloudmanagements'
-  | 'gitrepositories'
-  | 'kustomizations';
 export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   yamlString,
   filename,
   isEdit = false,
   onApply,
-  customResourceDefinitionName,
   apiGroupName,
   apiVersion,
   apiConfig,
+  kind,
 }) => {
+  const customResourceDefinitionName = getCustomResourceDefinitionPluralName(kind);
   const { data: crdData, isLoading } = useApiResource<CustomResourceDefinition>(
     {
       path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
     },
     undefined,
     apiConfig?.mcpConfig,
-    false,
+    !customResourceDefinitionName,
   );
 
   const schema =
