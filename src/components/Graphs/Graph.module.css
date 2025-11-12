@@ -13,47 +13,10 @@
   background-color: var(--sapTile_Background, #fff);
 }
 
-.topLegendContainer {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;              
+.panelContent {
   display: flex;
-  align-items: center;
-  
-  z-index: 2;
-}
-
-.filterIcon {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-  background-color: var(--sapTile_Background, #fff);
-  border: 1px solid var(--sapList_BorderColor, #ccc);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-left: 0.5rem;
-}
-
-.filterIcon:hover {
-  background-color: var(--sapButton_Hover_Background, #f0f0f0);
-}
-
-.graphHeader {
-  padding: 0.5rem;
-  display: flex;
+  align-items: flex-start;
   gap: 1rem;
-  align-items: center;
-  color: var(--sapTextColor, #222);
-  font-size: var(--sapFontSize);
-}
-
-.graphToolbar {
-  padding: 0.5rem;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
 }
 
 .message {
@@ -67,24 +30,6 @@
 
 .errorMessage {
   color: #c00;
-}
-
-.colorizedTitle {
-  font-weight: 500;
-  color: var(--sapTextColor, #222);
-}
-
-.fieldsetReset {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  min-inline-size: 0;
-}
-
-.popoverButtonContainer {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
 }
 
 :global([data-theme='dark'] .react-flow__controls) {
