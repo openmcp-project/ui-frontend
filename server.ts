@@ -66,30 +66,35 @@ const fastify = Fastify({
   logger: true,
 });
 
+Sentry.setupFastifyErrorHandler(fastify);
+await fastify.register(envPlugin);
+
 fastify.register(cors, {
   origin: isLocalDev
     ? true // Allow all origins in local development
     : (origin, callback) => {
         // In production, validate against allowed origins
-        // @ts-ignore
-        const allowedOrigins = fastify.config.ALLOWED_CORS_ORIGINS
-          ? // @ts-ignore
-            fastify.config.ALLOWED_CORS_ORIGINS.split(',').map((o) => o.trim())
-          : // @ts-ignore
-            [fastify.config.POST_LOGIN_REDIRECT]; // Fallback to POST_LOGIN_REDIRECT
+        const allowedOrigins =
+          // @ts-ignore
+          fastify.config.ALLOWED_CORS_ORIGINS && fastify.config.ALLOWED_CORS_ORIGINS.trim()
+            ? // @ts-ignore
+              fastify.config.ALLOWED_CORS_ORIGINS.split(',')
+                // @ts-ignore
+                .map((o) => o.trim())
+                // @ts-ignore
+                .filter((o) => o)
+            : // @ts-ignore
+              [fastify.config.POST_LOGIN_REDIRECT]; // Fallback to POST_LOGIN_REDIRECT
 
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
-          callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
+          callback(null, false);
         }
       },
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true, // Required for cookie-based sessions
 });
-
-Sentry.setupFastifyErrorHandler(fastify);
-await fastify.register(envPlugin);
 
 let sentryHost = '';
 // @ts-ignore
