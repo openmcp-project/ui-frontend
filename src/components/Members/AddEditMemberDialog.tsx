@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
@@ -68,7 +68,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     reset,
     formState: { errors },
@@ -83,8 +83,8 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     },
   });
 
-  const accountType = watch('accountType');
-  const role = watch('role');
+  const accountType = useWatch({ control, name: 'accountType' });
+  const role = useWatch({ control, name: 'role' });
 
   useEffect(() => {
     if (open) {
