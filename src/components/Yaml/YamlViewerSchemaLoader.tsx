@@ -21,7 +21,9 @@ export type CustomResourceDefinitionName =
   | 'managedcontrolplanes'
   | 'providerconfigs'
   | 'providers'
-  | 'cloudmanagements';
+  | 'cloudmanagements'
+  | 'gitrepositories'
+  | 'kustomizations';
 export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   yamlString,
   filename,

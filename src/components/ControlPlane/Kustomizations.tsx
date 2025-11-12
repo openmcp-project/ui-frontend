@@ -55,6 +55,7 @@ export function Kustomizations() {
       openInAside(
         <Fragment key={identityKey}>
           <YamlSidePanel
+            customResourceDefinitionName={'kustomizations'}
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
@@ -110,6 +111,7 @@ export function Kustomizations() {
             const item = row.original?.item;
             return item ? (
               <YamlViewButton
+                customResourceDefinitionName={'kustomizations'}
                 variant="resource"
                 resource={item as unknown as Resource}
                 toolbarContent={
@@ -192,7 +194,11 @@ export function Kustomizations() {
       header={
         <Toolbar>
           <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <YamlViewButton variant="resource" resource={data as unknown as Resource} />
+          <YamlViewButton
+            variant="resource"
+            resource={data as unknown as Resource}
+            customResourceDefinitionName={'kustomizations'}
+          />
           <ToolbarSpacer />
         </Toolbar>
       }

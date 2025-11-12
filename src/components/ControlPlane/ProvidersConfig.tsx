@@ -69,6 +69,7 @@ export function ProvidersConfig() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
+            customResourceDefinitionName={'providerconfigs'}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
