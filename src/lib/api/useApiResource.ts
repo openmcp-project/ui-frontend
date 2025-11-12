@@ -13,18 +13,19 @@ import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } f
 export const useApiResource = <T>(
   resource: Resource<T>,
   config?: SWRConfiguration,
-  excludeMcpConfig?: boolean,
+  overrideMcpConfig?: ApiConfig['mcpConfig'],
   disable?: boolean,
-  overrideApiConfig?: ApiConfig,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
 
   const { data, error, isLoading, isValidating } = useSWR(
-    disable || resource.path === null ? null : [resource.path, apiConfig, excludeMcpConfig],
-    ([path, apiConfig, excludeMcpConfig]) =>
+    disable || resource.path === null ? null : [resource.path, apiConfig, overrideMcpConfig],
+    ([path, apiConfig, overrideMcpConfig]) =>
       fetchApiServerJson<T>(
         path,
-        excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : overrideApiConfig ? overrideApiConfig : apiConfig,
+        overrideMcpConfig
+          ? { ...apiConfig, mcpConfig: overrideMcpConfig.projectName ? overrideMcpConfig : undefined }
+          : apiConfig,
         resource.jq,
         resource.method,
         resource.body,

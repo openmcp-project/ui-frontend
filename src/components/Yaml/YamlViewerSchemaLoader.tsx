@@ -40,9 +40,8 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
       path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
     },
     undefined,
+    apiConfig?.mcpConfig,
     false,
-    false,
-    apiConfig,
   );
   console.log('apiConfig schema file');
   console.log(apiConfig);

@@ -8,7 +8,7 @@ export interface GetComponentsHookResult {
   isLoading: boolean;
 }
 export function useComponentsQuery(): GetComponentsHookResult {
-  const { data: components, error, isLoading } = useApiResource(ListManagedComponents(), undefined, true);
+  const { data: components, error, isLoading } = useApiResource(ListManagedComponents(), undefined, {});
 
   return { components, error, isLoading };
 }
