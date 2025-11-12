@@ -35,7 +35,7 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: process.env.NODE_ENV !== 'production',
+    sourcemap: true, // crucial for sentry
     target: 'esnext', // Support top-level await
   },
 });

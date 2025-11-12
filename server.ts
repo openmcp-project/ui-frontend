@@ -116,8 +116,9 @@ fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
+      // styleSrc: unsafe-inline is needed for our styling
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
+      imgSrc: ["'self'", 'data:'],
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
