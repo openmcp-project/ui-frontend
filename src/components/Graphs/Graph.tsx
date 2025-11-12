@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useContext } from 'react';
 import { ReactFlow, Background, Controls, MarkerType, Node, Panel } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
@@ -14,6 +14,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { ApiConfigContext } from '../Shared/k8s';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
@@ -33,14 +34,16 @@ const Graph: React.FC = () => {
   const { openInAside } = useSplitter();
   const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('provider');
-
+  const apiConfig = useContext(ApiConfigContext);
   const handleYamlClick = useCallback(
     (item: ManagedResourceItem) => {
       const yamlFilename = item
         ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}`
         : '';
 
-      openInAside(<YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />);
+      openInAside(
+        <YamlSidePanel apiConfig={apiConfig} resource={item as unknown as Resource} filename={yamlFilename} />,
+      );
     },
     [openInAside],
   );

@@ -47,12 +47,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (typeof value !== 'undefined') {
-      setEditorContent(value.toString());
-    }
-  }, [value]);
-
-  useEffect(() => {
     // Configure YAML validation with schema only once
     if (!monacoYamlConfigured) {
       monacoYamlConfigured = true;
