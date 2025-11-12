@@ -7,9 +7,9 @@ import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/sha
 import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import styles from './Members.module.css';
 import { RadioButtonsSelect } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import FadeVisibility from '../Ui/FadeVisibility/FadeVisibility.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { useLink } from '../../lib/shared/useLink.ts';
+import { clsx } from 'clsx';
 
 interface AddEditMemberDialogProps {
   open: boolean;
@@ -158,7 +158,14 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           </div>
 
           <div className={styles.placeholder}>
-            <FadeVisibility show={accountType === 'ServiceAccount'}>
+            <div
+              className={clsx(
+                styles.serviceAccountContainer,
+                accountType === 'ServiceAccount'
+                  ? styles.serviceAccountContainerVisible
+                  : styles.serviceAccountContainerHidden,
+              )}
+            >
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>
@@ -188,7 +195,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </MessageStrip>
               </div>
-            </FadeVisibility>
+            </div>
           </div>
 
           <Button
