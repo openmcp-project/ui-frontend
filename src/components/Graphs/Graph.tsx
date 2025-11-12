@@ -45,7 +45,7 @@ const Graph: React.FC = () => {
         <YamlSidePanel apiConfig={apiConfig} resource={item as unknown as Resource} filename={yamlFilename} />,
       );
     },
-    [openInAside],
+    [openInAside, apiConfig],
   );
 
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
