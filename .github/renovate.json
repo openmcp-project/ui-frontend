@@ -7,5 +7,11 @@
     "group:allNonMajor",
     "npm:unpublishSafe",
     ":disableDependencyDashboard"
+  ],
+  "packageRules": [
+    {
+      "groupName": "@ui5/webcomponents packages",
+      "matchPackageNames": ["@ui5/webcomponents{/,}**"]
+    }
   ]
 }

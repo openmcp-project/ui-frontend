@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
+import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -11,8 +12,6 @@ import * as Sentry from '@sentry/node';
 import { injectDynatraceTag } from './server/config/dynatrace.js';
 
 dotenv.config();
-
-console.log(process.env);
 
 const { DYNATRACE_SCRIPT_URL } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
@@ -70,6 +69,33 @@ const fastify = Fastify({
 Sentry.setupFastifyErrorHandler(fastify);
 await fastify.register(envPlugin);
 
+fastify.register(cors, {
+  origin: isLocalDev
+    ? true // Allow all origins in local development
+    : (origin, callback) => {
+        // In production, validate against allowed origins
+        const allowedOrigins =
+          // @ts-ignore
+          fastify.config.ALLOWED_CORS_ORIGINS && fastify.config.ALLOWED_CORS_ORIGINS.trim()
+            ? // @ts-ignore
+              fastify.config.ALLOWED_CORS_ORIGINS.split(',')
+                // @ts-ignore
+                .map((o) => o.trim())
+                // @ts-ignore
+                .filter((o) => o)
+            : // @ts-ignore
+              [fastify.config.POST_LOGIN_REDIRECT]; // Fallback to POST_LOGIN_REDIRECT
+
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true, // Required for cookie-based sessions
+});
+
 let sentryHost = '';
 // @ts-ignore
 if (fastify.config.FRONTEND_SENTRY_DSN && fastify.config.FRONTEND_SENTRY_DSN.length > 0) {
@@ -94,6 +120,10 @@ if (DYNATRACE_SCRIPT_URL) {
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
+      defaultSrc: ["'self'"],
+      // styleSrc: unsafe-inline is needed for our styling
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
       'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
@@ -101,6 +131,12 @@ fastify.register(helmet, {
       // @ts-ignore
       'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
+  },
+  // Needed for https enforcement
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
   },
 });
 
