@@ -93,11 +93,7 @@ const Graph: React.FC = () => {
           <Controls showInteractive={false} />
           <Background />
           <Panel position="top-right" className={styles.panelContent}>
-            <Legend 
-              legendItems={legendItems} 
-              colorBy={colorBy}
-              onColorByChange={setColorBy}
-            />
+            <Legend legendItems={legendItems} colorBy={colorBy} onColorByChange={setColorBy} />
           </Panel>
         </ReactFlow>
       </div>
