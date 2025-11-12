@@ -13,7 +13,7 @@ import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } f
 export const useApiResource = <T>(
   resource: Resource<T>,
   config?: SWRConfiguration,
-  overrideMcpConfig?: ApiConfig['mcpConfig'],
+  overrideMcpConfig?: ApiConfig['mcpConfig'] | null,
   disable?: boolean,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
@@ -23,9 +23,9 @@ export const useApiResource = <T>(
     ([path, apiConfig, overrideMcpConfig]) =>
       fetchApiServerJson<T>(
         path,
-        overrideMcpConfig
-          ? { ...apiConfig, mcpConfig: overrideMcpConfig.projectName ? overrideMcpConfig : undefined }
-          : apiConfig,
+        overrideMcpConfig === undefined
+          ? apiConfig
+          : { ...apiConfig, mcpConfig: overrideMcpConfig === null ? undefined : overrideMcpConfig },
         resource.jq,
         resource.method,
         resource.body,
