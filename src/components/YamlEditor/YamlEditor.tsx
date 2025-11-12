@@ -51,8 +51,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       setEditorContent(value.toString());
     }
   }, [value]);
-  console.log('schema editor');
-  console.log(schema);
+
   useEffect(() => {
     // Configure YAML validation with schema only once
     if (!monacoYamlConfigured) {

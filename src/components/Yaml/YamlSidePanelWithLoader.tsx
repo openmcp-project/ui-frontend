@@ -31,14 +31,14 @@ export function YamlSidePanelWithLoader({
   const { isLoading, data, error } = useApiResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,
-    true,
+    null,
   );
 
   // Load custom resource definition for the resource
   const { data: crdData } = useApiResource<CustomResourceDefinition>(
     CustomResourceDefinitionObject(resourceType),
     undefined,
-    true,
+    null,
   );
 
   console.log('Custom Resource Definition:', crdData);

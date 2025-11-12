@@ -34,7 +34,6 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   apiVersion,
   apiConfig,
 }) => {
-  // Load custom resource definition for the resource
   const { data: crdData, isLoading } = useApiResource<CustomResourceDefinition>(
     {
       path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
@@ -43,15 +42,12 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
     apiConfig?.mcpConfig,
     false,
   );
-  console.log('apiConfig schema file');
-  console.log(apiConfig);
-  console.log('crdData');
-  console.log(crdData);
+
   const schema =
     crdData?.spec.versions?.find(({ name }) => name === apiVersion)?.schema.openAPIV3Schema ??
     crdData?.spec.versions?.[0].schema.openAPIV3Schema;
   const editorInstanceSchema = useMemo(() => (schema ? openapiSchemaToJsonSchema(schema) : undefined), [schema]);
-  console.log('Custom Resource Definitions:', crdData);
+
   if (customResourceDefinitionName && isLoading) {
     return <Loading />;
   }

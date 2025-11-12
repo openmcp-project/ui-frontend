@@ -68,10 +68,6 @@ export function Kustomizations() {
   );
   const { hasMCPAdminRights } = useAuthMcp();
 
-  useEffect(() => {
-    console.log('Custom Resource Definitions:', crdData);
-  }, [crdData]);
-
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -155,10 +151,6 @@ export function Kustomizations() {
       ] as AnalyticalTableColumnDefinition[],
     [t, openEditPanel, hasMCPAdminRights],
   );
-
-  useEffect(() => {
-    console.log('CRD Data:', data);
-  }, [data]);
 
   if (error) {
     return (
