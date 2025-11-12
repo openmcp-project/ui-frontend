@@ -9,6 +9,7 @@ import { YamlSidePanel } from './YamlSidePanel.tsx';
 import { CustomResourceDefinitionObject } from '../../lib/api/types/crate/customResourceDefinitionObject.ts';
 import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
 import { CustomResourceDefinitionName } from './YamlViewerSchemaLoader.tsx';
+import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 
 export interface YamlSidePanelWithLoaderProps {
   workspaceName?: string;
@@ -16,6 +17,7 @@ export interface YamlSidePanelWithLoaderProps {
   resourceName: string;
   isEdit?: boolean;
   customResourceDefinitionName?: CustomResourceDefinitionName;
+  apiConfig?: ApiConfig;
 }
 export function YamlSidePanelWithLoader({
   workspaceName,
@@ -23,6 +25,7 @@ export function YamlSidePanelWithLoader({
   resourceName,
   isEdit = false,
   customResourceDefinitionName,
+  apiConfig,
 }: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
   const { isLoading, data, error } = useApiResource(
@@ -51,6 +54,7 @@ export function YamlSidePanelWithLoader({
       filename={filename}
       isEdit={isEdit}
       customResourceDefinitionName={customResourceDefinitionName}
+      apiConfig={apiConfig}
     />
   );
 }

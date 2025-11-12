@@ -6,13 +6,22 @@ import Loading from '../Shared/Loading.tsx';
 import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
 import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
 
+import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
+
 interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
   customResourceDefinitionName?: CustomResourceDefinitionName;
   apiVersion: string;
   apiGroupName: string;
+  apiConfig?: ApiConfig;
 }
 
-export type CustomResourceDefinitionName = 'workspaces' | 'projects' | 'managedcontrolplanes';
+export type CustomResourceDefinitionName =
+  | 'workspaces'
+  | 'projects'
+  | 'managedcontrolplanes'
+  | 'providerconfigs'
+  | 'providers'
+  | 'cloudmanagements';
 export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   yamlString,
   filename,
@@ -21,6 +30,7 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   customResourceDefinitionName,
   apiGroupName,
   apiVersion,
+  apiConfig,
 }) => {
   // Load custom resource definition for the resource
   const { data: crdData, isLoading } = useApiResource<CustomResourceDefinition>(
@@ -28,9 +38,14 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
       path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
     },
     undefined,
-    true,
-    !customResourceDefinitionName,
+    false,
+    false,
+    apiConfig,
   );
+  console.log('apiConfig schema file');
+  console.log(apiConfig);
+  console.log('crdData');
+  console.log(crdData);
   const schema =
     crdData?.spec.versions?.find(({ name }) => name === apiVersion)?.schema.openAPIV3Schema ??
     crdData?.spec.versions?.[0].schema.openAPIV3Schema;

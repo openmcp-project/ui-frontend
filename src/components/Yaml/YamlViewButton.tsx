@@ -7,8 +7,9 @@ import { YamlIcon } from './YamlIcon.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
 import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
-import { JSX } from 'react';
+import { JSX, useContext } from 'react';
 import { CustomResourceDefinitionName } from './YamlViewerSchemaLoader.tsx';
+import { ApiConfigContext } from '../Shared/k8s';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -28,7 +29,7 @@ export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLo
 export function YamlViewButton({ variant, customResourceDefinitionName, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
-
+  const apiConfig = useContext(ApiConfigContext);
   const openSplitterSidePanel = () => {
     switch (variant) {
       case 'resource': {
@@ -40,6 +41,7 @@ export function YamlViewButton({ variant, customResourceDefinitionName, ...props
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             toolbarContent={toolbarContent}
             customResourceDefinitionName={customResourceDefinitionName}
+            apiConfig={apiConfig}
           />,
         );
         break;
@@ -54,6 +56,7 @@ export function YamlViewButton({ variant, customResourceDefinitionName, ...props
             resourceType={resourceType}
             resourceName={resourceName}
             customResourceDefinitionName={customResourceDefinitionName}
+            apiConfig={apiConfig}
           />,
         );
         break;

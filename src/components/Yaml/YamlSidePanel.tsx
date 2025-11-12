@@ -21,6 +21,7 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
+import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
@@ -31,6 +32,7 @@ export interface YamlSidePanelProps {
   isEdit?: boolean;
   toolbarContent?: JSX.Element;
   customResourceDefinitionName?: CustomResourceDefinitionName;
+  apiConfig?: ApiConfig;
 }
 
 export function YamlSidePanel({
@@ -40,6 +42,7 @@ export function YamlSidePanel({
   isEdit,
   toolbarContent,
   customResourceDefinitionName,
+  apiConfig,
 }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
@@ -175,6 +178,7 @@ export function YamlSidePanel({
             customResourceDefinitionName={customResourceDefinitionName}
             apiGroupName={apiGroupName}
             apiVersion={apiVersion}
+            apiConfig={apiConfig}
             onApply={handleApplyFromEditor}
           />
         )}

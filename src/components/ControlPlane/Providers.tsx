@@ -105,7 +105,11 @@ export function Providers() {
         accessor: 'yaml',
         disableFilters: true,
         Cell: (cellData) => (
-          <YamlViewButton variant="resource" resource={cellData.cell.row.original?.item as Resource} />
+          <YamlViewButton
+            variant="resource"
+            resource={cellData.cell.row.original?.item as Resource}
+            customResourceDefinitionName={'providers'}
+          />
         ),
       },
     ],

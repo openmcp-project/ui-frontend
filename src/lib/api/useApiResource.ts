@@ -15,6 +15,7 @@ export const useApiResource = <T>(
   config?: SWRConfiguration,
   excludeMcpConfig?: boolean,
   disable?: boolean,
+  overrideApiConfig?: ApiConfig,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
 
@@ -23,7 +24,7 @@ export const useApiResource = <T>(
     ([path, apiConfig, excludeMcpConfig]) =>
       fetchApiServerJson<T>(
         path,
-        excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : apiConfig,
+        excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : overrideApiConfig ? overrideApiConfig : apiConfig,
         resource.jq,
         resource.method,
         resource.body,

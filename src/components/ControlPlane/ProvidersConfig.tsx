@@ -108,6 +108,7 @@ export function ProvidersConfig() {
               <YamlViewButton
                 variant="resource"
                 resource={item as unknown as Resource}
+                customResourceDefinitionName={'providerconfigs'}
                 toolbarContent={
                   hasMCPAdminRights ? (
                     <Button
