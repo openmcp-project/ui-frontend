@@ -48,6 +48,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   useEffect(() => {
     // Configure YAML validation with schema only once
+    if (window.Cypress) return;
     if (!monacoYamlConfigured) {
       monacoYamlConfigured = true;
       configureMonacoYaml(monaco, {
