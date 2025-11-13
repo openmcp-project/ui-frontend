@@ -9,9 +9,11 @@ import { YamlViewerSchemaLoader } from '../../Yaml/YamlViewerSchemaLoader.tsx';
 type YamlPanelProps = {
   yamlString: string;
   filename: string;
+  apiGroupName: string;
+  apiVersion: string;
 };
 
-const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename }) => {
+const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename, apiVersion, apiGroupName }) => {
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
@@ -38,7 +40,13 @@ const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename }) => {
           </Button>
         )}
       </FlexBox>
-      <YamlViewerSchemaLoader yamlString={yamlString} filename={filename} isEdit={false} />
+      <YamlViewerSchemaLoader
+        apiGroupName={apiGroupName}
+        apiVersion={apiVersion}
+        yamlString={yamlString}
+        filename={filename}
+        isEdit={false}
+      />
     </div>
   );
 };

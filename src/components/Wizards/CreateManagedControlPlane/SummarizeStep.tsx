@@ -32,20 +32,21 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
   isEditMode = false,
 }) => {
   const { t } = useTranslation();
-  const yamlString = stringify(
-    CreateManagedControlPlane(
-      watch('name'),
-      `${projectName}--ws-${workspaceName}`,
-      {
-        displayName: watch('displayName'),
-        chargingTarget: watch('chargingTarget'),
-        members: watch('members'),
-        componentsList: componentsList ?? [],
-        chargingTargetType: watch('chargingTargetType'),
-      },
-      idpPrefix,
-    ),
+  const resource = CreateManagedControlPlane(
+    watch('name'),
+    `${projectName}--ws-${workspaceName}`,
+    {
+      displayName: watch('displayName'),
+      chargingTarget: watch('chargingTarget'),
+      members: watch('members'),
+      componentsList: componentsList ?? [],
+      chargingTargetType: watch('chargingTargetType'),
+    },
+    idpPrefix,
   );
+  const yamlString = stringify(resource);
+  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
+  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
   return (
     <div className={styles.wrapper}>
       <Title>{t('common.summarize')}</Title>
@@ -94,7 +95,12 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
               )}
             />
           ) : (
-            <YamlSummarize yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
+            <YamlSummarize
+              yamlString={yamlString}
+              filename={`mcp_${projectName}--ws-${workspaceName}`}
+              apiVersion={apiVersion}
+              apiGroupName={apiGroupName}
+            />
           )}
         </div>
       </Grid>
