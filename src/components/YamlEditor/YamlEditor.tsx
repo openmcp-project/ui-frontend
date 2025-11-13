@@ -52,6 +52,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
     if (!monacoYamlConfigured) {
       monacoYamlConfigured = true;
       configureMonacoYaml(monaco, {
+        isKubernetes: true,
         enableSchemaRequest: true,
         hover: true,
         completion: true,
