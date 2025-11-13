@@ -14,7 +14,6 @@ export type ActionItem<T> = {
 export type ActionsMenuProps<T> = {
   item: T;
   actions: ActionItem<T>[];
-  buttonIcon?: string;
 };
 
 export function ActionsMenu<T>({ item, actions }: ActionsMenuProps<T>) {
