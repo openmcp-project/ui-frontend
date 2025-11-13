@@ -65,7 +65,7 @@ export function Kustomizations() {
         </Fragment>,
       );
     },
-    [openInAside, handlePatch],
+    [openInAside, handlePatch, apiConfig],
   );
   const { hasMCPAdminRights } = useAuthMcp();
 

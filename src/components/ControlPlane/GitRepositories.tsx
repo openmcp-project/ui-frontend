@@ -65,7 +65,7 @@ export function GitRepositories() {
         </Fragment>,
       );
     },
-    [openInAside, handlePatch],
+    [openInAside, handlePatch, apiConfig],
   );
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
