@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { Fragment, useCallback, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -26,6 +26,7 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { ApiConfigContext } from '../Shared/k8s';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -34,7 +35,7 @@ export type KustomizationItem = KustomizationsResponse['items'][0] & {
 
 export function Kustomizations() {
   const { data, error, isLoading } = useApiResource(FluxKustomization); //404 if component not enabled
-
+  const apiConfig = useContext(ApiConfigContext);
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -58,6 +59,7 @@ export function Kustomizations() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
+            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
