@@ -8,10 +8,13 @@
     "npm:unpublishSafe",
     ":disableDependencyDashboard"
   ],
+  "prCreation": "not-pending",
   "packageRules": [
     {
       "groupName": "@ui5/webcomponents packages",
-      "matchPackageNames": ["@ui5/webcomponents{/,}**"]
+      "matchPackageNames": [
+        "@ui5/webcomponents{/,}**"
+      ]
     }
   ]
 }
