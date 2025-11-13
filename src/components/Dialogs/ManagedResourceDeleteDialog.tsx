@@ -28,7 +28,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
   const [advancedCollapsed, setAdvancedCollapsed] = useState(true);
   const [confirmationText, setConfirmationText] = useState('');
 
-  const resetState = () => {
+  const resetForm = () => {
     setForceDeletion(false);
     setAdvancedCollapsed(true);
     setConfirmationText('');
@@ -55,7 +55,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
   };
 
   const handleClose = () => {
-    resetState();
+    resetForm();
     onClose();
   };
 
@@ -64,6 +64,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
       open={open}
       headerText={t('ManagedResources.deleteDialogTitle')}
       className={styles.dialog}
+      onOpen={resetForm}
       onClose={handleClose}
     >
       <FlexBox direction="Column" className={styles.content}>
