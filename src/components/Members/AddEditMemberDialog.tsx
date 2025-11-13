@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo } from 'react';
+import { Activity, FC, useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -9,7 +9,6 @@ import styles from './Members.module.css';
 import { RadioButtonsSelect } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { useLink } from '../../lib/shared/useLink.ts';
-import { clsx } from 'clsx';
 
 interface AddEditMemberDialogProps {
   open: boolean;
@@ -158,14 +157,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           </div>
 
           <div className={styles.placeholder}>
-            <div
-              className={clsx(
-                styles.serviceAccountContainer,
-                accountType === 'ServiceAccount'
-                  ? styles.serviceAccountContainerVisible
-                  : styles.serviceAccountContainerHidden,
-              )}
-            >
+            <Activity mode={accountType === 'ServiceAccount' ? 'visible' : 'hidden'}>
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>
@@ -195,7 +187,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </MessageStrip>
               </div>
-            </div>
+            </Activity>
           </div>
 
           <Button
