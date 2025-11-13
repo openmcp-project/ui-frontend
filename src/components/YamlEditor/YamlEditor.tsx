@@ -19,9 +19,6 @@ export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & 
   schema?: JSONSchema4;
 };
 
-// Track if monaco-yaml has been configured globally
-let monacoYamlConfigured = false;
-
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
@@ -47,26 +44,24 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Configure YAML validation with schema only once
     if (window.Cypress) return;
-    if (!monacoYamlConfigured) {
-      monacoYamlConfigured = true;
-      configureMonacoYaml(monaco, {
-        isKubernetes: true,
-        enableSchemaRequest: true,
-        hover: true,
-        completion: true,
-        validate: true,
-        format: true,
-        schemas: [
-          {
-            schema: schema as JSONSchema,
-            fileMatch: ['*'],
-            uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
-          },
-        ],
-      });
-    }
+
+    const { dispose } = configureMonacoYaml(monaco, {
+      isKubernetes: true,
+      enableSchemaRequest: true,
+      hover: true,
+      completion: true,
+      validate: true,
+      format: true,
+      schemas: [
+        {
+          schema: schema as JSONSchema,
+          fileMatch: ['*'],
+          uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
+        },
+      ],
+    });
+    return () => dispose();
   }, [schema]);
 
   // Capture Space at the window level before document-level handlers and stop propagation if inside editor
