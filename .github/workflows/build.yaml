@@ -18,8 +18,10 @@ jobs:
           node-version: 24
           cache: 'npm' # Added caching for faster installs
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Clean install dependencies
+        run: |
+          rm -rf node_modules
+          npm ci
 
       - name: Lint
         run: npm run lint
