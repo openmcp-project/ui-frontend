@@ -34,15 +34,6 @@ export function YamlSidePanelWithLoader({
     null,
   );
 
-  // Load custom resource definition for the resource
-  const { data: crdData } = useApiResource<CustomResourceDefinition>(
-    CustomResourceDefinitionObject(resourceType),
-    undefined,
-    null,
-  );
-
-  console.log('Custom Resource Definition:', crdData);
-
   if (isLoading) return <Loading />;
   if (error) return <IllustratedError details={t('common.cannotLoadData')} />;
 
