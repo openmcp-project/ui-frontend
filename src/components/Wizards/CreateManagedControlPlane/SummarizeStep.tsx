@@ -7,13 +7,13 @@ import {
   CreateManagedControlPlane,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 
-import YamlPanel from '../../Yaml/YamlPanel.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 import styles from './SummarizeStep.module.css';
 import { YamlDiff } from './YamlDiff.tsx';
+import YamlSummarize from './YamlSummarize.tsx';
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
@@ -32,20 +32,21 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
   isEditMode = false,
 }) => {
   const { t } = useTranslation();
-  const yamlString = stringify(
-    CreateManagedControlPlane(
-      watch('name'),
-      `${projectName}--ws-${workspaceName}`,
-      {
-        displayName: watch('displayName'),
-        chargingTarget: watch('chargingTarget'),
-        members: watch('members'),
-        componentsList: componentsList ?? [],
-        chargingTargetType: watch('chargingTargetType'),
-      },
-      idpPrefix,
-    ),
+  const resource = CreateManagedControlPlane(
+    watch('name'),
+    `${projectName}--ws-${workspaceName}`,
+    {
+      displayName: watch('displayName'),
+      chargingTarget: watch('chargingTarget'),
+      members: watch('members'),
+      componentsList: componentsList ?? [],
+      chargingTargetType: watch('chargingTargetType'),
+    },
+    idpPrefix,
   );
+  const yamlString = stringify(resource);
+  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
+  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
   return (
     <div className={styles.wrapper}>
       <Title>{t('common.summarize')}</Title>
@@ -94,7 +95,12 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
               )}
             />
           ) : (
-            <YamlPanel yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
+            <YamlSummarize
+              yamlString={yamlString}
+              filename={`mcp_${projectName}--ws-${workspaceName}`}
+              apiVersion={apiVersion}
+              apiGroupName={apiGroupName}
+            />
           )}
         </div>
       </Grid>

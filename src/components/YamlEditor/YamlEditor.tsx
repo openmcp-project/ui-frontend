@@ -1,41 +1,117 @@
 import { Editor } from '@monaco-editor/react';
 import type { ComponentProps } from 'react';
-import { Button, Panel, Toolbar, ToolbarSpacer, Title } from '@ui5/webcomponents-react';
+import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor';
+import { configureMonacoYaml } from 'monaco-yaml';
+import type { JSONSchema } from 'monaco-yaml';
+import styles from './YamlEditor.module.css';
+
+import type { JSONSchema4 } from 'json-schema';
 
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void;
+  schema?: JSONSchema4;
 };
 
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
-  const { theme, options, value, defaultValue, onChange, isEdit = false, onApply, ...rest } = props;
+  const {
+    theme,
+    options,
+    value,
+    defaultValue,
+    onChange,
+    isEdit = false,
+    onApply,
+    onMount: parentOnMount,
+    schema,
+    ...rest
+  } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
   const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
 
+  // Ref to the wrapper to scope global key handlers
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (typeof value !== 'undefined') {
-      setEditorContent(value.toString());
-    }
-  }, [value]);
+    if (window.Cypress) return;
+
+    const { dispose } = configureMonacoYaml(monaco, {
+      isKubernetes: true,
+      enableSchemaRequest: true,
+      hover: true,
+      completion: true,
+      validate: true,
+      format: true,
+      schemas: [
+        {
+          schema: schema as JSONSchema,
+          fileMatch: ['*'],
+          uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
+        },
+      ],
+    });
+    return () => dispose();
+  }, [schema]);
+
+  // Capture Space at the window level before document-level handlers and stop propagation if inside editor
+  useEffect(() => {
+    const isInsideWrapper = (target: EventTarget | null): boolean => {
+      if (!wrapperRef.current || !(target instanceof Node)) return false;
+      return wrapperRef.current.contains(target);
+    };
+
+    const handler = (e: KeyboardEvent) => {
+      // Normalize different browsers: e.key can be ' ' or 'Spacebar'. Prefer code when available.
+      const isSpace = e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
+      if (!isSpace) return;
+      if (isInsideWrapper(e.target)) {
+        // allow default so Monaco inserts a space, but stop propagation to prevent global handlers
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', handler, true);
+    window.addEventListener('keyup', handler, true);
+    return () => {
+      window.removeEventListener('keydown', handler, true);
+      window.removeEventListener('keyup', handler, true);
+    };
+  }, []);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
       ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
       readOnly: isEdit ? false : (options?.readOnly ?? true),
       minimap: { enabled: false },
-      wordWrap: 'on' as const,
       scrollBeyondLastLine: false,
+      tabSize: 2,
+      insertSpaces: true,
+      detectIndentation: false,
+      wordWrap: 'on',
+      folding: true,
+      foldingStrategy: 'indentation',
+      quickSuggestions: {
+        other: true,
+        comments: true,
+        strings: true,
+      },
+      suggestOnTriggerCharacters: true,
+      glyphMargin: true,
+      formatOnPaste: true,
+      formatOnType: true,
+      fontSize: 13,
+      lineHeight: 20,
     }),
     [options, isEdit],
   );
@@ -50,6 +126,27 @@ export const YamlEditor = (props: YamlEditorProps) => {
       }
     },
     [isEdit, onChange],
+  );
+
+  // Stop key events from bubbling to parent components (e.g., UI5 toolbars) which may intercept Space
+  const handleEditorMount = useCallback(
+    (editorInstance: monaco.editor.IStandaloneCodeEditor, monacoApi: typeof monaco) => {
+      const stopIfSpace = (ev: monaco.IKeyboardEvent) => {
+        const be = ev.browserEvent as KeyboardEvent;
+        const isSpace = be.code === 'Space' || be.key === ' ' || be.key === 'Spacebar';
+        if (isSpace) be.stopPropagation();
+      };
+
+      editorInstance.onKeyDown(stopIfSpace);
+      editorInstance.onKeyUp(stopIfSpace);
+
+      // Call parent onMount with strong types, avoid any casts
+      const typedParentOnMount = parentOnMount as
+        | ((editor: monaco.editor.IStandaloneCodeEditor, monacoNs: typeof monaco) => void)
+        | undefined;
+      typedParentOnMount?.(editorInstance, monacoApi);
+    },
+    [parentOnMount],
   );
 
   const handleApply = useCallback(() => {
@@ -80,17 +177,20 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const showValidationErrors = isEdit && applyAttempted && validationErrors.length > 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+    <div className={styles.container}>
       {isEdit && (
         <Toolbar design="Solid">
-          <Title>{t('yaml.editorTitle')}</Title>
-          <ToolbarSpacer />
-          <Button design="Emphasized" data-testid="yaml-apply-button" onClick={handleApply}>
-            {t('buttons.applyChanges', 'Apply changes')}
+          <Button
+            className={styles.applyButton}
+            design="Emphasized"
+            data-testid="yaml-apply-button"
+            onClick={handleApply}
+          >
+            {t('buttons.applyChanges')}
           </Button>
         </Toolbar>
       )}
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div ref={wrapperRef} className={styles.editorWrapper}>
         <Editor
           {...rest}
           value={isEdit ? editorContent : value}
@@ -99,13 +199,14 @@ export const YamlEditor = (props: YamlEditorProps) => {
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
+          onMount={handleEditorMount}
         />
       </div>
       {showValidationErrors && (
-        <Panel headerText="Output" style={{ marginTop: '0.5rem' }}>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+        <Panel headerText={t('yaml.validationErrors')} className={styles.validationPanel}>
+          <ul className={styles.validationList}>
             {validationErrors.map((err, idx) => (
-              <li key={idx} style={{ listStyle: 'disc', fontFamily: 'monospace' }}>
+              <li key={idx} className={styles.validationListItem}>
                 {err}
               </li>
             ))}

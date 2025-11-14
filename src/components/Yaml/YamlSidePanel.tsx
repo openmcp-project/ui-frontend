@@ -11,9 +11,9 @@ import {
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
-import { YamlViewer } from './YamlViewer.tsx';
+import { YamlViewerSchemaLoader } from './YamlViewerSchemaLoader.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -21,6 +21,7 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
+import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
@@ -29,8 +30,11 @@ export interface YamlSidePanelProps {
   filename: string;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
+  toolbarContent?: JSX.Element;
+  apiConfig?: ApiConfig;
 }
-export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSidePanelProps) {
+
+export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent, apiConfig }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -79,13 +83,17 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
 
   const handleGoBack = () => setMode('edit');
 
+  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
+  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
+  const kind = resource?.kind;
+
   return (
     <Panel
       className={styles.panel}
       fixed
       header={
         <Toolbar>
-          <Title>{t('yaml.panelTitle')}</Title>
+          {toolbarContent ?? <Title>{t('yaml.panelTitle')}</Title>}
           <ToolbarSpacer />
           <FlexBox>
             {!isEdit && (
@@ -156,10 +164,14 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
           </FlexBox>
         )}
         {mode === 'edit' && (
-          <YamlViewer
+          <YamlViewerSchemaLoader
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={isEdit}
+            apiGroupName={apiGroupName}
+            apiVersion={apiVersion}
+            apiConfig={apiConfig}
+            kind={kind}
             onApply={handleApplyFromEditor}
           />
         )}

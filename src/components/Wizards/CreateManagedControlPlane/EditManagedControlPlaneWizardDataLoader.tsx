@@ -32,7 +32,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   const { isLoading, data, error } = useApiResource(
     ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
     undefined,
-    true,
+    null,
     !isOpen,
   );
 

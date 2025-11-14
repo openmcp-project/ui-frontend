@@ -4,6 +4,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -38,6 +39,7 @@ import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
+import { useAuthMcp as _useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -57,16 +59,31 @@ type ResourceRow = {
   conditionSyncedMessage: string;
 };
 
+/**
+ * Checks if a resource is managed by Flux based on the kustomize.toolkit.fluxcd.io/name label
+ */
+const isResourceFluxManaged = (item: ManagedResourceItem | undefined): boolean => {
+  if (!item) return false;
+
+  const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
+    'kustomize.toolkit.fluxcd.io/name'
+  ];
+
+  return fluxLabelValue != null && (typeof fluxLabelValue !== 'string' || fluxLabelValue.trim() !== '');
+};
+
 export function ManagedResources({
   useApiResourceMutation = _useApiResourceMutation,
   useHandleResourcePatch = _useHandleResourcePatch,
   useApiResource = _useApiResource,
   useResourcePluralNames = _useResourcePluralNames,
+  useAuthMcp = _useAuthMcp,
 }: {
   useApiResourceMutation?: typeof _useApiResourceMutation;
   useHandleResourcePatch?: typeof _useHandleResourcePatch;
   useApiResource?: typeof _useApiResource;
   useResourcePluralNames?: typeof _useResourcePluralNames;
+  useAuthMcp?: typeof _useAuthMcp;
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -118,7 +135,7 @@ export function ManagedResources({
     },
     [openInAside, handlePatch],
   );
-
+  const { hasMCPAdminRights } = useAuthMcp();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -180,8 +197,27 @@ export function ManagedResources({
           disableFilters: true,
           Cell: ({ row }) => {
             const { original } = row;
+            const isFluxManaged = isResourceFluxManaged(original?.item);
             return original?.item ? (
-              <YamlViewButton variant="resource" resource={original.item as unknown as Resource} />
+              <YamlViewButton
+                variant="resource"
+                resource={original.item as unknown as Resource}
+                toolbarContent={
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      disabled={isFluxManaged}
+                      tooltip={t('yaml.fluxManaged')}
+                      onClick={() => {
+                        openEditPanel(original?.item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
+                }
+              />
             ) : undefined;
           },
         },
@@ -195,12 +231,7 @@ export function ManagedResources({
             const item = original?.item;
             if (!item) return undefined;
 
-            // Flux-managed check for disabling Edit
-            const fluxLabelValue = (item?.metadata?.labels as unknown as Record<string, unknown> | undefined)?.[
-              'kustomize.toolkit.fluxcd.io/name'
-            ];
-            const isFluxManaged =
-              typeof fluxLabelValue === 'string' ? fluxLabelValue.trim() !== '' : fluxLabelValue != null;
+            const isFluxManaged = isResourceFluxManaged(item);
 
             const actions: ActionItem<ManagedResourceItem>[] = [
               {
@@ -209,12 +240,15 @@ export function ManagedResources({
                 icon: 'edit',
                 disabled: isFluxManaged,
                 onClick: openEditPanel,
+                tooltip: isFluxManaged && hasMCPAdminRights ? t('yaml.fluxManaged') : undefined,
               },
+
               {
                 key: 'delete',
                 text: t('ManagedResources.deleteAction'),
                 icon: 'delete',
                 onClick: openDeleteDialog,
+                disabled: !hasMCPAdminRights,
               },
             ];
 
@@ -222,7 +256,7 @@ export function ManagedResources({
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, openDeleteDialog],
+    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights],
   );
 
   const rows: ResourceRow[] =

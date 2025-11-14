@@ -63,7 +63,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
       ? ResourceObject<SpecMembers>('', 'projects', projectName)
       : ResourceObject<SpecMembers>(`project-${projectName}`, 'workspaces', workspaceName ?? ''),
     undefined,
-    true,
+    null,
     !isOpen,
   );
 

@@ -7,10 +7,14 @@ import { YamlIcon } from './YamlIcon.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
 import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
+import { JSX, useContext } from 'react';
+
+import { ApiConfigContext } from '../Shared/k8s';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
   resource: Resource;
+  toolbarContent?: JSX.Element;
 }
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
@@ -20,32 +24,35 @@ export interface YamlViewButtonLoaderProps {
 }
 export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
 
-export function YamlViewButton(props: YamlViewButtonProps) {
+export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
-
+  const apiConfig = useContext(ApiConfigContext);
   const openSplitterSidePanel = () => {
-    switch (props.variant) {
+    switch (variant) {
       case 'resource': {
-        const { resource } = props;
+        const { resource, toolbarContent } = props as YamlViewButtonResourceProps;
         openInAside(
           <YamlSidePanel
             isEdit={false}
-            resource={props.resource}
+            resource={resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+            toolbarContent={toolbarContent}
+            apiConfig={apiConfig}
           />,
         );
         break;
       }
 
       case 'loader': {
-        const { workspaceName, resourceType, resourceName } = props;
+        const { workspaceName, resourceType, resourceName } = props as YamlViewButtonLoaderProps;
         openInAside(
           <YamlSidePanelWithLoader
             isEdit={false}
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}
+            apiConfig={apiConfig}
           />,
         );
         break;
