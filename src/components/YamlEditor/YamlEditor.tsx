@@ -180,7 +180,12 @@ export const YamlEditor = (props: YamlEditorProps) => {
     <div className={styles.container}>
       {isEdit && (
         <Toolbar design="Solid">
-          <Button className={styles.applyButton} design="Emphasized" data-testid="yaml-apply-button" onClick={handleApply}>
+          <Button
+            className={styles.applyButton}
+            design="Emphasized"
+            data-testid="yaml-apply-button"
+            onClick={handleApply}
+          >
             {t('buttons.applyChanges')}
           </Button>
         </Toolbar>
