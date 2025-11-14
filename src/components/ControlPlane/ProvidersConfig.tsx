@@ -3,6 +3,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -23,6 +24,7 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 type Rows = {
   parent: string;
@@ -74,7 +76,7 @@ export function ProvidersConfig() {
     },
     [openInAside, handlePatch],
   );
-
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -102,7 +104,25 @@ export function ProvidersConfig() {
           disableFilters: true,
           Cell: ({ row }) => {
             const item = row.original?.resource;
-            return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined;
           },
         },
         {
@@ -120,13 +140,14 @@ export function ProvidersConfig() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, openEditPanel, hasMCPAdminRights],
   );
 
   return (

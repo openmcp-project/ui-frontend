@@ -7,13 +7,13 @@ import {
   CreateManagedControlPlane,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 
-import YamlPanel from '../../Yaml/YamlPanel.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
 import styles from './SummarizeStep.module.css';
 import { YamlDiff } from './YamlDiff.tsx';
+import YamlSummarize from './YamlSummarize.tsx';
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
@@ -94,7 +94,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
               )}
             />
           ) : (
-            <YamlPanel yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
+            <YamlSummarize yamlString={yamlString} filename={`mcp_${projectName}--ws-${workspaceName}`} />
           )}
         </div>
       </Grid>

@@ -1,5 +1,12 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
-import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTableColumnDefinition,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarSpacer,
+  Button,
+} from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxKustomization } from '../../lib/api/types/flux/listKustomization';
@@ -17,6 +24,7 @@ import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandle
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -55,7 +63,7 @@ export function Kustomizations() {
     },
     [openInAside, handlePatch],
   );
-
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -91,7 +99,28 @@ export function Kustomizations() {
           width: 75,
           accessor: 'yaml',
           disableFilters: true,
-          Cell: ({ row }) => <YamlViewButton variant="resource" resource={row.original.item as unknown as Resource} />,
+          Cell: ({ row }) => {
+            const item = row.original?.item;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined;
+          },
         },
         {
           Header: t('ManagedResources.actionColumnHeader'),
@@ -108,13 +137,14 @@ export function Kustomizations() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, openEditPanel, hasMCPAdminRights],
   );
 
   if (error) {
