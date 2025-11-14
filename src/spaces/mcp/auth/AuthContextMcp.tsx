@@ -23,6 +23,7 @@ export function AuthProviderMcp({ children, mcpUsers = [] }: { children: ReactNo
   const matchingRoleBinding = mcpUsers.find(
     (roleBinding) =>
       Array.isArray(roleBinding.subjects) &&
+      !!userEmail &&
       roleBinding.subjects.some((subject) => subject?.name?.includes(userEmail ?? '')),
   );
   const hasMCPAdminRights = matchingRoleBinding?.role === 'admin';
