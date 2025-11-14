@@ -6,8 +6,6 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
-import { CustomResourceDefinitionObject } from '../../lib/api/types/crate/customResourceDefinitionObject.ts';
-import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
 
 import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 
@@ -24,7 +22,6 @@ export function YamlSidePanelWithLoader({
   resourceType,
   resourceName,
   isEdit = false,
-
   apiConfig,
 }: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
