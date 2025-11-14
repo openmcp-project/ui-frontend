@@ -123,6 +123,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
             overflowPriority="NeverOverflow"
             design="Transparent"
             icon="sap-icon://navigation-right-arrow"
+            data-testid="yaml-close-button"
             onClick={closeAside}
           />
         </Toolbar>
@@ -136,7 +137,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               title={t('yaml.applySuccess')}
               subtitle={t('yaml.applySuccess2')}
             />
-            <Button design="Emphasized" onClick={closeAside}>
+            <Button design="Emphasized" data-testid="yaml-success-close-button" onClick={closeAside}>
               {t('common.close')}
             </Button>
           </FlexBox>
@@ -149,10 +150,10 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
                 <p className={styles.diffConfirmMessage}>{t('yaml.diffConfirmMessage')}</p>
               </div>
               <FlexBox className={styles.reviewButtons}>
-                <Button design="Transparent" onClick={handleGoBack}>
+                <Button design="Transparent" data-testid="yaml-cancel-confirmation-button" onClick={handleGoBack}>
                   {t('yaml.diffNo')}
                 </Button>
-                <Button design="Emphasized" onClick={handleConfirmPatch}>
+                <Button design="Emphasized" data-testid="yaml-confirm-button" onClick={handleConfirmPatch}>
                   {t('yaml.diffYes', 'Yes')}
                 </Button>
               </FlexBox>

@@ -20,7 +20,7 @@ import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
-import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
