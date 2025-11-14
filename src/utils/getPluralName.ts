@@ -4,7 +4,7 @@ const mapCustomResourceDefinitionToPlural = {
   managedcontrolplane: 'managedcontrolplanes',
   providerconfig: 'providerconfigs',
   provider: 'providers',
-  cloudmanagent: 'cloudmanagements',
+  cloudmanagement: 'cloudmanagements',
   gitrepository: 'gitrepositories',
   kustomization: 'kustomizations',
 };
