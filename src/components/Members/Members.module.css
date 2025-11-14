@@ -30,3 +30,13 @@
 .narrowButton {
   min-width: fit-content;
 }
+
+.serviceAccountContainer {
+  transition: opacity 0.15s ease-in-out;
+}
+.serviceAccountContainerVisible {
+  opacity: 1;
+}
+.serviceAccountContainerHidden {
+  opacity: 0;
+}

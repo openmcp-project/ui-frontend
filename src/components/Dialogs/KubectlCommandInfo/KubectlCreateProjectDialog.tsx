@@ -1,5 +1,6 @@
 import { KubectlBaseDialog, FormField, CustomCommand } from './KubectlBaseDialog';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 
 interface KubectlCreateProjectDialogProps {
   onClose: () => void;
@@ -8,7 +9,7 @@ interface KubectlCreateProjectDialogProps {
 
 export const KubectlCreateProjectDialog = ({ onClose, isOpen }: KubectlCreateProjectDialogProps) => {
   const { t } = useTranslation();
-  const randomProjectName = Math.random().toString(36).substring(2, 8);
+  const [randomProjectName] = useState(() => Math.random().toString(36).substring(2, 8));
 
   const formFields: FormField[] = [
     {

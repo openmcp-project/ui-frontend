@@ -1,7 +1,7 @@
 import { Avatar, AvatarGroup, Popover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
 import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function MembersAvatarView({ members, project, workspace }: Props) {
-  const openerRef = useRef(null);
+  const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const avatars = [];
 
@@ -33,11 +33,11 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup ref={openerRef} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleOnClick}>
+      <AvatarGroup id={openerId} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleOnClick}>
         {avatars}
       </AvatarGroup>
       <Popover
-        opener={openerRef.current!}
+        opener={openerId}
         placement={PopoverPlacement.Bottom}
         open={popoverIsOpen}
         onClose={() => {

@@ -3,7 +3,7 @@ import { Button, FlexBox, FlexBoxAlignItems, Menu, MenuItem } from '@ui5/webcomp
 import { useTranslation } from 'react-i18next';
 import { FeedbackButton } from './FeedbackButton.tsx';
 import { BetaButton } from './BetaButton.tsx';
-import { useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { SearchParamToggleVisibility } from '../Helper/FeatureToggleExistance.tsx';
 import { PathAwareBreadcrumbs } from './PathAwareBreadcrumbs/PathAwareBreadcrumbs.tsx';
@@ -30,20 +30,20 @@ export function BreadcrumbFeedbackHeader() {
 function LogoutMenu() {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
+  const openerId = useId();
 
-  const buttonRef = useRef(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   return (
     <>
       <Button
-        ref={buttonRef}
+        id={openerId}
         icon="menu2"
         onClick={() => {
           setMenuIsOpen(true);
         }}
       />
       <Menu
-        opener={buttonRef.current}
+        opener={openerId}
         open={menuIsOpen}
         onClose={() => {
           setMenuIsOpen(false);

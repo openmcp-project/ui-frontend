@@ -1,6 +1,6 @@
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
-import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 
@@ -17,7 +17,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   isDeleteMcpButtonDisabled,
   setIsEditManagedControlPlaneWizardOpen,
 }) => {
-  const buttonRef = useRef(null);
+  const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -28,7 +28,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   return (
     <>
       <Button
-        ref={buttonRef}
+        id={openerId}
         icon="overflow"
         icon-end
         data-testid="ControlPlaneCardMenu-opener"
@@ -36,7 +36,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
       />
       <Menu
         open={menuIsOpen}
-        opener={buttonRef.current}
+        opener={openerId}
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {

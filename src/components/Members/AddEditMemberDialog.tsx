@@ -1,13 +1,12 @@
-import { FC, useEffect, useMemo } from 'react';
+import { Activity, FC, useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import styles from './Members.module.css';
 import { RadioButtonsSelect } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import FadeVisibility from '../Ui/FadeVisibility/FadeVisibility.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { useLink } from '../../lib/shared/useLink.ts';
 
@@ -68,7 +67,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     reset,
     formState: { errors },
@@ -83,8 +82,8 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     },
   });
 
-  const accountType = watch('accountType');
-  const role = watch('role');
+  const accountType = useWatch({ control, name: 'accountType' });
+  const role = useWatch({ control, name: 'role' });
 
   useEffect(() => {
     if (open) {
@@ -158,7 +157,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           </div>
 
           <div className={styles.placeholder}>
-            <FadeVisibility show={accountType === 'ServiceAccount'}>
+            <Activity mode={accountType === 'ServiceAccount' ? 'visible' : 'hidden'}>
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>
@@ -188,7 +187,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                   />
                 </MessageStrip>
               </div>
-            </FadeVisibility>
+            </Activity>
           </div>
 
           <Button

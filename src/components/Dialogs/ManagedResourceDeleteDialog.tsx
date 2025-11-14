@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import {
   Button,
   CheckBox,
@@ -20,22 +20,19 @@ type Props = {
   onClose: () => void;
   item: ManagedResourceItem | null;
   onDeletionConfirmed?: (item: ManagedResourceItem, force: boolean) => void;
-  onCanceled?: () => void;
 };
 
-export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, onDeletionConfirmed, onCanceled }) => {
+export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, onDeletionConfirmed }) => {
   const { t } = useTranslation();
   const [forceDeletion, setForceDeletion] = useState(false);
   const [advancedCollapsed, setAdvancedCollapsed] = useState(true);
   const [confirmationText, setConfirmationText] = useState('');
 
-  useEffect(() => {
-    if (!open) {
-      setForceDeletion(false);
-      setAdvancedCollapsed(true);
-      setConfirmationText('');
-    }
-  }, [open]);
+  const resetForm = () => {
+    setForceDeletion(false);
+    setAdvancedCollapsed(true);
+    setConfirmationText('');
+  };
 
   const resourceName = item?.metadata?.name ?? '';
 
@@ -54,14 +51,12 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
     if (item && onDeletionConfirmed) {
       onDeletionConfirmed(item, forceDeletion);
     }
-    onClose();
+    handleClose();
   };
 
-  const handleCancel = () => {
+  const handleClose = () => {
+    resetForm();
     onClose();
-    if (onCanceled) {
-      onCanceled();
-    }
   };
 
   return (
@@ -69,7 +64,8 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
       open={open}
       headerText={t('ManagedResources.deleteDialogTitle')}
       className={styles.dialog}
-      onClose={handleCancel}
+      onOpen={resetForm}
+      onClose={handleClose}
     >
       <FlexBox direction="Column" className={styles.content}>
         <DeleteConfirmationForm
@@ -99,7 +95,7 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
         </Panel>
 
         <FlexBox justifyContent="End" className={styles.actions}>
-          <Button design="Transparent" onClick={handleCancel}>
+          <Button design="Transparent" onClick={handleClose}>
             {t('buttons.cancel')}
           </Button>
           <Button design={ButtonDesign.Negative} disabled={!isConfirmed} onClick={handleDelete}>
