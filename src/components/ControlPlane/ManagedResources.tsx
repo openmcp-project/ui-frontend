@@ -39,7 +39,7 @@ import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { useAuthMcp as _useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -77,11 +77,13 @@ export function ManagedResources({
   useHandleResourcePatch = _useHandleResourcePatch,
   useApiResource = _useApiResource,
   useResourcePluralNames = _useResourcePluralNames,
+  useAuthMcp = _useAuthMcp,
 }: {
   useApiResourceMutation?: typeof _useApiResourceMutation;
   useHandleResourcePatch?: typeof _useHandleResourcePatch;
   useApiResource?: typeof _useApiResource;
   useResourcePluralNames?: typeof _useResourcePluralNames;
+  useAuthMcp?: typeof _useAuthMcp;
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();

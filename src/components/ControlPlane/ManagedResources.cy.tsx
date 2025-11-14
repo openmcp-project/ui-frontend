@@ -42,11 +42,16 @@ describe('ManagedResources - Delete Resource', () => {
     };
   };
 
+  const fakeUseAuthMcp = () => {
+    return { hasMCPAdminRights: true, isLoading: false, isAuthenticated: true, error: null, login: () => {} };
+  };
+
   const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
     return {
       getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
       isLoading: false,
       error: undefined,
+      isAuthenticated: true,
     };
   };
 
@@ -97,6 +102,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
+            useAuthMcp={fakeUseAuthMcp}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -131,6 +137,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
+            useAuthMcp={fakeUseAuthMcp}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -173,6 +180,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
+            useAuthMcp={fakeUseAuthMcp}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -207,6 +215,10 @@ describe('ManagedResources - Delete Resource', () => {
 describe('ManagedResources - Edit Resource', () => {
   let patchCalled = false;
   let patchedItem: any = null;
+
+  const fakeUseAuthMcp = () => {
+    return { hasMCPAdminRights: true, isLoading: false, isAuthenticated: true, error: null, login: () => {} };
+  };
 
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
     return async (item: any) => {
@@ -293,6 +305,7 @@ describe('ManagedResources - Edit Resource', () => {
               useHandleResourcePatch={fakeUseHandleResourcePatch}
               useApiResource={fakeUseApiResource}
               useResourcePluralNames={fakeUseResourcePluralNames}
+              useAuthMcp={fakeUseAuthMcp}
             />
           </SplitterLayout>
         </SplitterProvider>
