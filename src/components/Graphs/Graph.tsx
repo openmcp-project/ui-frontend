@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { ReactFlow, Background, Controls, MarkerType, Node, Panel } from '@xyflow/react';
+
 import type { NodeProps } from '@xyflow/react';
-import { RadioButton, FlexBox, FlexBoxAlignItems } from '@ui5/webcomponents-react';
 import styles from './Graph.module.css';
 import '@xyflow/react/dist/style.css';
 import { NodeData, ColorBy } from './types';
@@ -32,7 +32,7 @@ const Graph: React.FC = () => {
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
   const { isDarkTheme } = useTheme();
-  const [colorBy, setColorBy] = useState<ColorBy>('provider');
+  const [colorBy, setColorBy] = useState<ColorBy>('source');
 
   const handleYamlClick = useCallback(
     (item: ManagedResourceItem) => {
@@ -92,35 +92,8 @@ const Graph: React.FC = () => {
         >
           <Controls showInteractive={false} />
           <Background />
-          <Panel position="top-left">
-            <FlexBox alignItems={FlexBoxAlignItems.Center} role="radiogroup">
-              <fieldset className={styles.fieldsetReset}>
-                <div className={styles.graphHeader}>
-                  <span className={styles.colorizedTitle}>{t('Graphs.colorizedTitle')}</span>
-                  <RadioButton
-                    name="colorBy"
-                    text={t('Graphs.colorsProviderConfig')}
-                    checked={colorBy === 'provider'}
-                    onChange={() => setColorBy('provider')}
-                  />
-                  <RadioButton
-                    name="colorBy"
-                    text={t('Graphs.colorsProvider')}
-                    checked={colorBy === 'source'}
-                    onChange={() => setColorBy('source')}
-                  />
-                  <RadioButton
-                    name="colorBy"
-                    text={t('Graphs.colorsFlux')}
-                    checked={colorBy === 'flux'}
-                    onChange={() => setColorBy('flux')}
-                  />
-                </div>
-              </fieldset>
-            </FlexBox>
-          </Panel>
-          <Panel position="top-right">
-            <Legend legendItems={legendItems} />
+          <Panel position="top-right" className={styles.panelContent}>
+            <Legend legendItems={legendItems} colorBy={colorBy} onColorByChange={setColorBy} />
           </Panel>
         </ReactFlow>
       </div>
