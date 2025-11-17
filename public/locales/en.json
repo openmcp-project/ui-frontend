@@ -351,7 +351,6 @@
   "Graphs": {
     "colorsProvider": "Provider",
     "colorsProviderConfig": "Provider Config",
-    "colorizedTitle": "Group by",
     "colorBy": "Color by",
     "colorsFlux": "Flux",
     "loadingError": "Error loading graph data",

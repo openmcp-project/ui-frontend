@@ -3,7 +3,6 @@
   height: 600px;
   padding: 2px; 
   font-family: var(--sapFontFamily);
-  position: relative;
 }
 
 .graphColumn {
