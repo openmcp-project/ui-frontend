@@ -22,7 +22,7 @@ import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
-import { useHandleResourcePatch } from '../../lib/api/types/crossplane/useHandleResourcePatch.ts';
+import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 

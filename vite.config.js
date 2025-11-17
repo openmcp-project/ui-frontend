@@ -35,7 +35,7 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: true,
+    sourcemap: true, // crucial for sentry
     target: 'esnext', // Support top-level await
   },
 });
