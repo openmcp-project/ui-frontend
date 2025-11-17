@@ -76,7 +76,7 @@ export function ProvidersConfig() {
         </Fragment>,
       );
     },
-    [openInAside, handlePatch],
+    [openInAside, handlePatch, apiConfig],
   );
   const { hasMCPAdminRights } = useAuthMcp();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
