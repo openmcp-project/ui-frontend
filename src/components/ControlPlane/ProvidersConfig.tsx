@@ -16,7 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
@@ -25,6 +25,7 @@ import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { ApiConfigContext } from '../Shared/k8s';
 
 type Rows = {
   parent: string;
@@ -39,7 +40,7 @@ export function ProvidersConfig() {
   const { openInAside } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
-
+  const apiConfig = useContext(ApiConfigContext);
   const rows: Rows[] = [];
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
@@ -69,6 +70,7 @@ export function ProvidersConfig() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
+            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,

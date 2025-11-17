@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment, useMemo, useState, useRef, useCallback } from 'react';
+import { Fragment, useMemo, useState, useRef, useCallback, useContext } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -40,6 +40,7 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error.ts';
 import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { useAuthMcp as _useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { ApiConfigContext } from '../Shared/k8s';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -87,6 +88,7 @@ export function ManagedResources({
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
+  const apiConfig = useContext(ApiConfigContext);
   const { openInAside } = useSplitter();
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -128,6 +130,7 @@ export function ManagedResources({
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
+            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
