@@ -24,8 +24,9 @@ import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+
 import { ApiConfigContext } from '../Shared/k8s';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -49,7 +50,7 @@ export function GitRepositories() {
     revision?: string;
   };
   const apiConfig = useContext(ApiConfigContext);
-  const { hasMCPAdminRights } = useAuthMcp();
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;

@@ -25,8 +25,9 @@ import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+
 import { ApiConfigContext } from '../Shared/k8s';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -67,7 +68,7 @@ export function Kustomizations() {
     },
     [openInAside, handlePatch, apiConfig],
   );
-  const { hasMCPAdminRights } = useAuthMcp();
+  const hasMCPAdminRights = useHasMcpAdminRights();
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>

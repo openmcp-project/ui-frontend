@@ -24,8 +24,9 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+
 import { ApiConfigContext } from '../Shared/k8s';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 type Rows = {
   parent: string;
@@ -78,7 +79,7 @@ export function ProvidersConfig() {
     },
     [openInAside, handlePatch, apiConfig],
   );
-  const { hasMCPAdminRights } = useAuthMcp();
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
