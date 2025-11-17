@@ -1,23 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useApiResourceMutation, useRevalidateApiResource } from '../../lib/api/useApiResource';
-import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { APIError } from '../../lib/api/error';
 import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
-import {
-  CreateWorkspace,
-  CreateWorkspaceResource,
-  CreateWorkspaceType,
-} from '../../lib/api/types/crate/createWorkspace';
 import { projectnameToNamespace } from '../../utils';
-import { ListWorkspaces } from '../../lib/api/types/crate/listWorkspaces';
-import { useToast } from '../../context/ToastContext.tsx';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
+import { useCreateWorkspace as _useCreateWorkspace } from '../../hooks/useCreateWorkspace.ts';
+import { APIError } from '../../lib/api/error.ts';
+import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 export type CreateDialogProps = {
   name: string;
@@ -32,10 +25,14 @@ export function CreateWorkspaceDialogContainer({
   isOpen,
   setIsOpen,
   project = '',
+  useCreateWorkspace = _useCreateWorkspace,
+  useAuthOnboarding = _useAuthOnboarding,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   project?: string;
+  useCreateWorkspace?: typeof _useCreateWorkspace;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
@@ -59,6 +56,11 @@ export function CreateWorkspaceDialogContainer({
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
+  const namespace = projectnameToNamespace(project);
+
+  const { createWorkspace } = useCreateWorkspace(project, namespace);
+  const errorDialogRef = useRef<ErrorDialogHandle>(null);
+
   const clearForm = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -74,30 +76,23 @@ export function CreateWorkspaceDialogContainer({
       clearForm();
     }
   }, [resetField, setValue, username, isOpen, clearForm]);
-  const namespace = projectnameToNamespace(project);
-  const toast = useToast();
-
-  const { trigger } = useApiResourceMutation<CreateWorkspaceType>(CreateWorkspaceResource(namespace));
-  const revalidate = useRevalidateApiResource(ListWorkspaces(project));
-  const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const handleWorkspaceCreate = async ({
     name,
     displayName,
     chargingTarget,
+    chargingTargetType,
     members,
   }: OnCreatePayload): Promise<boolean> => {
     try {
-      await trigger(
-        CreateWorkspace(name, namespace, {
-          displayName: displayName,
-          chargingTarget: chargingTarget,
-          members: members,
-        }),
-      );
-      await revalidate();
+      await createWorkspace({
+        name,
+        displayName,
+        chargingTarget,
+        chargingTargetType,
+        members,
+      });
       setIsOpen(false);
-      toast.show(t('CreateWorkspaceDialog.toastMessage'));
       return true;
     } catch (e) {
       console.error(e);
