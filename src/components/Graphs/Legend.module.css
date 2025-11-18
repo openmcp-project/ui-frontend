@@ -1,22 +1,36 @@
+.legendWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .legendContainer {
   padding: 1rem;
-  min-width: 220px;
-  max-width: 300px;
-  max-height: 280px;
+  min-width: 150px;
+  max-width: 250px;
+  max-height: 120px;
   border: 1px solid var(--sapList_BorderColor, #ccc);
   border-radius: 8px;
   background-color: var(--sapTile_Background, #fff);
-  margin: 1rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  overflow: auto;
-  align-self: flex-start;
+  overflow-y: auto;
   color: var(--sapTextColor, #222);
   font-size: var(--sapFontSize);
 }
 
-.legendTitle {
-  margin-bottom: 10px;
-  color: var(--sapTitleColor, var(--sapTextColor, #222));
+.colorFilterContainer {
+  padding: 1rem;
+  border: 1px solid var(--sapList_BorderColor, #ccc);
+  border-radius: 8px;
+  background-color: var(--sapTile_Background, #fff);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  color: var(--sapTextColor, #222);
+  font-size: var(--sapFontSize);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16px;
+  width: 16px;
 }
 
 .legendRow {
@@ -30,9 +44,29 @@
 }
 
 .legendColorBox {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   margin-right: 8px;
   border-radius: 3px;
   border: 1px solid var(--sapList_BorderColor, #999);
+}
+
+.popoverContent {
+  padding: 0.5rem;
+  min-width: 150px;
+}
+
+.popoverHeader {
+  margin: 0 0 0.5rem 0;
+  padding: 0 0 0.5rem 0;
+  border-bottom: 1px solid var(--sapList_BorderColor, #e0e0e0);
+  font-size: var(--sapFontSize, 14px);
+  font-weight: 600;
+  color: var(--sapTextColor, #222);
+}
+
+.popoverButtonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
