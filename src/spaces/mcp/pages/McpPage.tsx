@@ -41,6 +41,7 @@ import { GitRepositories } from '../../../components/ControlPlane/GitRepositorie
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
+import { useHasMcpAdminRights } from '../auth/useHasMcpAdminRights.ts';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -52,11 +53,14 @@ export default function McpPage() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
+
   const {
     data: mcp,
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  const hasMCPAdminRights = useHasMcpAdminRights();
+  console.log(hasMCPAdminRights);
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
