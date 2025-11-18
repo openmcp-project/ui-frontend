@@ -1,14 +1,21 @@
 import ConfiguredAnalyticstable from '../Shared/ConfiguredAnalyticsTable.tsx';
-import { AnalyticalTableColumnDefinition, Panel, Title, Toolbar, ToolbarSpacer } from '@ui5/webcomponents-react';
-import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { Fragment, useCallback, useMemo, useRef } from 'react';
-import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  AnalyticalTableColumnDefinition,
+  Panel,
+  Title,
+  Toolbar,
+  ToolbarSpacer,
+  Button,
+} from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add';
+import IllustratedError from '../Shared/IllustratedError.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
@@ -17,6 +24,8 @@ import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { GitReposResponse } from '../../lib/api/types/flux/listGitRepo';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { CreateGitRepositoryDialog } from '../Dialogs/CreateGitRepositoryDialog.tsx';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -29,6 +38,7 @@ export function GitRepositories() {
   const { openInAside } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   type FluxRow = {
     name: string;
@@ -152,21 +162,31 @@ export function GitRepositories() {
     }) ?? [];
 
   return (
-    <Panel
-      fixed
-      header={
-        <Toolbar>
-          <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <YamlViewButton variant="resource" resource={data as unknown as Resource} />
-          <ToolbarSpacer />
-        </Toolbar>
-      }
-    >
-      <>
-        <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
-        <ErrorDialog ref={errorDialogRef} />
-      </>
-    </Panel>
+    <>
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
+            <ToolbarSpacer />
+            <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
+              {t('buttons.create', 'Create')}
+            </Button>
+          </Toolbar>
+        }
+      >
+        <>
+          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+          <ErrorDialog ref={errorDialogRef} />
+        </>
+      </Panel>
+
+      <CreateGitRepositoryDialog
+        isOpen={isCreateDialogOpen}
+        namespace={rows[0]?.item?.metadata?.namespace || 'default'}
+        onClose={() => setIsCreateDialogOpen(false)}
+      />
+    </>
   );
 }
 
@@ -177,7 +197,6 @@ function shortenCommitHash(commitHash: string): string {
   if (match && match[2]) {
     return `${match[1]}@${match[2].slice(0, 7)}`;
   }
-
   //example output : master@b3396ad
   return commitHash;
 }
