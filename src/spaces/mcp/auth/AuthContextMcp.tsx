@@ -2,7 +2,6 @@ import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
-import { RoleBinding } from '../../../lib/api/types/crate/controlPlanes.ts';
 
 interface AuthContextMcpType {
   isLoading: boolean;
@@ -13,7 +12,7 @@ interface AuthContextMcpType {
 
 const AuthContextMcp = createContext<AuthContextMcpType | null>(null);
 
-export function AuthProviderMcp({ children }: { children: ReactNode; mcpUsers?: RoleBinding[] }) {
+export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
