@@ -507,5 +507,14 @@
     "addMembersButton0": "Add members",
     "addMembersButton1": "Add member",
     "addMembersButtonN": "Add {{count}} members"
+  },
+  "mcp": {
+    "authorization": {
+      "accessDenied": {
+        "title": "Access Denied",
+        "details": "You must be a member to access this Managed Control Plane. Please contact {{createdBy}} to request access.",
+        "administrator": "an administrator"
+      }
+    }
   }
 }
