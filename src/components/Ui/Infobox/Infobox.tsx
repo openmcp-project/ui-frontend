@@ -12,6 +12,7 @@ interface LabelProps {
   fullWidth?: boolean;
   className?: string;
   icon?: string;
+  noMargin?: boolean;
 }
 
 const variantIcons = {
@@ -29,6 +30,7 @@ export const Infobox: React.FC<LabelProps> = ({
   fullWidth = false,
   className,
   icon,
+  noMargin = false,
 }) => {
   const infoboxClasses = cx(
     styles.infobox,
@@ -41,6 +43,7 @@ export const Infobox: React.FC<LabelProps> = ({
       [styles['variant-warning']]: variant === 'warning',
       [styles['variant-danger']]: variant === 'danger',
       [styles['full-width']]: fullWidth,
+      [styles['no-margin']]: noMargin,
     },
     className,
   );

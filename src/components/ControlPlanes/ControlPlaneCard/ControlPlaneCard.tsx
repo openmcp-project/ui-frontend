@@ -100,20 +100,21 @@ export const ControlPlaneCard = ({
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}
                 />
-                {showWarningBecauseOfDisabledSystemIdentityProvider && (
-                  <Infobox size="sm" variant="warning">
+                {showWarningBecauseOfDisabledSystemIdentityProvider ? (
+                  <Infobox size="sm" variant="warning" noMargin>
                     {t('ConnectButton.unsupportedIdP')}
                   </Infobox>
+                ) : (
+                  <ConnectButton
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
                 )}
-                <ConnectButton
-                  disabled={!isConnectButtonEnabled}
-                  controlPlaneName={name}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  namespace={controlPlane.status?.access?.namespace ?? ''}
-                  secretName={controlPlane.status?.access?.name ?? ''}
-                  secretKey={controlPlane.status?.access?.key ?? ''}
-                />
               </FlexBox>
             </FlexBox>
           </FlexBox>
