@@ -41,7 +41,8 @@ import { GitRepositories } from '../../../components/ControlPlane/GitRepositorie
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
-import { useHasMcpAdminRights } from '../auth/useHasMcpAdminRights.ts';
+
+import { useGetMcpUserRights } from '../authorization/useGetMcpUserRights.ts';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -59,8 +60,7 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-  const hasMCPAdminRights = useHasMcpAdminRights();
-  console.log(hasMCPAdminRights);
+  const { isMcpAdmin } = useGetMcpUserRights();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
@@ -73,6 +73,7 @@ export default function McpPage() {
     setIsEditManagedControlPlaneWizardOpen(false);
     setEditManagedControlPlaneWizardSection(undefined);
   };
+
   if (isLoading) {
     return <BusyIndicator active />;
   }
