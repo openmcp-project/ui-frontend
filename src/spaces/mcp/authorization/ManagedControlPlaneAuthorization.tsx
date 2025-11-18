@@ -7,6 +7,7 @@ import { Button, FlexBox } from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
+import styles from './ManagedControlPlaneAuthorization.module.css';
 
 export interface ManagedControlPlaneAuthorizationProps {
   mcp: ControlPlaneType;
@@ -31,18 +32,13 @@ export const ManagedControlPlaneAuthorization = ({ children, mcp }: ManagedContr
   const { isMcpMember } = useGetMcpUserRights();
   if (!isMcpMember)
     return (
-      <FlexBox
-        justifyContent={'Center'}
-        alignItems={'Center'}
-        direction={'Column'}
-        style={{ height: '100%', width: '100%' }}
-      >
+      <FlexBox justifyContent={'Center'} alignItems={'Center'} direction={'Column'} className={styles.container}>
         <IllustratedError
           title={t('mcp.authorization.accessDenied.title')}
           details={t('mcp.authorization.accessDenied.details', { createdBy })}
         />
         <Button design={'Emphasized'} icon={'navigation-left-arrow'} onClick={onBack}>
-          Back to workspaces
+          {t('mcp.authorization.backToWorkspaces')}
         </Button>
       </FlexBox>
     );

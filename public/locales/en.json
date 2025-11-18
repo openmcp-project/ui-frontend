@@ -514,7 +514,8 @@
         "title": "Access Denied",
         "details": "You must be a member to access this Managed Control Plane. Please contact {{createdBy}} to request access.",
         "administrator": "an administrator"
-      }
+      },
+      "backToWorkspaces": "Back to workspaces"
     }
   }
 }
