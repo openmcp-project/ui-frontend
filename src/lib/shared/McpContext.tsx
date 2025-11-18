@@ -5,6 +5,7 @@ import { useApiResource } from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { BusyIndicator } from '@ui5/webcomponents-react';
+import { useGetMcpUserRights } from '../../spaces/mcp/authorization/useGetMcpUserRights.ts';
 
 interface Mcp {
   project: string;
@@ -71,7 +72,9 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
 
 export function WithinManagedControlPlane({ children }: { children?: ReactNode }) {
   const auth = useAuthMcp();
-
+  const { isMcpAdmin } = useGetMcpUserRights();
+  console.log('isMcpAdmin');
+  console.log(isMcpAdmin);
   if (auth.isLoading) {
     return <BusyIndicator active />;
   }

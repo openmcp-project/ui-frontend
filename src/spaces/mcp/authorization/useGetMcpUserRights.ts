@@ -1,7 +1,7 @@
 import { useAuthOnboarding } from '../../onboarding/auth/AuthContextOnboarding.tsx';
 import { useMcp } from '../../../lib/shared/McpContext.tsx';
 
-export const useGetMcpUserRights = (): { isMcpAdmin: boolean } => {
+export const useGetMcpUserRights = (): { isMcpMember: boolean; isMcpAdmin: boolean } => {
   const auth = useAuthOnboarding();
   const mcp = useMcp();
   const userEmail = auth.user?.email;
@@ -12,7 +12,7 @@ export const useGetMcpUserRights = (): { isMcpAdmin: boolean } => {
   console.log('mcp');
   console.log(mcp);
 
-  const matchingRoleBinding = userEmail
+  const mcpUser = userEmail
     ? mcpUsers.find(
         (roleBinding) =>
           Array.isArray(roleBinding.subjects) &&
@@ -20,5 +20,5 @@ export const useGetMcpUserRights = (): { isMcpAdmin: boolean } => {
       )
     : undefined;
 
-  return { isMcpAdmin: !!userEmail && matchingRoleBinding?.role === 'admin' };
+  return { isMcpMember: !!mcpUser, isMcpAdmin: !!userEmail && mcpUser?.role === 'admin' };
 };
