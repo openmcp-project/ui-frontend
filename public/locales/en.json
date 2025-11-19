@@ -518,6 +518,8 @@
     "nameTitle": "Name",
     "intervalTitle": "Interval",
     "specTitle": "Spec",
-    "branchTitle": "Branch"
+    "branchTitle": "Branch",
+    "gitRepositoryCreated": "Git Repository created successfully",
+    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}"
   }
 }

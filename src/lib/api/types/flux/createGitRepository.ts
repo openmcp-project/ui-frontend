@@ -1,6 +1,6 @@
 import { Resource } from '../resource';
 
-export interface CreateGitRepositoryType {
+export type CreateGitRepositoryType = {
   apiVersion: 'source.toolkit.fluxcd.io/v1';
   kind: 'GitRepository';
   metadata: {
@@ -17,7 +17,7 @@ export interface CreateGitRepositoryType {
       name: string;
     };
   };
-}
+};
 
 export const CreateGitRepositoryResource = (namespace: string, name: string): Resource<CreateGitRepositoryType> => ({
   path: `/apis/source.toolkit.fluxcd.io/v1/namespaces/${namespace}/gitrepositories/${name}`,

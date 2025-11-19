@@ -40,10 +40,10 @@ export const useCreateGitRepository = (namespace: string = 'default') => {
 
       await fetchApiServerJson(path, apiConfig, undefined, 'POST', JSON.stringify(payload));
 
-      toast.show(t('flux.gitRepositoryCreated', 'Git Repository created successfully'));
+      toast.show(t('CreateGitRepositoryDialog.gitRepositoryCreated'));
     } catch (error) {
       toast.show(
-        t('flux.gitRepositoryCreationFailed', 'Failed to create Git Repository: {{error}}', {
+        t('CreateGitRepositoryDialog.gitRepositoryCreationFailed', {
           error: error instanceof Error ? error.message : 'Unknown error',
         }),
       );
