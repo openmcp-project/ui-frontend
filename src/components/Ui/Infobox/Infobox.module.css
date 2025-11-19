@@ -17,6 +17,11 @@
   margin-right: 1rem;
 }
 
+.icon-sm {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .content {
   flex-grow: 1;
   padding-right: 0.5rem;
@@ -29,7 +34,7 @@
 }
 
 .size-sm {
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.875rem;
   font-size: 0.75rem;
   border-radius: 0.5rem;
 }

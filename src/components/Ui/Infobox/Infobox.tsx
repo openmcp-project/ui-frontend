@@ -52,7 +52,7 @@ export const Infobox: React.FC<LabelProps> = ({
 
   return (
     <div className={infoboxClasses} id={id}>
-      {iconName && <Icon name={iconName} className={styles.icon} />}
+      {iconName && <Icon name={iconName} className={cx(styles.icon, { [styles['icon-sm']]: size === 'sm' })} />}
       <div className={styles.content}>{children}</div>
     </div>
   );
