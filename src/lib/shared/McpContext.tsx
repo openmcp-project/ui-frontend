@@ -72,9 +72,7 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
 
 export function WithinManagedControlPlane({ children }: { children?: ReactNode }) {
   const auth = useAuthMcp();
-  const { isMcpAdmin } = useGetMcpUserRights();
-  console.log('isMcpAdmin');
-  console.log(isMcpAdmin);
+
   if (auth.isLoading) {
     return <BusyIndicator active />;
   }

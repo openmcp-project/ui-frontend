@@ -100,6 +100,6 @@ export const ControlPlane = (
 ): Resource<ControlPlaneType> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
-    jq: '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
+    jq: '{ spec: .spec | {components, authorization, authentication}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
   };
 };

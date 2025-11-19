@@ -515,7 +515,11 @@
         "details": "You must be a member to access this Managed Control Plane. Please contact {{createdBy}} to request access.",
         "administrator": "an administrator"
       },
-      "backToWorkspaces": "Back to workspaces"
+      "customIdp": {
+        "title": "Access Denied",
+        "details": "non-default Identity Providers are not supported yet"
+      },
+      "backToWorkspaces": "Back to Workspaces"
     }
   }
 }
