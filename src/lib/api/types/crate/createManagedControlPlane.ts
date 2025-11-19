@@ -126,7 +126,7 @@ export const CreateManagedControlPlane = (
       },
     },
     spec: {
-      authentication: { enableSystemIdentityProvider: false },
+      authentication: { enableSystemIdentityProvider: true },
       components: {
         ...selectedComponents,
         apiServer: { type: 'GardenerDedicated' },
