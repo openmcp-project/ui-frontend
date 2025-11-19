@@ -170,7 +170,7 @@ export function GitRepositories() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <ToolbarSpacer />
             <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
-              {t('buttons.create', 'Create')}
+              {t('buttons.create')}
             </Button>
           </Toolbar>
         }

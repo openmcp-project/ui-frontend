@@ -55,7 +55,7 @@ export function CreateGitRepositoryDialog({
   return (
     <Dialog
       open={isOpen}
-      headerText={t('flux.createGitRepository', 'Create Git Repository')}
+      headerText={t('CreateGitRepositoryDialog.dialogTitle')}
       footer={
         <Bar
           endContent={
@@ -88,13 +88,13 @@ export function CreateGitRepositoryDialog({
       onClose={handleClose}
     >
       <Form className={styles.form}>
-        <FormGroup headerText={t('flux.metadata', 'Metadata')}>
+        <FormGroup headerText={t('CreateGitRepositoryDialog.metadataTitle')}>
           <div className={styles.formField}>
-            <Label required>{t('flux.name', 'Name')}</Label>
+            <Label required>{t('CreateGitRepositoryDialog.nameTitle')}</Label>
             <Controller
               name="name"
               control={control}
-              rules={{ required: t('validation.required', 'This field is required') }}
+              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -108,13 +108,13 @@ export function CreateGitRepositoryDialog({
           </div>
         </FormGroup>
 
-        <FormGroup headerText={t('flux.spec', 'Spec')}>
+        <FormGroup headerText={t('CreateGitRepositoryDialog.specTitle')}>
           <div className={styles.formField}>
-            <Label required>{t('flux.interval', 'Interval')}</Label>
+            <Label required>{t('CreateGitRepositoryDialog.intervalTitle')}</Label>
             <Controller
               name="interval"
               control={control}
-              rules={{ required: t('validation.required', 'This field is required') }}
+              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -129,13 +129,13 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required>{t('flux.url', 'URL')}</Label>
+            <Label required>{t('CreateGitRepositoryDialog.urlTitle')}</Label>
             <Controller
               name="url"
               control={control}
               rules={{
-                required: t('validation.required', 'This field is required'),
-                pattern: { value: /^https:\/\/.+/, message: t('validation.urlFormat', 'Must be a valid HTTPS URL') },
+                required: t('validationErrors.required'),
+                pattern: { value: /^https:\/\/.+/, message: t('validationErrors.urlFormat') },
               }}
               render={({ field }) => (
                 <Input
@@ -151,11 +151,11 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required>{t('flux.branch', 'Branch')}</Label>
+            <Label required>{t('CreateGitRepositoryDialog.branchTitle')}</Label>
             <Controller
               name="branch"
               control={control}
-              rules={{ required: t('validation.required', 'This field is required') }}
+              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -170,7 +170,7 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label>{t('flux.secretRef', 'SecretRef')}</Label>
+            <Label>{t('CreateGitRepositoryDialog.secretRefTitle', 'SecretRef')}</Label>
             <Controller
               name="secretRef"
               control={control}
@@ -178,7 +178,7 @@ export function CreateGitRepositoryDialog({
                 <Input
                   {...field}
                   id="secretRef"
-                  placeholder={t('flux.secretRefOptional', 'SecretRef (Optional)')}
+                  placeholder={t('CreateGitRepositoryDialog.secretRefOptionalTitle')}
                   className={styles.input}
                 />
               )}
