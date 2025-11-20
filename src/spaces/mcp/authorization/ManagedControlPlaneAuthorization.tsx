@@ -8,7 +8,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 
 import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { CRDRequest } from '../../../lib/api/types/crossplane/CRDList.ts';
+import { CRDRequestAuthCheck } from '../../../lib/api/types/crossplane/CRDList.ts';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 export interface ManagedControlPlaneAuthorizationProps {
@@ -30,7 +30,7 @@ export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPla
   };
 
   // Check if user has access to CRDs in the MCP's cluster
-  const { error, isLoading } = useApiResource(CRDRequest);
+  const { error, isLoading } = useApiResource(CRDRequestAuthCheck);
   if (isLoading) {
     return (
       <Center>
