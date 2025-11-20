@@ -3,7 +3,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import { Trans, useTranslation } from 'react-i18next';
 
 import styles from './NotFoundBanner.module.css';
-import { Button, FlexBox } from '@ui5/webcomponents-react';
+import { Button } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
 import { Center } from '../Center/Center.tsx';
 

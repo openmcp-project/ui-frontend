@@ -5,7 +5,6 @@ import { useApiResource } from '../api/useApiResource.ts';
 import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { BusyIndicator } from '@ui5/webcomponents-react';
-import { useGetMcpUserRights } from '../../spaces/mcp/authorization/useGetMcpUserRights.ts';
 
 interface Mcp {
   project: string;
