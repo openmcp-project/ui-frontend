@@ -12,7 +12,6 @@ import { t } from 'i18next';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
-import { CRDRequest } from '../../lib/api/types/crossplane/CRDList.ts';
 
 type ProjectListRow = {
   projectName: string;
