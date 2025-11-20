@@ -42,6 +42,7 @@ import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
+import { Center } from '../../../components/Ui/Center/Center.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -74,7 +75,11 @@ export default function McpPage() {
   };
 
   if (isLoading) {
-    return <BusyIndicator active />;
+    return (
+      <Center>
+        <BusyIndicator active />
+      </Center>
+    );
   }
 
   if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {

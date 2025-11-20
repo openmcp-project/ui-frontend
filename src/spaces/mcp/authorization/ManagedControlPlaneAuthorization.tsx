@@ -32,7 +32,11 @@ export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPla
   // Check if user has access to CRDs in the MCP's cluster
   const { error, isLoading } = useApiResource(CRDRequest);
   if (isLoading) {
-    return <BusyIndicator active />;
+    return (
+      <Center>
+        <BusyIndicator active />
+      </Center>
+    );
   }
   const isUserNotAuthorized = error?.status === 403 || error?.status === 401;
   if (isUserNotAuthorized)
