@@ -9,7 +9,7 @@ export type CenterProps = PropsWithChildren<{
 }>;
 
 export const Center = ({ children, className, style, textAlignCenter = true }: CenterProps): ReactNode => {
-  const classes = cx(styles.root, { [styles.textAlignCenter]: textAlignCenter }, className);
+  const classes = cx(styles.wrapper, { [styles.textAlignCenter]: textAlignCenter }, className);
 
   return (
     <div className={classes} style={style}>

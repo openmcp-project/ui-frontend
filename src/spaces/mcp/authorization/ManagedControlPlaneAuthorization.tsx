@@ -1,9 +1,8 @@
 import { ReactNode } from 'react';
-import { useGetMcpUserRights } from './useGetMcpUserRights.ts';
 import { useTranslation } from 'react-i18next';
 
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { Button } from '@ui5/webcomponents-react';
+import { BusyIndicator, Button } from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
@@ -16,7 +15,7 @@ export interface ManagedControlPlaneAuthorizationProps {
   mcp: ControlPlaneType;
   children: ReactNode;
 }
-export const ManagedControlPlaneAuthorization = ({ children, mcp }: ManagedControlPlaneAuthorizationProps) => {
+export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPlaneAuthorizationProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { projectName, workspaceName } = useParams();
@@ -30,12 +29,12 @@ export const ManagedControlPlaneAuthorization = ({ children, mcp }: ManagedContr
     }
   };
 
-  const { error: crdError, data: crdData } = useApiResource(CRDRequest);
-  console.log('crdError:');
-  console.log(crdError?.status);
-  console.log('crdData:');
-  console.log(crdData);
-  const isUserNotAuthorized = crdError?.status === 403 || crdError?.status === 401;
+  // Check if user has access to CRDs in the MCP's cluster
+  const { error, isLoading } = useApiResource(CRDRequest);
+  if (isLoading) {
+    return <BusyIndicator active />;
+  }
+  const isUserNotAuthorized = error?.status === 403 || error?.status === 401;
   if (isUserNotAuthorized)
     return (
       <Center>
