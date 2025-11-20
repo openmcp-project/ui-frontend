@@ -9,6 +9,8 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 
 import { Center } from '../../../components/Ui/Center/Center.tsx';
+import { CRDRequest } from '../../../lib/api/types/crossplane/CRDList.ts';
+import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 export interface ManagedControlPlaneAuthorizationProps {
   mcp: ControlPlaneType;
@@ -27,30 +29,19 @@ export const ManagedControlPlaneAuthorization = ({ children, mcp }: ManagedContr
       );
     }
   };
-  const createdBy =
-    mcp?.metadata?.annotations?.['openmcp.cloud/created-by']?.split(':')[1] ||
-    t('mcp.authorization.accessDenied.administrator');
-  const isSystemIdentityProviderEnabled = Boolean(mcp.spec?.authentication?.enableSystemIdentityProvider);
-  const { isMcpMember } = useGetMcpUserRights();
-  if (!isSystemIdentityProviderEnabled)
-    return (
-      <Center>
-        <IllustratedError
-          title={t('mcp.authorization.customIdp.title')}
-          details={t('mcp.authorization.customIdp.details')}
-        />
-        <Button design={'Default'} icon={'navigation-left-arrow'} onClick={onBack}>
-          {t('mcp.authorization.backToWorkspaces')}
-        </Button>
-      </Center>
-    );
 
-  if (!isMcpMember)
+  const { error: crdError, data: crdData } = useApiResource(CRDRequest);
+  console.log('crdError:');
+  console.log(crdError?.status);
+  console.log('crdData:');
+  console.log(crdData);
+  const isUserNotAuthorized = crdError?.status === 403 || crdError?.status === 401;
+  if (isUserNotAuthorized)
     return (
       <Center>
         <IllustratedError
           title={t('mcp.authorization.accessDenied.title')}
-          details={t('mcp.authorization.accessDenied.details', { createdBy })}
+          details={t('mcp.authorization.accessDenied.details')}
         />
         <Button design={'Default'} icon={'navigation-left-arrow'} onClick={onBack}>
           {t('mcp.authorization.backToWorkspaces')}

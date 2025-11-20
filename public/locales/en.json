@@ -512,12 +512,7 @@
     "authorization": {
       "accessDenied": {
         "title": "Access Denied",
-        "details": "You must be a member to access this Managed Control Plane. Please contact {{createdBy}} to request access.",
-        "administrator": "an administrator"
-      },
-      "customIdp": {
-        "title": "Access Denied",
-        "details": "non-default Identity Providers are not supported yet"
+        "details": "You are not authorized to see this Managed Control Plane."
       },
       "backToWorkspaces": "Back to Workspaces"
     }

@@ -12,6 +12,7 @@ import { t } from 'i18next';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { CRDRequest } from '../../lib/api/types/crossplane/CRDList.ts';
 
 type ProjectListRow = {
   projectName: string;
@@ -23,6 +24,11 @@ export default function ProjectsList() {
   const { data, error } = useApiResource(ListProjectNames, {
     refreshInterval: 3000,
   });
+  const { error: crdError, data: crdData } = useApiResource(CRDRequest, undefined);
+  console.log('crdError projects');
+  console.log(crdError);
+  console.log('crdData projects');
+  console.log(crdData);
   const stabilizedData = useMemo<ProjectListRow[]>(
     () =>
       data?.map((projectName) => {
