@@ -212,7 +212,7 @@ export function ManagedResources({
                       icon={'edit'}
                       design={'Transparent'}
                       disabled={isFluxManaged}
-                      tooltip={t('yaml.fluxManaged')}
+                      tooltip={isFluxManaged && hasMCPAdminRights ? t('yaml.fluxManaged') : undefined}
                       onClick={() => {
                         openEditPanel(original?.item);
                       }}
