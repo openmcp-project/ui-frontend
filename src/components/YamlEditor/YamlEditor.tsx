@@ -103,27 +103,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
     [isEdit, onChange],
   );
 
-  // Stop key events from bubbling to parent components (e.g., UI5 toolbars) which may intercept Space
-  const handleEditorMount = useCallback(
-    (editorInstance: monaco.editor.IStandaloneCodeEditor, monacoApi: typeof monaco) => {
-      const stopIfSpace = (ev: monaco.IKeyboardEvent) => {
-        const be = ev.browserEvent as KeyboardEvent;
-        const isSpace = be.code === 'Space' || be.key === ' ' || be.key === 'Spacebar';
-        if (isSpace) be.stopPropagation();
-      };
-
-      editorInstance.onKeyDown(stopIfSpace);
-      editorInstance.onKeyUp(stopIfSpace);
-
-      // Call parent onMount with strong types, avoid any casts
-      const typedParentOnMount = parentOnMount as
-        | ((editor: monaco.editor.IStandaloneCodeEditor, monacoNs: typeof monaco) => void)
-        | undefined;
-      typedParentOnMount?.(editorInstance, monacoApi);
-    },
-    [parentOnMount],
-  );
-
   const handleApply = useCallback(() => {
     const run = async () => {
       setApplyAttempted(true);
@@ -174,7 +153,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
           height="100%"
           language="yaml"
           onChange={handleEditorChange}
-          onMount={handleEditorMount}
         />
       </div>
       {showValidationErrors && (
