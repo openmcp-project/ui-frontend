@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useApiResource } from '../lib/api/useApiResource.ts';
 import { CustomResourceDefinition } from '../types/customResourceDefinition.ts';
-import { getCustomResourceDefinitionPluralName } from '../utils/getPluralName.ts';
+
 import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
 import { APIError } from '../lib/api/error.ts';
+import { useResourcePluralNames } from './useResourcePluralNames.ts';
 
 export interface UseCustomResourceDefinitionQueryParams {
   kind?: string;
@@ -23,7 +24,8 @@ export function useCustomResourceDefinitionQuery({
   apiGroupName,
   apiVersion,
 }: UseCustomResourceDefinitionQueryParams): UseCustomResourceDefinitionQueryResult {
-  const customResourceDefinitionName = getCustomResourceDefinitionPluralName(kind);
+  const { getPluralKind, isLoading: isGetPluralNameLoading } = useResourcePluralNames();
+  const customResourceDefinitionName = getPluralKind(kind ?? '');
 
   const {
     data: crdData,
@@ -55,7 +57,7 @@ export function useCustomResourceDefinitionQuery({
   return {
     schema,
     crdData,
-    isLoading,
+    isLoading: isLoading || isGetPluralNameLoading,
     error,
   };
 }
