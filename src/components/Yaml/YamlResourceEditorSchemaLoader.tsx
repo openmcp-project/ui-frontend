@@ -1,12 +1,8 @@
-import { FC, useMemo, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef } from 'react';
 
 import { YamlViewer, YamlViewerProps } from './YamlViewer.tsx';
-import { useApiResource } from '../../lib/api/useApiResource.ts';
 import Loading from '../Shared/Loading.tsx';
-import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
-import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
-
-import { getCustomResourceDefinitionPluralName } from '../../utils/getPluralName.ts';
+import { useCustomResourceDefinitionQuery } from '../../hooks/useCustomResourceDefinitionQuery.ts';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useTranslation } from 'react-i18next';
 
@@ -27,22 +23,15 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
 
   kind,
 }) => {
-  const customResourceDefinitionName = getCustomResourceDefinitionPluralName(kind);
-  const { show } = useToast();
   const hasShownErrorRef = useRef(false);
 
-  const {
-    data: crdData,
-    isLoading,
-    error,
-  } = useApiResource<CustomResourceDefinition>(
-    {
-      path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
-    },
-    undefined,
-    undefined,
-    !customResourceDefinitionName,
-  );
+  const { schema, isLoading, error } = useCustomResourceDefinitionQuery({
+    kind,
+    apiGroupName,
+    apiVersion,
+  });
+
+  const { show } = useToast();
 
   const { t } = useTranslation();
 
@@ -53,21 +42,9 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
     }
   }, [error, show, t]);
 
-  const schema =
-    crdData?.spec.versions?.find(({ name }) => name === apiVersion)?.schema.openAPIV3Schema ??
-    crdData?.spec.versions?.[0].schema.openAPIV3Schema;
-  const editorInstanceSchema = useMemo(() => (schema ? openapiSchemaToJsonSchema(schema) : undefined), [schema]);
-
-  if (customResourceDefinitionName && isLoading) {
+  if (kind && isLoading) {
     return <Loading />;
   }
-  return (
-    <YamlViewer
-      schema={editorInstanceSchema}
-      yamlString={yamlString}
-      filename={filename}
-      isEdit={isEdit}
-      onApply={onApply}
-    />
-  );
+
+  return <YamlViewer schema={schema} yamlString={yamlString} filename={filename} isEdit={isEdit} onApply={onApply} />;
 };
