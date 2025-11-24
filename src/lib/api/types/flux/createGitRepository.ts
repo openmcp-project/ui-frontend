@@ -19,7 +19,7 @@ export type CreateGitRepositoryType = {
   };
 };
 
-export const CreateGitRepositoryResource = (namespace: string, name: string): Resource<CreateGitRepositoryType> => ({
-  path: `/apis/source.toolkit.fluxcd.io/v1/namespaces/${namespace}/gitrepositories/${name}`,
+export const CreateGitRepositoryResource = (namespace: string): Resource<CreateGitRepositoryType> => ({
+  path: `/apis/source.toolkit.fluxcd.io/v1/namespaces/${namespace}/gitrepositories`,
   method: 'POST',
 });

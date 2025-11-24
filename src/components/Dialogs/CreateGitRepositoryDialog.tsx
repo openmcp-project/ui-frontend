@@ -12,7 +12,6 @@ interface CreateGitRepositoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
   namespace?: string;
-  onSuccess?: () => void;
   useCreateGitRepository?: typeof defaultUseCreateGitRepository;
 }
 
@@ -20,7 +19,6 @@ export function CreateGitRepositoryDialog({
   isOpen,
   onClose,
   namespace = 'default',
-  onSuccess,
   useCreateGitRepository = defaultUseCreateGitRepository,
 }: CreateGitRepositoryDialogProps) {
   const { t } = useTranslation();
@@ -33,6 +31,7 @@ export function CreateGitRepositoryDialog({
     formState: { errors },
   } = useForm<CreateGitRepositoryParams>({
     defaultValues: {
+      namespace,
       name: '',
       interval: '1m0s',
       url: '',
@@ -43,12 +42,26 @@ export function CreateGitRepositoryDialog({
 
   useEffect(() => {
     if (!isOpen) {
-      reset();
+      reset({
+        namespace,
+        name: '',
+        interval: '1m0s',
+        url: '',
+        branch: 'main',
+        secretRef: '',
+      });
     }
-  }, [isOpen, reset]);
+  }, [isOpen, namespace, reset]);
 
   const handleClose = () => {
-    reset();
+    reset({
+      namespace,
+      name: '',
+      interval: '1m0s',
+      url: '',
+      branch: 'main',
+      secretRef: '',
+    });
     onClose();
   };
 
@@ -70,9 +83,15 @@ export function CreateGitRepositoryDialog({
                   void handleSubmit(async (data) => {
                     try {
                       await createGitRepository(data);
-                      reset();
+                      reset({
+                        namespace,
+                        name: '',
+                        interval: '1m0s',
+                        url: '',
+                        branch: 'main',
+                        secretRef: '',
+                      });
                       onClose();
-                      onSuccess?.();
                     } catch {
                       // Error handled by hook
                     }
@@ -89,6 +108,24 @@ export function CreateGitRepositoryDialog({
     >
       <Form className={styles.form}>
         <FormGroup headerText={t('CreateGitRepositoryDialog.metadataTitle')}>
+          <div className={styles.formField}>
+            <Label required>{t('common.namespace', 'Namespace')}</Label>
+            <Controller
+              name="namespace"
+              control={control}
+              rules={{ required: t('validationErrors.required') }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id="namespace"
+                  valueState={errors.namespace ? 'Negative' : 'None'}
+                  valueStateMessage={<span>{errors.namespace?.message}</span>}
+                  className={styles.input}
+                />
+              )}
+            />
+          </div>
+
           <div className={styles.formField}>
             <Label required>{t('CreateGitRepositoryDialog.nameTitle')}</Label>
             <Controller
@@ -135,7 +172,14 @@ export function CreateGitRepositoryDialog({
               control={control}
               rules={{
                 required: t('validationErrors.required'),
-                pattern: { value: /^https:\/\/.+/, message: t('validationErrors.urlFormat') },
+                validate: (value: string) => {
+                  try {
+                    const url = new URL(value);
+                    return url.protocol === 'https:' || t('validationErrors.urlFormat');
+                  } catch {
+                    return t('validationErrors.urlFormat');
+                  }
+                },
               }}
               render={({ field }) => (
                 <Input

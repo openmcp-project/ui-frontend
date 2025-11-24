@@ -510,7 +510,7 @@
     "addMembersButtonN": "Add {{count}} members"
   },
   "CreateGitRepositoryDialog": {
-    "dialogTitle": "Create Git Repository'",
+    "dialogTitle": "Create Git Repository",
     "metadataTitle": "Metadata",
     "urlTitle": "URL",
     "secretRefOptionalTitle": "SecretRef (Optional)",

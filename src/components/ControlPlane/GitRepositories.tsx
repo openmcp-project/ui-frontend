@@ -169,6 +169,7 @@ export function GitRepositories() {
           <Toolbar>
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <ToolbarSpacer />
+            <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
               {t('buttons.create')}
             </Button>
