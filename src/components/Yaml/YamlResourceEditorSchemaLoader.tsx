@@ -17,7 +17,7 @@ interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
   kind?: string;
 }
 
-export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
+export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   yamlString,
   filename,
   isEdit = false,

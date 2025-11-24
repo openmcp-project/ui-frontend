@@ -11,7 +11,7 @@ import {
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
-import { YamlViewerSchemaLoader } from './YamlViewerSchemaLoader.tsx';
+import { YamlResourceEditorSchemaLoader } from './YamlResourceEditorSchemaLoader.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
@@ -162,7 +162,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
           </FlexBox>
         )}
         {mode === 'edit' && (
-          <YamlViewerSchemaLoader
+          <YamlResourceEditorSchemaLoader
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={isEdit}
