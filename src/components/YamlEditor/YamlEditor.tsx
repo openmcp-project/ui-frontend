@@ -64,31 +64,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
     return () => dispose();
   }, [schema]);
 
-  // Capture Space at the window level before document-level handlers and stop propagation if inside editor
-  useEffect(() => {
-    const isInsideWrapper = (target: EventTarget | null): boolean => {
-      if (!wrapperRef.current || !(target instanceof Node)) return false;
-      return wrapperRef.current.contains(target);
-    };
-
-    const handler = (e: KeyboardEvent) => {
-      // Normalize different browsers: e.key can be ' ' or 'Spacebar'. Prefer code when available.
-      const isSpace = e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
-      if (!isSpace) return;
-      if (isInsideWrapper(e.target)) {
-        // allow default so Monaco inserts a space, but stop propagation to prevent global handlers
-        e.stopPropagation();
-      }
-    };
-
-    window.addEventListener('keydown', handler, true);
-    window.addEventListener('keyup', handler, true);
-    return () => {
-      window.removeEventListener('keydown', handler, true);
-      window.removeEventListener('keyup', handler, true);
-    };
-  }, []);
-
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
       ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
