@@ -46,6 +46,7 @@ const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename, apiVersion, a
         yamlString={yamlString}
         filename={filename}
         isEdit={false}
+        kind={'managedcontrolplane'}
       />
     </div>
   );
