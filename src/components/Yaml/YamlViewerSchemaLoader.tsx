@@ -51,7 +51,7 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
       show(t('errors.cannotLoadSchema'));
       hasShownErrorRef.current = true;
     }
-  }, [error, show]);
+  }, [error, show, t]);
 
   const schema =
     crdData?.spec.versions?.find(({ name }) => name === apiVersion)?.schema.openAPIV3Schema ??

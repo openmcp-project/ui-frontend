@@ -36,7 +36,7 @@ export type GitRepoItem = GitReposResponse['items'][0] & {
 export function GitRepositories() {
   const { data, error, isLoading } = useApiResource(FluxRequest); //404 if component not enabled
   const { t } = useTranslation();
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
 
@@ -54,7 +54,7 @@ export function GitRepositories() {
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
-      openInAside(
+      openInAsideWithApiConfig(
         <Fragment key={identityKey}>
           <YamlSidePanel
             isEdit={true}
@@ -63,9 +63,10 @@ export function GitRepositories() {
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
+        apiConfig,
       );
     },
-    [openInAside, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig],
   );
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
