@@ -26,34 +26,34 @@ export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLo
 
 export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const apiConfig = useContext(ApiConfigContext);
   const openSplitterSidePanel = () => {
     switch (variant) {
       case 'resource': {
         const { resource, toolbarContent } = props as YamlViewButtonResourceProps;
-        openInAside(
+        openInAsideWithApiConfig(
           <YamlSidePanel
             isEdit={false}
             resource={resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             toolbarContent={toolbarContent}
-            apiConfig={apiConfig}
           />,
+          apiConfig,
         );
         break;
       }
 
       case 'loader': {
         const { workspaceName, resourceType, resourceName } = props as YamlViewButtonLoaderProps;
-        openInAside(
+        openInAsideWithApiConfig(
           <YamlSidePanelWithLoader
             isEdit={false}
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}
-            apiConfig={apiConfig}
           />,
+          apiConfig,
         );
         break;
       }

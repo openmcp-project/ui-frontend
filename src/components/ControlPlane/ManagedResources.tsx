@@ -90,7 +90,7 @@ export function ManagedResources({
   const { t } = useTranslation();
   const toast = useToast();
   const apiConfig = useContext(ApiConfigContext);
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
@@ -125,19 +125,19 @@ export function ManagedResources({
   const openEditPanel = useCallback(
     (item: ManagedResourceItem) => {
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
-      openInAside(
+      openInAsideWithApiConfig(
         <Fragment key={identityKey}>
           <YamlSidePanel
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
+        apiConfig,
       );
     },
-    [openInAside, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig],
   );
   const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(

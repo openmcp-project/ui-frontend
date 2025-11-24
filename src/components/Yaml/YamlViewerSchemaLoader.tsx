@@ -6,14 +6,14 @@ import Loading from '../Shared/Loading.tsx';
 import { CustomResourceDefinition } from '../../types/customResourceDefinition.ts';
 import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
 
-import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 import { getCustomResourceDefinitionPluralName } from '../../utils/getPluralName.ts';
 import { useToast } from '../../context/ToastContext.tsx';
+import { useTranslation } from 'react-i18next';
 
 interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
   apiVersion: string;
   apiGroupName: string;
-  apiConfig?: ApiConfig;
+
   kind?: string;
 }
 
@@ -24,7 +24,7 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
   onApply,
   apiGroupName,
   apiVersion,
-  apiConfig,
+
   kind,
 }) => {
   const customResourceDefinitionName = getCustomResourceDefinitionPluralName(kind);
@@ -40,14 +40,15 @@ export const YamlViewerSchemaLoader: FC<YamlViewerSchemaLoaderProps> = ({
       path: `/apis/apiextensions.k8s.io/v1/customresourcedefinitions/${customResourceDefinitionName}.${apiGroupName}`,
     },
     undefined,
-    apiConfig?.mcpConfig,
+    undefined,
     !customResourceDefinitionName,
   );
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!hasShownErrorRef.current && error) {
-      const message = (error as { message?: string }).message || 'Failed to load schema';
-      show(message);
+      show(t('errors.cannotLoadSchema'));
       hasShownErrorRef.current = true;
     }
   }, [error, show]);

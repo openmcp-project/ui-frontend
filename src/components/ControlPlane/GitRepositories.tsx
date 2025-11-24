@@ -60,7 +60,6 @@ export function GitRepositories() {
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,

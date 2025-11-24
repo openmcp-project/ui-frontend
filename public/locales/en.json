@@ -405,7 +405,8 @@
     "syncError": "Sync error",
     "error": "Error",
     "notHealthy": "Not healthy",
-    "notReady": "Not ready"
+    "notReady": "Not ready",
+    "cannotLoadSchema": "Cannot load schema for this resource"
   },
   "buttons": {
     "viewResource": "View resource",

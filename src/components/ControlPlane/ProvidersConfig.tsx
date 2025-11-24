@@ -38,7 +38,7 @@ type Rows = {
 
 export function ProvidersConfig() {
   const { t } = useTranslation();
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const apiConfig = useContext(ApiConfigContext);
@@ -65,19 +65,19 @@ export function ProvidersConfig() {
   const openEditPanel = useCallback(
     (item: ProviderConfigItem) => {
       const identityKey = `${item.kind}:${item.metadata.name}`;
-      openInAside(
+      openInAsideWithApiConfig(
         <Fragment key={identityKey}>
           <YamlSidePanel
             isEdit={true}
             resource={item as unknown as Resource}
             filename={`${item.kind}_${item.metadata.name}`}
-            apiConfig={apiConfig}
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
+        apiConfig,
       );
     },
-    [openInAside, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig],
   );
   const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(

@@ -21,7 +21,6 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
-import { ApiConfig } from '../../lib/api/types/apiConfig.ts';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
@@ -31,10 +30,9 @@ export interface YamlSidePanelProps {
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
   toolbarContent?: JSX.Element;
-  apiConfig?: ApiConfig;
 }
 
-export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent, apiConfig }: YamlSidePanelProps) {
+export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -170,7 +168,6 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
             isEdit={isEdit}
             apiGroupName={apiGroupName}
             apiVersion={apiVersion}
-            apiConfig={apiConfig}
             kind={kind}
             onApply={handleApplyFromEditor}
           />

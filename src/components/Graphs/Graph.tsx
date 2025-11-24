@@ -31,7 +31,7 @@ const nodeTypes = {
 
 const Graph: React.FC = () => {
   const { t } = useTranslation();
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('source');
   const apiConfig = useContext(ApiConfigContext);
@@ -41,11 +41,12 @@ const Graph: React.FC = () => {
         ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}`
         : '';
 
-      openInAside(
-        <YamlSidePanel apiConfig={apiConfig} resource={item as unknown as Resource} filename={yamlFilename} />,
+      openInAsideWithApiConfig(
+        <YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />,
+        apiConfig,
       );
     },
-    [openInAside, apiConfig],
+    [openInAsideWithApiConfig, apiConfig],
   );
 
   const { nodes, edges, colorMap, loading, error } = useGraph(colorBy, handleYamlClick);
