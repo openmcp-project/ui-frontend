@@ -8,6 +8,7 @@ import {
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
+import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { UseFormWatch } from 'react-hook-form';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 
@@ -45,8 +46,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
     idpPrefix,
   );
   const yamlString = stringify(resource);
-  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
-  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
+  const { apiGroupName, apiVersion } = parseResourceApiInfo(resource);
   return (
     <div className={styles.wrapper}>
       <Title>{t('common.summarize')}</Title>

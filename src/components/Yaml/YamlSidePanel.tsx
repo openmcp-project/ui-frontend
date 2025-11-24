@@ -17,6 +17,7 @@ import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { parseResourceApiInfo } from '../../utils/parseResourceApiInfo.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -81,9 +82,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
 
   const handleGoBack = () => setMode('edit');
 
-  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
-  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
-  const kind = resource?.kind;
+  const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
 
   return (
     <Panel
