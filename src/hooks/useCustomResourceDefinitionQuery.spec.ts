@@ -3,23 +3,28 @@ import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { useCustomResourceDefinitionQuery } from './useCustomResourceDefinitionQuery';
 import { CustomResourceDefinition } from '../types/customResourceDefinition';
 import * as useApiResourceModule from '../lib/api/useApiResource';
+import * as useResourcePluralNamesModule from './useResourcePluralNames';
 
 vi.mock('../lib/api/useApiResource');
+vi.mock('./useResourcePluralNames');
 
 describe('useCustomResourceDefinitionQuery', () => {
   let useApiResourceMock: Mock;
+  let useResourcePluralNamesMock: Mock;
 
   beforeEach(() => {
     useApiResourceMock = vi.fn();
     vi.spyOn(useApiResourceModule, 'useApiResource').mockImplementation(useApiResourceMock);
+
+    useResourcePluralNamesMock = vi.fn();
+    vi.spyOn(useResourcePluralNamesModule, 'useResourcePluralNames').mockImplementation(useResourcePluralNamesMock);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should return schema and crdData when CRD is loaded successfully', async () => {
-    // ARRANGE
+  it('should return schema and CRD data on successful load', async () => {
     const mockCRD: CustomResourceDefinition = {
       kind: 'CustomResourceDefinition',
       apiVersion: 'apiextensions.k8s.io/v1',
@@ -73,7 +78,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -82,7 +91,6 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     await waitFor(() => {
       expect(result.current.crdData).toEqual(mockCRD);
       expect(result.current.isLoading).toBe(false);
@@ -92,15 +100,18 @@ describe('useCustomResourceDefinitionQuery', () => {
     });
   });
 
-  it('should call useApiResource with correct path and parameters', () => {
-    // ARRANGE
+  it('should construct the correct API path for the CRD', () => {
     useApiResourceMock.mockReturnValue({
       data: undefined,
       isLoading: true,
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -109,7 +120,6 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     expect(useApiResourceMock).toHaveBeenCalledWith(
       {
         path: '/apis/apiextensions.k8s.io/v1/customresourcedefinitions/workspaces.core.openmcp.cloud',
@@ -120,15 +130,18 @@ describe('useCustomResourceDefinitionQuery', () => {
     );
   });
 
-  it('should disable API call when kind is undefined', () => {
-    // ARRANGE
+  it('should not fetch if the kind is undefined', () => {
     useApiResourceMock.mockReturnValue({
       data: undefined,
       isLoading: false,
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: () => '',
+      isLoading: false,
+    });
+
     renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: undefined,
@@ -137,10 +150,9 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     expect(useApiResourceMock).toHaveBeenCalledWith(
       {
-        path: '/apis/apiextensions.k8s.io/v1/customresourcedefinitions/undefined.core.openmcp.cloud',
+        path: '/apis/apiextensions.k8s.io/v1/customresourcedefinitions/.core.openmcp.cloud',
       },
       undefined,
       undefined,
@@ -148,15 +160,18 @@ describe('useCustomResourceDefinitionQuery', () => {
     );
   });
 
-  it('should return undefined schema when no CRD data is available', () => {
-    // ARRANGE
+  it('should return undefined schema and data when CRD is not found', () => {
     useApiResourceMock.mockReturnValue({
       data: undefined,
       isLoading: false,
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -165,13 +180,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     expect(result.current.schema).toBeUndefined();
     expect(result.current.crdData).toBeUndefined();
   });
 
-  it('should fall back to first version when specified apiVersion is not found', async () => {
-    // ARRANGE
+  it('should use the first available version if the specified one is not found', async () => {
     const mockCRD: CustomResourceDefinition = {
       kind: 'CustomResourceDefinition',
       apiVersion: 'apiextensions.k8s.io/v1',
@@ -225,7 +238,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -234,16 +251,13 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     await waitFor(() => {
       expect(result.current.schema).toBeDefined();
-      // Should use the fallback (first version's) schema
       expect(result.current.schema?.properties?.spec?.properties).toHaveProperty('fallbackField');
     });
   });
 
-  it('should return error when API call fails', () => {
-    // ARRANGE
+  it('should propagate errors from the API call', () => {
     const mockError = { message: 'Failed to fetch CRD', status: 404 };
     useApiResourceMock.mockReturnValue({
       data: undefined,
@@ -251,7 +265,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       error: mockError,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -260,13 +278,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     expect(result.current.error).toEqual(mockError);
     expect(result.current.schema).toBeUndefined();
   });
 
-  it('should handle multiple versions and select correct one', async () => {
-    // ARRANGE
+  it('should select the correct schema for the specified API version', async () => {
     const mockCRD: CustomResourceDefinition = {
       kind: 'CustomResourceDefinition',
       apiVersion: 'apiextensions.k8s.io/v1',
@@ -340,7 +356,11 @@ describe('useCustomResourceDefinitionQuery', () => {
       error: undefined,
     });
 
-    // ACT
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
+      isLoading: false,
+    });
+
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
         kind: 'Workspace',
@@ -349,10 +369,8 @@ describe('useCustomResourceDefinitionQuery', () => {
       }),
     );
 
-    // ASSERT
     await waitFor(() => {
       expect(result.current.schema).toBeDefined();
-      // Should use v1beta1's schema, not v1alpha1
       expect(result.current.schema?.properties?.spec?.properties).toHaveProperty('betaField');
       expect(result.current.schema?.properties?.spec?.properties).not.toHaveProperty('alphaField');
     });
