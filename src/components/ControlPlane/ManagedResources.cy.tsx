@@ -51,7 +51,6 @@ describe('ManagedResources - Delete Resource', () => {
       getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
       isLoading: false,
       error: undefined,
-      isAuthenticated: true,
     };
   };
 
