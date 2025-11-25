@@ -111,8 +111,12 @@ function proxyPlugin(fastify) {
           ? req.encryptedSession.get('onboarding_accessToken')
           : `${req.encryptedSession.get('onboarding_accessToken')},${req.encryptedSession.get('mcp_accessToken')}`;
 
+        // Remove accept-encoding to prevent backend from compressing
+        // This avoids double-compression or encoding issues
+        const { 'accept-encoding': _, ...restHeaders } = headers;
+
         return {
-          ...headers,
+          ...restHeaders,
           authorization: accessToken,
         };
       },
