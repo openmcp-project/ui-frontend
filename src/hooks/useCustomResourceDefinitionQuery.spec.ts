@@ -8,9 +8,50 @@ import * as useResourcePluralNamesModule from './useResourcePluralNames';
 vi.mock('../lib/api/useApiResource');
 vi.mock('./useResourcePluralNames');
 
+const createMockCrd = (versions: CustomResourceDefinition['spec']['versions']): CustomResourceDefinition => ({
+  kind: 'CustomResourceDefinition',
+  apiVersion: 'apiextensions.k8s.io/v1',
+  metadata: {
+    name: 'workspaces.core.openmcp.cloud',
+    uid: 'test-uid',
+    resourceVersion: '1',
+    generation: 1,
+    creationTimestamp: '2024-01-01T00:00:00Z',
+  },
+  spec: {
+    group: 'core.openmcp.cloud',
+    names: {
+      plural: 'workspaces',
+      singular: 'workspace',
+      kind: 'Workspace',
+      listKind: 'WorkspaceList',
+    },
+    scope: 'Namespaced',
+    versions,
+    conversion: {
+      strategy: 'None',
+    },
+  },
+});
+
 describe('useCustomResourceDefinitionQuery', () => {
   let useApiResourceMock: Mock;
   let useResourcePluralNamesMock: Mock;
+
+  const setupApiResourceMock = (
+    data: CustomResourceDefinition | undefined,
+    isLoading = false,
+    error: unknown = undefined,
+  ) => {
+    useApiResourceMock.mockReturnValue({ data, isLoading, error });
+  };
+
+  const setupResourcePluralNamesMock = (isLoading = false) => {
+    useResourcePluralNamesMock.mockReturnValue({
+      getPluralKind: (kind: string) => (kind ? kind.toLowerCase() + 's' : ''),
+      isLoading,
+    });
+  };
 
   beforeEach(() => {
     useApiResourceMock = vi.fn();
@@ -25,63 +66,27 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should return schema and CRD data on successful load', async () => {
-    const mockCRD: CustomResourceDefinition = {
-      kind: 'CustomResourceDefinition',
-      apiVersion: 'apiextensions.k8s.io/v1',
-      metadata: {
-        name: 'workspaces.core.openmcp.cloud',
-        uid: 'test-uid',
-        resourceVersion: '1',
-        generation: 1,
-        creationTimestamp: '2024-01-01T00:00:00Z',
-      },
-      spec: {
-        group: 'core.openmcp.cloud',
-        names: {
-          plural: 'workspaces',
-          singular: 'workspace',
-          kind: 'Workspace',
-          listKind: 'WorkspaceList',
-        },
-        scope: 'Namespaced',
-        versions: [
-          {
-            name: 'v1alpha1',
-            served: true,
-            storage: true,
-            schema: {
-              openAPIV3Schema: {
+    const mockCRD = createMockCrd([
+      {
+        name: 'v1alpha1',
+        served: true,
+        storage: true,
+        schema: {
+          openAPIV3Schema: {
+            type: 'object',
+            properties: {
+              spec: {
                 type: 'object',
-                properties: {
-                  spec: {
-                    type: 'object',
-                    properties: {
-                      name: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
+                properties: { name: { type: 'string' } },
               },
             },
           },
-        ],
-        conversion: {
-          strategy: 'None',
         },
       },
-    };
+    ]);
 
-    useApiResourceMock.mockReturnValue({
-      data: mockCRD,
-      isLoading: false,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(mockCRD);
+    setupResourcePluralNamesMock();
 
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -101,16 +106,8 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should construct the correct API path for the CRD', () => {
-    useApiResourceMock.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(undefined, true);
+    setupResourcePluralNamesMock();
 
     renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -131,16 +128,8 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should not fetch if the kind is undefined', () => {
-    useApiResourceMock.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: () => '',
-      isLoading: false,
-    });
+    setupApiResourceMock(undefined);
+    setupResourcePluralNamesMock();
 
     renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -161,16 +150,8 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should return undefined schema and data when CRD is not found', () => {
-    useApiResourceMock.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(undefined);
+    setupResourcePluralNamesMock();
 
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -185,63 +166,27 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should use the first available version if the specified one is not found', async () => {
-    const mockCRD: CustomResourceDefinition = {
-      kind: 'CustomResourceDefinition',
-      apiVersion: 'apiextensions.k8s.io/v1',
-      metadata: {
-        name: 'workspaces.core.openmcp.cloud',
-        uid: 'test-uid',
-        resourceVersion: '1',
-        generation: 1,
-        creationTimestamp: '2024-01-01T00:00:00Z',
-      },
-      spec: {
-        group: 'core.openmcp.cloud',
-        names: {
-          plural: 'workspaces',
-          singular: 'workspace',
-          kind: 'Workspace',
-          listKind: 'WorkspaceList',
-        },
-        scope: 'Namespaced',
-        versions: [
-          {
-            name: 'v1beta1',
-            served: true,
-            storage: true,
-            schema: {
-              openAPIV3Schema: {
+    const mockCRD = createMockCrd([
+      {
+        name: 'v1beta1',
+        served: true,
+        storage: true,
+        schema: {
+          openAPIV3Schema: {
+            type: 'object',
+            properties: {
+              spec: {
                 type: 'object',
-                properties: {
-                  spec: {
-                    type: 'object',
-                    properties: {
-                      fallbackField: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
+                properties: { fallbackField: { type: 'string' } },
               },
             },
           },
-        ],
-        conversion: {
-          strategy: 'None',
         },
       },
-    };
+    ]);
 
-    useApiResourceMock.mockReturnValue({
-      data: mockCRD,
-      isLoading: false,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(mockCRD);
+    setupResourcePluralNamesMock();
 
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -259,16 +204,8 @@ describe('useCustomResourceDefinitionQuery', () => {
 
   it('should propagate errors from the API call', () => {
     const mockError = { message: 'Failed to fetch CRD', status: 404 };
-    useApiResourceMock.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: mockError,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(undefined, false, mockError);
+    setupResourcePluralNamesMock();
 
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
@@ -283,83 +220,43 @@ describe('useCustomResourceDefinitionQuery', () => {
   });
 
   it('should select the correct schema for the specified API version', async () => {
-    const mockCRD: CustomResourceDefinition = {
-      kind: 'CustomResourceDefinition',
-      apiVersion: 'apiextensions.k8s.io/v1',
-      metadata: {
-        name: 'workspaces.core.openmcp.cloud',
-        uid: 'test-uid',
-        resourceVersion: '1',
-        generation: 1,
-        creationTimestamp: '2024-01-01T00:00:00Z',
-      },
-      spec: {
-        group: 'core.openmcp.cloud',
-        names: {
-          plural: 'workspaces',
-          singular: 'workspace',
-          kind: 'Workspace',
-          listKind: 'WorkspaceList',
-        },
-        scope: 'Namespaced',
-        versions: [
-          {
-            name: 'v1alpha1',
-            served: true,
-            storage: false,
-            schema: {
-              openAPIV3Schema: {
+    const mockCRD = createMockCrd([
+      {
+        name: 'v1alpha1',
+        served: true,
+        storage: false,
+        schema: {
+          openAPIV3Schema: {
+            type: 'object',
+            properties: {
+              spec: {
                 type: 'object',
-                properties: {
-                  spec: {
-                    type: 'object',
-                    properties: {
-                      alphaField: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
+                properties: { alphaField: { type: 'string' } },
               },
             },
           },
-          {
-            name: 'v1beta1',
-            served: true,
-            storage: true,
-            schema: {
-              openAPIV3Schema: {
+        },
+      },
+      {
+        name: 'v1beta1',
+        served: true,
+        storage: true,
+        schema: {
+          openAPIV3Schema: {
+            type: 'object',
+            properties: {
+              spec: {
                 type: 'object',
-                properties: {
-                  spec: {
-                    type: 'object',
-                    properties: {
-                      betaField: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
+                properties: { betaField: { type: 'string' } },
               },
             },
           },
-        ],
-        conversion: {
-          strategy: 'None',
         },
       },
-    };
+    ]);
 
-    useApiResourceMock.mockReturnValue({
-      data: mockCRD,
-      isLoading: false,
-      error: undefined,
-    });
-
-    useResourcePluralNamesMock.mockReturnValue({
-      getPluralKind: (kind: string) => kind.toLowerCase() + 's',
-      isLoading: false,
-    });
+    setupApiResourceMock(mockCRD);
+    setupResourcePluralNamesMock();
 
     const { result } = renderHook(() =>
       useCustomResourceDefinitionQuery({
