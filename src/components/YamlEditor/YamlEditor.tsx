@@ -2,7 +2,7 @@ import { Editor } from '@monaco-editor/react';
 import type { ComponentProps } from 'react';
 import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
@@ -39,9 +39,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
-
-  // Ref to the wrapper to scope global key handlers
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (window.Cypress) return;
@@ -144,7 +141,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
           </Button>
         </Toolbar>
       )}
-      <div ref={wrapperRef} className={styles.editorWrapper}>
+      <div className={styles.editorWrapper}>
         <Editor
           {...rest}
           value={isEdit ? editorContent : value}
