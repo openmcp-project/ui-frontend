@@ -15,46 +15,56 @@ export interface YamlViewButtonResourceProps {
   variant: 'resource';
   resource: Resource;
   toolbarContent?: JSX.Element;
+  withoutApiConfig?: boolean;
 }
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
   workspaceName?: string;
   resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
   resourceName: string;
+  withoutApiConfig?: boolean;
 }
 export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
 
 export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
-  const { openInAsideWithApiConfig } = useSplitter();
+  const { openInAsideWithApiConfig, openInAside } = useSplitter();
   const apiConfig = useContext(ApiConfigContext);
   const openSplitterSidePanel = () => {
     switch (variant) {
       case 'resource': {
-        const { resource, toolbarContent } = props as YamlViewButtonResourceProps;
-        openInAsideWithApiConfig(
+        const { resource, toolbarContent, withoutApiConfig } = props as YamlViewButtonResourceProps;
+        const content = (
           <YamlSidePanel
             isEdit={false}
             resource={resource}
             filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
             toolbarContent={toolbarContent}
-          />,
-          apiConfig,
+          />
         );
+        if (withoutApiConfig) {
+          openInAside(content);
+        } else {
+          openInAsideWithApiConfig(content, apiConfig);
+        }
         break;
       }
 
       case 'loader': {
-        const { workspaceName, resourceType, resourceName } = props as YamlViewButtonLoaderProps;
-        openInAsideWithApiConfig(
+        const { workspaceName, resourceType, resourceName, withoutApiConfig } = props as YamlViewButtonLoaderProps;
+        const content = (
           <YamlSidePanelWithLoader
             isEdit={false}
             workspaceName={workspaceName}
             resourceType={resourceType}
             resourceName={resourceName}
-          />,
-          apiConfig,
+          />
         );
+        if (withoutApiConfig) {
+          openInAside(content);
+        } else {
+          openInAsideWithApiConfig(content, apiConfig);
+        }
         break;
       }
     }
