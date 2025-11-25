@@ -7,8 +7,11 @@ export interface ResourceApiInfo {
 }
 
 export function parseResourceApiInfo(resource: Resource): ResourceApiInfo {
-  const apiGroupName = resource?.apiVersion?.split('/')[0] ?? 'core.openmcp.cloud';
-  const apiVersion = resource?.apiVersion?.split('/')[1] ?? 'v1alpha1';
+  const apiVersionString = resource?.apiVersion ?? 'core.openmcp.cloud/v1alpha1';
+  const [apiGroupName, apiVersion] = apiVersionString.includes('/')
+    ? apiVersionString.split('/')
+    : ['core', apiVersionString];
+
   const kind = resource?.kind ?? '';
 
   return {
