@@ -31,9 +31,9 @@ export function SplitterProvider({ children }: { children: ReactNode }) {
           mcpConfig:
             projectName && workspaceName && controlPlaneName
               ? {
-                  projectName: apiConfig.mcpConfig?.projectName ?? '',
-                  workspaceName: apiConfig.mcpConfig?.workspaceName ?? '',
-                  controlPlaneName: apiConfig.mcpConfig?.controlPlaneName ?? '',
+                  projectName,
+                  workspaceName,
+                  controlPlaneName,
                 }
               : undefined,
         }}
