@@ -54,7 +54,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
         {
           schema: schema as JSONSchema,
           fileMatch: ['*'],
-          uri: 'http://kubernetesjsonschema.dev/master-standalone/all.json',
+          uri: 'https://kubernetesjsonschema.dev/master-standalone/all.json',
         },
       ],
     });
