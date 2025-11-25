@@ -242,7 +242,7 @@ export function ManagedResources({
                 key: 'edit',
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
-                disabled: isFluxManaged,
+                disabled: isFluxManaged || !hasMCPAdminRights,
                 onClick: openEditPanel,
                 tooltip: isFluxManaged && hasMCPAdminRights ? t('yaml.fluxManaged') : undefined,
               },

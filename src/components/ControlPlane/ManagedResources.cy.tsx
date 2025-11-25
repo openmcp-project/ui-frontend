@@ -336,3 +336,84 @@ describe('ManagedResources - Edit Resource', () => {
     cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
   });
 });
+
+describe('ManagedResources - Without Admin Rights', () => {
+  const fakeUseHasMcpAdminRights = () => {
+    return false;
+  };
+
+  const fakeUseApiResource: typeof useApiResource = (): any => {
+    return {
+      data: mockManagedResources,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: async () => undefined,
+    };
+  };
+
+  const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
+    return {
+      getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
+      isLoading: false,
+      error: undefined,
+    };
+  };
+
+  const mockManagedResources: ManagedResourceGroup[] = [
+    {
+      items: [
+        {
+          apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+          kind: 'Subaccount',
+          metadata: {
+            name: 'test-subaccount',
+            namespace: 'test-namespace',
+            creationTimestamp: '2024-01-01T00:00:00Z',
+            resourceVersion: '1',
+            labels: {},
+          },
+          spec: {},
+          status: {
+            conditions: [
+              {
+                type: 'Ready',
+                status: 'True',
+                lastTransitionTime: '2024-01-01T00:00:00Z',
+              },
+              {
+                type: 'Synced',
+                status: 'True',
+                lastTransitionTime: '2024-01-01T00:00:00Z',
+              },
+            ],
+          },
+        } as any,
+      ],
+    },
+  ];
+
+  it('disables Edit and Delete actions when user has no admin rights', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    // Expand resource group
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+
+    // Verify Delete action is disabled by checking the ui5-menu-item element
+    cy.get('ui5-menu-item[data-action-key="delete"]').should('have.attr', 'disabled');
+  });
+});
