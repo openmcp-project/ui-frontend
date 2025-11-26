@@ -6,6 +6,23 @@ import react from '@vitejs/plugin-react';
 
 const viteConfig = defineViteConfig({
   plugins: [react()],
+  define: {
+    'process.env': {},
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      path: 'path-browserify',
+    },
+  },
+  optimizeDeps: {
+    include: ['path-browserify'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
 });
 
 export default defineConfig({
