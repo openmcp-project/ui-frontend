@@ -12,6 +12,12 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+
+// Set environment variable for Cypress tests
+if (window.Cypress) {
+  (window as any).VITE_CYPRESS_TEST = 'true';
+}
+
 import '@ui5/webcomponents-react/dist/Assets.js';
 import { ThemeProvider } from '@ui5/webcomponents-react';
 
@@ -40,9 +46,7 @@ Cypress.Commands.add('mount', (component, options) => {
   return mount(
     <ThemeProvider>
       <ToastProvider>
-        <FrontendConfigContext value={mockedFrontendConfig}>
-          {component}
-        </FrontendConfigContext>
+        <FrontendConfigContext value={mockedFrontendConfig}>{component}</FrontendConfigContext>
       </ToastProvider>
     </ThemeProvider>,
     options,

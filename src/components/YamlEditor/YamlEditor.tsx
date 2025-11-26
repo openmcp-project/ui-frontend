@@ -41,7 +41,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [applyAttempted, setApplyAttempted] = useState(false);
 
   useEffect(() => {
-    if (window.Cypress) return;
+    if (window.VITE_CYPRESS_TEST) return;
 
     const { dispose } = configureMonacoYaml(monaco, {
       isKubernetes: true,

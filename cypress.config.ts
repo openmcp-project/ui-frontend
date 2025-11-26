@@ -7,6 +7,7 @@ import react from '@vitejs/plugin-react';
 const viteConfig = defineViteConfig({
   plugins: [react()],
 });
+
 export default defineConfig({
   includeShadowDom: true,
   viewportWidth: 1920,
