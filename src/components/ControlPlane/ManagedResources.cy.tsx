@@ -42,7 +42,7 @@ describe('ManagedResources - Delete Resource', () => {
     };
   };
 
-  const fakeuseHasMcpAdminRights = () => {
+  const fakeUseHasMcpAdminRights = () => {
     return true;
   };
 
@@ -101,7 +101,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
-            useHasMcpAdminRights={fakeuseHasMcpAdminRights}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -136,7 +136,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
-            useHasMcpAdminRights={fakeuseHasMcpAdminRights}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -179,7 +179,7 @@ describe('ManagedResources - Delete Resource', () => {
             useApiResourceMutation={fakeUseApiResourceMutation}
             useApiResource={fakeUseApiResource}
             useResourcePluralNames={fakeUseResourcePluralNames}
-            useHasMcpAdminRights={fakeuseHasMcpAdminRights}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
           />
         </SplitterProvider>
       </MemoryRouter>,
@@ -215,10 +215,6 @@ describe('ManagedResources - Edit Resource', () => {
   let patchCalled = false;
   let patchedItem: any = null;
 
-  const fakeUseHasMcpAdminRights = () => {
-    return true;
-  };
-
   const fakeUseHandleResourcePatch: typeof useHandleResourcePatch = () => {
     return async (item: any) => {
       patchCalled = true;
@@ -235,6 +231,10 @@ describe('ManagedResources - Edit Resource', () => {
       isValidating: false,
       mutate: async () => undefined,
     };
+  };
+
+  const fakeUseHasMcpAdminRights = () => {
+    return true;
   };
 
   const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
