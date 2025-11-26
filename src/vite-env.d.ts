@@ -13,3 +13,5 @@ declare global {
     VITE_CYPRESS_TEST?: string;
   }
 }
+
+export {};
