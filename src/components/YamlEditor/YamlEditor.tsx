@@ -1,8 +1,7 @@
 import { Editor } from '@monaco-editor/react';
-import type { ComponentProps } from 'react';
+import { ComponentProps, useEffect, useCallback, useMemo, useState } from 'react';
 import { Button, Panel, Toolbar, ToolbarSpacer, Title } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +24,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   useEffect(() => {
     if (typeof value !== 'undefined') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditorContent(value.toString());
     }
   }, [value]);
