@@ -13,11 +13,6 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-// Set environment variable for Cypress tests
-if (window.Cypress) {
-  (window as any).VITE_CYPRESS_TEST = 'true';
-}
-
 import '@ui5/webcomponents-react/dist/Assets.js';
 import { ThemeProvider } from '@ui5/webcomponents-react';
 
@@ -29,6 +24,11 @@ import './commands';
 import { FrontendConfigContext } from '../../src/context/FrontendConfigContext';
 import { mockedFrontendConfig } from '../../src/utils/testing';
 import { ToastProvider } from '../../src/context/ToastContext.tsx';
+import { configureMonaco } from '../../src/lib/monaco';
+
+// Initialize Monaco Editor for Cypress tests
+configureMonaco();
+
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
 // Alternatively, can be defined in cypress/support/component.d.ts

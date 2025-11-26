@@ -41,9 +41,6 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [applyAttempted, setApplyAttempted] = useState(false);
 
   useEffect(() => {
-    // This check is to prevent schema configuration load during Cypress tests but Monaco still is being loaded
-    if (window.VITE_CYPRESS_TEST) return;
-
     const { dispose } = configureMonacoYaml(monaco, {
       isKubernetes: true,
       enableSchemaRequest: true,
