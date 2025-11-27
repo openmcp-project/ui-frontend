@@ -34,7 +34,7 @@ describe('CreateGitRepositoryDialog', () => {
     // Fill in the form
     cy.get('#name').typeIntoUi5Input('test-repo');
     cy.get('#interval').find('input').clear().type('5m0s');
-    
+
     cy.get('#url').typeIntoUi5Input('https://github.com/test/repo');
     cy.get('#branch').find('input').clear().type('develop');
 
