@@ -364,7 +364,8 @@
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
-    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "urlFormat": "Must be a valid HTTPS URL"
   },
   "common": {
     "all": "All",
@@ -510,5 +511,17 @@
     "addMembersButton0": "Add members",
     "addMembersButton1": "Add member",
     "addMembersButtonN": "Add {{count}} members"
+  },
+  "CreateGitRepositoryDialog": {
+    "dialogTitle": "Create Git Repository",
+    "metadataTitle": "Metadata",
+    "urlTitle": "URL",
+    "secretRefTitle": "SecretRef",
+    "nameTitle": "Name",
+    "intervalTitle": "Interval",
+    "specTitle": "Spec",
+    "branchTitle": "Branch",
+    "gitRepositoryCreated": "Git Repository created successfully",
+    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}"
   }
 }
