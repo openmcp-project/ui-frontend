@@ -113,6 +113,7 @@ export function useGraph(colorBy: ColorBy, onYamlClick: (item: ManagedResourceIt
 
   useEffect(() => {
     if (!treeData.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNodes([]);
       setEdges([]);
       return;

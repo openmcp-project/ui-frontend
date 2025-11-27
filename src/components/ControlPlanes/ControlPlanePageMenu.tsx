@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
@@ -7,7 +7,7 @@ type ControlPlanesListMenuProps = {
 };
 
 export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen }) => {
-  const buttonRef = useRef(null);
+  const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -17,10 +17,10 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
 
   return (
     <>
-      <Button ref={buttonRef} icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button id={openerId} icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
         open={menuIsOpen}
-        opener={buttonRef.current}
+        opener={openerId}
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
