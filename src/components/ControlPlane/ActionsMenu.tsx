@@ -9,6 +9,7 @@ export type ActionItem<T> = {
   icon?: string;
   disabled?: boolean;
   onClick: (item: T) => void;
+  tooltip?: string;
 };
 
 export type ActionsMenuProps<T> = {
@@ -45,7 +46,14 @@ export function ActionsMenu<T>({ item, actions }: ActionsMenuProps<T>) {
         }}
       >
         {actions.map((a) => (
-          <MenuItem key={a.key} text={a.text} icon={a.icon} data-action-key={a.key} disabled={a.disabled} />
+          <MenuItem
+            key={a.key}
+            text={a.text}
+            icon={a.icon}
+            data-action-key={a.key}
+            disabled={a.disabled}
+            tooltip={a.tooltip}
+          />
         ))}
       </Menu>
     </>

@@ -23,7 +23,7 @@ export function YamlSidePanelWithLoader({
   const { isLoading, data, error } = useApiResource(
     ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,
-    true,
+    null,
   );
 
   if (isLoading) return <Loading />;
