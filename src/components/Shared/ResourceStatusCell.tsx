@@ -1,6 +1,6 @@
-import { Button, ButtonDomRef, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
+import { Button, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
-import { useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import styles from './ResourceStatusCell.module.css';
@@ -20,7 +20,7 @@ export const ResourceStatusCell = ({
   negativeText,
   hideOnHoverEffect,
 }: ResourceStatusCellProps) => {
-  const btnRef = useRef<ButtonDomRef>(null);
+  const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const timeAgo = transitionTime ? formatDateAsTimeAgo(transitionTime) : '-';
 
@@ -33,7 +33,7 @@ export const ResourceStatusCell = ({
   return (
     <span>
       {hideOnHoverEffect ? (
-        <Button ref={btnRef} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpen}>
+        <Button id={openerId} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpen}>
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
@@ -43,7 +43,7 @@ export const ResourceStatusCell = ({
         </Button>
       ) : (
         <AnimatedHoverTextButton
-          ref={btnRef}
+          id={openerId}
           icon={
             <Icon
               design={isOk ? 'Positive' : 'Negative'}
@@ -58,7 +58,7 @@ export const ResourceStatusCell = ({
       )}
 
       <ResponsivePopover
-        opener={btnRef.current ?? undefined}
+        opener={openerId}
         open={popoverIsOpen}
         placement={PopoverPlacement.Bottom}
         onClose={handleClose}
