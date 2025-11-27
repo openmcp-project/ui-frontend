@@ -190,13 +190,7 @@ export function CreateGitRepositoryDialog({
             <Controller
               name="secretRef"
               control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="secretRef"
-                  className={styles.input}
-                />
-              )}
+              render={({ field }) => <Input {...field} id="secretRef" className={styles.input} />}
             />
           </div>
         </FormGroup>
