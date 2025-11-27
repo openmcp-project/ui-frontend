@@ -19,12 +19,7 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
     const expectedPayload = {
@@ -37,9 +32,10 @@ describe('CreateGitRepositoryDialog', () => {
     };
 
     // Fill in the form
-    cy.get('#name').find('input').type('test-repo');
+    cy.get('#name').typeIntoUi5Input('test-repo');
     cy.get('#interval').find('input').clear().type('5m0s');
-    cy.get('#url').find('input').type('https://github.com/test/repo');
+    
+    cy.get('#url').typeIntoUi5Input('https://github.com/test/repo');
     cy.get('#branch').find('input').clear().type('develop');
 
     // Submit the form
@@ -56,12 +52,7 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
     const expectedPayload = {
@@ -74,9 +65,9 @@ describe('CreateGitRepositoryDialog', () => {
     };
 
     // Fill in the form
-    cy.get('#name').find('input').type('test-repo');
-    cy.get('#url').find('input').type('https://github.com/test/repo');
-    cy.get('#secretRef').find('input').type('my-git-secret');
+    cy.get('#name').typeIntoUi5Input('test-repo');
+    cy.get('#url').typeIntoUi5Input('https://github.com/test/repo');
+    cy.get('#secretRef').typeIntoUi5Input('my-git-secret');
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
@@ -92,12 +83,7 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
     // Try to submit without filling required fields
@@ -115,15 +101,10 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
-    cy.get('#name').find('input').type('test-repo');
+    cy.get('#name').typeIntoUi5Input('test-repo');
     cy.get('#interval').find('input').clear().type('1m0s');
     cy.get('#branch').find('input').clear().type('main');
 
@@ -151,16 +132,11 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
     // Fill in some data
-    cy.get('#name').find('input').type('test-repo');
+    cy.get('#name').typeIntoUi5Input('test-repo');
 
     // Click cancel
     cy.get('ui5-button').contains('Cancel').click();
@@ -173,12 +149,7 @@ describe('CreateGitRepositoryDialog', () => {
     const onClose = cy.stub();
 
     cy.mount(
-      <CreateGitRepositoryDialog
-        isOpen={true}
-        namespace="default"
-        useCreateGitRepository={fakeUseCreateGitRepository}
-        onClose={onClose}
-      />,
+      <CreateGitRepositoryDialog isOpen={true} useCreateGitRepository={fakeUseCreateGitRepository} onClose={onClose} />,
     );
 
     // Check default values
@@ -199,14 +170,13 @@ describe('CreateGitRepositoryDialog', () => {
     cy.mount(
       <CreateGitRepositoryDialog
         isOpen={true}
-        namespace="default"
         useCreateGitRepository={failingUseCreateGitRepository}
         onClose={onClose}
       />,
     );
 
     // Fill in the form
-    cy.get('#name').find('input').type('test-repo');
+    cy.get('#name').typeIntoUi5Input('test-repo');
     cy.get('#interval').find('input').clear().type('1m0s');
     cy.get('#url').find('input').type('https://github.com/test/repo');
     cy.get('#branch').find('input').clear().type('main');

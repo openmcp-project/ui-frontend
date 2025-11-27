@@ -1,68 +1,74 @@
 import { Dialog, Bar, Label, Input, Button, Form, FormGroup } from '@ui5/webcomponents-react';
 import { useForm, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  useCreateGitRepository as defaultUseCreateGitRepository,
-  CreateGitRepositoryParams,
-} from '../../hooks/useCreateGitRepository';
-import { useEffect } from 'react';
+import { useId } from 'react';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCreateGitRepository as _useCreateGitRepository } from '../../hooks/useCreateGitRepository';
 import styles from './CreateGitRepositoryDialog.module.css';
 
 interface CreateGitRepositoryDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  namespace?: string;
-  useCreateGitRepository?: typeof defaultUseCreateGitRepository;
+  useCreateGitRepository?: typeof _useCreateGitRepository;
 }
 
 export function CreateGitRepositoryDialog({
   isOpen,
   onClose,
-  namespace = 'default',
-  useCreateGitRepository = defaultUseCreateGitRepository,
+  useCreateGitRepository = _useCreateGitRepository,
 }: CreateGitRepositoryDialogProps) {
   const { t } = useTranslation();
-  const { createGitRepository, isLoading } = useCreateGitRepository(namespace);
+  const { createGitRepository, isLoading } = useCreateGitRepository();
+  const namespaceId = useId();
+
+  const validationSchema = z.object({
+    namespace: z.string().min(1, { message: t('validationErrors.required') }),
+    name: z.string().min(1, { message: t('validationErrors.required') }),
+    interval: z.string().min(1, { message: t('validationErrors.required') }),
+    url: z
+      .string()
+      .min(1, { message: t('validationErrors.required') })
+      .url({ message: t('validationErrors.urlFormat') })
+      .startsWith('https://', { message: t('validationErrors.urlFormat') }),
+    branch: z.string().min(1, { message: t('validationErrors.required') }),
+    secretRef: z.string().optional(),
+  });
+
+  type FormSchema = z.infer<typeof validationSchema>;
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreateGitRepositoryParams>({
+  } = useForm<FormSchema>({
     defaultValues: {
-      namespace,
+      namespace: 'default',
       name: '',
       interval: '1m0s',
       url: '',
       branch: 'main',
       secretRef: '',
     },
+    resolver: zodResolver(validationSchema),
   });
 
-  useEffect(() => {
-    if (!isOpen) {
-      reset({
-        namespace,
-        name: '',
-        interval: '1m0s',
-        url: '',
-        branch: 'main',
-        secretRef: '',
-      });
-    }
-  }, [isOpen, namespace, reset]);
-
   const handleClose = () => {
-    reset({
-      namespace,
-      name: '',
-      interval: '1m0s',
-      url: '',
-      branch: 'main',
-      secretRef: '',
-    });
+    reset();
     onClose();
+  };
+
+  const handleCreate = () => {
+    void handleSubmit(async (data) => {
+      try {
+        await createGitRepository(data);
+        reset();
+        onClose();
+      } catch {
+        // Error handled by hook
+      }
+    })();
   };
 
   return (
@@ -76,28 +82,7 @@ export function CreateGitRepositoryDialog({
               <Button design="Transparent" onClick={handleClose}>
                 {t('buttons.cancel', 'Cancel')}
               </Button>
-              <Button
-                design="Emphasized"
-                disabled={isLoading}
-                onClick={() => {
-                  void handleSubmit(async (data) => {
-                    try {
-                      await createGitRepository(data);
-                      reset({
-                        namespace,
-                        name: '',
-                        interval: '1m0s',
-                        url: '',
-                        branch: 'main',
-                        secretRef: '',
-                      });
-                      onClose();
-                    } catch {
-                      // Error handled by hook
-                    }
-                  })();
-                }}
-              >
+              <Button design="Emphasized" disabled={isLoading} onClick={handleCreate}>
                 {t('buttons.create', 'Create')}
               </Button>
             </>
@@ -109,15 +94,16 @@ export function CreateGitRepositoryDialog({
       <Form className={styles.form}>
         <FormGroup headerText={t('CreateGitRepositoryDialog.metadataTitle')}>
           <div className={styles.formField}>
-            <Label required>{t('common.namespace', 'Namespace')}</Label>
+            <Label required for={namespaceId}>
+              {t('common.namespace', 'Namespace')}
+            </Label>
             <Controller
               name="namespace"
               control={control}
-              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id="namespace"
+                  id={namespaceId}
                   valueState={errors.namespace ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.namespace?.message}</span>}
                   className={styles.input}
@@ -131,7 +117,6 @@ export function CreateGitRepositoryDialog({
             <Controller
               name="name"
               control={control}
-              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -151,7 +136,6 @@ export function CreateGitRepositoryDialog({
             <Controller
               name="interval"
               control={control}
-              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -170,17 +154,6 @@ export function CreateGitRepositoryDialog({
             <Controller
               name="url"
               control={control}
-              rules={{
-                required: t('validationErrors.required'),
-                validate: (value: string) => {
-                  try {
-                    const url = new URL(value);
-                    return url.protocol === 'https:' || t('validationErrors.urlFormat');
-                  } catch {
-                    return t('validationErrors.urlFormat');
-                  }
-                },
-              }}
               render={({ field }) => (
                 <Input
                   {...field}
@@ -199,7 +172,6 @@ export function CreateGitRepositoryDialog({
             <Controller
               name="branch"
               control={control}
-              rules={{ required: t('validationErrors.required') }}
               render={({ field }) => (
                 <Input
                   {...field}

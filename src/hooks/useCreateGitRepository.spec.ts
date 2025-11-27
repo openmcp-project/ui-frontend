@@ -41,13 +41,14 @@ describe('useCreateGitRepository', () => {
 
     const testData = {
       name: 'test-repo',
+      namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
       branch: 'main',
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateGitRepository('default'));
+    const renderHookResult = renderHook(() => useCreateGitRepository());
     const { createGitRepository } = renderHookResult.result.current;
 
     await act(async () => {
@@ -88,6 +89,7 @@ describe('useCreateGitRepository', () => {
 
     const testData = {
       name: 'test-repo',
+      namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
       branch: 'main',
@@ -95,7 +97,7 @@ describe('useCreateGitRepository', () => {
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateGitRepository('default'));
+    const renderHookResult = renderHook(() => useCreateGitRepository());
     const { createGitRepository } = renderHookResult.result.current;
 
     await act(async () => {
@@ -119,13 +121,14 @@ describe('useCreateGitRepository', () => {
 
     const testData = {
       name: 'test-repo',
+      namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
       branch: 'main',
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateGitRepository('custom-namespace'));
+    const renderHookResult = renderHook(() => useCreateGitRepository());
     const { createGitRepository } = renderHookResult.result.current;
 
     await act(async () => {
@@ -139,10 +142,10 @@ describe('useCreateGitRepository', () => {
     assertNonNullish(call);
     const [url, , , , body] = call;
 
-    expect(url).toBe('/apis/source.toolkit.fluxcd.io/v1/namespaces/custom-namespace/gitrepositories');
+    expect(url).toBe('/apis/source.toolkit.fluxcd.io/v1/namespaces/default/gitrepositories');
 
     const payload = JSON.parse(body as string);
-    expect(payload.metadata.namespace).toBe('custom-namespace');
+    expect(payload.metadata.namespace).toBe('default');
   });
 
   it('should handle creation failure', async () => {
@@ -151,13 +154,14 @@ describe('useCreateGitRepository', () => {
 
     const testData = {
       name: 'test-repo',
+      namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
       branch: 'main',
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateGitRepository('default'));
+    const renderHookResult = renderHook(() => useCreateGitRepository());
     const { createGitRepository } = renderHookResult.result.current;
 
     let errorThrown = false;
@@ -180,6 +184,7 @@ describe('useCreateGitRepository', () => {
 
     const testData = {
       name: 'my-app-repo',
+      namespace: 'default',
       interval: '5m0s',
       url: 'https://github.com/org/app',
       branch: 'develop',
@@ -187,7 +192,7 @@ describe('useCreateGitRepository', () => {
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateGitRepository('flux-system'));
+    const renderHookResult = renderHook(() => useCreateGitRepository());
     const { createGitRepository } = renderHookResult.result.current;
 
     await act(async () => {
@@ -205,7 +210,7 @@ describe('useCreateGitRepository', () => {
       kind: 'GitRepository',
       metadata: {
         name: 'my-app-repo',
-        namespace: 'flux-system',
+        namespace: 'default',
       },
       spec: {
         interval: '5m0s',

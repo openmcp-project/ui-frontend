@@ -1,5 +1,3 @@
-import { Resource } from '../resource';
-
 export type CreateGitRepositoryType = {
   apiVersion: 'source.toolkit.fluxcd.io/v1';
   kind: 'GitRepository';
@@ -18,8 +16,3 @@ export type CreateGitRepositoryType = {
     };
   };
 };
-
-export const CreateGitRepositoryResource = (namespace: string): Resource<CreateGitRepositoryType> => ({
-  path: `/apis/source.toolkit.fluxcd.io/v1/namespaces/${namespace}/gitrepositories`,
-  method: 'POST',
-});

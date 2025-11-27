@@ -12,7 +12,7 @@ import {
   Title,
   Toolbar,
   ToolbarSpacer,
-  Button,
+  ToolbarButton,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/add';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -170,9 +170,9 @@ export function GitRepositories() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <ToolbarSpacer />
-            <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
+            <ToolbarButton icon="add" onClick={() => setIsCreateDialogOpen(true)}>
               {t('buttons.create')}
-            </Button>
+            </ToolbarButton>
           </Toolbar>
         }
       >
@@ -182,11 +182,7 @@ export function GitRepositories() {
         </>
       </Panel>
 
-      <CreateGitRepositoryDialog
-        isOpen={isCreateDialogOpen}
-        namespace={rows[0]?.item?.metadata?.namespace || 'default'}
-        onClose={() => setIsCreateDialogOpen(false)}
-      />
+      <CreateGitRepositoryDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} />
     </>
   );
 }
