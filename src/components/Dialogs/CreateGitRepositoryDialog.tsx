@@ -204,7 +204,6 @@ export function CreateGitRepositoryDialog({
                   {...field}
                   id={secretRefId}
                   className={styles.input}
-                  placeholder={t('CreateGitRepositoryDialog.secretRefOptionalTitle')}
                 />
               )}
             />
