@@ -24,7 +24,8 @@ import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
-
+import { MembersAvatarView } from '../../../components/ControlPlanes/List/MembersAvatarView.tsx';
+import { Member } from '../../../lib/api/types/shared/members.ts';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
@@ -43,6 +44,37 @@ import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
+
+// Helper function to convert roleBindings to Members
+function convertRoleBindingsToMembers(
+  roleBindings?: { role: string; subjects: { kind: string; name: string }[] }[],
+): Member[] {
+  if (!roleBindings) return [];
+
+  const memberMap = new Map<string, Member>();
+
+  for (const binding of roleBindings) {
+    for (const subject of binding.subjects) {
+      const key = `${subject.kind}-${subject.name}`;
+      if (memberMap.has(key)) {
+        // Add role to existing member
+        const member = memberMap.get(key)!;
+        if (!member.roles.includes(binding.role)) {
+          member.roles.push(binding.role);
+        }
+      } else {
+        // Create new member
+        memberMap.set(key, {
+          kind: subject.kind,
+          name: subject.name,
+          roles: [binding.role],
+        });
+      }
+    }
+  }
+
+  return Array.from(memberMap.values());
+}
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -85,6 +117,9 @@ export default function McpPage() {
   const isComponentInstalledFlux = !!mcp.spec?.components.flux;
   const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
 
+  // Convert roleBindings to members for MembersAvatarView
+  const members = convertRoleBindingsToMembers(mcp.spec?.authorization?.roleBindings);
+
   return (
     <McpContextProvider
       context={{
@@ -105,6 +140,7 @@ export default function McpPage() {
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
                   <div className={styles.actionsBar}>
+                    <MembersAvatarView members={members} project={projectName} workspace={workspaceName} />
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
                       projectName={projectName}
