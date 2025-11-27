@@ -516,7 +516,6 @@
     "dialogTitle": "Create Git Repository",
     "metadataTitle": "Metadata",
     "urlTitle": "URL",
-    "secretRefOptionalTitle": "SecretRef (Optional)",
     "secretRefTitle": "SecretRef",
     "nameTitle": "Name",
     "intervalTitle": "Interval",

@@ -21,16 +21,17 @@ export function CreateGitRepositoryDialog({
   const { t } = useTranslation();
   const { createGitRepository, isLoading } = useCreateGitRepository();
   const namespaceId = useId();
+  const nameId = useId();
+  const intervalId = useId();
+  const urlId = useId();
+  const branchId = useId();
+  const secretRefId = useId();
 
   const validationSchema = z.object({
     namespace: z.string().min(1, { message: t('validationErrors.required') }),
     name: z.string().min(1, { message: t('validationErrors.required') }),
     interval: z.string().min(1, { message: t('validationErrors.required') }),
-    url: z
-      .string()
-      .min(1, { message: t('validationErrors.required') })
-      .url({ message: t('validationErrors.urlFormat') })
-      .startsWith('https://', { message: t('validationErrors.urlFormat') }),
+    url: z.url({ protocol: /^https$/, message: t('validationErrors.urlFormat') }),
     branch: z.string().min(1, { message: t('validationErrors.required') }),
     secretRef: z.string().optional(),
   });
@@ -113,14 +114,16 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required>{t('CreateGitRepositoryDialog.nameTitle')}</Label>
+            <Label required for={nameId}>
+              {t('CreateGitRepositoryDialog.nameTitle')}
+            </Label>
             <Controller
               name="name"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id="name"
+                  id={nameId}
                   valueState={errors.name ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.name?.message}</span>}
                   className={styles.input}
@@ -132,14 +135,16 @@ export function CreateGitRepositoryDialog({
 
         <FormGroup headerText={t('CreateGitRepositoryDialog.specTitle')}>
           <div className={styles.formField}>
-            <Label required>{t('CreateGitRepositoryDialog.intervalTitle')}</Label>
+            <Label required for={intervalId}>
+              {t('CreateGitRepositoryDialog.intervalTitle')}
+            </Label>
             <Controller
               name="interval"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id="interval"
+                  id={intervalId}
                   valueState={errors.interval ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.interval?.message}</span>}
                   placeholder="1m0s"
@@ -150,14 +155,16 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required>{t('CreateGitRepositoryDialog.urlTitle')}</Label>
+            <Label required for={urlId}>
+              {t('CreateGitRepositoryDialog.urlTitle')}
+            </Label>
             <Controller
               name="url"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id="url"
+                  id={urlId}
                   valueState={errors.url ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.url?.message}</span>}
                   placeholder="https://github.com/owner/repo"
@@ -168,14 +175,16 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required>{t('CreateGitRepositoryDialog.branchTitle')}</Label>
+            <Label required for={branchId}>
+              {t('CreateGitRepositoryDialog.branchTitle')}
+            </Label>
             <Controller
               name="branch"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id="branch"
+                  id={branchId}
                   valueState={errors.branch ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.branch?.message}</span>}
                   placeholder="main"
@@ -186,11 +195,18 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label>{t('CreateGitRepositoryDialog.secretRefTitle', 'SecretRef')}</Label>
+            <Label for={secretRefId}>{t('CreateGitRepositoryDialog.secretRefTitle', 'SecretRef')}</Label>
             <Controller
               name="secretRef"
               control={control}
-              render={({ field }) => <Input {...field} id="secretRef" className={styles.input} />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id={secretRefId}
+                  className={styles.input}
+                  placeholder={t('CreateGitRepositoryDialog.secretRefOptionalTitle')}
+                />
+              )}
             />
           </div>
         </FormGroup>
