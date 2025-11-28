@@ -40,3 +40,8 @@ export type CRDResponse = {
 export const CRDRequest: Resource<CRDResponse> = {
   path: '/apis/apiextensions.k8s.io/v1/customresourcedefinitions',
 };
+
+export const CRDRequestAuthCheck: Resource<CRDResponse> = {
+  path: '/apis/apiextensions.k8s.io/v1/customresourcedefinitions',
+  jq: '{kind: .kind}',
+};

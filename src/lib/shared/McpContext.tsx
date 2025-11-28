@@ -10,7 +10,6 @@ interface Mcp {
   project: string;
   workspace: string;
   name: string;
-
   secretNamespace?: string;
   secretName?: string;
   secretKey?: string;
