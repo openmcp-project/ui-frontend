@@ -45,9 +45,11 @@ export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPla
           title={t('mcp.authorization.accessDenied.title')}
           details={t('mcp.authorization.accessDenied.details')}
         />
-        <Button design={'Default'} icon={'navigation-left-arrow'} onClick={onBack}>
-          {t('mcp.authorization.backToWorkspaces')}
-        </Button>
+        {workspaceName && (
+          <Button design={'Default'} icon={'navigation-left-arrow'} onClick={onBack}>
+            {t('mcp.authorization.backToWorkspaces')}
+          </Button>
+        )}
       </Center>
     );
 
