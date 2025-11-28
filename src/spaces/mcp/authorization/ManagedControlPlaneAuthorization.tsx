@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { BusyIndicator, Button } from '@ui5/webcomponents-react';
-import { ControlPlaneType } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 
@@ -25,6 +24,8 @@ export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPla
           projectName: projectName ?? '',
         }),
       );
+    } else {
+      navigate(Routes.Home);
     }
   };
 
