@@ -103,7 +103,7 @@ export default function McpPage() {
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
-          <ManagedControlPlaneAuthorization mcp={mcp}>
+          <ManagedControlPlaneAuthorization>
             <ObjectPage
               mode="IconTabBar"
               titleArea={
