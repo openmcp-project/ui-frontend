@@ -15,6 +15,10 @@ vars:
   OCM_OUTPUT_DIR: '{{.ROOT_DIR}}/.ctf'
   OCM_DESCRIPTOR: '{{.ROOT_DIR}}/ocm/component-descriptor.yaml'
 
+  # Backend Image Version
+  BACKEND_IMAGE_URL: ghcr.io/openmcp-project/mcp-ui-backend
+  BACKEND_IMAGE_VERSION: v0.7.1
+
   ROOT_DIR2: '{{.ROOT_DIR | trimSuffix "/common" | trimSuffix "/hack"}}'
   LOCALBIN: '{{ env "LOCALBIN" | default ( .LOCALBIN | default (print .ROOT_DIR2 "/.bin") ) }}'
   OCM: '{{ .OCM | default (print .LOCALBIN "/ocm") }}'
@@ -39,7 +43,9 @@ tasks:
           VERSION={{.OCM_COMPONENT_VERSION}} \
           IMAGE_VERSION={{.IMAGE_VERSION}} \
           COMPONENT_NAME={{.OCM_COMPONENT_NAME}} \
-          PROVIDER={{.OCM_PROVIDER}}
+          PROVIDER={{.OCM_PROVIDER}} \
+          BACKEND_IMAGE_URL={{.BACKEND_IMAGE_URL}} \
+          BACKEND_IMAGE_VERSION={{.BACKEND_IMAGE_VERSION}}
     vars:
       IMAGE_VERSION: '{{.IMAGE_VERSION | default (print .OCM_COMPONENT_VERSION)}}'
 
