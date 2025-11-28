@@ -11,12 +11,13 @@ import {
 } from '@ui5/webcomponents-react';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { useTranslation } from 'react-i18next';
-import { YamlViewer } from './YamlViewer.tsx';
+import { YamlResourceEditorSchemaLoader } from './YamlResourceEditorSchemaLoader.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, JSX } from 'react';
 import { stringify } from 'yaml';
 import { convertToResourceConfig } from '../../utils/convertToResourceConfig.ts';
 import { removeManagedFieldsAndFilterData, Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { parseResourceApiInfo } from '../../utils/parseResourceApiInfo.ts';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -29,8 +30,10 @@ export interface YamlSidePanelProps {
   filename: string;
   onApply?: (parsed: unknown, yaml: string) => void | boolean | Promise<void | boolean>;
   isEdit?: boolean;
+  toolbarContent?: JSX.Element;
 }
-export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSidePanelProps) {
+
+export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarContent }: YamlSidePanelProps) {
   const [showOnlyImportantData, setShowOnlyImportantData] = useState(true);
   const [mode, setMode] = useState<'edit' | 'review' | 'success'>('edit');
   const [editedYaml, setEditedYaml] = useState<string | null>(null);
@@ -79,13 +82,15 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
 
   const handleGoBack = () => setMode('edit');
 
+  const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
+
   return (
     <Panel
       className={styles.panel}
       fixed
       header={
         <Toolbar>
-          <Title>{t('yaml.panelTitle')}</Title>
+          {toolbarContent ?? <Title>{t('yaml.panelTitle')}</Title>}
           <ToolbarSpacer />
           <FlexBox>
             {!isEdit && (
@@ -156,10 +161,13 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit }: YamlSideP
           </FlexBox>
         )}
         {mode === 'edit' && (
-          <YamlViewer
+          <YamlResourceEditorSchemaLoader
             yamlString={yamlStringToDisplay}
             filename={filename}
             isEdit={isEdit}
+            apiGroupName={apiGroupName}
+            apiVersion={apiVersion}
+            kind={kind}
             onApply={handleApplyFromEditor}
           />
         )}

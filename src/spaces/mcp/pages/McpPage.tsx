@@ -125,7 +125,7 @@ export default function McpPage() {
                         workspaceName={mcp?.status?.access?.namespace}
                         resourceType={'managedcontrolplanes'}
                         resourceName={controlPlaneName}
-                      />
+                      withoutApiConfig/>
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
