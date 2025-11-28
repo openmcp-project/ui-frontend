@@ -12,7 +12,6 @@ import { CRDRequestAuthCheck } from '../../../lib/api/types/crossplane/CRDList.t
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 export interface ManagedControlPlaneAuthorizationProps {
-  mcp: ControlPlaneType;
   children: ReactNode;
 }
 export const ManagedControlPlaneAuthorization = ({ children }: ManagedControlPlaneAuthorizationProps) => {
