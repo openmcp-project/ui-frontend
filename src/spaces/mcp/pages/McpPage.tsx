@@ -117,7 +117,7 @@ export default function McpPage() {
                       <MCPHealthPopoverButton
                         mcpStatus={mcp?.status}
                         projectName={projectName}
-                        workspaceName={workspaceName ?? ''}
+                        workspaceName={workspaceName}
                         mcpName={controlPlaneName}
                       />
                       <YamlViewButton
