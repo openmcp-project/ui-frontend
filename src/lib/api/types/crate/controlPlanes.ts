@@ -12,6 +12,20 @@ export interface Metadata {
   };
 }
 
+export interface Subject {
+  kind: string;
+  name: string;
+}
+
+export interface RoleBinding {
+  role: string;
+  subjects: Subject[];
+}
+
+export interface Authorization {
+  roleBindings: RoleBinding[];
+}
+
 export interface ControlPlaneType {
   metadata: Metadata;
   spec:
@@ -19,10 +33,8 @@ export interface ControlPlaneType {
         authentication: {
           enableSystemIdentityProvider?: boolean;
         };
+        authorization?: Authorization;
         components: ControlPlaneComponentsType;
-        authorization?: {
-          roleBindings?: RoleBinding[];
-        };
       }
     | undefined;
   status: ControlPlaneStatusType | undefined;
@@ -88,16 +100,6 @@ export const ControlPlane = (
 ): Resource<ControlPlaneType> => {
   return {
     path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
-    jq: '{ spec: .spec | {components, authorization: {roleBindings: .authorization.roleBindings}}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
+    jq: '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
   };
 };
-
-export interface RoleBinding {
-  role: string;
-  subjects: Subject[];
-}
-
-export interface Subject {
-  kind: string;
-  name: string;
-}

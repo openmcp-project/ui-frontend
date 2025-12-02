@@ -1,0 +1,41 @@
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+}
+
+.gridColumnLabel {
+  justify-self: end;
+}
+
+.inputField {
+  width: 25rem;
+}
+
+.sectionHeader {
+  grid-column: 1 / -1;
+  font-weight: bold;
+  font-size: var(--sapFontHeader6Size);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--sapGroup_Title_BorderColor);
+  margin-bottom: 0.5rem;
+}
+
+.sectionHeader:first-child {
+  padding-top: 0;
+}
+
+.form {
+  width: 30rem;
+}
+
+.formField {
+  margin-bottom: 1.25rem;
+}
+
+.input {
+  width: 100%;
+}

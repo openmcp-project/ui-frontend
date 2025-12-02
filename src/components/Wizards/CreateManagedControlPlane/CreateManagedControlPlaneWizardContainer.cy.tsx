@@ -279,6 +279,20 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
   beforeEach(() => {
     createMutationPayload = null;
+    updateMutationPayload = null;
+
+    // Suppress Monaco Editor disposal errors in tests
+    cy.on('uncaught:exception', (err) => {
+      // Ignore Monaco Editor disposal errors
+      if (err.message.includes('TextModel got disposed') || err.message.includes('DiffEditorWidget')) {
+        return false;
+      }
+      // Ignore module is not defined errors from path-browserify
+      if (err.message.includes('module is not defined')) {
+        return false;
+      }
+      return true;
+    });
   });
 
   it('creates an empty MCP', () => {

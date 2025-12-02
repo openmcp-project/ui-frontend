@@ -1,21 +1,39 @@
 import { Editor } from '@monaco-editor/react';
-import { ComponentProps, useEffect, useCallback, useMemo, useState } from 'react';
-import { Button, Panel, Toolbar, ToolbarSpacer, Title } from '@ui5/webcomponents-react';
+import type { ComponentProps } from 'react';
+import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import { parseDocument } from 'yaml';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor';
+import { configureMonacoYaml } from 'monaco-yaml';
+import type { JSONSchema } from 'monaco-yaml';
+import styles from './YamlEditor.module.css';
+
+import type { JSONSchema4 } from 'json-schema';
 
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
   isEdit?: boolean;
   onApply?: (parsed: unknown, yaml: string) => void;
+  schema?: JSONSchema4;
 };
 
 export const YamlEditor = (props: YamlEditorProps) => {
   const { isDarkTheme } = useTheme();
   const { t } = useTranslation();
-  const { theme, options, value, defaultValue, onChange, isEdit = false, onApply, ...rest } = props;
+  const {
+    theme,
+    options,
+    value,
+    defaultValue,
+    onChange,
+    isEdit = false,
+    onApply,
+    onMount: parentOnMount,
+    schema,
+    ...rest
+  } = props;
   const computedTheme = theme ?? (isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT);
 
   const [editorContent, setEditorContent] = useState<string>(value?.toString() ?? defaultValue?.toString() ?? '');
@@ -23,19 +41,47 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [applyAttempted, setApplyAttempted] = useState(false);
 
   useEffect(() => {
-    if (typeof value !== 'undefined') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEditorContent(value.toString());
-    }
-  }, [value]);
+    const { dispose } = configureMonacoYaml(monaco, {
+      isKubernetes: true,
+      enableSchemaRequest: true,
+      hover: true,
+      completion: true,
+      validate: true,
+      format: true,
+      schemas: [
+        {
+          schema: schema as JSONSchema,
+          fileMatch: ['*'],
+          uri: 'https://kubernetesjsonschema.dev/master-standalone/all.json',
+        },
+      ],
+    });
+    return () => dispose();
+  }, [schema]);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(
     () => ({
       ...(options as monaco.editor.IStandaloneEditorConstructionOptions),
       readOnly: isEdit ? false : (options?.readOnly ?? true),
       minimap: { enabled: false },
-      wordWrap: 'on' as const,
       scrollBeyondLastLine: false,
+      tabSize: 2,
+      insertSpaces: true,
+      detectIndentation: false,
+      wordWrap: 'on',
+      folding: true,
+      foldingStrategy: 'indentation',
+      quickSuggestions: {
+        other: true,
+        comments: true,
+        strings: true,
+      },
+      suggestOnTriggerCharacters: true,
+      glyphMargin: true,
+      formatOnPaste: true,
+      formatOnType: true,
+      fontSize: 13,
+      lineHeight: 20,
     }),
     [options, isEdit],
   );
@@ -80,17 +126,20 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const showValidationErrors = isEdit && applyAttempted && validationErrors.length > 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+    <div className={styles.container}>
       {isEdit && (
         <Toolbar design="Solid">
-          <Title>{t('yaml.editorTitle')}</Title>
-          <ToolbarSpacer />
-          <Button design="Emphasized" data-testid="yaml-apply-button" onClick={handleApply}>
-            {t('buttons.applyChanges', 'Apply changes')}
+          <Button
+            className={styles.applyButton}
+            design="Emphasized"
+            data-testid="yaml-apply-button"
+            onClick={handleApply}
+          >
+            {t('buttons.applyChanges')}
           </Button>
         </Toolbar>
       )}
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div className={styles.editorWrapper}>
         <Editor
           {...rest}
           value={isEdit ? editorContent : value}
@@ -102,10 +151,10 @@ export const YamlEditor = (props: YamlEditorProps) => {
         />
       </div>
       {showValidationErrors && (
-        <Panel headerText="Output" style={{ marginTop: '0.5rem' }}>
-          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+        <Panel headerText={t('yaml.validationErrors')} className={styles.validationPanel}>
+          <ul className={styles.validationList}>
             {validationErrors.map((err, idx) => (
-              <li key={idx} style={{ listStyle: 'disc', fontFamily: 'monospace' }}>
+              <li key={idx} className={styles.validationListItem}>
                 {err}
               </li>
             ))}

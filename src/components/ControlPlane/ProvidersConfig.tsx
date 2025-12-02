@@ -3,6 +3,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Button,
   Panel,
   Title,
   Toolbar,
@@ -15,7 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
@@ -23,6 +24,9 @@ import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+
+import { ApiConfigContext } from '../Shared/k8s';
+import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 
 type Rows = {
   parent: string;
@@ -34,10 +38,10 @@ type Rows = {
 
 export function ProvidersConfig() {
   const { t } = useTranslation();
-  const { openInAside } = useSplitter();
+  const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
-
+  const apiConfig = useContext(ApiConfigContext);
   const rows: Rows[] = [];
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
@@ -61,7 +65,7 @@ export function ProvidersConfig() {
   const openEditPanel = useCallback(
     (item: ProviderConfigItem) => {
       const identityKey = `${item.kind}:${item.metadata.name}`;
-      openInAside(
+      openInAsideWithApiConfig(
         <Fragment key={identityKey}>
           <YamlSidePanel
             isEdit={true}
@@ -70,11 +74,12 @@ export function ProvidersConfig() {
             onApply={async (parsed) => await handlePatch(item, parsed)}
           />
         </Fragment>,
+        apiConfig,
       );
     },
-    [openInAside, handlePatch],
+    [openInAsideWithApiConfig, handlePatch, apiConfig],
   );
-
+  const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
     () =>
       [
@@ -102,7 +107,25 @@ export function ProvidersConfig() {
           disableFilters: true,
           Cell: ({ row }) => {
             const item = row.original?.resource;
-            return item ? <YamlViewButton variant="resource" resource={item as unknown as Resource} /> : undefined;
+            return item ? (
+              <YamlViewButton
+                variant="resource"
+                resource={item as unknown as Resource}
+                toolbarContent={
+                  hasMCPAdminRights ? (
+                    <Button
+                      icon={'edit'}
+                      design={'Transparent'}
+                      onClick={() => {
+                        openEditPanel(item);
+                      }}
+                    >
+                      {t('buttons.edit')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined;
           },
         },
         {
@@ -120,13 +143,14 @@ export function ProvidersConfig() {
                 text: t('ManagedResources.editAction', 'Edit'),
                 icon: 'edit',
                 onClick: openEditPanel,
+                disabled: !hasMCPAdminRights,
               },
             ];
             return <ActionsMenu item={item} actions={actions} />;
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel],
+    [t, openEditPanel, hasMCPAdminRights],
   );
 
   return (

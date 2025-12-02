@@ -364,7 +364,8 @@
     "maxChars": "Max length is {{maxLength}} characters.",
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
-    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "urlFormat": "Must be a valid HTTPS URL"
   },
   "common": {
     "all": "All",
@@ -405,7 +406,8 @@
     "syncError": "Sync error",
     "error": "Error",
     "notHealthy": "Not healthy",
-    "notReady": "Not ready"
+    "notReady": "Not ready",
+    "cannotLoadSchema": "Cannot load schema for this resource"
   },
   "buttons": {
     "viewResource": "View resource",
@@ -417,19 +419,21 @@
     "back": "Back",
     "cancel": "Cancel",
     "update": "Update",
-    "applyChanges": "Apply changes"
+    "applyChanges": "Apply changes",
+    "edit": "Edit"
   },
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
     "panelTitle": "YAML",
-    "editorTitle": "YAML Editor",
     "applySuccess2": "The Managed Control Plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",
     "diffConfirmMessage": "Are you sure that you want to apply these changes?",
     "diffNo": "No, go back",
-    "diffYes": "Yes"
+    "diffYes": "Yes",
+    "validationErrors": "Validation errors",
+    "fluxManaged": "This resource is managed by Flux and cannot be edited here"
   },
   "createMCP": {
     "dialogTitle": "Create Managed Control Plane",
@@ -507,5 +511,17 @@
     "addMembersButton0": "Add members",
     "addMembersButton1": "Add member",
     "addMembersButtonN": "Add {{count}} members"
+  },
+  "CreateGitRepositoryDialog": {
+    "dialogTitle": "Create Git Repository",
+    "metadataTitle": "Metadata",
+    "urlTitle": "URL",
+    "secretRefTitle": "SecretRef",
+    "nameTitle": "Name",
+    "intervalTitle": "Interval",
+    "specTitle": "Spec",
+    "branchTitle": "Branch",
+    "gitRepositoryCreated": "Git Repository created successfully",
+    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}"
   }
 }

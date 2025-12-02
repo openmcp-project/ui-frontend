@@ -1,16 +1,19 @@
 import { FC } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
-import styles from './YamlPanel.module.css';
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
+import styles from './YamlSummarize.module.css';
 import { useTranslation } from 'react-i18next';
-import { SHOW_DOWNLOAD_BUTTON } from './YamlSidePanel.tsx';
-import { YamlViewer } from './YamlViewer.tsx';
+import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
+import { SHOW_DOWNLOAD_BUTTON } from '../../Yaml/YamlSidePanel.tsx';
+import { YamlResourceEditorSchemaLoader } from '../../Yaml/YamlResourceEditorSchemaLoader.tsx';
+
 type YamlPanelProps = {
   yamlString: string;
   filename: string;
+  apiGroupName: string;
+  apiVersion: string;
 };
 
-const YamlPanel: FC<YamlPanelProps> = ({ yamlString, filename }) => {
+const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename, apiVersion, apiGroupName }) => {
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const downloadYaml = () => {
@@ -37,9 +40,16 @@ const YamlPanel: FC<YamlPanelProps> = ({ yamlString, filename }) => {
           </Button>
         )}
       </FlexBox>
-      <YamlViewer yamlString={yamlString} filename={filename} isEdit={true} />
+      <YamlResourceEditorSchemaLoader
+        apiGroupName={apiGroupName}
+        apiVersion={apiVersion}
+        yamlString={yamlString}
+        filename={filename}
+        isEdit={false}
+        kind={'managedcontrolplane'}
+      />
     </div>
   );
 };
 
-export default YamlPanel;
+export default YamlSummarize;
