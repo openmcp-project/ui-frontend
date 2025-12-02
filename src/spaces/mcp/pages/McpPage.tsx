@@ -136,7 +136,7 @@ export default function McpPage() {
                   <McpStatusSection
                     mcpStatus={mcp?.status}
                     projectName={projectName}
-                    workspaceName={workspaceName ?? ''}
+                    workspaceName={workspaceName}
                     mcpName={controlPlaneName}
                   />
                   <McpMembersAvatarView
