@@ -1,3 +1,7 @@
+.text {
+  margin-right: 0.5rem;
+}
+
 .ready {
   color: var(--sapPositiveColor);
 }
@@ -8,4 +12,8 @@
 
 .deleting {
   color: var(--sapCriticalColor);
+}
+
+.large {
+  font-size: 1.25rem;
 }

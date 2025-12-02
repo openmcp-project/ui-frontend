@@ -205,11 +205,11 @@ export const getClassNameForOverallStatus = (status: ReadyStatus | undefined): s
 const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
   switch (status) {
     case ReadyStatus.Ready:
-      return <Icon style={{ color: 'green' }} name="sap-icon://sys-enter" />;
+      return <Icon style={{ color: 'var(--sapPositiveColor)' }} name="sap-icon://sys-enter" />;
     case ReadyStatus.NotReady:
-      return <Icon style={{ color: 'red' }} name="sap-icon://pending" />;
+      return <Icon style={{ color: 'var(--sapNegativeColor)' }} name="sap-icon://pending" />;
     case ReadyStatus.InDeletion:
-      return <Icon style={{ color: 'orange' }} name="sap-icon://delete" />;
+      return <Icon style={{ color: 'var(--sapCriticalColor)' }} name="sap-icon://delete" />;
     default:
       return <></>;
   }
