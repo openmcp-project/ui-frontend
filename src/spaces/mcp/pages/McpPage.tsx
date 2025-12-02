@@ -106,13 +106,6 @@ export default function McpPage() {
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
                   <div className={styles.actionsBar}>
-                    <MCPHealthPopoverButton
-                      mcpStatus={mcp?.status}
-                      projectName={projectName}
-                      workspaceName={workspaceName ?? ''}
-                      mcpName={controlPlaneName}
-                    />
-
                     <YamlViewButton
                       variant="loader"
                       workspaceName={mcp?.status?.access?.namespace}
@@ -140,6 +133,13 @@ export default function McpPage() {
               <ObjectPageHeader>
                 <FlexBox gap={'2.5rem'}>
                   <McpHeader mcp={mcp} />
+                  <MCPHealthPopoverButton
+                    mcpStatus={mcp?.status}
+                    projectName={projectName}
+                    workspaceName={workspaceName ?? ''}
+                    mcpName={controlPlaneName}
+                    large
+                  />
                   <McpMembersAvatarView
                     roleBindings={mcp.spec?.authorization?.roleBindings}
                     project={projectName}

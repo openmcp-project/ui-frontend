@@ -1,0 +1,11 @@
+.ready {
+  color: var(--sapPositiveColor);
+}
+
+.not-ready {
+  color: var(--sapNegativeColor);
+}
+
+.deleting {
+  color: var(--sapCriticalColor);
+}

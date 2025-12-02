@@ -30,9 +30,16 @@ type MCPHealthPopoverButtonProps = {
   projectName: string;
   workspaceName: string;
   mcpName: string;
+  large?: boolean;
 };
 
-const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName }: MCPHealthPopoverButtonProps) => {
+const MCPHealthPopoverButton = ({
+  mcpStatus,
+  projectName,
+  workspaceName,
+  mcpName,
+  large = false,
+}: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
@@ -143,6 +150,7 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
       <AnimatedHoverTextButton
         icon={getIconForOverallStatus(mcpStatus?.status)}
         text={mcpStatus?.status ?? ''}
+        large={large}
         onClick={handleOpenerClick}
       />
       <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
@@ -179,6 +187,19 @@ const StatusTable = ({ status, tableColumns, githubIssuesLink }: StatusTableProp
       </FlexBox>
     </div>
   );
+};
+
+export const getClassNameForOverallStatus = (status: ReadyStatus | undefined): string => {
+  switch (status) {
+    case ReadyStatus.Ready:
+      return 'ready';
+    case ReadyStatus.NotReady:
+      return 'not-ready';
+    case ReadyStatus.InDeletion:
+      return 'deleting';
+    default:
+      return '';
+  }
 };
 
 const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
