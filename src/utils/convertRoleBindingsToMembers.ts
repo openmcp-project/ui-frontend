@@ -1,6 +1,6 @@
-import { Member } from '../lib/api/types/shared/members';
+import { Member } from '../lib/api/types/shared/members.ts';
 
-export function useConvertRoleBindingsToMembers(
+export function convertRoleBindingsToMembers(
   roleBindings?: { role: string; subjects: { kind: string; name: string }[] }[],
 ): Member[] {
   if (!roleBindings) return [];

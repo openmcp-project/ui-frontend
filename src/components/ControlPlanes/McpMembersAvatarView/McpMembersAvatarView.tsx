@@ -1,5 +1,5 @@
 import { MembersAvatarView } from '../List/MembersAvatarView.tsx';
-import { useConvertRoleBindingsToMembers } from '../../../hooks/useConvertRoleBindingsToMembers.ts';
+import { convertRoleBindingsToMembers } from '../../../utils/convertRoleBindingsToMembers.ts';
 import { FlexBox, Text } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import styles from './McpMembersAvatarView.module.css';
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function McpMembersAvatarView({ roleBindings, project, workspace }: Props) {
-  const members = useConvertRoleBindingsToMembers(roleBindings);
+  const members = convertRoleBindingsToMembers(roleBindings);
   const { t } = useTranslation();
   return (
     <FlexBox direction="Column">
