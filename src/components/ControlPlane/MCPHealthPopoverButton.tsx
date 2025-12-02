@@ -7,12 +7,14 @@ import {
   Button,
   PopoverDomRef,
   ButtonDomRef,
+  LinkDomRef,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import type { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
 import {
   ControlPlaneStatusType,
   ReadyStatus,
@@ -45,7 +47,9 @@ const MCPHealthPopoverButton = ({
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
 
-  const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+  const handleOpenerClick = (
+    event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail> | Ui5CustomEvent<LinkDomRef, LinkClickEventDetail>,
+  ) => {
     if (popoverRef.current) {
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = event.target;
       setOpen((prev) => !prev);
