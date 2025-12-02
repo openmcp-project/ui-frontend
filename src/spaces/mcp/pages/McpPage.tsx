@@ -24,7 +24,6 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
-import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
@@ -43,6 +42,7 @@ import { GitRepositories } from '../../../components/ControlPlane/GitRepositorie
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
+import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 
@@ -134,16 +134,12 @@ export default function McpPage() {
               <ObjectPageHeader>
                 <FlexBox gap={'2.5rem'}>
                   <McpHeader mcp={mcp} />
-                  <FlexBox direction={'Column'}>
-                    <Text style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{t('common.status')}:</Text>
-                    <MCPHealthPopoverButton
-                      mcpStatus={mcp?.status}
-                      projectName={projectName}
-                      workspaceName={workspaceName ?? ''}
-                      mcpName={controlPlaneName}
-                      large
-                    />
-                  </FlexBox>
+                  <McpStatusSection
+                    mcpStatus={mcp?.status}
+                    projectName={projectName}
+                    workspaceName={workspaceName ?? ''}
+                    mcpName={controlPlaneName}
+                  />
                   <McpMembersAvatarView
                     roleBindings={mcp.spec?.authorization?.roleBindings}
                     project={projectName}
