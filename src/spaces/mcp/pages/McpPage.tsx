@@ -6,6 +6,7 @@ import {
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
+  Text,
 } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
@@ -133,13 +134,16 @@ export default function McpPage() {
               <ObjectPageHeader>
                 <FlexBox gap={'2.5rem'}>
                   <McpHeader mcp={mcp} />
-                  <MCPHealthPopoverButton
-                    mcpStatus={mcp?.status}
-                    projectName={projectName}
-                    workspaceName={workspaceName ?? ''}
-                    mcpName={controlPlaneName}
-                    large
-                  />
+                  <FlexBox direction={'Column'}>
+                    <Text style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{t('common.status')}:</Text>
+                    <MCPHealthPopoverButton
+                      mcpStatus={mcp?.status}
+                      projectName={projectName}
+                      workspaceName={workspaceName ?? ''}
+                      mcpName={controlPlaneName}
+                      large
+                    />
+                  </FlexBox>
                   <McpMembersAvatarView
                     roleBindings={mcp.spec?.authorization?.roleBindings}
                     project={projectName}

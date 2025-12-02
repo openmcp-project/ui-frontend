@@ -2,6 +2,11 @@
   margin-right: 0.5rem;
 }
 
+.link:focus-within,
+.link:focus-visible {
+  background-color: transparent;
+}
+
 .ready {
   color: var(--sapPositiveColor);
 }
