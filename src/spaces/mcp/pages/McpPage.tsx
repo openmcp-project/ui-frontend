@@ -1,5 +1,6 @@
 import {
   BusyIndicator,
+  FlexBox,
   ObjectPage,
   ObjectPageHeader,
   ObjectPageSection,
@@ -105,12 +106,6 @@ export default function McpPage() {
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
                   <div className={styles.actionsBar}>
-                    <McpMembersAvatarView
-                      roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
-
                     <MCPHealthPopoverButton
                       mcpStatus={mcp?.status}
                       projectName={projectName}
@@ -142,7 +137,14 @@ export default function McpPage() {
             selectedSectionId={selectedSectionId}
             headerArea={
               <ObjectPageHeader>
-                <McpHeader mcp={mcp} />
+                <FlexBox gap={'2.5rem'}>
+                  <McpHeader mcp={mcp} />
+                  <McpMembersAvatarView
+                    roleBindings={mcp.spec?.authorization?.roleBindings}
+                    project={projectName}
+                    workspace={workspaceName}
+                  />
+                </FlexBox>
               </ObjectPageHeader>
             }
             onSelectedSectionChange={() => setSelectedSectionId(undefined)}
