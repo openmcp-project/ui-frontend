@@ -6,7 +6,6 @@ import {
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
-  Text,
 } from '@ui5/webcomponents-react';
 import { useParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';

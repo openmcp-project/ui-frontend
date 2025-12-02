@@ -2,6 +2,7 @@ import { FlexBox, Text } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import MCPHealthPopoverButton from './MCPHealthPopoverButton.tsx';
 import { ControlPlaneStatusType } from '../../lib/api/types/crate/controlPlanes.ts';
+import styles from './McpStatusSection.module.css';
 
 interface McpStatusSectionProps {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -15,7 +16,7 @@ export function McpStatusSection({ mcpStatus, projectName, workspaceName, mcpNam
 
   return (
     <FlexBox direction={'Column'}>
-      <Text style={{ fontWeight: 'bold', marginBottom: '1rem' }}>{t('common.status')}:</Text>
+      <Text className={styles.statusLabel}>{t('common.status')}:</Text>
       <MCPHealthPopoverButton
         mcpStatus={mcpStatus}
         projectName={projectName}
