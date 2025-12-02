@@ -42,7 +42,7 @@ export const AnimatedHoverTextButton = ({ id, text, icon, onClick, large = false
     return (
       <Link
         id={id}
-        className={cx(styles.link, styles[getClassNameForOverallStatus(text as ReadyStatus)])}
+        className={cx(styles.link, styles[getClassNameForOverallStatus(text ? (text as ReadyStatus) : undefined)])}
         onClick={onClick}
         onMouseLeave={() => setHover(false)}
         onMouseOver={() => setHover(true)}
