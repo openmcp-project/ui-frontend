@@ -175,7 +175,8 @@ export function Kustomizations() {
     [t, openEditPanel, hasMCPAdminRights],
   );
 
-  const rows: FluxRow[] = 
+  const rows: FluxRow[] = useMemo(
+    () =>
       data?.items?.map((item) => {
         const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
         return {
@@ -191,7 +192,9 @@ export function Kustomizations() {
           } as KustomizationItem,
           readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
         };
-      }) ?? [];
+      }) ?? [],
+    [data],
+  );
 
   useEffect(() => {
     if (!isLoading && rows.length > 0 && location.hash) {
