@@ -6,6 +6,7 @@ import {
   Toolbar,
   ToolbarSpacer,
   Button,
+  Link,
 } from '@ui5/webcomponents-react';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
@@ -15,7 +16,8 @@ import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -25,6 +27,7 @@ import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import type { KustomizationsResponse } from '../../lib/api/types/flux/listKustomization';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
+import { CreateKustomizationDialog } from '../Dialogs/CreateKustomizationDialog';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
@@ -41,6 +44,8 @@ export function Kustomizations() {
   const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const location = useLocation();
 
   type FluxRow = {
     name: string;
@@ -77,6 +82,23 @@ export function Kustomizations() {
           Header: t('FluxList.tableNameHeader'),
           accessor: 'name',
           minWidth: 250,
+          Cell: ({ cell: { value } }) => <span id={`kustomization-${value}`}>{value}</span>,
+        },
+        {
+          Header: t('CreateKustomizationDialog.sourceRefTitle'),
+          accessor: 'item.spec.sourceRef.name',
+          Cell: ({ cell: { value } }) => (
+            <Link
+              onClick={() => {
+                const element = document.getElementById(`git-repository-${value}`);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+            >
+              {value}
+            </Link>
+          ),
         },
         {
           Header: t('FluxList.tableCreatedHeader'),
@@ -153,6 +175,43 @@ export function Kustomizations() {
     [t, openEditPanel, hasMCPAdminRights],
   );
 
+  const rows: FluxRow[] = 
+      data?.items?.map((item) => {
+        const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
+        return {
+          name: item.metadata.name,
+          isReady: readyObject?.status === 'True',
+          statusUpdateTime: readyObject?.lastTransitionTime,
+          created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
+          item: {
+            ...item,
+            kind: 'Kustomization',
+            apiVersion: 'kustomize.toolkit.fluxcd.io/v1',
+            metadata: { ...item.metadata },
+          } as KustomizationItem,
+          readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
+        };
+      }) ?? [];
+
+  useEffect(() => {
+    if (!isLoading && rows.length > 0 && location.hash) {
+      const hash = location.hash.substring(1);
+      if (hash.startsWith('kustomization-')) {
+        const targetName = hash.replace('kustomization-', '');
+        const index = rows.findIndex((row) => row.name === targetName);
+
+        if (index !== -1) {
+          setTimeout(() => {
+            const element = document.getElementById(hash);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 500);
+        }
+      }
+    }
+  }, [isLoading, rows, location.hash]);
+
   if (error) {
     return (
       <IllustratedError
@@ -163,39 +222,28 @@ export function Kustomizations() {
     );
   }
 
-  const rows: FluxRow[] =
-    data?.items?.map((item) => {
-      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
-      return {
-        name: item.metadata.name,
-        isReady: readyObject?.status === 'True',
-        statusUpdateTime: readyObject?.lastTransitionTime,
-        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-        item: {
-          ...item,
-          kind: 'Kustomization',
-          apiVersion: 'kustomize.toolkit.fluxcd.io/v1',
-          metadata: { ...item.metadata },
-        } as KustomizationItem,
-        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
-      };
-    }) ?? [];
-
   return (
-    <Panel
-      fixed
-      header={
-        <Toolbar>
-          <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <YamlViewButton variant="resource" resource={data as unknown as Resource} />
-          <ToolbarSpacer />
-        </Toolbar>
-      }
-    >
-      <>
-        <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
-        <ErrorDialog ref={errorDialogRef} />
-      </>
-    </Panel>
+    <>
+      <Panel
+        fixed
+        header={
+          <Toolbar>
+            <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
+            <YamlViewButton variant="resource" resource={data as unknown as Resource} />
+            <ToolbarSpacer />
+            <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
+              {t('buttons.create')}
+            </Button>
+          </Toolbar>
+        }
+      >
+        <>
+          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+          <ErrorDialog ref={errorDialogRef} />
+        </>
+      </Panel>
+
+      <CreateKustomizationDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} />
+    </>
   );
 }

@@ -9,6 +9,7 @@ import {
   Title,
   Toolbar,
   ToolbarSpacer,
+  Link,
 } from '@ui5/webcomponents-react';
 import {
   useApiResource as _useApiResource,
@@ -42,6 +43,7 @@ import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/u
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -94,6 +96,7 @@ export function ManagedResources({
   const [pendingDeleteItem, setPendingDeleteItem] = useState<ManagedResourceItem | null>(null);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
+  const navigateToTab = useNavigateToTab();
 
   const {
     data: managedResources,
@@ -154,6 +157,23 @@ export function ManagedResources({
         {
           Header: t('ManagedResources.tableHeaderCreated'),
           accessor: 'created',
+        },
+        {
+          Header: t('ManagedResources.tableHeaderManagedBy'),
+          accessor: (row: ResourceRow) =>
+            (row.item.metadata?.labels as unknown as Record<string, string> | undefined)?.[
+              'kustomize.toolkit.fluxcd.io/name'
+            ],
+          Cell: ({ cell: { value } }) =>
+            value ? (
+              <Link
+                onClick={() => {
+                  navigateToTab('flux', `kustomization-${value}`);
+                }}
+              >
+                {value}
+              </Link>
+            ) : null,
         },
         {
           Header: t('ManagedResources.tableHeaderSynced'),
@@ -260,7 +280,7 @@ export function ManagedResources({
           },
         },
       ] as AnalyticalTableColumnDefinition[],
-    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights],
+    [t, openEditPanel, openDeleteDialog, hasMCPAdminRights, navigateToTab],
   );
 
   const rows: ResourceRow[] =

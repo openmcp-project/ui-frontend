@@ -13,6 +13,7 @@ import {
   Toolbar,
   ToolbarSpacer,
   Button,
+  Link,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/add';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -79,6 +80,19 @@ export function GitRepositories() {
           Header: t('FluxList.tableNameHeader'),
           accessor: 'name',
           minWidth: 250,
+          Cell: ({ cell: { value } }) => <span id={`git-repository-${value}`}>{value}</span>,
+        },
+        {
+          Header: t('FluxList.tableUrlHeader', 'Address'),
+          accessor: 'item.spec.url',
+          Cell: ({ cell: { value } }) =>
+            value && value.startsWith('https') ? (
+              <Link href={value} target="_blank" rel="noopener noreferrer">
+                {value}
+              </Link>
+            ) : (
+              value
+            ),
         },
         {
           Header: t('FluxList.tableCreatedHeader'),
