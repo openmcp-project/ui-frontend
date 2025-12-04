@@ -1,5 +1,6 @@
 import {
-  BusyIndicator, FlexBox,
+  BusyIndicator,
+  FlexBox,
   ObjectPage,
   ObjectPageHeader,
   ObjectPageSection,
@@ -22,7 +23,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
-import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
+
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
