@@ -524,5 +524,14 @@
     "branchTitle": "Branch",
     "gitRepositoryCreated": "Git Repository created successfully",
     "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}"
+  },
+  "mcp": {
+    "authorization": {
+      "accessDenied": {
+        "title": "Access Denied",
+        "details": "You are not authorized to see this Managed Control Plane."
+      },
+      "backToWorkspaces": "Back to Workspaces"
+    }
   }
 }
