@@ -43,6 +43,7 @@ const MCPHealthPopoverButton = ({
   large = false,
 }: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
+  const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
@@ -51,7 +52,8 @@ const MCPHealthPopoverButton = ({
     event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail> | Ui5CustomEvent<LinkDomRef, LinkClickEventDetail>,
   ) => {
     if (popoverRef.current) {
-      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = event.target;
+      // Prefer explicit button ref as opener (works reliably); fall back to event.target
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
       setOpen((prev) => !prev);
     }
   };
@@ -152,12 +154,13 @@ const MCPHealthPopoverButton = ({
   return (
     <div className="component-title-row">
       <AnimatedHoverTextButton
+        ref={buttonRef}
         icon={getIconForOverallStatus(mcpStatus?.status)}
         text={mcpStatus?.status ?? ''}
         large={large}
         onClick={handleOpenerClick}
       />
-      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
+      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom} onClose={() => setOpen(false)}>
         <StatusTable
           status={mcpStatus}
           tableColumns={statusTableColumns}
@@ -191,19 +194,6 @@ const StatusTable = ({ status, tableColumns, githubIssuesLink }: StatusTableProp
       </FlexBox>
     </div>
   );
-};
-
-export const getClassNameForOverallStatus = (status: ReadyStatus | undefined): string => {
-  switch (status) {
-    case ReadyStatus.Ready:
-      return 'ready';
-    case ReadyStatus.NotReady:
-      return 'not-ready';
-    case ReadyStatus.InDeletion:
-      return 'deleting';
-    default:
-      return '';
-  }
 };
 
 const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
