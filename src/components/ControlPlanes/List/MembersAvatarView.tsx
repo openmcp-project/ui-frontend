@@ -10,9 +10,10 @@ interface Props {
   project?: string;
   workspace?: string;
   members: Member[];
+  hideNamespaceColumn?: boolean;
 }
 
-export function MembersAvatarView({ members, project, workspace }: Props) {
+export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const avatars = [];
@@ -44,7 +45,7 @@ export function MembersAvatarView({ members, project, workspace }: Props) {
           setPopoverIsOpen(false);
         }}
       >
-        <MemberTable members={members} requireAtLeastOneMember={false} />
+        <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
       </Popover>
     </div>
   );

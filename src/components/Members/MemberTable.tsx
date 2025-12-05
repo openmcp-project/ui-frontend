@@ -20,6 +20,7 @@ type MemberTableProps = {
   onEditMember?: (member: Member) => void;
   isValidationError?: boolean;
   requireAtLeastOneMember: boolean;
+  hideNamespaceColumn?: boolean;
 };
 
 export const MemberTable: FC<MemberTableProps> = ({
@@ -28,6 +29,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   onEditMember,
   isValidationError = false,
   requireAtLeastOneMember,
+  hideNamespaceColumn = false,
 }) => {
   const { t } = useTranslation();
 
@@ -56,11 +58,14 @@ export const MemberTable: FC<MemberTableProps> = ({
       accessor: 'role',
       width: 105,
     },
-    {
+  ];
+
+  if (!hideNamespaceColumn) {
+    columns.push({
       Header: t('MemberTable.columnNamespaceHeader'),
       accessor: 'namespace',
-    },
-  ];
+    });
+  }
 
   if (onEditMember && onDeleteMember) {
     columns.push({
