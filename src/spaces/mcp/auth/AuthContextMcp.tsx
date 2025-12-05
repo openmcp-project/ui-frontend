@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
+import * as Sentry from '@sentry/react';
 import { MeResponseSchema } from './auth.schemas';
 import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
@@ -47,6 +48,11 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
       const { isAuthenticated: apiIsAuthenticated } = validationResult.data;
       setIsAuthenticated(apiIsAuthenticated);
     } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          context: 'AuthContextMcp',
+        },
+      });
       setError(err instanceof Error ? err : new Error('Authentication error.'));
       setIsAuthenticated(false);
     } finally {
