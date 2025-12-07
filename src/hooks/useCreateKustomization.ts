@@ -33,9 +33,13 @@ export const useCreateKustomization = (defaultNamespace: string = 'default') => 
 
         const substitutionsMap: Record<string, string> = {};
         data.substitutions?.forEach((sub) => {
-          if (sub.key) substitutionsMap[sub.key] = sub.value;
+          if (sub.key && sub.value) {
+            substitutionsMap[sub.key] = sub.value;
+          }
         });
 
+        // metadata.namespace: where the Kustomization object itself lives (control plane namespace)
+        // spec.targetNamespace: where the rendered resources will be applied (workload namespace)
         const payload: CreateKustomizationType = {
           apiVersion: 'kustomize.toolkit.fluxcd.io/v1',
           kind: 'Kustomization',

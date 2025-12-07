@@ -18,9 +18,6 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { Fragment, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
-import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from '../Yaml/YamlSidePanel.tsx';
 import { useHandleResourcePatch } from '../../hooks/useHandleResourcePatch.ts';
@@ -31,6 +28,9 @@ import { CreateKustomizationDialog } from '../Dialogs/CreateKustomizationDialog'
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
+import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -200,16 +200,9 @@ export function Kustomizations() {
     if (!isLoading && rows.length > 0 && location.hash) {
       const hash = location.hash.substring(1);
       if (hash.startsWith('kustomization-')) {
-        const targetName = hash.replace('kustomization-', '');
-        const index = rows.findIndex((row) => row.name === targetName);
-
-        if (index !== -1) {
-          setTimeout(() => {
-            const element = document.getElementById(hash);
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }, 500);
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }

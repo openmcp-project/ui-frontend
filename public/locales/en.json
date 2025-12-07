@@ -64,6 +64,7 @@
     "tableHeaderSynced": "Synced",
     "tableHeaderReady": "Ready",
     "tableHeaderDelete": "Delete",
+    "tableHeaderManagedBy": "Managed By",
     "deleteAction": "Delete resource",
     "editAction": "Edit resource",
     "deleteDialogTitle": "Delete resource",

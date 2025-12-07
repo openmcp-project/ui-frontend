@@ -42,7 +42,8 @@ import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 
-export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
+export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -54,10 +55,19 @@ export default function McpPage() {
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
 
+  const setTabFromSection = (sectionId: McpPageSectionId) => {
+    setSelectedSectionId(sectionId);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('tab', sectionId);
+      return newParams;
+    });
+  };
+
   // Effect to handle tab switching via URL params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['overview', 'crossplane', 'flux', 'landscapers'].includes(tab)) {
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
       setSelectedSectionId(tab as McpPageSectionId);
     }
   }, [searchParams]);
@@ -82,14 +92,7 @@ export default function McpPage() {
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
-    setSelectedSectionId(newSectionId);
-
-    // Update URL to reflect the current tab
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set('tab', newSectionId);
-      return newParams;
-    });
+    setTabFromSection(newSectionId);
   };
 
   if (isLoading) {
@@ -170,12 +173,7 @@ export default function McpPage() {
                   components={mcp.spec?.components}
                   onInstallButtonClick={onEditComponents}
                   onNavigateToMcpSection={(sectionId) => {
-                    setSelectedSectionId(sectionId);
-                    setSearchParams((prev) => {
-                      const newParams = new URLSearchParams(prev);
-                      newParams.set('tab', sectionId);
-                      return newParams;
-                    });
+                    setTabFromSection(sectionId);
                   }}
                 />
               </ObjectPageSubSection>

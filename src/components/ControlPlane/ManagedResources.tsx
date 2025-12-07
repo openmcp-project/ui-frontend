@@ -159,7 +159,7 @@ export function ManagedResources({
           accessor: 'created',
         },
         {
-          Header: t('ManagedResources.tableHeaderManagedBy'),
+          Header: t('ManagedResources.tableHeaderManagedBy', 'Managed by Kustomization'),
           accessor: (row: ResourceRow) =>
             (row.item.metadata?.labels as unknown as Record<string, string> | undefined)?.[
               'kustomize.toolkit.fluxcd.io/name'

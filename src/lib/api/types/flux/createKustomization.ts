@@ -14,7 +14,6 @@ export type CreateKustomizationType = {
     path: string;
     prune: boolean;
     targetNamespace?: string;
-    serviceAccountName?: string;
     postBuild?: {
       substitute: Record<string, string>;
     };
