@@ -74,7 +74,6 @@ export default function McpPage() {
     }
   }, [searchParams]);
 
-
   const {
     data: mcp,
     error,
@@ -173,7 +172,7 @@ export default function McpPage() {
                   <McpHeader mcp={mcp} />
                 </ObjectPageHeader>
               }
-               onSelectedSectionChange={handleSectionChange}
+              onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
@@ -181,8 +180,8 @@ export default function McpPage() {
                     components={mcp.spec?.components}
                     onInstallButtonClick={onEditComponents}
                     onNavigateToMcpSection={(sectionId) => {
-                    setTabFromSection(sectionId);
-                  }}
+                      setTabFromSection(sectionId);
+                    }}
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
