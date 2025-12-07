@@ -545,5 +545,14 @@
     "valuePlaceholder": "Value",
     "kustomizationCreated": "Kustomization created successfully",
     "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
+  },
+  "mcp": {
+    "authorization": {
+      "accessDenied": {
+        "title": "Access Denied",
+        "details": "You are not authorized to see this Managed Control Plane."
+      },
+      "backToWorkspaces": "Back to Workspaces"
+    }
   }
 }
