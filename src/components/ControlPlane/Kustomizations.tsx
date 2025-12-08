@@ -28,6 +28,7 @@ import { CreateKustomizationDialog } from '../Dialogs/CreateKustomizationDialog'
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import styles from './Kustomizations.module.css';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -227,7 +228,7 @@ export function Kustomizations() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <ToolbarSpacer />
-            <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
+            <Button icon="add" className={styles.createButton} onClick={() => setIsCreateDialogOpen(true)}>
               {t('buttons.create')}
             </Button>
           </Toolbar>

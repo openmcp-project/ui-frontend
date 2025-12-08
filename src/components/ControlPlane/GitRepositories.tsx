@@ -30,6 +30,7 @@ import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { CreateGitRepositoryDialog } from '../Dialogs/CreateGitRepositoryDialog.tsx';
+import styles from './GitRepositories.module.css';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -211,7 +212,7 @@ export function GitRepositories() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <ToolbarSpacer />
-            <Button icon="add" onClick={() => setIsCreateDialogOpen(true)}>
+            <Button icon="add" className={styles.createButton} onClick={() => setIsCreateDialogOpen(true)}>
               {t('buttons.create')}
             </Button>
           </Toolbar>
