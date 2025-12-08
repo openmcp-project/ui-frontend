@@ -1,0 +1,24 @@
+.text {
+  margin-right: 0.5rem;
+}
+
+.link:focus-within,
+.link:focus-visible {
+  background-color: transparent;
+}
+
+.ready {
+  color: var(--sapPositiveColor);
+}
+
+.not-ready {
+  color: var(--sapNegativeColor);
+}
+
+.deleting {
+  color: var(--sapCriticalColor);
+}
+
+.large {
+  font-size: 1.25rem;
+}

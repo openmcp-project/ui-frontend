@@ -7,12 +7,14 @@ import {
   Button,
   PopoverDomRef,
   ButtonDomRef,
+  LinkDomRef,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import type { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
 import {
   ControlPlaneStatusType,
   ReadyStatus,
@@ -30,17 +32,28 @@ type MCPHealthPopoverButtonProps = {
   projectName: string;
   workspaceName: string;
   mcpName: string;
+  large?: boolean;
 };
 
-const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName }: MCPHealthPopoverButtonProps) => {
+const MCPHealthPopoverButton = ({
+  mcpStatus,
+  projectName,
+  workspaceName,
+  mcpName,
+  large = false,
+}: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
+  const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
 
-  const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+  const handleOpenerClick = (
+    event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail> | Ui5CustomEvent<LinkDomRef, LinkClickEventDetail>,
+  ) => {
     if (popoverRef.current) {
-      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = event.target;
+      // Prefer explicit button ref as opener (works reliably); fall back to event.target
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
       setOpen((prev) => !prev);
     }
   };
@@ -141,11 +154,13 @@ const MCPHealthPopoverButton = ({ mcpStatus, projectName, workspaceName, mcpName
   return (
     <div className="component-title-row">
       <AnimatedHoverTextButton
+        ref={buttonRef}
         icon={getIconForOverallStatus(mcpStatus?.status)}
         text={mcpStatus?.status ?? ''}
+        large={large}
         onClick={handleOpenerClick}
       />
-      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom}>
+      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom} onClose={() => setOpen(false)}>
         <StatusTable
           status={mcpStatus}
           tableColumns={statusTableColumns}
@@ -184,11 +199,11 @@ const StatusTable = ({ status, tableColumns, githubIssuesLink }: StatusTableProp
 const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
   switch (status) {
     case ReadyStatus.Ready:
-      return <Icon style={{ color: 'green' }} name="sap-icon://sys-enter" />;
+      return <Icon style={{ color: 'var(--sapPositiveColor)' }} name="sap-icon://sys-enter" />;
     case ReadyStatus.NotReady:
-      return <Icon style={{ color: 'red' }} name="sap-icon://pending" />;
+      return <Icon style={{ color: 'var(--sapNegativeColor)' }} name="sap-icon://pending" />;
     case ReadyStatus.InDeletion:
-      return <Icon style={{ color: 'orange' }} name="sap-icon://delete" />;
+      return <Icon style={{ color: 'var(--sapCriticalColor)' }} name="sap-icon://delete" />;
     default:
       return <></>;
   }
