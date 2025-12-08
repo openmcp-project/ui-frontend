@@ -1,4 +1,5 @@
 import { APIError } from './error';
+import * as Sentry from '@sentry/react';
 import { ApiConfig } from './types/apiConfig';
 import { AUTH_FLOW_SESSION_KEY } from '../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../common/auth/getRedirectSuffix.ts';
@@ -67,11 +68,22 @@ export const fetchApiServer = async (
     headers[useCrateClusterHeader] = 'true';
   }
 
-  const res = await fetch(`/api/onboarding${path}`, {
-    headers,
-    method: httpMethod,
-    body,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`/api/onboarding${path}`, {
+      headers,
+      method: httpMethod,
+      body,
+    });
+  } catch (error) {
+    Sentry.captureException(error, {
+      extra: {
+        method: httpMethod,
+        path: `/api/onboarding${path}`,
+      },
+    });
+    throw error;
+  }
 
   if (!res.ok) {
     if (res.status === 401) {
@@ -81,6 +93,16 @@ export const fetchApiServer = async (
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
+
+    Sentry.captureException(error, {
+      extra: {
+        method: httpMethod,
+        path: `/api/onboarding${path}`,
+        status: res.status,
+        responseBody: error.info,
+      },
+    });
+
     throw error;
   }
 

@@ -58,6 +58,11 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         level: 'info',
       });
     } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          context: 'AuthContextOnboarding:refreshAuthStatus',
+        },
+      });
       setError(err instanceof Error ? err : new Error('Authentication error.'));
       setUser(null);
       setIsAuthenticated(false);
@@ -89,6 +94,11 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
       await refreshAuthStatus();
     } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          context: 'AuthContextOnboarding:logout',
+        },
+      });
       setError(err instanceof Error ? err : new Error('Logout error.'));
     }
   };

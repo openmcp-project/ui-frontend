@@ -13,6 +13,7 @@ import {
   RatingIndicator,
   TextArea,
 } from '@ui5/webcomponents-react';
+import * as Sentry from '@sentry/react';
 import { Dispatch, RefObject, SetStateAction, useRef, useState } from 'react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +58,11 @@ export function FeedbackButton() {
         body: JSON.stringify(payload),
       });
     } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          context: 'FeedbackButton',
+        },
+      });
       console.log(err);
     } finally {
       setFeedbackSent(true);

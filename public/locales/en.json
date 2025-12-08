@@ -371,6 +371,7 @@
   },
   "common": {
     "all": "All",
+    "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
     "cannotLoadData": "Cannot load data",

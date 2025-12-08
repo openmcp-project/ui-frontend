@@ -1,5 +1,6 @@
 import {
   BusyIndicator,
+  FlexBox,
   ObjectPage,
   ObjectPageHeader,
   ObjectPageSection,
@@ -22,7 +23,7 @@ import { ManagedResources } from '../../../components/ControlPlane/ManagedResour
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
-import MCPHealthPopoverButton from '../../../components/ControlPlane/MCPHealthPopoverButton.tsx';
+
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
@@ -43,6 +44,8 @@ import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
+import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -138,12 +141,6 @@ export default function McpPage() {
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                   actionsBar={
                     <div className={styles.actionsBar}>
-                      <MCPHealthPopoverButton
-                        mcpStatus={mcp?.status}
-                        projectName={projectName}
-                        workspaceName={workspaceName}
-                        mcpName={controlPlaneName}
-                      />
                       <YamlViewButton
                         variant="loader"
                         workspaceName={mcp?.status?.access?.namespace}
@@ -169,7 +166,20 @@ export default function McpPage() {
               selectedSectionId={selectedSectionId}
               headerArea={
                 <ObjectPageHeader>
-                  <McpHeader mcp={mcp} />
+                  <FlexBox gap={'2.5rem'}>
+                    <McpHeader mcp={mcp} />
+                    <McpStatusSection
+                      mcpStatus={mcp?.status}
+                      projectName={projectName}
+                      workspaceName={workspaceName}
+                      mcpName={controlPlaneName}
+                    />
+                    <McpMembersAvatarView
+                      roleBindings={mcp.spec?.authorization?.roleBindings}
+                      project={projectName}
+                      workspace={workspaceName}
+                    />
+                  </FlexBox>
                 </ObjectPageHeader>
               }
               onSelectedSectionChange={handleSectionChange}
