@@ -48,6 +48,7 @@
     "tableStatusHeader": "Status",
     "tableCreatedHeader": "Created",
     "tableVersionHeader": "Revision",
+    "tableUrlHeader": "Address",
     "noFluxError": "Please install flux to view this component",
     "undefinedError": "Something went wrong"
   },
@@ -63,6 +64,7 @@
     "tableHeaderSynced": "Synced",
     "tableHeaderReady": "Ready",
     "tableHeaderDelete": "Delete",
+    "tableHeaderManagedBy": "Managed By",
     "deleteAction": "Delete resource",
     "editAction": "Edit resource",
     "deleteDialogTitle": "Delete resource",
@@ -523,7 +525,27 @@
     "specTitle": "Spec",
     "branchTitle": "Branch",
     "gitRepositoryCreated": "Git Repository created successfully",
-    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}"
+    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}",
+    "namespaceTitle": "Namespace"
+  },
+  "CreateKustomizationDialog": {
+    "dialogTitle": "Create Kustomization",
+    "metadataTitle": "Metadata",
+    "specTitle": "Spec",
+    "nameTitle": "Name",
+    "intervalTitle": "Interval",
+    "sourceRefTitle": "Source Reference",
+    "sourceRefNameTitle": "Name",
+    "gitRepositoryTitle": "Git Repository",
+    "pathTitle": "Path",
+    "pruneTitle": "Prune",
+    "targetNamespaceTitle": "Target Namespace",
+    "substitutionsTitle": "Substitutions",
+    "addSubstitutionButton": "Add Substitution",
+    "keyPlaceholder": "Key",
+    "valuePlaceholder": "Value",
+    "kustomizationCreated": "Kustomization created successfully",
+    "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
   },
   "mcp": {
     "authorization": {
