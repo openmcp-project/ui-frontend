@@ -43,7 +43,7 @@ async function authUtilsPlugin(fastify) {
   fastify.decorate('discoverIssuerConfiguration', async (issuerBaseUrl) => {
     fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
 
-    const remoteConfiguration = await getRemoteOpenIdConfiguration(issuerBaseUrl) as any; // ToDo: proper typing
+    const remoteConfiguration = (await getRemoteOpenIdConfiguration(issuerBaseUrl)) as any; // ToDo: proper typing
 
     const requiredConfiguration = {
       authorizationEndpoint: remoteConfiguration.authorization_endpoint,
@@ -83,7 +83,7 @@ async function authUtilsPlugin(fastify) {
         extra: {
           status: response.status,
           tokenEndpoint,
-          responseBody: responseBodyText, // Be careful with PII, but usually refresh failure bodies are safeish errors
+          responseBody: responseBodyText,
         },
       });
       fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, 'Token refresh failed.');
@@ -191,7 +191,7 @@ async function authUtilsPlugin(fastify) {
         throw error;
       }
 
-      const tokens = await response.json() as any; // ToDo: proper typing
+      const tokens = (await response.json()) as any; // ToDo: proper typing
 
       const result = {
         accessToken: tokens.access_token,
@@ -220,8 +220,8 @@ async function authUtilsPlugin(fastify) {
       Sentry.captureException(err, {
         extra: {
           tokenEndpoint,
-          grant_type: 'authorization_code'
-        }
+          grant_type: 'authorization_code',
+        },
       });
       throw err;
     }
