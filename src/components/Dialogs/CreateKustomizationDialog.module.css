@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  gap: 2rem;
+  width: 60rem;
+  min-height: 30rem;
+}
+
+.column {
+  flex: 1;
+}
+
+.form {
+  width: 100%;
+}
+
+.formField {
+  margin-bottom: 1.25rem;
+}
+
+.input {
+  width: 100%;
+}
+
+.substitutionRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: flex-start;
+}
+
+.substitutionInput {
+  flex: 1;
+}

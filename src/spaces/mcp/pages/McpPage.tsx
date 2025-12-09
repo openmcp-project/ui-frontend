@@ -7,7 +7,7 @@ import {
   ObjectPageSubSection,
   ObjectPageTitle,
 } from '@ui5/webcomponents-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
@@ -33,7 +33,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
@@ -47,16 +47,35 @@ import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
-export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
+export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
+
+  const setTabFromSection = (sectionId: McpPageSectionId) => {
+    setSelectedSectionId(sectionId);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('tab', sectionId);
+      return newParams;
+    });
+  };
+
+  // Effect to handle tab switching via URL params
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
+      setSelectedSectionId(tab as McpPageSectionId);
+    }
+  }, [searchParams]);
 
   const {
     data: mcp,
@@ -75,6 +94,11 @@ export default function McpPage() {
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
     setEditManagedControlPlaneWizardSection(undefined);
+  };
+
+  const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
+    const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
+    setTabFromSection(newSectionId);
   };
 
   if (isLoading) {
@@ -158,14 +182,16 @@ export default function McpPage() {
                   </FlexBox>
                 </ObjectPageHeader>
               }
-              onSelectedSectionChange={() => setSelectedSectionId(undefined)}
+              onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboard
                     components={mcp.spec?.components}
                     onInstallButtonClick={onEditComponents}
-                    onNavigateToMcpSection={(sectionId) => setSelectedSectionId(sectionId)}
+                    onNavigateToMcpSection={(sectionId) => {
+                      setTabFromSection(sectionId);
+                    }}
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ManagedResources } from './ManagedResources.tsx';
+import { ManagedResources } from './ManagedResources';
 import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
 import { ManagedResourceGroup } from '../../lib/shared/types.ts';
 import { MemoryRouter } from 'react-router-dom';
@@ -415,5 +415,76 @@ describe('ManagedResources - Without Admin Rights', () => {
 
     // Verify Delete action is disabled by checking the ui5-menu-item element
     cy.get('ui5-menu-item[data-action-key="delete"]').should('have.attr', 'disabled');
+  });
+});
+
+describe('ManagedResources', () => {
+  const fakeUseHasMcpAdminRights = () => {
+    return true;
+  };
+
+  const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
+    return {
+      getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
+      isLoading: false,
+      error: undefined,
+    };
+  };
+
+  const mockManagedResourcesWithKustomizationLabel: ManagedResourceGroup[] = [
+    {
+      items: [
+        {
+          apiVersion: 'example/v1',
+          kind: 'SomeKind',
+          metadata: {
+            name: 'some-resource',
+            namespace: 'default',
+            creationTimestamp: '2024-01-01T00:00:00Z',
+            labels: {
+              'kustomize.toolkit.fluxcd.io/name': 'my-kustomization',
+            },
+          },
+          spec: {},
+          status: {
+            conditions: [],
+          },
+        } as any,
+      ],
+    },
+  ];
+
+  const fakeUseApiResourceWithKustomizationLabel: typeof useApiResource = (): any => {
+    return {
+      data: mockManagedResourcesWithKustomizationLabel,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: async () => undefined,
+    };
+  };
+
+  it('renders "Managed by Kustomization" column with link', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResource={fakeUseApiResourceWithKustomizationLabel}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    // Expand resource group (same pattern as other tests)
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.contains('some-resource').should('be.visible');
+
+    // Link with label value should be rendered (ui5-link)
+    cy.contains('ui5-link', 'my-kustomization').should('exist');
+
+    // Clicking the link should not throw and triggers navigation handler
+    cy.contains('ui5-link', 'my-kustomization').click();
   });
 });
