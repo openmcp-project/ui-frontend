@@ -16,11 +16,18 @@ export class AuthenticationError extends Error {
 // @ts-ignore
 async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
   const url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const error = new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
+      Sentry.captureException(error, { extra: { url } });
+      throw error;
+    }
+    return res.json();
+  } catch (err) {
+    Sentry.captureException(err, { extra: { url } });
+    throw err;
   }
-  return res.json();
 }
 
 // @ts-ignore
@@ -71,8 +78,16 @@ async function authUtilsPlugin(fastify) {
     });
     const responseBodyText = await response.text();
     if (!response.ok) {
+      const error = new AuthenticationError('Token refresh failed.');
+      Sentry.captureException(error, {
+        extra: {
+          status: response.status,
+          tokenEndpoint,
+          responseBody: responseBodyText, // Be careful with PII, but usually refresh failure bodies are safeish errors
+        },
+      });
       fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, 'Token refresh failed.');
-      throw new AuthenticationError('Token refresh failed.');
+      throw error;
     }
 
     const newTokens = JSON.parse(responseBodyText);
@@ -156,41 +171,60 @@ async function authUtilsPlugin(fastify) {
       code_verifier: request.encryptedSession.get('codeVerifier'),
     });
 
-    const response = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body,
-    });
-    if (!response.ok) {
-      request.log.error({ status: response.status, body: await response.text() }, 'Token exchange failed.');
-      throw new AuthenticationError('Token exchange failed.');
+    try {
+      const response = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body,
+      });
+      if (!response.ok) {
+        const responseText = await response.text();
+        const error = new AuthenticationError('Token exchange failed.');
+        Sentry.captureException(error, {
+          extra: {
+            status: response.status,
+            tokenEndpoint,
+            responseBody: responseText,
+          },
+        });
+        request.log.error({ status: response.status, body: responseText }, 'Token exchange failed.');
+        throw error;
+      }
+
+      const tokens = await response.json() as any; // ToDo: proper typing
+
+      const result = {
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        expiresAt: null,
+        userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
+        postLoginRedirectRoute: request.encryptedSession.get('postLoginRedirectRoute') || '',
+      };
+
+      if (tokens.expires_in && typeof tokens.expires_in === 'number') {
+        const expiresAt = Date.now() + tokens.expires_in * 1000;
+        // @ts-ignore
+        result.expiresAt = expiresAt;
+      }
+
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        // @ts-ignore
+        message: 'Successfully authenticated user: ' + result.userInfo.email,
+        level: 'info',
+      });
+
+      request.log.info('OIDC callback succeeded; tokens retrieved.');
+      return result;
+    } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          tokenEndpoint,
+          grant_type: 'authorization_code'
+        }
+      });
+      throw err;
     }
-
-    const tokens = await response.json() as any; // ToDo: proper typing
-
-    const result = {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      expiresAt: null,
-      userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
-      postLoginRedirectRoute: request.encryptedSession.get('postLoginRedirectRoute') || '',
-    };
-
-    if (tokens.expires_in && typeof tokens.expires_in === 'number') {
-      const expiresAt = Date.now() + tokens.expires_in * 1000;
-      // @ts-ignore
-      result.expiresAt = expiresAt;
-    }
-
-    Sentry.addBreadcrumb({
-      category: 'auth',
-      // @ts-ignore
-      message: 'Successfully authenticated user: ' + result.userInfo.email,
-      level: 'info',
-    });
-
-    request.log.info('OIDC callback succeeded; tokens retrieved.');
-    return result;
   });
 }
 
