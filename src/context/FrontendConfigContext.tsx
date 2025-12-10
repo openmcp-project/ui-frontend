@@ -1,5 +1,6 @@
 import { ReactNode, createContext, use } from 'react';
 import { z } from 'zod';
+import * as Sentry from '@sentry/react';
 
 export enum Landscape {
   Live = 'LIVE',
@@ -12,8 +13,23 @@ export enum Landscape {
 export const FrontendConfigContext = createContext<FrontendConfig | null>(null);
 
 const fetchPromise = fetch('/frontend-config.json')
-  .then((res) => res.json())
-  .then((data) => validateAndCastFrontendConfig(data));
+  .then((res) => {
+    if (!res.ok) {
+      throw new Error(`Failed to load frontend-config.json: ${res.status}`);
+    }
+    return res.json();
+  })
+  .then((data) => validateAndCastFrontendConfig(data))
+  .catch((err) => {
+    Sentry.captureException(err, {
+      extra: {
+        context: 'FrontendConfigContext:fetchFrontendConfig',
+        path: '/frontend-config.json',
+        method: 'GET',
+      },
+    });
+    throw err;
+  });
 
 interface FrontendConfigProviderProps {
   children: ReactNode;
