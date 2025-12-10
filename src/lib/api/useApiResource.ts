@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import * as Sentry from '@sentry/react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
@@ -31,13 +30,7 @@ export const useApiResource = <T>(
         resource.method,
         resource.body,
       ),
-    {
-      ...config,
-      onError: (err, key, configValue) => {
-        Sentry.captureException(err);
-        config?.onError?.(err, key, configValue);
-      },
-    },
+    config,
   );
 
   return {
@@ -54,13 +47,7 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    {
-      ...config,
-      onError: (err, key, configValue) => {
-        Sentry.captureException(err);
-        config?.onError?.(err, key, configValue);
-      },
-    },
+    config,
   );
 
   const kindMapping = useMemo(() => {
@@ -93,13 +80,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    {
-      ...config,
-      onError: (err, key, configValue) => {
-        Sentry.captureException(err);
-        config?.onError?.(err, key, configValue);
-      },
-    },
+    config,
   );
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
@@ -228,13 +209,7 @@ export const useApiResourceMutation = <T>(
         resource.method,
         JSON.stringify(arg.arg),
       ),
-    {
-      ...config,
-      onError: (err, key, configValue) => {
-        Sentry.captureException(err);
-        config?.onError?.(err, key, configValue);
-      },
-    },
+    config,
   );
 
   return {
