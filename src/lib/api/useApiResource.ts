@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import * as Sentry from '@sentry/react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
@@ -30,7 +31,13 @@ export const useApiResource = <T>(
         resource.method,
         resource.body,
       ),
-    config,
+    {
+      ...config,
+      onError: (err, key, config) => {
+        Sentry.captureException(err);
+        config?.onError?.(err, key, config);
+      },
+    },
   );
 
   return {
@@ -47,7 +54,13 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    config,
+    {
+      ...config,
+      onError: (err, key, config) => {
+        Sentry.captureException(err);
+        config?.onError?.(err, key, config);
+      },
+    },
   );
 
   const kindMapping = useMemo(() => {
@@ -80,7 +93,13 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    config,
+    {
+      ...config,
+      onError: (err, key, config) => {
+        Sentry.captureException(err);
+        config?.onError?.(err, key, config);
+      },
+    },
   );
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
@@ -151,6 +170,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       return providerConfigs.filter((config) => config !== null);
     } catch (error) {
       console.error('Error fetching provider configs:', error);
+      Sentry.captureException(error);
       return []; // Return an empty array in case of error
     }
   };
@@ -208,7 +228,13 @@ export const useApiResourceMutation = <T>(
         resource.method,
         JSON.stringify(arg.arg),
       ),
-    config,
+    {
+      ...config,
+      onError: (err, key, config) => {
+        Sentry.captureException(err);
+        config?.onError?.(err, key, config);
+      },
+    },
   );
 
   return {
@@ -262,6 +288,7 @@ export function useMultipleApiResources<T>(
         const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
       } catch (err) {
+        Sentry.captureException(err);
         setError(err as Error);
         setData([]);
       } finally {
