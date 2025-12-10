@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
+import * as Sentry from '@sentry/react';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
 import { APIError } from './error';
@@ -151,6 +152,12 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       return providerConfigs.filter((config) => config !== null);
     } catch (error) {
       console.error('Error fetching provider configs:', error);
+      Sentry.captureException(error, {
+        extra: {
+          context: 'useProvidersConfigResource:fetchProviderConfigs',
+          requestCount: providerConfigsDataForRequest.length,
+        },
+      });
       return []; // Return an empty array in case of error
     }
   };
@@ -262,6 +269,13 @@ export function useMultipleApiResources<T>(
         const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
       } catch (err) {
+        console.error('Error fetching multiple resources:', err);
+        Sentry.captureException(err, {
+          extra: {
+            context: 'useMultipleApiResources',
+            namespacesCount: namespaces.length,
+          },
+        });
         setError(err as Error);
         setData([]);
       } finally {

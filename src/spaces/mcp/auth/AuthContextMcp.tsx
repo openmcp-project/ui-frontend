@@ -51,6 +51,8 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
       Sentry.captureException(err, {
         extra: {
           context: 'AuthContextMcp',
+          path: '/api/auth/mcp/me',
+          method: 'GET',
         },
       });
       setError(err instanceof Error ? err : new Error('Authentication error.'));

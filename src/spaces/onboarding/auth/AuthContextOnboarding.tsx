@@ -61,6 +61,8 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       Sentry.captureException(err, {
         extra: {
           context: 'AuthContextOnboarding:refreshAuthStatus',
+          path: '/api/auth/onboarding/me',
+          method: 'GET',
         },
       });
       setError(err instanceof Error ? err : new Error('Authentication error.'));
@@ -97,6 +99,8 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       Sentry.captureException(err, {
         extra: {
           context: 'AuthContextOnboarding:logout',
+          path: '/api/auth/logout',
+          method: 'POST',
         },
       });
       setError(err instanceof Error ? err : new Error('Logout error.'));
