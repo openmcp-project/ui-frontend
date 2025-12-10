@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
+import * as Sentry from '@sentry/react';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
 import { APIError } from './error';
