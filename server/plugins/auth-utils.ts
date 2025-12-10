@@ -168,54 +168,41 @@ async function authUtilsPlugin(fastify) {
       code_verifier: request.encryptedSession.get('codeVerifier'),
     });
 
-    try {
-      const response = await fetch(tokenEndpoint, {
-        method: 'POST',
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
-        body,
-      });
-      if (!response.ok) {
-        const responseText = await response.text();
-        const error = new AuthenticationError('Token exchange failed.');
-        Sentry.captureException(error, {
-          extra: {
-            status: response.status,
-            tokenEndpoint,
-            responseBody: responseText,
-          },
-        });
-        request.log.error({ status: response.status, body: responseText }, 'Token exchange failed.');
-        throw error;
-      }
-
-      const tokens = (await response.json()) as any; // ToDo: proper typing
-
-      const result = {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        expiresAt: null,
-        userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
-        postLoginRedirectRoute: request.encryptedSession.get('postLoginRedirectRoute') || '',
-      };
-
-      if (tokens.expires_in && typeof tokens.expires_in === 'number') {
-        const expiresAt = Date.now() + tokens.expires_in * 1000;
-        // @ts-ignore
-        result.expiresAt = expiresAt;
-      }
-
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        // @ts-ignore
-        message: 'Successfully authenticated user: ' + result.userInfo.email,
-        level: 'info',
-      });
-
-      request.log.info('OIDC callback succeeded; tokens retrieved.');
-      return result;
-    } catch (err) {
-      throw err;
+    const response = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    if (!response.ok) {
+      request.log.error({ status: response.status, body: await response.text() }, 'Token exchange failed.');
+      throw new AuthenticationError('Token exchange failed.');
     }
+
+    const tokens = (await response.json()) as any; // ToDo: proper typing
+
+    const result = {
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt: null,
+      userInfo: extractUserInfoFromIdToken(request, tokens.id_token),
+      postLoginRedirectRoute: request.encryptedSession.get('postLoginRedirectRoute') || '',
+    };
+
+    if (tokens.expires_in && typeof tokens.expires_in === 'number') {
+      const expiresAt = Date.now() + tokens.expires_in * 1000;
+      // @ts-ignore
+      result.expiresAt = expiresAt;
+    }
+
+    Sentry.addBreadcrumb({
+      category: 'auth',
+      // @ts-ignore
+      message: 'Successfully authenticated user: ' + result.userInfo.email,
+      level: 'info',
+    });
+
+    request.log.info('OIDC callback succeeded; tokens retrieved.');
+    return result;
   });
 }
 
