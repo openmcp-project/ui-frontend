@@ -33,9 +33,9 @@ export const useApiResource = <T>(
       ),
     {
       ...config,
-      onError: (err, key, config) => {
+      onError: (err, key, configValue) => {
         Sentry.captureException(err);
-        config?.onError?.(err, key, config);
+        config?.onError?.(err, key, configValue);
       },
     },
   );
@@ -56,9 +56,9 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     {
       ...config,
-      onError: (err, key, config) => {
+      onError: (err, key, configValue) => {
         Sentry.captureException(err);
-        config?.onError?.(err, key, config);
+        config?.onError?.(err, key, configValue);
       },
     },
   );
@@ -95,9 +95,9 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
     {
       ...config,
-      onError: (err, key, config) => {
+      onError: (err, key, configValue) => {
         Sentry.captureException(err);
-        config?.onError?.(err, key, config);
+        config?.onError?.(err, key, configValue);
       },
     },
   );
@@ -230,9 +230,9 @@ export const useApiResourceMutation = <T>(
       ),
     {
       ...config,
-      onError: (err, key, config) => {
+      onError: (err, key, configValue) => {
         Sentry.captureException(err);
-        config?.onError?.(err, key, config);
+        config?.onError?.(err, key, configValue);
       },
     },
   );
