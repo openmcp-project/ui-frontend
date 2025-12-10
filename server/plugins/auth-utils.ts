@@ -19,9 +19,7 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
   try {
     const res = await fetch(url);
     if (!res.ok) {
-      const error = new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
-      Sentry.captureException(error, { extra: { url } });
-      throw error;
+      throw new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
     }
     return res.json();
   } catch (err) {
@@ -83,7 +81,6 @@ async function authUtilsPlugin(fastify) {
         extra: {
           status: response.status,
           tokenEndpoint,
-          responseBody: responseBodyText,
         },
       });
       fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, 'Token refresh failed.');
@@ -217,12 +214,6 @@ async function authUtilsPlugin(fastify) {
       request.log.info('OIDC callback succeeded; tokens retrieved.');
       return result;
     } catch (err) {
-      Sentry.captureException(err, {
-        extra: {
-          tokenEndpoint,
-          grant_type: 'authorization_code',
-        },
-      });
       throw err;
     }
   });
