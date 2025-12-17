@@ -29,10 +29,10 @@ function AppRouter() {
               <Route path="/mcp" element={<GlobalProviderOutlet />}>
                 <Route path="projects" element={<ProjectListView />} />
                 <Route path="projects/:projectName" element={<ProjectPage />} />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
-                  element={<McpPage />}
-                />
+                <Route path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName">
+                  <Route index element={<McpPage />} />
+                  <Route path="idp/:idpName" element={<McpPage />} />
+                </Route>
               </Route>
               <Route path="/" element={<Navigate to="/mcp/projects" />} />
               <Route path="*" element={<Navigate to="/" />} />

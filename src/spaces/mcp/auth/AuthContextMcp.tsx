@@ -1,8 +1,15 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import * as Sentry from '@sentry/react';
 import { MeResponseSchema } from './auth.schemas';
-import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
+import {
+  STORAGE_KEY_AUTH_IDP,
+  STORAGE_KEY_AUTH_MCP,
+  STORAGE_KEY_AUTH_NAMESPACE,
+  STORAGE_KEY_AUTH_FLOW,
+} from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
+import { useParams } from 'react-router-dom';
+import { mcpNameHeader, projectNameHeader } from '../../../lib/api/fetch.ts';
 
 interface AuthContextMcpType {
   isLoading: boolean;
@@ -18,6 +25,9 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const { projectName, workspaceName, controlPlaneName, idpName } = useParams();
+  const namespace = `project-${projectName}--ws-${workspaceName}`;
+
   // Check the authentication status when the component mounts
   useEffect(() => {
     void refreshAuthStatus();
@@ -27,8 +37,21 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
 
+    let queryString = '';
+    if (projectName && workspaceName && controlPlaneName && idpName) {
+      // Custom identity provider
+      const params = new URLSearchParams({
+        namespace: namespace,
+        mcp: controlPlaneName,
+        idp: idpName,
+      });
+      queryString = `?${params.toString()}`;
+    }
+
     try {
-      const response = await fetch('/api/auth/mcp/me');
+      const response = await fetch(`/api/auth/mcp/me${queryString}`, {
+        method: 'GET',
+      });
       if (!response.ok) {
         let errorBody;
         try {
@@ -63,8 +86,26 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   }
 
   const login = () => {
-    sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'mcp');
-    window.location.replace(`/api/auth/mcp/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
+    sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'mcp');
+
+    let additionalQuery = '';
+    if (namespace && controlPlaneName && idpName) {
+      // Pass details for custom identity provider and save them for the callback handler
+      sessionStorage.setItem(STORAGE_KEY_AUTH_NAMESPACE, namespace);
+      sessionStorage.setItem(STORAGE_KEY_AUTH_MCP, controlPlaneName);
+      sessionStorage.setItem(STORAGE_KEY_AUTH_IDP, idpName);
+
+      const queryParams = new URLSearchParams({
+        namespace: namespace,
+        mcp: controlPlaneName,
+        idp: idpName,
+      });
+      additionalQuery = `&${queryParams.toString()}`;
+    }
+
+    window.location.replace(
+      `/api/auth/mcp/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}${additionalQuery}`,
+    );
   };
 
   return <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
