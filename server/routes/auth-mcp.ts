@@ -69,31 +69,40 @@ async function authPlugin(fastify) {
 
   // @ts-ignore
   fastify.get('/auth/mcp/login', async function (req, reply) {
-    const { namespace, mcp: mcpName, idp: idpName } = req.query;
+    try {
+      const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
-    const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
 
-    const redirectUri = await fastify.prepareOidcLoginRedirect(
-      req,
-      {
-        clientId: clientId,
-        redirectUri: OIDC_REDIRECT_URI,
-        scopes: OIDC_SCOPES,
-      },
-      issuerConfiguration.authorizationEndpoint,
-      stateSessionKey,
-    );
+      const redirectUri = await fastify.prepareOidcLoginRedirect(
+        req,
+        {
+          clientId: clientId,
+          redirectUri: OIDC_REDIRECT_URI,
+          scopes: OIDC_SCOPES,
+        },
+        issuerConfiguration.authorizationEndpoint,
+        stateSessionKey,
+      );
 
-    return reply.redirect(redirectUri);
+      return reply.redirect(redirectUri);
+    } catch (error) {
+      if (error instanceof AuthenticationError) {
+        req.log.error(`Login failed: ${error?.message}`);
+        return reply.badRequest(`Login failed: ${error?.message}`);
+      } else {
+        throw error;
+      }
+    }
   });
 
   // @ts-ignore
   fastify.get('/auth/mcp/callback', async function (req, reply) {
     const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
-    const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
-
     try {
+      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+
       const callbackResult = await fastify.handleOidcCallback(
         req,
         {
