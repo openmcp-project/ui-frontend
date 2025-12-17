@@ -12,6 +12,12 @@ async function authPlugin(fastify) {
   const mcpIssuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('mcpIssuerConfiguration', mcpIssuerConfiguration);
 
+  /*
+   * Helper function to determine if the request is for the system IdP (in contrast to a custom IdP).
+   * An undefined idpName indicates a system IdP request.
+   */
+  const isSystemIdpRequest = (idpName: string | undefined) => !idpName;
+
   /**
    * Helper function to fetch custom IdP configuration via internal proxy.
    */
@@ -50,9 +56,8 @@ async function authPlugin(fastify) {
    */
   // @ts-ignore
   const resolveIdpConfig = async (req, { namespace, mcpName, idpName }) => {
-    const isCustomIdP = Boolean(namespace && mcpName && idpName);
-
-    if (isCustomIdP) {
+    const isCustomIdp = !isSystemIdpRequest(idpName);
+    if (isCustomIdp) {
       const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName);
       return {
         clientId: customIdpConfig.clientId,
@@ -116,9 +121,18 @@ async function authPlugin(fastify) {
       await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
       await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
 
-      await req.encryptedSession.set('mcp_namespace', namespace);
-      await req.encryptedSession.set('mcp_name', mcpName);
-      await req.encryptedSession.set('mcp_idp', idpName);
+      // Ensure session keys are deleted if values are undefined (system IdP flow).
+      // This prevents stale custom IdP values from remaining in the session.
+      const updateSessionKey = async (key: string, value: string | undefined) => {
+        if (value) {
+          await req.encryptedSession.set(key, value);
+        } else {
+          await req.encryptedSession.delete(key);
+        }
+      };
+      await updateSessionKey('mcp_namespace', namespace);
+      await updateSessionKey('mcp_name', mcpName);
+      await updateSessionKey('mcp_idp', idpName);
 
       if (callbackResult.expiresAt) {
         await req.encryptedSession.set('mcp_tokenExpiresAt', callbackResult.expiresAt);
@@ -141,15 +155,15 @@ async function authPlugin(fastify) {
   fastify.get('/auth/mcp/me', async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
-    // Check if the user is authenticated for the given MCP and IdP
-    // In case of the system IdP, namespace, mcp and idp will be undefined but this is okay
     const sessionAccessToken = req.encryptedSession.get('mcp_accessToken');
     const sessionNamespace = req.encryptedSession.get('mcp_namespace');
     const sessionMcp = req.encryptedSession.get('mcp_name');
     const sessionIdp = req.encryptedSession.get('mcp_idp');
 
-    const isAuthenticated =
-      sessionNamespace === namespace && sessionMcp === mcp && sessionIdp === idp && Boolean(sessionAccessToken);
+    const isSystemIdp = isSystemIdpRequest(idp);
+    const isAuthenticated = isSystemIdp
+      ? Boolean(sessionAccessToken) // For system IdP, we do not compare namespace and mcp because the access token is valid for all MCPs in the cluster
+      : sessionNamespace === namespace && sessionMcp === mcp && sessionIdp === idp && Boolean(sessionAccessToken);
 
     return reply.send({ isAuthenticated });
   });
