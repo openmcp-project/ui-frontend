@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, ReactNode, use } from 'react';
+import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
 import * as Sentry from '@sentry/react';
 import { MeResponseSchema } from './auth.schemas';
 import {
@@ -9,7 +9,6 @@ import {
 } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { useParams } from 'react-router-dom';
-import { mcpNameHeader, projectNameHeader } from '../../../lib/api/fetch.ts';
 
 interface AuthContextMcpType {
   isLoading: boolean;
@@ -28,12 +27,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const { projectName, workspaceName, controlPlaneName, idpName } = useParams();
   const namespace = `project-${projectName}--ws-${workspaceName}`;
 
-  // Check the authentication status when the component mounts
-  useEffect(() => {
-    void refreshAuthStatus();
-  }, []);
-
-  async function refreshAuthStatus() {
+  const refreshAuthStatus = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -83,7 +77,12 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [projectName, workspaceName, controlPlaneName, idpName, namespace]);
+
+  // Check the authentication status when the component mounts
+  useEffect(() => {
+    void refreshAuthStatus();
+  }, [refreshAuthStatus]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'mcp');
