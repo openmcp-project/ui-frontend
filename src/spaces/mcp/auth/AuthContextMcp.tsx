@@ -31,16 +31,14 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
 
-    let queryString = '';
+    const queryParams = new URLSearchParams();
     if (projectName && workspaceName && controlPlaneName && idpName) {
       // Custom identity provider
-      const params = new URLSearchParams({
-        namespace: namespace,
-        mcp: controlPlaneName,
-        idp: idpName,
-      });
-      queryString = `?${params.toString()}`;
+      queryParams.set('namespace', namespace);
+      queryParams.set('mcp', controlPlaneName);
+      queryParams.set('idp', idpName);
     }
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
     try {
       const response = await fetch(`/api/auth/mcp/me${queryString}`, {
@@ -100,6 +98,10 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
         idp: idpName,
       });
       additionalQuery = `&${queryParams.toString()}`;
+    } else {
+      sessionStorage.removeItem(STORAGE_KEY_AUTH_NAMESPACE);
+      sessionStorage.removeItem(STORAGE_KEY_AUTH_MCP);
+      sessionStorage.removeItem(STORAGE_KEY_AUTH_IDP);
     }
 
     window.location.replace(
