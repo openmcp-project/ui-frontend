@@ -267,13 +267,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 componentsList: componentsList
                   ? [
                       ...componentsList,
-                      {
-                        name: 'lukasz',
-                        versions: ['1.0.0'],
-                        isSelected: true,
-                        documentationUrl: '',
-                        selectedVersion: '1.0.0',
-                      },
+                      // {
+                      //   name: 'lukasz100',
+                      //   versions: ['1.0.0'],
+                      //   isSelected: true,
+                      //   documentationUrl: '',
+                      //   selectedVersion: '1.0.0',
+                      // },
                     ]
                   : [],
               },

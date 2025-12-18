@@ -133,6 +133,7 @@ export const CreateManagedControlPlane = (
       authentication: { enableSystemIdentityProvider: true },
       components: {
         ...selectedComponents,
+        lukasz1000: { version: '1.0.0' },
         apiServer: { type: 'GardenerDedicated' },
         ...(crossplaneComponent ? crossplaneWithProviders : {}),
       },
