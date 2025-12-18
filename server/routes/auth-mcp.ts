@@ -162,7 +162,8 @@ async function authPlugin(fastify) {
 
     const isSystemIdp = isSystemIdpRequest(idp);
     const isAuthenticated = isSystemIdp
-      ? Boolean(sessionAccessToken) // For system IdP, we do not compare namespace and mcp because the access token is valid for all MCPs in the cluster
+      ? // For system IdP, we do not compare namespace and mcp because the access token is valid for all MCPs in the cluster
+        !sessionNamespace && !sessionMcp && !sessionIdp && Boolean(sessionAccessToken)
       : sessionNamespace === namespace && sessionMcp === mcp && sessionIdp === idp && Boolean(sessionAccessToken);
 
     return reply.send({ isAuthenticated });
