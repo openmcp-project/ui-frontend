@@ -264,7 +264,18 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 chargingTarget,
                 chargingTargetType,
                 members,
-                componentsList,
+                componentsList: componentsList
+                  ? [
+                      ...componentsList,
+                      {
+                        name: 'lukasz',
+                        versions: ['1.0.0'],
+                        isSelected: true,
+                        documentationUrl: '',
+                        selectedVersion: '1.0.0',
+                      },
+                    ]
+                  : [],
               },
               idpPrefix,
             ),

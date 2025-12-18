@@ -97,13 +97,17 @@ export const CreateManagedControlPlane = (
     ({ name, isSelected }) => name === 'crossplane' && isSelected,
   );
 
-  const selectedProviders: Provider[] =
-    optional?.componentsList
+  // @ts-ignore
+  const selectedProviders: Provider[] = [
+    ...(optional?.componentsList
       ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
-      })) ?? [];
+      })) ?? []),
+    { name: 'lukasz', version: '1.0.0' },
+    { name: 'helm', version: '1.0.0' },
+  ];
   const crossplaneWithProviders = {
     crossplane: {
       version: crossplaneComponent?.selectedVersion ?? '',
