@@ -8,7 +8,7 @@ import {
   STORAGE_KEY_AUTH_FLOW,
 } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 interface AuthContextMcpType {
   isLoading: boolean;
@@ -24,7 +24,9 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const { projectName, workspaceName, controlPlaneName, idpName } = useParams();
+  const { projectName, workspaceName, controlPlaneName } = useParams();
+  const [searchParams] = useSearchParams();
+  const idpName = searchParams.get('idp');
   const namespace = `project-${projectName}--ws-${workspaceName}`;
 
   const refreshAuthStatus = useCallback(async () => {
