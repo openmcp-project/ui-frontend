@@ -196,8 +196,7 @@ async function authUtilsPlugin(fastify) {
 
     Sentry.addBreadcrumb({
       category: 'auth',
-      // @ts-ignore
-      message: 'Successfully authenticated user: ' + result.userInfo.email,
+      message: 'Successfully authenticated user: ' + (result.userInfo?.email ?? 'unknown email address'),
       level: 'info',
     });
 

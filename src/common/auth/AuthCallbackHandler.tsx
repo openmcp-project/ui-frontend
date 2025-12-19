@@ -15,7 +15,10 @@ function isAuthFlow(value: unknown): value is AuthFlow {
   return Object.keys(REDIRECT_TARGETS).includes(value);
 }
 
-export const AUTH_FLOW_SESSION_KEY = 'auth:post-callback-flow';
+export const STORAGE_KEY_AUTH_FLOW = 'auth:post-callback-flow';
+export const STORAGE_KEY_AUTH_NAMESPACE = 'auth:post-callback-namespace';
+export const STORAGE_KEY_AUTH_MCP = 'auth:post-callback-mcp';
+export const STORAGE_KEY_AUTH_IDP = 'auth:post-callback-idp';
 
 function useAuthCallback() {
   const params = new URLSearchParams(window.location.search);
@@ -23,7 +26,11 @@ function useAuthCallback() {
   const state = params.get('state');
   const iss = params.get('iss');
 
-  const potentialAuthFlow = sessionStorage.getItem(AUTH_FLOW_SESSION_KEY);
+  const namespace = sessionStorage.getItem(STORAGE_KEY_AUTH_NAMESPACE);
+  const mcp = sessionStorage.getItem(STORAGE_KEY_AUTH_MCP);
+  const idp = sessionStorage.getItem(STORAGE_KEY_AUTH_IDP);
+
+  const potentialAuthFlow = sessionStorage.getItem(STORAGE_KEY_AUTH_FLOW);
 
   const isCallbackInProgress = !!(code && state && potentialAuthFlow);
 
@@ -42,13 +49,29 @@ function useAuthCallback() {
     const forwardUrl = new URL(redirectTarget, window.location.origin);
     forwardUrl.searchParams.append('code', code);
     forwardUrl.searchParams.append('state', state);
+
+    if (potentialAuthFlow === 'mcp') {
+      if (namespace) {
+        forwardUrl.searchParams.append('namespace', namespace);
+      }
+      if (mcp) {
+        forwardUrl.searchParams.append('mcp', mcp);
+      }
+      if (idp) {
+        forwardUrl.searchParams.append('idp', idp);
+      }
+    }
+
     if (iss) {
       forwardUrl.searchParams.append('iss', iss);
     }
 
-    sessionStorage.removeItem(AUTH_FLOW_SESSION_KEY);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH_FLOW);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH_NAMESPACE);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH_MCP);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH_IDP);
     window.location.replace(forwardUrl.toString());
-  }, [isCallbackInProgress, potentialAuthFlow, code, state, iss]);
+  }, [isCallbackInProgress, potentialAuthFlow, code, state, iss, namespace, mcp, idp]);
 
   return {
     isLoading: isCallbackInProgress,
