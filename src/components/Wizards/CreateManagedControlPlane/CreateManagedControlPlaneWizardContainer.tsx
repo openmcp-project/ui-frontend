@@ -267,6 +267,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                 componentsList,
               },
               idpPrefix,
+              initialData,
             ),
           );
         } else {
@@ -657,6 +658,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
                     chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
                   },
                   idpPrefix,
+                  initialData,
                 ),
               )}
               watch={watch}
@@ -664,6 +666,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               projectName={projectName}
               componentsList={componentsList}
               isEditMode={isEditMode}
+              initialData={initialData}
             />
           </WizardStep>
           <WizardStep

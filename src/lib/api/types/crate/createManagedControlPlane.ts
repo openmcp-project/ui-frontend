@@ -2,6 +2,7 @@ import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
 import { AccountType } from '../../../../components/Members/EditMembers.tsx';
+import { ManagedControlPlaneInterface } from '../mcpResource.ts';
 
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
@@ -43,7 +44,8 @@ interface Components {
         version: string;
       }
     | { type: 'GardenerDedicated' }
-    | { version: string; providers: Provider[] };
+    | { version: string; providers: Provider[] }
+    | undefined;
 }
 
 export interface CreateManagedControlPlaneType {
@@ -76,6 +78,7 @@ export const CreateManagedControlPlane = (
     componentsList?: ComponentsListItem[];
   },
   idpPrefix?: string,
+  initialData?: ManagedControlPlaneInterface,
 ): CreateManagedControlPlaneType => {
   const selectedComponents: Components =
     optional?.componentsList
@@ -109,6 +112,19 @@ export const CreateManagedControlPlane = (
     },
   };
 
+  // Preserve landscaper from initialData if present (edit mode)
+  const landscaperFromInitialData = initialData?.spec?.components?.landscaper;
+
+  const components: Components = {
+    ...selectedComponents,
+    apiServer: { type: 'GardenerDedicated' },
+    ...(crossplaneComponent ? crossplaneWithProviders : {}),
+  };
+
+  if (landscaperFromInitialData) {
+    components.landscaper = landscaperFromInitialData;
+  }
+
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
     kind: 'ManagedControlPlane',
@@ -125,11 +141,7 @@ export const CreateManagedControlPlane = (
     },
     spec: {
       authentication: { enableSystemIdentityProvider: true },
-      components: {
-        ...selectedComponents,
-        apiServer: { type: 'GardenerDedicated' },
-        ...(crossplaneComponent ? crossplaneWithProviders : {}),
-      },
+      components,
       authorization: {
         roleBindings:
           optional?.members?.map((member) => ({
