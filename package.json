@@ -88,7 +88,7 @@
     "@ui5/webcomponents-cypress-commands": "2.15.3",
     "@vitejs/plugin-react": "5.1.0",
     "@vitest/eslint-plugin": "1.4.2",
-    "cypress": "15.6.0",
+    "cypress": "15.8.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-i18next": "6.1.3",
