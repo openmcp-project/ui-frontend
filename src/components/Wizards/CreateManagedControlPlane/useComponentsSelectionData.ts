@@ -50,13 +50,42 @@ export const useComponentsSelectionData = (
           selectedVersion,
           isSelected,
           documentationUrl: '',
+          isProvider: name.includes('provider') && name !== 'crossplane',
         } as ComponentsListItem;
       })
       .filter((component) => !removeComponents.find((item) => item === component.name));
 
-    setValue('componentsList', newComponentsList, { shouldValidate: false });
+    // Add providers from initialSelection that don't exist in the available components list
+    if (initialSelection) {
+      const existingNames = new Set(newComponentsList.map((c) => c.name));
+      Object.entries(initialSelection).forEach(([name, selection]) => {
+        if (!existingNames.has(name) && selection.isSelected && selection.version) {
+          newComponentsList.push({
+            name,
+            versions: [selection.version],
+            selectedVersion: selection.version,
+            isSelected: true,
+            documentationUrl: '',
+            isProvider: true,
+          });
+        }
+      });
+    }
+
+    // Sort the components list: alphabetically, but providers come after 'crossplane'
+    const components = newComponentsList.filter((c) => !c.isProvider).sort((a, b) => a.name.localeCompare(b.name));
+    const providers = newComponentsList.filter((c) => c.isProvider).sort((a, b) => a.name.localeCompare(b.name));
+
+    // Find crossplane index in nonProviders and insert providers after it
+    const crossplaneIndex = components.findIndex((c) => c.name === 'crossplane');
+    const sortedList =
+      crossplaneIndex !== -1
+        ? [...components.slice(0, crossplaneIndex + 1), ...providers, ...components.slice(crossplaneIndex + 1)]
+        : [...components, ...providers];
+
+    setValue('componentsList', sortedList, { shouldValidate: false });
     if (onComponentsInitialized) {
-      onComponentsInitialized(newComponentsList);
+      onComponentsInitialized(sortedList);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(data?.items), selectedTemplate, initialSelection]);

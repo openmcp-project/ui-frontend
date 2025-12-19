@@ -12,6 +12,7 @@ export interface ComponentsListItem {
   isSelected: boolean;
   selectedVersion: string;
   documentationUrl: string;
+  isProvider: boolean;
 }
 
 interface RoleBinding {
@@ -78,10 +79,7 @@ export const CreateManagedControlPlane = (
 ): CreateManagedControlPlaneType => {
   const selectedComponents: Components =
     optional?.componentsList
-      ?.filter(
-        (component) =>
-          component.isSelected && !component.name.includes('provider') && !component.name.includes('crossplane'),
-      )
+      ?.filter((component) => component.isSelected && !component.isProvider && !component.name.includes('crossplane'))
       .map((component) => {
         const mapping = replaceComponentsName.find((m) => m.originalName === component.name);
         return {
@@ -99,7 +97,7 @@ export const CreateManagedControlPlane = (
 
   const selectedProviders: Provider[] =
     optional?.componentsList
-      ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
+      ?.filter(({ isSelected, isProvider }) => isProvider && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
