@@ -2,7 +2,7 @@ import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
 import { AccountType } from '../../../../components/Members/EditMembers.tsx';
-import { ManagedControlPlaneInterface, MCPVersionedComponent } from '../mcpResource.ts';
+import { ManagedControlPlaneInterface } from '../mcpResource.ts';
 
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
