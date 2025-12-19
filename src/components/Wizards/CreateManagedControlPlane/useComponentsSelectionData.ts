@@ -55,7 +55,7 @@ export const useComponentsSelectionData = (
       })
       .filter((component) => !removeComponents.find((item) => item === component.name));
 
-    // Add providers from initialSelection that don't exist in the available components list
+    // Add custom providers from initialSelection that don't exist in the available components list
     if (initialSelection) {
       const existingNames = new Set(newComponentsList.map((c) => c.name));
       Object.entries(initialSelection).forEach(([name, selection]) => {
@@ -72,16 +72,15 @@ export const useComponentsSelectionData = (
       });
     }
 
-    // Sort the components list: alphabetically, but providers come after 'crossplane'
+    // Sort components alphabetically, then crossplane providers alphabetically after 'crossplane'
     const components = newComponentsList.filter((c) => !c.isProvider).sort((a, b) => a.name.localeCompare(b.name));
-    const providers = newComponentsList.filter((c) => c.isProvider).sort((a, b) => a.name.localeCompare(b.name));
+    const crossplaneProviders = newComponentsList
+      .filter((c) => c.isProvider)
+      .sort((a, b) => a.name.localeCompare(b.name));
 
-    // Find crossplane index in nonProviders and insert providers after it
     const crossplaneIndex = components.findIndex((c) => c.name === 'crossplane');
-    const sortedList =
-      crossplaneIndex !== -1
-        ? [...components.slice(0, crossplaneIndex + 1), ...providers, ...components.slice(crossplaneIndex + 1)]
-        : [...components, ...providers];
+    const insertIndex = crossplaneIndex !== -1 ? crossplaneIndex + 1 : components.length;
+    const sortedList = [...components.slice(0, insertIndex), ...crossplaneProviders, ...components.slice(insertIndex)];
 
     setValue('componentsList', sortedList, { shouldValidate: false });
     if (onComponentsInitialized) {
