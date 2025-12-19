@@ -2,6 +2,7 @@ import { Resource } from '../resource';
 import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../shared/keyNames';
 import { Member } from '../shared/members';
 import { AccountType } from '../../../../components/Members/EditMembers.tsx';
+import { ManagedControlPlaneInterface } from '../mcpResource.ts';
 
 export type Annotations = Record<string, string>;
 export type Labels = Record<string, string>;
@@ -12,6 +13,7 @@ export interface ComponentsListItem {
   isSelected: boolean;
   selectedVersion: string;
   documentationUrl: string;
+  isProvider: boolean;
 }
 
 interface RoleBinding {
@@ -39,10 +41,12 @@ interface Spec {
 interface Components {
   [key: string]:
     | {
-        version: string;
+        version?: string;
+        providers?: Provider[];
       }
     | { type: 'GardenerDedicated' }
-    | { version: string; providers: Provider[] };
+    | { deployers?: string[] }
+    | undefined;
 }
 
 export interface CreateManagedControlPlaneType {
@@ -75,13 +79,11 @@ export const CreateManagedControlPlane = (
     componentsList?: ComponentsListItem[];
   },
   idpPrefix?: string,
+  initialData?: ManagedControlPlaneInterface,
 ): CreateManagedControlPlaneType => {
   const selectedComponents: Components =
     optional?.componentsList
-      ?.filter(
-        (component) =>
-          component.isSelected && !component.name.includes('provider') && !component.name.includes('crossplane'),
-      )
+      ?.filter((component) => component.isSelected && !component.isProvider && !component.name.includes('crossplane'))
       .map((component) => {
         const mapping = replaceComponentsName.find((m) => m.originalName === component.name);
         return {
@@ -99,7 +101,7 @@ export const CreateManagedControlPlane = (
 
   const selectedProviders: Provider[] =
     optional?.componentsList
-      ?.filter(({ name, isSelected }) => name.includes('provider') && isSelected)
+      ?.filter(({ isSelected, isProvider }) => isProvider && isSelected)
       .map(({ name, selectedVersion }) => ({
         name: name,
         version: selectedVersion,
@@ -110,6 +112,19 @@ export const CreateManagedControlPlane = (
       providers: selectedProviders,
     },
   };
+
+  // Preserve landscaper from initialData if present (edit mode)
+  const landscaperFromInitialData = initialData?.spec?.components?.landscaper;
+
+  const components: Components = {
+    ...selectedComponents,
+    apiServer: { type: 'GardenerDedicated' },
+    ...(crossplaneComponent ? crossplaneWithProviders : {}),
+  };
+
+  if (landscaperFromInitialData) {
+    components.landscaper = landscaperFromInitialData as { deployers?: string[] };
+  }
 
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -127,11 +142,7 @@ export const CreateManagedControlPlane = (
     },
     spec: {
       authentication: { enableSystemIdentityProvider: true },
-      components: {
-        ...selectedComponents,
-        apiServer: { type: 'GardenerDedicated' },
-        ...(crossplaneComponent ? crossplaneWithProviders : {}),
-      },
+      components,
       authorization: {
         roleBindings:
           optional?.members?.map((member) => ({
