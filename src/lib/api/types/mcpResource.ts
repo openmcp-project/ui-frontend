@@ -59,7 +59,11 @@ export interface MCPComponentsSpec {
   crossplane?: MCPCrossplaneComponent;
   externalSecretsOperator?: MCPVersionedComponent;
   flux?: MCPVersionedComponent;
-  landscaper?: MCPVersionedComponent;
+  landscaper?: MCPLandscaperComponent;
+}
+
+export interface MCPLandscaperComponent {
+  deployers?: string[];
 }
 
 export interface MCPApiServerComponent {
