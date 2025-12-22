@@ -25,12 +25,13 @@ export const useComponentsSelectionData = (
       setValue('componentsList', [], { shouldValidate: false });
       return;
     }
+
     const newComponentsList: ComponentsListItem[] = items
       .map((item) => {
         const rawVersions = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
         const versions = sortVersions(rawVersions);
         const name = item.metadata?.name ?? '';
-        const initSel = initialSelection?.[name];
+        const initSel = initialSelection?.[name] ?? initialSelection?.[name.replace('provider-', '')];
         const templateDefault = selectedTemplate?.spec?.spec?.components?.defaultComponents?.find(
           (dc) => dc.name === name,
         );
@@ -59,7 +60,12 @@ export const useComponentsSelectionData = (
     if (initialSelection) {
       const existingNames = new Set(newComponentsList.map((c) => c.name));
       Object.entries(initialSelection).forEach(([name, selection]) => {
-        if (!existingNames.has(name) && selection.isSelected && selection.version) {
+        if (
+          !existingNames.has(name) &&
+          !existingNames.has(`provider-${name}`) &&
+          selection.isSelected &&
+          selection.version
+        ) {
           newComponentsList.push({
             name,
             versions: [selection.version],
