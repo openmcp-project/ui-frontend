@@ -44,19 +44,15 @@ export const determineSelectedVersion = (
   initSel: { isSelected: boolean; version: string } | undefined,
   templateDefault: DefaultComponent | undefined,
 ): string => {
-  if (initSel?.version && versions.includes(initSel.version)) {
+  if (initSel?.version) {
     return initSel.version;
   }
 
-  if (!initSel && templateDefault?.version && versions.includes(templateDefault.version)) {
+  if (templateDefault?.version && versions.includes(templateDefault.version)) {
     return templateDefault.version;
   }
 
-  if (!initSel && !templateDefault) {
-    return versions[0] ?? '';
-  }
-
-  return '';
+  return versions[0] ?? '';
 };
 
 export const determineIsSelected = (
@@ -75,11 +71,16 @@ export const mapToComponentsListItem = (
   selectedTemplate: ManagedControlPlaneTemplate | undefined,
 ): ComponentsListItem => {
   const rawVersions = Array.isArray(item.status?.versions) ? (item.status?.versions as string[]) : [];
-  const versions = sortVersions(rawVersions);
+  let versions = sortVersions(rawVersions);
   const name = item.metadata?.name ?? '';
 
   const initSel = findInitialSelection(name, initialSelection);
   const templateDefault = findTemplateDefault(name, selectedTemplate);
+
+  // Add initial selection version if not in available versions
+  if (initSel?.version && !versions.includes(initSel.version)) {
+    versions = sortVersions([...rawVersions, initSel.version]);
+  }
 
   const isSelected = determineIsSelected(initSel, templateDefault);
   const selectedVersion = determineSelectedVersion(versions, initSel, templateDefault);

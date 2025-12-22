@@ -97,9 +97,9 @@ describe('determineSelectedVersion', () => {
     expect(determineSelectedVersion(versions, undefined, undefined)).toBe('1.20.1');
   });
 
-  it('returns empty string if selected version not available', () => {
+  it('returns initial selection version even if not in versions array', () => {
     const initSel = { isSelected: true, version: '9.9.9' };
-    expect(determineSelectedVersion(versions, initSel, undefined)).toBe('');
+    expect(determineSelectedVersion(versions, initSel, undefined)).toBe('9.9.9');
   });
 });
 
@@ -116,6 +116,19 @@ describe('mapToComponentsListItem', () => {
     expect(result.selectedVersion).toBe('1.19.0');
     expect(result.isSelected).toBe(true);
     expect(result.isProvider).toBe(false);
+  });
+
+  it('adds initial selection version to versions array if not present', () => {
+    const item = createManagedComponent('crossplane', ['1.15.0', '1.19.0']);
+    const initialSelection: InitialSelection = {
+      crossplane: { isSelected: true, version: '1.20.1' },
+    };
+
+    const result = mapToComponentsListItem(item, initialSelection, undefined);
+
+    expect(result.versions).toContain('1.20.1');
+    expect(result.versions).toEqual(['1.20.1', '1.19.0', '1.15.0']);
+    expect(result.selectedVersion).toBe('1.20.1');
   });
 
   it('applies template default when no initial selection', () => {
