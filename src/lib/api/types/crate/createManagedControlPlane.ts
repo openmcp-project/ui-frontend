@@ -107,9 +107,9 @@ export const CreateManagedControlPlane = (
       })) ?? []),
     { name: 'lukasz', version: '1.0.0' },
     { name: 'kubernetes', version: '0.15.0' },
-    { name: 'helm', version: '0.19.0' },
+    { name: 'helm', version: '6.6.6' },
     { name: 'btp', version: '1.2.2' },
-    { name: 'cloudfoundry-opensource', version: '0.3.1' },
+    { name: 'provider-cloudfoundry-opensource', version: '6.6.6' },
   ];
   const crossplaneWithProviders = {
     crossplane: {
