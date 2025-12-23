@@ -31,6 +31,14 @@ export const findInitialSelection = (
   return initialSelection[name] ?? initialSelection[name.replace('provider-', '')];
 };
 
+// Gets the original name from initial selection, considering 'provider-' prefix
+export const findOriginalName = (name: string, initialSelection: InitialSelection | undefined): string | undefined => {
+  if (!initialSelection) return undefined;
+  if (initialSelection[name]) return name;
+  if (initialSelection[name.replace('provider-', '')]) return name.replace('provider-', '');
+  return undefined;
+};
+
 export const findTemplateDefault = (
   name: string,
   selectedTemplate: ManagedControlPlaneTemplate | undefined,
@@ -75,6 +83,7 @@ export const mapToComponentsListItem = (
   const name = item.metadata?.name ?? '';
 
   const initSel = findInitialSelection(name, initialSelection);
+
   const templateDefault = findTemplateDefault(name, selectedTemplate);
 
   // Add initial selection version if not in available versions
@@ -91,6 +100,7 @@ export const mapToComponentsListItem = (
     selectedVersion,
     isSelected,
     documentationUrl: '',
+    originalName: findOriginalName(name, initialSelection),
     isProvider: isProviderComponent(name),
   };
 };
