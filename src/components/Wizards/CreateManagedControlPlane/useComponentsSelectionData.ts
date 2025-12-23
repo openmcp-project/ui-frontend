@@ -34,8 +34,14 @@ export const findInitialSelection = (
 // Gets the original name from initial selection, considering 'provider-' prefix
 export const findOriginalName = (name: string, initialSelection: InitialSelection | undefined): string | undefined => {
   if (!initialSelection) return undefined;
-  if (initialSelection[name]) return name;
-  if (initialSelection[name.replace('provider-', '')]) return name.replace('provider-', '');
+
+  if (name in initialSelection) return name;
+
+  const nameWithoutPrefix = name.replace('provider-', '');
+  if (nameWithoutPrefix !== name && nameWithoutPrefix in initialSelection) {
+    return nameWithoutPrefix;
+  }
+
   return undefined;
 };
 

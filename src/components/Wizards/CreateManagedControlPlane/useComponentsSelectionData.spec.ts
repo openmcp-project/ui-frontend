@@ -3,6 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import {
   isProviderComponent,
   findInitialSelection,
+  findOriginalName,
   determineSelectedVersion,
   mapToComponentsListItem,
   addCustomProviders,
@@ -82,6 +83,42 @@ describe('findInitialSelection', () => {
     expect(findInitialSelection('crossplane', sampleInitialSelection)?.version).toBe('1.20.1');
     expect(findInitialSelection('provider-btp', sampleInitialSelection)?.version).toBe('1.2.2');
     expect(findInitialSelection('non-existent', sampleInitialSelection)).toBeUndefined();
+  });
+});
+
+describe('findOriginalName', () => {
+  it('returns undefined when initialSelection is undefined', () => {
+    expect(findOriginalName('crossplane', undefined)).toBeUndefined();
+  });
+
+  it('returns the exact name when it exists in initialSelection', () => {
+    expect(findOriginalName('crossplane', sampleInitialSelection)).toBe('crossplane');
+    expect(findOriginalName('flux', sampleInitialSelection)).toBe('flux');
+  });
+
+  it('returns name without provider- prefix when that exists in initialSelection', () => {
+    expect(findOriginalName('provider-btp', sampleInitialSelection)).toBe('btp');
+    expect(findOriginalName('provider-kubernetes', sampleInitialSelection)).toBe('kubernetes');
+  });
+
+  it('returns undefined when name does not exist in initialSelection', () => {
+    expect(findOriginalName('non-existent', sampleInitialSelection)).toBeUndefined();
+    expect(findOriginalName('provider-unknown', sampleInitialSelection)).toBeUndefined();
+  });
+
+  it('returns exact name when both exact and prefixed versions could match', () => {
+    const selectionWithBoth: InitialSelection = {
+      'provider-test': { isSelected: true, version: '1.0.0' },
+      test: { isSelected: true, version: '2.0.0' },
+    };
+    // Exact match takes priority
+    expect(findOriginalName('provider-test', selectionWithBoth)).toBe('provider-test');
+  });
+
+  it('handles names that do not start with provider- prefix', () => {
+    // When the name doesn't have provider- prefix, nameWithoutPrefix equals name
+    // so the second condition is skipped
+    expect(findOriginalName('crossplane', sampleInitialSelection)).toBe('crossplane');
   });
 });
 
