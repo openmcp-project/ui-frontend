@@ -14,6 +14,7 @@ export interface ComponentsListItem {
   selectedVersion: string;
   documentationUrl: string;
   isProvider: boolean;
+  originalName?: string;
 }
 
 interface RoleBinding {
@@ -102,8 +103,8 @@ export const CreateManagedControlPlane = (
   const selectedProviders: Provider[] =
     optional?.componentsList
       ?.filter(({ isSelected, isProvider }) => isProvider && isSelected)
-      .map(({ name, selectedVersion }) => ({
-        name: name,
+      .map(({ name, selectedVersion, originalName }) => ({
+        name: originalName ?? name,
         version: selectedVersion,
       })) ?? [];
   const crossplaneWithProviders = {
