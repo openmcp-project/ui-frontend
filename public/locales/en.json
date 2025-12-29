@@ -244,7 +244,10 @@
     "fluxTitle": "Flux",
     "gitRepositoriesTitle": "GitRepositories",
     "kustomizationsTitle": "Kustomizations",
-    "landscapersTitle": "Landscapers"
+    "landscapersTitle": "Landscapers",
+    "configMapsTitle": "ConfigMaps",
+    "secretsTitle": "Secrets",
+    "secretTypeHeader": "Type"
   },
   "McpHeader": {
     "nameLabel": "Name",
@@ -374,7 +377,9 @@
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
+    "created": "Created",
     "cannotLoadData": "Cannot load data",
+    "file": "File",
     "metadata": "Metadata",
     "members": "Members",
     "summarize": "Summarize",
