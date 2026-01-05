@@ -177,6 +177,16 @@ describe('mapToComponentsListItem', () => {
     expect(result.selectedVersion).toBe('2.15.0');
     expect(result.isSelected).toBe(true);
   });
+
+  it('sets originalName to btp for provider-btp when initial selection uses btp', () => {
+    const item = createManagedComponent('provider-btp', ['1.0.0', '1.2.2']);
+    const initialSelection: InitialSelection = { btp: { isSelected: true, version: '1.2.2' } };
+
+    const result = mapToComponentsListItem(item, initialSelection, undefined);
+
+    expect(result.name).toBe('provider-btp');
+    expect(result.originalName).toBe('btp');
+  });
 });
 
 describe('addCustomProviders', () => {
