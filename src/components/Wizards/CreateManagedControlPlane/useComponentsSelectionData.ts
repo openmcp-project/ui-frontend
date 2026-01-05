@@ -19,7 +19,7 @@ export type DefaultComponent = {
 };
 
 export const isProviderComponent = (name: string): boolean => {
-  return name.includes('provider') && name !== 'crossplane';
+  return name.startsWith('provider-') && name !== 'crossplane';
 };
 
 // Checks both exact name and without 'provider-' prefix
