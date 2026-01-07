@@ -15,6 +15,7 @@ import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.
 import styles from './SummarizeStep.module.css';
 import { YamlDiff } from './YamlDiff.tsx';
 import YamlSummarize from './YamlSummarize.tsx';
+import { ManagedControlPlaneInterface } from '../../../lib/api/types/mcpResource.ts';
 interface SummarizeStepProps {
   watch: UseFormWatch<CreateDialogProps>;
   projectName: string;
@@ -22,6 +23,7 @@ interface SummarizeStepProps {
   componentsList?: ComponentsListItem[];
   originalYamlString?: string;
   isEditMode?: boolean;
+  initialData?: ManagedControlPlaneInterface;
 }
 
 export const SummarizeStep: React.FC<SummarizeStepProps> = ({
@@ -31,6 +33,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
   workspaceName,
   componentsList,
   isEditMode = false,
+  initialData,
 }) => {
   const { t } = useTranslation();
   const resource = CreateManagedControlPlane(
@@ -91,6 +94,7 @@ export const SummarizeStep: React.FC<SummarizeStepProps> = ({
                     chargingTargetType: watch('chargingTargetType'),
                   },
                   idpPrefix,
+                  initialData,
                 ),
               )}
             />
