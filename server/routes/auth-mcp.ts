@@ -47,6 +47,7 @@ async function authPlugin(fastify) {
 
     return {
       clientId: idpConfig.clientID,
+      extraScopes: idpConfig.clientConfig?.extraConfig?.['oidc-extra-scope']?.values ?? [],
       issuerConfiguration,
     };
   };
@@ -59,15 +60,22 @@ async function authPlugin(fastify) {
     const isCustomIdp = !isSystemIdpRequest(idpName);
     if (isCustomIdp) {
       const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName);
+
+      // Merge default scopes with any extra scopes from custom IdP config
+      const defaultScopes = OIDC_SCOPES.split(' ');
+      const mergedScopes = Array.from(new Set([...defaultScopes, ...customIdpConfig.extraScopes]));
+
       return {
         clientId: customIdpConfig.clientId,
         issuerConfiguration: customIdpConfig.issuerConfiguration,
+        scopes: mergedScopes.join(' '),
       };
     } else {
       // Return config of system identity provider
       return {
         clientId: OIDC_CLIENT_ID_MCP,
         issuerConfiguration: mcpIssuerConfiguration,
+        scopes: OIDC_SCOPES,
       };
     }
   };
@@ -77,14 +85,14 @@ async function authPlugin(fastify) {
     try {
       const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
-      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
 
       const redirectUri = await fastify.prepareOidcLoginRedirect(
         req,
         {
           clientId: clientId,
           redirectUri: OIDC_REDIRECT_URI,
-          scopes: OIDC_SCOPES,
+          scopes,
         },
         issuerConfiguration.authorizationEndpoint,
         stateSessionKey,
