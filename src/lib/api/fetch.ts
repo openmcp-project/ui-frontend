@@ -1,7 +1,7 @@
 import { APIError } from './error';
 import * as Sentry from '@sentry/react';
 import { ApiConfig } from './types/apiConfig';
-import { AUTH_FLOW_SESSION_KEY } from '../../common/auth/AuthCallbackHandler.tsx';
+import { STORAGE_KEY_AUTH_FLOW } from '../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../common/auth/getRedirectSuffix.ts';
 
 const useCrateClusterHeader = 'X-use-crate';
@@ -88,7 +88,7 @@ export const fetchApiServer = async (
   if (!res.ok) {
     if (res.status === 401) {
       // Unauthorized (token expired), redirect to the login page.
-      sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
+      sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
       window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);

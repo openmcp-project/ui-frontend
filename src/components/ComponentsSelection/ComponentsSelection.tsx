@@ -1,21 +1,21 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-  CheckBox,
-  Select,
-  Option,
-  FlexBox,
-  Title,
-  Text,
-  Input,
   Button,
+  CheckBox,
+  CheckBoxDomRef,
+  FlexBox,
   Grid,
+  Icon,
+  Input,
+  InputDomRef,
   List,
   ListItemStandard,
-  Icon,
-  Ui5CustomEvent,
-  CheckBoxDomRef,
+  Option,
+  Select,
   SelectDomRef,
-  InputDomRef,
+  Text,
+  Title,
+  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
@@ -40,31 +40,11 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
   const selectedComponents = useMemo(() => getSelectedComponents(componentsList), [componentsList]);
 
-  const isProvider = useCallback((componentName: string) => {
-    return componentName.includes('provider') && componentName !== 'crossplane';
-  }, []);
-
   const searchResults = useMemo(() => {
     const lowerSearch = searchTerm.toLowerCase();
-    const filtered = componentsList.filter(({ name }) => name.toLowerCase().includes(lowerSearch));
 
-    // Sort components: crossplane first, then providers, then rest
-    return filtered.sort((a, b) => {
-      const isCrossplaneA = a.name === 'crossplane';
-      const isCrossplaneB = b.name === 'crossplane';
-
-      if (isCrossplaneA && !isCrossplaneB) return -1;
-      if (isCrossplaneB && !isCrossplaneA) return 1;
-
-      const isProviderA = isProvider(a.name);
-      const isProviderB = isProvider(b.name);
-
-      if (isProviderA && !isProviderB) return -1;
-      if (isProviderB && !isProviderA) return 1;
-
-      return a.name.localeCompare(b.name);
-    });
-  }, [componentsList, searchTerm, isProvider]);
+    return componentsList.filter(({ name }) => name.toLowerCase().includes(lowerSearch));
+  }, [componentsList, searchTerm]);
 
   const handleSelectionChange = useCallback(
     (e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) => {
@@ -126,7 +106,7 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
           {searchResults.length > 0 ? (
             searchResults.map((component) => {
               const providerDisabled = isProviderDisabled(component);
-              const isProviderComponent = isProvider(component.name);
+              const isProviderComponent = component.isProvider;
 
               return (
                 <FlexBox

@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, use } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
-import { AUTH_FLOW_SESSION_KEY } from '../../../common/auth/AuthCallbackHandler.tsx';
+import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.tsx';
 import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 
@@ -74,7 +74,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   }
 
   const login = () => {
-    sessionStorage.setItem(AUTH_FLOW_SESSION_KEY, 'onboarding');
+    sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
     window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
   };
 
