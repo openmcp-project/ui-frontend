@@ -47,7 +47,7 @@ async function authPlugin(fastify) {
 
     return {
       clientId: idpConfig.clientID,
-      extraScopes: idpConfig.clientConfig?.extraConfig?.['oidc-extra-scope'].values || [],
+      extraScopes: idpConfig.clientConfig?.extraConfig?.['oidc-extra-scope']?.values ?? [],
       issuerConfiguration,
     };
   };
