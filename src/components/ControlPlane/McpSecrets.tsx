@@ -11,10 +11,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useApiResource as _useApiResource } from '../../lib/api/useApiResource.ts';
 import { SecretsResource, type SecretListItem } from '../../lib/api/types/k8s/listSecrets.ts';
+import type { Resource as ApiResource } from '../../lib/api/types/resource.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import type { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { isForbiddenError } from '../../utils/isForbiddenError.ts';
 import { useNamespaceSelect } from '../../hooks/useNamespaceSelect.ts';
+import IllustratedError from '../Shared/IllustratedError.tsx';
 
 type SecretRow = {
   name: string;
@@ -33,17 +35,25 @@ export function McpSecrets({
 
   const { namespaces, selectedNamespace, onNamespaceChange } = useNamespaceSelect({ useApiResource });
 
-  const { data, error, isLoading } = useApiResource(SecretsResource(selectedNamespace));
+  const noopSecretsResource: ApiResource<SecretListItem[]> = {
+    path: '/__noop__/k8s/secrets',
+    jq: '[]',
+  };
+
+  const secretsResource = selectedNamespace ? SecretsResource(selectedNamespace) : noopSecretsResource;
+
+  const { data, error, isLoading } = useApiResource(secretsResource);
+
   const isForbidden = isForbiddenError(error);
 
   const rows: SecretRow[] = !isForbidden
-    ? (data?.map((secret: SecretListItem) => ({
+    ? (data ?? []).map((secret) => ({
         name: secret.metadata.name,
         namespace: secret.metadata.namespace,
         type: secret.type,
         created: secret.metadata.creationTimestamp,
         item: secret,
-      })) ?? [])
+      }))
     : [];
 
   const columns: AnalyticalTableColumnDefinition[] = [
@@ -69,7 +79,7 @@ export function McpSecrets({
       fixed
       header={
         <Toolbar>
-          <Title>{t('McpPage.secretsTitle')}</Title>
+          <Title>{t('common.itemsCount', { count: rows.length })}</Title>
           <ToolbarSpacer />
           <Select onChange={onNamespaceChange}>
             {namespaces.map((ns) => (
@@ -82,7 +92,7 @@ export function McpSecrets({
       }
     >
       <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
-      {!isForbidden && error && <span>{error.message}</span>}
+      {!isForbidden && error && <IllustratedError compact={true} details={error.message} title={t('errors.error')} />}
     </Panel>
   );
 }

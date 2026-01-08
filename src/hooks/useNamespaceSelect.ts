@@ -19,10 +19,13 @@ export const useNamespaceSelect = ({
 
   const namespaces = useMemo(() => (namespacesData ?? []).map((ns) => ns.metadata.name).sort(), [namespacesData]);
 
-  const [selectedNamespace, setSelectedNamespace] = useState<string>('default');
+  const [selectedNamespace, setSelectedNamespace] = useState<string>('');
 
   useEffect(() => {
-    if (!namespaces.length) return;
+    if (!namespaces.length) {
+      setSelectedNamespace('');
+      return;
+    }
     setSelectedNamespace(namespaces.includes('default') ? 'default' : namespaces[0]);
   }, [namespaces]);
 

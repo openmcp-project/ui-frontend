@@ -11,24 +11,18 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useApiResource as _useApiResource } from '../../lib/api/useApiResource.ts';
 import { ConfigMapsResource, type ConfigMapListItem } from '../../lib/api/types/k8s/listConfigMaps.ts';
+import type { Resource as ApiResource } from '../../lib/api/types/resource.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import type { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { isForbiddenError } from '../../utils/isForbiddenError.ts';
 import { useNamespaceSelect } from '../../hooks/useNamespaceSelect.ts';
+import IllustratedError from '../Shared/IllustratedError.tsx';
 
 type ConfigMapRow = {
   name: string;
   namespace?: string;
   created?: string;
   item: ConfigMapListItem;
-};
-
-type ConfigMapItemWithMetadata = {
-  metadata: {
-    name: string;
-    namespace?: string;
-    creationTimestamp?: string;
-  };
 };
 
 export function McpConfigMaps({
@@ -40,19 +34,23 @@ export function McpConfigMaps({
 
   const { namespaces, selectedNamespace, onNamespaceChange } = useNamespaceSelect({ useApiResource });
 
-  const { data: configMapsData, error, isLoading } = useApiResource(ConfigMapsResource(selectedNamespace));
+  const noopConfigMapsResource: ApiResource<ConfigMapListItem[]> = {
+    path: '/__noop__/k8s/configmaps',
+    jq: '[]',
+  };
+
+  const configMapsResource = selectedNamespace ? ConfigMapsResource(selectedNamespace) : noopConfigMapsResource;
+
+  const { data: configMapsData, error, isLoading } = useApiResource(configMapsResource);
   const isForbidden = isForbiddenError(error);
 
   const rows = !isForbidden
-    ? ((configMapsData ?? []) as ConfigMapListItem[]).map((cm) => {
-        const item = cm as unknown as Partial<ConfigMapItemWithMetadata>;
-        return {
-          name: item.metadata?.name ?? '',
-          namespace: item.metadata?.namespace,
-          created: item.metadata?.creationTimestamp,
-          item: cm,
-        };
-      })
+    ? (configMapsData ?? []).map((cm: ConfigMapListItem) => ({
+        name: cm.metadata.name,
+        namespace: cm.metadata.namespace,
+        created: cm.metadata.creationTimestamp,
+        item: cm,
+      }))
     : [];
 
   const columns: AnalyticalTableColumnDefinition[] = [
@@ -90,7 +88,7 @@ export function McpConfigMaps({
       }
     >
       <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
-      {!isForbidden && error && <span>{error.message}</span>}
+      {!isForbidden && error && <IllustratedError compact={true} details={error.message} title={t('errors.error')} />}
     </Panel>
   );
 }
