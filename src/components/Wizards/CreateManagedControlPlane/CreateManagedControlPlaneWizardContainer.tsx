@@ -64,6 +64,7 @@ import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
+import { useDynatraceMount, useDynatraceTracking } from '../../../hooks/useDynatraceTracking.ts';
 
 // Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
 const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
@@ -115,6 +116,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
+
+  // Track wizard open
+  useDynatraceMount('MCP_Wizard_Opened', {
+    projectName,
+    workspaceName,
+    mode: isEditMode ? 'edit' : isDuplicateMode ? 'duplicate' : 'create',
+  });
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
