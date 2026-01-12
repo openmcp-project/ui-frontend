@@ -22,6 +22,32 @@ export const trackEvent = (eventName: string, properties?: TrackingProperties): 
   if (window.dtrum.leaveAction) {
     window.dtrum.leaveAction(actionId);
   }
+  console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
+};
+
+export const trackAction = (name: string, callback: () => void) => {
+  const actionId = window.dtrum?.enterAction(name);
+
+  try {
+    callback();
+  } finally {
+    if (actionId) {
+      window.dtrum?.leaveAction(actionId);
+    }
+  }
+};
+
+export const trackActionWithProperties = (name: string, callback: () => void) => {
+  const actionId = window.dtrum?.enterAction(name);
+
+  try {
+    callback();
+  } finally {
+    if (actionId) {
+      window.dtrum?.addActionProperties(actionId, { timestamp: new Date().toISOString(), name: 'lukasz' });
+      window.dtrum?.leaveAction(actionId);
+    }
+  }
 };
 
 /**
@@ -31,8 +57,10 @@ export const trackEvent = (eventName: string, properties?: TrackingProperties): 
  * trackSessionProperties({ userSource: 'hsp', userEmail: 'user@example.com' });
  */
 export const trackSessionProperties = (properties: TrackingProperties): void => {
+  console.log(window.dtrum);
   if (!window.dtrum?.sendSessionProperties) return;
   window.dtrum.sendSessionProperties(properties);
+  console.log('Dynatrace Session Properties Tracked:', properties);
 };
 
 /**

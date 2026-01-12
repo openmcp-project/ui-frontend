@@ -23,6 +23,7 @@ type TrackingProperties = Record<string, string | number | boolean>;
 export const useDynatraceTracking = () => {
   return useCallback((eventName: string, properties?: TrackingProperties) => {
     trackEvent(eventName, properties);
+    console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
   }, []);
 };
 
@@ -35,5 +36,6 @@ export const useDynatraceTracking = () => {
 export const useDynatraceMount = (eventName: string, properties?: TrackingProperties) => {
   useEffect(() => {
     trackEvent(eventName, properties);
+    console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 };
