@@ -46,6 +46,8 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
+import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
+import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -120,6 +122,7 @@ export default function McpPage() {
   const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;
   const isComponentInstalledFlux = !!mcp.spec?.components.flux;
   const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
+
   return (
     <McpContextProvider
       context={{
@@ -203,6 +206,16 @@ export default function McpPage() {
                   className={styles.section}
                 >
                   <ComponentList mcp={mcp} onEditClick={onEditComponents} />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="configmaps"
+                  titleText={t('McpPage.configMapsTitle')}
+                  className={styles.section}
+                >
+                  <McpConfigMaps />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
+                  <McpSecrets />
                 </ObjectPageSubSection>
               </ObjectPageSection>
 
