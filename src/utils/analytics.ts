@@ -1,5 +1,24 @@
 type TrackingProperties = Record<string, string | number | boolean>;
 
+let currentActionId: number | undefined;
+let listenersInitialized = false;
+
+export const initializeDynatrace = () => {
+  if (listenersInitialized || !window.dtrum) return;
+
+  window.dtrum.addEnterActionListener((actionId) => {
+    currentActionId = actionId;
+  });
+
+  window.dtrum.addLeaveActionListener((actionId) => {
+    if (currentActionId === actionId) {
+      currentActionId = undefined;
+    }
+  });
+
+  listenersInitialized = true;
+};
+
 const addProperties = (actionId: number, properties: TrackingProperties): void => {
   if (!window.dtrum?.addActionProperties) return;
 
@@ -25,41 +44,37 @@ const addProperties = (actionId: number, properties: TrackingProperties): void =
 };
 
 export const trackEvent = (eventName: string, properties?: TrackingProperties): void => {
-  if (!window.dtrum?.enterAction) return;
+  initializeDynatrace();
 
-  const actionId = window.dtrum.enterAction(eventName, 'Custom');
+  if (!currentActionId) return;
 
   if (properties) {
-    addProperties(actionId, properties);
+    addProperties(currentActionId, properties);
   }
 
-  if (window.dtrum.leaveAction) {
-    window.dtrum.leaveAction(actionId);
-  }
   console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
 };
 
 export const trackEventStart = (eventName: string, properties?: TrackingProperties): number | undefined => {
-  if (!window.dtrum?.enterAction) return undefined;
+  initializeDynatrace();
 
-  const actionId = window.dtrum.enterAction(eventName, 'Custom');
+  if (!currentActionId) return undefined;
 
   if (properties) {
-    addProperties(actionId, properties);
+    addProperties(currentActionId, properties);
   }
 
   console.log(`Dynatrace Event Started: ${eventName}`, properties);
-  return actionId;
+  return currentActionId;
 };
 
 export const trackEventEnd = (actionId: number | undefined, properties?: TrackingProperties): void => {
-  if (!actionId || !window.dtrum?.leaveAction) return;
+  if (!actionId) return;
 
   if (properties) {
     addProperties(actionId, properties);
   }
 
-  window.dtrum.leaveAction(actionId);
   console.log(`Dynatrace Event Ended: ${actionId}`, properties);
 };
 
