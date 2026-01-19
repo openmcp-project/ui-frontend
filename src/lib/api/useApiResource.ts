@@ -10,6 +10,7 @@ import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
 import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
+import { useDynatraceTracking } from '../../hooks/useDynatraceTracking';
 
 export const useApiResource = <T>(
   resource: Resource<T>,
@@ -18,19 +19,36 @@ export const useApiResource = <T>(
   disable?: boolean,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
+  const { trackXhrStart, trackXhrEnd, trackXhrFailed } = useDynatraceTracking();
+  const actionIdRef = useRef<number | undefined>(undefined);
 
   const { data, error, isLoading, isValidating } = useSWR(
     disable || resource.path === null ? null : [resource.path, apiConfig, overrideMcpConfig],
-    ([path, apiConfig, overrideMcpConfig]) =>
-      fetchApiServerJson<T>(
-        path,
-        overrideMcpConfig === undefined
-          ? apiConfig
-          : { ...apiConfig, mcpConfig: overrideMcpConfig === null ? undefined : overrideMcpConfig },
-        resource.jq,
-        resource.method,
-        resource.body,
-      ),
+    async ([path, apiConfig, overrideMcpConfig]) => {
+      // Track XHR start
+      actionIdRef.current = trackXhrStart(resource.method || 'GET', undefined, path);
+
+      try {
+        const result = await fetchApiServerJson<T>(
+          path,
+          overrideMcpConfig === undefined
+            ? apiConfig
+            : { ...apiConfig, mcpConfig: overrideMcpConfig === null ? undefined : overrideMcpConfig },
+          resource.jq,
+          resource.method,
+          resource.body,
+        );
+
+        // Track XHR end on success
+        trackXhrEnd(actionIdRef.current);
+        return result;
+      } catch (err) {
+        // Track XHR failed on error
+        const apiError = err as APIError;
+        trackXhrFailed(apiError.status || 500, apiError.message || 'Unknown error', actionIdRef.current);
+        throw err;
+      }
+    },
     config,
   );
 
@@ -44,10 +62,34 @@ export const useApiResource = <T>(
 
 export const useCRDItemsMapping = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
+  const { trackXhrStart, trackXhrEnd, trackXhrFailed } = useDynatraceTracking();
+  const actionIdRef = useRef<number | undefined>(undefined);
+
   const { data, error, isValidating, isLoading } = useSWR(
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
-    ([path, apiConfig]) =>
-      fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
+    async ([path, apiConfig]) => {
+      // Track XHR start
+      actionIdRef.current = trackXhrStart(CRDRequest.method || 'GET', undefined, path);
+
+      try {
+        const result = await fetchApiServerJson<CRDResponse>(
+          path,
+          apiConfig,
+          CRDRequest.jq,
+          CRDRequest.method,
+          CRDRequest.body,
+        );
+
+        // Track XHR end on success
+        trackXhrEnd(actionIdRef.current);
+        return result;
+      } catch (err) {
+        // Track XHR failed on error
+        const apiError = err as APIError;
+        trackXhrFailed(apiError.status || 500, apiError.message || 'Unknown error', actionIdRef.current);
+        throw err;
+      }
+    },
     config,
   );
 
@@ -75,12 +117,30 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
 
 export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
+  const { trackXhrStart, trackXhrEnd, trackXhrFailed } = useDynatraceTracking();
+
   const { data, error, isValidating } = useSWR(
-    CRDRequest.path === null
-      ? null //TODO: is null a valid key?
-      : [CRDRequest.path, apiConfig],
-    ([path, apiConfig]) =>
-      fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
+    CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
+    async ([path, apiConfig]) => {
+      const actionId = trackXhrStart(CRDRequest.method || 'GET', undefined, path);
+
+      try {
+        const result = await fetchApiServerJson<CRDResponse>(
+          path,
+          apiConfig,
+          CRDRequest.jq,
+          CRDRequest.method,
+          CRDRequest.body,
+        );
+
+        trackXhrEnd(actionId);
+        return result;
+      } catch (err) {
+        const apiError = err as APIError;
+        trackXhrFailed(apiError.status || 500, apiError.message || 'Unknown error', actionId);
+        throw err;
+      }
+    },
     config,
   );
 
@@ -201,20 +261,36 @@ export const useApiResourceMutation = <T>(
   excludeMcpConfig?: boolean,
 ) => {
   const apiConfig = useContext(ApiConfigContext);
+  const { trackXhrStart, trackXhrEnd, trackXhrFailed } = useDynatraceTracking();
 
   const { data, trigger, error, reset, isMutating } = useSWRMutation(
     resource.path === null
       ? null //TODO: is null a valid key?
       : [resource.path, apiConfig],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) =>
-      fetchApiServerJson<T>(
-        path,
-        excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : apiConfig,
-        resource.jq,
-        resource.method,
-        JSON.stringify(arg.arg),
-      ),
+    async ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) => {
+      // Track XHR start for mutation
+      const actionId = trackXhrStart(resource.method || 'POST', undefined, path);
+
+      try {
+        const result = await fetchApiServerJson<T>(
+          path,
+          excludeMcpConfig ? { ...apiConfig, mcpConfig: undefined } : apiConfig,
+          resource.jq,
+          resource.method,
+          JSON.stringify(arg.arg),
+        );
+
+        // Track XHR end on success
+        trackXhrEnd(actionId);
+        return result;
+      } catch (err) {
+        // Track XHR failed on error
+        const apiError = err as APIError;
+        trackXhrFailed(apiError.status || 500, apiError.message || 'Unknown error', actionId);
+        throw err;
+      }
+    },
     config,
   );
 
@@ -250,6 +326,7 @@ export function useMultipleApiResources<T>(
   getResource: (namespace: string) => { path: string | null },
 ) {
   const apiConfig = useContext(ApiConfigContext);
+  const { trackXhrStart, trackXhrEnd, trackXhrFailed } = useDynatraceTracking();
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -265,9 +342,15 @@ export function useMultipleApiResources<T>(
       setIsLoading(true);
       setError(null);
 
+      // Track the batch fetch operation
+      const actionId = trackXhrStart('GET', undefined, `multiple-resources-${namespaces.length}`);
+
       try {
         const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
+
+        // Track XHR end on success
+        trackXhrEnd(actionId);
       } catch (err) {
         console.error('Error fetching multiple resources:', err);
         Sentry.captureException(err, {
@@ -276,6 +359,11 @@ export function useMultipleApiResources<T>(
             namespacesCount: namespaces.length,
           },
         });
+
+        // Track XHR failed on error
+        const apiError = err as Error;
+        trackXhrFailed(500, apiError.message || 'Unknown error', actionId);
+
         setError(err as Error);
         setData([]);
       } finally {
@@ -284,7 +372,7 @@ export function useMultipleApiResources<T>(
     };
 
     fetchData();
-  }, [namespaces, getResource, apiConfig]);
+  }, [namespaces, getResource, apiConfig, trackXhrStart, trackXhrEnd, trackXhrFailed]);
 
   return { data, isLoading, error };
 }
