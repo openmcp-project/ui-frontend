@@ -2,6 +2,7 @@ type TrackingProperties = Record<string, string | number | boolean>;
 
 let currentActionId: number | undefined;
 let listenersInitialized = false;
+const pendingEventEndCallbacks = new Map<number, TrackingProperties | undefined>();
 
 export const initializeDynatrace = () => {
   if (listenersInitialized || !window.dtrum) return;
@@ -13,6 +14,16 @@ export const initializeDynatrace = () => {
   window.dtrum.addLeaveActionListener((actionId) => {
     if (currentActionId === actionId) {
       currentActionId = undefined;
+    }
+
+    // Handle trackEventEnd callbacks
+    if (pendingEventEndCallbacks.has(actionId)) {
+      const properties = pendingEventEndCallbacks.get(actionId);
+      if (properties) {
+        addProperties(actionId, properties);
+      }
+      console.log(`Dynatrace Event Ended: ${actionId}`, properties);
+      pendingEventEndCallbacks.delete(actionId);
     }
   });
 
@@ -71,11 +82,8 @@ export const trackEventStart = (eventName: string, properties?: TrackingProperti
 export const trackEventEnd = (actionId: number | undefined, properties?: TrackingProperties): void => {
   if (!actionId) return;
 
-  if (properties) {
-    addProperties(actionId, properties);
-  }
-
-  console.log(`Dynatrace Event Ended: ${actionId}`, properties);
+  // Register properties to be added when the action ends (via addLeaveActionListener)
+  pendingEventEndCallbacks.set(actionId, properties);
 };
 
 export const trackXhrStart = (

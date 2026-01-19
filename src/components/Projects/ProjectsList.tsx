@@ -12,7 +12,6 @@ import { t } from 'i18next';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
-import { trackAction, trackActionWithProperties } from '../../utils/analytics.ts';
 
 type ProjectListRow = {
   projectName: string;
@@ -126,17 +125,6 @@ export default function ProjectsList() {
 
   return (
     <>
-      <button onClick={() => trackAction('feature-test-lukasz-01', () => console.log('feature-test-lukasz-01-x'))}>
-        Track feature 1
-      </button>
-      <button onClick={() => trackAction('feature-test-lukasz-02', () => console.log('feature-test-lukasz-02-x'))}>
-        Track feature 2
-      </button>
-      <button
-        onClick={() => trackActionWithProperties('feature-test-lukasz-03', () => console.log('feature-test-lukasz-03'))}
-      >
-        Track feature 3
-      </button>
       <AnalyticalTable
         style={{
           maxWidth: '1280px',
