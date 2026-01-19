@@ -26,7 +26,7 @@ export const useApiResource = <T>(
     disable || resource.path === null ? null : [resource.path, apiConfig, overrideMcpConfig],
     async ([path, apiConfig, overrideMcpConfig]) => {
       // Track XHR start
-      actionIdRef.current = trackXhrStart(resource.method || 'GET', undefined, path);
+      actionIdRef.current = trackXhrStart(resource.method || 'GET', undefined, path, { url: path });
 
       try {
         const result = await fetchApiServerJson<T>(
@@ -69,7 +69,7 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     async ([path, apiConfig]) => {
       // Track XHR start
-      actionIdRef.current = trackXhrStart(CRDRequest.method || 'GET', undefined, path);
+      actionIdRef.current = trackXhrStart(CRDRequest.method || 'GET', undefined, path, { url: path });
 
       try {
         const result = await fetchApiServerJson<CRDResponse>(
@@ -122,7 +122,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const { data, error, isValidating } = useSWR(
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     async ([path, apiConfig]) => {
-      const actionId = trackXhrStart(CRDRequest.method || 'GET', undefined, path);
+      const actionId = trackXhrStart(CRDRequest.method || 'GET', undefined, path, { url: path });
 
       try {
         const result = await fetchApiServerJson<CRDResponse>(
@@ -270,7 +270,7 @@ export const useApiResourceMutation = <T>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async ([path, apiConfig]: [path: string, config: ApiConfig], arg: any) => {
       // Track XHR start for mutation
-      const actionId = trackXhrStart(resource.method || 'POST', undefined, path);
+      const actionId = trackXhrStart(resource.method || 'POST', undefined, path, { url: path });
 
       try {
         const result = await fetchApiServerJson<T>(
