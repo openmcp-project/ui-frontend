@@ -126,10 +126,10 @@ export default function ProjectsList() {
 
   return (
     <>
-      <button onClick={() => trackAction('feature-test-lukasz-01', () => console.log('feature-test-lukasz-01'))}>
+      <button onClick={() => trackAction('feature-test-lukasz-01', () => console.log('feature-test-lukasz-01-x'))}>
         Track feature 1
       </button>
-      <button onClick={() => trackAction('feature-test-lukasz-02', () => console.log('feature-test-lukasz-02'))}>
+      <button onClick={() => trackAction('feature-test-lukasz-02', () => console.log('feature-test-lukasz-02-x'))}>
         Track feature 2
       </button>
       <button

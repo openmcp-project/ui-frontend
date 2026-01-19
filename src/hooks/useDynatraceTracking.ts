@@ -1,41 +1,24 @@
-import { useCallback, useEffect } from 'react';
-import { trackEvent } from '../utils/analytics';
+import { useCallback } from 'react';
+import { trackEvent, trackEventStart, trackEventEnd } from '../utils/analytics';
 
 type TrackingProperties = Record<string, string | number | boolean>;
 
-/**
- * Hook for tracking events in components
- *
- * @example
- * const track = useDynatraceTracking();
- *
- * // Track wizard open on mount
- * useEffect(() => {
- *   track('MCP_Wizard_Opened', { projectName, workspaceName });
- * }, []);
- *
- * // Track button click
- * const handleClick = () => {
- *   track('MCP_Create_Button_Clicked');
- *   // ... rest of logic
- * };
- */
 export const useDynatraceTracking = () => {
-  return useCallback((eventName: string, properties?: TrackingProperties) => {
+  const handleTrackEvent = useCallback((eventName: string, properties?: TrackingProperties) => {
     trackEvent(eventName, properties);
-    console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
   }, []);
-};
 
-/**
- * Hook to automatically track component mount
- *
- * @example
- * useDynatraceMount('MCP_Wizard_Opened', { projectName, workspaceName });
- */
-export const useDynatraceMount = (eventName: string, properties?: TrackingProperties) => {
-  useEffect(() => {
-    trackEvent(eventName, properties);
-    console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const handleTrackEventStart = useCallback((eventName: string, properties?: TrackingProperties) => {
+    return trackEventStart(eventName, properties);
+  }, []);
+
+  const handleTrackEventEnd = useCallback((actionId: number | undefined, properties?: TrackingProperties) => {
+    trackEventEnd(actionId, properties);
+  }, []);
+
+  return {
+    trackEvent: handleTrackEvent,
+    trackEventStart: handleTrackEventStart,
+    trackEventEnd: handleTrackEventEnd,
+  };
 };

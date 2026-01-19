@@ -1,22 +1,36 @@
-/**
- * Simple analytics utility for tracking user interactions with Dynatrace
- */
-
 type TrackingProperties = Record<string, string | number | boolean>;
 
-/**
- * Track a custom event (e.g., button click, wizard open)
- *
- * @example
- * trackEvent('Button_Create_Clicked', { location: 'toolbar', projectName: 'my-project' });
- */
+const addProperties = (actionId: number, properties: TrackingProperties): void => {
+  if (!window.dtrum?.addActionProperties) return;
+
+  const numbers: Record<string, number> = {};
+  const strings: Record<string, string> = {};
+
+  Object.entries(properties).forEach(([key, value]) => {
+    if (typeof value === 'number') {
+      numbers[key] = value;
+    } else if (typeof value === 'boolean') {
+      strings[key] = String(value);
+    } else {
+      strings[key] = value;
+    }
+  });
+
+  window.dtrum.addActionProperties(
+    actionId,
+    Object.keys(numbers).length > 0 ? numbers : undefined,
+    undefined,
+    Object.keys(strings).length > 0 ? strings : undefined,
+  );
+};
+
 export const trackEvent = (eventName: string, properties?: TrackingProperties): void => {
   if (!window.dtrum?.enterAction) return;
 
   const actionId = window.dtrum.enterAction(eventName, 'Custom');
 
-  if (properties && window.dtrum.addActionProperties) {
-    window.dtrum.addActionProperties(actionId, properties);
+  if (properties) {
+    addProperties(actionId, properties);
   }
 
   if (window.dtrum.leaveAction) {
@@ -25,49 +39,62 @@ export const trackEvent = (eventName: string, properties?: TrackingProperties): 
   console.log(`Dynatrace Event Tracked: ${eventName}`, properties);
 };
 
-export const trackAction = (name: string, callback: () => void) => {
-  const actionId = window.dtrum?.enterAction(name);
+export const trackEventStart = (eventName: string, properties?: TrackingProperties): number | undefined => {
+  if (!window.dtrum?.enterAction) return undefined;
 
-  try {
-    callback();
-  } finally {
-    if (actionId) {
-      window.dtrum?.leaveAction(actionId);
-    }
+  const actionId = window.dtrum.enterAction(eventName, 'Custom');
+
+  if (properties) {
+    addProperties(actionId, properties);
   }
+
+  console.log(`Dynatrace Event Started: ${eventName}`, properties);
+  return actionId;
 };
 
-export const trackActionWithProperties = (name: string, callback: () => void) => {
-  const actionId = window.dtrum?.enterAction(name);
+export const trackEventEnd = (actionId: number | undefined, properties?: TrackingProperties): void => {
+  if (!actionId || !window.dtrum?.leaveAction) return;
 
-  try {
-    callback();
-  } finally {
-    if (actionId) {
-      window.dtrum?.addActionProperties(actionId, { timestamp: new Date().toISOString(), name: 'lukasz' });
-      window.dtrum?.leaveAction(actionId);
-    }
+  if (properties) {
+    addProperties(actionId, properties);
   }
+
+  window.dtrum.leaveAction(actionId);
+  console.log(`Dynatrace Event Ended: ${actionId}`, properties);
 };
 
-/**
- * Track session-level properties (e.g., user source, app version)
- *
- * @example
- * trackSessionProperties({ userSource: 'hsp', userEmail: 'user@example.com' });
- */
-export const trackSessionProperties = (properties: TrackingProperties): void => {
-  console.log(window.dtrum);
-  if (!window.dtrum?.sendSessionProperties) return;
-  window.dtrum.sendSessionProperties(properties);
-  console.log('Dynatrace Session Properties Tracked:', properties);
+export const trackXhrStart = (
+  type: string,
+  xmode?: 0 | 1 | 3,
+  xhrUrl?: string,
+  properties?: TrackingProperties,
+): number | undefined => {
+  if (!window.dtrum?.enterXhrAction) return undefined;
+
+  const actionId = window.dtrum.enterXhrAction(type, xmode, xhrUrl);
+
+  if (properties) {
+    addProperties(actionId, properties);
+  }
+
+  console.log(`Dynatrace XHR Started: ${type}`, { xmode, xhrUrl, properties });
+  return actionId;
 };
 
-/**
- * Detect if user is accessing from HSP (iframe) or native app
- *
- * @returns 'hsp' if embedded in iframe, referrer indicates HSP, or showHeaderBar param is 'false', otherwise 'native'
- */
+export const trackXhrEnd = (actionId: number | undefined, stopTime?: number): void => {
+  if (!actionId || !window.dtrum?.leaveXhrAction) return;
+
+  window.dtrum.leaveXhrAction(actionId, stopTime);
+  console.log(`Dynatrace XHR Ended: ${actionId}`, { stopTime });
+};
+
+export const trackXhrFailed = (responseCode: number, message: string, parentActionId?: number): boolean => {
+  if (!window.dtrum?.markXHRFailed) return false;
+
+  const result = window.dtrum.markXHRFailed(responseCode, message, parentActionId);
+  console.log(`Dynatrace XHR Failed: ${responseCode}`, { message, parentActionId, result });
+  return result;
+};
 export const getUserSource = (): 'hsp' | 'native' => {
   const urlParams = new URLSearchParams(window.location.search);
   const showHeaderBar = urlParams.get('showHeaderBar');
