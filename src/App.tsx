@@ -8,16 +8,6 @@ import * as Sentry from '@sentry/react';
 function App() {
   const auth = useAuthOnboarding();
 
-  // Track user source on authentication
-  // useEffect(() => {
-  //   if (auth.isAuthenticated) {
-  //     trackSessionProperties({
-  //       userSource: getUserSource(),
-  //       userEmail: auth.user?.email || 'unknown',
-  //     });
-  //   }
-  // }, [auth.isAuthenticated, auth.user?.email]);
-
   if (auth.isLoading) {
     return <BusyIndicator active />;
   }

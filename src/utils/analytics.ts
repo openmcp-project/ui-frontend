@@ -118,6 +118,7 @@ export const trackXhrFailed = (responseCode: number, message: string, parentActi
   console.log(`Dynatrace XHR Failed: ${responseCode}`, { message, parentActionId, result });
   return result;
 };
+
 export const getUserSource = (): 'hsp' | 'native' => {
   const urlParams = new URLSearchParams(window.location.search);
   const showHeaderBar = urlParams.get('showHeaderBar');

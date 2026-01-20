@@ -8,6 +8,7 @@ import McpPage from './spaces/mcp/pages/McpPage.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
+import { RouteTrackingWrapper } from './components/Core/RouteTrackingWrapper';
 
 function AppRouter() {
   return (
@@ -26,16 +27,18 @@ function AppRouter() {
         <SplitterLayout>
           <Router>
             <SentryRoutes>
-              <Route path="/mcp" element={<GlobalProviderOutlet />}>
-                <Route path="projects" element={<ProjectListView />} />
-                <Route path="projects/:projectName" element={<ProjectPage />} />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
-                  element={<McpPage />}
-                />
+              <Route element={<RouteTrackingWrapper />}>
+                <Route path="/mcp" element={<GlobalProviderOutlet />}>
+                  <Route path="projects" element={<ProjectListView />} />
+                  <Route path="projects/:projectName" element={<ProjectPage />} />
+                  <Route
+                    path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
+                    element={<McpPage />}
+                  />
+                </Route>
+                <Route path="/" element={<Navigate to="/mcp/projects" />} />
+                <Route path="*" element={<Navigate to="/" />} />
               </Route>
-              <Route path="/" element={<Navigate to="/mcp/projects" />} />
-              <Route path="*" element={<Navigate to="/" />} />
             </SentryRoutes>
           </Router>
         </SplitterLayout>
