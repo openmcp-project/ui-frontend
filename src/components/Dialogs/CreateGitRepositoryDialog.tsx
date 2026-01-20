@@ -1,4 +1,4 @@
-import { Dialog, Bar, Label, Input, Button, Form, FormGroup } from '@ui5/webcomponents-react';
+import { Dialog, Bar, Label, Input, Button, Form, FormGroup, Select, Option } from '@ui5/webcomponents-react';
 import { useForm, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useId } from 'react';
@@ -24,7 +24,8 @@ export function CreateGitRepositoryDialog({
   const nameId = useId();
   const intervalId = useId();
   const urlId = useId();
-  const branchId = useId();
+  const refTypeId = useId();
+  const refValueId = useId();
   const secretRefId = useId();
 
   const validationSchema = z.object({
@@ -32,7 +33,10 @@ export function CreateGitRepositoryDialog({
     name: z.string().min(1, { message: t('validationErrors.required') }),
     interval: z.string().min(1, { message: t('validationErrors.required') }),
     url: z.url({ protocol: /^https$/, message: t('validationErrors.urlFormat') }),
-    branch: z.string().min(1, { message: t('validationErrors.required') }),
+    refType: z.enum(['tag', 'commit', 'semver', 'branch', 'name'], {
+      message: t('validationErrors.required'),
+    }),
+    refValue: z.string().min(1, { message: t('validationErrors.required') }),
     secretRef: z.string().optional(),
   });
 
@@ -49,7 +53,8 @@ export function CreateGitRepositoryDialog({
       name: '',
       interval: '1m0s',
       url: '',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
       secretRef: '',
     },
     resolver: zodResolver(validationSchema),
@@ -135,26 +140,6 @@ export function CreateGitRepositoryDialog({
 
         <FormGroup headerText={t('CreateGitRepositoryDialog.specTitle')}>
           <div className={styles.formField}>
-            <Label required for={intervalId}>
-              {t('CreateGitRepositoryDialog.intervalTitle')}
-            </Label>
-            <Controller
-              name="interval"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id={intervalId}
-                  valueState={errors.interval ? 'Negative' : 'None'}
-                  valueStateMessage={<span>{errors.interval?.message}</span>}
-                  placeholder="1m0s"
-                  className={styles.input}
-                />
-              )}
-            />
-          </div>
-
-          <div className={styles.formField}>
             <Label required for={urlId}>
               {t('CreateGitRepositoryDialog.urlTitle')}
             </Label>
@@ -175,19 +160,79 @@ export function CreateGitRepositoryDialog({
           </div>
 
           <div className={styles.formField}>
-            <Label required for={branchId}>
-              {t('CreateGitRepositoryDialog.branchTitle')}
+            <Label required for={refTypeId}>
+              {t('CreateGitRepositoryDialog.refTypeTitle', 'Type')}
             </Label>
             <Controller
-              name="branch"
+              name="refType"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  id={refTypeId}
+                  name={field.name}
+                  valueState={errors.refType ? 'Negative' : 'None'}
+                  valueStateMessage={<span>{errors.refType?.message}</span>}
+                  className={styles.input}
+                  data-testid="git-ref-type"
+                  onChange={(event) => {
+                    const selectedValue = (event.detail.selectedOption as HTMLElement | undefined)?.dataset?.value;
+                    field.onChange(selectedValue ?? '');
+                  }}
+                >
+                  <Option data-value="tag" selected={field.value === 'tag'}>
+                    {t('CreateGitRepositoryDialog.refTypeTag', 'Tag')}
+                  </Option>
+                  <Option data-value="commit" selected={field.value === 'commit'}>
+                    {t('CreateGitRepositoryDialog.refTypeCommit', 'Commit')}
+                  </Option>
+                  <Option data-value="semver" selected={field.value === 'semver'}>
+                    {t('CreateGitRepositoryDialog.refTypeSemver', 'Semver')}
+                  </Option>
+                  <Option data-value="branch" selected={field.value === 'branch'}>
+                    {t('CreateGitRepositoryDialog.refTypeBranch', 'Branch')}
+                  </Option>
+                  <Option data-value="name" selected={field.value === 'name'}>
+                    {t('CreateGitRepositoryDialog.refTypeName', 'Name')}
+                  </Option>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <Label required for={refValueId}>
+              {t('CreateGitRepositoryDialog.refValueTitle', 'Reference')}
+            </Label>
+            <Controller
+              name="refValue"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  id={branchId}
-                  valueState={errors.branch ? 'Negative' : 'None'}
-                  valueStateMessage={<span>{errors.branch?.message}</span>}
+                  id={refValueId}
+                  valueState={errors.refValue ? 'Negative' : 'None'}
+                  valueStateMessage={<span>{errors.refValue?.message}</span>}
                   placeholder="main"
+                  className={styles.input}
+                />
+              )}
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <Label required for={intervalId}>
+              {t('CreateGitRepositoryDialog.intervalTitle')}
+            </Label>
+            <Controller
+              name="interval"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id={intervalId}
+                  valueState={errors.interval ? 'Negative' : 'None'}
+                  valueStateMessage={<span>{errors.interval?.message}</span>}
+                  placeholder="1m0s"
                   className={styles.input}
                 />
               )}

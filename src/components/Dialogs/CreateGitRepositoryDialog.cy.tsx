@@ -27,7 +27,8 @@ describe('CreateGitRepositoryDialog', () => {
       name: 'test-repo',
       interval: '5m0s',
       url: 'https://github.com/test/repo',
-      branch: 'develop',
+      refType: 'branch',
+      refValue: 'develop',
       secretRef: '',
     };
 
@@ -36,7 +37,7 @@ describe('CreateGitRepositoryDialog', () => {
     cy.get('[name="interval"]').find('input').clear().type('5m0s');
 
     cy.get('[name="url"]').typeIntoUi5Input('https://github.com/test/repo');
-    cy.get('[name="branch"]').find('input').clear().type('develop');
+    cy.get('[name="refValue"]').find('input').clear().type('develop');
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
@@ -60,13 +61,17 @@ describe('CreateGitRepositoryDialog', () => {
       name: 'test-repo',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'tag',
+      refValue: 'v1.2.3',
       secretRef: 'my-git-secret',
     };
 
     // Fill in the form
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
     cy.get('[name="url"]').typeIntoUi5Input('https://github.com/test/repo');
+    cy.get('[data-testid="git-ref-type"]').openDropDownByClick();
+    cy.get('[data-testid="git-ref-type"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>('Tag');
+    cy.get('[name="refValue"]').find('input').clear().type('v1.2.3');
     cy.get('[name="secretRef"]').typeIntoUi5Input('my-git-secret');
 
     // Submit the form
@@ -106,7 +111,7 @@ describe('CreateGitRepositoryDialog', () => {
 
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
     cy.get('[name="interval"]').find('input').clear().type('1m0s');
-    cy.get('[name="branch"]').find('input').clear().type('main');
+    cy.get('[name="refValue"]').find('input').clear().type('main');
 
     // Test 1: Invalid string
     cy.get('[name="url"]').find('input').clear().type('not-a-valid-url');
@@ -154,7 +159,7 @@ describe('CreateGitRepositoryDialog', () => {
 
     // Check default values
     cy.get('[name="interval"]').find('input').should('have.value', '1m0s');
-    cy.get('[name="branch"]').find('input').should('have.value', 'main');
+    cy.get('[name="refValue"]').find('input').should('have.value', 'main');
   });
 
   it('should not close dialog when creation fails', () => {
@@ -179,7 +184,7 @@ describe('CreateGitRepositoryDialog', () => {
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
     cy.get('[name="interval"]').find('input').clear().type('1m0s');
     cy.get('[name="url"]').find('input').type('https://github.com/test/repo');
-    cy.get('[name="branch"]').find('input').clear().type('main');
+    cy.get('[name="refValue"]').find('input').clear().type('main');
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();

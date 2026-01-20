@@ -44,7 +44,8 @@ describe('useCreateGitRepository', () => {
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -92,7 +93,8 @@ describe('useCreateGitRepository', () => {
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
       secretRef: 'my-secret',
     };
 
@@ -124,7 +126,8 @@ describe('useCreateGitRepository', () => {
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -157,7 +160,8 @@ describe('useCreateGitRepository', () => {
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -187,7 +191,8 @@ describe('useCreateGitRepository', () => {
       namespace: 'default',
       interval: '5m0s',
       url: 'https://github.com/org/app',
-      branch: 'develop',
+      refType: 'branch',
+      refValue: 'develop',
       secretRef: 'git-credentials',
     };
 
