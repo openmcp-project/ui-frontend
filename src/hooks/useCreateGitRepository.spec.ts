@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
-import { useCreateGitRepository } from './useCreateGitRepository';
+import { useCreateGitRepository, CreateGitRepositoryParams } from './useCreateGitRepository';
 import { fetchApiServerJson } from '../lib/api/fetch';
 import { assertNonNullish } from '../utils/test/vitest-utils';
 
@@ -39,7 +39,7 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
@@ -88,7 +88,7 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
@@ -121,7 +121,7 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
@@ -155,7 +155,7 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockRejectedValue(new Error('Network error'));
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
@@ -186,7 +186,7 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'my-app-repo',
       namespace: 'default',
       interval: '5m0s',

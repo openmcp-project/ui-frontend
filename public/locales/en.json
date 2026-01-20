@@ -523,7 +523,7 @@
     "nameTitle": "Name",
     "intervalTitle": "Interval",
     "specTitle": "Spec",
-    "refTypeTitle": "Reference Type",
+    "refTypeTitle": "Type",
     "refValueTitle": "Reference",
     "refTypeTag": "Tag",
     "refTypeCommit": "Commit",
