@@ -174,9 +174,8 @@ export function CreateGitRepositoryDialog({
                   valueStateMessage={<span>{errors.refType?.message}</span>}
                   className={styles.input}
                   data-testid="git-ref-type"
-                  onChange={(event) => {
-                    const selectedValue = (event.detail.selectedOption as HTMLElement | undefined)?.dataset?.value;
-                    field.onChange(selectedValue ?? '');
+                  onChange={({ detail }) => {
+                    field.onChange(detail.selectedOption?.dataset?.value ?? '');
                   }}
                 >
                   <Option data-value="tag" selected={field.value === 'tag'}>
