@@ -11,7 +11,6 @@ const __dirname = dirname(__filename);
 
 //@ts-ignore
 export default async function (fastify, opts) {
-  // Register OpenTelemetry plugin first to capture all requests
   await fastify.register(openTelemetryPlugin, opts);
 
   fastify.register(encryptedSession, {

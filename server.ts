@@ -1,13 +1,6 @@
 import dotenv from 'dotenv';
-
-// Load environment variables FIRST
-dotenv.config();
-
 // Initialize OpenTelemetry instrumentation FIRST
-// This must be the very first import to ensure proper auto-instrumentation
 import './server/opentelemetry-init.js';
-
-// NOW import Fastify and other modules (they will be auto-instrumented)
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
@@ -19,7 +12,7 @@ import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
 import * as Sentry from '@sentry/node';
 import { injectDynatraceTag } from './server/config/dynatrace.js';
-
+dotenv.config();
 const { DYNATRACE_SCRIPT_URL } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
