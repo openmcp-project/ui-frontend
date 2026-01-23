@@ -18,6 +18,13 @@ export function CreateGitRepositoryDialog({
   onClose,
   useCreateGitRepository = _useCreateGitRepository,
 }: CreateGitRepositoryDialogProps) {
+  const refTypeOptions = [
+    { value: 'tag', labelKey: 'CreateGitRepositoryDialog.refTypeTag' },
+    { value: 'commit', labelKey: 'CreateGitRepositoryDialog.refTypeCommit' },
+    { value: 'semver', labelKey: 'CreateGitRepositoryDialog.refTypeSemver' },
+    { value: 'branch', labelKey: 'CreateGitRepositoryDialog.refTypeBranch' },
+    { value: 'name', labelKey: 'CreateGitRepositoryDialog.refTypeName' },
+  ];
   const { t } = useTranslation();
   const { createGitRepository, isLoading } = useCreateGitRepository();
   const namespaceId = useId();
@@ -178,21 +185,11 @@ export function CreateGitRepositoryDialog({
                     field.onChange(detail.selectedOption?.dataset?.value ?? '');
                   }}
                 >
-                  <Option data-value="tag" selected={field.value === 'tag'}>
-                    {t('CreateGitRepositoryDialog.refTypeTag', 'Tag')}
-                  </Option>
-                  <Option data-value="commit" selected={field.value === 'commit'}>
-                    {t('CreateGitRepositoryDialog.refTypeCommit', 'Commit')}
-                  </Option>
-                  <Option data-value="semver" selected={field.value === 'semver'}>
-                    {t('CreateGitRepositoryDialog.refTypeSemver', 'Semver')}
-                  </Option>
-                  <Option data-value="branch" selected={field.value === 'branch'}>
-                    {t('CreateGitRepositoryDialog.refTypeBranch', 'Branch')}
-                  </Option>
-                  <Option data-value="name" selected={field.value === 'name'}>
-                    {t('CreateGitRepositoryDialog.refTypeName', 'Name')}
-                  </Option>
+                  {refTypeOptions.map(({ value, labelKey }) => (
+                    <Option key={value} data-value={value} selected={field.value === value}>
+                      {t(labelKey)}
+                    </Option>
+                  ))}
                 </Select>
               )}
             />
