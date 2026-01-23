@@ -12,7 +12,8 @@ export interface CreateGitRepositoryParams {
   name: string;
   interval: string;
   url: string;
-  branch: string;
+  refType: 'tag' | 'commit' | 'semver' | 'branch' | 'name';
+  refValue: string;
   secretRef?: string;
 }
 
@@ -38,7 +39,7 @@ export const useCreateGitRepository = () => {
           spec: {
             interval: data.interval,
             url: data.url,
-            ref: { branch: data.branch },
+            ref: { [data.refType]: data.refValue },
             ...(data.secretRef ? { secretRef: { name: data.secretRef } } : {}),
           },
         };

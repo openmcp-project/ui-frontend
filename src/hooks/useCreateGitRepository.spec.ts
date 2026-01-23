@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
-import { useCreateGitRepository } from './useCreateGitRepository';
+import { useCreateGitRepository, CreateGitRepositoryParams } from './useCreateGitRepository';
 import { fetchApiServerJson } from '../lib/api/fetch';
 import { assertNonNullish } from '../utils/test/vitest-utils';
 
@@ -39,12 +39,13 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -87,12 +88,13 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
       secretRef: 'my-secret',
     };
 
@@ -119,12 +121,13 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -152,12 +155,13 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockRejectedValue(new Error('Network error'));
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'test-repo',
       namespace: 'default',
       interval: '1m0s',
       url: 'https://github.com/test/repo',
-      branch: 'main',
+      refType: 'branch',
+      refValue: 'main',
     };
 
     // ACT
@@ -182,12 +186,13 @@ describe('useCreateGitRepository', () => {
     // ARRANGE
     fetchMock.mockResolvedValue(undefined);
 
-    const testData = {
+    const testData: CreateGitRepositoryParams = {
       name: 'my-app-repo',
       namespace: 'default',
       interval: '5m0s',
       url: 'https://github.com/org/app',
-      branch: 'develop',
+      refType: 'branch',
+      refValue: 'develop',
       secretRef: 'git-credentials',
     };
 
