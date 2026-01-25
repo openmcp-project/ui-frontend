@@ -31,8 +31,7 @@ export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams] = useSearchParams();
   const { t } = useTranslation();
-  
-  // Check if navigation should be blocked (breadcrumbs hidden)
+
   const isNavigatable = searchParams.get('isNavigatable') !== 'false';
 
   const {
