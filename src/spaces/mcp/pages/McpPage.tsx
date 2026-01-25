@@ -1,5 +1,5 @@
 import { BusyIndicator, ObjectPage, ObjectPageSection, ObjectPageTitle, Panel, Title } from '@ui5/webcomponents-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
@@ -29,7 +29,11 @@ import Graph from '../../../components/Graphs/Graph.tsx';
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
+  
+  // Check if navigation should be blocked (breadcrumbs hidden)
+  const isNavigatable = searchParams.get('isNavigatable') !== 'false';
 
   const {
     data: mcp,
@@ -64,7 +68,7 @@ export default function McpPage() {
             titleArea={
               <ObjectPageTitle
                 header={controlPlaneName}
-                breadcrumbs={<IntelligentBreadcrumbs />}
+                breadcrumbs={isNavigatable ? <IntelligentBreadcrumbs /> : undefined}
                 //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                 actionsBar={
                   <div
