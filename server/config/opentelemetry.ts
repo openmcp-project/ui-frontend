@@ -82,7 +82,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
         // Enable HTTP instrumentation for incoming and outgoing requests
         '@opentelemetry/instrumentation-http': {
-          enabled: true,
+          enabled: false,
           ignoreIncomingRequestHook: (request) => {
             const url = request.url || '';
             // Don't create spans for health checks or metrics endpoints
@@ -169,12 +169,4 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   });
 
   return true;
-}
-
-export function getTracerProvider(): NodeTracerProvider | null {
-  return tracerProvider;
-}
-
-export function getMeterProvider(): MeterProvider | null {
-  return meterProvider;
 }
