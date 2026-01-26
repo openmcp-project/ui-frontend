@@ -9,7 +9,11 @@ export type CreateGitRepositoryType = {
     interval: string;
     url: string;
     ref: {
-      branch: string;
+      branch?: string;
+      tag?: string;
+      commit?: string;
+      semver?: string;
+      name?: string;
     };
     secretRef?: {
       name: string;
