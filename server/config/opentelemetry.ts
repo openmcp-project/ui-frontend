@@ -79,18 +79,9 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
         '@opentelemetry/instrumentation-fs': { enabled: false },
         '@opentelemetry/instrumentation-dns': { enabled: false },
         '@opentelemetry/instrumentation-net': { enabled: false },
-
-        // Enable HTTP instrumentation for incoming and outgoing requests
         '@opentelemetry/instrumentation-http': {
           enabled: false,
-          ignoreIncomingRequestHook: (request) => {
-            const url = request.url || '';
-            // Don't create spans for health checks or metrics endpoints
-            return url.includes('/health') || url.includes('/metrics');
-          },
         },
-
-        // Enable Fastify instrumentation
         '@opentelemetry/instrumentation-fastify': {
           enabled: true,
         },
