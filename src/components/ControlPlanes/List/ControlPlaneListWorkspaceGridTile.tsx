@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import { KubectlDeleteWorkspace } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteWorkspace.tsx';
+import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { APIError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
@@ -180,7 +180,14 @@ export function ControlPlaneListWorkspaceGridTile({
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}
-        kubectl={<KubectlDeleteWorkspace projectName={projectName} resourceName={workspaceName} />}
+        kubectlDialog={({ isOpen, onClose }) => (
+          <DeleteWorkspaceDialog
+            projectName={projectName}
+            resourceName={workspaceName}
+            isOpen={isOpen}
+            onClose={onClose}
+          />
+        )}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={deleteWorkspace}

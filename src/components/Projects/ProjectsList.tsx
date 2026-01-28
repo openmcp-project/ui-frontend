@@ -70,7 +70,7 @@ export default function ProjectsList() {
               cursor: 'pointer',
             }}
           >
-            <CopyButton text={instance.cell.value ?? ''} />
+            <CopyButton text={instance.cell.value != null ? String(instance.cell.value) : ''} />
           </div>
         ),
       },

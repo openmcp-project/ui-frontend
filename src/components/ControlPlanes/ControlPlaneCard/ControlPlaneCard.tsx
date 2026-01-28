@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
+import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
@@ -122,13 +122,15 @@ export const ControlPlaneCard = ({
       </Card>
       <DeleteConfirmationDialog
         resourceName={controlPlane.metadata.name}
-        kubectl={
-          <KubectlDeleteMcp
+        kubectlDialog={({ isOpen, onClose }) => (
+          <KubectlDeleteMcpDialog
             projectName={projectName}
             workspaceName={workspace.metadata.name}
             resourceName={controlPlane.metadata.name}
+            isOpen={isOpen}
+            onClose={onClose}
           />
-        }
+        )}
         isOpen={dialogDeleteMcpIsOpen}
         setIsOpen={setDialogDeleteMcpIsOpen}
         onDeletionConfirmed={deleteManagedControlPlane}

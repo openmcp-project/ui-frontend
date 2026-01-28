@@ -87,13 +87,13 @@ export function GitRepositories() {
           Header: t('FluxList.tableUrlHeader', 'Address'),
           accessor: 'item.spec.url',
           Cell: ({ cell: { value } }) =>
-            value && value.startsWith('https') ? (
+            typeof value === 'string' && value.startsWith('https') ? (
               <Link href={value} target="_blank" rel="noopener noreferrer">
                 {value}
               </Link>
-            ) : (
-              value
-            ),
+            ) : value ? (
+              String(value)
+            ) : null,
         },
         {
           Header: t('FluxList.tableCreatedHeader'),
