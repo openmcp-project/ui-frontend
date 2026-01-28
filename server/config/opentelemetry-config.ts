@@ -53,7 +53,6 @@ function loadDynatraceMetadata(): Resource {
     try {
       let actualPath = filePath;
 
-      // If it's a relative path, read the file to get the actual path
       if (!filePath.startsWith('/var')) {
         actualPath = readFileSync(filePath, 'utf-8').trim();
       }
@@ -62,9 +61,7 @@ function loadDynatraceMetadata(): Resource {
       dtMetadata = dtMetadata.merge(Resource.EMPTY.merge(new Resource(metadata)));
       console.log(`[OpenTelemetry] Loaded Dynatrace metadata from: ${actualPath}`);
       break;
-    } catch (error) {
-      // Continue to next file if this one doesn't exist
-    }
+    } catch (error) {}
   }
 
   return dtMetadata;
@@ -87,7 +84,6 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   // Extract Dynatrace hostname to exclude from instrumentation
   const dynatraceHostname = getDynatraceHostname(config.endpoint);
 
-  // Register only required instrumentations
   registerInstrumentations({
     instrumentations: [
       new FastifyInstrumentation(),
@@ -158,18 +154,6 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   opentelemetry.metrics.setGlobalMeterProvider(meterProvider);
 
   console.log('[OpenTelemetry] Meter provider initialized and registered.');
-
-  // Handle graceful shutdown
-  process.on('SIGTERM', async () => {
-    console.log('[OpenTelemetry] Shutting down SDK...');
-    try {
-      await tracerProvider?.shutdown();
-      await meterProvider?.shutdown();
-      console.log('[OpenTelemetry] SDK shut down successfully.');
-    } catch (error) {
-      console.error('[OpenTelemetry] Error shutting down SDK:', error);
-    }
-  });
 
   return true;
 }
