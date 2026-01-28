@@ -33,7 +33,9 @@ const schema = {
     BFF_SENTRY_DSN: { type: 'string' },
     FRONTEND_SENTRY_DSN: { type: 'string' },
     FRONTEND_SENTRY_ENVIRONMENT: { type: 'string' },
-
+    // OpenTelemetry OTLP Export (optional)
+    DYNATRACE_OTLP_ENDPOINT: { type: 'string' },
+    DYNATRACE_OTLP_TOKEN: { type: 'string' },
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },
   },
