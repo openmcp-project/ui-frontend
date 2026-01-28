@@ -95,7 +95,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
         ignoreRequestHook: (request) => {
           // Ignore OTLP export requests to avoid recursion
           const url = request.origin || '';
-          return dynatraceHostname && url.includes(dynatraceHostname);
+          return !!(dynatraceHostname && url.includes(dynatraceHostname));
         },
       }),
     ],
