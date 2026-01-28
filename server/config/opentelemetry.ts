@@ -8,7 +8,8 @@ import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 import { MeterProvider, PeriodicExportingMetricReader, AggregationTemporality } from '@opentelemetry/sdk-metrics';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { FastifyInstrumentation } from '@opentelemetry/instrumentation-fastify';
+import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 
 interface OpenTelemetryConfig {
@@ -22,6 +23,18 @@ interface OpenTelemetryConfig {
 
 let tracerProvider: NodeTracerProvider | null = null;
 let meterProvider: MeterProvider | null = null;
+
+/**
+ * Extract hostname from Dynatrace endpoint to avoid instrumenting OTLP exports
+ * This prevents infinite recursion where export requests create new spans
+ */
+function getDynatraceHostname(endpoint: string): string {
+  try {
+    return new URL(endpoint).hostname;
+  } catch {
+    return '';
+  }
+}
 
 /**
  * Load Dynatrace metadata from OneAgent enrichment files
@@ -71,19 +84,18 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
   // ===== GENERAL SETUP =====
 
-  // Register auto-instrumentations
+  // Extract Dynatrace hostname to exclude from instrumentation
+  const dynatraceHostname = getDynatraceHostname(config.endpoint);
+
+  // Register only required instrumentations
   registerInstrumentations({
     instrumentations: [
-      getNodeAutoInstrumentations({
-        // Disable unnecessary instrumentations
-        '@opentelemetry/instrumentation-fs': { enabled: false },
-        '@opentelemetry/instrumentation-dns': { enabled: false },
-        '@opentelemetry/instrumentation-net': { enabled: false },
-        '@opentelemetry/instrumentation-http': {
-          enabled: false,
-        },
-        '@opentelemetry/instrumentation-fastify': {
-          enabled: true,
+      new FastifyInstrumentation(),
+      new UndiciInstrumentation({
+        ignoreRequestHook: (request) => {
+          // Ignore OTLP export requests to avoid recursion
+          const url = request.origin || '';
+          return dynatraceHostname && url.includes(dynatraceHostname);
         },
       }),
     ],
