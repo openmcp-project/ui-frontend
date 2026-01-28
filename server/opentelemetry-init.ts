@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-import { initializeOpenTelemetry } from './config/opentelemetry.js';
+import { initializeOpenTelemetry } from './config/opentelemetry-config.js';
 
 const { DYNATRACE_OTLP_ENDPOINT, DYNATRACE_OTLP_TOKEN, NODE_ENV } = process.env;
 
