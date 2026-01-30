@@ -2,6 +2,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AutoLoad from '@fastify/autoload';
 import encryptedSession from './encrypted-session.js';
+import openTelemetryPlugin from './plugins/opentelemetry.js';
 
 export const options = {};
 
@@ -10,6 +11,8 @@ const __dirname = dirname(__filename);
 
 //@ts-ignore
 export default async function (fastify, opts) {
+  await fastify.register(openTelemetryPlugin, opts);
+
   fastify.register(encryptedSession, {
     ...opts,
   });

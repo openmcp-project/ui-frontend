@@ -1,18 +1,16 @@
+// Initialize OpenTelemetry instrumentation FIRST
+import './server/opentelemetry-init.js';
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import dotenv from 'dotenv';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
 import * as Sentry from '@sentry/node';
 import { injectDynatraceTag } from './server/config/dynatrace.js';
-
-dotenv.config();
-
 const { DYNATRACE_SCRIPT_URL } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
