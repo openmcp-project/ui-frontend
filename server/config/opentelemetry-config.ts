@@ -58,7 +58,7 @@ function loadDynatraceMetadata(): Resource {
       }
 
       const metadata = JSON.parse(readFileSync(actualPath, 'utf-8'));
-      dtMetadata = dtMetadata.merge(Resource.EMPTY.merge(new Resource(metadata)));
+      dtMetadata = dtMetadata.merge(new Resource(metadata));
       console.log(`[OpenTelemetry] Loaded Dynatrace metadata from: ${actualPath}`);
       break;
     } catch (error) {}
@@ -155,5 +155,16 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
   console.log('[OpenTelemetry] Meter provider initialized and registered.');
 
+  // Handle graceful shutdown
+  process.on('SIGTERM', async () => {
+    console.log('[OpenTelemetry] Shutting down SDK...');
+    try {
+      await tracerProvider?.shutdown();
+      await meterProvider?.shutdown();
+      console.log('[OpenTelemetry] SDK shut down successfully.');
+    } catch (error) {
+      console.error('[OpenTelemetry] Error shutting down SDK:', error);
+    }
+  });
   return true;
 }
