@@ -155,7 +155,6 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   opentelemetry.metrics.setGlobalMeterProvider(meterProvider);
 
   console.log('[OpenTelemetry] Meter provider initialized and registered.');
-  console.log('[OpenTelemetry] Metrics will be exported every 60 seconds to Dynatrace.');
 
   // Handle graceful shutdown
   process.on('SIGTERM', async () => {
