@@ -77,7 +77,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
   }
 
-  console.log('[OpenTelemetry] Initializing SDK with Dynatrace configuration...');
+  console.log('[OpenTelemetry] Initializing SDK with Dynatrace configuration (Traces + Metrics)...');
 
   // ===== GENERAL SETUP =====
 
@@ -106,6 +106,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
       new Resource({
         [ATTR_SERVICE_NAME]: config.serviceName || 'ui-frontend-bff',
         [ATTR_SERVICE_VERSION]: config.serviceVersion || '1.0.0',
+        'deployment.environment': config.environment || 'production',
       }),
     )
     .merge(dtMetadata);
@@ -154,6 +155,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   opentelemetry.metrics.setGlobalMeterProvider(meterProvider);
 
   console.log('[OpenTelemetry] Meter provider initialized and registered.');
+  console.log('[OpenTelemetry] Metrics will be exported every 60 seconds to Dynatrace.');
 
   // Handle graceful shutdown
   process.on('SIGTERM', async () => {
@@ -166,5 +168,6 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
       console.error('[OpenTelemetry] Error shutting down SDK:', error);
     }
   });
+
   return true;
 }
