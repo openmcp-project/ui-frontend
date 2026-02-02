@@ -171,4 +171,23 @@ describe('ConnectButton', () => {
       '/mcp/projects/my-project/workspaces/my-workspace/mcps/my-mcp?idp=custom-user',
     );
   });
+
+  it('renders in disabled state when there are no IdPs', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useApiResourceMockNoIdPs: typeof useApiResource = (): any => {
+      return {
+        data: generateKubeconfigYaml([]), // < no IdPs
+        error: undefined,
+        isLoading: false,
+      };
+    };
+
+    cy.mount(
+      <MemoryRouter>
+        <ConnectButton {...defaultProps} useApiResource={useApiResourceMockNoIdPs} />
+      </MemoryRouter>,
+    );
+
+    cy.get('ui5-button').should('have.attr', 'disabled');
+  });
 });

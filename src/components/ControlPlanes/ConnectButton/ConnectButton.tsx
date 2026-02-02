@@ -57,7 +57,7 @@ export default function ConnectButton({
     }
   };
 
-  if (isLoading || error) {
+  if (isLoading || error || connectionTargets.length === 0) {
     return (
       <Button endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
