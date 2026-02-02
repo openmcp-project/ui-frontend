@@ -77,8 +77,6 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
     diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
   }
 
-  console.log('[OpenTelemetry] Initializing SDK with Dynatrace configuration (Traces + Metrics)...');
-
   // ===== GENERAL SETUP =====
 
   // Extract Dynatrace hostname to exclude from instrumentation
@@ -158,11 +156,9 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
   // Handle graceful shutdown
   process.on('SIGTERM', async () => {
-    console.log('[OpenTelemetry] Shutting down SDK...');
     try {
       await tracerProvider?.shutdown();
       await meterProvider?.shutdown();
-      console.log('[OpenTelemetry] SDK shut down successfully.');
     } catch (error) {
       console.error('[OpenTelemetry] Error shutting down SDK:', error);
     }
