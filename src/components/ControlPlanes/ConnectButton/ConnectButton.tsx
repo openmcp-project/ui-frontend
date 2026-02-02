@@ -54,6 +54,8 @@ export default function ConnectButton({
 
     if (target) {
       navigate(target);
+      setIsMenuOpen(false);
+      return;
     }
   };
 
