@@ -33,7 +33,7 @@ export interface ConnectOption {
   url: string;
 }
 
-export function useConnectionOptions(
+export function useConnectOptions(
   kubeconfigYaml: string | undefined,
   projectName: string,
   workspaceName: string,

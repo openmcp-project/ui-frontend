@@ -3,7 +3,7 @@ import { useId, useState } from 'react';
 import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
-import { useConnectionOptions } from './useConnectOptions.ts';
+import { useConnectOptions } from './useConnectOptions.ts';
 import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
 
@@ -41,7 +41,7 @@ export default function ConnectButton({
     isLoading,
   } = useApiResource(GetKubeconfig(secretKey, secretName, namespace));
 
-  const connectionTargets = useConnectionOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
+  const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
   const handleMenuAction = (event: CustomEvent) => {
     const { action, target } = event.detail.item.dataset;

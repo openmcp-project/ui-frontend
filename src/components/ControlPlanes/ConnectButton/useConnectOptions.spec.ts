@@ -1,14 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { useConnectionOptions } from './useConnectOptions';
+import { useConnectOptions } from './useConnectOptions';
 
-describe('useConnectionOptions', () => {
+describe('useConnectOptions', () => {
   const PROJECT_NAME = 'test-project';
   const WORKSPACE_NAME = 'project-test-project--ws-test-workspace';
   const CONTROL_PLANE_NAME = 'test-mcp';
 
   const renderTestHook = (kubeconfig: string | undefined) =>
-    renderHook(() => useConnectionOptions(kubeconfig, PROJECT_NAME, WORKSPACE_NAME, CONTROL_PLANE_NAME));
+    renderHook(() => useConnectOptions(kubeconfig, PROJECT_NAME, WORKSPACE_NAME, CONTROL_PLANE_NAME));
 
   it('should correctly parse system IdP (without custom IdPs)', () => {
     // ARRANGE
