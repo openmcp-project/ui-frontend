@@ -1,8 +1,8 @@
 import fastifyPlugin from 'fastify-plugin';
 import { metrics } from '@opentelemetry/api';
+import { FastifyInstance } from 'fastify';
 
-// @ts-ignore
-async function openTelemetryPlugin(fastify) {
+async function openTelemetryPlugin(fastify: FastifyInstance) {
   // Get the global meter
   const meter = metrics.getMeter('ui-frontend-bff');
 
