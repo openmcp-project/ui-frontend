@@ -108,7 +108,7 @@
   "ConnectButton": {
     "buttonText": "Connect",
     "defaultIdP": "default IdP",
-    "unsupportedIdP": "non-default IdP not supported"
+    "downloadKubeconfig": "Download Kubeconfig"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -244,7 +244,10 @@
     "fluxTitle": "Flux",
     "gitRepositoriesTitle": "GitRepositories",
     "kustomizationsTitle": "Kustomizations",
-    "landscapersTitle": "Landscapers"
+    "landscapersTitle": "Landscapers",
+    "configMapsTitle": "ConfigMaps",
+    "secretsTitle": "Secrets",
+    "secretTypeHeader": "Type"
   },
   "McpHeader": {
     "nameLabel": "Name",
@@ -374,7 +377,9 @@
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
+    "created": "Created",
     "cannotLoadData": "Cannot load data",
+    "file": "File",
     "metadata": "Metadata",
     "members": "Members",
     "summarize": "Summarize",
@@ -523,7 +528,13 @@
     "nameTitle": "Name",
     "intervalTitle": "Interval",
     "specTitle": "Spec",
-    "branchTitle": "Branch",
+    "refTypeTitle": "Type",
+    "refValueTitle": "Reference",
+    "refTypeTag": "Tag",
+    "refTypeCommit": "Commit",
+    "refTypeSemver": "Semver",
+    "refTypeBranch": "Branch",
+    "refTypeName": "Name",
     "gitRepositoryCreated": "Git Repository created successfully",
     "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}",
     "namespaceTitle": "Namespace"

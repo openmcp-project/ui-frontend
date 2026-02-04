@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.tsx';
 
 import { useDeleteProject as _useDeleteProject } from '../../hooks/useDeleteProject.ts';
-import { KubectlDeleteProject } from '../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteProject.tsx';
+import { KubectlDeleteProjectDialog } from '../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
 
 type ProjectsListItemMenuProps = {
   projectName: string;
@@ -58,7 +58,9 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
       {dialogDeleteProjectIsOpen && (
         <DeleteConfirmationDialog
           resourceName={projectName}
-          kubectl={<KubectlDeleteProject projectName={projectName} />}
+          kubectlDialog={({ isOpen, onClose }) => (
+            <KubectlDeleteProjectDialog projectName={projectName} isOpen={isOpen} onClose={onClose} />
+          )}
           isOpen={dialogDeleteProjectIsOpen}
           setIsOpen={setDialogDeleteProjectIsOpen}
           onDeletionConfirmed={deleteProject}

@@ -2,22 +2,19 @@ import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import ConnectButton from '../ConnectButton.tsx';
+import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcp } from '../../Dialogs/KubectlCommandInfo/Controllers/KubectlDeleteMcp.tsx';
+import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
-
-import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
@@ -42,7 +39,6 @@ export const ControlPlaneCard = ({
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
 }: Props) => {
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
-  const { t } = useTranslation();
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
     mode: undefined,
@@ -62,11 +58,7 @@ export const ControlPlaneCard = ({
 
   const namespace = controlPlane.metadata.namespace;
 
-  const isSystemIdentityProviderEnabled = Boolean(controlPlane.spec?.authentication?.enableSystemIdentityProvider);
-
-  const isConnectButtonEnabled = canConnectToMCP(controlPlane) && isSystemIdentityProviderEnabled;
-
-  const showWarningBecauseOfDisabledSystemIdentityProvider = !isSystemIdentityProviderEnabled;
+  const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   return (
     <>
@@ -100,21 +92,15 @@ export const ControlPlaneCard = ({
                   resourceName={controlPlane.metadata.name}
                   resourceType={'managedcontrolplanes'}
                 />
-                {showWarningBecauseOfDisabledSystemIdentityProvider ? (
-                  <Infobox size="sm" variant="warning" noMargin>
-                    {t('ConnectButton.unsupportedIdP')}
-                  </Infobox>
-                ) : (
-                  <ConnectButton
-                    disabled={!isConnectButtonEnabled}
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
-                    namespace={controlPlane.status?.access?.namespace ?? ''}
-                    secretName={controlPlane.status?.access?.name ?? ''}
-                    secretKey={controlPlane.status?.access?.key ?? ''}
-                  />
-                )}
+                <ConnectButton
+                  disabled={!isConnectButtonEnabled}
+                  controlPlaneName={name}
+                  projectName={projectName}
+                  workspaceName={workspace.metadata.name ?? ''}
+                  namespace={controlPlane.status?.access?.namespace ?? ''}
+                  secretName={controlPlane.status?.access?.name ?? ''}
+                  secretKey={controlPlane.status?.access?.key ?? ''}
+                />
               </FlexBox>
             </FlexBox>
           </FlexBox>
@@ -122,13 +108,15 @@ export const ControlPlaneCard = ({
       </Card>
       <DeleteConfirmationDialog
         resourceName={controlPlane.metadata.name}
-        kubectl={
-          <KubectlDeleteMcp
+        kubectlDialog={({ isOpen, onClose }) => (
+          <KubectlDeleteMcpDialog
             projectName={projectName}
             workspaceName={workspace.metadata.name}
             resourceName={controlPlane.metadata.name}
+            isOpen={isOpen}
+            onClose={onClose}
           />
-        }
+        )}
         isOpen={dialogDeleteMcpIsOpen}
         setIsOpen={setDialogDeleteMcpIsOpen}
         onDeletionConfirmed={deleteManagedControlPlane}
