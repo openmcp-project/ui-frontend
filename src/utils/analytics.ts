@@ -96,19 +96,33 @@ export const trackXhrStart = (
 
   const actionId = window.dtrum.enterXhrAction(type, xmode, xhrUrl);
 
-  if (properties) {
-    addProperties(actionId, properties);
+  // Add service name and start timestamp for duration tracking
+  const enrichedProperties = {
+    ...properties,
+    serviceName: 'ui-request-test',
+    requestStartTime: Date.now(),
+  };
+
+  if (enrichedProperties) {
+    addProperties(actionId, enrichedProperties);
   }
 
-  console.log(`Dynatrace XHR Started: ${type}`, { xmode, xhrUrl, properties });
+  console.log(`Dynatrace XHR Started: ${type}`, { xmode, xhrUrl, properties: enrichedProperties });
   return actionId;
 };
 
 export const trackXhrEnd = (actionId: number | undefined, stopTime?: number): void => {
   if (!actionId || !window.dtrum?.leaveXhrAction) return;
 
+  // Calculate and add request duration
+  const endTime = stopTime || Date.now();
+  const durationProperties: TrackingProperties = {
+    requestEndTime: endTime,
+  };
+
+  addProperties(actionId, durationProperties);
   window.dtrum.leaveXhrAction(actionId, stopTime);
-  console.log(`Dynatrace XHR Ended: ${actionId}`, { stopTime });
+  console.log(`Dynatrace XHR Ended: ${actionId}`, { stopTime, endTime });
 };
 
 export const trackXhrFailed = (responseCode: number, message: string, parentActionId?: number): boolean => {
