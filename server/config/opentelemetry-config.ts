@@ -102,7 +102,7 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   const resource = Resource.default()
     .merge(
       new Resource({
-        [ATTR_SERVICE_NAME]: config.serviceName || 'ui-frontend-bff',
+        [ATTR_SERVICE_NAME]: 'ui-frontend-bff',
         [ATTR_SERVICE_VERSION]: config.serviceVersion || '1.0.0',
         'deployment.environment': config.environment || 'production',
       }),
