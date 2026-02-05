@@ -25,7 +25,11 @@ describe('useCreateWorkspace', () => {
   let apolloClient: ApolloClient;
 
   const wrapper = ({ children }: { children: React.ReactNode }) =>
-    React.createElement(ApolloProvider, { client: apolloClient, children });
+    React.createElement(
+      ApolloProvider as React.ComponentType<{ client: ApolloClient; children?: React.ReactNode }>,
+      { client: apolloClient },
+      children,
+    );
 
   beforeEach(() => {
     fetchMock = vi.fn();
