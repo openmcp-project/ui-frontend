@@ -108,7 +108,7 @@
   "ConnectButton": {
     "buttonText": "Connect",
     "defaultIdP": "default IdP",
-    "unsupportedIdP": "non-default IdP not supported"
+    "downloadKubeconfig": "Download Kubeconfig"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
