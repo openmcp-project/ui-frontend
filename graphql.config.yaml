@@ -1,7 +1,7 @@
 schema:
-  - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/kubernetes/graphql:
+  - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/onboarding/graphql:
       headers:
-        Authorization: '<not needed for now>'
+        Authorization: 'needed to geerate types from graphQL'
 documents: './src/**/*.{ts,tsx}'
 ignoreNoDocuments: true
 extensions:
