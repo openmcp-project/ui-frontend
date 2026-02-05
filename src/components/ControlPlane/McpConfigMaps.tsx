@@ -17,6 +17,7 @@ import type { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { isForbiddenError } from '../../utils/isForbiddenError.ts';
 import { useNamespaceSelect } from '../../hooks/useNamespaceSelect.ts';
 import IllustratedError from '../Shared/IllustratedError.tsx';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 
 type ConfigMapRow = {
   name: string;
@@ -48,7 +49,7 @@ export function McpConfigMaps({
     ? (configMapsData ?? []).map((cm: ConfigMapListItem) => ({
         name: cm.metadata.name,
         namespace: cm.metadata.namespace,
-        created: cm.metadata.creationTimestamp,
+        created: cm.metadata.creationTimestamp ? formatDateAsTimeAgo(cm.metadata.creationTimestamp) : '',
         item: cm,
       }))
     : [];
