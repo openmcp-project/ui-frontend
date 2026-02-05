@@ -21,10 +21,10 @@ vi.mock('react-i18next', () => ({
 
 describe('useDeleteWorkspace', () => {
   let fetchMock: Mock<typeof fetch>;
-  let apolloClient: ApolloClient<unknown>;
+  let apolloClient: ApolloClient<any>;
 
   const wrapper = ({ children }: { children: React.ReactNode }) =>
-    React.createElement(ApolloProvider, { client: apolloClient }, children);
+    React.createElement(ApolloProvider, { client: apolloClient, children });
 
   beforeEach(() => {
     fetchMock = vi.fn();
