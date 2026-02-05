@@ -9,6 +9,7 @@ function proxyPlugin(fastify) {
   const { GRAPHQL_BACKEND_URL } = fastify.config;
   const { OIDC_CLIENT_ID, OIDC_SCOPES } = fastify.config;
 
+  // @ts-ignore
   const preHandler = async (request, reply) => {
     request.log.info('Entering HTTP proxy preHandler.');
 

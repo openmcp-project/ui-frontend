@@ -34,7 +34,7 @@ const GetWorkspacesQuery = graphql(`
   }
 `);
 
-export function  useWorkspacesQuery(projectNamespace?: string) {
+export function useWorkspacesQuery(projectNamespace?: string) {
   const query = useQuery(GetWorkspacesQuery, {
     variables: { projectNamespace: projectNamespace ?? '' },
     skip: !projectNamespace,

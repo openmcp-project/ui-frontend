@@ -1,4 +1,7 @@
+import React from 'react';
 import { act, renderHook } from '@testing-library/react';
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 import { useCreateWorkspace } from './useCreateWorkspace';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { assertNonNullish, assertString } from '../utils/test/vitest-utils';
@@ -19,10 +22,18 @@ vi.mock('react-i18next', () => ({
 
 describe('useCreateWorkspace', () => {
   let fetchMock: Mock<typeof fetch>;
+  let apolloClient: ApolloClient<unknown>;
+
+  const wrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(ApolloProvider, { client: apolloClient }, children);
 
   beforeEach(() => {
     fetchMock = vi.fn();
     global.fetch = fetchMock;
+    apolloClient = new ApolloClient({
+      cache: new InMemoryCache(),
+      link: ApolloLink.empty(),
+    });
   });
 
   afterEach(() => {
@@ -51,7 +62,7 @@ describe('useCreateWorkspace', () => {
     } as unknown as Response);
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
+    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'), { wrapper });
     const { createWorkspace } = renderHookResult.result.current;
 
     await act(async () => {
@@ -98,7 +109,7 @@ describe('useCreateWorkspace', () => {
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
+    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'), { wrapper });
     const { createWorkspace } = renderHookResult.result.current;
 
     // ASSERT
