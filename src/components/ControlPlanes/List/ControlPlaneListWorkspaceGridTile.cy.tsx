@@ -114,6 +114,8 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     const workspace: ListWorkspacesType = {
       metadata: {
         name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
       },
       spec: {
         members: [],

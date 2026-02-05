@@ -26,6 +26,7 @@ const schema = {
     COOKIE_SECRET: { type: 'string' },
     SESSION_SECRET: { type: 'string' },
     API_BACKEND_URL: { type: 'string' },
+    GRAPHQL_BACKEND_URL: { type: 'string' },
     FEEDBACK_SLACK_URL: { type: 'string' },
     FEEDBACK_URL_LINK: { type: 'string' },
     FRAME_ANCESTORS: { type: 'string' },

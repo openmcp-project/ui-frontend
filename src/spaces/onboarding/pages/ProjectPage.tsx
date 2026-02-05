@@ -5,23 +5,24 @@ import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/Lis
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { Trans, useTranslation } from 'react-i18next';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
-import { ListWorkspaces } from '../../../lib/api/types/crate/listWorkspaces.ts';
 import Loading from '../../../components/Shared/Loading.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
+import { APIError, isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
+import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceService.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
-  const { data: workspaces, error, isLoading } = useApiResource(ListWorkspaces(projectName));
+  const projectNamespace = projectName ? `project-${projectName}` : undefined;
+  const { data: workspaces, error, loading } = useWorkspacesQuery(projectNamespace);
   const { t } = useTranslation();
 
-  if (isLoading) {
+  if (loading) {
     return <Loading />;
   }
 
-  if (isNotFoundError(error)) {
+  const apiError = error && 'status' in error ? (error as APIError) : null;
+  if (isNotFoundError(apiError)) {
     return <NotFoundBanner entityType={t('Entities.Project')} />;
   }
 
