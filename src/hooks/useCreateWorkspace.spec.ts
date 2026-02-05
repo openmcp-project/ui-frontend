@@ -22,7 +22,7 @@ vi.mock('react-i18next', () => ({
 
 describe('useCreateWorkspace', () => {
   let fetchMock: Mock<typeof fetch>;
-  let apolloClient: ApolloClient<any>;
+  let apolloClient: ApolloClient;
 
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     React.createElement(ApolloProvider, { client: apolloClient, children });
