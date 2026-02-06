@@ -184,7 +184,6 @@ export function GitRepositories() {
     );
   }
 
-  const rows: FluxRow[] =
   const rows: FluxRow[] = useMemo(
     () =>
       data?.items?.map((item) => {
