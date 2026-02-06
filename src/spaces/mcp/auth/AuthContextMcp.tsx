@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
+import { createContext, useState, useEffect, ReactNode, use, useCallback, useMemo } from 'react';
 import * as Sentry from '@sentry/react';
 import { MeResponseSchema } from './auth.schemas';
 import {
@@ -27,7 +27,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams] = useSearchParams();
   const idpName = searchParams.get('idp');
-  const namespace = `project-${projectName}--ws-${workspaceName}`;
+  const namespace = useMemo(() => `project-${projectName}--ws-${workspaceName}`, [projectName, workspaceName]);
 
   const refreshAuthStatus = useCallback(async () => {
     setIsLoading(true);

@@ -16,13 +16,13 @@ const options: Pick<StatusFilterOptionProps, 'value' | 'iconName' | 'color' | 'l
     value: 'true',
     iconName: 'sys-enter-2',
     color: 'green',
-    labelKey: 'Enabled',
+    labelKey: 'Ready',
   },
   {
     value: 'false',
     iconName: 'sys-cancel-2',
     color: 'red',
-    labelKey: 'Disabled',
+    labelKey: 'Error',
   },
 ];
 
