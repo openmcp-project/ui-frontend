@@ -21,6 +21,17 @@ export default function ConfiguredAnalyticsTable(props: Props) {
       scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
       loading={props.isLoading}
       filterable
+      reactTableOptions={{
+        autoResetHiddenColumns: false,
+        autoResetPage: false,
+        autoResetExpanded: false,
+        autoResetGroupBy: false,
+        autoResetSelectedRows: false,
+        autoResetSortBy: false,
+        autoResetFilters: false,
+        autoResetRowState: false,
+        autoResetResize: false,
+      }}
     />
   );
 }

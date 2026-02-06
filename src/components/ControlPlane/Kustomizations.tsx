@@ -52,6 +52,7 @@ export function Kustomizations() {
     name: string;
     created: string;
     isReady: boolean;
+    status: string;
     statusUpdateTime?: string;
     item: KustomizationItem;
     readyMessage: string;
@@ -180,9 +181,11 @@ export function Kustomizations() {
     () =>
       data?.items?.map((item) => {
         const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
+        const isReady = readyObject?.status === 'True';
         return {
           name: item.metadata.name,
-          isReady: readyObject?.status === 'True',
+          isReady: isReady,
+          status: String(isReady),
           statusUpdateTime: readyObject?.lastTransitionTime,
           created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
           item: {
