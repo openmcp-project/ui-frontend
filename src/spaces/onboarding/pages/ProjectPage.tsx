@@ -6,7 +6,7 @@ import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFee
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { Trans, useTranslation } from 'react-i18next';
 import Loading from '../../../components/Shared/Loading.tsx';
-import { APIError, isNotFoundError } from '../../../lib/api/error.ts';
+import { getErrorStatusCode } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceService.ts';
@@ -21,8 +21,8 @@ export default function ProjectPage() {
     return <Loading />;
   }
 
-  const apiError = error && 'status' in error ? (error as APIError) : null;
-  if (isNotFoundError(apiError)) {
+  const statusCode = getErrorStatusCode(error);
+  if (statusCode === 404 || statusCode === 403) {
     return <NotFoundBanner entityType={t('Entities.Project')} />;
   }
 

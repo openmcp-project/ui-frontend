@@ -38,14 +38,21 @@ export function useWorkspacesQuery(projectNamespace?: string) {
   const query = useQuery(GetWorkspacesQuery, {
     variables: { projectNamespace: projectNamespace ?? '' },
     skip: !projectNamespace,
+    pollInterval: 10000,
   });
 
-  const workspaces: ListWorkspacesType[] = (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? []).flatMap(
-    (workspace) => {
-      if (!workspace?.metadata?.name || !workspace.metadata.namespace) {
-        return [];
-      }
-
+  const workspaces: ListWorkspacesType[] = (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? [])
+    .filter(
+      (
+        workspace,
+      ): workspace is NonNullable<typeof workspace> & {
+        metadata: NonNullable<typeof workspace>['metadata'] & {
+          name: string;
+          namespace: string;
+        };
+      } => !!workspace?.metadata?.name && !!workspace.metadata.namespace,
+    )
+    .map((workspace) => {
       const members: Member[] = (workspace.spec?.members ?? [])
         .filter((member): member is NonNullable<typeof member> => !!member)
         .map((member) => ({
@@ -73,9 +80,8 @@ export function useWorkspacesQuery(projectNamespace?: string) {
         };
       }
 
-      return [result];
-    },
-  );
+      return result;
+    });
 
   return {
     ...query,

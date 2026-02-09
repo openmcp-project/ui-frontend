@@ -1,7 +1,7 @@
 schema:
   - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/onboarding/graphql:
       headers:
-        Authorization: 'needed to geerate types from graphQL'
+        Authorization: 'needed to generate types from GraphQL'
 documents: './src/**/*.{ts,tsx}'
 ignoreNoDocuments: true
 extensions:

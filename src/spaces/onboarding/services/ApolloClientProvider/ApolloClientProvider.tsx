@@ -7,7 +7,6 @@ import { useFrontendConfig } from '../../../../context/FrontendConfigContext.tsx
 export function ApolloClientProvider({ children }: { children: ReactNode }) {
   const { gatewayUrl } = useFrontendConfig();
   const graphqlUrl = gatewayUrl.startsWith('/') ? gatewayUrl : '/api/graphql';
-  console.log('Gateway URL:', graphqlUrl);
 
   const httpLink = new HttpLink({
     uri: graphqlUrl,

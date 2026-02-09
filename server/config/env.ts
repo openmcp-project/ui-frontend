@@ -13,6 +13,7 @@ const schema = {
     'COOKIE_SECRET',
     'SESSION_SECRET',
     'API_BACKEND_URL',
+    'GRAPHQL_BACKEND_URL',
     'FRAME_ANCESTORS',
   ],
   properties: {

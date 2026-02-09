@@ -132,6 +132,7 @@ function proxyPlugin(fastify) {
 
   if (GRAPHQL_BACKEND_URL) {
     fastify.register(httpProxy, {
+      // Mounted under `/api` in `server.ts`, so the final route is `/api/graphql`.
       prefix: '/graphql',
       upstream: GRAPHQL_BACKEND_URL,
       rewritePrefix: '',
