@@ -174,16 +174,6 @@ export function GitRepositories() {
     [t, hasMCPAdminRights, openEditPanel],
   );
 
-  if (error) {
-    return (
-      <IllustratedError
-        details={error?.message || t('FluxList.undefinedError')}
-        title={t('FluxList.noFluxError')}
-        compact={true}
-      />
-    );
-  }
-
   const rows: FluxRow[] = useMemo(
     () =>
       data?.items?.map((item) => {
@@ -206,6 +196,16 @@ export function GitRepositories() {
     [data],
   );
 
+  if (error) {
+    return (
+      <IllustratedError
+        details={error?.message || t('FluxList.undefinedError')}
+        title={t('FluxList.noFluxError')}
+        compact={true}
+      />
+    );
+  }
+
   return (
     <>
       <Panel
@@ -222,7 +222,7 @@ export function GitRepositories() {
         }
       >
         <>
-          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} preserveTableState />
           <ErrorDialog ref={errorDialogRef} />
         </>
       </Panel>

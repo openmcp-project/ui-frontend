@@ -238,7 +238,7 @@ export function Kustomizations() {
         }
       >
         <>
-          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
+          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} preserveTableState />
           <ErrorDialog ref={errorDialogRef} />
         </>
       </Panel>
