@@ -11,18 +11,18 @@ interface StatusFilterProps {
 }
 
 const options: Pick<StatusFilterOptionProps, 'value' | 'iconName' | 'color' | 'labelKey'>[] = [
-  { value: 'all', iconName: 'filter', color: 'gray', labelKey: 'All' },
+  { value: 'all', iconName: 'filter', color: 'gray', labelKey: 'common.all' },
   {
     value: 'true',
     iconName: 'sys-enter-2',
     color: 'green',
-    labelKey: 'Ready',
+    labelKey: 'common.ok',
   },
   {
     value: 'false',
     iconName: 'sys-cancel-2',
     color: 'red',
-    labelKey: 'Error',
+    labelKey: 'common.notOk',
   },
 ];
 
