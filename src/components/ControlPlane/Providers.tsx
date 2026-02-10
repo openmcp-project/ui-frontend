@@ -112,23 +112,41 @@ export function Providers() {
     [t],
   );
 
-  const rows: ProvidersRow[] =
-    providers?.items?.map((item) => {
-      const installed = item.status?.conditions?.find((condition) => condition.type === 'Installed');
-      const healthy = item.status?.conditions?.find((condition) => condition.type === 'Healthy');
-      return {
-        name: item.metadata.name,
-        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-        installed: installed?.status === 'True' ? 'true' : 'false',
-        installedTransitionTime: installed?.lastTransitionTime ?? '',
-        healthy: healthy?.status === 'True' ? 'true' : 'false',
-        healthyTransitionTime: healthy?.lastTransitionTime ?? '',
-        version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
-        item: item,
-        healthyMessage: healthy?.message ?? healthy?.reason ?? '',
-        installedMessage: installed?.message ?? installed?.reason ?? '',
-      };
-    }) ?? [];
+  const rows: ProvidersRow[] = useMemo(
+    () =>
+      providers?.items?.map((item) => {
+        const installed = item.status?.conditions?.find((condition) => condition.type === 'Installed');
+        const healthy = item.status?.conditions?.find((condition) => condition.type === 'Healthy');
+        return {
+          name: item.metadata.name,
+          created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
+          installed: installed?.status === 'True' ? 'true' : 'false',
+          installedTransitionTime: installed?.lastTransitionTime ?? '',
+          healthy: healthy?.status === 'True' ? 'true' : 'false',
+          healthyTransitionTime: healthy?.lastTransitionTime ?? '',
+          version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
+          item: item,
+          healthyMessage: healthy?.message ?? healthy?.reason ?? '',
+          installedMessage: installed?.message ?? installed?.reason ?? '',
+        };
+      }) ?? [],
+    [providers?.items],
+  );
+
+  const tableOptions = useMemo(
+    () => ({
+      autoResetHiddenColumns: false,
+      autoResetPage: false,
+      autoResetExpanded: false,
+      autoResetGroupBy: false,
+      autoResetSelectedRows: false,
+      autoResetSortBy: false,
+      autoResetFilters: false,
+      autoResetRowState: false,
+      autoResetResize: false,
+    }),
+    [],
+  );
 
   return (
     <>
@@ -152,17 +170,7 @@ export function Providers() {
             loading={isLoading}
             filterable
             retainColumnWidth
-            reactTableOptions={{
-              autoResetHiddenColumns: false,
-              autoResetPage: false,
-              autoResetExpanded: false,
-              autoResetGroupBy: false,
-              autoResetSelectedRows: false,
-              autoResetSortBy: false,
-              autoResetFilters: false,
-              autoResetRowState: false,
-              autoResetResize: false,
-            }}
+            reactTableOptions={tableOptions}
           />
         </Panel>
       )}
