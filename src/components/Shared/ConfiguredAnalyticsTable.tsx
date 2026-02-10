@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -10,25 +9,20 @@ interface Props {
   data: Record<string, unknown>[];
   visibleRows?: number;
   isLoading?: boolean;
-  preserveTableState?: boolean;
 }
+const reactTableOptions = {
+  autoResetHiddenColumns: false,
+  autoResetPage: false,
+  autoResetExpanded: false,
+  autoResetGroupBy: false,
+  autoResetSelectedRows: false,
+  autoResetSortBy: false,
+  autoResetFilters: false,
+  autoResetRowState: false,
+  autoResetResize: false,
+};
 
 export default function ConfiguredAnalyticsTable(props: Props) {
-  const reactTableOptions = useMemo(
-    () => ({
-      autoResetHiddenColumns: false,
-      autoResetPage: false,
-      autoResetExpanded: false,
-      autoResetGroupBy: false,
-      autoResetSelectedRows: false,
-      autoResetSortBy: false,
-      autoResetFilters: false,
-      autoResetRowState: false,
-      autoResetResize: false,
-    }),
-    [],
-  );
-
   return (
     <AnalyticalTable
       columns={props.columns.map((c) => (typeof c === 'string' ? { Header: c, accessor: c } : c))}
@@ -38,7 +32,7 @@ export default function ConfiguredAnalyticsTable(props: Props) {
       scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
       loading={props.isLoading}
       filterable
-      {...(props.preserveTableState && { reactTableOptions })}
+      reactTableOptions={reactTableOptions}
     />
   );
 }
