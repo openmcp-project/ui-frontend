@@ -222,7 +222,7 @@ export function GitRepositories() {
         }
       >
         <>
-          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} preserveTableState />
+          <ConfiguredAnalyticstable columns={columns} isLoading={isLoading} data={rows} />
           <ErrorDialog ref={errorDialogRef} />
         </>
       </Panel>
