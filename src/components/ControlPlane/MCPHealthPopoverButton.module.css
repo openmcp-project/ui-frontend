@@ -27,6 +27,17 @@
   color: var(--sapCriticalColor);
 }
 
-.popover {
-  border: 1px solid red !important;
+.footer {
+  width: 100%;
+  padding: 0.25rem 0;
+}
+
+.yamlViewer {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.conditionContent {
+  height: max-content;
+  overflow-y: auto;
 }

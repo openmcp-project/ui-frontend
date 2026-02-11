@@ -9,6 +9,8 @@ import {
   PopoverDomRef,
   ButtonDomRef,
   LinkDomRef,
+  Toolbar,
+  ToolbarButton,
 } from '@ui5/webcomponents-react';
 import type { MessageItemPropTypes } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -27,6 +29,8 @@ import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
+import { YamlViewer } from '../Yaml/YamlViewer.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -106,8 +110,20 @@ const MCPHealthPopoverButton = ({
         large={large}
         onClick={handleOpenerClick}
       />
-      <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
-        <StatusTable status={mcpStatus} githubIssuesLink={constructGithubIssuesLink()} />
+      <ResponsivePopover
+        ref={popoverRef}
+        open={open}
+        placement={PopoverPlacement.Top}
+        onClose={() => setOpen(false)}
+        footer={
+          <FlexBox justifyContent={FlexBoxJustifyContent.End} className={styles.footer}>
+            <a href={constructGithubIssuesLink()} target="_blank" rel="noreferrer">
+              <Button icon="action">{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
+            </a>
+          </FlexBox>
+        }
+      >
+        <StatusTable status={mcpStatus} />
       </ResponsivePopover>
     </div>
   );
@@ -117,11 +133,11 @@ export default MCPHealthPopoverButton;
 
 type StatusTableProps = {
   status: ControlPlaneStatusType | undefined;
-  githubIssuesLink: string;
 };
 
-const StatusTable = ({ status, githubIssuesLink }: StatusTableProps) => {
+const StatusTable = ({ status }: StatusTableProps) => {
   const { t } = useTranslation();
+  const { copyToClipboard } = useCopyToClipboard();
 
   const sortedConditions = status?.conditions ? [...status.conditions].sort((a, b) => (a.type < b.type ? -1 : 1)) : [];
 
@@ -140,24 +156,32 @@ const StatusTable = ({ status, githubIssuesLink }: StatusTableProps) => {
                 titleText={condition.type}
                 subtitleText={condition.reason || ''}
               >
-                <div>
-                  <p>{condition.message}</p>
-                  {condition.lastTransitionTime && (
-                    <p className={styles.lastTransitionTime}>
-                      {t('MCPHealthPopoverButton.transitionHeader')}: <ReactTimeAgo date={date} />
-                    </p>
-                  )}
-                </div>
+                <FlexBox direction="Column" className={styles.conditionContent}>
+                  <div>
+                    <p>{condition.message}</p>
+                    {condition.lastTransitionTime && (
+                      <p className={styles.lastTransitionTime}>
+                        {t('MCPHealthPopoverButton.transitionHeader')}: <ReactTimeAgo date={date} />
+                      </p>
+                    )}
+                  </div>
+                  <div className={styles.yamlViewer}>
+                    <Toolbar>
+                      <ToolbarButton
+                        design="Transparent"
+                        icon="copy"
+                        text={t('buttons.copy')}
+                        onClick={() => copyToClipboard(JSON.stringify(condition, null, 2))}
+                      />
+                    </Toolbar>
+                    <YamlViewer yamlString={JSON.stringify(condition, null, 2)} filename={`${condition.type}.yaml`} />
+                  </div>
+                </FlexBox>
               </MessageItem>
             );
           })}
         </MessageView>
       </div>
-      <FlexBox justifyContent={FlexBoxJustifyContent.End} className={styles.supportTicketContainer}>
-        <a href={githubIssuesLink} target="_blank" rel="noreferrer">
-          <Button>{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
-        </a>
-      </FlexBox>
     </div>
   );
 };
