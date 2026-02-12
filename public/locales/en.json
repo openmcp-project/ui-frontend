@@ -373,6 +373,8 @@
   },
   "common": {
     "all": "All",
+    "ok": "OK",
+    "notOk": "Not OK",
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",

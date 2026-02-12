@@ -10,6 +10,17 @@ interface Props {
   visibleRows?: number;
   isLoading?: boolean;
 }
+const reactTableOptions = {
+  autoResetHiddenColumns: false,
+  autoResetPage: false,
+  autoResetExpanded: false,
+  autoResetGroupBy: false,
+  autoResetSelectedRows: false,
+  autoResetSortBy: false,
+  autoResetFilters: false,
+  autoResetRowState: false,
+  autoResetResize: false,
+};
 
 export default function ConfiguredAnalyticsTable(props: Props) {
   return (
@@ -21,6 +32,7 @@ export default function ConfiguredAnalyticsTable(props: Props) {
       scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
       loading={props.isLoading}
       filterable
+      reactTableOptions={reactTableOptions}
     />
   );
 }
