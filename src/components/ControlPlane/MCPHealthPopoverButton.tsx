@@ -1,6 +1,5 @@
 import {
   MessageView,
-  MessageItem,
   Icon,
   ResponsivePopover,
   FlexBox,
@@ -9,10 +8,8 @@ import {
   PopoverDomRef,
   ButtonDomRef,
   LinkDomRef,
-  Toolbar,
-  ToolbarButton,
+  MessageItem,
 } from '@ui5/webcomponents-react';
-import type { MessageItemPropTypes } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
@@ -23,14 +20,12 @@ import {
   ReadyStatus,
   ControlPlaneStatusCondition,
 } from '../../lib/api/types/crate/controlPlanes';
-import ReactTimeAgo from 'react-time-ago';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
-import { YamlViewer } from '../Yaml/YamlViewer.tsx';
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
+import { ConditionMessageItem } from './ConditionMessageItem.tsx';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -136,50 +131,22 @@ type StatusTableProps = {
 };
 
 const StatusTable = ({ status }: StatusTableProps) => {
-  const { t } = useTranslation();
-  const { copyToClipboard } = useCopyToClipboard();
-
   const sortedConditions = status?.conditions ? [...status.conditions].sort((a, b) => (a.type < b.type ? -1 : 1)) : [];
 
   return (
     <div>
       <div className={styles.statusTable}>
         <MessageView className={styles.wrapper} showDetailsPageHeader={true}>
-          {sortedConditions.map((condition, index) => {
-            const messageType: MessageItemPropTypes['type'] = condition.status === 'True' ? 'Positive' : 'Negative';
-            const date = new Date(condition.lastTransitionTime);
-
-            return (
-              <MessageItem
-                key={`${condition.type}-${index}`}
-                type={messageType}
-                titleText={condition.type}
-                subtitleText={condition.reason || ''}
-              >
-                <FlexBox direction="Column" className={styles.conditionContent}>
-                  <div>
-                    <p>{condition.message}</p>
-                    {condition.lastTransitionTime && (
-                      <p className={styles.lastTransitionTime}>
-                        {t('MCPHealthPopoverButton.transitionHeader')}: <ReactTimeAgo date={date} />
-                      </p>
-                    )}
-                  </div>
-                  <div className={styles.yamlViewer}>
-                    <Toolbar>
-                      <ToolbarButton
-                        design="Transparent"
-                        icon="copy"
-                        text={t('buttons.copy')}
-                        onClick={() => copyToClipboard(JSON.stringify(condition, null, 2))}
-                      />
-                    </Toolbar>
-                    <YamlViewer yamlString={JSON.stringify(condition, null, 2)} filename={`${condition.type}.yaml`} />
-                  </div>
-                </FlexBox>
-              </MessageItem>
-            );
-          })}
+          {sortedConditions.map((condition, index) => (
+            <MessageItem
+              key={`${condition.type}-${index}`}
+              type={condition.status === 'True' ? 'Positive' : 'Negative'}
+              titleText={condition.type}
+              subtitleText={condition.reason || ''}
+            >
+              <ConditionMessageItem condition={condition} />
+            </MessageItem>
+          ))}
         </MessageView>
       </div>
     </div>

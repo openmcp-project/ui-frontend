@@ -38,6 +38,6 @@
 }
 
 .conditionContent {
-  height: max-content;
-  overflow-y: auto;
+  min-width: 680px;
+  max-width: 680px;
 }
