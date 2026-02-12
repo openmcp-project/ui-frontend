@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
-import { useApiResourceMutation, useRevalidateApiResource } from '../lib/api/useApiResource';
+import { useApolloClient } from '@apollo/client/react';
+import { useApiResourceMutation } from '../lib/api/useApiResource';
 import { CreateWorkspace, CreateWorkspaceResource, CreateWorkspaceType } from '../lib/api/types/crate/createWorkspace';
-import { ListWorkspaces } from '../lib/api/types/crate/listWorkspaces';
 import { useToast } from '../context/ToastContext';
 import { Member } from '../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
+import { GetWorkspacesDocument } from '../types/__generated__/graphql/graphql';
 
 export interface CreateWorkspaceParams {
   name: string;
@@ -14,12 +15,12 @@ export interface CreateWorkspaceParams {
   members: Member[];
 }
 
-export function useCreateWorkspace(projectName: string, namespace: string) {
+export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
   const toast = useToast();
+  const apolloClient = useApolloClient();
 
   const { trigger } = useApiResourceMutation<CreateWorkspaceType>(CreateWorkspaceResource(namespace));
-  const revalidate = useRevalidateApiResource(ListWorkspaces(projectName));
 
   const createWorkspace = useCallback(
     async ({
@@ -37,10 +38,10 @@ export function useCreateWorkspace(projectName: string, namespace: string) {
           members,
         }),
       );
-      await revalidate();
+      await apolloClient.refetchQueries({ include: [GetWorkspacesDocument] });
       toast.show(t('CreateWorkspaceDialog.toastMessage'));
     },
-    [trigger, revalidate, toast, t, namespace],
+    [trigger, apolloClient, toast, t, namespace],
   );
 
   return {

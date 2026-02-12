@@ -48,7 +48,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
   const { managedControlPlanes, error: cpsError } = useManagedControlPlanesQuery(projectName, workspaceName);
-  const { deleteWorkspace } = useDeleteWorkspace(projectName, projectNamespace, workspaceName);
+  const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
 
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);

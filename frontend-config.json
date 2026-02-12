@@ -1,5 +1,5 @@
 {
-  "gatewayUrl": "http://localhost:3000",
+  "gatewayUrl": "/api/graphql",
   "landscape": "LOCAL",
   "documentationBaseUrl": "http://localhost:3000"
 }

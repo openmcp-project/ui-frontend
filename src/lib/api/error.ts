@@ -25,3 +25,19 @@ export class ValidationError extends Error {
 export function isNotFoundError(error?: APIError | null): boolean {
   return !!error && (error.status === 404 || error.status === 403);
 }
+
+export function getErrorStatusCode(error: unknown): number | undefined {
+  if (error instanceof APIError) {
+    return error.status;
+  }
+
+  if (error && typeof error === 'object' && 'networkError' in error) {
+    const networkError = (error as { networkError?: unknown }).networkError;
+    if (networkError && typeof networkError === 'object' && 'statusCode' in networkError) {
+      const statusCode = (networkError as { statusCode?: number }).statusCode;
+      return typeof statusCode === 'number' ? statusCode : undefined;
+    }
+  }
+
+  return undefined;
+}
