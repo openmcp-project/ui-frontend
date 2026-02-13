@@ -1,12 +1,11 @@
 import React from 'react';
 import { Button, Icon } from '@ui5/webcomponents-react';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+
 import styles from './CustomNode.module.css';
 import { Handle, Position } from '@xyflow/react';
 import { useTranslation } from 'react-i18next';
 import { ConditionsViewButton } from '../Shared/ConditionsViewButton.tsx';
 import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes.ts';
-import { tr } from 'zod/v4/locales';
 
 export interface CustomNodeProps {
   label: string;
@@ -23,12 +22,9 @@ const CustomNode: React.FC<CustomNodeProps> = ({
   label,
   type,
   status,
-  transitionTime,
-  statusMessage,
+
   onYamlClick,
 }) => {
-  const { t } = useTranslation();
-  console.log('conditions', conditions);
   return (
     <div className={styles.nodeContainer}>
       <Handle type="target" position={Position.Top} className={styles.handleHidden} />
