@@ -6,6 +6,7 @@ import { Handle, Position } from '@xyflow/react';
 import { useTranslation } from 'react-i18next';
 import { ConditionsViewButton } from '../Shared/ConditionsViewButton.tsx';
 import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes.ts';
+import { tr } from 'zod/v4/locales';
 
 export interface CustomNodeProps {
   label: string;
@@ -34,12 +35,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({
       <Handle type="source" position={Position.Bottom} className={styles.handleHidden} />
       <div className={styles.nodeContent}>
         <div className={styles.statusIcon}>
-          <ConditionsViewButton
-            conditions={conditions}
-            isOk={status === 'OK'}
-            transitionTime={transitionTime ?? ''}
-            hideOnHoverEffect={true}
-          />
+          <ConditionsViewButton conditions={conditions} isOk={status === 'OK'} />
         </div>
         <div className={styles.nodeTextContainer}>
           <div className={styles.nodeLabel} title={label}>
