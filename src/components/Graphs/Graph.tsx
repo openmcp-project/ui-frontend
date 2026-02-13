@@ -18,14 +18,17 @@ import { ApiConfigContext } from '../Shared/k8s';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
-    <CustomNode
-      label={props.data.label}
-      type={props.data.type}
-      status={props.data.status}
-      transitionTime={props.data.transitionTime}
-      statusMessage={props.data.statusMessage}
-      onYamlClick={() => props.data.onYamlClick(props.data.item)}
-    />
+    console.log(props.data),
+    (
+      <CustomNode
+        label={props.data.label}
+        type={props.data.type}
+        status={props.data.status}
+        transitionTime={props.data.transitionTime}
+        statusMessage={props.data.statusMessage}
+        onYamlClick={() => props.data.onYamlClick(props.data.item)}
+      />
+    )
   ),
 };
 
@@ -35,6 +38,7 @@ const Graph: React.FC = () => {
   const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('source');
   const apiConfig = useContext(ApiConfigContext);
+
   const handleYamlClick = useCallback(
     (item: ManagedResourceItem) => {
       const yamlFilename = item
