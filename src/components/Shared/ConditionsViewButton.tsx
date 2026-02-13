@@ -7,31 +7,34 @@ import {
   Ui5CustomEvent,
   LinkDomRef,
 } from '@ui5/webcomponents-react';
-import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
+import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo.ts';
 import { useState, useRef } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
-import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes';
+import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes.ts';
 
 import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
-export interface ResourceStatusCellProps {
+import { ConditionsMessageView } from '../ControlPlane/ConditionsMessageView.tsx';
+import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
+export interface ConditionsViewButtonProps {
   isOk: boolean;
   transitionTime: string;
   message?: string;
-  positiveText: string;
-  negativeText: string;
+  positiveText?: string;
+  negativeText?: string;
   hideOnHoverEffect?: boolean;
+  conditions: ControlPlaneStatusCondition[];
 }
-export const ResourceStatusCell = ({
+export const ConditionsViewButton = ({
   isOk,
   transitionTime,
   message,
   positiveText,
   negativeText,
   hideOnHoverEffect,
-}: ResourceStatusCellProps) => {
+  conditions,
+}: ConditionsViewButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
@@ -67,23 +70,14 @@ export const ResourceStatusCell = ({
               accessibleName={timeAgo}
             />
           }
-          text={isOk ? positiveText : negativeText}
+          text={isOk ? (positiveText ?? '') : (negativeText ?? '')}
           onClick={handleOpenerClick}
         />
       )}
 
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
-        <ConditionMessageItem
-          condition={
-            {
-              type: isOk ? positiveText : negativeText,
-              status: isOk ? 'True' : 'False',
-              reason: '',
-              message: message || '',
-              lastTransitionTime: transitionTime,
-            } as ControlPlaneStatusCondition
-          }
-        />
+        {conditions.length > 1 && <ConditionsMessageView conditions={conditions} />}
+        {conditions.length === 1 && <ConditionMessageItem condition={conditions[0]} />}
       </ResponsivePopover>
     </span>
   );

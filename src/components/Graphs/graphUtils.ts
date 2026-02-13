@@ -95,6 +95,7 @@ export function buildTreeData(
       const providerType = resolveProviderTypeFromApiVersion(apiVersion);
       const statusCond = getStatusCondition(item?.status?.conditions);
       const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
+      const conditions = item?.status?.conditions ?? [];
 
       let fluxName: string | undefined;
       const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
@@ -137,6 +138,7 @@ export function buildTreeData(
           status,
           transitionTime: statusCond?.lastTransitionTime ?? '',
           statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+          conditions,
           fluxName,
           parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
           extraRefs: [

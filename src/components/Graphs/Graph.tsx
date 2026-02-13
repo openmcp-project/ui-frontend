@@ -18,17 +18,15 @@ import { ApiConfigContext } from '../Shared/k8s';
 
 const nodeTypes = {
   custom: (props: NodeProps<Node<NodeData, 'custom'>>) => (
-    console.log(props.data),
-    (
-      <CustomNode
-        label={props.data.label}
-        type={props.data.type}
-        status={props.data.status}
-        transitionTime={props.data.transitionTime}
-        statusMessage={props.data.statusMessage}
-        onYamlClick={() => props.data.onYamlClick(props.data.item)}
-      />
-    )
+    <CustomNode
+      label={props.data.label}
+      type={props.data.type}
+      status={props.data.status}
+      transitionTime={props.data.transitionTime}
+      statusMessage={props.data.statusMessage}
+      onYamlClick={() => props.data.onYamlClick(props.data.item)}
+      conditions={props.data.conditions as unknown as []}
+    />
   ),
 };
 
