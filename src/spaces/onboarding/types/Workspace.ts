@@ -1,21 +1,15 @@
 import { z } from 'zod';
 import { MemberSchema } from '../../../lib/api/types/shared/members';
 
-const AnnotationsSchema = z.preprocess(
-  (value) => {
-    if (!value || typeof value !== 'object') {
-      return {};
-    }
+const AnnotationsSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
 
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, val]) => [
-        key,
-        val == null ? '' : String(val),
-      ]),
-    );
-  },
-  z.record(z.string(), z.string()).default({}),
-);
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, val]) => [key, val == null ? '' : String(val)]),
+  );
+}, z.record(z.string(), z.string()).default({}));
 
 const MembersSchema = z.preprocess(
   (value) => (Array.isArray(value) ? value.filter(Boolean) : []),

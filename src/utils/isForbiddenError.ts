@@ -1,4 +1,4 @@
-type ErrorLike = {
+export type ErrorLike = {
   status?: unknown;
   statusCode?: unknown;
   code?: unknown;

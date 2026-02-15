@@ -6,7 +6,7 @@ import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFee
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { Trans, useTranslation } from 'react-i18next';
 import Loading from '../../../components/Shared/Loading.tsx';
-import { getErrorStatusCode } from '../../../lib/api/error.ts';
+import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceService.ts';
@@ -14,15 +14,14 @@ import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceServic
 export default function ProjectPage() {
   const { projectName } = useParams();
   const projectNamespace = projectName ? `project-${projectName}` : undefined;
-  const { data: workspaces, error, loading } = useWorkspacesQuery(projectNamespace);
+  const { data: workspaces, error, isPending } = useWorkspacesQuery(projectNamespace);
   const { t } = useTranslation();
 
-  if (loading) {
+  if (isPending) {
     return <Loading />;
   }
 
-  const statusCode = getErrorStatusCode(error);
-  if (statusCode === 404 || statusCode === 403) {
+  if (isNotFoundError(error)) {
     return <NotFoundBanner entityType={t('Entities.Project')} />;
   }
 

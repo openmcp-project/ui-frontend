@@ -13,6 +13,13 @@ describe('error', () => {
       expect(isNotFoundError(new APIError('not found', 403))).toBe(true);
     });
 
+    it('should return true if error.statusCode or error.code is 404/403', () => {
+      expect(isNotFoundError({ statusCode: 404 })).toBe(true);
+      expect(isNotFoundError({ statusCode: 403 })).toBe(true);
+      expect(isNotFoundError({ code: 404 })).toBe(true);
+      expect(isNotFoundError({ code: 403 })).toBe(true);
+    });
+
     it('should return false if error is undefined', () => {
       expect(isNotFoundError(undefined)).toBe(false);
     });

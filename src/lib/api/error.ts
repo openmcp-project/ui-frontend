@@ -1,3 +1,5 @@
+import type { ErrorLike } from '../../utils/isForbiddenError.ts';
+
 export class APIError extends Error {
   status: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,8 +24,14 @@ export class ValidationError extends Error {
   }
 }
 
-export function isNotFoundError(error?: APIError | null): boolean {
-  return !!error && (error.status === 404 || error.status === 403);
+export function isNotFoundError(error?: ErrorLike | null): boolean {
+  if (!error || typeof error !== 'object') return false;
+
+  const status = typeof error.status === 'number' ? error.status : undefined;
+  const statusCode = typeof error.statusCode === 'number' ? error.statusCode : undefined;
+  const code = typeof error.code === 'number' ? error.code : undefined;
+
+  return status === 404 || status === 403 || statusCode === 404 || statusCode === 403 || code === 404 || code === 403;
 }
 
 export function getErrorStatusCode(error: unknown): number | undefined {
