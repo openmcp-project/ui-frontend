@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client/react';
-import { ListWorkspacesType } from '../../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../types/Workspace.ts';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { graphql } from '../../../../types/__generated__/graphql';
 
@@ -41,7 +41,7 @@ export function useWorkspacesQuery(projectNamespace?: string) {
     pollInterval: 10000,
   });
 
-  const workspaces: ListWorkspacesType[] = (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? [])
+  const workspaces: Workspace[] = (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? [])
     .filter(
       (
         workspace,
@@ -63,7 +63,7 @@ export function useWorkspacesQuery(projectNamespace?: string) {
         }))
         .filter((member) => member.kind.length > 0 && member.name.length > 0);
 
-      const result: ListWorkspacesType = {
+      const result: Workspace = {
         metadata: {
           name: workspace.metadata.name,
           namespace: workspace.metadata.namespace,

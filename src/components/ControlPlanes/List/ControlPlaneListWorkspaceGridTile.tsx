@@ -4,7 +4,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
-import { ListWorkspacesType, isWorkspaceReady } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { useMemo, useState } from 'react';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
@@ -25,7 +25,7 @@ import { useManagedControlPlanesQuery as _useManagedControlPlanesQuery } from '.
 
 interface Props {
   projectName: string;
-  workspace: ListWorkspacesType;
+  workspace: Workspace;
   useManagedControlPlanesQuery?: typeof _useManagedControlPlanesQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -53,6 +53,10 @@ export function ControlPlaneListWorkspaceGridTile({
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
   const shouldCollapsePanel = !!errorView;
+
+  function isWorkspaceReady(currentWorkspace: Workspace): boolean {
+    return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
+  }
 
   function createErrorView(error: APIError | undefined) {
     if (error) {

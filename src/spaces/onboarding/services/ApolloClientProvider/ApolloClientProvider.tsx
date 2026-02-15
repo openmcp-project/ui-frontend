@@ -2,11 +2,9 @@ import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
 import { HttpLink } from '@apollo/client/link/http';
 import { ReactNode } from 'react';
-import { useFrontendConfig } from '../../../../context/FrontendConfigContext.tsx';
 
 export function ApolloClientProvider({ children }: { children: ReactNode }) {
-  const { gatewayUrl } = useFrontendConfig();
-  const graphqlUrl = gatewayUrl.startsWith('/') ? gatewayUrl : '/api/graphql';
+  const graphqlUrl = '/api/graphql';
 
   const httpLink = new HttpLink({
     uri: graphqlUrl,
