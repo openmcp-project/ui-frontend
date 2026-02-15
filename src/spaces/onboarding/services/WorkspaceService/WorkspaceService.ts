@@ -36,7 +36,8 @@ const GetWorkspacesQuery = graphql(`
   }
 `);
 
-export function useWorkspacesQuery(projectNamespace?: string) {
+export function useWorkspacesQuery(projectName?: string) {
+  const projectNamespace = projectName ? `project-${projectName}` : undefined;
   const query = useQuery(GetWorkspacesQuery, {
     variables: { projectNamespace: projectNamespace ?? '' },
     skip: !projectNamespace,

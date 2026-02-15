@@ -13,8 +13,7 @@ import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceServic
 
 export default function ProjectPage() {
   const { projectName } = useParams();
-  const projectNamespace = projectName ? `project-${projectName}` : undefined;
-  const { data: workspaces, error, isPending } = useWorkspacesQuery(projectNamespace);
+  const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
 
   if (isPending) {

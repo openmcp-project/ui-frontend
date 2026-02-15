@@ -120,7 +120,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       spec: {
         members: [],
       },
-    } as unknown as Workspace;
+    };
 
     cy.mount(
       <MemoryRouter>
