@@ -98,6 +98,8 @@ export function buildTreeData(
       const conditions = (item?.status?.conditions ?? []).map((condition) => ({
         ...condition,
         type: String(condition.type),
+        reason: condition.reason ?? '',
+        message: condition.message ?? '',
       }));
 
       let fluxName: string | undefined;
