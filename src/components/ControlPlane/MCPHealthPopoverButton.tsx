@@ -18,12 +18,12 @@ import {
   ReadyStatus,
   ControlPlaneStatusCondition,
 } from '../../lib/api/types/crate/controlPlanes';
-import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
+import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
-import { ConditionsMessageListView } from './ConditionsMessageListView.tsx';
+import { ConditionsMessageListView } from './ConditionsMessageListView';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;

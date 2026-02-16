@@ -3,7 +3,6 @@ import { Button, Icon } from '@ui5/webcomponents-react';
 
 import styles from './CustomNode.module.css';
 import { Handle, Position } from '@xyflow/react';
-import { useTranslation } from 'react-i18next';
 import { ConditionsViewButton } from '../Shared/ConditionsViewButton.tsx';
 import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes.ts';
 

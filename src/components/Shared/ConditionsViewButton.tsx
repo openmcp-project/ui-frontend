@@ -15,6 +15,7 @@ import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/cont
 import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
 import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
+import { ConditionsMessageListView } from '../ControlPlane/ConditionsMessageListView.tsx';
 export interface ConditionsViewButtonProps {
   isOk: boolean;
   message?: string;
