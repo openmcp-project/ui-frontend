@@ -13,7 +13,7 @@ export const ConditionsMessageListView = ({ conditions }: ConditionsMessageListV
   return (
     <div>
       <div className={styles.statusTable}>
-        <MessageView className={styles.wrapper} showDetailsPageHeader={true}>
+        <MessageView showDetailsPageHeader={true}>
           {sortedConditions.map((condition, index) => (
             <MessageItem
               key={`${condition.type}-${index}`}
