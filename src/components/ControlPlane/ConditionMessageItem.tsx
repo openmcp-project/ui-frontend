@@ -27,7 +27,7 @@ export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) =
     <FlexBox direction="Column" className={styles.conditionContent}>
       <div>
         <div className={styles.yamlViewer}>
-          <Toolbar>
+          <Toolbar alignContent="Start">
             <ToolbarButton
               design="Transparent"
               icon="copy"

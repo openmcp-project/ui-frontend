@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
-import { ConditionsMessageView } from './ConditionsMessageView.tsx';
+import { ConditionsMessageListView } from './ConditionsMessageListView.tsx';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -116,7 +116,7 @@ const MCPHealthPopoverButton = ({
           </FlexBox>
         }
       >
-        <ConditionsMessageView conditions={mcpStatus?.conditions} />
+        <ConditionsMessageListView conditions={mcpStatus?.conditions} />
       </ResponsivePopover>
     </div>
   );

@@ -14,7 +14,6 @@ import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/cont
 
 import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
-import { ConditionsMessageView } from '../ControlPlane/ConditionsMessageView.tsx';
 import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
 export interface ConditionsViewButtonProps {
   isOk: boolean;
@@ -44,7 +43,7 @@ export const ConditionsViewButton = ({ isOk, conditions }: ConditionsViewButtonP
       </Button>
 
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
-        {conditions.length > 1 && <ConditionsMessageView conditions={conditions} />}
+        {conditions.length > 1 && <ConditionsMessageListView conditions={conditions} />}
         {conditions.length === 1 && <ConditionMessageItem condition={conditions[0]} />}
       </ResponsivePopover>
     </span>

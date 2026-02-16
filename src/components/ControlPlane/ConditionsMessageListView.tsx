@@ -3,11 +3,11 @@ import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPl
 import { ConditionMessageItem } from './ConditionMessageItem.tsx';
 import styles from './MCPHealthPopoverButton.module.css';
 
-type ConditionsMessageViewProps = {
+type ConditionsMessageListViewProps = {
   conditions: ControlPlaneStatusCondition[] | undefined;
 };
 
-export const ConditionsMessageView = ({ conditions }: ConditionsMessageViewProps) => {
+export const ConditionsMessageListView = ({ conditions }: ConditionsMessageListViewProps) => {
   const sortedConditions = conditions ? [...conditions].sort((a, b) => (a.type < b.type ? -1 : 1)) : [];
 
   return (
