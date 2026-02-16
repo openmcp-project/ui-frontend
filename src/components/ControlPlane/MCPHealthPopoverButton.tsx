@@ -113,8 +113,8 @@ const MCPHealthPopoverButton = ({
           </FlexBox>
         }
         ref={popoverRef}
-        open={open}
         onClose={() => setOpen(false)}
+        open={open}
       >
         <ConditionsMessageListView conditions={mcpStatus?.conditions} />
       </ResponsivePopover>
