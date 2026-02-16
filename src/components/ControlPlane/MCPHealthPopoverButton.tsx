@@ -104,6 +104,7 @@ const MCPHealthPopoverButton = ({
         onClick={handleOpenerClick}
       />
       <ResponsivePopover
+        ref={popoverRef}
         placement={PopoverPlacement.Top}
         footer={
           <FlexBox justifyContent={FlexBoxJustifyContent.End} className={styles.footer}>
@@ -112,9 +113,8 @@ const MCPHealthPopoverButton = ({
             </a>
           </FlexBox>
         }
-        ref={popoverRef}
-        onClose={() => setOpen(false)}
         open={open}
+        onClose={() => setOpen(false)}
       >
         <ConditionsMessageListView conditions={mcpStatus?.conditions} />
       </ResponsivePopover>
