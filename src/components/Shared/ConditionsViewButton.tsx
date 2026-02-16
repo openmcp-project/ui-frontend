@@ -18,9 +18,6 @@ import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
 import { ConditionsMessageListView } from '../ControlPlane/ConditionsMessageListView.tsx';
 export interface ConditionsViewButtonProps {
   isOk: boolean;
-  message?: string;
-  positiveText?: string;
-  negativeText?: string;
   conditions: ControlPlaneStatusCondition[];
 }
 export const ConditionsViewButton = ({ isOk, conditions }: ConditionsViewButtonProps) => {
