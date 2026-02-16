@@ -25,7 +25,7 @@ const nodeTypes = {
       transitionTime={props.data.transitionTime}
       statusMessage={props.data.statusMessage}
       onYamlClick={() => props.data.onYamlClick(props.data.item)}
-      conditions={props.data.conditions as unknown as []}
+      conditions={props.data.conditions}
     />
   ),
 };
