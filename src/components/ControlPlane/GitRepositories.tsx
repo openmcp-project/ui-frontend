@@ -105,7 +105,7 @@ export function GitRepositories() {
         },
         {
           Header: t('FluxList.tableStatusHeader'),
-          accessor: 'status',
+          accessor: 'isReady',
           width: 125,
           hAlign: 'Center',
           Filter: ({ column }) => <StatusFilter column={column} />,
@@ -174,6 +174,28 @@ export function GitRepositories() {
     [t, hasMCPAdminRights, openEditPanel],
   );
 
+  const rows: FluxRow[] = useMemo(
+    () =>
+      data?.items?.map((item) => {
+        const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
+        return {
+          name: item.metadata.name,
+          isReady: readyObject?.status === 'True',
+          statusUpdateTime: readyObject?.lastTransitionTime,
+          revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
+          created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
+          item: {
+            ...item,
+            kind: 'GitRepository',
+            apiVersion: 'source.toolkit.fluxcd.io/v1',
+            metadata: { ...item.metadata },
+          } as GitRepoItem,
+          readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
+        };
+      }) ?? [],
+    [data],
+  );
+
   if (error) {
     return (
       <IllustratedError
@@ -183,25 +205,6 @@ export function GitRepositories() {
       />
     );
   }
-
-  const rows: FluxRow[] =
-    data?.items?.map((item) => {
-      const readyObject = item.status?.conditions?.find((x) => x.type === 'Ready');
-      return {
-        name: item.metadata.name,
-        isReady: readyObject?.status === 'True',
-        statusUpdateTime: readyObject?.lastTransitionTime,
-        revision: shortenCommitHash(item.status.artifact?.revision ?? '-'),
-        created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-        item: {
-          ...item,
-          kind: 'GitRepository',
-          apiVersion: 'source.toolkit.fluxcd.io/v1',
-          metadata: { ...item.metadata },
-        } as GitRepoItem,
-        readyMessage: readyObject?.message ?? readyObject?.reason ?? '',
-      };
-    }) ?? [];
 
   return (
     <>
@@ -223,7 +226,6 @@ export function GitRepositories() {
           <ErrorDialog ref={errorDialogRef} />
         </>
       </Panel>
-
       <CreateGitRepositoryDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} />
     </>
   );
