@@ -38,7 +38,13 @@ export const ConditionsViewButton = ({ isOk, conditions }: ConditionsViewButtonP
 
   return (
     <span>
-      <Button ref={buttonRef} design="Transparent" aria-label={statusLabel} title={statusLabel} onClick={handleOpenerClick}>
+      <Button
+        ref={buttonRef}
+        design="Transparent"
+        aria-label={statusLabel}
+        title={statusLabel}
+        onClick={handleOpenerClick}
+      >
         <Icon design={isOk ? 'Positive' : 'Negative'} name={isOk ? 'sys-enter-2' : 'sys-cancel-2'} />
       </Button>
 
