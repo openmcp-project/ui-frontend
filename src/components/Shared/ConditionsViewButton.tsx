@@ -39,7 +39,7 @@ export const ConditionsViewButton = ({ isOk, conditions }: ConditionsViewButtonP
   return (
     <span>
       <Button ref={buttonRef} design="Transparent" aria-label={statusLabel} title={statusLabel} onClick={handleOpenerClick}>
-        <Icon design={isOk ? 'Positive' : 'Negative'} name={isOk ? 'sys-enter-2' : 'sys-cancel-2'} showTooltip={true} />
+        <Icon design={isOk ? 'Positive' : 'Negative'} name={isOk ? 'sys-enter-2' : 'sys-cancel-2'} />
       </Button>
 
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
