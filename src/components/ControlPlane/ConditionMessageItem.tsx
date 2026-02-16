@@ -17,8 +17,8 @@ export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) =
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
 
-  const date = condition.lastTransitionTime ? new Date(condition.lastTransitionTime) : new Date();
-  const isValidDate = !isNaN(date.getTime());
+  const date = condition.lastTransitionTime ? new Date(condition.lastTransitionTime) : null;
+  const isValidDate = date !== null && !isNaN(date.getTime());
   const isOk = condition.status === 'True';
 
   const stringifiedCondition = useMemo(() => stringify(condition, { indent: 2 }), [condition]);
