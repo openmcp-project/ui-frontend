@@ -40,7 +40,7 @@ export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) =
           </div>
         </div>
 
-        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={12} className={styles.subheader}>
+        <FlexBox justifyContent={'Start'} alignItems={'Center'} gap={12}>
           <Icon
             name={'date-time'}
             style={{
