@@ -21,7 +21,7 @@ export const ConditionMessageItem = ({ condition }: ConditionMessageItemProps) =
   const isValidDate = !isNaN(date.getTime());
   const isOk = condition.status === 'True';
 
-  const stringifiedCondition = useMemo(() => stringify(condition, null, 2), [condition]);
+  const stringifiedCondition = useMemo(() => stringify(condition, { indent: 2 }), [condition]);
 
   return (
     <FlexBox direction="Column" className={styles.conditionContent}>
