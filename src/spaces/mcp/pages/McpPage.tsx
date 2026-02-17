@@ -116,7 +116,11 @@ export default function McpPage() {
   }
 
   if (error || !mcp) {
-    return <IllustratedError details={error?.message} />;
+    return (
+      <Center>
+        <IllustratedError details={error?.message} />
+      </Center>
+    );
   }
 
   const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;

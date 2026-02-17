@@ -1,3 +1,4 @@
+import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes';
 import { ManagedResourceItem } from '../../lib/shared/types';
 
 export type ColorBy = 'provider' | 'source' | 'flux';
@@ -17,4 +18,5 @@ export interface NodeData {
   extraRefs: string[];
   item: ManagedResourceItem;
   onYamlClick: (item: ManagedResourceItem) => void;
+  conditions: ControlPlaneStatusCondition[];
 }
