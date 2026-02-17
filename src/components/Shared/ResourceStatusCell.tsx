@@ -1,9 +1,21 @@
-import { Button, FlexBox, Icon, ResponsivePopover, Text } from '@ui5/webcomponents-react';
+import {
+  Button,
+  Icon,
+  ResponsivePopover,
+  ButtonDomRef,
+  PopoverDomRef,
+  Ui5CustomEvent,
+  LinkDomRef,
+} from '@ui5/webcomponents-react';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
-import { useId, useState } from 'react';
+import { useState, useRef } from 'react';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import styles from './ResourceStatusCell.module.css';
+import { ConditionMessageItem } from '../ControlPlane/ConditionMessageItem.tsx';
+import type { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes';
+
+import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
 export interface ResourceStatusCellProps {
   isOk: boolean;
   transitionTime: string;
@@ -20,20 +32,23 @@ export const ResourceStatusCell = ({
   negativeText,
   hideOnHoverEffect,
 }: ResourceStatusCellProps) => {
-  const openerId = useId();
-  const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+  const popoverRef = useRef<PopoverDomRef>(null);
+  const buttonRef = useRef<ButtonDomRef>(null);
+  const [open, setOpen] = useState(false);
   const timeAgo = transitionTime ? formatDateAsTimeAgo(transitionTime) : '-';
-
-  const handleClose = () => {
-    setPopoverIsOpen(false);
-  };
-  const handleOpen = () => {
-    setPopoverIsOpen(true);
+  const handleOpenerClick = (
+    event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail> | Ui5CustomEvent<LinkDomRef, LinkClickEventDetail>,
+  ) => {
+    if (popoverRef.current) {
+      // Prefer explicit button ref as opener (works reliably); fall back to event.target
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
+      setOpen((prev) => !prev);
+    }
   };
   return (
     <span>
       {hideOnHoverEffect ? (
-        <Button id={openerId} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpen}>
+        <Button ref={buttonRef} design="Transparent" title={timeAgo} aria-label={timeAgo} onClick={handleOpenerClick}>
           <Icon
             design={isOk ? 'Positive' : 'Negative'}
             name={isOk ? 'sys-enter-2' : 'sys-cancel-2'}
@@ -43,7 +58,7 @@ export const ResourceStatusCell = ({
         </Button>
       ) : (
         <AnimatedHoverTextButton
-          id={openerId}
+          ref={buttonRef}
           icon={
             <Icon
               design={isOk ? 'Positive' : 'Negative'}
@@ -53,35 +68,22 @@ export const ResourceStatusCell = ({
             />
           }
           text={isOk ? positiveText : negativeText}
-          onClick={handleOpen}
+          onClick={handleOpenerClick}
         />
       )}
 
-      <ResponsivePopover
-        opener={openerId}
-        open={popoverIsOpen}
-        placement={PopoverPlacement.Bottom}
-        onClose={handleClose}
-      >
-        <Text className={styles.message}>{message}</Text>
-
-        <FlexBox className={styles.wrapper} justifyContent={'Start'} alignItems={'Center'} gap={12}>
-          <Icon
-            name={'date-time'}
-            style={{
-              color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
-            }}
-            design={isOk ? 'Positive' : 'Negative'}
-          />
-          <Text
-            className={styles.subheader}
-            style={{
-              color: isOk ? 'var(--sapPositiveTextColor)' : 'var(--sapNegativeTextColor)',
-            }}
-          >
-            {timeAgo}
-          </Text>
-        </FlexBox>
+      <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
+        <ConditionMessageItem
+          condition={
+            {
+              type: isOk ? positiveText : negativeText,
+              status: isOk ? 'True' : 'False',
+              reason: '',
+              message: message || '',
+              lastTransitionTime: transitionTime,
+            } as ControlPlaneStatusCondition
+          }
+        />
       </ResponsivePopover>
     </span>
   );

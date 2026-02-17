@@ -1,0 +1,15 @@
+.conditionContent {
+  min-width: 680px;
+  max-width: 680px;
+}
+
+.yamlViewer {
+  width: 100%;
+}
+
+.yamlContainer {
+  margin-top: 1rem;
+  width: 100%;
+  height: 240px;
+  margin-bottom: 1rem;
+}

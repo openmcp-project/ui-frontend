@@ -1,4 +1,4 @@
-import { Condition, ManagedResourceItem, ProviderConfigs, ManagedResourceGroup } from '../../lib/shared/types';
+import { Condition, ManagedResourceGroup, ManagedResourceItem, ProviderConfigs } from '../../lib/shared/types';
 import { NodeData } from './types';
 
 export type StatusType = 'ERROR' | 'OK';
@@ -95,6 +95,12 @@ export function buildTreeData(
       const providerType = resolveProviderTypeFromApiVersion(apiVersion);
       const statusCond = getStatusCondition(item?.status?.conditions);
       const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
+      const conditions = (item?.status?.conditions ?? []).map((condition) => ({
+        ...condition,
+        type: String(condition.type),
+        reason: condition.reason ?? '',
+        message: condition.message ?? '',
+      }));
 
       let fluxName: string | undefined;
       const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
@@ -137,6 +143,7 @@ export function buildTreeData(
           status,
           transitionTime: statusCond?.lastTransitionTime ?? '',
           statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+          conditions,
           fluxName,
           parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
           extraRefs: [
