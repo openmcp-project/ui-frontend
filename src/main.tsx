@@ -24,7 +24,6 @@ configureMonaco();
 interface SentryErrorFallbackProps {
   error: Error;
   componentStack: string | null;
-  eventId: string | null;
   resetError: () => void;
 }
 
@@ -46,17 +45,9 @@ export function createApp() {
   return (
     <React.StrictMode>
       <Sentry.ErrorBoundary
-        fallback={({ error, componentStack, resetError, eventId }) => (
-          <ErrorFallback
-            error={error as Error}
-            componentStack={componentStack}
-            resetError={resetError}
-            eventId={eventId}
-          />
+        fallback={({ error, componentStack, resetError }) => (
+          <ErrorFallback error={error as Error} componentStack={componentStack} resetError={resetError} />
         )}
-        onError={(error) => {
-          console.error('ErrorBoundary caught:', error);
-        }}
       >
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
