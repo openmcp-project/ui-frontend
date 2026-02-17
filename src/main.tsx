@@ -24,10 +24,9 @@ configureMonaco();
 interface SentryErrorFallbackProps {
   error: Error;
   componentStack: string | null;
-  resetError: () => void;
 }
 
-const ErrorFallback = ({ error }: SentryErrorFallbackProps) => {
+const ErrorFallback = ({ error, componentStack }: SentryErrorFallbackProps) => {
   const { t } = useTranslation();
 
   return (
@@ -37,6 +36,13 @@ const ErrorFallback = ({ error }: SentryErrorFallbackProps) => {
         title={t('IllustratedError.titleText')}
         subtitle={error?.message || t('IllustratedError.subtitleText')}
       />
+      <div>
+        <hr />
+        <details>
+          <pre>{error.toString()}</pre>
+          <pre>{componentStack}</pre>
+        </details>
+      </div>
     </div>
   );
 };
@@ -45,8 +51,8 @@ export function createApp() {
   return (
     <React.StrictMode>
       <Sentry.ErrorBoundary
-        fallback={({ error, componentStack, resetError }) => (
-          <ErrorFallback error={error as Error} componentStack={componentStack} resetError={resetError} />
+        fallback={({ error, componentStack }) => (
+          <ErrorFallback error={error as Error} componentStack={componentStack} />
         )}
       >
         <Suspense fallback={<BusyIndicator active />}>
