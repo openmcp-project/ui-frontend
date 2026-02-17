@@ -83,7 +83,7 @@ export async function initializeSentry(): Promise<{
             event.request.url = url.toString();
           }
         } catch (e) {
-          // Invalid URL, skip processing
+          console.log(e);
         }
       }
       return event;
