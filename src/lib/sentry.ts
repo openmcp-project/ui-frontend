@@ -88,9 +88,6 @@ export async function initializeSentry(): Promise<{
       }
       return event;
     },
-
-    // Add release tracking
-    release: import.meta.env.VITE_APP_VERSION || 'unknown',
   });
 
   return {
