@@ -23,31 +23,12 @@ export enum MemberKind {
   User = 'User',
 }
 
-export const MemberSchema = z.preprocess(
-  (value) => {
-    if (!value || typeof value !== 'object') {
-      return value;
-    }
-
-    const record = value as Record<string, unknown>;
-    const roles = Array.isArray(record.roles)
-      ? record.roles.filter((role) => role != null).map((role) => String(role))
-      : [];
-
-    return {
-      kind: record.kind ?? '',
-      name: record.name ?? '',
-      roles,
-      namespace: record.namespace ?? undefined,
-    };
-  },
-  z.object({
-    kind: z.string(),
-    name: z.string(),
-    roles: z.array(z.string()),
-    namespace: z.string().optional(),
-  }),
-);
+export const MemberSchema = z.object({
+  kind: z.string(),
+  name: z.string(),
+  roles: z.array(z.string()),
+  namespace: z.string().optional(),
+});
 
 export function areMembersEqual(a: Member, b?: Member): boolean {
   return (

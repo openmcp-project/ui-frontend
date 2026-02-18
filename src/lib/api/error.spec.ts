@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getErrorStatusCode, isNotFoundError, APIError } from './error';
+import { isNotFoundError, APIError } from './error';
 
 describe('error', () => {
   describe('isNotFoundError', () => {
@@ -36,25 +36,6 @@ describe('error', () => {
       expect(isNotFoundError(new APIError('', 500))).toBe(false);
       expect(isNotFoundError(new APIError('', 400))).toBe(false);
       expect(isNotFoundError(new APIError('', 401))).toBe(false);
-    });
-  });
-
-  describe('getErrorStatusCode', () => {
-    it('should return status for APIError', () => {
-      expect(getErrorStatusCode(new APIError('not found', 404))).toBe(404);
-      expect(getErrorStatusCode(new APIError('forbidden', 403))).toBe(403);
-    });
-
-    it('should return statusCode from networkError', () => {
-      expect(getErrorStatusCode({ networkError: { statusCode: 404 } })).toBe(404);
-      expect(getErrorStatusCode({ networkError: { statusCode: 403 } })).toBe(403);
-    });
-
-    it('should return undefined for unknown errors', () => {
-      expect(getErrorStatusCode(undefined)).toBeUndefined();
-      expect(getErrorStatusCode(null)).toBeUndefined();
-      expect(getErrorStatusCode({})).toBeUndefined();
-      expect(getErrorStatusCode({ networkError: {} })).toBeUndefined();
     });
   });
 });

@@ -1,7 +1,4 @@
-import React from 'react';
 import { act, renderHook } from '@testing-library/react';
-import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
-import { ApolloProvider } from '@apollo/client/react';
 import { useDeleteWorkspace } from './useDeleteWorkspace';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { assertNonNullish } from '../utils/test/vitest-utils';
@@ -21,22 +18,10 @@ vi.mock('react-i18next', () => ({
 
 describe('useDeleteWorkspace', () => {
   let fetchMock: Mock<typeof fetch>;
-  let apolloClient: ApolloClient;
-
-  const wrapper = ({ children }: { children: React.ReactNode }) =>
-    React.createElement(
-      ApolloProvider as React.ComponentType<{ client: ApolloClient; children?: React.ReactNode }>,
-      { client: apolloClient },
-      children,
-    );
 
   beforeEach(() => {
     fetchMock = vi.fn();
     global.fetch = fetchMock;
-    apolloClient = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: ApolloLink.empty(),
-    });
   });
 
   afterEach(() => {
@@ -52,7 +37,7 @@ describe('useDeleteWorkspace', () => {
     } as unknown as Response);
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'), { wrapper });
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     await act(async () => {
@@ -84,7 +69,7 @@ describe('useDeleteWorkspace', () => {
     fetchMock.mockRejectedValue(new Error('API Error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'), { wrapper });
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     // ASSERT
@@ -98,7 +83,7 @@ describe('useDeleteWorkspace', () => {
     fetchMock.mockRejectedValue(new TypeError('Network error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'), { wrapper });
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     // ASSERT

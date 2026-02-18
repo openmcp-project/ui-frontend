@@ -33,19 +33,3 @@ export function isNotFoundError(error?: ErrorLike | null): boolean {
 
   return status === 404 || status === 403 || statusCode === 404 || statusCode === 403 || code === 404 || code === 403;
 }
-
-export function getErrorStatusCode(error: unknown): number | undefined {
-  if (error instanceof APIError) {
-    return error.status;
-  }
-
-  if (error && typeof error === 'object' && 'networkError' in error) {
-    const networkError = (error as { networkError?: unknown }).networkError;
-    if (networkError && typeof networkError === 'object' && 'statusCode' in networkError) {
-      const statusCode = (networkError as { statusCode?: number }).statusCode;
-      return typeof statusCode === 'number' ? statusCode : undefined;
-    }
-  }
-
-  return undefined;
-}
