@@ -1,9 +1,9 @@
+import * as Sentry from '@sentry/react';
+import '@ui5/webcomponents-icons/dist/AllIcons.d.ts';
+import { BusyIndicator } from '@ui5/webcomponents-react';
 import AppRouter from './AppRouter';
 import { useAuthOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import '@ui5/webcomponents-icons/dist/AllIcons.d.ts';
 import { SignInPage } from './spaces/onboarding/pages/SignInPage/SignInPage.tsx';
-import { BusyIndicator } from '@ui5/webcomponents-react';
-import * as Sentry from '@sentry/react';
 
 function App() {
   const auth = useAuthOnboarding();
@@ -18,6 +18,11 @@ function App() {
 
   Sentry.setUser({
     email: auth.user?.email,
+  });
+
+  Sentry.setContext('auth', {
+    isAuthenticated: auth.isAuthenticated,
+    isLoading: auth.isLoading,
   });
 
   return <AppRouter />;

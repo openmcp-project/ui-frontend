@@ -1,11 +1,19 @@
+import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
-import { createApp } from './main.tsx';
 import { initializeSentry } from './lib/sentry.ts';
+import { createApp } from './main.tsx';
 
-// Initialize Sentry and get the Routes component (with or without Sentry integration)
-const SentryRoutes = await initializeSentry();
+const { SentryRoutes, isSentryEnabled } = await initializeSentry();
 
 export { SentryRoutes };
 
-const root = createRoot(document.getElementById('root')!);
+const rootOptions = isSentryEnabled
+  ? {
+      onUncaughtError: Sentry.reactErrorHandler(),
+      onCaughtError: Sentry.reactErrorHandler(),
+      onRecoverableError: Sentry.reactErrorHandler(),
+    }
+  : {};
+
+const root = createRoot(document.getElementById('root')!, rootOptions);
 root.render(createApp());
