@@ -1,20 +1,20 @@
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { useTranslation } from 'react-i18next';
 import {
   Form,
   FormGroup,
   Input,
+  InputDomRef,
   Label,
   Option,
   Select,
   SelectDomRef,
   Ui5CustomEvent,
-  InputDomRef,
 } from '@ui5/webcomponents-react';
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
-import styles from './MetadataForm.module.css';
 import React from 'react';
+import styles from './MetadataForm.module.css';
 
 export interface MetadataFormProps {
   register: UseFormRegister<CreateDialogProps>;
@@ -188,35 +188,39 @@ export function MetadataForm({
           <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
         </div>
 
-        <Select
-          value={watch?.('chargingTargetType') ?? ''}
-          id={'chargingTargetType'}
-          className={styles.input}
-          disabled={disableChargingFields}
-          onChange={handleChargingTargetTypeChange}
-        >
-          {chargingTypes.map((option) => (
-            <Option
-              key={option.value}
-              value={option.value}
-              data-value={option.value}
-              selected={currentChargingTargetType === option.value}
-            >
-              {option.label}
-            </Option>
-          ))}
-        </Select>
-        <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
-          {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-        </Label>
-        <Input
-          id="chargingTarget"
-          {...register('chargingTarget')}
-          className={styles.input}
-          valueState={errors.chargingTarget ? 'Negative' : 'None'}
-          valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
-          disabled={disableChargingFields || !watch?.('chargingTargetType')}
-        />
+        <div className={styles.wrapper}>
+          <Select
+            value={watch?.('chargingTargetType') ?? ''}
+            id={'chargingTargetType'}
+            className={styles.input}
+            disabled={disableChargingFields}
+            onChange={handleChargingTargetTypeChange}
+          >
+            {chargingTypes.map((option) => (
+              <Option
+                key={option.value}
+                value={option.value}
+                data-value={option.value}
+                selected={currentChargingTargetType === option.value}
+              >
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+        </div>
+        <div className={styles.wrapper}>
+          <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
+            {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+          </Label>
+          <Input
+            id="chargingTarget"
+            {...register('chargingTarget')}
+            className={styles.input}
+            valueState={errors.chargingTarget ? 'Negative' : 'None'}
+            valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
+            disabled={disableChargingFields || !watch?.('chargingTargetType')}
+          />
+        </div>
       </FormGroup>
 
       {sideFormContent ? sideFormContent : null}
