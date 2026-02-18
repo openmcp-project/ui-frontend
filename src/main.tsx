@@ -9,6 +9,7 @@ import App from './App';
 import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
 import { ThemeManager } from './components/ThemeManager.tsx';
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { Infobox } from './components/Ui/Infobox/Infobox.tsx';
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
 import { ToastProvider } from './context/ToastContext.tsx';
@@ -30,18 +31,19 @@ const ErrorFallback = ({ error, componentStack }: SentryErrorFallbackProps) => {
   const { t } = useTranslation();
 
   return (
-    <div>
-      <IllustratedBanner
-        illustrationName={IllustrationMessageType.SimpleError}
-        title={t('IllustratedError.titleText')}
-        subtitle={error?.message || t('IllustratedError.subtitleText')}
-      />
+    <div className="error-message">
       <div>
-        <hr />
-        <details>
+        <IllustratedBanner
+          illustrationName={IllustrationMessageType.SimpleError}
+          title={t('IllustratedError.titleText')}
+          subtitle={error?.message || t('IllustratedError.subtitleText')}
+        />
+      </div>
+      <div>
+        <Infobox className="infobox" size="sm">
           <pre>{error.toString()}</pre>
           <pre>{componentStack}</pre>
-        </details>
+        </Infobox>
       </div>
     </div>
   );
