@@ -83,7 +83,7 @@ export async function initializeSentry(): Promise<{
             event.request.url = url.toString();
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
       }
       return event;
