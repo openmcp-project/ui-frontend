@@ -1,3 +1,5 @@
+import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
+import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import {
   BusyIndicator,
   FlexBox,
@@ -10,44 +12,44 @@ import {
 import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
-import '@ui5/webcomponents-fiori/dist/illustrations/SimpleBalloon';
-import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 // thorws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
-import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { useTranslation } from 'react-i18next';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
-import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
+import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
+import { Providers } from '../../../components/ControlPlane/Providers.tsx';
+import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
+import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
+import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
+import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
-import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
-import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
-import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
+import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
+import { isNotFoundError } from '../../../lib/api/error.ts';
+import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
 import { useEffect, useState } from 'react';
-import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
-import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
-import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
-import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
-import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
-import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
-import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
+import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
+import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { Center } from '../../../components/Ui/Center/Center.tsx';
+import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DepracatedLabel.tsx';
+import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
+import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
+import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -84,7 +86,7 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-
+  const { mark_mcp_v1_as_deprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
@@ -187,6 +189,7 @@ export default function McpPage() {
                       workspace={workspaceName}
                     />
                   </FlexBox>
+                  {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
                 </ObjectPageHeader>
               }
               onSelectedSectionChange={handleSectionChange}

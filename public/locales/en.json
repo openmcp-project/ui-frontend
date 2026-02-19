@@ -408,7 +408,8 @@
     "copyToClipboardSuccessToast": "Copied to clipboard",
     "copyToClipboardFailedToast": "Failed to copy to clipboard",
     "resourcesCount": "Resources ({{count}})",
-    "itemsCount": "Items ({{count}})"
+    "itemsCount": "Items ({{count}})",
+    "depracated": "Depracated"
   },
   "errors": {
     "installError": "Install error",
