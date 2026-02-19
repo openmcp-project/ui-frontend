@@ -42,7 +42,7 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DepracatedLabel.tsx';
+import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
@@ -104,7 +104,6 @@ export default function McpPage() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
-
   if (isLoading) {
     return (
       <Center>
@@ -144,7 +143,11 @@ export default function McpPage() {
               mode="IconTabBar"
               titleArea={
                 <ObjectPageTitle
-                  header={displayName ?? controlPlaneName}
+                  header={
+                    <>
+                      {displayName ?? controlPlaneName} {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
+                    </>
+                  }
                   subHeader={t('Entities.ManagedControlPlane')}
                   breadcrumbs={<BreadcrumbFeedbackHeader />}
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
@@ -189,7 +192,6 @@ export default function McpPage() {
                       workspace={workspaceName}
                     />
                   </FlexBox>
-                  {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
                 </ObjectPageHeader>
               }
               onSelectedSectionChange={handleSectionChange}

@@ -1,0 +1,8 @@
+.label {
+  background: var(--sapCriticalTextColor);
+  color: var(--sapBackgroundColor);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}

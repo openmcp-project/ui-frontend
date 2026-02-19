@@ -409,7 +409,7 @@
     "copyToClipboardFailedToast": "Failed to copy to clipboard",
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
-    "depracated": "Depracated"
+    "deprecated": "Deprecated"
   },
   "errors": {
     "installError": "Install error",
