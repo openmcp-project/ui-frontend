@@ -1,7 +1,6 @@
 import {
-  AnalyticalTable,
   Icon,
-  Popover,
+  ResponsivePopover,
   FlexBox,
   FlexBoxJustifyContent,
   Button,
@@ -9,7 +8,6 @@ import {
   ButtonDomRef,
   LinkDomRef,
 } from '@ui5/webcomponents-react';
-import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
@@ -20,12 +18,12 @@ import {
   ReadyStatus,
   ControlPlaneStatusCondition,
 } from '../../lib/api/types/crate/controlPlanes';
-import ReactTimeAgo from 'react-time-ago';
-import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton.tsx';
+import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
-import TooltipCell from '../Shared/TooltipCell.tsx';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
+import styles from './MCPHealthPopoverButton.module.css';
+import { ConditionsMessageListView } from './ConditionsMessageListView';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus: ControlPlaneStatusType | undefined;
@@ -96,61 +94,6 @@ const MCPHealthPopoverButton = ({
     return `${githubIssuesSupportTicket}?${params}`;
   };
 
-  const statusTableColumns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('MCPHealthPopoverButton.statusHeader'),
-      accessor: 'status',
-      width: 50,
-      Cell: (instance) => {
-        const isReady = instance.cell.value === 'True';
-        return (
-          <Icon
-            style={{ color: isReady ? 'green' : 'red' }}
-            name={isReady ? 'sap-icon://sys-enter' : 'sap-icon://pending'}
-          />
-        );
-      },
-    },
-    {
-      Header: t('MCPHealthPopoverButton.typeHeader'),
-      accessor: 'type',
-      width: 150,
-      Cell: (instance) => {
-        return <TooltipCell>{instance.cell.value}</TooltipCell>;
-      },
-    },
-    {
-      Header: t('MCPHealthPopoverButton.messageHeader'),
-      accessor: 'message',
-      width: 350,
-      Cell: (instance) => {
-        return <TooltipCell>{instance.cell.value}</TooltipCell>;
-      },
-    },
-    {
-      Header: t('MCPHealthPopoverButton.reasonHeader'),
-      accessor: 'reason',
-      width: 100,
-      Cell: (instance) => {
-        return <TooltipCell>{instance.cell.value}</TooltipCell>;
-      },
-    },
-    {
-      Header: t('MCPHealthPopoverButton.transitionHeader'),
-      accessor: 'lastTransitionTime',
-      width: 125,
-      Cell: (instance) => {
-        const rawDate = instance.cell.value;
-        const date = new Date(rawDate as string);
-        return (
-          <TooltipCell>
-            <ReactTimeAgo date={date} />
-          </TooltipCell>
-        );
-      },
-    },
-  ];
-
   return (
     <div className="component-title-row">
       <AnimatedHoverTextButton
@@ -160,50 +103,35 @@ const MCPHealthPopoverButton = ({
         large={large}
         onClick={handleOpenerClick}
       />
-      <Popover ref={popoverRef} open={open} placement={PopoverPlacement.Bottom} onClose={() => setOpen(false)}>
-        <StatusTable
-          status={mcpStatus}
-          tableColumns={statusTableColumns}
-          githubIssuesLink={constructGithubIssuesLink()}
-        />
-      </Popover>
+      <ResponsivePopover
+        ref={popoverRef}
+        placement={PopoverPlacement.Top}
+        footer={
+          <FlexBox justifyContent={FlexBoxJustifyContent.End} className={styles.footer}>
+            <a href={constructGithubIssuesLink()} target="_blank" rel="noreferrer">
+              <Button icon="action">{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
+            </a>
+          </FlexBox>
+        }
+        open={open}
+        onClose={() => setOpen(false)}
+      >
+        <ConditionsMessageListView conditions={mcpStatus?.conditions} />
+      </ResponsivePopover>
     </div>
   );
 };
 
 export default MCPHealthPopoverButton;
 
-type StatusTableProps = {
-  status: ControlPlaneStatusType | undefined;
-  tableColumns: AnalyticalTableColumnDefinition[];
-  githubIssuesLink: string;
-};
-
-const StatusTable = ({ status, tableColumns, githubIssuesLink }: StatusTableProps) => {
-  const { t } = useTranslation();
-
-  const sortedConditions = status?.conditions ? [...status.conditions].sort((a, b) => (a.type < b.type ? -1 : 1)) : [];
-
-  return (
-    <div style={{ width: 770 }}>
-      <AnalyticalTable scaleWidthMode="Default" columns={tableColumns} data={sortedConditions} />
-      <FlexBox justifyContent={FlexBoxJustifyContent.End} style={{ marginTop: '0.5rem' }}>
-        <a href={githubIssuesLink} target="_blank" rel="noreferrer">
-          <Button>{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
-        </a>
-      </FlexBox>
-    </div>
-  );
-};
-
 const getIconForOverallStatus = (status: ReadyStatus | undefined): JSX.Element => {
   switch (status) {
     case ReadyStatus.Ready:
-      return <Icon style={{ color: 'var(--sapPositiveColor)' }} name="sap-icon://sys-enter" />;
+      return <Icon className={styles.iconReady} name="sap-icon://sys-enter" />;
     case ReadyStatus.NotReady:
-      return <Icon style={{ color: 'var(--sapNegativeColor)' }} name="sap-icon://pending" />;
+      return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;
     case ReadyStatus.InDeletion:
-      return <Icon style={{ color: 'var(--sapCriticalColor)' }} name="sap-icon://delete" />;
+      return <Icon className={styles.iconInDeletion} name="sap-icon://delete" />;
     default:
       return <></>;
   }

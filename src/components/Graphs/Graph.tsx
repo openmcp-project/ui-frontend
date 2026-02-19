@@ -24,6 +24,7 @@ const nodeTypes = {
       status={props.data.status}
       transitionTime={props.data.transitionTime}
       statusMessage={props.data.statusMessage}
+      conditions={props.data.conditions}
       onYamlClick={() => props.data.onYamlClick(props.data.item)}
     />
   ),
@@ -35,6 +36,7 @@ const Graph: React.FC = () => {
   const { isDarkTheme } = useTheme();
   const [colorBy, setColorBy] = useState<ColorBy>('source');
   const apiConfig = useContext(ApiConfigContext);
+
   const handleYamlClick = useCallback(
     (item: ManagedResourceItem) => {
       const yamlFilename = item
