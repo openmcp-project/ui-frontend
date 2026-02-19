@@ -1,4 +1,4 @@
-import type { ErrorLike } from '../../utils/isForbiddenError.ts';
+import type { ErrorLike } from '@apollo/client';
 
 export class APIError extends Error {
   status: number;
@@ -24,12 +24,18 @@ export class ValidationError extends Error {
   }
 }
 
-export function isNotFoundError(error?: ErrorLike | null): boolean {
-  if (!error || typeof error !== 'object') return false;
+export function isNotFoundError(error?: ErrorLike | APIError | null): boolean {
+  if (error instanceof APIError) {
+    return error.status === 404 || error.status === 403;
+  }
 
-  const status = typeof error.status === 'number' ? error.status : undefined;
-  const statusCode = typeof error.statusCode === 'number' ? error.statusCode : undefined;
-  const code = typeof error.code === 'number' ? error.code : undefined;
+  if (error && typeof error === 'object' && 'networkError' in error) {
+    const networkError = (error as { networkError?: unknown }).networkError;
+    if (networkError && typeof networkError === 'object') {
+      const statusCode = (networkError as { statusCode?: unknown }).statusCode;
+      return statusCode === 404 || statusCode === 403;
+    }
+  }
 
-  return status === 404 || status === 403 || statusCode === 404 || statusCode === 403 || code === 404 || code === 403;
+  return false;
 }
