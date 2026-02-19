@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button, Icon } from '@ui5/webcomponents-react';
-import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
+
 import styles from './CustomNode.module.css';
 import { Handle, Position } from '@xyflow/react';
-import { useTranslation } from 'react-i18next';
+import { ConditionsViewButton } from '../Shared/ConditionsViewButton.tsx';
+import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes.ts';
 
 export interface CustomNodeProps {
   label: string;
@@ -12,24 +13,24 @@ export interface CustomNodeProps {
   transitionTime?: string;
   statusMessage?: string;
   onYamlClick: () => void;
+  conditions: ControlPlaneStatusCondition[];
 }
 
-const CustomNode: React.FC<CustomNodeProps> = ({ label, type, status, transitionTime, statusMessage, onYamlClick }) => {
-  const { t } = useTranslation();
+const CustomNode: React.FC<CustomNodeProps> = ({
+  conditions,
+  label,
+  type,
+  status,
+
+  onYamlClick,
+}) => {
   return (
     <div className={styles.nodeContainer}>
       <Handle type="target" position={Position.Top} className={styles.handleHidden} />
       <Handle type="source" position={Position.Bottom} className={styles.handleHidden} />
       <div className={styles.nodeContent}>
         <div className={styles.statusIcon}>
-          <ResourceStatusCell
-            isOk={status === 'OK'}
-            transitionTime={transitionTime ?? ''}
-            positiveText={t('common.healthy')}
-            negativeText={t('errors.notHealthy')}
-            message={statusMessage}
-            hideOnHoverEffect={true}
-          />
+          <ConditionsViewButton conditions={conditions} isOk={status === 'OK'} />
         </div>
         <div className={styles.nodeTextContainer}>
           <div className={styles.nodeLabel} title={label}>

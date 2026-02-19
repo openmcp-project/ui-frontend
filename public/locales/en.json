@@ -115,7 +115,6 @@
     "typeHeader": "Type",
     "messageHeader": "Message",
     "reasonHeader": "Reason",
-    "transitionHeader": "Last change",
     "createSupportTicketButton": "Create Support Ticket",
     "supportTicketTitleReady": "MCP Ready",
     "supportTicketTitleNotReady": "MCP Not Ready",
@@ -374,6 +373,8 @@
   },
   "common": {
     "all": "All",
+    "ok": "OK",
+    "notOk": "Not OK",
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
