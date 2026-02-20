@@ -127,7 +127,7 @@ export default function McpPage() {
   const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;
   const isComponentInstalledFlux = !!mcp.spec?.components.flux;
   const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
-
+  console.log('MCP', mcp);
   return (
     <McpContextProvider
       context={{
@@ -143,11 +143,7 @@ export default function McpPage() {
               mode="IconTabBar"
               titleArea={
                 <ObjectPageTitle
-                  header={
-                    <>
-                      {displayName ?? controlPlaneName} {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
-                    </>
-                  }
+                  header={displayName ?? controlPlaneName}
                   subHeader={t('Entities.ManagedControlPlane')}
                   breadcrumbs={<BreadcrumbFeedbackHeader />}
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
@@ -178,7 +174,7 @@ export default function McpPage() {
               selectedSectionId={selectedSectionId}
               headerArea={
                 <ObjectPageHeader>
-                  <FlexBox gap={'2.5rem'}>
+                  <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection
                       mcpStatus={mcp?.status}
@@ -191,6 +187,7 @@ export default function McpPage() {
                       project={projectName}
                       workspace={workspaceName}
                     />
+                    {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
                   </FlexBox>
                 </ObjectPageHeader>
               }
