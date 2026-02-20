@@ -37,7 +37,7 @@ describe('useDeleteWorkspace', () => {
     } as unknown as Response);
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     await act(async () => {
@@ -69,7 +69,7 @@ describe('useDeleteWorkspace', () => {
     fetchMock.mockRejectedValue(new Error('API Error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     // ASSERT
@@ -83,7 +83,7 @@ describe('useDeleteWorkspace', () => {
     fetchMock.mockRejectedValue(new TypeError('Network error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project', 'test-project--ns', 'test-workspace'));
+    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
     const { deleteWorkspace } = renderHookResult.result.current;
 
     // ASSERT

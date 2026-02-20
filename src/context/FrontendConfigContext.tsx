@@ -50,7 +50,6 @@ export const useFrontendConfig = () => {
 };
 
 const FrontendConfigSchema = z.object({
-  gatewayUrl: z.string(),
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
   landscape: z.optional(z.nativeEnum(Landscape)),

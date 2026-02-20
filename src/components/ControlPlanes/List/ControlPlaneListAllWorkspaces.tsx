@@ -4,13 +4,13 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
-import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
   projectName: string;
-  workspaces: ListWorkspacesType[];
+  workspaces: Workspace[];
 }
 
 export default function ControlPlaneListAllWorkspaces({ projectName, workspaces }: Props) {

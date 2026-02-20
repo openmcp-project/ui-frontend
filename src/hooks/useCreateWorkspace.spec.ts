@@ -51,7 +51,7 @@ describe('useCreateWorkspace', () => {
     } as unknown as Response);
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateWorkspace('test-project', 'test-project--ns'));
+    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
     const { createWorkspace } = renderHookResult.result.current;
 
     await act(async () => {
@@ -98,7 +98,7 @@ describe('useCreateWorkspace', () => {
     };
 
     // ACT
-    const renderHookResult = renderHook(() => useCreateWorkspace('test-project', 'test-project--ns'));
+    const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
     const { createWorkspace } = renderHookResult.result.current;
 
     // ASSERT

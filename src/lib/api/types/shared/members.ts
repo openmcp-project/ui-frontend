@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { RadioButtonsSelectOption } from '../../../../components/Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 
 export enum MemberRoles {
@@ -22,12 +23,12 @@ export enum MemberKind {
   User = 'User',
 }
 
-export interface Member {
-  kind: string;
-  name: string;
-  roles: string[];
-  namespace?: string;
-}
+export const MemberSchema = z.object({
+  kind: z.string(),
+  name: z.string(),
+  roles: z.array(z.string()),
+  namespace: z.string().optional(),
+});
 
 export function areMembersEqual(a: Member, b?: Member): boolean {
   return (
@@ -46,3 +47,5 @@ export interface MemberPayload {
   roles: string[];
   namespace?: string;
 }
+
+export type Member = z.infer<typeof MemberSchema>;

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { isNotFoundError, APIError } from './error';
+import { ErrorLike } from '@apollo/client';
 
 describe('error', () => {
   describe('isNotFoundError', () => {
@@ -13,6 +14,11 @@ describe('error', () => {
       expect(isNotFoundError(new APIError('not found', 403))).toBe(true);
     });
 
+    it('should return true for ErrorLike networkError statusCode', () => {
+      expect(isNotFoundError({ networkError: { statusCode: 404 } } as unknown as ErrorLike)).toBe(true);
+      expect(isNotFoundError({ networkError: { statusCode: 403 } } as unknown as ErrorLike)).toBe(true);
+    });
+
     it('should return false if error is undefined', () => {
       expect(isNotFoundError(undefined)).toBe(false);
     });
@@ -22,7 +28,7 @@ describe('error', () => {
     });
 
     it('should return false if error has no status field', () => {
-      expect(isNotFoundError({} as APIError)).toBe(false);
+      expect(isNotFoundError({} as ErrorLike)).toBe(false);
     });
 
     it('should return false if error.status is not 404 or 403', () => {

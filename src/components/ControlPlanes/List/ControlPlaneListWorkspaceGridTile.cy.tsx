@@ -5,7 +5,7 @@ import { ControlPlaneType, ReadyStatus } from '../../../lib/api/types/crate/cont
 import { MemoryRouter } from 'react-router-dom';
 import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
 import '@ui5/webcomponents-cypress-commands';
-import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;
@@ -111,14 +111,16 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
   });
 
   it('deletes the workspace', () => {
-    const workspace: ListWorkspacesType = {
+    const workspace: Workspace = {
       metadata: {
         name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
       },
       spec: {
         members: [],
       },
-    } as unknown as ListWorkspacesType;
+    };
 
     cy.mount(
       <MemoryRouter>
