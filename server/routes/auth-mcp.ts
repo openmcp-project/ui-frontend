@@ -180,7 +180,7 @@ async function authPlugin(fastify) {
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.post('/auth/mcp/refresh', async function (req, reply) {
-    const { namespace, mcp: mcpName, idp: idpName } = req.query;
+    const { namespace, mcp, idp } = req.query;
 
     const refreshToken = req.encryptedSession.get('mcp_refreshToken');
     if (!refreshToken) {
@@ -189,14 +189,19 @@ async function authPlugin(fastify) {
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
-    if (idpName && (!namespace || !mcpName)) {
+    const isSystemIdp = isSystemIdpRequest(idp);
+    if (!isSystemIdp && (!namespace || !mcp)) {
       return reply.badRequest('Missing required query parameters for custom IdP');
     }
 
-    req.log.info({ namespace, mcpName, idpName }, 'Attempting MCP token refresh');
+    req.log.info({ namespace, mcp, idp }, 'Attempting MCP token refresh');
 
     try {
-      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
+        namespace,
+        mcpName: mcp,
+        idpName: idp,
+      });
 
       const refreshedTokenData = await fastify.refreshAuthTokens(
         refreshToken,
