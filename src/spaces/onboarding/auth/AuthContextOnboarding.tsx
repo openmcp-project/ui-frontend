@@ -15,6 +15,8 @@ interface AuthContextOnboardingType {
 
 const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(null);
 
+const REFRESH_BUFFER_MS = 55 * 1000; // 55 seconds buffer before token expiry to trigger refresh
+
 export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +36,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         let errorBody;
         try {
           errorBody = await response.json();
-        } catch (_) {
+        } catch (_error) {
           /* safe to ignore */
         }
         throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
@@ -80,7 +82,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   // Check the authentication status when the component mounts
   useEffect(() => {
     void refreshAuthStatus(false);
-  }, []); // TODO: refreshAuthStatus in dep array?
+  }, [refreshAuthStatus]);
 
   const refreshSession = useCallback(async () => {
     try {
@@ -88,10 +90,14 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       if (response.ok) {
         await refreshAuthStatus(true);
       } else {
-        console.error('Onboarding token refresh failed');
+        Sentry.captureException(new Error('Onboarding token refresh failed'), {
+          extra: { status: response.status, context: 'AuthContextOnboarding:refreshSession' },
+        });
       }
     } catch (error) {
-      console.error('Onboarding failed to contact refresh endpoint', error);
+      Sentry.captureException(error, {
+        extra: { context: 'AuthContextOnboarding:refreshSession' },
+      });
     }
   }, [refreshAuthStatus]);
 
@@ -99,14 +105,12 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!tokenExpiry || !isAuthenticated) return;
 
-    // Refresh 55 seconds before actual expiry to account for clock skew and network delays
-    const BUFFER_MS = 55 * 1000; // 55 seconds
+    // Refresh before actual expiry to account for clock skew and network delays
     const expiresAt = new Date(tokenExpiry).getTime();
     const now = Date.now();
-    const delay = expiresAt - now - BUFFER_MS;
+    const delay = expiresAt - now - REFRESH_BUFFER_MS;
 
     if (delay <= 0) {
-      // Token already expired or about to; refresh immediately
       void refreshSession();
       return;
     }

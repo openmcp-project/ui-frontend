@@ -19,6 +19,8 @@ interface AuthContextMcpType {
 
 const AuthContextMcp = createContext<AuthContextMcpType | null>(null);
 
+const REFRESH_BUFFER_MS = 55 * 1000; // 55 seconds buffer before token expiry to trigger refresh
+
 export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isPending, setIsPending] = useState(true);
@@ -54,7 +56,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
           let errorBody;
           try {
             errorBody = await response.json();
-          } catch (_) {
+          } catch (_error) {
             /* safe to ignore */
           }
           throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
@@ -107,25 +109,27 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
       if (response.ok) {
         await refreshAuthStatus(true);
       } else {
-        console.error('MCP token refresh failed');
+        Sentry.captureException(new Error('MCP token refresh failed'), {
+          extra: { status: response.status, context: 'AuthContextMcp:refreshSession' },
+        });
       }
     } catch (error) {
-      console.error('MCP failed to contact refresh endpoint', error);
+      Sentry.captureException(error, {
+        extra: { context: 'AuthContextMcp:refreshSession' },
+      });
     }
-  }, [refreshAuthStatus]);
+  }, [projectName, workspaceName, controlPlaneName, idpName, namespace, refreshAuthStatus]);
 
   // Effect to manage the refresh timer
   useEffect(() => {
     if (!tokenExpiry || !isAuthenticated) return;
 
-    // Refresh 55 seconds before actual expiry to account for clock skew and network delays
-    const BUFFER_MS = 55 * 1000; // 55 seconds
+    // Refresh before actual expiry to account for clock skew and network delays
     const expiresAt = new Date(tokenExpiry).getTime();
     const now = Date.now();
-    const delay = expiresAt - now - BUFFER_MS;
+    const delay = expiresAt - now - REFRESH_BUFFER_MS;
 
     if (delay <= 0) {
-      // Token already expired or about to; refresh immediately
       void refreshSession();
       return;
     }
