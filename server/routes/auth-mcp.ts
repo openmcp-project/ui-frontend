@@ -175,7 +175,7 @@ async function authPlugin(fastify) {
         !sessionNamespace && !sessionMcp && !sessionIdp && Boolean(sessionAccessToken)
       : sessionNamespace === namespace && sessionMcp === mcp && sessionIdp === idp && Boolean(sessionAccessToken);
 
-    return reply.send({ isAuthenticated, tokenExpiresAt });
+    return reply.send({ isAuthenticated, tokenExpiresAt: tokenExpiresAt ?? null });
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement

@@ -69,7 +69,7 @@ async function authPlugin(fastify) {
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
-    return reply.send({ isAuthenticated, user, tokenExpiresAt });
+    return reply.send({ isAuthenticated, user, tokenExpiresAt: tokenExpiresAt ?? null });
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
