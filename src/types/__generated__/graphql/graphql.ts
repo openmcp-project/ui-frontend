@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -14,8 +14,43 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** A map from strings to strings. */
-  StringMap: { input: any; output: any; }
+  /** A JSON-serialized string representation of any object. */
+  JSONString: { input: any; output: any; }
+  /** Input type for a map from strings to strings. */
+  StringMapInput: { input: any; output: any; }
+};
+
+export type ApiGroup = {
+  __typename?: 'APIGroup';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  preferredVersion?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoverypreferredVersion>;
+  serverAddressByClientCIDRs?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRs>>>;
+  versions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoveryversions>>>;
+};
+
+export type ApiGroupEvent = {
+  __typename?: 'APIGroupEvent';
+  object?: Maybe<ApiGroup>;
+  type: WatchEventType;
+};
+
+export type ApiGroupInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  preferredVersion?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoverypreferredVersionInput>;
+  serverAddressByClientCIDRs?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRsInput>>>;
+  versions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoveryversionsInput>>>;
+};
+
+export type ApiGroupList = {
+  __typename?: 'APIGroupList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ApiGroup>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type ApiServer = {
@@ -27,12 +62,26 @@ export type ApiServer = {
   status?: Maybe<ApiServerstatus>;
 };
 
+export type ApiServerEvent = {
+  __typename?: 'APIServerEvent';
+  object?: Maybe<ApiServer>;
+  type: WatchEventType;
+};
+
 export type ApiServerInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<ApiServerspecInput>;
   status?: InputMaybe<ApiServerstatusInput>;
+};
+
+export type ApiServerList = {
+  __typename?: 'APIServerList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ApiServer>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type ApiServerspec = {
@@ -78,8 +127,8 @@ export type ApiServerspecspecgardenerInput = {
 
 export type ApiServerspecspecgardenerspecgardenerauditLog = {
   __typename?: 'APIServerspecspecgardenerspecgardenerauditLog';
-  policyRef?: Maybe<ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef>;
-  secretRef?: Maybe<ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef>;
+  policyRef?: Maybe<ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef_Policy_Enhanced>;
+  secretRef?: Maybe<ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef_Secret_Enhanced>;
   serviceURL?: Maybe<Scalars['String']['output']>;
   tenantID?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -93,22 +142,23 @@ export type ApiServerspecspecgardenerspecgardenerauditLogInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef = {
-  __typename?: 'APIServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef = {
-  __typename?: 'APIServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef';
+export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef_Policy_Enhanced = {
+  __typename?: 'APIServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogpolicyRef_policy_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
 };
 
 export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ApiServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef_Secret_Enhanced = {
+  __typename?: 'APIServerspecspecgardenerspecgardenerauditLogspecgardenerauditLogsecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type ApiServerspecspecgardenerspecgardenerencryptionConfig = {
@@ -213,11 +263,11 @@ export type ApiServerstatusstatusconditionsInput = {
 
 export type ApiServerstatusstatusgardener = {
   __typename?: 'APIServerstatusstatusgardener';
-  shoot?: Maybe<Scalars['String']['output']>;
+  shoot?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type ApiServerstatusstatusgardenerInput = {
-  shoot?: InputMaybe<Scalars['String']['input']>;
+  shoot?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type ApiServerstatusstatusobservedGenerations = {
@@ -242,12 +292,359 @@ export type ApiService = {
   status?: Maybe<Io_K8s_Kube_Aggregator_Pkg_Apis_Apiregistration_V1_ApiServiceStatusstatus>;
 };
 
+export type ApiServiceEvent = {
+  __typename?: 'APIServiceEvent';
+  object?: Maybe<ApiService>;
+  type: WatchEventType;
+};
+
 export type ApiServiceInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Kube_Aggregator_Pkg_Apis_Apiregistration_V1_ApiServiceSpecspecInput>;
   status?: InputMaybe<Io_K8s_Kube_Aggregator_Pkg_Apis_Apiregistration_V1_ApiServiceStatusstatusInput>;
+};
+
+export type ApiServiceList = {
+  __typename?: 'APIServiceList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ApiService>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ApiVersions = {
+  __typename?: 'APIVersions';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  serverAddressByClientCIDRs?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRs>>>;
+  versions?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ApiVersionsEvent = {
+  __typename?: 'APIVersionsEvent';
+  object?: Maybe<ApiVersions>;
+  type: WatchEventType;
+};
+
+export type ApiVersionsInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  serverAddressByClientCIDRs?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRsInput>>>;
+  versions?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type AdmissionregistrationK8sIoMutation = {
+  __typename?: 'AdmissionregistrationK8sIoMutation';
+  v1?: Maybe<AdmissionregistrationK8sIoV1Mutation>;
+};
+
+export type AdmissionregistrationK8sIoQuery = {
+  __typename?: 'AdmissionregistrationK8sIoQuery';
+  v1?: Maybe<AdmissionregistrationK8sIoV1Query>;
+};
+
+export type AdmissionregistrationK8sIoV1Mutation = {
+  __typename?: 'AdmissionregistrationK8sIoV1Mutation';
+  createMutatingWebhookConfiguration?: Maybe<MutatingWebhookConfiguration>;
+  createValidatingAdmissionPolicy?: Maybe<ValidatingAdmissionPolicy>;
+  createValidatingAdmissionPolicyBinding?: Maybe<ValidatingAdmissionPolicyBinding>;
+  createValidatingWebhookConfiguration?: Maybe<ValidatingWebhookConfiguration>;
+  deleteMutatingWebhookConfiguration?: Maybe<Scalars['Boolean']['output']>;
+  deleteValidatingAdmissionPolicy?: Maybe<Scalars['Boolean']['output']>;
+  deleteValidatingAdmissionPolicyBinding?: Maybe<Scalars['Boolean']['output']>;
+  deleteValidatingWebhookConfiguration?: Maybe<Scalars['Boolean']['output']>;
+  updateMutatingWebhookConfiguration?: Maybe<MutatingWebhookConfiguration>;
+  updateValidatingAdmissionPolicy?: Maybe<ValidatingAdmissionPolicy>;
+  updateValidatingAdmissionPolicyBinding?: Maybe<ValidatingAdmissionPolicyBinding>;
+  updateValidatingWebhookConfiguration?: Maybe<ValidatingWebhookConfiguration>;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationCreateMutatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: MutatingWebhookConfigurationInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationCreateValidatingAdmissionPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ValidatingAdmissionPolicyInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationCreateValidatingAdmissionPolicyBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ValidatingAdmissionPolicyBindingInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationCreateValidatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ValidatingWebhookConfigurationInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationDeleteMutatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationDeleteValidatingAdmissionPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationDeleteValidatingAdmissionPolicyBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationDeleteValidatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationUpdateMutatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: MutatingWebhookConfigurationInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationUpdateValidatingAdmissionPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ValidatingAdmissionPolicyInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationUpdateValidatingAdmissionPolicyBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ValidatingAdmissionPolicyBindingInput;
+};
+
+
+export type AdmissionregistrationK8sIoV1MutationUpdateValidatingWebhookConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ValidatingWebhookConfigurationInput;
+};
+
+export type AdmissionregistrationK8sIoV1Query = {
+  __typename?: 'AdmissionregistrationK8sIoV1Query';
+  MutatingWebhookConfiguration: MutatingWebhookConfiguration;
+  MutatingWebhookConfigurationYaml: Scalars['String']['output'];
+  MutatingWebhookConfigurations: MutatingWebhookConfigurationList;
+  ValidatingAdmissionPolicies: ValidatingAdmissionPolicyList;
+  ValidatingAdmissionPolicy: ValidatingAdmissionPolicy;
+  ValidatingAdmissionPolicyBinding: ValidatingAdmissionPolicyBinding;
+  ValidatingAdmissionPolicyBindingYaml: Scalars['String']['output'];
+  ValidatingAdmissionPolicyBindings: ValidatingAdmissionPolicyBindingList;
+  ValidatingAdmissionPolicyYaml: Scalars['String']['output'];
+  ValidatingWebhookConfiguration: ValidatingWebhookConfiguration;
+  ValidatingWebhookConfigurationYaml: Scalars['String']['output'];
+  ValidatingWebhookConfigurations: ValidatingWebhookConfigurationList;
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryMutatingWebhookConfigurationArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryMutatingWebhookConfigurationYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryMutatingWebhookConfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPoliciesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPolicyArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPolicyBindingArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPolicyBindingYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPolicyBindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingAdmissionPolicyYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingWebhookConfigurationArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingWebhookConfigurationYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AdmissionregistrationK8sIoV1QueryValidatingWebhookConfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ApiextensionsK8sIoMutation = {
+  __typename?: 'ApiextensionsK8sIoMutation';
+  v1?: Maybe<ApiextensionsK8sIoV1Mutation>;
+};
+
+export type ApiextensionsK8sIoQuery = {
+  __typename?: 'ApiextensionsK8sIoQuery';
+  v1?: Maybe<ApiextensionsK8sIoV1Query>;
+};
+
+export type ApiextensionsK8sIoV1Mutation = {
+  __typename?: 'ApiextensionsK8sIoV1Mutation';
+  createCustomResourceDefinition?: Maybe<CustomResourceDefinition>;
+  deleteCustomResourceDefinition?: Maybe<Scalars['Boolean']['output']>;
+  updateCustomResourceDefinition?: Maybe<CustomResourceDefinition>;
+};
+
+
+export type ApiextensionsK8sIoV1MutationCreateCustomResourceDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: CustomResourceDefinitionInput;
+};
+
+
+export type ApiextensionsK8sIoV1MutationDeleteCustomResourceDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiextensionsK8sIoV1MutationUpdateCustomResourceDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: CustomResourceDefinitionInput;
+};
+
+export type ApiextensionsK8sIoV1Query = {
+  __typename?: 'ApiextensionsK8sIoV1Query';
+  CustomResourceDefinition: CustomResourceDefinition;
+  CustomResourceDefinitionYaml: Scalars['String']['output'];
+  CustomResourceDefinitions: CustomResourceDefinitionList;
+};
+
+
+export type ApiextensionsK8sIoV1QueryCustomResourceDefinitionArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiextensionsK8sIoV1QueryCustomResourceDefinitionYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiextensionsK8sIoV1QueryCustomResourceDefinitionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ApiregistrationK8sIoMutation = {
+  __typename?: 'ApiregistrationK8sIoMutation';
+  v1?: Maybe<ApiregistrationK8sIoV1Mutation>;
+};
+
+export type ApiregistrationK8sIoQuery = {
+  __typename?: 'ApiregistrationK8sIoQuery';
+  v1?: Maybe<ApiregistrationK8sIoV1Query>;
+};
+
+export type ApiregistrationK8sIoV1Mutation = {
+  __typename?: 'ApiregistrationK8sIoV1Mutation';
+  createAPIService?: Maybe<ApiService>;
+  deleteAPIService?: Maybe<Scalars['Boolean']['output']>;
+  updateAPIService?: Maybe<ApiService>;
+};
+
+
+export type ApiregistrationK8sIoV1MutationCreateApiServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ApiServiceInput;
+};
+
+
+export type ApiregistrationK8sIoV1MutationDeleteApiServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiregistrationK8sIoV1MutationUpdateApiServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ApiServiceInput;
+};
+
+export type ApiregistrationK8sIoV1Query = {
+  __typename?: 'ApiregistrationK8sIoV1Query';
+  APIService: ApiService;
+  APIServiceYaml: Scalars['String']['output'];
+  APIServices: ApiServiceList;
+};
+
+
+export type ApiregistrationK8sIoV1QueryApiServiceArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiregistrationK8sIoV1QueryApiServiceYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type ApiregistrationK8sIoV1QueryApiServicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Authentication = {
@@ -259,12 +656,234 @@ export type Authentication = {
   status?: Maybe<Authenticationstatus>;
 };
 
+export type AuthenticationEvent = {
+  __typename?: 'AuthenticationEvent';
+  object?: Maybe<Authentication>;
+  type: WatchEventType;
+};
+
+export type AuthenticationGardenerCloudMutation = {
+  __typename?: 'AuthenticationGardenerCloudMutation';
+  v1alpha1?: Maybe<AuthenticationGardenerCloudV1alpha1Mutation>;
+};
+
+export type AuthenticationGardenerCloudQuery = {
+  __typename?: 'AuthenticationGardenerCloudQuery';
+  v1alpha1?: Maybe<AuthenticationGardenerCloudV1alpha1Query>;
+};
+
+export type AuthenticationGardenerCloudV1alpha1Mutation = {
+  __typename?: 'AuthenticationGardenerCloudV1alpha1Mutation';
+  createOpenIDConnect?: Maybe<OpenIdConnect>;
+  deleteOpenIDConnect?: Maybe<Scalars['Boolean']['output']>;
+  updateOpenIDConnect?: Maybe<OpenIdConnect>;
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1MutationCreateOpenIdConnectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: OpenIdConnectInput;
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1MutationDeleteOpenIdConnectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1MutationUpdateOpenIdConnectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: OpenIdConnectInput;
+};
+
+export type AuthenticationGardenerCloudV1alpha1Query = {
+  __typename?: 'AuthenticationGardenerCloudV1alpha1Query';
+  OpenIDConnect: OpenIdConnect;
+  OpenIDConnectYaml: Scalars['String']['output'];
+  OpenIDConnects: OpenIdConnectList;
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1QueryOpenIdConnectArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1QueryOpenIdConnectYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationGardenerCloudV1alpha1QueryOpenIdConnectsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AuthenticationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<AuthenticationspecInput>;
   status?: InputMaybe<AuthenticationstatusInput>;
+};
+
+export type AuthenticationK8sIoMutation = {
+  __typename?: 'AuthenticationK8sIoMutation';
+  v1?: Maybe<AuthenticationK8sIoV1Mutation>;
+};
+
+export type AuthenticationK8sIoQuery = {
+  __typename?: 'AuthenticationK8sIoQuery';
+  v1?: Maybe<AuthenticationK8sIoV1Query>;
+};
+
+export type AuthenticationK8sIoV1Mutation = {
+  __typename?: 'AuthenticationK8sIoV1Mutation';
+  createSelfSubjectReview?: Maybe<SelfSubjectReview>;
+  createTokenRequest?: Maybe<TokenRequest>;
+  createTokenReview?: Maybe<TokenReview>;
+  deleteSelfSubjectReview?: Maybe<Scalars['Boolean']['output']>;
+  deleteTokenRequest?: Maybe<Scalars['Boolean']['output']>;
+  deleteTokenReview?: Maybe<Scalars['Boolean']['output']>;
+  updateSelfSubjectReview?: Maybe<SelfSubjectReview>;
+  updateTokenRequest?: Maybe<TokenRequest>;
+  updateTokenReview?: Maybe<TokenReview>;
+};
+
+
+export type AuthenticationK8sIoV1MutationCreateSelfSubjectReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: SelfSubjectReviewInput;
+};
+
+
+export type AuthenticationK8sIoV1MutationCreateTokenRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: TokenRequestInput;
+};
+
+
+export type AuthenticationK8sIoV1MutationCreateTokenReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: TokenReviewInput;
+};
+
+
+export type AuthenticationK8sIoV1MutationDeleteSelfSubjectReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1MutationDeleteTokenRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1MutationDeleteTokenReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1MutationUpdateSelfSubjectReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: SelfSubjectReviewInput;
+};
+
+
+export type AuthenticationK8sIoV1MutationUpdateTokenRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: TokenRequestInput;
+};
+
+
+export type AuthenticationK8sIoV1MutationUpdateTokenReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: TokenReviewInput;
+};
+
+export type AuthenticationK8sIoV1Query = {
+  __typename?: 'AuthenticationK8sIoV1Query';
+  SelfSubjectReview: SelfSubjectReview;
+  SelfSubjectReviewYaml: Scalars['String']['output'];
+  SelfSubjectReviews: SelfSubjectReviewList;
+  TokenRequest: TokenRequest;
+  TokenRequestYaml: Scalars['String']['output'];
+  TokenRequests: TokenRequestList;
+  TokenReview: TokenReview;
+  TokenReviewYaml: Scalars['String']['output'];
+  TokenReviews: TokenReviewList;
+};
+
+
+export type AuthenticationK8sIoV1QuerySelfSubjectReviewArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QuerySelfSubjectReviewYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QuerySelfSubjectReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenRequestArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenRequestYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenRequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenReviewArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenReviewYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthenticationK8sIoV1QueryTokenReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type AuthenticationList = {
+  __typename?: 'AuthenticationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Authentication>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Authenticationspec = {
@@ -286,7 +905,7 @@ export type AuthenticationspecspecidentityProviders = {
   groupsClaim?: Maybe<Scalars['String']['output']>;
   issuerURL?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
-  requiredClaims?: Maybe<Scalars['StringMap']['output']>;
+  requiredClaims?: Maybe<Scalars['StringMapInput']['output']>;
   signingAlgs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   usernameClaim?: Maybe<Scalars['String']['output']>;
 };
@@ -298,7 +917,7 @@ export type AuthenticationspecspecidentityProvidersInput = {
   groupsClaim?: InputMaybe<Scalars['String']['input']>;
   issuerURL?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
-  requiredClaims?: InputMaybe<Scalars['StringMap']['input']>;
+  requiredClaims?: InputMaybe<Scalars['StringMapInput']['input']>;
   signingAlgs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   usernameClaim?: InputMaybe<Scalars['String']['input']>;
 };
@@ -306,12 +925,12 @@ export type AuthenticationspecspecidentityProvidersInput = {
 export type AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfig = {
   __typename?: 'AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfig';
   clientSecret?: Maybe<AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfigspecidentityProvidersclientConfigclientSecret>;
-  extraConfig?: Maybe<Scalars['String']['output']>;
+  extraConfig?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfigInput = {
   clientSecret?: InputMaybe<AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfigspecidentityProvidersclientConfigclientSecretInput>;
-  extraConfig?: InputMaybe<Scalars['String']['input']>;
+  extraConfig?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type AuthenticationspecspecidentityProvidersspecidentityProvidersclientConfigspecidentityProvidersclientConfigclientSecret = {
@@ -390,12 +1009,222 @@ export type Authorization = {
   status?: Maybe<Authorizationstatus>;
 };
 
+export type AuthorizationEvent = {
+  __typename?: 'AuthorizationEvent';
+  object?: Maybe<Authorization>;
+  type: WatchEventType;
+};
+
 export type AuthorizationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<AuthorizationspecInput>;
   status?: InputMaybe<AuthorizationstatusInput>;
+};
+
+export type AuthorizationK8sIoMutation = {
+  __typename?: 'AuthorizationK8sIoMutation';
+  v1?: Maybe<AuthorizationK8sIoV1Mutation>;
+};
+
+export type AuthorizationK8sIoQuery = {
+  __typename?: 'AuthorizationK8sIoQuery';
+  v1?: Maybe<AuthorizationK8sIoV1Query>;
+};
+
+export type AuthorizationK8sIoV1Mutation = {
+  __typename?: 'AuthorizationK8sIoV1Mutation';
+  createLocalSubjectAccessReview?: Maybe<LocalSubjectAccessReview>;
+  createSelfSubjectAccessReview?: Maybe<SelfSubjectAccessReview>;
+  createSelfSubjectRulesReview?: Maybe<SelfSubjectRulesReview>;
+  createSubjectAccessReview?: Maybe<SubjectAccessReview>;
+  deleteLocalSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
+  deleteSelfSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
+  deleteSelfSubjectRulesReview?: Maybe<Scalars['Boolean']['output']>;
+  deleteSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
+  updateLocalSubjectAccessReview?: Maybe<LocalSubjectAccessReview>;
+  updateSelfSubjectAccessReview?: Maybe<SelfSubjectAccessReview>;
+  updateSelfSubjectRulesReview?: Maybe<SelfSubjectRulesReview>;
+  updateSubjectAccessReview?: Maybe<SubjectAccessReview>;
+};
+
+
+export type AuthorizationK8sIoV1MutationCreateLocalSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LocalSubjectAccessReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationCreateSelfSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: SelfSubjectAccessReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationCreateSelfSubjectRulesReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: SelfSubjectRulesReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationCreateSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: SubjectAccessReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationDeleteLocalSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1MutationDeleteSelfSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1MutationDeleteSelfSubjectRulesReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1MutationDeleteSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1MutationUpdateLocalSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LocalSubjectAccessReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationUpdateSelfSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: SelfSubjectAccessReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationUpdateSelfSubjectRulesReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: SelfSubjectRulesReviewInput;
+};
+
+
+export type AuthorizationK8sIoV1MutationUpdateSubjectAccessReviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: SubjectAccessReviewInput;
+};
+
+export type AuthorizationK8sIoV1Query = {
+  __typename?: 'AuthorizationK8sIoV1Query';
+  LocalSubjectAccessReview: LocalSubjectAccessReview;
+  LocalSubjectAccessReviewYaml: Scalars['String']['output'];
+  LocalSubjectAccessReviews: LocalSubjectAccessReviewList;
+  SelfSubjectAccessReview: SelfSubjectAccessReview;
+  SelfSubjectAccessReviewYaml: Scalars['String']['output'];
+  SelfSubjectAccessReviews: SelfSubjectAccessReviewList;
+  SelfSubjectRulesReview: SelfSubjectRulesReview;
+  SelfSubjectRulesReviewYaml: Scalars['String']['output'];
+  SelfSubjectRulesReviews: SelfSubjectRulesReviewList;
+  SubjectAccessReview: SubjectAccessReview;
+  SubjectAccessReviewYaml: Scalars['String']['output'];
+  SubjectAccessReviews: SubjectAccessReviewList;
+};
+
+
+export type AuthorizationK8sIoV1QueryLocalSubjectAccessReviewArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1QueryLocalSubjectAccessReviewYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1QueryLocalSubjectAccessReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectAccessReviewArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectAccessReviewYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectAccessReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectRulesReviewArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectRulesReviewYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySelfSubjectRulesReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AuthorizationK8sIoV1QuerySubjectAccessReviewArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySubjectAccessReviewYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AuthorizationK8sIoV1QuerySubjectAccessReviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type AuthorizationList = {
+  __typename?: 'AuthorizationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Authorization>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Authorizationspec = {
@@ -476,6 +1305,116 @@ export type AuthorizationstatusstatusobservedGenerationsInput = {
   resource?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type AutoscalingMutation = {
+  __typename?: 'AutoscalingMutation';
+  v1?: Maybe<AutoscalingV1Mutation>;
+};
+
+export type AutoscalingQuery = {
+  __typename?: 'AutoscalingQuery';
+  v1?: Maybe<AutoscalingV1Query>;
+};
+
+export type AutoscalingV1Mutation = {
+  __typename?: 'AutoscalingV1Mutation';
+  createHorizontalPodAutoscaler?: Maybe<HorizontalPodAutoscaler>;
+  createScale?: Maybe<Scale>;
+  deleteHorizontalPodAutoscaler?: Maybe<Scalars['Boolean']['output']>;
+  deleteScale?: Maybe<Scalars['Boolean']['output']>;
+  updateHorizontalPodAutoscaler?: Maybe<HorizontalPodAutoscaler>;
+  updateScale?: Maybe<Scale>;
+};
+
+
+export type AutoscalingV1MutationCreateHorizontalPodAutoscalerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: HorizontalPodAutoscalerInput;
+};
+
+
+export type AutoscalingV1MutationCreateScaleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ScaleInput;
+};
+
+
+export type AutoscalingV1MutationDeleteHorizontalPodAutoscalerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AutoscalingV1MutationDeleteScaleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type AutoscalingV1MutationUpdateHorizontalPodAutoscalerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: HorizontalPodAutoscalerInput;
+};
+
+
+export type AutoscalingV1MutationUpdateScaleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ScaleInput;
+};
+
+export type AutoscalingV1Query = {
+  __typename?: 'AutoscalingV1Query';
+  HorizontalPodAutoscaler: HorizontalPodAutoscaler;
+  HorizontalPodAutoscalerYaml: Scalars['String']['output'];
+  HorizontalPodAutoscalers: HorizontalPodAutoscalerList;
+  Scale: Scale;
+  ScaleYaml: Scalars['String']['output'];
+  Scales: ScaleList;
+};
+
+
+export type AutoscalingV1QueryHorizontalPodAutoscalerArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AutoscalingV1QueryHorizontalPodAutoscalerYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AutoscalingV1QueryHorizontalPodAutoscalersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type AutoscalingV1QueryScaleArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AutoscalingV1QueryScaleYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type AutoscalingV1QueryScalesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Backup = {
   __typename?: 'Backup';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -485,12 +1424,26 @@ export type Backup = {
   status?: Maybe<Backupstatus>;
 };
 
+export type BackupEvent = {
+  __typename?: 'BackupEvent';
+  object?: Maybe<Backup>;
+  type: WatchEventType;
+};
+
 export type BackupInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<BackupspecInput>;
   status?: InputMaybe<BackupstatusInput>;
+};
+
+export type BackupList = {
+  __typename?: 'BackupList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Backup>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type BackupRepository = {
@@ -502,6 +1455,12 @@ export type BackupRepository = {
   status?: Maybe<BackupRepositorystatus>;
 };
 
+export type BackupRepositoryEvent = {
+  __typename?: 'BackupRepositoryEvent';
+  object?: Maybe<BackupRepository>;
+  type: WatchEventType;
+};
+
 export type BackupRepositoryInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -510,11 +1469,19 @@ export type BackupRepositoryInput = {
   status?: InputMaybe<BackupRepositorystatusInput>;
 };
 
+export type BackupRepositoryList = {
+  __typename?: 'BackupRepositoryList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<BackupRepository>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type BackupRepositoryspec = {
   __typename?: 'BackupRepositoryspec';
   backupStorageLocation?: Maybe<Scalars['String']['output']>;
   maintenanceFrequency?: Maybe<Scalars['String']['output']>;
-  repositoryConfig?: Maybe<Scalars['StringMap']['output']>;
+  repositoryConfig?: Maybe<Scalars['StringMapInput']['output']>;
   repositoryType?: Maybe<Scalars['String']['output']>;
   resticIdentifier?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
@@ -523,7 +1490,7 @@ export type BackupRepositoryspec = {
 export type BackupRepositoryspecInput = {
   backupStorageLocation?: InputMaybe<Scalars['String']['input']>;
   maintenanceFrequency?: InputMaybe<Scalars['String']['input']>;
-  repositoryConfig?: InputMaybe<Scalars['StringMap']['input']>;
+  repositoryConfig?: InputMaybe<Scalars['StringMapInput']['input']>;
   repositoryType?: InputMaybe<Scalars['String']['input']>;
   resticIdentifier?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -534,12 +1501,29 @@ export type BackupRepositorystatus = {
   lastMaintenanceTime?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   phase?: Maybe<Scalars['String']['output']>;
+  recentMaintenance?: Maybe<Array<Maybe<BackupRepositorystatusstatusrecentMaintenance>>>;
 };
 
 export type BackupRepositorystatusInput = {
   lastMaintenanceTime?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   phase?: InputMaybe<Scalars['String']['input']>;
+  recentMaintenance?: InputMaybe<Array<InputMaybe<BackupRepositorystatusstatusrecentMaintenanceInput>>>;
+};
+
+export type BackupRepositorystatusstatusrecentMaintenance = {
+  __typename?: 'BackupRepositorystatusstatusrecentMaintenance';
+  completeTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  result?: Maybe<Scalars['String']['output']>;
+  startTimestamp?: Maybe<Scalars['String']['output']>;
+};
+
+export type BackupRepositorystatusstatusrecentMaintenanceInput = {
+  completeTimestamp?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  result?: InputMaybe<Scalars['String']['input']>;
+  startTimestamp?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type BackupStorageLocation = {
@@ -551,6 +1535,12 @@ export type BackupStorageLocation = {
   status?: Maybe<BackupStorageLocationstatus>;
 };
 
+export type BackupStorageLocationEvent = {
+  __typename?: 'BackupStorageLocationEvent';
+  object?: Maybe<BackupStorageLocation>;
+  type: WatchEventType;
+};
+
 export type BackupStorageLocationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -559,11 +1549,19 @@ export type BackupStorageLocationInput = {
   status?: InputMaybe<BackupStorageLocationstatusInput>;
 };
 
+export type BackupStorageLocationList = {
+  __typename?: 'BackupStorageLocationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<BackupStorageLocation>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type BackupStorageLocationspec = {
   __typename?: 'BackupStorageLocationspec';
   accessMode?: Maybe<Scalars['String']['output']>;
   backupSyncPeriod?: Maybe<Scalars['String']['output']>;
-  config?: Maybe<Scalars['StringMap']['output']>;
+  config?: Maybe<Scalars['StringMapInput']['output']>;
   credential?: Maybe<BackupStorageLocationspecspeccredential>;
   default?: Maybe<Scalars['Boolean']['output']>;
   objectStorage?: Maybe<BackupStorageLocationspecspecobjectStorage>;
@@ -574,7 +1572,7 @@ export type BackupStorageLocationspec = {
 export type BackupStorageLocationspecInput = {
   accessMode?: InputMaybe<Scalars['String']['input']>;
   backupSyncPeriod?: InputMaybe<Scalars['String']['input']>;
-  config?: InputMaybe<Scalars['StringMap']['input']>;
+  config?: InputMaybe<Scalars['StringMapInput']['input']>;
   credential?: InputMaybe<BackupStorageLocationspecspeccredentialInput>;
   default?: InputMaybe<Scalars['Boolean']['input']>;
   objectStorage?: InputMaybe<BackupStorageLocationspecspecobjectStorageInput>;
@@ -647,7 +1645,7 @@ export type Backupspec = {
   labelSelector?: Maybe<BackupspecspeclabelSelector>;
   metadata?: Maybe<Backupspecspecmetadata>;
   orLabelSelectors?: Maybe<Array<Maybe<BackupspecspecorLabelSelectors>>>;
-  orderedResources?: Maybe<Scalars['StringMap']['output']>;
+  orderedResources?: Maybe<Scalars['StringMapInput']['output']>;
   resourcePolicy?: Maybe<BackupspecspecresourcePolicy>;
   snapshotMoveData?: Maybe<Scalars['Boolean']['output']>;
   snapshotVolumes?: Maybe<Scalars['Boolean']['output']>;
@@ -676,7 +1674,7 @@ export type BackupspecInput = {
   labelSelector?: InputMaybe<BackupspecspeclabelSelectorInput>;
   metadata?: InputMaybe<BackupspecspecmetadataInput>;
   orLabelSelectors?: InputMaybe<Array<InputMaybe<BackupspecspecorLabelSelectorsInput>>>;
-  orderedResources?: InputMaybe<Scalars['StringMap']['input']>;
+  orderedResources?: InputMaybe<Scalars['StringMapInput']['input']>;
   resourcePolicy?: InputMaybe<BackupspecspecresourcePolicyInput>;
   snapshotMoveData?: InputMaybe<Scalars['Boolean']['input']>;
   snapshotVolumes?: InputMaybe<Scalars['Boolean']['input']>;
@@ -721,12 +1719,12 @@ export type BackupspecspechooksspechooksresourcesInput = {
 export type BackupspecspechooksspechooksresourcesspechooksresourceslabelSelector = {
   __typename?: 'BackupspecspechooksspechooksresourcesspechooksresourceslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<BackupspecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type BackupspecspechooksspechooksresourcesspechooksresourceslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<BackupspecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type BackupspecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressions = {
@@ -793,12 +1791,12 @@ export type Backupspecspechooksspechooksresourcesspechooksresourcesprespechooksr
 export type BackupspecspeclabelSelector = {
   __typename?: 'BackupspecspeclabelSelector';
   matchExpressions?: Maybe<Array<Maybe<BackupspecspeclabelSelectorspeclabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type BackupspecspeclabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<BackupspecspeclabelSelectorspeclabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type BackupspecspeclabelSelectorspeclabelSelectormatchExpressions = {
@@ -816,22 +1814,22 @@ export type BackupspecspeclabelSelectorspeclabelSelectormatchExpressionsInput = 
 
 export type Backupspecspecmetadata = {
   __typename?: 'Backupspecspecmetadata';
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type BackupspecspecmetadataInput = {
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type BackupspecspecorLabelSelectors = {
   __typename?: 'BackupspecspecorLabelSelectors';
   matchExpressions?: Maybe<Array<Maybe<BackupspecspecorLabelSelectorsspecorLabelSelectorsmatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type BackupspecspecorLabelSelectorsInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<BackupspecspecorLabelSelectorsspecorLabelSelectorsmatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type BackupspecspecorLabelSelectorsspecorLabelSelectorsmatchExpressions = {
@@ -944,11 +1942,25 @@ export type Binding = {
   target?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencetarget>;
 };
 
+export type BindingEvent = {
+  __typename?: 'BindingEvent';
+  object?: Maybe<Binding>;
+  type: WatchEventType;
+};
+
 export type BindingInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   target?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencetargetInput>;
+};
+
+export type BindingList = {
+  __typename?: 'BindingList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Binding>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type CsiDriver = {
@@ -959,11 +1971,25 @@ export type CsiDriver = {
   spec?: Maybe<Io_K8s_Api_Storage_V1_CsiDriverSpecspec>;
 };
 
+export type CsiDriverEvent = {
+  __typename?: 'CSIDriverEvent';
+  object?: Maybe<CsiDriver>;
+  type: WatchEventType;
+};
+
 export type CsiDriverInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Storage_V1_CsiDriverSpecspecInput>;
+};
+
+export type CsiDriverList = {
+  __typename?: 'CSIDriverList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CsiDriver>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type CsiStorageCapacity = {
@@ -977,6 +2003,12 @@ export type CsiStorageCapacity = {
   storageClassName?: Maybe<Scalars['String']['output']>;
 };
 
+export type CsiStorageCapacityEvent = {
+  __typename?: 'CSIStorageCapacityEvent';
+  object?: Maybe<CsiStorageCapacity>;
+  type: WatchEventType;
+};
+
 export type CsiStorageCapacityInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   capacity?: InputMaybe<Scalars['String']['input']>;
@@ -985,6 +2017,130 @@ export type CsiStorageCapacityInput = {
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   nodeTopology?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectornodeTopologyInput>;
   storageClassName?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CsiStorageCapacityList = {
+  __typename?: 'CSIStorageCapacityList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CsiStorageCapacity>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CertGardenerCloudMutation = {
+  __typename?: 'CertGardenerCloudMutation';
+  v1alpha1?: Maybe<CertGardenerCloudV1alpha1Mutation>;
+};
+
+export type CertGardenerCloudQuery = {
+  __typename?: 'CertGardenerCloudQuery';
+  v1alpha1?: Maybe<CertGardenerCloudV1alpha1Query>;
+};
+
+export type CertGardenerCloudV1alpha1Mutation = {
+  __typename?: 'CertGardenerCloudV1alpha1Mutation';
+  createCertificate?: Maybe<Certificate>;
+  createCertificateRevocation?: Maybe<CertificateRevocation>;
+  deleteCertificate?: Maybe<Scalars['Boolean']['output']>;
+  deleteCertificateRevocation?: Maybe<Scalars['Boolean']['output']>;
+  updateCertificate?: Maybe<Certificate>;
+  updateCertificateRevocation?: Maybe<CertificateRevocation>;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationCreateCertificateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CertificateInput;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationCreateCertificateRevocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CertificateRevocationInput;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationDeleteCertificateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationDeleteCertificateRevocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationUpdateCertificateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CertificateInput;
+};
+
+
+export type CertGardenerCloudV1alpha1MutationUpdateCertificateRevocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CertificateRevocationInput;
+};
+
+export type CertGardenerCloudV1alpha1Query = {
+  __typename?: 'CertGardenerCloudV1alpha1Query';
+  Certificate: Certificate;
+  CertificateRevocation: CertificateRevocation;
+  CertificateRevocationYaml: Scalars['String']['output'];
+  CertificateRevocations: CertificateRevocationList;
+  CertificateYaml: Scalars['String']['output'];
+  Certificates: CertificateList;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificateArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificateRevocationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificateRevocationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificateRevocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificateYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CertGardenerCloudV1alpha1QueryCertificatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Certificate = {
@@ -996,12 +2152,26 @@ export type Certificate = {
   status?: Maybe<Certificatestatus>;
 };
 
+export type CertificateEvent = {
+  __typename?: 'CertificateEvent';
+  object?: Maybe<Certificate>;
+  type: WatchEventType;
+};
+
 export type CertificateInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<CertificatespecInput>;
   status?: InputMaybe<CertificatestatusInput>;
+};
+
+export type CertificateList = {
+  __typename?: 'CertificateList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Certificate>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type CertificateRevocation = {
@@ -1013,6 +2183,12 @@ export type CertificateRevocation = {
   status?: Maybe<CertificateRevocationstatus>;
 };
 
+export type CertificateRevocationEvent = {
+  __typename?: 'CertificateRevocationEvent';
+  object?: Maybe<CertificateRevocation>;
+  type: WatchEventType;
+};
+
 export type CertificateRevocationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -1021,9 +2197,17 @@ export type CertificateRevocationInput = {
   status?: InputMaybe<CertificateRevocationstatusInput>;
 };
 
+export type CertificateRevocationList = {
+  __typename?: 'CertificateRevocationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CertificateRevocation>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type CertificateRevocationspec = {
   __typename?: 'CertificateRevocationspec';
-  certificateRef?: Maybe<CertificateRevocationspecspeccertificateRef>;
+  certificateRef?: Maybe<CertificateRevocationspecspeccertificateRef_Certificate_Enhanced>;
   qualifyingDate?: Maybe<Scalars['String']['output']>;
   renew?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -1034,15 +2218,16 @@ export type CertificateRevocationspecInput = {
   renew?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type CertificateRevocationspecspeccertificateRef = {
-  __typename?: 'CertificateRevocationspecspeccertificateRef';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
 export type CertificateRevocationspecspeccertificateRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CertificateRevocationspecspeccertificateRef_Certificate_Enhanced = {
+  __typename?: 'CertificateRevocationspecspeccertificateRef_certificate_Enhanced';
+  certificate?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificate>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type CertificateRevocationstatus = {
@@ -1184,6 +2369,12 @@ export type CertificateSigningRequest = {
   status?: Maybe<Io_K8s_Api_Certificates_V1_CertificateSigningRequestStatusstatus>;
 };
 
+export type CertificateSigningRequestEvent = {
+  __typename?: 'CertificateSigningRequestEvent';
+  object?: Maybe<CertificateSigningRequest>;
+  type: WatchEventType;
+};
+
 export type CertificateSigningRequestInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -1192,23 +2383,96 @@ export type CertificateSigningRequestInput = {
   status?: InputMaybe<Io_K8s_Api_Certificates_V1_CertificateSigningRequestStatusstatusInput>;
 };
 
+export type CertificateSigningRequestList = {
+  __typename?: 'CertificateSigningRequestList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CertificateSigningRequest>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CertificatesK8sIoMutation = {
+  __typename?: 'CertificatesK8sIoMutation';
+  v1?: Maybe<CertificatesK8sIoV1Mutation>;
+};
+
+export type CertificatesK8sIoQuery = {
+  __typename?: 'CertificatesK8sIoQuery';
+  v1?: Maybe<CertificatesK8sIoV1Query>;
+};
+
+export type CertificatesK8sIoV1Mutation = {
+  __typename?: 'CertificatesK8sIoV1Mutation';
+  createCertificateSigningRequest?: Maybe<CertificateSigningRequest>;
+  deleteCertificateSigningRequest?: Maybe<Scalars['Boolean']['output']>;
+  updateCertificateSigningRequest?: Maybe<CertificateSigningRequest>;
+};
+
+
+export type CertificatesK8sIoV1MutationCreateCertificateSigningRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: CertificateSigningRequestInput;
+};
+
+
+export type CertificatesK8sIoV1MutationDeleteCertificateSigningRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type CertificatesK8sIoV1MutationUpdateCertificateSigningRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: CertificateSigningRequestInput;
+};
+
+export type CertificatesK8sIoV1Query = {
+  __typename?: 'CertificatesK8sIoV1Query';
+  CertificateSigningRequest: CertificateSigningRequest;
+  CertificateSigningRequestYaml: Scalars['String']['output'];
+  CertificateSigningRequests: CertificateSigningRequestList;
+};
+
+
+export type CertificatesK8sIoV1QueryCertificateSigningRequestArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CertificatesK8sIoV1QueryCertificateSigningRequestYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CertificatesK8sIoV1QueryCertificateSigningRequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Certificatespec = {
   __typename?: 'Certificatespec';
   commonName?: Maybe<Scalars['String']['output']>;
   csr?: Maybe<Scalars['String']['output']>;
   dnsNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   duration?: Maybe<Scalars['String']['output']>;
+  emailAddresses?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   ensureRenewedAfter?: Maybe<Scalars['String']['output']>;
   followCNAME?: Maybe<Scalars['Boolean']['output']>;
+  ipAddresses?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   isCA?: Maybe<Scalars['Boolean']['output']>;
-  issuerRef?: Maybe<CertificatespecspecissuerRef>;
+  issuerRef?: Maybe<CertificatespecspecissuerRef_Issuer_Enhanced>;
   keystores?: Maybe<Certificatespecspeckeystores>;
   preferredChain?: Maybe<Scalars['String']['output']>;
   privateKey?: Maybe<CertificatespecspecprivateKey>;
   renew?: Maybe<Scalars['Boolean']['output']>;
-  secretLabels?: Maybe<Scalars['StringMap']['output']>;
+  renewBefore?: Maybe<Scalars['String']['output']>;
+  secretLabels?: Maybe<Scalars['StringMapInput']['output']>;
   secretName?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<CertificatespecspecsecretRef>;
+  secretRef?: Maybe<CertificatespecspecsecretRef_Secret_Enhanced>;
+  uris?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
 export type CertificatespecInput = {
@@ -1216,28 +2480,32 @@ export type CertificatespecInput = {
   csr?: InputMaybe<Scalars['String']['input']>;
   dnsNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   duration?: InputMaybe<Scalars['String']['input']>;
+  emailAddresses?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ensureRenewedAfter?: InputMaybe<Scalars['String']['input']>;
   followCNAME?: InputMaybe<Scalars['Boolean']['input']>;
+  ipAddresses?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   isCA?: InputMaybe<Scalars['Boolean']['input']>;
   issuerRef?: InputMaybe<CertificatespecspecissuerRefInput>;
   keystores?: InputMaybe<CertificatespecspeckeystoresInput>;
   preferredChain?: InputMaybe<Scalars['String']['input']>;
   privateKey?: InputMaybe<CertificatespecspecprivateKeyInput>;
   renew?: InputMaybe<Scalars['Boolean']['input']>;
-  secretLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  renewBefore?: InputMaybe<Scalars['String']['input']>;
+  secretLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
   secretName?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<CertificatespecspecsecretRefInput>;
-};
-
-export type CertificatespecspecissuerRef = {
-  __typename?: 'CertificatespecspecissuerRef';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
+  uris?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type CertificatespecspecissuerRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CertificatespecspecissuerRef_Issuer_Enhanced = {
+  __typename?: 'CertificatespecspecissuerRef_issuer_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type Certificatespecspeckeystores = {
@@ -1254,7 +2522,7 @@ export type CertificatespecspeckeystoresInput = {
 export type Certificatespecspeckeystoresspeckeystoresjks = {
   __typename?: 'Certificatespecspeckeystoresspeckeystoresjks';
   create?: Maybe<Scalars['Boolean']['output']>;
-  passwordSecretRef?: Maybe<CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef>;
+  passwordSecretRef?: Maybe<CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_PasswordSecret_Enhanced>;
 };
 
 export type CertificatespecspeckeystoresspeckeystoresjksInput = {
@@ -1262,21 +2530,21 @@ export type CertificatespecspeckeystoresspeckeystoresjksInput = {
   passwordSecretRef?: InputMaybe<CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRefInput>;
 };
 
-export type CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef = {
-  __typename?: 'CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef';
-  key?: Maybe<Scalars['String']['output']>;
-  secretName?: Maybe<Scalars['String']['output']>;
-};
-
 export type CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRefInput = {
   key?: InputMaybe<Scalars['String']['input']>;
   secretName?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_PasswordSecret_Enhanced = {
+  __typename?: 'CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_passwordSecret_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  secretName?: Maybe<Scalars['String']['output']>;
+};
+
 export type Certificatespecspeckeystoresspeckeystorespkcs12 = {
   __typename?: 'Certificatespecspeckeystoresspeckeystorespkcs12';
   create?: Maybe<Scalars['Boolean']['output']>;
-  passwordSecretRef?: Maybe<Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef>;
+  passwordSecretRef?: Maybe<Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_PasswordSecret_Enhanced>;
 };
 
 export type Certificatespecspeckeystoresspeckeystorespkcs12Input = {
@@ -1284,15 +2552,15 @@ export type Certificatespecspeckeystoresspeckeystorespkcs12Input = {
   passwordSecretRef?: InputMaybe<Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRefInput>;
 };
 
-export type Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef = {
-  __typename?: 'Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef';
-  key?: Maybe<Scalars['String']['output']>;
-  secretName?: Maybe<Scalars['String']['output']>;
-};
-
 export type Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRefInput = {
   key?: InputMaybe<Scalars['String']['input']>;
   secretName?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_PasswordSecret_Enhanced = {
+  __typename?: 'Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_passwordSecret_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  secretName?: Maybe<Scalars['String']['output']>;
 };
 
 export type CertificatespecspecprivateKey = {
@@ -1306,15 +2574,16 @@ export type CertificatespecspecprivateKeyInput = {
   size?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type CertificatespecspecsecretRef = {
-  __typename?: 'CertificatespecspecsecretRef';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
 export type CertificatespecspecsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CertificatespecspecsecretRef_Secret_Enhanced = {
+  __typename?: 'CertificatespecspecsecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Certificatestatus = {
@@ -1324,10 +2593,12 @@ export type Certificatestatus = {
   conditions?: Maybe<Array<Maybe<Certificatestatusstatusconditions>>>;
   dnsNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   expirationDate?: Maybe<Scalars['String']['output']>;
-  issuerRef?: Maybe<CertificatestatusstatusissuerRef>;
+  issuanceDate?: Maybe<Scalars['String']['output']>;
+  issuerRef?: Maybe<CertificatestatusstatusissuerRef_Issuer_Enhanced>;
   lastPendingTimestamp?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   observedGeneration?: Maybe<Scalars['Int']['output']>;
+  renewalDate?: Maybe<Scalars['String']['output']>;
   state?: Maybe<Scalars['String']['output']>;
 };
 
@@ -1337,10 +2608,12 @@ export type CertificatestatusInput = {
   conditions?: InputMaybe<Array<InputMaybe<CertificatestatusstatusconditionsInput>>>;
   dnsNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   expirationDate?: InputMaybe<Scalars['String']['input']>;
+  issuanceDate?: InputMaybe<Scalars['String']['input']>;
   issuerRef?: InputMaybe<CertificatestatusstatusissuerRefInput>;
   lastPendingTimestamp?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  renewalDate?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1376,17 +2649,17 @@ export type CertificatestatusstatusconditionsInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CertificatestatusstatusissuerRef = {
-  __typename?: 'CertificatestatusstatusissuerRef';
-  cluster?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
 export type CertificatestatusstatusissuerRefInput = {
   cluster?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CertificatestatusstatusissuerRef_Issuer_Enhanced = {
+  __typename?: 'CertificatestatusstatusissuerRef_issuer_Enhanced';
+  cluster?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type CloudOrchestrator = {
@@ -1398,12 +2671,26 @@ export type CloudOrchestrator = {
   status?: Maybe<CloudOrchestratorstatus>;
 };
 
+export type CloudOrchestratorEvent = {
+  __typename?: 'CloudOrchestratorEvent';
+  object?: Maybe<CloudOrchestrator>;
+  type: WatchEventType;
+};
+
 export type CloudOrchestratorInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<CloudOrchestratorspecInput>;
   status?: InputMaybe<CloudOrchestratorstatusInput>;
+};
+
+export type CloudOrchestratorList = {
+  __typename?: 'CloudOrchestratorList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CloudOrchestrator>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type CloudOrchestratorspec = {
@@ -1535,12 +2822,26 @@ export type ClusterAdmin = {
   status?: Maybe<ClusterAdminstatus>;
 };
 
+export type ClusterAdminEvent = {
+  __typename?: 'ClusterAdminEvent';
+  object?: Maybe<ClusterAdmin>;
+  type: WatchEventType;
+};
+
 export type ClusterAdminInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<ClusterAdminspecInput>;
   status?: InputMaybe<ClusterAdminstatusInput>;
+};
+
+export type ClusterAdminList = {
+  __typename?: 'ClusterAdminList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ClusterAdmin>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type ClusterAdminspec = {
@@ -1594,16 +2895,38 @@ export type ClusterRoleBinding = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  roleRef?: Maybe<Io_K8s_Api_Rbac_V1_RoleRefroleRef>;
+  role?: Maybe<Scalars['String']['output']>;
+  roleRef?: Maybe<Io_K8s_Api_Rbac_V1_RoleRefroleRef_Role_Enhanced>;
   subjects?: Maybe<Array<Maybe<Io_K8s_Api_Rbac_V1_Subjectsubjects>>>;
+};
+
+export type ClusterRoleBindingEvent = {
+  __typename?: 'ClusterRoleBindingEvent';
+  object?: Maybe<ClusterRoleBinding>;
+  type: WatchEventType;
 };
 
 export type ClusterRoleBindingInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  role?: InputMaybe<Scalars['String']['input']>;
   roleRef?: InputMaybe<Io_K8s_Api_Rbac_V1_RoleRefroleRefInput>;
   subjects?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Rbac_V1_SubjectsubjectsInput>>>;
+};
+
+export type ClusterRoleBindingList = {
+  __typename?: 'ClusterRoleBindingList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ClusterRoleBinding>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ClusterRoleEvent = {
+  __typename?: 'ClusterRoleEvent';
+  object?: Maybe<ClusterRole>;
+  type: WatchEventType;
 };
 
 export type ClusterRoleInput = {
@@ -1614,12 +2937,26 @@ export type ClusterRoleInput = {
   rules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Rbac_V1_PolicyRulerulesInput>>>;
 };
 
+export type ClusterRoleList = {
+  __typename?: 'ClusterRoleList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ClusterRole>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type ComponentStatus = {
   __typename?: 'ComponentStatus';
   apiVersion?: Maybe<Scalars['String']['output']>;
   conditions?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ComponentConditionconditions>>>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+};
+
+export type ComponentStatusEvent = {
+  __typename?: 'ComponentStatusEvent';
+  object?: Maybe<ComponentStatus>;
+  type: WatchEventType;
 };
 
 export type ComponentStatusInput = {
@@ -1629,23 +2966,1039 @@ export type ComponentStatusInput = {
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
 };
 
+export type ComponentStatusList = {
+  __typename?: 'ComponentStatusList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ComponentStatus>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type ConfigMap = {
   __typename?: 'ConfigMap';
   apiVersion?: Maybe<Scalars['String']['output']>;
-  binaryData?: Maybe<Scalars['StringMap']['output']>;
-  data?: Maybe<Scalars['StringMap']['output']>;
+  binaryData?: Maybe<Scalars['StringMapInput']['output']>;
+  data?: Maybe<Scalars['StringMapInput']['output']>;
   immutable?: Maybe<Scalars['Boolean']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
 };
 
+export type ConfigMapEvent = {
+  __typename?: 'ConfigMapEvent';
+  object?: Maybe<ConfigMap>;
+  type: WatchEventType;
+};
+
 export type ConfigMapInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
-  binaryData?: InputMaybe<Scalars['StringMap']['input']>;
-  data?: InputMaybe<Scalars['StringMap']['input']>;
+  binaryData?: InputMaybe<Scalars['StringMapInput']['input']>;
+  data?: InputMaybe<Scalars['StringMapInput']['input']>;
   immutable?: InputMaybe<Scalars['Boolean']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+};
+
+export type ConfigMapList = {
+  __typename?: 'ConfigMapList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ConfigMap>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoordinationK8sIoMutation = {
+  __typename?: 'CoordinationK8sIoMutation';
+  v1?: Maybe<CoordinationK8sIoV1Mutation>;
+};
+
+export type CoordinationK8sIoQuery = {
+  __typename?: 'CoordinationK8sIoQuery';
+  v1?: Maybe<CoordinationK8sIoV1Query>;
+};
+
+export type CoordinationK8sIoV1Mutation = {
+  __typename?: 'CoordinationK8sIoV1Mutation';
+  createLease?: Maybe<Lease>;
+  deleteLease?: Maybe<Scalars['Boolean']['output']>;
+  updateLease?: Maybe<Lease>;
+};
+
+
+export type CoordinationK8sIoV1MutationCreateLeaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LeaseInput;
+};
+
+
+export type CoordinationK8sIoV1MutationDeleteLeaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoordinationK8sIoV1MutationUpdateLeaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LeaseInput;
+};
+
+export type CoordinationK8sIoV1Query = {
+  __typename?: 'CoordinationK8sIoV1Query';
+  Lease: Lease;
+  LeaseYaml: Scalars['String']['output'];
+  Leases: LeaseList;
+};
+
+
+export type CoordinationK8sIoV1QueryLeaseArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoordinationK8sIoV1QueryLeaseYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoordinationK8sIoV1QueryLeasesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenmcpCloudMutation = {
+  __typename?: 'CoreOpenmcpCloudMutation';
+  v1alpha1?: Maybe<CoreOpenmcpCloudV1alpha1Mutation>;
+  v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Mutation>;
+};
+
+export type CoreOpenmcpCloudQuery = {
+  __typename?: 'CoreOpenmcpCloudQuery';
+  v1alpha1?: Maybe<CoreOpenmcpCloudV1alpha1Query>;
+  v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Query>;
+};
+
+export type CoreOpenmcpCloudV1alpha1Landscaper = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaper';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperspec>;
+  status?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatus>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperEvent = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperEvent';
+  object?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  type: WatchEventType;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperspecInput>;
+  status?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusInput>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperList = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CoreOpenmcpCloudV1alpha1Landscaper>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1Landscaperspec = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperspec';
+  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperspecInput = {
+  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type CoreOpenmcpCloudV1alpha1Landscaperstatus = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatus';
+  conditions?: Maybe<Array<Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions>>>;
+  landscaperDeployment?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment>;
+  observedGenerations?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput>>>;
+  landscaperDeployment?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput>;
+  observedGenerations?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput>;
+};
+
+export type CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations';
+  internalConfiguration?: Maybe<Scalars['Int']['output']>;
+  managedControlPlane?: Maybe<Scalars['Int']['output']>;
+  resource?: Maybe<Scalars['Int']['output']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput = {
+  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
+  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
+  resource?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type CoreOpenmcpCloudV1alpha1Mutation = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Mutation';
+  createAPIServer?: Maybe<ApiServer>;
+  createAuthentication?: Maybe<Authentication>;
+  createAuthorization?: Maybe<Authorization>;
+  createCloudOrchestrator?: Maybe<CloudOrchestrator>;
+  createClusterAdmin?: Maybe<ClusterAdmin>;
+  createInternalConfiguration?: Maybe<InternalConfiguration>;
+  createLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  createManagedComponent?: Maybe<ManagedComponent>;
+  createManagedControlPlane?: Maybe<ManagedControlPlane>;
+  createMemberOverrides?: Maybe<MemberOverrides>;
+  createProject?: Maybe<Project>;
+  createProjectWorkspaceConfig?: Maybe<ProjectWorkspaceConfig>;
+  createWorkspace?: Maybe<Workspace>;
+  deleteAPIServer?: Maybe<Scalars['Boolean']['output']>;
+  deleteAuthentication?: Maybe<Scalars['Boolean']['output']>;
+  deleteAuthorization?: Maybe<Scalars['Boolean']['output']>;
+  deleteCloudOrchestrator?: Maybe<Scalars['Boolean']['output']>;
+  deleteClusterAdmin?: Maybe<Scalars['Boolean']['output']>;
+  deleteInternalConfiguration?: Maybe<Scalars['Boolean']['output']>;
+  deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
+  deleteManagedComponent?: Maybe<Scalars['Boolean']['output']>;
+  deleteManagedControlPlane?: Maybe<Scalars['Boolean']['output']>;
+  deleteMemberOverrides?: Maybe<Scalars['Boolean']['output']>;
+  deleteProject?: Maybe<Scalars['Boolean']['output']>;
+  deleteProjectWorkspaceConfig?: Maybe<Scalars['Boolean']['output']>;
+  deleteWorkspace?: Maybe<Scalars['Boolean']['output']>;
+  updateAPIServer?: Maybe<ApiServer>;
+  updateAuthentication?: Maybe<Authentication>;
+  updateAuthorization?: Maybe<Authorization>;
+  updateCloudOrchestrator?: Maybe<CloudOrchestrator>;
+  updateClusterAdmin?: Maybe<ClusterAdmin>;
+  updateInternalConfiguration?: Maybe<InternalConfiguration>;
+  updateLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  updateManagedComponent?: Maybe<ManagedComponent>;
+  updateManagedControlPlane?: Maybe<ManagedControlPlane>;
+  updateMemberOverrides?: Maybe<MemberOverrides>;
+  updateProject?: Maybe<Project>;
+  updateProjectWorkspaceConfig?: Maybe<ProjectWorkspaceConfig>;
+  updateWorkspace?: Maybe<Workspace>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateApiServerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ApiServerInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateAuthenticationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: AuthenticationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateAuthorizationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: AuthorizationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateCloudOrchestratorArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CloudOrchestratorInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateClusterAdminArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ClusterAdminInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateInternalConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: InternalConfigurationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateManagedComponentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ManagedComponentInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateManagedControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateMemberOverridesArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: MemberOverridesInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateProjectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ProjectInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateProjectWorkspaceConfigArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ProjectWorkspaceConfigInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationCreateWorkspaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: WorkspaceInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteApiServerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteAuthenticationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteAuthorizationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteCloudOrchestratorArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteClusterAdminArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteInternalConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteManagedComponentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteManagedControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteMemberOverridesArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteProjectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteProjectWorkspaceConfigArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationDeleteWorkspaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateApiServerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ApiServerInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateAuthenticationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: AuthenticationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateAuthorizationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: AuthorizationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateCloudOrchestratorArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CloudOrchestratorInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateClusterAdminArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ClusterAdminInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateInternalConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: InternalConfigurationInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateManagedComponentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ManagedComponentInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateManagedControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateMemberOverridesArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: MemberOverridesInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateProjectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ProjectInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateProjectWorkspaceConfigArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ProjectWorkspaceConfigInput;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1MutationUpdateWorkspaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: WorkspaceInput;
+};
+
+export type CoreOpenmcpCloudV1alpha1Query = {
+  __typename?: 'CoreOpenmcpCloudV1alpha1Query';
+  APIServer: ApiServer;
+  APIServerYaml: Scalars['String']['output'];
+  APIServers: ApiServerList;
+  Authentication: Authentication;
+  AuthenticationYaml: Scalars['String']['output'];
+  Authentications: AuthenticationList;
+  Authorization: Authorization;
+  AuthorizationYaml: Scalars['String']['output'];
+  Authorizations: AuthorizationList;
+  CloudOrchestrator: CloudOrchestrator;
+  CloudOrchestratorYaml: Scalars['String']['output'];
+  CloudOrchestrators: CloudOrchestratorList;
+  ClusterAdmin: ClusterAdmin;
+  ClusterAdminYaml: Scalars['String']['output'];
+  ClusterAdmins: ClusterAdminList;
+  InternalConfiguration: InternalConfiguration;
+  InternalConfigurationYaml: Scalars['String']['output'];
+  InternalConfigurations: InternalConfigurationList;
+  Landscaper: CoreOpenmcpCloudV1alpha1Landscaper;
+  LandscaperYaml: Scalars['String']['output'];
+  Landscapers: CoreOpenmcpCloudV1alpha1LandscaperList;
+  ManagedComponent: ManagedComponent;
+  ManagedComponentYaml: Scalars['String']['output'];
+  ManagedComponents: ManagedComponentList;
+  ManagedControlPlane: ManagedControlPlane;
+  ManagedControlPlaneYaml: Scalars['String']['output'];
+  ManagedControlPlanes: ManagedControlPlaneList;
+  MemberOverrides: MemberOverrides;
+  MemberOverridesYaml: Scalars['String']['output'];
+  Project: Project;
+  ProjectWorkspaceConfig: ProjectWorkspaceConfig;
+  ProjectWorkspaceConfigYaml: Scalars['String']['output'];
+  ProjectWorkspaceConfigs: ProjectWorkspaceConfigList;
+  ProjectYaml: Scalars['String']['output'];
+  Projects: ProjectList;
+  Workspace: Workspace;
+  WorkspaceYaml: Scalars['String']['output'];
+  Workspaces: WorkspaceList;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryApiServerArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryApiServerYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryApiServersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthenticationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthenticationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthenticationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthorizationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthorizationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryAuthorizationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryCloudOrchestratorArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryCloudOrchestratorYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryCloudOrchestratorsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryClusterAdminArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryClusterAdminYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryClusterAdminsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryInternalConfigurationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryInternalConfigurationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryInternalConfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryLandscaperArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryLandscaperYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryLandscapersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedComponentArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedComponentYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedComponentsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedControlPlaneArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedControlPlaneYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryManagedControlPlanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryMemberOverridesArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryMemberOverridesYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectWorkspaceConfigArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectWorkspaceConfigYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectWorkspaceConfigsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryProjectsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryWorkspaceArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryWorkspaceYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV1alpha1QueryWorkspacesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenmcpCloudV2alpha1Mutation = {
+  __typename?: 'CoreOpenmcpCloudV2alpha1Mutation';
+  createManagedControlPlaneV2?: Maybe<ManagedControlPlaneV2>;
+  deleteManagedControlPlaneV2?: Maybe<Scalars['Boolean']['output']>;
+  updateManagedControlPlaneV2?: Maybe<ManagedControlPlaneV2>;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1MutationCreateManagedControlPlaneV2Args = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneV2Input;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1MutationDeleteManagedControlPlaneV2Args = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1MutationUpdateManagedControlPlaneV2Args = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneV2Input;
+};
+
+export type CoreOpenmcpCloudV2alpha1Query = {
+  __typename?: 'CoreOpenmcpCloudV2alpha1Query';
+  ManagedControlPlaneV2: ManagedControlPlaneV2;
+  ManagedControlPlaneV2Yaml: Scalars['String']['output'];
+  ManagedControlPlaneV2s: ManagedControlPlaneV2List;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2Args = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2YamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2sArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Crossplane = {
+  __typename?: 'Crossplane';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<Crossplanespec>;
+  status?: Maybe<Crossplanestatus>;
+};
+
+export type CrossplaneEvent = {
+  __typename?: 'CrossplaneEvent';
+  object?: Maybe<Crossplane>;
+  type: WatchEventType;
+};
+
+export type CrossplaneInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<CrossplanespecInput>;
+  status?: InputMaybe<CrossplanestatusInput>;
+};
+
+export type CrossplaneList = {
+  __typename?: 'CrossplaneList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Crossplane>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CrossplaneServicesOpenmcpCloudMutation = {
+  __typename?: 'CrossplaneServicesOpenmcpCloudMutation';
+  v1alpha1?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Mutation>;
+};
+
+export type CrossplaneServicesOpenmcpCloudQuery = {
+  __typename?: 'CrossplaneServicesOpenmcpCloudQuery';
+  v1alpha1?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Query>;
+};
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1Mutation = {
+  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Mutation';
+  createCrossplane?: Maybe<Crossplane>;
+  deleteCrossplane?: Maybe<Scalars['Boolean']['output']>;
+  updateCrossplane?: Maybe<Crossplane>;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1MutationCreateCrossplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CrossplaneInput;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1MutationDeleteCrossplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1MutationUpdateCrossplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CrossplaneInput;
+};
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1Query = {
+  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Query';
+  Crossplane: Crossplane;
+  CrossplaneYaml: Scalars['String']['output'];
+  Crossplanes: CrossplaneList;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplaneArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplaneYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Crossplanespec = {
+  __typename?: 'Crossplanespec';
+  providers?: Maybe<Array<Maybe<Crossplanespecspecproviders>>>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type CrossplanespecInput = {
+  providers?: InputMaybe<Array<InputMaybe<CrossplanespecspecprovidersInput>>>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Crossplanespecspecproviders = {
+  __typename?: 'Crossplanespecspecproviders';
+  name?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type CrossplanespecspecprovidersInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Crossplanestatus = {
+  __typename?: 'Crossplanestatus';
+  conditions?: Maybe<Array<Maybe<Crossplanestatusstatusconditions>>>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+};
+
+export type CrossplanestatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<CrossplanestatusstatusconditionsInput>>>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Crossplanestatusstatusconditions = {
+  __typename?: 'Crossplanestatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type CrossplanestatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CustomResourceDefinition = {
@@ -1657,12 +4010,26 @@ export type CustomResourceDefinition = {
   status?: Maybe<Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceDefinitionStatusstatus>;
 };
 
+export type CustomResourceDefinitionEvent = {
+  __typename?: 'CustomResourceDefinitionEvent';
+  object?: Maybe<CustomResourceDefinition>;
+  type: WatchEventType;
+};
+
 export type CustomResourceDefinitionInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceDefinitionSpecspecInput>;
   status?: InputMaybe<Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceDefinitionStatusstatusInput>;
+};
+
+export type CustomResourceDefinitionList = {
+  __typename?: 'CustomResourceDefinitionList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CustomResourceDefinition>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsAnnotation = {
@@ -1674,6 +4041,12 @@ export type DnsAnnotation = {
   status?: Maybe<DnsAnnotationstatus>;
 };
 
+export type DnsAnnotationEvent = {
+  __typename?: 'DNSAnnotationEvent';
+  object?: Maybe<DnsAnnotation>;
+  type: WatchEventType;
+};
+
 export type DnsAnnotationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -1682,23 +4055,23 @@ export type DnsAnnotationInput = {
   status?: InputMaybe<DnsAnnotationstatusInput>;
 };
 
+export type DnsAnnotationList = {
+  __typename?: 'DNSAnnotationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DnsAnnotation>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type DnsAnnotationspec = {
   __typename?: 'DNSAnnotationspec';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
-  resourceRef?: Maybe<DnsAnnotationspecspecresourceRef>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
+  resourceRef?: Maybe<DnsAnnotationspecspecresourceRef_Resource_Enhanced>;
 };
 
 export type DnsAnnotationspecInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   resourceRef?: InputMaybe<DnsAnnotationspecspecresourceRefInput>;
-};
-
-export type DnsAnnotationspecspecresourceRef = {
-  __typename?: 'DNSAnnotationspecspecresourceRef';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsAnnotationspecspecresourceRefInput = {
@@ -1706,6 +4079,14 @@ export type DnsAnnotationspecspecresourceRefInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DnsAnnotationspecspecresourceRef_Resource_Enhanced = {
+  __typename?: 'DNSAnnotationspecspecresourceRef_resource_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsAnnotationstatus = {
@@ -1719,6 +4100,87 @@ export type DnsAnnotationstatusInput = {
   message?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type DnsEndpoint = {
+  __typename?: 'DNSEndpoint';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<DnsEndpointspec>;
+  status?: Maybe<DnsEndpointstatus>;
+};
+
+export type DnsEndpointEvent = {
+  __typename?: 'DNSEndpointEvent';
+  object?: Maybe<DnsEndpoint>;
+  type: WatchEventType;
+};
+
+export type DnsEndpointInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<DnsEndpointspecInput>;
+  status?: InputMaybe<DnsEndpointstatusInput>;
+};
+
+export type DnsEndpointList = {
+  __typename?: 'DNSEndpointList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DnsEndpoint>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type DnsEndpointspec = {
+  __typename?: 'DNSEndpointspec';
+  endpoints?: Maybe<Array<Maybe<DnsEndpointspecspecendpoints>>>;
+};
+
+export type DnsEndpointspecInput = {
+  endpoints?: InputMaybe<Array<InputMaybe<DnsEndpointspecspecendpointsInput>>>;
+};
+
+export type DnsEndpointspecspecendpoints = {
+  __typename?: 'DNSEndpointspecspecendpoints';
+  dnsName?: Maybe<Scalars['String']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
+  providerSpecific?: Maybe<Array<Maybe<DnsEndpointspecspecendpointsspecendpointsproviderSpecific>>>;
+  recordTTL?: Maybe<Scalars['Int']['output']>;
+  recordType?: Maybe<Scalars['String']['output']>;
+  setIdentifier?: Maybe<Scalars['String']['output']>;
+  targets?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type DnsEndpointspecspecendpointsInput = {
+  dnsName?: InputMaybe<Scalars['String']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
+  providerSpecific?: InputMaybe<Array<InputMaybe<DnsEndpointspecspecendpointsspecendpointsproviderSpecificInput>>>;
+  recordTTL?: InputMaybe<Scalars['Int']['input']>;
+  recordType?: InputMaybe<Scalars['String']['input']>;
+  setIdentifier?: InputMaybe<Scalars['String']['input']>;
+  targets?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type DnsEndpointspecspecendpointsspecendpointsproviderSpecific = {
+  __typename?: 'DNSEndpointspecspecendpointsspecendpointsproviderSpecific';
+  name?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+export type DnsEndpointspecspecendpointsspecendpointsproviderSpecificInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DnsEndpointstatus = {
+  __typename?: 'DNSEndpointstatus';
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+};
+
+export type DnsEndpointstatusInput = {
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type DnsEntry = {
   __typename?: 'DNSEntry';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -1728,12 +4190,26 @@ export type DnsEntry = {
   status?: Maybe<DnsEntrystatus>;
 };
 
+export type DnsEntryEvent = {
+  __typename?: 'DNSEntryEvent';
+  object?: Maybe<DnsEntry>;
+  type: WatchEventType;
+};
+
 export type DnsEntryInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<DnsEntryspecInput>;
   status?: InputMaybe<DnsEntrystatusInput>;
+};
+
+export type DnsEntryList = {
+  __typename?: 'DNSEntryList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DnsEntry>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsEntryspec = {
@@ -1774,13 +4250,13 @@ export type DnsEntryspecspecreferenceInput = {
 
 export type DnsEntryspecspecroutingPolicy = {
   __typename?: 'DNSEntryspecspecroutingPolicy';
-  parameters?: Maybe<Scalars['StringMap']['output']>;
+  parameters?: Maybe<Scalars['StringMapInput']['output']>;
   setIdentifier?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsEntryspecspecroutingPolicyInput = {
-  parameters?: InputMaybe<Scalars['StringMap']['input']>;
+  parameters?: InputMaybe<Scalars['StringMapInput']['input']>;
   setIdentifier?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1788,6 +4264,7 @@ export type DnsEntryspecspecroutingPolicyInput = {
 export type DnsEntrystatus = {
   __typename?: 'DNSEntrystatus';
   cnameLookupInterval?: Maybe<Scalars['Int']['output']>;
+  dnsName?: Maybe<Scalars['String']['output']>;
   lastUpdateTime?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   observedGeneration?: Maybe<Scalars['Int']['output']>;
@@ -1802,6 +4279,7 @@ export type DnsEntrystatus = {
 
 export type DnsEntrystatusInput = {
   cnameLookupInterval?: InputMaybe<Scalars['Int']['input']>;
+  dnsName?: InputMaybe<Scalars['String']['input']>;
   lastUpdateTime?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
@@ -1816,15 +4294,131 @@ export type DnsEntrystatusInput = {
 
 export type DnsEntrystatusstatusroutingPolicy = {
   __typename?: 'DNSEntrystatusstatusroutingPolicy';
-  parameters?: Maybe<Scalars['StringMap']['output']>;
+  parameters?: Maybe<Scalars['StringMapInput']['output']>;
   setIdentifier?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
 export type DnsEntrystatusstatusroutingPolicyInput = {
-  parameters?: InputMaybe<Scalars['StringMap']['input']>;
+  parameters?: InputMaybe<Scalars['StringMapInput']['input']>;
   setIdentifier?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type DnsGardenerCloudMutation = {
+  __typename?: 'DNSGardenerCloudMutation';
+  v1alpha1?: Maybe<DnsGardenerCloudV1alpha1Mutation>;
+};
+
+export type DnsGardenerCloudQuery = {
+  __typename?: 'DNSGardenerCloudQuery';
+  v1alpha1?: Maybe<DnsGardenerCloudV1alpha1Query>;
+};
+
+export type DnsGardenerCloudV1alpha1Mutation = {
+  __typename?: 'DNSGardenerCloudV1alpha1Mutation';
+  createDNSAnnotation?: Maybe<DnsAnnotation>;
+  createDNSEntry?: Maybe<DnsEntry>;
+  deleteDNSAnnotation?: Maybe<Scalars['Boolean']['output']>;
+  deleteDNSEntry?: Maybe<Scalars['Boolean']['output']>;
+  updateDNSAnnotation?: Maybe<DnsAnnotation>;
+  updateDNSEntry?: Maybe<DnsEntry>;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationCreateDnsAnnotationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsAnnotationInput;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationCreateDnsEntryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsEntryInput;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationDeleteDnsAnnotationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationDeleteDnsEntryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationUpdateDnsAnnotationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsAnnotationInput;
+};
+
+
+export type DnsGardenerCloudV1alpha1MutationUpdateDnsEntryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsEntryInput;
+};
+
+export type DnsGardenerCloudV1alpha1Query = {
+  __typename?: 'DNSGardenerCloudV1alpha1Query';
+  DNSAnnotation: DnsAnnotation;
+  DNSAnnotationYaml: Scalars['String']['output'];
+  DNSAnnotations: DnsAnnotationList;
+  DNSEntries: DnsEntryList;
+  DNSEntry: DnsEntry;
+  DNSEntryYaml: Scalars['String']['output'];
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsAnnotationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsAnnotationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsAnnotationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsEntriesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsEntryArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DnsGardenerCloudV1alpha1QueryDnsEntryYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DataDownload = {
@@ -1836,6 +4430,12 @@ export type DataDownload = {
   status?: Maybe<DataDownloadstatus>;
 };
 
+export type DataDownloadEvent = {
+  __typename?: 'DataDownloadEvent';
+  object?: Maybe<DataDownload>;
+  type: WatchEventType;
+};
+
 export type DataDownloadInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -1844,12 +4444,21 @@ export type DataDownloadInput = {
   status?: InputMaybe<DataDownloadstatusInput>;
 };
 
+export type DataDownloadList = {
+  __typename?: 'DataDownloadList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DataDownload>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type DataDownloadspec = {
   __typename?: 'DataDownloadspec';
   backupStorageLocation?: Maybe<Scalars['String']['output']>;
   cancel?: Maybe<Scalars['Boolean']['output']>;
-  dataMoverConfig?: Maybe<Scalars['StringMap']['output']>;
+  dataMoverConfig?: Maybe<Scalars['StringMapInput']['output']>;
   datamover?: Maybe<Scalars['String']['output']>;
+  nodeOS?: Maybe<Scalars['String']['output']>;
   operationTimeout?: Maybe<Scalars['String']['output']>;
   snapshotID?: Maybe<Scalars['String']['output']>;
   sourceNamespace?: Maybe<Scalars['String']['output']>;
@@ -1859,8 +4468,9 @@ export type DataDownloadspec = {
 export type DataDownloadspecInput = {
   backupStorageLocation?: InputMaybe<Scalars['String']['input']>;
   cancel?: InputMaybe<Scalars['Boolean']['input']>;
-  dataMoverConfig?: InputMaybe<Scalars['StringMap']['input']>;
+  dataMoverConfig?: InputMaybe<Scalars['StringMapInput']['input']>;
   datamover?: InputMaybe<Scalars['String']['input']>;
+  nodeOS?: InputMaybe<Scalars['String']['input']>;
   operationTimeout?: InputMaybe<Scalars['String']['input']>;
   snapshotID?: InputMaybe<Scalars['String']['input']>;
   sourceNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -1882,6 +4492,8 @@ export type DataDownloadspecspectargetVolumeInput = {
 
 export type DataDownloadstatus = {
   __typename?: 'DataDownloadstatus';
+  acceptedByNode?: Maybe<Scalars['String']['output']>;
+  acceptedTimestamp?: Maybe<Scalars['String']['output']>;
   completionTimestamp?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   node?: Maybe<Scalars['String']['output']>;
@@ -1891,6 +4503,8 @@ export type DataDownloadstatus = {
 };
 
 export type DataDownloadstatusInput = {
+  acceptedByNode?: InputMaybe<Scalars['String']['input']>;
+  acceptedTimestamp?: InputMaybe<Scalars['String']['input']>;
   completionTimestamp?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   node?: InputMaybe<Scalars['String']['input']>;
@@ -1919,6 +4533,12 @@ export type DataUpload = {
   status?: Maybe<DataUploadstatus>;
 };
 
+export type DataUploadEvent = {
+  __typename?: 'DataUploadEvent';
+  object?: Maybe<DataUpload>;
+  type: WatchEventType;
+};
+
 export type DataUploadInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -1927,12 +4547,20 @@ export type DataUploadInput = {
   status?: InputMaybe<DataUploadstatusInput>;
 };
 
+export type DataUploadList = {
+  __typename?: 'DataUploadList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DataUpload>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type DataUploadspec = {
   __typename?: 'DataUploadspec';
   backupStorageLocation?: Maybe<Scalars['String']['output']>;
   cancel?: Maybe<Scalars['Boolean']['output']>;
   csiSnapshot?: Maybe<DataUploadspecspeccsiSnapshot>;
-  dataMoverConfig?: Maybe<Scalars['StringMap']['output']>;
+  dataMoverConfig?: Maybe<Scalars['StringMapInput']['output']>;
   datamover?: Maybe<Scalars['String']['output']>;
   operationTimeout?: Maybe<Scalars['String']['output']>;
   snapshotType?: Maybe<Scalars['String']['output']>;
@@ -1944,7 +4572,7 @@ export type DataUploadspecInput = {
   backupStorageLocation?: InputMaybe<Scalars['String']['input']>;
   cancel?: InputMaybe<Scalars['Boolean']['input']>;
   csiSnapshot?: InputMaybe<DataUploadspecspeccsiSnapshotInput>;
-  dataMoverConfig?: InputMaybe<Scalars['StringMap']['input']>;
+  dataMoverConfig?: InputMaybe<Scalars['StringMapInput']['input']>;
   datamover?: InputMaybe<Scalars['String']['input']>;
   operationTimeout?: InputMaybe<Scalars['String']['input']>;
   snapshotType?: InputMaybe<Scalars['String']['input']>;
@@ -1967,10 +4595,13 @@ export type DataUploadspecspeccsiSnapshotInput = {
 
 export type DataUploadstatus = {
   __typename?: 'DataUploadstatus';
+  acceptedByNode?: Maybe<Scalars['String']['output']>;
+  acceptedTimestamp?: Maybe<Scalars['String']['output']>;
   completionTimestamp?: Maybe<Scalars['String']['output']>;
-  dataMoverResult?: Maybe<Scalars['StringMap']['output']>;
+  dataMoverResult?: Maybe<Scalars['StringMapInput']['output']>;
   message?: Maybe<Scalars['String']['output']>;
   node?: Maybe<Scalars['String']['output']>;
+  nodeOS?: Maybe<Scalars['String']['output']>;
   path?: Maybe<Scalars['String']['output']>;
   phase?: Maybe<Scalars['String']['output']>;
   progress?: Maybe<DataUploadstatusstatusprogress>;
@@ -1979,10 +4610,13 @@ export type DataUploadstatus = {
 };
 
 export type DataUploadstatusInput = {
+  acceptedByNode?: InputMaybe<Scalars['String']['input']>;
+  acceptedTimestamp?: InputMaybe<Scalars['String']['input']>;
   completionTimestamp?: InputMaybe<Scalars['String']['input']>;
-  dataMoverResult?: InputMaybe<Scalars['StringMap']['input']>;
+  dataMoverResult?: InputMaybe<Scalars['StringMapInput']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
   node?: InputMaybe<Scalars['String']['input']>;
+  nodeOS?: InputMaybe<Scalars['String']['input']>;
   path?: InputMaybe<Scalars['String']['input']>;
   phase?: InputMaybe<Scalars['String']['input']>;
   progress?: InputMaybe<DataUploadstatusstatusprogressInput>;
@@ -2010,12 +4644,26 @@ export type DeleteBackupRequest = {
   status?: Maybe<DeleteBackupRequeststatus>;
 };
 
+export type DeleteBackupRequestEvent = {
+  __typename?: 'DeleteBackupRequestEvent';
+  object?: Maybe<DeleteBackupRequest>;
+  type: WatchEventType;
+};
+
 export type DeleteBackupRequestInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<DeleteBackupRequestspecInput>;
   status?: InputMaybe<DeleteBackupRequeststatusInput>;
+};
+
+export type DeleteBackupRequestList = {
+  __typename?: 'DeleteBackupRequestList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DeleteBackupRequest>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type DeleteBackupRequestspec = {
@@ -2043,16 +4691,24 @@ export type DeleteOptions = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   dryRun?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   gracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
+  ignoreStoreReadErrorWithClusterBreakingPotential?: Maybe<Scalars['Boolean']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   orphanDependents?: Maybe<Scalars['Boolean']['output']>;
   preconditions?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_Preconditionspreconditions>;
   propagationPolicy?: Maybe<Scalars['String']['output']>;
 };
 
+export type DeleteOptionsEvent = {
+  __typename?: 'DeleteOptionsEvent';
+  object?: Maybe<DeleteOptions>;
+  type: WatchEventType;
+};
+
 export type DeleteOptionsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   dryRun?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   gracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
+  ignoreStoreReadErrorWithClusterBreakingPotential?: InputMaybe<Scalars['Boolean']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   orphanDependents?: InputMaybe<Scalars['Boolean']['input']>;
   preconditions?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_PreconditionspreconditionsInput>;
@@ -2068,12 +4724,26 @@ export type DownloadRequest = {
   status?: Maybe<DownloadRequeststatus>;
 };
 
+export type DownloadRequestEvent = {
+  __typename?: 'DownloadRequestEvent';
+  object?: Maybe<DownloadRequest>;
+  type: WatchEventType;
+};
+
 export type DownloadRequestInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<DownloadRequestspecInput>;
   status?: InputMaybe<DownloadRequeststatusInput>;
+};
+
+export type DownloadRequestList = {
+  __typename?: 'DownloadRequestList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<DownloadRequest>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type DownloadRequestspec = {
@@ -2117,6 +4787,12 @@ export type Endpoints = {
   subsets?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_EndpointSubsetsubsets>>>;
 };
 
+export type EndpointsEvent = {
+  __typename?: 'EndpointsEvent';
+  object?: Maybe<Endpoints>;
+  type: WatchEventType;
+};
+
 export type EndpointsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -2145,6 +4821,12 @@ export type Event = {
   type?: Maybe<Scalars['String']['output']>;
 };
 
+export type EventEvent = {
+  __typename?: 'EventEvent';
+  object?: Maybe<Event>;
+  type: WatchEventType;
+};
+
 export type EventInput = {
   action?: InputMaybe<Scalars['String']['input']>;
   apiVersion?: InputMaybe<Scalars['String']['input']>;
@@ -2165,45 +4847,79 @@ export type EventInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Eventcorev1 = {
-  __typename?: 'Eventcorev1';
-  action?: Maybe<Scalars['String']['output']>;
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  count?: Maybe<Scalars['Int']['output']>;
-  eventTime?: Maybe<Scalars['String']['output']>;
-  firstTimestamp?: Maybe<Scalars['String']['output']>;
-  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
-  kind?: Maybe<Scalars['String']['output']>;
-  lastTimestamp?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  reason?: Maybe<Scalars['String']['output']>;
-  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingComponent?: Maybe<Scalars['String']['output']>;
-  reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
-  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
-  type?: Maybe<Scalars['String']['output']>;
+export type EventList = {
+  __typename?: 'EventList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Event>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
-export type Eventcorev1Input = {
-  action?: InputMaybe<Scalars['String']['input']>;
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  count?: InputMaybe<Scalars['Int']['input']>;
-  eventTime?: InputMaybe<Scalars['String']['input']>;
-  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingComponent?: InputMaybe<Scalars['String']['input']>;
-  reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
-  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
+export type EventsK8sIoMutation = {
+  __typename?: 'EventsK8sIoMutation';
+  v1?: Maybe<EventsK8sIoV1Mutation>;
+};
+
+export type EventsK8sIoQuery = {
+  __typename?: 'EventsK8sIoQuery';
+  v1?: Maybe<EventsK8sIoV1Query>;
+};
+
+export type EventsK8sIoV1Mutation = {
+  __typename?: 'EventsK8sIoV1Mutation';
+  createEvent?: Maybe<Event>;
+  deleteEvent?: Maybe<Scalars['Boolean']['output']>;
+  updateEvent?: Maybe<Event>;
+};
+
+
+export type EventsK8sIoV1MutationCreateEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EventInput;
+};
+
+
+export type EventsK8sIoV1MutationDeleteEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type EventsK8sIoV1MutationUpdateEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EventInput;
+};
+
+export type EventsK8sIoV1Query = {
+  __typename?: 'EventsK8sIoV1Query';
+  Event: Event;
+  EventYaml: Scalars['String']['output'];
+  Events: EventList;
+};
+
+
+export type EventsK8sIoV1QueryEventArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type EventsK8sIoV1QueryEventYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type EventsK8sIoV1QueryEventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Eviction = {
@@ -2214,6 +4930,12 @@ export type Eviction = {
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
 };
 
+export type EvictionEvent = {
+  __typename?: 'EvictionEvent';
+  object?: Maybe<Eviction>;
+  type: WatchEventType;
+};
+
 export type EvictionInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   deleteOptions?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_DeleteOptionsdeleteOptionsInput>;
@@ -2221,25 +4943,83 @@ export type EvictionInput = {
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
 };
 
+export type EvictionList = {
+  __typename?: 'EvictionList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Eviction>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ExternaldnsK8sIoMutation = {
+  __typename?: 'ExternaldnsK8sIoMutation';
+  v1alpha1?: Maybe<ExternaldnsK8sIoV1alpha1Mutation>;
+};
+
+export type ExternaldnsK8sIoQuery = {
+  __typename?: 'ExternaldnsK8sIoQuery';
+  v1alpha1?: Maybe<ExternaldnsK8sIoV1alpha1Query>;
+};
+
+export type ExternaldnsK8sIoV1alpha1Mutation = {
+  __typename?: 'ExternaldnsK8sIoV1alpha1Mutation';
+  createDNSEndpoint?: Maybe<DnsEndpoint>;
+  deleteDNSEndpoint?: Maybe<Scalars['Boolean']['output']>;
+  updateDNSEndpoint?: Maybe<DnsEndpoint>;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1MutationCreateDnsEndpointArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsEndpointInput;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1MutationDeleteDnsEndpointArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1MutationUpdateDnsEndpointArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DnsEndpointInput;
+};
+
+export type ExternaldnsK8sIoV1alpha1Query = {
+  __typename?: 'ExternaldnsK8sIoV1alpha1Query';
+  DNSEndpoint: DnsEndpoint;
+  DNSEndpointYaml: Scalars['String']['output'];
+  DNSEndpoints: DnsEndpointList;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1QueryDnsEndpointArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1QueryDnsEndpointYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type ExternaldnsK8sIoV1alpha1QueryDnsEndpointsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type FlowSchema = {
   __typename?: 'FlowSchema';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaStatusstatus>;
-};
-
-export type FlowSchemaInput = {
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaStatusstatusInput>;
-};
-
-export type FlowSchemaflowcontrol_Apiserver_K8s_Iov1 = {
-  __typename?: 'FlowSchemaflowcontrol_apiserver_k8s_iov1';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
@@ -2247,12 +5027,130 @@ export type FlowSchemaflowcontrol_Apiserver_K8s_Iov1 = {
   status?: Maybe<Io_K8s_Api_Flowcontrol_V1_FlowSchemaStatusstatus>;
 };
 
-export type FlowSchemaflowcontrol_Apiserver_K8s_Iov1Input = {
+export type FlowSchemaEvent = {
+  __typename?: 'FlowSchemaEvent';
+  object?: Maybe<FlowSchema>;
+  type: WatchEventType;
+};
+
+export type FlowSchemaInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_FlowSchemaSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_FlowSchemaStatusstatusInput>;
+};
+
+export type FlowSchemaList = {
+  __typename?: 'FlowSchemaList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<FlowSchema>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type FlowcontrolApiserverK8sIoMutation = {
+  __typename?: 'FlowcontrolApiserverK8sIoMutation';
+  v1?: Maybe<FlowcontrolApiserverK8sIoV1Mutation>;
+};
+
+export type FlowcontrolApiserverK8sIoQuery = {
+  __typename?: 'FlowcontrolApiserverK8sIoQuery';
+  v1?: Maybe<FlowcontrolApiserverK8sIoV1Query>;
+};
+
+export type FlowcontrolApiserverK8sIoV1Mutation = {
+  __typename?: 'FlowcontrolApiserverK8sIoV1Mutation';
+  createFlowSchema?: Maybe<FlowSchema>;
+  createPriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
+  deleteFlowSchema?: Maybe<Scalars['Boolean']['output']>;
+  deletePriorityLevelConfiguration?: Maybe<Scalars['Boolean']['output']>;
+  updateFlowSchema?: Maybe<FlowSchema>;
+  updatePriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationCreateFlowSchemaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: FlowSchemaInput;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationCreatePriorityLevelConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: PriorityLevelConfigurationInput;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationDeleteFlowSchemaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationDeletePriorityLevelConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationUpdateFlowSchemaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: FlowSchemaInput;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1MutationUpdatePriorityLevelConfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: PriorityLevelConfigurationInput;
+};
+
+export type FlowcontrolApiserverK8sIoV1Query = {
+  __typename?: 'FlowcontrolApiserverK8sIoV1Query';
+  FlowSchema: FlowSchema;
+  FlowSchemaYaml: Scalars['String']['output'];
+  FlowSchemas: FlowSchemaList;
+  PriorityLevelConfiguration: PriorityLevelConfiguration;
+  PriorityLevelConfigurationYaml: Scalars['String']['output'];
+  PriorityLevelConfigurations: PriorityLevelConfigurationList;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryFlowSchemaArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryFlowSchemaYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryFlowSchemasArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryPriorityLevelConfigurationArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryPriorityLevelConfigurationYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type FlowcontrolApiserverK8sIoV1QueryPriorityLevelConfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type HorizontalPodAutoscaler = {
@@ -2264,12 +5162,26 @@ export type HorizontalPodAutoscaler = {
   status?: Maybe<Io_K8s_Api_Autoscaling_V1_HorizontalPodAutoscalerStatusstatus>;
 };
 
+export type HorizontalPodAutoscalerEvent = {
+  __typename?: 'HorizontalPodAutoscalerEvent';
+  object?: Maybe<HorizontalPodAutoscaler>;
+  type: WatchEventType;
+};
+
 export type HorizontalPodAutoscalerInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Autoscaling_V1_HorizontalPodAutoscalerSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Autoscaling_V1_HorizontalPodAutoscalerStatusstatusInput>;
+};
+
+export type HorizontalPodAutoscalerList = {
+  __typename?: 'HorizontalPodAutoscalerList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<HorizontalPodAutoscaler>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Ingress = {
@@ -2289,11 +5201,31 @@ export type IngressClass = {
   spec?: Maybe<Io_K8s_Api_Networking_V1_IngressClassSpecspec>;
 };
 
+export type IngressClassEvent = {
+  __typename?: 'IngressClassEvent';
+  object?: Maybe<IngressClass>;
+  type: WatchEventType;
+};
+
 export type IngressClassInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Networking_V1_IngressClassSpecspecInput>;
+};
+
+export type IngressClassList = {
+  __typename?: 'IngressClassList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<IngressClass>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type IngressEvent = {
+  __typename?: 'IngressEvent';
+  object?: Maybe<Ingress>;
+  type: WatchEventType;
 };
 
 export type IngressInput = {
@@ -2304,6 +5236,14 @@ export type IngressInput = {
   status?: InputMaybe<Io_K8s_Api_Networking_V1_IngressStatusstatusInput>;
 };
 
+export type IngressList = {
+  __typename?: 'IngressList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Ingress>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type InternalConfiguration = {
   __typename?: 'InternalConfiguration';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -2312,11 +5252,25 @@ export type InternalConfiguration = {
   spec?: Maybe<InternalConfigurationspec>;
 };
 
+export type InternalConfigurationEvent = {
+  __typename?: 'InternalConfigurationEvent';
+  object?: Maybe<InternalConfiguration>;
+  type: WatchEventType;
+};
+
 export type InternalConfigurationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<InternalConfigurationspecInput>;
+};
+
+export type InternalConfigurationList = {
+  __typename?: 'InternalConfigurationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<InternalConfiguration>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type InternalConfigurationspec = {
@@ -2370,6 +5324,165 @@ export type InternalConfigurationspecspeccomponentsspeccomponentsapiServerspecco
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type KroRunMutation = {
+  __typename?: 'KroRunMutation';
+  v1alpha1?: Maybe<KroRunV1alpha1Mutation>;
+};
+
+export type KroRunQuery = {
+  __typename?: 'KroRunQuery';
+  v1alpha1?: Maybe<KroRunV1alpha1Query>;
+};
+
+export type KroRunV1alpha1Mutation = {
+  __typename?: 'KroRunV1alpha1Mutation';
+  createManagedControlPlaneTemplate?: Maybe<ManagedControlPlaneTemplate>;
+  createNoOp?: Maybe<NoOp>;
+  createResourceGraphDefinition?: Maybe<ResourceGraphDefinition>;
+  deleteManagedControlPlaneTemplate?: Maybe<Scalars['Boolean']['output']>;
+  deleteNoOp?: Maybe<Scalars['Boolean']['output']>;
+  deleteResourceGraphDefinition?: Maybe<Scalars['Boolean']['output']>;
+  updateManagedControlPlaneTemplate?: Maybe<ManagedControlPlaneTemplate>;
+  updateNoOp?: Maybe<NoOp>;
+  updateResourceGraphDefinition?: Maybe<ResourceGraphDefinition>;
+};
+
+
+export type KroRunV1alpha1MutationCreateManagedControlPlaneTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneTemplateInput;
+};
+
+
+export type KroRunV1alpha1MutationCreateNoOpArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: NoOpInput;
+};
+
+
+export type KroRunV1alpha1MutationCreateResourceGraphDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ResourceGraphDefinitionInput;
+};
+
+
+export type KroRunV1alpha1MutationDeleteManagedControlPlaneTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1MutationDeleteNoOpArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1MutationDeleteResourceGraphDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type KroRunV1alpha1MutationUpdateManagedControlPlaneTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ManagedControlPlaneTemplateInput;
+};
+
+
+export type KroRunV1alpha1MutationUpdateNoOpArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: NoOpInput;
+};
+
+
+export type KroRunV1alpha1MutationUpdateResourceGraphDefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ResourceGraphDefinitionInput;
+};
+
+export type KroRunV1alpha1Query = {
+  __typename?: 'KroRunV1alpha1Query';
+  ManagedControlPlaneTemplate: ManagedControlPlaneTemplate;
+  ManagedControlPlaneTemplateYaml: Scalars['String']['output'];
+  ManagedControlPlaneTemplates: ManagedControlPlaneTemplateList;
+  NoOp: NoOp;
+  NoOpYaml: Scalars['String']['output'];
+  NoOps: NoOpList;
+  ResourceGraphDefinition: ResourceGraphDefinition;
+  ResourceGraphDefinitionYaml: Scalars['String']['output'];
+  ResourceGraphDefinitions: ResourceGraphDefinitionList;
+};
+
+
+export type KroRunV1alpha1QueryManagedControlPlaneTemplateArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryManagedControlPlaneTemplateYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryManagedControlPlaneTemplatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryNoOpArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryNoOpYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryNoOpsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type KroRunV1alpha1QueryResourceGraphDefinitionArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type KroRunV1alpha1QueryResourceGraphDefinitionYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type KroRunV1alpha1QueryResourceGraphDefinitionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Landscaper = {
   __typename?: 'Landscaper';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -2377,6 +5490,12 @@ export type Landscaper = {
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   spec?: Maybe<Landscaperspec>;
   status?: Maybe<Landscaperstatus>;
+};
+
+export type LandscaperEvent = {
+  __typename?: 'LandscaperEvent';
+  object?: Maybe<Landscaper>;
+  type: WatchEventType;
 };
 
 export type LandscaperInput = {
@@ -2387,32 +5506,121 @@ export type LandscaperInput = {
   status?: InputMaybe<LandscaperstatusInput>;
 };
 
+export type LandscaperList = {
+  __typename?: 'LandscaperList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Landscaper>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudMutation = {
+  __typename?: 'LandscaperServicesOpenmcpCloudMutation';
+  v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Mutation>;
+};
+
+export type LandscaperServicesOpenmcpCloudQuery = {
+  __typename?: 'LandscaperServicesOpenmcpCloudQuery';
+  v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Query>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Mutation = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
+  createLandscaper?: Maybe<Landscaper>;
+  deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
+  updateLandscaper?: Maybe<Landscaper>;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2MutationCreateLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LandscaperInput;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2MutationDeleteLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2MutationUpdateLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LandscaperInput;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Query = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Query';
+  Landscaper: Landscaper;
+  LandscaperYaml: Scalars['String']['output'];
+  Landscapers: LandscaperList;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscaperArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscaperYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscapersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Landscaperspec = {
   __typename?: 'Landscaperspec';
-  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  providerConfigRef?: Maybe<LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced>;
+  version?: Maybe<Scalars['String']['output']>;
 };
 
 export type LandscaperspecInput = {
-  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  providerConfigRef?: InputMaybe<LandscaperspecspecproviderConfigRefInput>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperspecspecproviderConfigRefInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperspecspecproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Landscaperstatus = {
   __typename?: 'Landscaperstatus';
   conditions?: Maybe<Array<Maybe<Landscaperstatusstatusconditions>>>;
-  landscaperDeployment?: Maybe<LandscaperstatusstatuslandscaperDeployment>;
-  observedGenerations?: Maybe<LandscaperstatusstatusobservedGenerations>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+  providerConfigRef?: Maybe<LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced>;
 };
 
 export type LandscaperstatusInput = {
   conditions?: InputMaybe<Array<InputMaybe<LandscaperstatusstatusconditionsInput>>>;
-  landscaperDeployment?: InputMaybe<LandscaperstatusstatuslandscaperDeploymentInput>;
-  observedGenerations?: InputMaybe<LandscaperstatusstatusobservedGenerationsInput>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+  providerConfigRef?: InputMaybe<LandscaperstatusstatusproviderConfigRefInput>;
 };
 
 export type Landscaperstatusstatusconditions = {
   __typename?: 'Landscaperstatusstatusconditions';
   lastTransitionTime?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
   reason?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -2421,33 +5629,19 @@ export type Landscaperstatusstatusconditions = {
 export type LandscaperstatusstatusconditionsInput = {
   lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   reason?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperstatusstatuslandscaperDeployment = {
-  __typename?: 'LandscaperstatusstatuslandscaperDeployment';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-export type LandscaperstatusstatuslandscaperDeploymentInput = {
+export type LandscaperstatusstatusproviderConfigRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperstatusstatusobservedGenerations = {
-  __typename?: 'LandscaperstatusstatusobservedGenerations';
-  internalConfiguration?: Maybe<Scalars['Int']['output']>;
-  managedControlPlane?: Maybe<Scalars['Int']['output']>;
-  resource?: Maybe<Scalars['Int']['output']>;
-};
-
-export type LandscaperstatusstatusobservedGenerationsInput = {
-  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
-  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
-  resource?: InputMaybe<Scalars['Int']['input']>;
+export type LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperstatusstatusproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Lease = {
@@ -2458,11 +5652,25 @@ export type Lease = {
   spec?: Maybe<Io_K8s_Api_Coordination_V1_LeaseSpecspec>;
 };
 
+export type LeaseEvent = {
+  __typename?: 'LeaseEvent';
+  object?: Maybe<Lease>;
+  type: WatchEventType;
+};
+
 export type LeaseInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Coordination_V1_LeaseSpecspecInput>;
+};
+
+export type LeaseList = {
+  __typename?: 'LeaseList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Lease>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type LimitRange = {
@@ -2473,11 +5681,25 @@ export type LimitRange = {
   spec?: Maybe<Io_K8s_Api_Core_V1_LimitRangeSpecspec>;
 };
 
+export type LimitRangeEvent = {
+  __typename?: 'LimitRangeEvent';
+  object?: Maybe<LimitRange>;
+  type: WatchEventType;
+};
+
 export type LimitRangeInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_LimitRangeSpecspecInput>;
+};
+
+export type LimitRangeList = {
+  __typename?: 'LimitRangeList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<LimitRange>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type LocalSubjectAccessReview = {
@@ -2489,6 +5711,12 @@ export type LocalSubjectAccessReview = {
   status?: Maybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatus>;
 };
 
+export type LocalSubjectAccessReviewEvent = {
+  __typename?: 'LocalSubjectAccessReviewEvent';
+  object?: Maybe<LocalSubjectAccessReview>;
+  type: WatchEventType;
+};
+
 export type LocalSubjectAccessReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -2497,21 +5725,134 @@ export type LocalSubjectAccessReviewInput = {
   status?: InputMaybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatusInput>;
 };
 
+export type LocalSubjectAccessReviewList = {
+  __typename?: 'LocalSubjectAccessReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<LocalSubjectAccessReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type McpUsage = {
+  __typename?: 'MCPUsage';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<McpUsagespec>;
+  status?: Maybe<McpUsagestatus>;
+};
+
+export type McpUsageEvent = {
+  __typename?: 'MCPUsageEvent';
+  object?: Maybe<McpUsage>;
+  type: WatchEventType;
+};
+
+export type McpUsageInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<McpUsagespecInput>;
+  status?: InputMaybe<McpUsagestatusInput>;
+};
+
+export type McpUsageList = {
+  __typename?: 'MCPUsageList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<McpUsage>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type McpUsagespec = {
+  __typename?: 'MCPUsagespec';
+  charging_target?: Maybe<Scalars['String']['output']>;
+  charging_target_type?: Maybe<Scalars['String']['output']>;
+  daily_usage?: Maybe<Array<Maybe<McpUsagespecspecdaily_Usage>>>;
+  last_usage_captured?: Maybe<Scalars['String']['output']>;
+  mcp?: Maybe<Scalars['String']['output']>;
+  mcp_created_at?: Maybe<Scalars['String']['output']>;
+  mcp_deleted_at?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  project?: Maybe<Scalars['String']['output']>;
+  workspace?: Maybe<Scalars['String']['output']>;
+};
+
+export type McpUsagespecInput = {
+  charging_target?: InputMaybe<Scalars['String']['input']>;
+  charging_target_type?: InputMaybe<Scalars['String']['input']>;
+  daily_usage?: InputMaybe<Array<InputMaybe<McpUsagespecspecdaily_UsageInput>>>;
+  last_usage_captured?: InputMaybe<Scalars['String']['input']>;
+  mcp?: InputMaybe<Scalars['String']['input']>;
+  mcp_created_at?: InputMaybe<Scalars['String']['input']>;
+  mcp_deleted_at?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  project?: InputMaybe<Scalars['String']['input']>;
+  workspace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type McpUsagespecspecdaily_Usage = {
+  __typename?: 'MCPUsagespecspecdaily_usage';
+  date?: Maybe<Scalars['String']['output']>;
+  usage?: Maybe<Scalars['String']['output']>;
+};
+
+export type McpUsagespecspecdaily_UsageInput = {
+  date?: InputMaybe<Scalars['String']['input']>;
+  usage?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type McpUsagestatus = {
+  __typename?: 'MCPUsagestatus';
+  daily_usage_report?: Maybe<Array<Maybe<McpUsagestatusstatusdaily_Usage_Report>>>;
+};
+
+export type McpUsagestatusInput = {
+  daily_usage_report?: InputMaybe<Array<InputMaybe<McpUsagestatusstatusdaily_Usage_ReportInput>>>;
+};
+
+export type McpUsagestatusstatusdaily_Usage_Report = {
+  __typename?: 'MCPUsagestatusstatusdaily_usage_report';
+  date?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+};
+
+export type McpUsagestatusstatusdaily_Usage_ReportInput = {
+  date?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ManagedComponent = {
   __typename?: 'ManagedComponent';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Scalars['String']['output']>;
+  spec?: Maybe<Scalars['JSONString']['output']>;
   status?: Maybe<ManagedComponentstatus>;
+};
+
+export type ManagedComponentEvent = {
+  __typename?: 'ManagedComponentEvent';
+  object?: Maybe<ManagedComponent>;
+  type: WatchEventType;
 };
 
 export type ManagedComponentInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Scalars['String']['input']>;
+  spec?: InputMaybe<Scalars['JSONString']['input']>;
   status?: InputMaybe<ManagedComponentstatusInput>;
+};
+
+export type ManagedComponentList = {
+  __typename?: 'ManagedComponentList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ManagedComponent>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type ManagedComponentstatus = {
@@ -2532,12 +5873,525 @@ export type ManagedControlPlane = {
   status?: Maybe<ManagedControlPlanestatus>;
 };
 
+export type ManagedControlPlaneEvent = {
+  __typename?: 'ManagedControlPlaneEvent';
+  object?: Maybe<ManagedControlPlane>;
+  type: WatchEventType;
+};
+
 export type ManagedControlPlaneInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<ManagedControlPlanespecInput>;
   status?: InputMaybe<ManagedControlPlanestatusInput>;
+};
+
+export type ManagedControlPlaneList = {
+  __typename?: 'ManagedControlPlaneList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ManagedControlPlane>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplate = {
+  __typename?: 'ManagedControlPlaneTemplate';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<ManagedControlPlaneTemplatespec>;
+  status?: Maybe<ManagedControlPlaneTemplatestatus>;
+};
+
+export type ManagedControlPlaneTemplateEvent = {
+  __typename?: 'ManagedControlPlaneTemplateEvent';
+  object?: Maybe<ManagedControlPlaneTemplate>;
+  type: WatchEventType;
+};
+
+export type ManagedControlPlaneTemplateInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<ManagedControlPlaneTemplatespecInput>;
+  status?: InputMaybe<ManagedControlPlaneTemplatestatusInput>;
+};
+
+export type ManagedControlPlaneTemplateList = {
+  __typename?: 'ManagedControlPlaneTemplateList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ManagedControlPlaneTemplate>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespec = {
+  __typename?: 'ManagedControlPlaneTemplatespec';
+  meta?: Maybe<ManagedControlPlaneTemplatespecspecmeta>;
+  spec?: Maybe<ManagedControlPlaneTemplatespecspecspec>;
+};
+
+export type ManagedControlPlaneTemplatespecInput = {
+  meta?: InputMaybe<ManagedControlPlaneTemplatespecspecmetaInput>;
+  spec?: InputMaybe<ManagedControlPlaneTemplatespecspecspecInput>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmeta = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecmeta';
+  chargingTarget?: Maybe<ManagedControlPlaneTemplatespecspecmetaspecmetachargingTarget>;
+  displayName?: Maybe<ManagedControlPlaneTemplatespecspecmetaspecmetadisplayName>;
+  name?: Maybe<ManagedControlPlaneTemplatespecspecmetaspecmetaname>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaInput = {
+  chargingTarget?: InputMaybe<ManagedControlPlaneTemplatespecspecmetaspecmetachargingTargetInput>;
+  displayName?: InputMaybe<ManagedControlPlaneTemplatespecspecmetaspecmetadisplayNameInput>;
+  name?: InputMaybe<ManagedControlPlaneTemplatespecspecmetaspecmetanameInput>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetachargingTarget = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecmetaspecmetachargingTarget';
+  type?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetachargingTargetInput = {
+  type?: InputMaybe<Scalars['String']['input']>;
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetadisplayName = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecmetaspecmetadisplayName';
+  prefix?: Maybe<Scalars['String']['output']>;
+  suffix?: Maybe<Scalars['String']['output']>;
+  validationMessage?: Maybe<Scalars['String']['output']>;
+  validationRegex?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetadisplayNameInput = {
+  prefix?: InputMaybe<Scalars['String']['input']>;
+  suffix?: InputMaybe<Scalars['String']['input']>;
+  validationMessage?: InputMaybe<Scalars['String']['input']>;
+  validationRegex?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetaname = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecmetaspecmetaname';
+  prefix?: Maybe<Scalars['String']['output']>;
+  suffix?: Maybe<Scalars['String']['output']>;
+  validationMessage?: Maybe<Scalars['String']['output']>;
+  validationRegex?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecmetaspecmetanameInput = {
+  prefix?: InputMaybe<Scalars['String']['input']>;
+  suffix?: InputMaybe<Scalars['String']['input']>;
+  validationMessage?: InputMaybe<Scalars['String']['input']>;
+  validationRegex?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspec = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspec';
+  authentication?: Maybe<ManagedControlPlaneTemplatespecspecspecspecspecauthentication>;
+  authorization?: Maybe<ManagedControlPlaneTemplatespecspecspecspecspecauthorization>;
+  components?: Maybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponents>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecInput = {
+  authentication?: InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspecauthenticationInput>;
+  authorization?: InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspecauthorizationInput>;
+  components?: InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsInput>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthentication = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspecauthentication';
+  allowAdd?: Maybe<Scalars['Boolean']['output']>;
+  customIDPs?: Maybe<Scalars['JSONString']['output']>;
+  system?: Maybe<ManagedControlPlaneTemplatespecspecspecspecspecauthenticationspecspecauthenticationsystem>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthenticationInput = {
+  allowAdd?: InputMaybe<Scalars['Boolean']['input']>;
+  customIDPs?: InputMaybe<Scalars['JSONString']['input']>;
+  system?: InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspecauthenticationspecspecauthenticationsystemInput>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthenticationspecspecauthenticationsystem = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspecauthenticationspecspecauthenticationsystem';
+  changeable?: Maybe<Scalars['Boolean']['output']>;
+  enabled?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthenticationspecspecauthenticationsystemInput = {
+  changeable?: InputMaybe<Scalars['Boolean']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthorization = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspecauthorization';
+  allow?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  allowAddMembers?: Maybe<Scalars['Boolean']['output']>;
+  defaultMembers?: Maybe<Array<Maybe<ManagedControlPlaneTemplatespecspecspecspecspecauthorizationspecspecauthorizationdefaultMembers>>>;
+  deny?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthorizationInput = {
+  allow?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  allowAddMembers?: InputMaybe<Scalars['Boolean']['input']>;
+  defaultMembers?: InputMaybe<Array<InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspecauthorizationspecspecauthorizationdefaultMembersInput>>>;
+  deny?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthorizationspecspecauthorizationdefaultMembers = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspecauthorizationspecspecauthorizationdefaultMembers';
+  name?: Maybe<Scalars['String']['output']>;
+  removable?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspecauthorizationspecspecauthorizationdefaultMembersInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  removable?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponents = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspeccomponents';
+  allow?: Maybe<Array<Maybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsallow>>>;
+  defaultComponents?: Maybe<Array<Maybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdefaultComponents>>>;
+  deny?: Maybe<Array<Maybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdeny>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsInput = {
+  allow?: InputMaybe<Array<InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsallowInput>>>;
+  defaultComponents?: InputMaybe<Array<InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdefaultComponentsInput>>>;
+  deny?: InputMaybe<Array<InputMaybe<ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdenyInput>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsallow = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsallow';
+  name?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsallowInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdefaultComponents = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdefaultComponents';
+  name?: Maybe<Scalars['String']['output']>;
+  removable?: Maybe<Scalars['Boolean']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+  versionChangeable?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdefaultComponentsInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  removable?: InputMaybe<Scalars['Boolean']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+  versionChangeable?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdeny = {
+  __typename?: 'ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdeny';
+  name?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ManagedControlPlaneTemplatespecspecspecspecspeccomponentsspecspeccomponentsdenyInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ManagedControlPlaneTemplatestatus = {
+  __typename?: 'ManagedControlPlaneTemplatestatus';
+  conditions?: Maybe<Array<Maybe<ManagedControlPlaneTemplatestatusstatusconditions>>>;
+  state?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatestatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<ManagedControlPlaneTemplatestatusstatusconditionsInput>>>;
+  state?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneTemplatestatusstatusconditions = {
+  __typename?: 'ManagedControlPlaneTemplatestatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneTemplatestatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2 = {
+  __typename?: 'ManagedControlPlaneV2';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<ManagedControlPlaneV2spec>;
+  status?: Maybe<ManagedControlPlaneV2status>;
+};
+
+export type ManagedControlPlaneV2Event = {
+  __typename?: 'ManagedControlPlaneV2Event';
+  object?: Maybe<ManagedControlPlaneV2>;
+  type: WatchEventType;
+};
+
+export type ManagedControlPlaneV2Input = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<ManagedControlPlaneV2specInput>;
+  status?: InputMaybe<ManagedControlPlaneV2statusInput>;
+};
+
+export type ManagedControlPlaneV2List = {
+  __typename?: 'ManagedControlPlaneV2List';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ManagedControlPlaneV2>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2spec = {
+  __typename?: 'ManagedControlPlaneV2spec';
+  iam?: Maybe<ManagedControlPlaneV2specspeciam>;
+};
+
+export type ManagedControlPlaneV2specInput = {
+  iam?: InputMaybe<ManagedControlPlaneV2specspeciamInput>;
+};
+
+export type ManagedControlPlaneV2specspeciam = {
+  __typename?: 'ManagedControlPlaneV2specspeciam';
+  oidc?: Maybe<ManagedControlPlaneV2specspeciamspeciamoidc>;
+  tokens?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamtokens>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamInput = {
+  oidc?: InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcInput>;
+  tokens?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamtokensInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidc = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidc';
+  defaultProvider?: Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProvider>;
+  extraProviders?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProviders>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcInput = {
+  defaultProvider?: InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderInput>;
+  extraProviders?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProvider = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProvider';
+  roleBindings?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindings>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderInput = {
+  roleBindings?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindings = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindings';
+  roleRefs?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefs>>>;
+  subjects?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjects>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsInput = {
+  roleRefs?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefsInput>>>;
+  subjects?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjectsInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefs = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefs';
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefsInput = {
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjects = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjects';
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjectsInput = {
+  apiGroup?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProviders = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProviders';
+  clientID?: Maybe<Scalars['String']['output']>;
+  extraScopes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  groupsClaim?: Maybe<Scalars['String']['output']>;
+  issuer?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  roleBindings?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindings>>>;
+  usernameClaim?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersInput = {
+  clientID?: InputMaybe<Scalars['String']['input']>;
+  extraScopes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  groupsClaim?: InputMaybe<Scalars['String']['input']>;
+  issuer?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  roleBindings?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsInput>>>;
+  usernameClaim?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindings = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindings';
+  roleRefs?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefs>>>;
+  subjects?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjects>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsInput = {
+  roleRefs?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefsInput>>>;
+  subjects?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjectsInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefs = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefs';
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefsInput = {
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjects = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjects';
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjectsInput = {
+  apiGroup?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokens = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokens';
+  name?: Maybe<Scalars['String']['output']>;
+  permissions?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissions>>>;
+  roleRefs?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefs>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  permissions?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsInput>>>;
+  roleRefs?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefsInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissions = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissions';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  rules?: Maybe<Array<Maybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrules>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  rules?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrulesInput>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrules = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrules';
+  apiGroups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  nonResourceURLs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  resourceNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  resources?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  verbs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrulesInput = {
+  apiGroups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  nonResourceURLs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  resourceNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  resources?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefs = {
+  __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefs';
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefsInput = {
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2status = {
+  __typename?: 'ManagedControlPlaneV2status';
+  access?: Maybe<Scalars['JSONString']['output']>;
+  conditions?: Maybe<Array<Maybe<ManagedControlPlaneV2statusstatusconditions>>>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2statusInput = {
+  access?: InputMaybe<Scalars['JSONString']['input']>;
+  conditions?: InputMaybe<Array<InputMaybe<ManagedControlPlaneV2statusstatusconditionsInput>>>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlaneV2statusstatusconditions = {
+  __typename?: 'ManagedControlPlaneV2statusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ManagedControlPlaneV2statusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ManagedControlPlanespec = {
@@ -2576,7 +6430,7 @@ export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityP
   groupsClaim?: Maybe<Scalars['String']['output']>;
   issuerURL?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
-  requiredClaims?: Maybe<Scalars['StringMap']['output']>;
+  requiredClaims?: Maybe<Scalars['StringMapInput']['output']>;
   signingAlgs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   usernameClaim?: Maybe<Scalars['String']['output']>;
 };
@@ -2588,7 +6442,7 @@ export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityP
   groupsClaim?: InputMaybe<Scalars['String']['input']>;
   issuerURL?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
-  requiredClaims?: InputMaybe<Scalars['StringMap']['input']>;
+  requiredClaims?: InputMaybe<Scalars['StringMapInput']['input']>;
   signingAlgs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   usernameClaim?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2596,12 +6450,12 @@ export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityP
 export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfig = {
   __typename?: 'ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfig';
   clientSecret?: Maybe<ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfigspecauthenticationidentityProvidersclientConfigclientSecret>;
-  extraConfig?: Maybe<Scalars['String']['output']>;
+  extraConfig?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfigInput = {
   clientSecret?: InputMaybe<ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfigspecauthenticationidentityProvidersclientConfigclientSecretInput>;
-  extraConfig?: InputMaybe<Scalars['String']['input']>;
+  extraConfig?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type ManagedControlPlanespecspecauthenticationspecauthenticationidentityProvidersspecauthenticationidentityProvidersclientConfigspecauthenticationidentityProvidersclientConfigclientSecret = {
@@ -2699,8 +6553,8 @@ export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomp
 
 export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLog = {
   __typename?: 'ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLog';
-  policyRef?: Maybe<ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef>;
-  secretRef?: Maybe<ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef>;
+  policyRef?: Maybe<ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef_Policy_Enhanced>;
+  secretRef?: Maybe<ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef_Secret_Enhanced>;
   serviceURL?: Maybe<Scalars['String']['output']>;
   tenantID?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -2714,22 +6568,23 @@ export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomp
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef = {
-  __typename?: 'ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef = {
-  __typename?: 'ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef';
+export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef_Policy_Enhanced = {
+  __typename?: 'ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogpolicyRef_policy_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
 };
 
 export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef_Secret_Enhanced = {
+  __typename?: 'ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerauditLogspeccomponentsapiServergardenerauditLogsecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type ManagedControlPlanespecspeccomponentsspeccomponentsapiServerspeccomponentsapiServergardenerspeccomponentsapiServergardenerencryptionConfig = {
@@ -2849,17 +6704,17 @@ export type ManagedControlPlanestatusstatuscomponents = {
   __typename?: 'ManagedControlPlanestatusstatuscomponents';
   apiServer?: Maybe<ManagedControlPlanestatusstatuscomponentsstatuscomponentsapiServer>;
   authentication?: Maybe<ManagedControlPlanestatusstatuscomponentsstatuscomponentsauthentication>;
-  authorization?: Maybe<Scalars['String']['output']>;
-  cloudOrchestrator?: Maybe<Scalars['String']['output']>;
-  landscaper?: Maybe<Scalars['String']['output']>;
+  authorization?: Maybe<Scalars['JSONString']['output']>;
+  cloudOrchestrator?: Maybe<Scalars['JSONString']['output']>;
+  landscaper?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type ManagedControlPlanestatusstatuscomponentsInput = {
   apiServer?: InputMaybe<ManagedControlPlanestatusstatuscomponentsstatuscomponentsapiServerInput>;
   authentication?: InputMaybe<ManagedControlPlanestatusstatuscomponentsstatuscomponentsauthenticationInput>;
-  authorization?: InputMaybe<Scalars['String']['input']>;
-  cloudOrchestrator?: InputMaybe<Scalars['String']['input']>;
-  landscaper?: InputMaybe<Scalars['String']['input']>;
+  authorization?: InputMaybe<Scalars['JSONString']['input']>;
+  cloudOrchestrator?: InputMaybe<Scalars['JSONString']['input']>;
+  landscaper?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type ManagedControlPlanestatusstatuscomponentsstatuscomponentsapiServer = {
@@ -2920,7 +6775,13 @@ export type MemberOverrides = {
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   spec?: Maybe<MemberOverridesspec>;
-  status?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type MemberOverridesEvent = {
+  __typename?: 'MemberOverridesEvent';
+  object?: Maybe<MemberOverrides>;
+  type: WatchEventType;
 };
 
 export type MemberOverridesInput = {
@@ -2928,7 +6789,7 @@ export type MemberOverridesInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<MemberOverridesspecInput>;
-  status?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type MemberOverridesspec = {
@@ -2976,11 +6837,57 @@ export type MutatingWebhookConfiguration = {
   webhooks?: Maybe<Array<Maybe<Io_K8s_Api_Admissionregistration_V1_MutatingWebhookwebhooks>>>;
 };
 
+export type MutatingWebhookConfigurationEvent = {
+  __typename?: 'MutatingWebhookConfigurationEvent';
+  object?: Maybe<MutatingWebhookConfiguration>;
+  type: WatchEventType;
+};
+
 export type MutatingWebhookConfigurationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   webhooks?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Admissionregistration_V1_MutatingWebhookwebhooksInput>>>;
+};
+
+export type MutatingWebhookConfigurationList = {
+  __typename?: 'MutatingWebhookConfigurationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<MutatingWebhookConfiguration>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  admissionregistration_k8s_io?: Maybe<AdmissionregistrationK8sIoMutation>;
+  apiextensions_k8s_io?: Maybe<ApiextensionsK8sIoMutation>;
+  apiregistration_k8s_io?: Maybe<ApiregistrationK8sIoMutation>;
+  authentication_gardener_cloud?: Maybe<AuthenticationGardenerCloudMutation>;
+  authentication_k8s_io?: Maybe<AuthenticationK8sIoMutation>;
+  authorization_k8s_io?: Maybe<AuthorizationK8sIoMutation>;
+  autoscaling?: Maybe<AutoscalingMutation>;
+  cert_gardener_cloud?: Maybe<CertGardenerCloudMutation>;
+  certificates_k8s_io?: Maybe<CertificatesK8sIoMutation>;
+  coordination_k8s_io?: Maybe<CoordinationK8sIoMutation>;
+  core_openmcp_cloud?: Maybe<CoreOpenmcpCloudMutation>;
+  crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudMutation>;
+  dns_gardener_cloud?: Maybe<DnsGardenerCloudMutation>;
+  events_k8s_io?: Maybe<EventsK8sIoMutation>;
+  externaldns_k8s_io?: Maybe<ExternaldnsK8sIoMutation>;
+  flowcontrol_apiserver_k8s_io?: Maybe<FlowcontrolApiserverK8sIoMutation>;
+  kro_run?: Maybe<KroRunMutation>;
+  landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudMutation>;
+  networking_k8s_io?: Maybe<NetworkingK8sIoMutation>;
+  node_k8s_io?: Maybe<NodeK8sIoMutation>;
+  openmcp_cloud?: Maybe<OpenmcpCloudMutation>;
+  policy?: Maybe<PolicyMutation>;
+  rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoMutation>;
+  scheduling_k8s_io?: Maybe<SchedulingK8sIoMutation>;
+  storage_k8s_io?: Maybe<StorageK8sIoMutation>;
+  usage_openmcp_cloud?: Maybe<UsageOpenmcpCloudMutation>;
+  v1?: Maybe<V1Mutation>;
+  velero_io?: Maybe<VeleroIoMutation>;
 };
 
 export type Namespace = {
@@ -2992,12 +6899,26 @@ export type Namespace = {
   status?: Maybe<Io_K8s_Api_Core_V1_NamespaceStatusstatus>;
 };
 
+export type NamespaceEvent = {
+  __typename?: 'NamespaceEvent';
+  object?: Maybe<Namespace>;
+  type: WatchEventType;
+};
+
 export type NamespaceInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_NamespaceSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_NamespaceStatusstatusInput>;
+};
+
+export type NamespaceList = {
+  __typename?: 'NamespaceList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Namespace>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type NetworkPolicy = {
@@ -3008,11 +6929,254 @@ export type NetworkPolicy = {
   spec?: Maybe<Io_K8s_Api_Networking_V1_NetworkPolicySpecspec>;
 };
 
+export type NetworkPolicyEvent = {
+  __typename?: 'NetworkPolicyEvent';
+  object?: Maybe<NetworkPolicy>;
+  type: WatchEventType;
+};
+
 export type NetworkPolicyInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Networking_V1_NetworkPolicySpecspecInput>;
+};
+
+export type NetworkPolicyList = {
+  __typename?: 'NetworkPolicyList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<NetworkPolicy>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type NetworkingK8sIoMutation = {
+  __typename?: 'NetworkingK8sIoMutation';
+  v1?: Maybe<NetworkingK8sIoV1Mutation>;
+};
+
+export type NetworkingK8sIoQuery = {
+  __typename?: 'NetworkingK8sIoQuery';
+  v1?: Maybe<NetworkingK8sIoV1Query>;
+};
+
+export type NetworkingK8sIoV1Mutation = {
+  __typename?: 'NetworkingK8sIoV1Mutation';
+  createIngress?: Maybe<Ingress>;
+  createIngressClass?: Maybe<IngressClass>;
+  createNetworkPolicy?: Maybe<NetworkPolicy>;
+  deleteIngress?: Maybe<Scalars['Boolean']['output']>;
+  deleteIngressClass?: Maybe<Scalars['Boolean']['output']>;
+  deleteNetworkPolicy?: Maybe<Scalars['Boolean']['output']>;
+  updateIngress?: Maybe<Ingress>;
+  updateIngressClass?: Maybe<IngressClass>;
+  updateNetworkPolicy?: Maybe<NetworkPolicy>;
+};
+
+
+export type NetworkingK8sIoV1MutationCreateIngressArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: IngressInput;
+};
+
+
+export type NetworkingK8sIoV1MutationCreateIngressClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: IngressClassInput;
+};
+
+
+export type NetworkingK8sIoV1MutationCreateNetworkPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: NetworkPolicyInput;
+};
+
+
+export type NetworkingK8sIoV1MutationDeleteIngressArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1MutationDeleteIngressClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type NetworkingK8sIoV1MutationDeleteNetworkPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1MutationUpdateIngressArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: IngressInput;
+};
+
+
+export type NetworkingK8sIoV1MutationUpdateIngressClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: IngressClassInput;
+};
+
+
+export type NetworkingK8sIoV1MutationUpdateNetworkPolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: NetworkPolicyInput;
+};
+
+export type NetworkingK8sIoV1Query = {
+  __typename?: 'NetworkingK8sIoV1Query';
+  Ingress: Ingress;
+  IngressClass: IngressClass;
+  IngressClassYaml: Scalars['String']['output'];
+  IngressClasses: IngressClassList;
+  IngressYaml: Scalars['String']['output'];
+  Ingresses: IngressList;
+  NetworkPolicies: NetworkPolicyList;
+  NetworkPolicy: NetworkPolicy;
+  NetworkPolicyYaml: Scalars['String']['output'];
+};
+
+
+export type NetworkingK8sIoV1QueryIngressArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryIngressClassArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type NetworkingK8sIoV1QueryIngressClassYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type NetworkingK8sIoV1QueryIngressClassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryIngressYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryIngressesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryNetworkPoliciesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryNetworkPolicyArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type NetworkingK8sIoV1QueryNetworkPolicyYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NoOp = {
+  __typename?: 'NoOp';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<NoOpspec>;
+  status?: Maybe<NoOpstatus>;
+};
+
+export type NoOpEvent = {
+  __typename?: 'NoOpEvent';
+  object?: Maybe<NoOp>;
+  type: WatchEventType;
+};
+
+export type NoOpInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<NoOpspecInput>;
+  status?: InputMaybe<NoOpstatusInput>;
+};
+
+export type NoOpList = {
+  __typename?: 'NoOpList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<NoOp>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type NoOpspec = {
+  __typename?: 'NoOpspec';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+export type NoOpspecInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NoOpstatus = {
+  __typename?: 'NoOpstatus';
+  conditions?: Maybe<Array<Maybe<NoOpstatusstatusconditions>>>;
+  state?: Maybe<Scalars['String']['output']>;
+};
+
+export type NoOpstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<NoOpstatusstatusconditionsInput>>>;
+  state?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NoOpstatusstatusconditions = {
+  __typename?: 'NoOpstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type NoOpstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Node = {
@@ -3024,6 +7188,12 @@ export type Node = {
   status?: Maybe<Io_K8s_Api_Core_V1_NodeStatusstatus>;
 };
 
+export type NodeEvent = {
+  __typename?: 'NodeEvent';
+  object?: Maybe<Node>;
+  type: WatchEventType;
+};
+
 export type NodeInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -3032,13 +7202,88 @@ export type NodeInput = {
   status?: InputMaybe<Io_K8s_Api_Core_V1_NodeStatusstatusInput>;
 };
 
+export type NodeK8sIoMutation = {
+  __typename?: 'NodeK8sIoMutation';
+  v1?: Maybe<NodeK8sIoV1Mutation>;
+};
+
+export type NodeK8sIoQuery = {
+  __typename?: 'NodeK8sIoQuery';
+  v1?: Maybe<NodeK8sIoV1Query>;
+};
+
+export type NodeK8sIoV1Mutation = {
+  __typename?: 'NodeK8sIoV1Mutation';
+  createRuntimeClass?: Maybe<RuntimeClass>;
+  deleteRuntimeClass?: Maybe<Scalars['Boolean']['output']>;
+  updateRuntimeClass?: Maybe<RuntimeClass>;
+};
+
+
+export type NodeK8sIoV1MutationCreateRuntimeClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: RuntimeClassInput;
+};
+
+
+export type NodeK8sIoV1MutationDeleteRuntimeClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type NodeK8sIoV1MutationUpdateRuntimeClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: RuntimeClassInput;
+};
+
+export type NodeK8sIoV1Query = {
+  __typename?: 'NodeK8sIoV1Query';
+  RuntimeClass: RuntimeClass;
+  RuntimeClassYaml: Scalars['String']['output'];
+  RuntimeClasses: RuntimeClassList;
+};
+
+
+export type NodeK8sIoV1QueryRuntimeClassArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type NodeK8sIoV1QueryRuntimeClassYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type NodeK8sIoV1QueryRuntimeClassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NodeList = {
+  __typename?: 'NodeList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Node>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type OpenIdConnect = {
   __typename?: 'OpenIDConnect';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   spec?: Maybe<OpenIdConnectspec>;
-  status?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type OpenIdConnectEvent = {
+  __typename?: 'OpenIDConnectEvent';
+  object?: Maybe<OpenIdConnect>;
+  type: WatchEventType;
 };
 
 export type OpenIdConnectInput = {
@@ -3046,11 +7291,20 @@ export type OpenIdConnectInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<OpenIdConnectspecInput>;
-  status?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type OpenIdConnectList = {
+  __typename?: 'OpenIDConnectList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<OpenIdConnect>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type OpenIdConnectspec = {
   __typename?: 'OpenIDConnectspec';
+  audiences?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   caBundle?: Maybe<Scalars['String']['output']>;
   clientID?: Maybe<Scalars['String']['output']>;
   extraClaims?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -3059,13 +7313,14 @@ export type OpenIdConnectspec = {
   issuerURL?: Maybe<Scalars['String']['output']>;
   jwks?: Maybe<OpenIdConnectspecspecjwks>;
   maxTokenExpirationSeconds?: Maybe<Scalars['Int']['output']>;
-  requiredClaims?: Maybe<Scalars['StringMap']['output']>;
+  requiredClaims?: Maybe<Scalars['StringMapInput']['output']>;
   supportedSigningAlgs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   usernameClaim?: Maybe<Scalars['String']['output']>;
   usernamePrefix?: Maybe<Scalars['String']['output']>;
 };
 
 export type OpenIdConnectspecInput = {
+  audiences?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   caBundle?: InputMaybe<Scalars['String']['input']>;
   clientID?: InputMaybe<Scalars['String']['input']>;
   extraClaims?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -3074,7 +7329,7 @@ export type OpenIdConnectspecInput = {
   issuerURL?: InputMaybe<Scalars['String']['input']>;
   jwks?: InputMaybe<OpenIdConnectspecspecjwksInput>;
   maxTokenExpirationSeconds?: InputMaybe<Scalars['Int']['input']>;
-  requiredClaims?: InputMaybe<Scalars['StringMap']['input']>;
+  requiredClaims?: InputMaybe<Scalars['StringMapInput']['input']>;
   supportedSigningAlgs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   usernameClaim?: InputMaybe<Scalars['String']['input']>;
   usernamePrefix?: InputMaybe<Scalars['String']['input']>;
@@ -3089,6 +7344,107 @@ export type OpenIdConnectspecspecjwks = {
 export type OpenIdConnectspecspecjwksInput = {
   distributedClaims?: InputMaybe<Scalars['Boolean']['input']>;
   keys?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OpenmcpCloudMutation = {
+  __typename?: 'OpenmcpCloudMutation';
+  v1alpha1?: Maybe<OpenmcpCloudV1alpha1Mutation>;
+};
+
+export type OpenmcpCloudQuery = {
+  __typename?: 'OpenmcpCloudQuery';
+  v1alpha1?: Maybe<OpenmcpCloudV1alpha1Query>;
+};
+
+export type OpenmcpCloudV1alpha1Mutation = {
+  __typename?: 'OpenmcpCloudV1alpha1Mutation';
+  createQuotaIncrease?: Maybe<QuotaIncrease>;
+  createTypedLabelValidationParams?: Maybe<TypedLabelValidationParams>;
+  deleteQuotaIncrease?: Maybe<Scalars['Boolean']['output']>;
+  deleteTypedLabelValidationParams?: Maybe<Scalars['Boolean']['output']>;
+  updateQuotaIncrease?: Maybe<QuotaIncrease>;
+  updateTypedLabelValidationParams?: Maybe<TypedLabelValidationParams>;
+};
+
+
+export type OpenmcpCloudV1alpha1MutationCreateQuotaIncreaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: QuotaIncreaseInput;
+};
+
+
+export type OpenmcpCloudV1alpha1MutationCreateTypedLabelValidationParamsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: TypedLabelValidationParamsInput;
+};
+
+
+export type OpenmcpCloudV1alpha1MutationDeleteQuotaIncreaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OpenmcpCloudV1alpha1MutationDeleteTypedLabelValidationParamsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type OpenmcpCloudV1alpha1MutationUpdateQuotaIncreaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: QuotaIncreaseInput;
+};
+
+
+export type OpenmcpCloudV1alpha1MutationUpdateTypedLabelValidationParamsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: TypedLabelValidationParamsInput;
+};
+
+export type OpenmcpCloudV1alpha1Query = {
+  __typename?: 'OpenmcpCloudV1alpha1Query';
+  QuotaIncrease: QuotaIncrease;
+  QuotaIncreaseYaml: Scalars['String']['output'];
+  QuotaIncreases: QuotaIncreaseList;
+  TypedLabelValidationParams: TypedLabelValidationParams;
+  TypedLabelValidationParamsYaml: Scalars['String']['output'];
+};
+
+
+export type OpenmcpCloudV1alpha1QueryQuotaIncreaseArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OpenmcpCloudV1alpha1QueryQuotaIncreaseYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OpenmcpCloudV1alpha1QueryQuotaIncreasesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OpenmcpCloudV1alpha1QueryTypedLabelValidationParamsArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type OpenmcpCloudV1alpha1QueryTypedLabelValidationParamsYamlArgs = {
+  name: Scalars['String']['input'];
 };
 
 export type PersistentVolume = {
@@ -3109,6 +7465,12 @@ export type PersistentVolumeClaim = {
   status?: Maybe<Io_K8s_Api_Core_V1_PersistentVolumeClaimStatusstatus>;
 };
 
+export type PersistentVolumeClaimEvent = {
+  __typename?: 'PersistentVolumeClaimEvent';
+  object?: Maybe<PersistentVolumeClaim>;
+  type: WatchEventType;
+};
+
 export type PersistentVolumeClaimInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -3117,12 +7479,34 @@ export type PersistentVolumeClaimInput = {
   status?: InputMaybe<Io_K8s_Api_Core_V1_PersistentVolumeClaimStatusstatusInput>;
 };
 
+export type PersistentVolumeClaimList = {
+  __typename?: 'PersistentVolumeClaimList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PersistentVolumeClaim>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type PersistentVolumeEvent = {
+  __typename?: 'PersistentVolumeEvent';
+  object?: Maybe<PersistentVolume>;
+  type: WatchEventType;
+};
+
 export type PersistentVolumeInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_PersistentVolumeSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_PersistentVolumeStatusstatusInput>;
+};
+
+export type PersistentVolumeList = {
+  __typename?: 'PersistentVolumeList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PersistentVolume>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Pod = {
@@ -3134,12 +7518,26 @@ export type Pod = {
   status?: Maybe<Io_K8s_Api_Core_V1_PodStatusstatus>;
 };
 
+export type PodEvent = {
+  __typename?: 'PodEvent';
+  object?: Maybe<Pod>;
+  type: WatchEventType;
+};
+
 export type PodInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_PodSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_PodStatusstatusInput>;
+};
+
+export type PodList = {
+  __typename?: 'PodList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Pod>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type PodTemplate = {
@@ -3150,11 +7548,25 @@ export type PodTemplate = {
   template?: Maybe<Io_K8s_Api_Core_V1_PodTemplateSpectemplate>;
 };
 
+export type PodTemplateEvent = {
+  __typename?: 'PodTemplateEvent';
+  object?: Maybe<PodTemplate>;
+  type: WatchEventType;
+};
+
 export type PodTemplateInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   template?: InputMaybe<Io_K8s_Api_Core_V1_PodTemplateSpectemplateInput>;
+};
+
+export type PodTemplateList = {
+  __typename?: 'PodTemplateList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PodTemplate>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type PodVolumeBackup = {
@@ -3166,6 +7578,12 @@ export type PodVolumeBackup = {
   status?: Maybe<PodVolumeBackupstatus>;
 };
 
+export type PodVolumeBackupEvent = {
+  __typename?: 'PodVolumeBackupEvent';
+  object?: Maybe<PodVolumeBackup>;
+  type: WatchEventType;
+};
+
 export type PodVolumeBackupInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -3174,14 +7592,22 @@ export type PodVolumeBackupInput = {
   status?: InputMaybe<PodVolumeBackupstatusInput>;
 };
 
+export type PodVolumeBackupList = {
+  __typename?: 'PodVolumeBackupList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PodVolumeBackup>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type PodVolumeBackupspec = {
   __typename?: 'PodVolumeBackupspec';
   backupStorageLocation?: Maybe<Scalars['String']['output']>;
   node?: Maybe<Scalars['String']['output']>;
   pod?: Maybe<PodVolumeBackupspecspecpod>;
   repoIdentifier?: Maybe<Scalars['String']['output']>;
-  tags?: Maybe<Scalars['StringMap']['output']>;
-  uploaderSettings?: Maybe<Scalars['StringMap']['output']>;
+  tags?: Maybe<Scalars['StringMapInput']['output']>;
+  uploaderSettings?: Maybe<Scalars['StringMapInput']['output']>;
   uploaderType?: Maybe<Scalars['String']['output']>;
   volume?: Maybe<Scalars['String']['output']>;
 };
@@ -3191,8 +7617,8 @@ export type PodVolumeBackupspecInput = {
   node?: InputMaybe<Scalars['String']['input']>;
   pod?: InputMaybe<PodVolumeBackupspecspecpodInput>;
   repoIdentifier?: InputMaybe<Scalars['String']['input']>;
-  tags?: InputMaybe<Scalars['StringMap']['input']>;
-  uploaderSettings?: InputMaybe<Scalars['StringMap']['input']>;
+  tags?: InputMaybe<Scalars['StringMapInput']['input']>;
+  uploaderSettings?: InputMaybe<Scalars['StringMapInput']['input']>;
   uploaderType?: InputMaybe<Scalars['String']['input']>;
   volume?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3259,12 +7685,26 @@ export type PodVolumeRestore = {
   status?: Maybe<PodVolumeRestorestatus>;
 };
 
+export type PodVolumeRestoreEvent = {
+  __typename?: 'PodVolumeRestoreEvent';
+  object?: Maybe<PodVolumeRestore>;
+  type: WatchEventType;
+};
+
 export type PodVolumeRestoreInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<PodVolumeRestorespecInput>;
   status?: InputMaybe<PodVolumeRestorestatusInput>;
+};
+
+export type PodVolumeRestoreList = {
+  __typename?: 'PodVolumeRestoreList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PodVolumeRestore>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type PodVolumeRestorespec = {
@@ -3274,7 +7714,7 @@ export type PodVolumeRestorespec = {
   repoIdentifier?: Maybe<Scalars['String']['output']>;
   snapshotID?: Maybe<Scalars['String']['output']>;
   sourceNamespace?: Maybe<Scalars['String']['output']>;
-  uploaderSettings?: Maybe<Scalars['StringMap']['output']>;
+  uploaderSettings?: Maybe<Scalars['StringMapInput']['output']>;
   uploaderType?: Maybe<Scalars['String']['output']>;
   volume?: Maybe<Scalars['String']['output']>;
 };
@@ -3285,7 +7725,7 @@ export type PodVolumeRestorespecInput = {
   repoIdentifier?: InputMaybe<Scalars['String']['input']>;
   snapshotID?: InputMaybe<Scalars['String']['input']>;
   sourceNamespace?: InputMaybe<Scalars['String']['input']>;
-  uploaderSettings?: InputMaybe<Scalars['StringMap']['input']>;
+  uploaderSettings?: InputMaybe<Scalars['StringMapInput']['input']>;
   uploaderType?: InputMaybe<Scalars['String']['input']>;
   volume?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3339,6 +7779,67 @@ export type PodVolumeRestorestatusstatusprogressInput = {
   totalBytes?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type PolicyMutation = {
+  __typename?: 'PolicyMutation';
+  v1?: Maybe<PolicyV1Mutation>;
+};
+
+export type PolicyQuery = {
+  __typename?: 'PolicyQuery';
+  v1?: Maybe<PolicyV1Query>;
+};
+
+export type PolicyV1Mutation = {
+  __typename?: 'PolicyV1Mutation';
+  createEviction?: Maybe<Eviction>;
+  deleteEviction?: Maybe<Scalars['Boolean']['output']>;
+  updateEviction?: Maybe<Eviction>;
+};
+
+
+export type PolicyV1MutationCreateEvictionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: EvictionInput;
+};
+
+
+export type PolicyV1MutationDeleteEvictionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type PolicyV1MutationUpdateEvictionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: EvictionInput;
+};
+
+export type PolicyV1Query = {
+  __typename?: 'PolicyV1Query';
+  Eviction: Eviction;
+  EvictionYaml: Scalars['String']['output'];
+  Evictions: EvictionList;
+};
+
+
+export type PolicyV1QueryEvictionArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type PolicyV1QueryEvictionYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type PolicyV1QueryEvictionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type PriorityClass = {
   __typename?: 'PriorityClass';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -3348,6 +7849,12 @@ export type PriorityClass = {
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   preemptionPolicy?: Maybe<Scalars['String']['output']>;
   value?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PriorityClassEvent = {
+  __typename?: 'PriorityClassEvent';
+  object?: Maybe<PriorityClass>;
+  type: WatchEventType;
 };
 
 export type PriorityClassInput = {
@@ -3360,6 +7867,14 @@ export type PriorityClassInput = {
   value?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type PriorityClassList = {
+  __typename?: 'PriorityClassList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PriorityClass>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type PriorityLevelConfiguration = {
   __typename?: 'PriorityLevelConfiguration';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -3367,6 +7882,12 @@ export type PriorityLevelConfiguration = {
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   spec?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationSpecspec>;
   status?: Maybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatus>;
+};
+
+export type PriorityLevelConfigurationEvent = {
+  __typename?: 'PriorityLevelConfigurationEvent';
+  object?: Maybe<PriorityLevelConfiguration>;
+  type: WatchEventType;
 };
 
 export type PriorityLevelConfigurationInput = {
@@ -3377,1679 +7898,12 @@ export type PriorityLevelConfigurationInput = {
   status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1_PriorityLevelConfigurationStatusstatusInput>;
 };
 
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3 = {
-  __typename?: 'PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec>;
-  status?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus>;
-};
-
-export type PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input = {
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput>;
-  status?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput>;
-};
-
-export type PrivateNameForMutation = {
-  __typename?: 'PrivateNameForMutation';
-  admissionregistration_k8s_io?: Maybe<Admissionregistration_K8s_IoMutation>;
-  apiextensions_k8s_io?: Maybe<Apiextensions_K8s_IoMutation>;
-  apiregistration_k8s_io?: Maybe<Apiregistration_K8s_IoMutation>;
-  authentication_gardener_cloud?: Maybe<Authentication_Gardener_CloudMutation>;
-  authentication_k8s_io?: Maybe<Authentication_K8s_IoMutation>;
-  authorization_k8s_io?: Maybe<Authorization_K8s_IoMutation>;
-  autoscaling?: Maybe<AutoscalingMutation>;
-  cert_gardener_cloud?: Maybe<Cert_Gardener_CloudMutation>;
-  certificates_k8s_io?: Maybe<Certificates_K8s_IoMutation>;
-  coordination_k8s_io?: Maybe<Coordination_K8s_IoMutation>;
-  core?: Maybe<CoreMutation>;
-  core_openmcp_cloud?: Maybe<Core_Openmcp_CloudMutation>;
-  dns_gardener_cloud?: Maybe<Dns_Gardener_CloudMutation>;
-  events_k8s_io?: Maybe<Events_K8s_IoMutation>;
-  flowcontrol_apiserver_k8s_io?: Maybe<Flowcontrol_Apiserver_K8s_IoMutation>;
-  networking_k8s_io?: Maybe<Networking_K8s_IoMutation>;
-  node_k8s_io?: Maybe<Node_K8s_IoMutation>;
-  openmcp_cloud?: Maybe<Openmcp_CloudMutation>;
-  policy?: Maybe<PolicyMutation>;
-  rbac_authorization_k8s_io?: Maybe<Rbac_Authorization_K8s_IoMutation>;
-  scheduling_k8s_io?: Maybe<Scheduling_K8s_IoMutation>;
-  storage_k8s_io?: Maybe<Storage_K8s_IoMutation>;
-  velero_io?: Maybe<Velero_IoMutation>;
-};
-
-export type PrivateNameForQuery = {
-  __typename?: 'PrivateNameForQuery';
-  admissionregistration_k8s_io?: Maybe<Admissionregistration_K8s_IoQuery>;
-  apiextensions_k8s_io?: Maybe<Apiextensions_K8s_IoQuery>;
-  apiregistration_k8s_io?: Maybe<Apiregistration_K8s_IoQuery>;
-  authentication_gardener_cloud?: Maybe<Authentication_Gardener_CloudQuery>;
-  authentication_k8s_io?: Maybe<Authentication_K8s_IoQuery>;
-  authorization_k8s_io?: Maybe<Authorization_K8s_IoQuery>;
-  autoscaling?: Maybe<AutoscalingQuery>;
-  cert_gardener_cloud?: Maybe<Cert_Gardener_CloudQuery>;
-  certificates_k8s_io?: Maybe<Certificates_K8s_IoQuery>;
-  coordination_k8s_io?: Maybe<Coordination_K8s_IoQuery>;
-  core?: Maybe<CoreQuery>;
-  core_openmcp_cloud?: Maybe<Core_Openmcp_CloudQuery>;
-  dns_gardener_cloud?: Maybe<Dns_Gardener_CloudQuery>;
-  events_k8s_io?: Maybe<Events_K8s_IoQuery>;
-  flowcontrol_apiserver_k8s_io?: Maybe<Flowcontrol_Apiserver_K8s_IoQuery>;
-  networking_k8s_io?: Maybe<Networking_K8s_IoQuery>;
-  node_k8s_io?: Maybe<Node_K8s_IoQuery>;
-  openmcp_cloud?: Maybe<Openmcp_CloudQuery>;
-  policy?: Maybe<PolicyQuery>;
-  rbac_authorization_k8s_io?: Maybe<Rbac_Authorization_K8s_IoQuery>;
-  scheduling_k8s_io?: Maybe<Scheduling_K8s_IoQuery>;
-  storage_k8s_io?: Maybe<Storage_K8s_IoQuery>;
-  typeByCategory: Array<TypeByCategoryObject>;
-  velero_io?: Maybe<Velero_IoQuery>;
-};
-
-
-export type PrivateNameForQueryTypeByCategoryArgs = {
-  name: Scalars['String']['input'];
-};
-
-export type PrivateNameForSubscription = {
-  __typename?: 'PrivateNameForSubscription';
-  /** Subscribe to changes of MutatingWebhookConfiguration */
-  admissionregistration_k8s_io_mutatingwebhookconfiguration?: Maybe<MutatingWebhookConfiguration>;
-  /** Subscribe to changes of MutatingWebhookConfigurations */
-  admissionregistration_k8s_io_mutatingwebhookconfigurations?: Maybe<Array<Maybe<MutatingWebhookConfiguration>>>;
-  /** Subscribe to changes of ValidatingAdmissionPolicy */
-  admissionregistration_k8s_io_validatingadmissionpolicy?: Maybe<ValidatingAdmissionPolicy>;
-  /** Subscribe to changes of ValidatingAdmissionPolicyBinding */
-  admissionregistration_k8s_io_validatingadmissionpolicybinding?: Maybe<ValidatingAdmissionPolicyBinding>;
-  /** Subscribe to changes of ValidatingAdmissionPolicyBindings */
-  admissionregistration_k8s_io_validatingadmissionpolicybindings?: Maybe<Array<Maybe<ValidatingAdmissionPolicyBinding>>>;
-  /** Subscribe to changes of ValidatingAdmissionPolicys */
-  admissionregistration_k8s_io_validatingadmissionpolicys?: Maybe<Array<Maybe<ValidatingAdmissionPolicy>>>;
-  /** Subscribe to changes of ValidatingWebhookConfiguration */
-  admissionregistration_k8s_io_validatingwebhookconfiguration?: Maybe<ValidatingWebhookConfiguration>;
-  /** Subscribe to changes of ValidatingWebhookConfigurations */
-  admissionregistration_k8s_io_validatingwebhookconfigurations?: Maybe<Array<Maybe<ValidatingWebhookConfiguration>>>;
-  /** Subscribe to changes of CustomResourceDefinition */
-  apiextensions_k8s_io_customresourcedefinition?: Maybe<CustomResourceDefinition>;
-  /** Subscribe to changes of CustomResourceDefinitions */
-  apiextensions_k8s_io_customresourcedefinitions?: Maybe<Array<Maybe<CustomResourceDefinition>>>;
-  /** Subscribe to changes of APIService */
-  apiregistration_k8s_io_apiservice?: Maybe<ApiService>;
-  /** Subscribe to changes of APIServices */
-  apiregistration_k8s_io_apiservices?: Maybe<Array<Maybe<ApiService>>>;
-  /** Subscribe to changes of OpenIDConnect */
-  authentication_gardener_cloud_openidconnect?: Maybe<OpenIdConnect>;
-  /** Subscribe to changes of OpenIDConnects */
-  authentication_gardener_cloud_openidconnects?: Maybe<Array<Maybe<OpenIdConnect>>>;
-  /** Subscribe to changes of SelfSubjectReview */
-  authentication_k8s_io_selfsubjectreview?: Maybe<SelfSubjectReview>;
-  /** Subscribe to changes of SelfSubjectReviews */
-  authentication_k8s_io_selfsubjectreviews?: Maybe<Array<Maybe<SelfSubjectReview>>>;
-  /** Subscribe to changes of TokenRequest */
-  authentication_k8s_io_tokenrequest?: Maybe<TokenRequest>;
-  /** Subscribe to changes of TokenRequests */
-  authentication_k8s_io_tokenrequests?: Maybe<Array<Maybe<TokenRequest>>>;
-  /** Subscribe to changes of TokenReview */
-  authentication_k8s_io_tokenreview?: Maybe<TokenReview>;
-  /** Subscribe to changes of TokenReviews */
-  authentication_k8s_io_tokenreviews?: Maybe<Array<Maybe<TokenReview>>>;
-  /** Subscribe to changes of LocalSubjectAccessReview */
-  authorization_k8s_io_localsubjectaccessreview?: Maybe<LocalSubjectAccessReview>;
-  /** Subscribe to changes of LocalSubjectAccessReviews */
-  authorization_k8s_io_localsubjectaccessreviews?: Maybe<Array<Maybe<LocalSubjectAccessReview>>>;
-  /** Subscribe to changes of SelfSubjectAccessReview */
-  authorization_k8s_io_selfsubjectaccessreview?: Maybe<SelfSubjectAccessReview>;
-  /** Subscribe to changes of SelfSubjectAccessReviews */
-  authorization_k8s_io_selfsubjectaccessreviews?: Maybe<Array<Maybe<SelfSubjectAccessReview>>>;
-  /** Subscribe to changes of SelfSubjectRulesReview */
-  authorization_k8s_io_selfsubjectrulesreview?: Maybe<SelfSubjectRulesReview>;
-  /** Subscribe to changes of SelfSubjectRulesReviews */
-  authorization_k8s_io_selfsubjectrulesreviews?: Maybe<Array<Maybe<SelfSubjectRulesReview>>>;
-  /** Subscribe to changes of SubjectAccessReview */
-  authorization_k8s_io_subjectaccessreview?: Maybe<SubjectAccessReview>;
-  /** Subscribe to changes of SubjectAccessReviews */
-  authorization_k8s_io_subjectaccessreviews?: Maybe<Array<Maybe<SubjectAccessReview>>>;
-  /** Subscribe to changes of HorizontalPodAutoscaler */
-  autoscaling_horizontalpodautoscaler?: Maybe<HorizontalPodAutoscaler>;
-  /** Subscribe to changes of HorizontalPodAutoscalers */
-  autoscaling_horizontalpodautoscalers?: Maybe<Array<Maybe<HorizontalPodAutoscaler>>>;
-  /** Subscribe to changes of Scale */
-  autoscaling_scale?: Maybe<Scale>;
-  /** Subscribe to changes of Scales */
-  autoscaling_scales?: Maybe<Array<Maybe<Scale>>>;
-  /** Subscribe to changes of Certificate */
-  cert_gardener_cloud_certificate?: Maybe<Certificate>;
-  /** Subscribe to changes of CertificateRevocation */
-  cert_gardener_cloud_certificaterevocation?: Maybe<CertificateRevocation>;
-  /** Subscribe to changes of CertificateRevocations */
-  cert_gardener_cloud_certificaterevocations?: Maybe<Array<Maybe<CertificateRevocation>>>;
-  /** Subscribe to changes of Certificates */
-  cert_gardener_cloud_certificates?: Maybe<Array<Maybe<Certificate>>>;
-  /** Subscribe to changes of CertificateSigningRequest */
-  certificates_k8s_io_certificatesigningrequest?: Maybe<CertificateSigningRequest>;
-  /** Subscribe to changes of CertificateSigningRequests */
-  certificates_k8s_io_certificatesigningrequests?: Maybe<Array<Maybe<CertificateSigningRequest>>>;
-  /** Subscribe to changes of Lease */
-  coordination_k8s_io_lease?: Maybe<Lease>;
-  /** Subscribe to changes of Leases */
-  coordination_k8s_io_leases?: Maybe<Array<Maybe<Lease>>>;
-  /** Subscribe to changes of Binding */
-  core_binding?: Maybe<Binding>;
-  /** Subscribe to changes of Bindings */
-  core_bindings?: Maybe<Array<Maybe<Binding>>>;
-  /** Subscribe to changes of ComponentStatus */
-  core_componentstatus?: Maybe<ComponentStatus>;
-  /** Subscribe to changes of ComponentStatuses */
-  core_componentstatuses?: Maybe<Array<Maybe<ComponentStatus>>>;
-  /** Subscribe to changes of ConfigMap */
-  core_configmap?: Maybe<ConfigMap>;
-  /** Subscribe to changes of ConfigMaps */
-  core_configmaps?: Maybe<Array<Maybe<ConfigMap>>>;
-  /** Subscribe to changes of DeleteOptions */
-  core_deleteoptions?: Maybe<DeleteOptions>;
-  /** Subscribe to changes of DeleteOptionses */
-  core_deleteoptionses?: Maybe<Array<Maybe<DeleteOptions>>>;
-  /** Subscribe to changes of Endpoints */
-  core_endpoints?: Maybe<Endpoints>;
-  /** Subscribe to changes of Endpointses */
-  core_endpointses?: Maybe<Array<Maybe<Endpoints>>>;
-  /** Subscribe to changes of Eventcorev1 */
-  core_eventcorev1?: Maybe<Eventcorev1>;
-  /** Subscribe to changes of Eventcorev1s */
-  core_eventcorev1s?: Maybe<Array<Maybe<Eventcorev1>>>;
-  /** Subscribe to changes of LimitRange */
-  core_limitrange?: Maybe<LimitRange>;
-  /** Subscribe to changes of LimitRanges */
-  core_limitranges?: Maybe<Array<Maybe<LimitRange>>>;
-  /** Subscribe to changes of Namespace */
-  core_namespace?: Maybe<Namespace>;
-  /** Subscribe to changes of Namespaces */
-  core_namespaces?: Maybe<Array<Maybe<Namespace>>>;
-  /** Subscribe to changes of Node */
-  core_node?: Maybe<Node>;
-  /** Subscribe to changes of Nodes */
-  core_nodes?: Maybe<Array<Maybe<Node>>>;
-  /** Subscribe to changes of APIServer */
-  core_openmcp_cloud_apiserver?: Maybe<ApiServer>;
-  /** Subscribe to changes of APIServers */
-  core_openmcp_cloud_apiservers?: Maybe<Array<Maybe<ApiServer>>>;
-  /** Subscribe to changes of Authentication */
-  core_openmcp_cloud_authentication?: Maybe<Authentication>;
-  /** Subscribe to changes of Authentications */
-  core_openmcp_cloud_authentications?: Maybe<Array<Maybe<Authentication>>>;
-  /** Subscribe to changes of Authorization */
-  core_openmcp_cloud_authorization?: Maybe<Authorization>;
-  /** Subscribe to changes of Authorizations */
-  core_openmcp_cloud_authorizations?: Maybe<Array<Maybe<Authorization>>>;
-  /** Subscribe to changes of CloudOrchestrator */
-  core_openmcp_cloud_cloudorchestrator?: Maybe<CloudOrchestrator>;
-  /** Subscribe to changes of CloudOrchestrators */
-  core_openmcp_cloud_cloudorchestrators?: Maybe<Array<Maybe<CloudOrchestrator>>>;
-  /** Subscribe to changes of ClusterAdmin */
-  core_openmcp_cloud_clusteradmin?: Maybe<ClusterAdmin>;
-  /** Subscribe to changes of ClusterAdmins */
-  core_openmcp_cloud_clusteradmins?: Maybe<Array<Maybe<ClusterAdmin>>>;
-  /** Subscribe to changes of InternalConfiguration */
-  core_openmcp_cloud_internalconfiguration?: Maybe<InternalConfiguration>;
-  /** Subscribe to changes of InternalConfigurations */
-  core_openmcp_cloud_internalconfigurations?: Maybe<Array<Maybe<InternalConfiguration>>>;
-  /** Subscribe to changes of Landscaper */
-  core_openmcp_cloud_landscaper?: Maybe<Landscaper>;
-  /** Subscribe to changes of Landscapers */
-  core_openmcp_cloud_landscapers?: Maybe<Array<Maybe<Landscaper>>>;
-  /** Subscribe to changes of ManagedComponent */
-  core_openmcp_cloud_managedcomponent?: Maybe<ManagedComponent>;
-  /** Subscribe to changes of ManagedComponents */
-  core_openmcp_cloud_managedcomponents?: Maybe<Array<Maybe<ManagedComponent>>>;
-  /** Subscribe to changes of ManagedControlPlane */
-  core_openmcp_cloud_managedcontrolplane?: Maybe<ManagedControlPlane>;
-  /** Subscribe to changes of ManagedControlPlanes */
-  core_openmcp_cloud_managedcontrolplanes?: Maybe<Array<Maybe<ManagedControlPlane>>>;
-  /** Subscribe to changes of MemberOverrides */
-  core_openmcp_cloud_memberoverrides?: Maybe<MemberOverrides>;
-  /** Subscribe to changes of MemberOverrideses */
-  core_openmcp_cloud_memberoverrideses?: Maybe<Array<Maybe<MemberOverrides>>>;
-  /** Subscribe to changes of Project */
-  core_openmcp_cloud_project?: Maybe<Project>;
-  /** Subscribe to changes of Projects */
-  core_openmcp_cloud_projects?: Maybe<Array<Maybe<Project>>>;
-  /** Subscribe to changes of Workspace */
-  core_openmcp_cloud_workspace?: Maybe<Workspace>;
-  /** Subscribe to changes of Workspaces */
-  core_openmcp_cloud_workspaces?: Maybe<Array<Maybe<Workspace>>>;
-  /** Subscribe to changes of PersistentVolume */
-  core_persistentvolume?: Maybe<PersistentVolume>;
-  /** Subscribe to changes of PersistentVolumeClaim */
-  core_persistentvolumeclaim?: Maybe<PersistentVolumeClaim>;
-  /** Subscribe to changes of PersistentVolumeClaims */
-  core_persistentvolumeclaims?: Maybe<Array<Maybe<PersistentVolumeClaim>>>;
-  /** Subscribe to changes of PersistentVolumes */
-  core_persistentvolumes?: Maybe<Array<Maybe<PersistentVolume>>>;
-  /** Subscribe to changes of Pod */
-  core_pod?: Maybe<Pod>;
-  /** Subscribe to changes of Pods */
-  core_pods?: Maybe<Array<Maybe<Pod>>>;
-  /** Subscribe to changes of PodTemplate */
-  core_podtemplate?: Maybe<PodTemplate>;
-  /** Subscribe to changes of PodTemplates */
-  core_podtemplates?: Maybe<Array<Maybe<PodTemplate>>>;
-  /** Subscribe to changes of ReplicationController */
-  core_replicationcontroller?: Maybe<ReplicationController>;
-  /** Subscribe to changes of ReplicationControllers */
-  core_replicationcontrollers?: Maybe<Array<Maybe<ReplicationController>>>;
-  /** Subscribe to changes of ResourceQuota */
-  core_resourcequota?: Maybe<ResourceQuota>;
-  /** Subscribe to changes of ResourceQuotas */
-  core_resourcequotas?: Maybe<Array<Maybe<ResourceQuota>>>;
-  /** Subscribe to changes of Secret */
-  core_secret?: Maybe<Secret>;
-  /** Subscribe to changes of Secrets */
-  core_secrets?: Maybe<Array<Maybe<Secret>>>;
-  /** Subscribe to changes of Service */
-  core_service?: Maybe<Service>;
-  /** Subscribe to changes of ServiceAccount */
-  core_serviceaccount?: Maybe<ServiceAccount>;
-  /** Subscribe to changes of ServiceAccounts */
-  core_serviceaccounts?: Maybe<Array<Maybe<ServiceAccount>>>;
-  /** Subscribe to changes of Services */
-  core_services?: Maybe<Array<Maybe<Service>>>;
-  /** Subscribe to changes of Status */
-  core_status?: Maybe<Status>;
-  /** Subscribe to changes of Statuses */
-  core_statuses?: Maybe<Array<Maybe<Status>>>;
-  /** Subscribe to changes of WatchEvent */
-  core_watchevent?: Maybe<WatchEvent>;
-  /** Subscribe to changes of WatchEvents */
-  core_watchevents?: Maybe<Array<Maybe<WatchEvent>>>;
-  /** Subscribe to changes of DNSAnnotation */
-  dns_gardener_cloud_dnsannotation?: Maybe<DnsAnnotation>;
-  /** Subscribe to changes of DNSAnnotations */
-  dns_gardener_cloud_dnsannotations?: Maybe<Array<Maybe<DnsAnnotation>>>;
-  /** Subscribe to changes of DNSEntry */
-  dns_gardener_cloud_dnsentry?: Maybe<DnsEntry>;
-  /** Subscribe to changes of DNSEntrys */
-  dns_gardener_cloud_dnsentrys?: Maybe<Array<Maybe<DnsEntry>>>;
-  /** Subscribe to changes of Event */
-  events_k8s_io_event?: Maybe<Event>;
-  /** Subscribe to changes of Events */
-  events_k8s_io_events?: Maybe<Array<Maybe<Event>>>;
-  /** Subscribe to changes of FlowSchema */
-  flowcontrol_apiserver_k8s_io_flowschema?: Maybe<FlowSchema>;
-  /** Subscribe to changes of FlowSchemaflowcontrol_apiserver_k8s_iov1 */
-  flowcontrol_apiserver_k8s_io_flowschemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
-  /** Subscribe to changes of FlowSchemaflowcontrol_apiserver_k8s_iov1s */
-  flowcontrol_apiserver_k8s_io_flowschemaflowcontrol_apiserver_k8s_iov1s?: Maybe<Array<Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>>>;
-  /** Subscribe to changes of FlowSchemas */
-  flowcontrol_apiserver_k8s_io_flowschemas?: Maybe<Array<Maybe<FlowSchema>>>;
-  /** Subscribe to changes of PriorityLevelConfiguration */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfiguration?: Maybe<PriorityLevelConfiguration>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3 */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
-  /** Subscribe to changes of PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurationflowcontrol_apiserver_k8s_iov1beta3s?: Maybe<Array<Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>>>;
-  /** Subscribe to changes of PriorityLevelConfigurations */
-  flowcontrol_apiserver_k8s_io_prioritylevelconfigurations?: Maybe<Array<Maybe<PriorityLevelConfiguration>>>;
-  /** Subscribe to changes of Ingress */
-  networking_k8s_io_ingress?: Maybe<Ingress>;
-  /** Subscribe to changes of IngressClass */
-  networking_k8s_io_ingressclass?: Maybe<IngressClass>;
-  /** Subscribe to changes of IngressClasses */
-  networking_k8s_io_ingressclasses?: Maybe<Array<Maybe<IngressClass>>>;
-  /** Subscribe to changes of Ingresses */
-  networking_k8s_io_ingresses?: Maybe<Array<Maybe<Ingress>>>;
-  /** Subscribe to changes of NetworkPolicy */
-  networking_k8s_io_networkpolicy?: Maybe<NetworkPolicy>;
-  /** Subscribe to changes of NetworkPolicys */
-  networking_k8s_io_networkpolicys?: Maybe<Array<Maybe<NetworkPolicy>>>;
-  /** Subscribe to changes of RuntimeClass */
-  node_k8s_io_runtimeclass?: Maybe<RuntimeClass>;
-  /** Subscribe to changes of RuntimeClasses */
-  node_k8s_io_runtimeclasses?: Maybe<Array<Maybe<RuntimeClass>>>;
-  /** Subscribe to changes of QuotaIncrease */
-  openmcp_cloud_quotaincrease?: Maybe<QuotaIncrease>;
-  /** Subscribe to changes of QuotaIncreases */
-  openmcp_cloud_quotaincreases?: Maybe<Array<Maybe<QuotaIncrease>>>;
-  /** Subscribe to changes of TypedLabelValidationParams */
-  openmcp_cloud_typedlabelvalidationparams?: Maybe<TypedLabelValidationParams>;
-  /** Subscribe to changes of TypedLabelValidationParamses */
-  openmcp_cloud_typedlabelvalidationparamses?: Maybe<Array<Maybe<TypedLabelValidationParams>>>;
-  /** Subscribe to changes of Eviction */
-  policy_eviction?: Maybe<Eviction>;
-  /** Subscribe to changes of Evictions */
-  policy_evictions?: Maybe<Array<Maybe<Eviction>>>;
-  /** Subscribe to changes of ClusterRole */
-  rbac_authorization_k8s_io_clusterrole?: Maybe<ClusterRole>;
-  /** Subscribe to changes of ClusterRoleBinding */
-  rbac_authorization_k8s_io_clusterrolebinding?: Maybe<ClusterRoleBinding>;
-  /** Subscribe to changes of ClusterRoleBindings */
-  rbac_authorization_k8s_io_clusterrolebindings?: Maybe<Array<Maybe<ClusterRoleBinding>>>;
-  /** Subscribe to changes of ClusterRoles */
-  rbac_authorization_k8s_io_clusterroles?: Maybe<Array<Maybe<ClusterRole>>>;
-  /** Subscribe to changes of Role */
-  rbac_authorization_k8s_io_role?: Maybe<Role>;
-  /** Subscribe to changes of RoleBinding */
-  rbac_authorization_k8s_io_rolebinding?: Maybe<RoleBinding>;
-  /** Subscribe to changes of RoleBindings */
-  rbac_authorization_k8s_io_rolebindings?: Maybe<Array<Maybe<RoleBinding>>>;
-  /** Subscribe to changes of Roles */
-  rbac_authorization_k8s_io_roles?: Maybe<Array<Maybe<Role>>>;
-  /** Subscribe to changes of PriorityClass */
-  scheduling_k8s_io_priorityclass?: Maybe<PriorityClass>;
-  /** Subscribe to changes of PriorityClasses */
-  scheduling_k8s_io_priorityclasses?: Maybe<Array<Maybe<PriorityClass>>>;
-  /** Subscribe to changes of CSIDriver */
-  storage_k8s_io_csidriver?: Maybe<CsiDriver>;
-  /** Subscribe to changes of CSIDrivers */
-  storage_k8s_io_csidrivers?: Maybe<Array<Maybe<CsiDriver>>>;
-  /** Subscribe to changes of CSIStorageCapacity */
-  storage_k8s_io_csistoragecapacity?: Maybe<CsiStorageCapacity>;
-  /** Subscribe to changes of CSIStorageCapacitys */
-  storage_k8s_io_csistoragecapacitys?: Maybe<Array<Maybe<CsiStorageCapacity>>>;
-  /** Subscribe to changes of StorageClass */
-  storage_k8s_io_storageclass?: Maybe<StorageClass>;
-  /** Subscribe to changes of StorageClasses */
-  storage_k8s_io_storageclasses?: Maybe<Array<Maybe<StorageClass>>>;
-  /** Subscribe to changes of VolumeAttachment */
-  storage_k8s_io_volumeattachment?: Maybe<VolumeAttachment>;
-  /** Subscribe to changes of VolumeAttachments */
-  storage_k8s_io_volumeattachments?: Maybe<Array<Maybe<VolumeAttachment>>>;
-  /** Subscribe to changes of Backup */
-  velero_io_backup?: Maybe<Backup>;
-  /** Subscribe to changes of BackupRepository */
-  velero_io_backuprepository?: Maybe<BackupRepository>;
-  /** Subscribe to changes of BackupRepositorys */
-  velero_io_backuprepositorys?: Maybe<Array<Maybe<BackupRepository>>>;
-  /** Subscribe to changes of Backups */
-  velero_io_backups?: Maybe<Array<Maybe<Backup>>>;
-  /** Subscribe to changes of BackupStorageLocation */
-  velero_io_backupstoragelocation?: Maybe<BackupStorageLocation>;
-  /** Subscribe to changes of BackupStorageLocations */
-  velero_io_backupstoragelocations?: Maybe<Array<Maybe<BackupStorageLocation>>>;
-  /** Subscribe to changes of DataDownload */
-  velero_io_datadownload?: Maybe<DataDownload>;
-  /** Subscribe to changes of DataDownloads */
-  velero_io_datadownloads?: Maybe<Array<Maybe<DataDownload>>>;
-  /** Subscribe to changes of DataUpload */
-  velero_io_dataupload?: Maybe<DataUpload>;
-  /** Subscribe to changes of DataUploads */
-  velero_io_datauploads?: Maybe<Array<Maybe<DataUpload>>>;
-  /** Subscribe to changes of DeleteBackupRequest */
-  velero_io_deletebackuprequest?: Maybe<DeleteBackupRequest>;
-  /** Subscribe to changes of DeleteBackupRequests */
-  velero_io_deletebackuprequests?: Maybe<Array<Maybe<DeleteBackupRequest>>>;
-  /** Subscribe to changes of DownloadRequest */
-  velero_io_downloadrequest?: Maybe<DownloadRequest>;
-  /** Subscribe to changes of DownloadRequests */
-  velero_io_downloadrequests?: Maybe<Array<Maybe<DownloadRequest>>>;
-  /** Subscribe to changes of PodVolumeBackup */
-  velero_io_podvolumebackup?: Maybe<PodVolumeBackup>;
-  /** Subscribe to changes of PodVolumeBackups */
-  velero_io_podvolumebackups?: Maybe<Array<Maybe<PodVolumeBackup>>>;
-  /** Subscribe to changes of PodVolumeRestore */
-  velero_io_podvolumerestore?: Maybe<PodVolumeRestore>;
-  /** Subscribe to changes of PodVolumeRestores */
-  velero_io_podvolumerestores?: Maybe<Array<Maybe<PodVolumeRestore>>>;
-  /** Subscribe to changes of Restore */
-  velero_io_restore?: Maybe<Restore>;
-  /** Subscribe to changes of Restores */
-  velero_io_restores?: Maybe<Array<Maybe<Restore>>>;
-  /** Subscribe to changes of Schedule */
-  velero_io_schedule?: Maybe<Schedule>;
-  /** Subscribe to changes of Schedules */
-  velero_io_schedules?: Maybe<Array<Maybe<Schedule>>>;
-  /** Subscribe to changes of ServerStatusRequest */
-  velero_io_serverstatusrequest?: Maybe<ServerStatusRequest>;
-  /** Subscribe to changes of ServerStatusRequests */
-  velero_io_serverstatusrequests?: Maybe<Array<Maybe<ServerStatusRequest>>>;
-  /** Subscribe to changes of VolumeSnapshotLocation */
-  velero_io_volumesnapshotlocation?: Maybe<VolumeSnapshotLocation>;
-  /** Subscribe to changes of VolumeSnapshotLocations */
-  velero_io_volumesnapshotlocations?: Maybe<Array<Maybe<VolumeSnapshotLocation>>>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_MutatingwebhookconfigurationArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_MutatingwebhookconfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingadmissionpolicyArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingadmissionpolicybindingArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingadmissionpolicybindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingadmissionpolicysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingwebhookconfigurationArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAdmissionregistration_K8s_Io_ValidatingwebhookconfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionApiextensions_K8s_Io_CustomresourcedefinitionArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionApiextensions_K8s_Io_CustomresourcedefinitionsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionApiregistration_K8s_Io_ApiserviceArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionApiregistration_K8s_Io_ApiservicesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_Gardener_Cloud_OpenidconnectArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_Gardener_Cloud_OpenidconnectsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_SelfsubjectreviewArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_SelfsubjectreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_TokenrequestArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_TokenrequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_TokenreviewArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthentication_K8s_Io_TokenreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_LocalsubjectaccessreviewArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_LocalsubjectaccessreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SelfsubjectaccessreviewArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SelfsubjectaccessreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SelfsubjectrulesreviewArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SelfsubjectrulesreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SubjectaccessreviewArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAuthorization_K8s_Io_SubjectaccessreviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAutoscaling_HorizontalpodautoscalerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAutoscaling_HorizontalpodautoscalersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAutoscaling_ScaleArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionAutoscaling_ScalesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCert_Gardener_Cloud_CertificateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCert_Gardener_Cloud_CertificaterevocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCert_Gardener_Cloud_CertificaterevocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCert_Gardener_Cloud_CertificatesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCertificates_K8s_Io_CertificatesigningrequestArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCertificates_K8s_Io_CertificatesigningrequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCoordination_K8s_Io_LeaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCoordination_K8s_Io_LeasesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_BindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_BindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ComponentstatusArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ComponentstatusesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ConfigmapArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ConfigmapsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_DeleteoptionsArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_DeleteoptionsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_EndpointsArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_EndpointsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Eventcorev1Args = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Eventcorev1sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_LimitrangeArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_LimitrangesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_NamespaceArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_NamespacesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_NodeArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_NodesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ApiserverArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ApiserversArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_AuthenticationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_AuthenticationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_AuthorizationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_AuthorizationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_CloudorchestratorArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_CloudorchestratorsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ClusteradminArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ClusteradminsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_InternalconfigurationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_InternalconfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_LandscaperArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_LandscapersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ManagedcomponentArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ManagedcomponentsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ManagedcontrolplaneArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ManagedcontrolplanesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_MemberoverridesArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_MemberoverridesesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ProjectArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_ProjectsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_WorkspaceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_Openmcp_Cloud_WorkspacesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PersistentvolumeArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PersistentvolumeclaimArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PersistentvolumeclaimsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PersistentvolumesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PodArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PodsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PodtemplateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_PodtemplatesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ReplicationcontrollerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ReplicationcontrollersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ResourcequotaArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ResourcequotasArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_SecretArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_SecretsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ServiceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ServiceaccountArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ServiceaccountsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_ServicesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_StatusArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_StatusesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_WatcheventArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionCore_WatcheventsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionDns_Gardener_Cloud_DnsannotationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionDns_Gardener_Cloud_DnsannotationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionDns_Gardener_Cloud_DnsentryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionDns_Gardener_Cloud_DnsentrysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionEvents_K8s_Io_EventArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionEvents_K8s_Io_EventsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_FlowschemaArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Flowschemaflowcontrol_Apiserver_K8s_Iov1Args = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Flowschemaflowcontrol_Apiserver_K8s_Iov1sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_FlowschemasArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_PrioritylevelconfigurationArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_Prioritylevelconfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionFlowcontrol_Apiserver_K8s_Io_PrioritylevelconfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_IngressArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_IngressclassArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_IngressclassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_IngressesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_NetworkpolicyArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNetworking_K8s_Io_NetworkpolicysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNode_K8s_Io_RuntimeclassArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionNode_K8s_Io_RuntimeclassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionOpenmcp_Cloud_QuotaincreaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionOpenmcp_Cloud_QuotaincreasesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionOpenmcp_Cloud_TypedlabelvalidationparamsArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionOpenmcp_Cloud_TypedlabelvalidationparamsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionPolicy_EvictionArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionPolicy_EvictionsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_ClusterroleArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_ClusterrolebindingArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_ClusterrolebindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_ClusterrolesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_RoleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_RolebindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_RolebindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionRbac_Authorization_K8s_Io_RolesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionScheduling_K8s_Io_PriorityclassArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionScheduling_K8s_Io_PriorityclassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_CsidriverArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_CsidriversArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_CsistoragecapacityArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_CsistoragecapacitysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_StorageclassArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_StorageclassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_VolumeattachmentArgs = {
-  name: Scalars['String']['input'];
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionStorage_K8s_Io_VolumeattachmentsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackuprepositoryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackuprepositorysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackupsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackupstoragelocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_BackupstoragelocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DatadownloadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DatadownloadsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DatauploadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DatauploadsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DeletebackuprequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DeletebackuprequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DownloadrequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_DownloadrequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_PodvolumebackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_PodvolumebackupsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_PodvolumerestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_PodvolumerestoresArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_RestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_RestoresArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_ScheduleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_SchedulesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_ServerstatusrequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_ServerstatusrequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_VolumesnapshotlocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type PrivateNameForSubscriptionVelero_Io_VolumesnapshotlocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+export type PriorityLevelConfigurationList = {
+  __typename?: 'PriorityLevelConfigurationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<PriorityLevelConfiguration>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Project = {
@@ -5061,12 +7915,127 @@ export type Project = {
   status?: Maybe<Projectstatus>;
 };
 
+export type ProjectEvent = {
+  __typename?: 'ProjectEvent';
+  object?: Maybe<Project>;
+  type: WatchEventType;
+};
+
 export type ProjectInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<ProjectspecInput>;
   status?: InputMaybe<ProjectstatusInput>;
+};
+
+export type ProjectList = {
+  __typename?: 'ProjectList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Project>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectWorkspaceConfig = {
+  __typename?: 'ProjectWorkspaceConfig';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<ProjectWorkspaceConfigspec>;
+};
+
+export type ProjectWorkspaceConfigEvent = {
+  __typename?: 'ProjectWorkspaceConfigEvent';
+  object?: Maybe<ProjectWorkspaceConfig>;
+  type: WatchEventType;
+};
+
+export type ProjectWorkspaceConfigInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<ProjectWorkspaceConfigspecInput>;
+};
+
+export type ProjectWorkspaceConfigList = {
+  __typename?: 'ProjectWorkspaceConfigList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ProjectWorkspaceConfig>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectWorkspaceConfigspec = {
+  __typename?: 'ProjectWorkspaceConfigspec';
+  memberOverridesName?: Maybe<Scalars['String']['output']>;
+  project?: Maybe<ProjectWorkspaceConfigspecspecproject>;
+  webhook?: Maybe<ProjectWorkspaceConfigspecspecwebhook>;
+  workspace?: Maybe<ProjectWorkspaceConfigspecspecworkspace>;
+};
+
+export type ProjectWorkspaceConfigspecInput = {
+  memberOverridesName?: InputMaybe<Scalars['String']['input']>;
+  project?: InputMaybe<ProjectWorkspaceConfigspecspecprojectInput>;
+  webhook?: InputMaybe<ProjectWorkspaceConfigspecspecwebhookInput>;
+  workspace?: InputMaybe<ProjectWorkspaceConfigspecspecworkspaceInput>;
+};
+
+export type ProjectWorkspaceConfigspecspecproject = {
+  __typename?: 'ProjectWorkspaceConfigspecspecproject';
+  additionalPermissions?: Maybe<Scalars['JSONString']['output']>;
+  resourcesBlockingDeletion?: Maybe<Array<Maybe<ProjectWorkspaceConfigspecspecprojectspecprojectresourcesBlockingDeletion>>>;
+};
+
+export type ProjectWorkspaceConfigspecspecprojectInput = {
+  additionalPermissions?: InputMaybe<Scalars['JSONString']['input']>;
+  resourcesBlockingDeletion?: InputMaybe<Array<InputMaybe<ProjectWorkspaceConfigspecspecprojectspecprojectresourcesBlockingDeletionInput>>>;
+};
+
+export type ProjectWorkspaceConfigspecspecprojectspecprojectresourcesBlockingDeletion = {
+  __typename?: 'ProjectWorkspaceConfigspecspecprojectspecprojectresourcesBlockingDeletion';
+  group?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectWorkspaceConfigspecspecprojectspecprojectresourcesBlockingDeletionInput = {
+  group?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProjectWorkspaceConfigspecspecwebhook = {
+  __typename?: 'ProjectWorkspaceConfigspecspecwebhook';
+  disabled?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ProjectWorkspaceConfigspecspecwebhookInput = {
+  disabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type ProjectWorkspaceConfigspecspecworkspace = {
+  __typename?: 'ProjectWorkspaceConfigspecspecworkspace';
+  additionalPermissions?: Maybe<Scalars['JSONString']['output']>;
+  resourcesBlockingDeletion?: Maybe<Array<Maybe<ProjectWorkspaceConfigspecspecworkspacespecworkspaceresourcesBlockingDeletion>>>;
+};
+
+export type ProjectWorkspaceConfigspecspecworkspaceInput = {
+  additionalPermissions?: InputMaybe<Scalars['JSONString']['input']>;
+  resourcesBlockingDeletion?: InputMaybe<Array<InputMaybe<ProjectWorkspaceConfigspecspecworkspacespecworkspaceresourcesBlockingDeletionInput>>>;
+};
+
+export type ProjectWorkspaceConfigspecspecworkspacespecworkspaceresourcesBlockingDeletion = {
+  __typename?: 'ProjectWorkspaceConfigspecspecworkspacespecworkspaceresourcesBlockingDeletion';
+  group?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectWorkspaceConfigspecspecworkspacespecworkspaceresourcesBlockingDeletionInput = {
+  group?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Projectspec = {
@@ -5123,12 +8092,56 @@ export type ProjectstatusstatusconditionsInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Query = {
+  __typename?: 'Query';
+  admissionregistration_k8s_io?: Maybe<AdmissionregistrationK8sIoQuery>;
+  apiextensions_k8s_io?: Maybe<ApiextensionsK8sIoQuery>;
+  apiregistration_k8s_io?: Maybe<ApiregistrationK8sIoQuery>;
+  authentication_gardener_cloud?: Maybe<AuthenticationGardenerCloudQuery>;
+  authentication_k8s_io?: Maybe<AuthenticationK8sIoQuery>;
+  authorization_k8s_io?: Maybe<AuthorizationK8sIoQuery>;
+  autoscaling?: Maybe<AutoscalingQuery>;
+  cert_gardener_cloud?: Maybe<CertGardenerCloudQuery>;
+  certificates_k8s_io?: Maybe<CertificatesK8sIoQuery>;
+  coordination_k8s_io?: Maybe<CoordinationK8sIoQuery>;
+  core_openmcp_cloud?: Maybe<CoreOpenmcpCloudQuery>;
+  crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudQuery>;
+  dns_gardener_cloud?: Maybe<DnsGardenerCloudQuery>;
+  events_k8s_io?: Maybe<EventsK8sIoQuery>;
+  externaldns_k8s_io?: Maybe<ExternaldnsK8sIoQuery>;
+  flowcontrol_apiserver_k8s_io?: Maybe<FlowcontrolApiserverK8sIoQuery>;
+  kro_run?: Maybe<KroRunQuery>;
+  landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudQuery>;
+  networking_k8s_io?: Maybe<NetworkingK8sIoQuery>;
+  node_k8s_io?: Maybe<NodeK8sIoQuery>;
+  openmcp_cloud?: Maybe<OpenmcpCloudQuery>;
+  policy?: Maybe<PolicyQuery>;
+  rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoQuery>;
+  scheduling_k8s_io?: Maybe<SchedulingK8sIoQuery>;
+  storage_k8s_io?: Maybe<StorageK8sIoQuery>;
+  typeByCategory: Array<TypeByCategoryObject>;
+  usage_openmcp_cloud?: Maybe<UsageOpenmcpCloudQuery>;
+  v1?: Maybe<V1Query>;
+  velero_io?: Maybe<VeleroIoQuery>;
+};
+
+
+export type QueryTypeByCategoryArgs = {
+  name: Scalars['String']['input'];
+};
+
 export type QuotaIncrease = {
   __typename?: 'QuotaIncrease';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   spec?: Maybe<QuotaIncreasespec>;
+};
+
+export type QuotaIncreaseEvent = {
+  __typename?: 'QuotaIncreaseEvent';
+  object?: Maybe<QuotaIncrease>;
+  type: WatchEventType;
 };
 
 export type QuotaIncreaseInput = {
@@ -5138,13 +8151,223 @@ export type QuotaIncreaseInput = {
   spec?: InputMaybe<QuotaIncreasespecInput>;
 };
 
+export type QuotaIncreaseList = {
+  __typename?: 'QuotaIncreaseList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<QuotaIncrease>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type QuotaIncreasespec = {
   __typename?: 'QuotaIncreasespec';
-  hard?: Maybe<Scalars['String']['output']>;
+  hard?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type QuotaIncreasespecInput = {
-  hard?: InputMaybe<Scalars['String']['input']>;
+  hard?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type RbacAuthorizationK8sIoMutation = {
+  __typename?: 'RbacAuthorizationK8sIoMutation';
+  v1?: Maybe<RbacAuthorizationK8sIoV1Mutation>;
+};
+
+export type RbacAuthorizationK8sIoQuery = {
+  __typename?: 'RbacAuthorizationK8sIoQuery';
+  v1?: Maybe<RbacAuthorizationK8sIoV1Query>;
+};
+
+export type RbacAuthorizationK8sIoV1Mutation = {
+  __typename?: 'RbacAuthorizationK8sIoV1Mutation';
+  createClusterRole?: Maybe<ClusterRole>;
+  createClusterRoleBinding?: Maybe<ClusterRoleBinding>;
+  createRole?: Maybe<Role>;
+  createRoleBinding?: Maybe<RoleBinding>;
+  deleteClusterRole?: Maybe<Scalars['Boolean']['output']>;
+  deleteClusterRoleBinding?: Maybe<Scalars['Boolean']['output']>;
+  deleteRole?: Maybe<Scalars['Boolean']['output']>;
+  deleteRoleBinding?: Maybe<Scalars['Boolean']['output']>;
+  updateClusterRole?: Maybe<ClusterRole>;
+  updateClusterRoleBinding?: Maybe<ClusterRoleBinding>;
+  updateRole?: Maybe<Role>;
+  updateRoleBinding?: Maybe<RoleBinding>;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationCreateClusterRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ClusterRoleInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationCreateClusterRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ClusterRoleBindingInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationCreateRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RoleInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationCreateRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RoleBindingInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationDeleteClusterRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationDeleteClusterRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationDeleteRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationDeleteRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationUpdateClusterRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ClusterRoleInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationUpdateClusterRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ClusterRoleBindingInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationUpdateRoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RoleInput;
+};
+
+
+export type RbacAuthorizationK8sIoV1MutationUpdateRoleBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RoleBindingInput;
+};
+
+export type RbacAuthorizationK8sIoV1Query = {
+  __typename?: 'RbacAuthorizationK8sIoV1Query';
+  ClusterRole: ClusterRole;
+  ClusterRoleBinding: ClusterRoleBinding;
+  ClusterRoleBindingYaml: Scalars['String']['output'];
+  ClusterRoleBindings: ClusterRoleBindingList;
+  ClusterRoleYaml: Scalars['String']['output'];
+  ClusterRoles: ClusterRoleList;
+  Role: Role;
+  RoleBinding: RoleBinding;
+  RoleBindingYaml: Scalars['String']['output'];
+  RoleBindings: RoleBindingList;
+  RoleYaml: Scalars['String']['output'];
+  Roles: RoleList;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRoleArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRoleBindingArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRoleBindingYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRoleBindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRoleYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryClusterRolesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRoleArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRoleBindingArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRoleBindingYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRoleBindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRoleYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type RbacAuthorizationK8sIoV1QueryRolesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReplicationController = {
@@ -5156,12 +8379,218 @@ export type ReplicationController = {
   status?: Maybe<Io_K8s_Api_Core_V1_ReplicationControllerStatusstatus>;
 };
 
+export type ReplicationControllerEvent = {
+  __typename?: 'ReplicationControllerEvent';
+  object?: Maybe<ReplicationController>;
+  type: WatchEventType;
+};
+
 export type ReplicationControllerInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_ReplicationControllerSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_ReplicationControllerStatusstatusInput>;
+};
+
+export type ReplicationControllerList = {
+  __typename?: 'ReplicationControllerList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ReplicationController>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinition = {
+  __typename?: 'ResourceGraphDefinition';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<ResourceGraphDefinitionspec>;
+  status?: Maybe<ResourceGraphDefinitionstatus>;
+};
+
+export type ResourceGraphDefinitionEvent = {
+  __typename?: 'ResourceGraphDefinitionEvent';
+  object?: Maybe<ResourceGraphDefinition>;
+  type: WatchEventType;
+};
+
+export type ResourceGraphDefinitionInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<ResourceGraphDefinitionspecInput>;
+  status?: InputMaybe<ResourceGraphDefinitionstatusInput>;
+};
+
+export type ResourceGraphDefinitionList = {
+  __typename?: 'ResourceGraphDefinitionList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ResourceGraphDefinition>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionspec = {
+  __typename?: 'ResourceGraphDefinitionspec';
+  defaultServiceAccounts?: Maybe<Scalars['StringMapInput']['output']>;
+  resources?: Maybe<Array<Maybe<ResourceGraphDefinitionspecspecresources>>>;
+  schema?: Maybe<ResourceGraphDefinitionspecspecschema>;
+};
+
+export type ResourceGraphDefinitionspecInput = {
+  defaultServiceAccounts?: InputMaybe<Scalars['StringMapInput']['input']>;
+  resources?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionspecspecresourcesInput>>>;
+  schema?: InputMaybe<ResourceGraphDefinitionspecspecschemaInput>;
+};
+
+export type ResourceGraphDefinitionspecspecresources = {
+  __typename?: 'ResourceGraphDefinitionspecspecresources';
+  externalRef?: Maybe<ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRef_External_Enhanced>;
+  id?: Maybe<Scalars['String']['output']>;
+  includeWhen?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  readyWhen?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  template?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type ResourceGraphDefinitionspecspecresourcesInput = {
+  externalRef?: InputMaybe<ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefInput>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  includeWhen?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  readyWhen?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  template?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefspecresourcesexternalRefmetadataInput>;
+};
+
+export type ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRef_External_Enhanced = {
+  __typename?: 'ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRef_external_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefspecresourcesexternalRefmetadata>;
+};
+
+export type ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefspecresourcesexternalRefmetadata = {
+  __typename?: 'ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefspecresourcesexternalRefmetadata';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionspecspecresourcesspecresourcesexternalRefspecresourcesexternalRefmetadataInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ResourceGraphDefinitionspecspecschema = {
+  __typename?: 'ResourceGraphDefinitionspecspecschema';
+  additionalPrinterColumns?: Maybe<Array<Maybe<ResourceGraphDefinitionspecspecschemaspecschemaadditionalPrinterColumns>>>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  group?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  spec?: Maybe<Scalars['JSONString']['output']>;
+  status?: Maybe<Scalars['JSONString']['output']>;
+  types?: Maybe<Scalars['JSONString']['output']>;
+  validation?: Maybe<Array<Maybe<ResourceGraphDefinitionspecspecschemaspecschemavalidation>>>;
+};
+
+export type ResourceGraphDefinitionspecspecschemaInput = {
+  additionalPrinterColumns?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionspecspecschemaspecschemaadditionalPrinterColumnsInput>>>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  group?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  spec?: InputMaybe<Scalars['JSONString']['input']>;
+  status?: InputMaybe<Scalars['JSONString']['input']>;
+  types?: InputMaybe<Scalars['JSONString']['input']>;
+  validation?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionspecspecschemaspecschemavalidationInput>>>;
+};
+
+export type ResourceGraphDefinitionspecspecschemaspecschemaadditionalPrinterColumns = {
+  __typename?: 'ResourceGraphDefinitionspecspecschemaspecschemaadditionalPrinterColumns';
+  description?: Maybe<Scalars['String']['output']>;
+  format?: Maybe<Scalars['String']['output']>;
+  jsonPath?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  priority?: Maybe<Scalars['Int']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionspecspecschemaspecschemaadditionalPrinterColumnsInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  format?: InputMaybe<Scalars['String']['input']>;
+  jsonPath?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  priority?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ResourceGraphDefinitionspecspecschemaspecschemavalidation = {
+  __typename?: 'ResourceGraphDefinitionspecspecschemaspecschemavalidation';
+  expression?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionspecspecschemaspecschemavalidationInput = {
+  expression?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ResourceGraphDefinitionstatus = {
+  __typename?: 'ResourceGraphDefinitionstatus';
+  conditions?: Maybe<Array<Maybe<ResourceGraphDefinitionstatusstatusconditions>>>;
+  resources?: Maybe<Array<Maybe<ResourceGraphDefinitionstatusstatusresources>>>;
+  state?: Maybe<Scalars['String']['output']>;
+  topologicalOrder?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type ResourceGraphDefinitionstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionstatusstatusconditionsInput>>>;
+  resources?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionstatusstatusresourcesInput>>>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  topologicalOrder?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ResourceGraphDefinitionstatusstatusconditions = {
+  __typename?: 'ResourceGraphDefinitionstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ResourceGraphDefinitionstatusstatusresources = {
+  __typename?: 'ResourceGraphDefinitionstatusstatusresources';
+  dependencies?: Maybe<Array<Maybe<ResourceGraphDefinitionstatusstatusresourcesstatusresourcesdependencies>>>;
+  id?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionstatusstatusresourcesInput = {
+  dependencies?: InputMaybe<Array<InputMaybe<ResourceGraphDefinitionstatusstatusresourcesstatusresourcesdependenciesInput>>>;
+  id?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ResourceGraphDefinitionstatusstatusresourcesstatusresourcesdependencies = {
+  __typename?: 'ResourceGraphDefinitionstatusstatusresourcesstatusresourcesdependencies';
+  id?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResourceGraphDefinitionstatusstatusresourcesstatusresourcesdependenciesInput = {
+  id?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ResourceQuota = {
@@ -5173,12 +8602,26 @@ export type ResourceQuota = {
   status?: Maybe<Io_K8s_Api_Core_V1_ResourceQuotaStatusstatus>;
 };
 
+export type ResourceQuotaEvent = {
+  __typename?: 'ResourceQuotaEvent';
+  object?: Maybe<ResourceQuota>;
+  type: WatchEventType;
+};
+
 export type ResourceQuotaInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_ResourceQuotaSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_ResourceQuotaStatusstatusInput>;
+};
+
+export type ResourceQuotaList = {
+  __typename?: 'ResourceQuotaList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ResourceQuota>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Restore = {
@@ -5190,12 +8633,26 @@ export type Restore = {
   status?: Maybe<Restorestatus>;
 };
 
+export type RestoreEvent = {
+  __typename?: 'RestoreEvent';
+  object?: Maybe<Restore>;
+  type: WatchEventType;
+};
+
 export type RestoreInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<RestorespecInput>;
   status?: InputMaybe<RestorestatusInput>;
+};
+
+export type RestoreList = {
+  __typename?: 'RestoreList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Restore>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Restorespec = {
@@ -5210,7 +8667,7 @@ export type Restorespec = {
   includedResources?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   itemOperationTimeout?: Maybe<Scalars['String']['output']>;
   labelSelector?: Maybe<RestorespecspeclabelSelector>;
-  namespaceMapping?: Maybe<Scalars['StringMap']['output']>;
+  namespaceMapping?: Maybe<Scalars['StringMapInput']['output']>;
   orLabelSelectors?: Maybe<Array<Maybe<RestorespecspecorLabelSelectors>>>;
   preserveNodePorts?: Maybe<Scalars['Boolean']['output']>;
   resourceModifier?: Maybe<RestorespecspecresourceModifier>;
@@ -5231,7 +8688,7 @@ export type RestorespecInput = {
   includedResources?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   itemOperationTimeout?: InputMaybe<Scalars['String']['input']>;
   labelSelector?: InputMaybe<RestorespecspeclabelSelectorInput>;
-  namespaceMapping?: InputMaybe<Scalars['StringMap']['input']>;
+  namespaceMapping?: InputMaybe<Scalars['StringMapInput']['input']>;
   orLabelSelectors?: InputMaybe<Array<InputMaybe<RestorespecspecorLabelSelectorsInput>>>;
   preserveNodePorts?: InputMaybe<Scalars['Boolean']['input']>;
   resourceModifier?: InputMaybe<RestorespecspecresourceModifierInput>;
@@ -5274,12 +8731,12 @@ export type RestorespecspechooksspechooksresourcesInput = {
 export type RestorespecspechooksspechooksresourcesspechooksresourceslabelSelector = {
   __typename?: 'RestorespecspechooksspechooksresourcesspechooksresourceslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<RestorespecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type RestorespecspechooksspechooksresourcesspechooksresourceslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<RestorespecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type RestorespecspechooksspechooksresourcesspechooksresourceslabelSelectorspechooksresourceslabelSelectormatchExpressions = {
@@ -5327,24 +8784,24 @@ export type RestorespecspechooksspechooksresourcesspechooksresourcespostHooksspe
 
 export type RestorespecspechooksspechooksresourcesspechooksresourcespostHooksspechooksresourcespostHooksinit = {
   __typename?: 'RestorespecspechooksspechooksresourcesspechooksresourcespostHooksspechooksresourcespostHooksinit';
-  initContainers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  initContainers?: Maybe<Array<Maybe<Scalars['JSONString']['output']>>>;
   timeout?: Maybe<Scalars['String']['output']>;
 };
 
 export type RestorespecspechooksspechooksresourcesspechooksresourcespostHooksspechooksresourcespostHooksinitInput = {
-  initContainers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  initContainers?: InputMaybe<Array<InputMaybe<Scalars['JSONString']['input']>>>;
   timeout?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RestorespecspeclabelSelector = {
   __typename?: 'RestorespecspeclabelSelector';
   matchExpressions?: Maybe<Array<Maybe<RestorespecspeclabelSelectorspeclabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type RestorespecspeclabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<RestorespecspeclabelSelectorspeclabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type RestorespecspeclabelSelectorspeclabelSelectormatchExpressions = {
@@ -5363,12 +8820,12 @@ export type RestorespecspeclabelSelectorspeclabelSelectormatchExpressionsInput =
 export type RestorespecspecorLabelSelectors = {
   __typename?: 'RestorespecspecorLabelSelectors';
   matchExpressions?: Maybe<Array<Maybe<RestorespecspecorLabelSelectorsspecorLabelSelectorsmatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type RestorespecspecorLabelSelectorsInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<RestorespecspecorLabelSelectorsspecorLabelSelectorsmatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type RestorespecspecorLabelSelectorsspecorLabelSelectorsmatchExpressions = {
@@ -5485,16 +8942,38 @@ export type RoleBinding = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  roleRef?: Maybe<Io_K8s_Api_Rbac_V1_RoleRefroleRef>;
+  role?: Maybe<Scalars['String']['output']>;
+  roleRef?: Maybe<Io_K8s_Api_Rbac_V1_RoleRefroleRef_Role_Enhanced>;
   subjects?: Maybe<Array<Maybe<Io_K8s_Api_Rbac_V1_Subjectsubjects>>>;
+};
+
+export type RoleBindingEvent = {
+  __typename?: 'RoleBindingEvent';
+  object?: Maybe<RoleBinding>;
+  type: WatchEventType;
 };
 
 export type RoleBindingInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  role?: InputMaybe<Scalars['String']['input']>;
   roleRef?: InputMaybe<Io_K8s_Api_Rbac_V1_RoleRefroleRefInput>;
   subjects?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Rbac_V1_SubjectsubjectsInput>>>;
+};
+
+export type RoleBindingList = {
+  __typename?: 'RoleBindingList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<RoleBinding>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type RoleEvent = {
+  __typename?: 'RoleEvent';
+  object?: Maybe<Role>;
+  type: WatchEventType;
 };
 
 export type RoleInput = {
@@ -5502,6 +8981,14 @@ export type RoleInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   rules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Rbac_V1_PolicyRulerulesInput>>>;
+};
+
+export type RoleList = {
+  __typename?: 'RoleList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Role>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type RuntimeClass = {
@@ -5514,6 +9001,12 @@ export type RuntimeClass = {
   scheduling?: Maybe<Io_K8s_Api_Node_V1_Schedulingscheduling>;
 };
 
+export type RuntimeClassEvent = {
+  __typename?: 'RuntimeClassEvent';
+  object?: Maybe<RuntimeClass>;
+  type: WatchEventType;
+};
+
 export type RuntimeClassInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   handler?: InputMaybe<Scalars['String']['input']>;
@@ -5521,6 +9014,14 @@ export type RuntimeClassInput = {
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   overhead?: InputMaybe<Io_K8s_Api_Node_V1_OverheadoverheadInput>;
   scheduling?: InputMaybe<Io_K8s_Api_Node_V1_SchedulingschedulingInput>;
+};
+
+export type RuntimeClassList = {
+  __typename?: 'RuntimeClassList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<RuntimeClass>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Scale = {
@@ -5532,12 +9033,26 @@ export type Scale = {
   status?: Maybe<Io_K8s_Api_Autoscaling_V1_ScaleStatusstatus>;
 };
 
+export type ScaleEvent = {
+  __typename?: 'ScaleEvent';
+  object?: Maybe<Scale>;
+  type: WatchEventType;
+};
+
 export type ScaleInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Autoscaling_V1_ScaleSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Autoscaling_V1_ScaleStatusstatusInput>;
+};
+
+export type ScaleList = {
+  __typename?: 'ScaleList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Scale>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Schedule = {
@@ -5549,12 +9064,26 @@ export type Schedule = {
   status?: Maybe<Schedulestatus>;
 };
 
+export type ScheduleEvent = {
+  __typename?: 'ScheduleEvent';
+  object?: Maybe<Schedule>;
+  type: WatchEventType;
+};
+
 export type ScheduleInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<SchedulespecInput>;
   status?: InputMaybe<SchedulestatusInput>;
+};
+
+export type ScheduleList = {
+  __typename?: 'ScheduleList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Schedule>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Schedulespec = {
@@ -5594,7 +9123,7 @@ export type Schedulespecspectemplate = {
   labelSelector?: Maybe<SchedulespecspectemplatespectemplatelabelSelector>;
   metadata?: Maybe<Schedulespecspectemplatespectemplatemetadata>;
   orLabelSelectors?: Maybe<Array<Maybe<SchedulespecspectemplatespectemplateorLabelSelectors>>>;
-  orderedResources?: Maybe<Scalars['StringMap']['output']>;
+  orderedResources?: Maybe<Scalars['StringMapInput']['output']>;
   resourcePolicy?: Maybe<SchedulespecspectemplatespectemplateresourcePolicy>;
   snapshotMoveData?: Maybe<Scalars['Boolean']['output']>;
   snapshotVolumes?: Maybe<Scalars['Boolean']['output']>;
@@ -5623,7 +9152,7 @@ export type SchedulespecspectemplateInput = {
   labelSelector?: InputMaybe<SchedulespecspectemplatespectemplatelabelSelectorInput>;
   metadata?: InputMaybe<SchedulespecspectemplatespectemplatemetadataInput>;
   orLabelSelectors?: InputMaybe<Array<InputMaybe<SchedulespecspectemplatespectemplateorLabelSelectorsInput>>>;
-  orderedResources?: InputMaybe<Scalars['StringMap']['input']>;
+  orderedResources?: InputMaybe<Scalars['StringMapInput']['input']>;
   resourcePolicy?: InputMaybe<SchedulespecspectemplatespectemplateresourcePolicyInput>;
   snapshotMoveData?: InputMaybe<Scalars['Boolean']['input']>;
   snapshotVolumes?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5668,12 +9197,12 @@ export type SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesI
 export type SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelector = {
   __typename?: 'SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelectorspectemplatehooksresourceslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelectorspectemplatehooksresourceslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type SchedulespecspectemplatespectemplatehooksspectemplatehooksresourcesspectemplatehooksresourceslabelSelectorspectemplatehooksresourceslabelSelectormatchExpressions = {
@@ -5740,12 +9269,12 @@ export type Schedulespecspectemplatespectemplatehooksspectemplatehooksresourcess
 export type SchedulespecspectemplatespectemplatelabelSelector = {
   __typename?: 'SchedulespecspectemplatespectemplatelabelSelector';
   matchExpressions?: Maybe<Array<Maybe<SchedulespecspectemplatespectemplatelabelSelectorspectemplatelabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type SchedulespecspectemplatespectemplatelabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<SchedulespecspectemplatespectemplatelabelSelectorspectemplatelabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type SchedulespecspectemplatespectemplatelabelSelectorspectemplatelabelSelectormatchExpressions = {
@@ -5763,22 +9292,22 @@ export type SchedulespecspectemplatespectemplatelabelSelectorspectemplatelabelSe
 
 export type Schedulespecspectemplatespectemplatemetadata = {
   __typename?: 'Schedulespecspectemplatespectemplatemetadata';
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type SchedulespecspectemplatespectemplatemetadataInput = {
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type SchedulespecspectemplatespectemplateorLabelSelectors = {
   __typename?: 'SchedulespecspectemplatespectemplateorLabelSelectors';
   matchExpressions?: Maybe<Array<Maybe<SchedulespecspectemplatespectemplateorLabelSelectorsspectemplateorLabelSelectorsmatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type SchedulespecspectemplatespectemplateorLabelSelectorsInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<SchedulespecspectemplatespectemplateorLabelSelectorsspectemplateorLabelSelectorsmatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type SchedulespecspectemplatespectemplateorLabelSelectorsspectemplateorLabelSelectorsmatchExpressions = {
@@ -5831,25 +9360,100 @@ export type SchedulestatusInput = {
   validationErrors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+export type SchedulingK8sIoMutation = {
+  __typename?: 'SchedulingK8sIoMutation';
+  v1?: Maybe<SchedulingK8sIoV1Mutation>;
+};
+
+export type SchedulingK8sIoQuery = {
+  __typename?: 'SchedulingK8sIoQuery';
+  v1?: Maybe<SchedulingK8sIoV1Query>;
+};
+
+export type SchedulingK8sIoV1Mutation = {
+  __typename?: 'SchedulingK8sIoV1Mutation';
+  createPriorityClass?: Maybe<PriorityClass>;
+  deletePriorityClass?: Maybe<Scalars['Boolean']['output']>;
+  updatePriorityClass?: Maybe<PriorityClass>;
+};
+
+
+export type SchedulingK8sIoV1MutationCreatePriorityClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: PriorityClassInput;
+};
+
+
+export type SchedulingK8sIoV1MutationDeletePriorityClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type SchedulingK8sIoV1MutationUpdatePriorityClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: PriorityClassInput;
+};
+
+export type SchedulingK8sIoV1Query = {
+  __typename?: 'SchedulingK8sIoV1Query';
+  PriorityClass: PriorityClass;
+  PriorityClassYaml: Scalars['String']['output'];
+  PriorityClasses: PriorityClassList;
+};
+
+
+export type SchedulingK8sIoV1QueryPriorityClassArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type SchedulingK8sIoV1QueryPriorityClassYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type SchedulingK8sIoV1QueryPriorityClassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Secret = {
   __typename?: 'Secret';
   apiVersion?: Maybe<Scalars['String']['output']>;
-  data?: Maybe<Scalars['StringMap']['output']>;
+  data?: Maybe<Scalars['StringMapInput']['output']>;
   immutable?: Maybe<Scalars['Boolean']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  stringData?: Maybe<Scalars['StringMap']['output']>;
+  stringData?: Maybe<Scalars['StringMapInput']['output']>;
   type?: Maybe<Scalars['String']['output']>;
+};
+
+export type SecretEvent = {
+  __typename?: 'SecretEvent';
+  object?: Maybe<Secret>;
+  type: WatchEventType;
 };
 
 export type SecretInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
-  data?: InputMaybe<Scalars['StringMap']['input']>;
+  data?: InputMaybe<Scalars['StringMapInput']['input']>;
   immutable?: InputMaybe<Scalars['Boolean']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  stringData?: InputMaybe<Scalars['StringMap']['input']>;
+  stringData?: InputMaybe<Scalars['StringMapInput']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SecretList = {
+  __typename?: 'SecretList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Secret>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type SelfSubjectAccessReview = {
@@ -5861,12 +9465,26 @@ export type SelfSubjectAccessReview = {
   status?: Maybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatus>;
 };
 
+export type SelfSubjectAccessReviewEvent = {
+  __typename?: 'SelfSubjectAccessReviewEvent';
+  object?: Maybe<SelfSubjectAccessReview>;
+  type: WatchEventType;
+};
+
 export type SelfSubjectAccessReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Authorization_V1_SelfSubjectAccessReviewSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatusInput>;
+};
+
+export type SelfSubjectAccessReviewList = {
+  __typename?: 'SelfSubjectAccessReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<SelfSubjectAccessReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type SelfSubjectReview = {
@@ -5877,11 +9495,25 @@ export type SelfSubjectReview = {
   status?: Maybe<Io_K8s_Api_Authentication_V1_SelfSubjectReviewStatusstatus>;
 };
 
+export type SelfSubjectReviewEvent = {
+  __typename?: 'SelfSubjectReviewEvent';
+  object?: Maybe<SelfSubjectReview>;
+  type: WatchEventType;
+};
+
 export type SelfSubjectReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   status?: InputMaybe<Io_K8s_Api_Authentication_V1_SelfSubjectReviewStatusstatusInput>;
+};
+
+export type SelfSubjectReviewList = {
+  __typename?: 'SelfSubjectReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<SelfSubjectReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type SelfSubjectRulesReview = {
@@ -5893,6 +9525,12 @@ export type SelfSubjectRulesReview = {
   status?: Maybe<Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusstatus>;
 };
 
+export type SelfSubjectRulesReviewEvent = {
+  __typename?: 'SelfSubjectRulesReviewEvent';
+  object?: Maybe<SelfSubjectRulesReview>;
+  type: WatchEventType;
+};
+
 export type SelfSubjectRulesReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -5901,21 +9539,43 @@ export type SelfSubjectRulesReviewInput = {
   status?: InputMaybe<Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusstatusInput>;
 };
 
+export type SelfSubjectRulesReviewList = {
+  __typename?: 'SelfSubjectRulesReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<SelfSubjectRulesReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type ServerStatusRequest = {
   __typename?: 'ServerStatusRequest';
   apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<Scalars['String']['output']>;
+  spec?: Maybe<Scalars['JSONString']['output']>;
   status?: Maybe<ServerStatusRequeststatus>;
+};
+
+export type ServerStatusRequestEvent = {
+  __typename?: 'ServerStatusRequestEvent';
+  object?: Maybe<ServerStatusRequest>;
+  type: WatchEventType;
 };
 
 export type ServerStatusRequestInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<Scalars['String']['input']>;
+  spec?: InputMaybe<Scalars['JSONString']['input']>;
   status?: InputMaybe<ServerStatusRequeststatusInput>;
+};
+
+export type ServerStatusRequestList = {
+  __typename?: 'ServerStatusRequestList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ServerStatusRequest>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type ServerStatusRequeststatus = {
@@ -5963,6 +9623,12 @@ export type ServiceAccount = {
   secrets?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ObjectReferencesecrets>>>;
 };
 
+export type ServiceAccountEvent = {
+  __typename?: 'ServiceAccountEvent';
+  object?: Maybe<ServiceAccount>;
+  type: WatchEventType;
+};
+
 export type ServiceAccountInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   automountServiceAccountToken?: InputMaybe<Scalars['Boolean']['input']>;
@@ -5972,12 +9638,34 @@ export type ServiceAccountInput = {
   secrets?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencesecretsInput>>>;
 };
 
+export type ServiceAccountList = {
+  __typename?: 'ServiceAccountList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ServiceAccount>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ServiceEvent = {
+  __typename?: 'ServiceEvent';
+  object?: Maybe<Service>;
+  type: WatchEventType;
+};
+
 export type ServiceInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Core_V1_ServiceSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Core_V1_ServiceStatusstatusInput>;
+};
+
+export type ServiceList = {
+  __typename?: 'ServiceList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Service>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Status = {
@@ -5992,6 +9680,12 @@ export type Status = {
   status?: Maybe<Scalars['String']['output']>;
 };
 
+export type StatusEvent = {
+  __typename?: 'StatusEvent';
+  object?: Maybe<Status>;
+  type: WatchEventType;
+};
+
 export type StatusInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['Int']['input']>;
@@ -6003,6 +9697,14 @@ export type StatusInput = {
   status?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type StatusList = {
+  __typename?: 'StatusList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Status>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type StorageClass = {
   __typename?: 'StorageClass';
   allowVolumeExpansion?: Maybe<Scalars['Boolean']['output']>;
@@ -6011,10 +9713,16 @@ export type StorageClass = {
   kind?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   mountOptions?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  parameters?: Maybe<Scalars['StringMap']['output']>;
+  parameters?: Maybe<Scalars['StringMapInput']['output']>;
   provisioner?: Maybe<Scalars['String']['output']>;
   reclaimPolicy?: Maybe<Scalars['String']['output']>;
   volumeBindingMode?: Maybe<Scalars['String']['output']>;
+};
+
+export type StorageClassEvent = {
+  __typename?: 'StorageClassEvent';
+  object?: Maybe<StorageClass>;
+  type: WatchEventType;
 };
 
 export type StorageClassInput = {
@@ -6024,10 +9732,214 @@ export type StorageClassInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   mountOptions?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  parameters?: InputMaybe<Scalars['StringMap']['input']>;
+  parameters?: InputMaybe<Scalars['StringMapInput']['input']>;
   provisioner?: InputMaybe<Scalars['String']['input']>;
   reclaimPolicy?: InputMaybe<Scalars['String']['input']>;
   volumeBindingMode?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type StorageClassList = {
+  __typename?: 'StorageClassList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<StorageClass>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type StorageK8sIoMutation = {
+  __typename?: 'StorageK8sIoMutation';
+  v1?: Maybe<StorageK8sIoV1Mutation>;
+};
+
+export type StorageK8sIoQuery = {
+  __typename?: 'StorageK8sIoQuery';
+  v1?: Maybe<StorageK8sIoV1Query>;
+};
+
+export type StorageK8sIoV1Mutation = {
+  __typename?: 'StorageK8sIoV1Mutation';
+  createCSIDriver?: Maybe<CsiDriver>;
+  createCSIStorageCapacity?: Maybe<CsiStorageCapacity>;
+  createStorageClass?: Maybe<StorageClass>;
+  createVolumeAttachment?: Maybe<VolumeAttachment>;
+  deleteCSIDriver?: Maybe<Scalars['Boolean']['output']>;
+  deleteCSIStorageCapacity?: Maybe<Scalars['Boolean']['output']>;
+  deleteStorageClass?: Maybe<Scalars['Boolean']['output']>;
+  deleteVolumeAttachment?: Maybe<Scalars['Boolean']['output']>;
+  updateCSIDriver?: Maybe<CsiDriver>;
+  updateCSIStorageCapacity?: Maybe<CsiStorageCapacity>;
+  updateStorageClass?: Maybe<StorageClass>;
+  updateVolumeAttachment?: Maybe<VolumeAttachment>;
+};
+
+
+export type StorageK8sIoV1MutationCreateCsiDriverArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: CsiDriverInput;
+};
+
+
+export type StorageK8sIoV1MutationCreateCsiStorageCapacityArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CsiStorageCapacityInput;
+};
+
+
+export type StorageK8sIoV1MutationCreateStorageClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: StorageClassInput;
+};
+
+
+export type StorageK8sIoV1MutationCreateVolumeAttachmentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: VolumeAttachmentInput;
+};
+
+
+export type StorageK8sIoV1MutationDeleteCsiDriverArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1MutationDeleteCsiStorageCapacityArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1MutationDeleteStorageClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1MutationDeleteVolumeAttachmentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1MutationUpdateCsiDriverArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: CsiDriverInput;
+};
+
+
+export type StorageK8sIoV1MutationUpdateCsiStorageCapacityArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CsiStorageCapacityInput;
+};
+
+
+export type StorageK8sIoV1MutationUpdateStorageClassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: StorageClassInput;
+};
+
+
+export type StorageK8sIoV1MutationUpdateVolumeAttachmentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: VolumeAttachmentInput;
+};
+
+export type StorageK8sIoV1Query = {
+  __typename?: 'StorageK8sIoV1Query';
+  CSIDriver: CsiDriver;
+  CSIDriverYaml: Scalars['String']['output'];
+  CSIDrivers: CsiDriverList;
+  CSIStorageCapacities: CsiStorageCapacityList;
+  CSIStorageCapacity: CsiStorageCapacity;
+  CSIStorageCapacityYaml: Scalars['String']['output'];
+  StorageClass: StorageClass;
+  StorageClassYaml: Scalars['String']['output'];
+  StorageClasses: StorageClassList;
+  VolumeAttachment: VolumeAttachment;
+  VolumeAttachmentYaml: Scalars['String']['output'];
+  VolumeAttachments: VolumeAttachmentList;
+};
+
+
+export type StorageK8sIoV1QueryCsiDriverArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryCsiDriverYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryCsiDriversArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1QueryCsiStorageCapacitiesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1QueryCsiStorageCapacityArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1QueryCsiStorageCapacityYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1QueryStorageClassArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryStorageClassYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryStorageClassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type StorageK8sIoV1QueryVolumeAttachmentArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryVolumeAttachmentYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type StorageK8sIoV1QueryVolumeAttachmentsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SubjectAccessReview = {
@@ -6039,12 +9951,2223 @@ export type SubjectAccessReview = {
   status?: Maybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatus>;
 };
 
+export type SubjectAccessReviewEvent = {
+  __typename?: 'SubjectAccessReviewEvent';
+  object?: Maybe<SubjectAccessReview>;
+  type: WatchEventType;
+};
+
 export type SubjectAccessReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Authorization_V1_SubjectAccessReviewStatusstatusInput>;
+};
+
+export type SubjectAccessReviewList = {
+  __typename?: 'SubjectAccessReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<SubjectAccessReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  /** Subscribe to changes of MutatingWebhookConfiguration */
+  admissionregistration_k8s_io_v1_mutatingwebhookconfiguration?: Maybe<MutatingWebhookConfigurationEvent>;
+  /** Subscribe to changes of MutatingWebhookConfigurations */
+  admissionregistration_k8s_io_v1_mutatingwebhookconfigurations?: Maybe<MutatingWebhookConfigurationEvent>;
+  /** Subscribe to changes of ValidatingAdmissionPolicies */
+  admissionregistration_k8s_io_v1_validatingadmissionpolicies?: Maybe<ValidatingAdmissionPolicyEvent>;
+  /** Subscribe to changes of ValidatingAdmissionPolicy */
+  admissionregistration_k8s_io_v1_validatingadmissionpolicy?: Maybe<ValidatingAdmissionPolicyEvent>;
+  /** Subscribe to changes of ValidatingAdmissionPolicyBinding */
+  admissionregistration_k8s_io_v1_validatingadmissionpolicybinding?: Maybe<ValidatingAdmissionPolicyBindingEvent>;
+  /** Subscribe to changes of ValidatingAdmissionPolicyBindings */
+  admissionregistration_k8s_io_v1_validatingadmissionpolicybindings?: Maybe<ValidatingAdmissionPolicyBindingEvent>;
+  /** Subscribe to changes of ValidatingWebhookConfiguration */
+  admissionregistration_k8s_io_v1_validatingwebhookconfiguration?: Maybe<ValidatingWebhookConfigurationEvent>;
+  /** Subscribe to changes of ValidatingWebhookConfigurations */
+  admissionregistration_k8s_io_v1_validatingwebhookconfigurations?: Maybe<ValidatingWebhookConfigurationEvent>;
+  /** Subscribe to changes of CustomResourceDefinition */
+  apiextensions_k8s_io_v1_customresourcedefinition?: Maybe<CustomResourceDefinitionEvent>;
+  /** Subscribe to changes of CustomResourceDefinitions */
+  apiextensions_k8s_io_v1_customresourcedefinitions?: Maybe<CustomResourceDefinitionEvent>;
+  /** Subscribe to changes of APIService */
+  apiregistration_k8s_io_v1_apiservice?: Maybe<ApiServiceEvent>;
+  /** Subscribe to changes of APIServices */
+  apiregistration_k8s_io_v1_apiservices?: Maybe<ApiServiceEvent>;
+  /** Subscribe to changes of OpenIDConnect */
+  authentication_gardener_cloud_v1alpha1_openidconnect?: Maybe<OpenIdConnectEvent>;
+  /** Subscribe to changes of OpenIDConnects */
+  authentication_gardener_cloud_v1alpha1_openidconnects?: Maybe<OpenIdConnectEvent>;
+  /** Subscribe to changes of SelfSubjectReview */
+  authentication_k8s_io_v1_selfsubjectreview?: Maybe<SelfSubjectReviewEvent>;
+  /** Subscribe to changes of SelfSubjectReviews */
+  authentication_k8s_io_v1_selfsubjectreviews?: Maybe<SelfSubjectReviewEvent>;
+  /** Subscribe to changes of TokenRequest */
+  authentication_k8s_io_v1_tokenrequest?: Maybe<TokenRequestEvent>;
+  /** Subscribe to changes of TokenRequests */
+  authentication_k8s_io_v1_tokenrequests?: Maybe<TokenRequestEvent>;
+  /** Subscribe to changes of TokenReview */
+  authentication_k8s_io_v1_tokenreview?: Maybe<TokenReviewEvent>;
+  /** Subscribe to changes of TokenReviews */
+  authentication_k8s_io_v1_tokenreviews?: Maybe<TokenReviewEvent>;
+  /** Subscribe to changes of LocalSubjectAccessReview */
+  authorization_k8s_io_v1_localsubjectaccessreview?: Maybe<LocalSubjectAccessReviewEvent>;
+  /** Subscribe to changes of LocalSubjectAccessReviews */
+  authorization_k8s_io_v1_localsubjectaccessreviews?: Maybe<LocalSubjectAccessReviewEvent>;
+  /** Subscribe to changes of SelfSubjectAccessReview */
+  authorization_k8s_io_v1_selfsubjectaccessreview?: Maybe<SelfSubjectAccessReviewEvent>;
+  /** Subscribe to changes of SelfSubjectAccessReviews */
+  authorization_k8s_io_v1_selfsubjectaccessreviews?: Maybe<SelfSubjectAccessReviewEvent>;
+  /** Subscribe to changes of SelfSubjectRulesReview */
+  authorization_k8s_io_v1_selfsubjectrulesreview?: Maybe<SelfSubjectRulesReviewEvent>;
+  /** Subscribe to changes of SelfSubjectRulesReviews */
+  authorization_k8s_io_v1_selfsubjectrulesreviews?: Maybe<SelfSubjectRulesReviewEvent>;
+  /** Subscribe to changes of SubjectAccessReview */
+  authorization_k8s_io_v1_subjectaccessreview?: Maybe<SubjectAccessReviewEvent>;
+  /** Subscribe to changes of SubjectAccessReviews */
+  authorization_k8s_io_v1_subjectaccessreviews?: Maybe<SubjectAccessReviewEvent>;
+  /** Subscribe to changes of HorizontalPodAutoscaler */
+  autoscaling_v1_horizontalpodautoscaler?: Maybe<HorizontalPodAutoscalerEvent>;
+  /** Subscribe to changes of HorizontalPodAutoscalers */
+  autoscaling_v1_horizontalpodautoscalers?: Maybe<HorizontalPodAutoscalerEvent>;
+  /** Subscribe to changes of Scale */
+  autoscaling_v1_scale?: Maybe<ScaleEvent>;
+  /** Subscribe to changes of Scales */
+  autoscaling_v1_scales?: Maybe<ScaleEvent>;
+  /** Subscribe to changes of Certificate */
+  cert_gardener_cloud_v1alpha1_certificate?: Maybe<CertificateEvent>;
+  /** Subscribe to changes of CertificateRevocation */
+  cert_gardener_cloud_v1alpha1_certificaterevocation?: Maybe<CertificateRevocationEvent>;
+  /** Subscribe to changes of CertificateRevocations */
+  cert_gardener_cloud_v1alpha1_certificaterevocations?: Maybe<CertificateRevocationEvent>;
+  /** Subscribe to changes of Certificates */
+  cert_gardener_cloud_v1alpha1_certificates?: Maybe<CertificateEvent>;
+  /** Subscribe to changes of CertificateSigningRequest */
+  certificates_k8s_io_v1_certificatesigningrequest?: Maybe<CertificateSigningRequestEvent>;
+  /** Subscribe to changes of CertificateSigningRequests */
+  certificates_k8s_io_v1_certificatesigningrequests?: Maybe<CertificateSigningRequestEvent>;
+  /** Subscribe to changes of Lease */
+  coordination_k8s_io_v1_lease?: Maybe<LeaseEvent>;
+  /** Subscribe to changes of Leases */
+  coordination_k8s_io_v1_leases?: Maybe<LeaseEvent>;
+  /** Subscribe to changes of APIServer */
+  core_openmcp_cloud_v1alpha1_apiserver?: Maybe<ApiServerEvent>;
+  /** Subscribe to changes of APIServers */
+  core_openmcp_cloud_v1alpha1_apiservers?: Maybe<ApiServerEvent>;
+  /** Subscribe to changes of Authentication */
+  core_openmcp_cloud_v1alpha1_authentication?: Maybe<AuthenticationEvent>;
+  /** Subscribe to changes of Authentications */
+  core_openmcp_cloud_v1alpha1_authentications?: Maybe<AuthenticationEvent>;
+  /** Subscribe to changes of Authorization */
+  core_openmcp_cloud_v1alpha1_authorization?: Maybe<AuthorizationEvent>;
+  /** Subscribe to changes of Authorizations */
+  core_openmcp_cloud_v1alpha1_authorizations?: Maybe<AuthorizationEvent>;
+  /** Subscribe to changes of CloudOrchestrator */
+  core_openmcp_cloud_v1alpha1_cloudorchestrator?: Maybe<CloudOrchestratorEvent>;
+  /** Subscribe to changes of CloudOrchestrators */
+  core_openmcp_cloud_v1alpha1_cloudorchestrators?: Maybe<CloudOrchestratorEvent>;
+  /** Subscribe to changes of ClusterAdmin */
+  core_openmcp_cloud_v1alpha1_clusteradmin?: Maybe<ClusterAdminEvent>;
+  /** Subscribe to changes of ClusterAdmins */
+  core_openmcp_cloud_v1alpha1_clusteradmins?: Maybe<ClusterAdminEvent>;
+  /** Subscribe to changes of InternalConfiguration */
+  core_openmcp_cloud_v1alpha1_internalconfiguration?: Maybe<InternalConfigurationEvent>;
+  /** Subscribe to changes of InternalConfigurations */
+  core_openmcp_cloud_v1alpha1_internalconfigurations?: Maybe<InternalConfigurationEvent>;
+  /** Subscribe to changes of Landscaper */
+  core_openmcp_cloud_v1alpha1_landscaper?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  /** Subscribe to changes of Landscapers */
+  core_openmcp_cloud_v1alpha1_landscapers?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  /** Subscribe to changes of ManagedComponent */
+  core_openmcp_cloud_v1alpha1_managedcomponent?: Maybe<ManagedComponentEvent>;
+  /** Subscribe to changes of ManagedComponents */
+  core_openmcp_cloud_v1alpha1_managedcomponents?: Maybe<ManagedComponentEvent>;
+  /** Subscribe to changes of ManagedControlPlane */
+  core_openmcp_cloud_v1alpha1_managedcontrolplane?: Maybe<ManagedControlPlaneEvent>;
+  /** Subscribe to changes of ManagedControlPlanes */
+  core_openmcp_cloud_v1alpha1_managedcontrolplanes?: Maybe<ManagedControlPlaneEvent>;
+  /** Subscribe to changes of MemberOverrides */
+  core_openmcp_cloud_v1alpha1_memberoverrides?: Maybe<MemberOverridesEvent>;
+  /** Subscribe to changes of Project */
+  core_openmcp_cloud_v1alpha1_project?: Maybe<ProjectEvent>;
+  /** Subscribe to changes of Projects */
+  core_openmcp_cloud_v1alpha1_projects?: Maybe<ProjectEvent>;
+  /** Subscribe to changes of ProjectWorkspaceConfig */
+  core_openmcp_cloud_v1alpha1_projectworkspaceconfig?: Maybe<ProjectWorkspaceConfigEvent>;
+  /** Subscribe to changes of ProjectWorkspaceConfigs */
+  core_openmcp_cloud_v1alpha1_projectworkspaceconfigs?: Maybe<ProjectWorkspaceConfigEvent>;
+  /** Subscribe to changes of Workspace */
+  core_openmcp_cloud_v1alpha1_workspace?: Maybe<WorkspaceEvent>;
+  /** Subscribe to changes of Workspaces */
+  core_openmcp_cloud_v1alpha1_workspaces?: Maybe<WorkspaceEvent>;
+  /** Subscribe to changes of ManagedControlPlaneV2 */
+  core_openmcp_cloud_v2alpha1_managedcontrolplanev2?: Maybe<ManagedControlPlaneV2Event>;
+  /** Subscribe to changes of ManagedControlPlaneV2s */
+  core_openmcp_cloud_v2alpha1_managedcontrolplanev2s?: Maybe<ManagedControlPlaneV2Event>;
+  /** Subscribe to changes of Crossplane */
+  crossplane_services_openmcp_cloud_v1alpha1_crossplane?: Maybe<CrossplaneEvent>;
+  /** Subscribe to changes of Crossplanes */
+  crossplane_services_openmcp_cloud_v1alpha1_crossplanes?: Maybe<CrossplaneEvent>;
+  /** Subscribe to changes of DNSAnnotation */
+  dns_gardener_cloud_v1alpha1_dnsannotation?: Maybe<DnsAnnotationEvent>;
+  /** Subscribe to changes of DNSAnnotations */
+  dns_gardener_cloud_v1alpha1_dnsannotations?: Maybe<DnsAnnotationEvent>;
+  /** Subscribe to changes of DNSEntries */
+  dns_gardener_cloud_v1alpha1_dnsentries?: Maybe<DnsEntryEvent>;
+  /** Subscribe to changes of DNSEntry */
+  dns_gardener_cloud_v1alpha1_dnsentry?: Maybe<DnsEntryEvent>;
+  /** Subscribe to changes of Event */
+  events_k8s_io_v1_event?: Maybe<EventEvent>;
+  /** Subscribe to changes of Events */
+  events_k8s_io_v1_events?: Maybe<EventEvent>;
+  /** Subscribe to changes of DNSEndpoint */
+  externaldns_k8s_io_v1alpha1_dnsendpoint?: Maybe<DnsEndpointEvent>;
+  /** Subscribe to changes of DNSEndpoints */
+  externaldns_k8s_io_v1alpha1_dnsendpoints?: Maybe<DnsEndpointEvent>;
+  /** Subscribe to changes of FlowSchema */
+  flowcontrol_apiserver_k8s_io_v1_flowschema?: Maybe<FlowSchemaEvent>;
+  /** Subscribe to changes of FlowSchemas */
+  flowcontrol_apiserver_k8s_io_v1_flowschemas?: Maybe<FlowSchemaEvent>;
+  /** Subscribe to changes of PriorityLevelConfiguration */
+  flowcontrol_apiserver_k8s_io_v1_prioritylevelconfiguration?: Maybe<PriorityLevelConfigurationEvent>;
+  /** Subscribe to changes of PriorityLevelConfigurations */
+  flowcontrol_apiserver_k8s_io_v1_prioritylevelconfigurations?: Maybe<PriorityLevelConfigurationEvent>;
+  /** Subscribe to changes of ManagedControlPlaneTemplate */
+  kro_run_v1alpha1_managedcontrolplanetemplate?: Maybe<ManagedControlPlaneTemplateEvent>;
+  /** Subscribe to changes of ManagedControlPlaneTemplates */
+  kro_run_v1alpha1_managedcontrolplanetemplates?: Maybe<ManagedControlPlaneTemplateEvent>;
+  /** Subscribe to changes of NoOp */
+  kro_run_v1alpha1_noop?: Maybe<NoOpEvent>;
+  /** Subscribe to changes of NoOps */
+  kro_run_v1alpha1_noops?: Maybe<NoOpEvent>;
+  /** Subscribe to changes of ResourceGraphDefinition */
+  kro_run_v1alpha1_resourcegraphdefinition?: Maybe<ResourceGraphDefinitionEvent>;
+  /** Subscribe to changes of ResourceGraphDefinitions */
+  kro_run_v1alpha1_resourcegraphdefinitions?: Maybe<ResourceGraphDefinitionEvent>;
+  /** Subscribe to changes of Landscaper */
+  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperEvent>;
+  /** Subscribe to changes of Landscapers */
+  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperEvent>;
+  /** Subscribe to changes of Ingress */
+  networking_k8s_io_v1_ingress?: Maybe<IngressEvent>;
+  /** Subscribe to changes of IngressClass */
+  networking_k8s_io_v1_ingressclass?: Maybe<IngressClassEvent>;
+  /** Subscribe to changes of IngressClasses */
+  networking_k8s_io_v1_ingressclasses?: Maybe<IngressClassEvent>;
+  /** Subscribe to changes of Ingresses */
+  networking_k8s_io_v1_ingresses?: Maybe<IngressEvent>;
+  /** Subscribe to changes of NetworkPolicies */
+  networking_k8s_io_v1_networkpolicies?: Maybe<NetworkPolicyEvent>;
+  /** Subscribe to changes of NetworkPolicy */
+  networking_k8s_io_v1_networkpolicy?: Maybe<NetworkPolicyEvent>;
+  /** Subscribe to changes of RuntimeClass */
+  node_k8s_io_v1_runtimeclass?: Maybe<RuntimeClassEvent>;
+  /** Subscribe to changes of RuntimeClasses */
+  node_k8s_io_v1_runtimeclasses?: Maybe<RuntimeClassEvent>;
+  /** Subscribe to changes of QuotaIncrease */
+  openmcp_cloud_v1alpha1_quotaincrease?: Maybe<QuotaIncreaseEvent>;
+  /** Subscribe to changes of QuotaIncreases */
+  openmcp_cloud_v1alpha1_quotaincreases?: Maybe<QuotaIncreaseEvent>;
+  /** Subscribe to changes of TypedLabelValidationParams */
+  openmcp_cloud_v1alpha1_typedlabelvalidationparams?: Maybe<TypedLabelValidationParamsEvent>;
+  /** Subscribe to changes of Eviction */
+  policy_v1_eviction?: Maybe<EvictionEvent>;
+  /** Subscribe to changes of Evictions */
+  policy_v1_evictions?: Maybe<EvictionEvent>;
+  /** Subscribe to changes of ClusterRole */
+  rbac_authorization_k8s_io_v1_clusterrole?: Maybe<ClusterRoleEvent>;
+  /** Subscribe to changes of ClusterRoleBinding */
+  rbac_authorization_k8s_io_v1_clusterrolebinding?: Maybe<ClusterRoleBindingEvent>;
+  /** Subscribe to changes of ClusterRoleBindings */
+  rbac_authorization_k8s_io_v1_clusterrolebindings?: Maybe<ClusterRoleBindingEvent>;
+  /** Subscribe to changes of ClusterRoles */
+  rbac_authorization_k8s_io_v1_clusterroles?: Maybe<ClusterRoleEvent>;
+  /** Subscribe to changes of Role */
+  rbac_authorization_k8s_io_v1_role?: Maybe<RoleEvent>;
+  /** Subscribe to changes of RoleBinding */
+  rbac_authorization_k8s_io_v1_rolebinding?: Maybe<RoleBindingEvent>;
+  /** Subscribe to changes of RoleBindings */
+  rbac_authorization_k8s_io_v1_rolebindings?: Maybe<RoleBindingEvent>;
+  /** Subscribe to changes of Roles */
+  rbac_authorization_k8s_io_v1_roles?: Maybe<RoleEvent>;
+  /** Subscribe to changes of PriorityClass */
+  scheduling_k8s_io_v1_priorityclass?: Maybe<PriorityClassEvent>;
+  /** Subscribe to changes of PriorityClasses */
+  scheduling_k8s_io_v1_priorityclasses?: Maybe<PriorityClassEvent>;
+  /** Subscribe to changes of CSIDriver */
+  storage_k8s_io_v1_csidriver?: Maybe<CsiDriverEvent>;
+  /** Subscribe to changes of CSIDrivers */
+  storage_k8s_io_v1_csidrivers?: Maybe<CsiDriverEvent>;
+  /** Subscribe to changes of CSIStorageCapacities */
+  storage_k8s_io_v1_csistoragecapacities?: Maybe<CsiStorageCapacityEvent>;
+  /** Subscribe to changes of CSIStorageCapacity */
+  storage_k8s_io_v1_csistoragecapacity?: Maybe<CsiStorageCapacityEvent>;
+  /** Subscribe to changes of StorageClass */
+  storage_k8s_io_v1_storageclass?: Maybe<StorageClassEvent>;
+  /** Subscribe to changes of StorageClasses */
+  storage_k8s_io_v1_storageclasses?: Maybe<StorageClassEvent>;
+  /** Subscribe to changes of VolumeAttachment */
+  storage_k8s_io_v1_volumeattachment?: Maybe<VolumeAttachmentEvent>;
+  /** Subscribe to changes of VolumeAttachments */
+  storage_k8s_io_v1_volumeattachments?: Maybe<VolumeAttachmentEvent>;
+  /** Subscribe to changes of MCPUsage */
+  usage_openmcp_cloud_v1_mcpusage?: Maybe<McpUsageEvent>;
+  /** Subscribe to changes of MCPUsages */
+  usage_openmcp_cloud_v1_mcpusages?: Maybe<McpUsageEvent>;
+  /** Subscribe to changes of APIGroup */
+  v1_apigroup?: Maybe<ApiGroupEvent>;
+  /** Subscribe to changes of APIGroups */
+  v1_apigroups?: Maybe<ApiGroupEvent>;
+  /** Subscribe to changes of APIVersions */
+  v1_apiversions?: Maybe<ApiVersionsEvent>;
+  /** Subscribe to changes of Binding */
+  v1_binding?: Maybe<BindingEvent>;
+  /** Subscribe to changes of Bindings */
+  v1_bindings?: Maybe<BindingEvent>;
+  /** Subscribe to changes of ComponentStatus */
+  v1_componentstatus?: Maybe<ComponentStatusEvent>;
+  /** Subscribe to changes of ComponentStatuses */
+  v1_componentstatuses?: Maybe<ComponentStatusEvent>;
+  /** Subscribe to changes of ConfigMap */
+  v1_configmap?: Maybe<ConfigMapEvent>;
+  /** Subscribe to changes of ConfigMaps */
+  v1_configmaps?: Maybe<ConfigMapEvent>;
+  /** Subscribe to changes of DeleteOptions */
+  v1_deleteoptions?: Maybe<DeleteOptionsEvent>;
+  /** Subscribe to changes of Endpoints */
+  v1_endpoints?: Maybe<EndpointsEvent>;
+  /** Subscribe to changes of Event */
+  v1_event?: Maybe<V1EventEvent>;
+  /** Subscribe to changes of Events */
+  v1_events?: Maybe<V1EventEvent>;
+  /** Subscribe to changes of LimitRange */
+  v1_limitrange?: Maybe<LimitRangeEvent>;
+  /** Subscribe to changes of LimitRanges */
+  v1_limitranges?: Maybe<LimitRangeEvent>;
+  /** Subscribe to changes of Namespace */
+  v1_namespace?: Maybe<NamespaceEvent>;
+  /** Subscribe to changes of Namespaces */
+  v1_namespaces?: Maybe<NamespaceEvent>;
+  /** Subscribe to changes of Node */
+  v1_node?: Maybe<NodeEvent>;
+  /** Subscribe to changes of Nodes */
+  v1_nodes?: Maybe<NodeEvent>;
+  /** Subscribe to changes of PersistentVolume */
+  v1_persistentvolume?: Maybe<PersistentVolumeEvent>;
+  /** Subscribe to changes of PersistentVolumeClaim */
+  v1_persistentvolumeclaim?: Maybe<PersistentVolumeClaimEvent>;
+  /** Subscribe to changes of PersistentVolumeClaims */
+  v1_persistentvolumeclaims?: Maybe<PersistentVolumeClaimEvent>;
+  /** Subscribe to changes of PersistentVolumes */
+  v1_persistentvolumes?: Maybe<PersistentVolumeEvent>;
+  /** Subscribe to changes of Pod */
+  v1_pod?: Maybe<PodEvent>;
+  /** Subscribe to changes of Pods */
+  v1_pods?: Maybe<PodEvent>;
+  /** Subscribe to changes of PodTemplate */
+  v1_podtemplate?: Maybe<PodTemplateEvent>;
+  /** Subscribe to changes of PodTemplates */
+  v1_podtemplates?: Maybe<PodTemplateEvent>;
+  /** Subscribe to changes of ReplicationController */
+  v1_replicationcontroller?: Maybe<ReplicationControllerEvent>;
+  /** Subscribe to changes of ReplicationControllers */
+  v1_replicationcontrollers?: Maybe<ReplicationControllerEvent>;
+  /** Subscribe to changes of ResourceQuota */
+  v1_resourcequota?: Maybe<ResourceQuotaEvent>;
+  /** Subscribe to changes of ResourceQuotas */
+  v1_resourcequotas?: Maybe<ResourceQuotaEvent>;
+  /** Subscribe to changes of Secret */
+  v1_secret?: Maybe<SecretEvent>;
+  /** Subscribe to changes of Secrets */
+  v1_secrets?: Maybe<SecretEvent>;
+  /** Subscribe to changes of Service */
+  v1_service?: Maybe<ServiceEvent>;
+  /** Subscribe to changes of ServiceAccount */
+  v1_serviceaccount?: Maybe<ServiceAccountEvent>;
+  /** Subscribe to changes of ServiceAccounts */
+  v1_serviceaccounts?: Maybe<ServiceAccountEvent>;
+  /** Subscribe to changes of Services */
+  v1_services?: Maybe<ServiceEvent>;
+  /** Subscribe to changes of Status */
+  v1_status?: Maybe<StatusEvent>;
+  /** Subscribe to changes of Statuses */
+  v1_statuses?: Maybe<StatusEvent>;
+  /** Subscribe to changes of WatchEvent */
+  v1_watchevent?: Maybe<WatchEventEvent>;
+  /** Subscribe to changes of WatchEvents */
+  v1_watchevents?: Maybe<WatchEventEvent>;
+  /** Subscribe to changes of Backup */
+  velero_io_v1_backup?: Maybe<BackupEvent>;
+  /** Subscribe to changes of BackupRepositories */
+  velero_io_v1_backuprepositories?: Maybe<BackupRepositoryEvent>;
+  /** Subscribe to changes of BackupRepository */
+  velero_io_v1_backuprepository?: Maybe<BackupRepositoryEvent>;
+  /** Subscribe to changes of Backups */
+  velero_io_v1_backups?: Maybe<BackupEvent>;
+  /** Subscribe to changes of BackupStorageLocation */
+  velero_io_v1_backupstoragelocation?: Maybe<BackupStorageLocationEvent>;
+  /** Subscribe to changes of BackupStorageLocations */
+  velero_io_v1_backupstoragelocations?: Maybe<BackupStorageLocationEvent>;
+  /** Subscribe to changes of DeleteBackupRequest */
+  velero_io_v1_deletebackuprequest?: Maybe<DeleteBackupRequestEvent>;
+  /** Subscribe to changes of DeleteBackupRequests */
+  velero_io_v1_deletebackuprequests?: Maybe<DeleteBackupRequestEvent>;
+  /** Subscribe to changes of DownloadRequest */
+  velero_io_v1_downloadrequest?: Maybe<DownloadRequestEvent>;
+  /** Subscribe to changes of DownloadRequests */
+  velero_io_v1_downloadrequests?: Maybe<DownloadRequestEvent>;
+  /** Subscribe to changes of PodVolumeBackup */
+  velero_io_v1_podvolumebackup?: Maybe<PodVolumeBackupEvent>;
+  /** Subscribe to changes of PodVolumeBackups */
+  velero_io_v1_podvolumebackups?: Maybe<PodVolumeBackupEvent>;
+  /** Subscribe to changes of PodVolumeRestore */
+  velero_io_v1_podvolumerestore?: Maybe<PodVolumeRestoreEvent>;
+  /** Subscribe to changes of PodVolumeRestores */
+  velero_io_v1_podvolumerestores?: Maybe<PodVolumeRestoreEvent>;
+  /** Subscribe to changes of Restore */
+  velero_io_v1_restore?: Maybe<RestoreEvent>;
+  /** Subscribe to changes of Restores */
+  velero_io_v1_restores?: Maybe<RestoreEvent>;
+  /** Subscribe to changes of Schedule */
+  velero_io_v1_schedule?: Maybe<ScheduleEvent>;
+  /** Subscribe to changes of Schedules */
+  velero_io_v1_schedules?: Maybe<ScheduleEvent>;
+  /** Subscribe to changes of ServerStatusRequest */
+  velero_io_v1_serverstatusrequest?: Maybe<ServerStatusRequestEvent>;
+  /** Subscribe to changes of ServerStatusRequests */
+  velero_io_v1_serverstatusrequests?: Maybe<ServerStatusRequestEvent>;
+  /** Subscribe to changes of VolumeSnapshotLocation */
+  velero_io_v1_volumesnapshotlocation?: Maybe<VolumeSnapshotLocationEvent>;
+  /** Subscribe to changes of VolumeSnapshotLocations */
+  velero_io_v1_volumesnapshotlocations?: Maybe<VolumeSnapshotLocationEvent>;
+  /** Subscribe to changes of DataDownload */
+  velero_io_v2alpha1_datadownload?: Maybe<DataDownloadEvent>;
+  /** Subscribe to changes of DataDownloads */
+  velero_io_v2alpha1_datadownloads?: Maybe<DataDownloadEvent>;
+  /** Subscribe to changes of DataUpload */
+  velero_io_v2alpha1_dataupload?: Maybe<DataUploadEvent>;
+  /** Subscribe to changes of DataUploads */
+  velero_io_v2alpha1_datauploads?: Maybe<DataUploadEvent>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_MutatingwebhookconfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_MutatingwebhookconfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingadmissionpoliciesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingadmissionpolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingadmissionpolicybindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingadmissionpolicybindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingwebhookconfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAdmissionregistration_K8s_Io_V1_ValidatingwebhookconfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionApiextensions_K8s_Io_V1_CustomresourcedefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionApiextensions_K8s_Io_V1_CustomresourcedefinitionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionApiregistration_K8s_Io_V1_ApiserviceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionApiregistration_K8s_Io_V1_ApiservicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_Gardener_Cloud_V1alpha1_OpenidconnectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_Gardener_Cloud_V1alpha1_OpenidconnectsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_SelfsubjectreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_SelfsubjectreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_TokenrequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_TokenrequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_TokenreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthentication_K8s_Io_V1_TokenreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_LocalsubjectaccessreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_LocalsubjectaccessreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SelfsubjectaccessreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SelfsubjectaccessreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SelfsubjectrulesreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SelfsubjectrulesreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SubjectaccessreviewArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAuthorization_K8s_Io_V1_SubjectaccessreviewsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAutoscaling_V1_HorizontalpodautoscalerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAutoscaling_V1_HorizontalpodautoscalersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAutoscaling_V1_ScaleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionAutoscaling_V1_ScalesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCert_Gardener_Cloud_V1alpha1_CertificateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCert_Gardener_Cloud_V1alpha1_CertificaterevocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCert_Gardener_Cloud_V1alpha1_CertificaterevocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCert_Gardener_Cloud_V1alpha1_CertificatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCertificates_K8s_Io_V1_CertificatesigningrequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCertificates_K8s_Io_V1_CertificatesigningrequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCoordination_K8s_Io_V1_LeaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCoordination_K8s_Io_V1_LeasesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ApiserverArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ApiserversArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_AuthenticationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_AuthenticationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_AuthorizationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_AuthorizationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_CloudorchestratorArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_CloudorchestratorsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ClusteradminArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ClusteradminsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_InternalconfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_InternalconfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_LandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_LandscapersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ManagedcomponentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ManagedcomponentsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ManagedcontrolplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ManagedcontrolplanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_MemberoverridesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ProjectArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ProjectsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ProjectworkspaceconfigArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ProjectworkspaceconfigsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_WorkspaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V1alpha1_WorkspacesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V2alpha1_Managedcontrolplanev2Args = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCore_Openmcp_Cloud_V2alpha1_Managedcontrolplanev2sArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCrossplane_Services_Openmcp_Cloud_V1alpha1_CrossplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionCrossplane_Services_Openmcp_Cloud_V1alpha1_CrossplanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionDns_Gardener_Cloud_V1alpha1_DnsannotationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionDns_Gardener_Cloud_V1alpha1_DnsannotationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionDns_Gardener_Cloud_V1alpha1_DnsentriesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionDns_Gardener_Cloud_V1alpha1_DnsentryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionEvents_K8s_Io_V1_EventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionEvents_K8s_Io_V1_EventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionExternaldns_K8s_Io_V1alpha1_DnsendpointArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionExternaldns_K8s_Io_V1alpha1_DnsendpointsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionFlowcontrol_Apiserver_K8s_Io_V1_FlowschemaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionFlowcontrol_Apiserver_K8s_Io_V1_FlowschemasArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionFlowcontrol_Apiserver_K8s_Io_V1_PrioritylevelconfigurationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionFlowcontrol_Apiserver_K8s_Io_V1_PrioritylevelconfigurationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_ManagedcontrolplanetemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_ManagedcontrolplanetemplatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_NoopArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_NoopsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_ResourcegraphdefinitionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionKro_Run_V1alpha1_ResourcegraphdefinitionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionLandscaper_Services_Openmcp_Cloud_V1alpha2_LandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionLandscaper_Services_Openmcp_Cloud_V1alpha2_LandscapersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_IngressArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_IngressclassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_IngressclassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_IngressesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_NetworkpoliciesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNetworking_K8s_Io_V1_NetworkpolicyArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNode_K8s_Io_V1_RuntimeclassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionNode_K8s_Io_V1_RuntimeclassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionOpenmcp_Cloud_V1alpha1_QuotaincreaseArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionOpenmcp_Cloud_V1alpha1_QuotaincreasesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionOpenmcp_Cloud_V1alpha1_TypedlabelvalidationparamsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionPolicy_V1_EvictionArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionPolicy_V1_EvictionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_ClusterroleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_ClusterrolebindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_ClusterrolebindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_ClusterrolesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_RoleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_RolebindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_RolebindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionRbac_Authorization_K8s_Io_V1_RolesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionScheduling_K8s_Io_V1_PriorityclassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionScheduling_K8s_Io_V1_PriorityclassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_CsidriverArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_CsidriversArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_CsistoragecapacitiesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_CsistoragecapacityArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_StorageclassArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_StorageclassesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_VolumeattachmentArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionStorage_K8s_Io_V1_VolumeattachmentsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionUsage_Openmcp_Cloud_V1_McpusageArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionUsage_Openmcp_Cloud_V1_McpusagesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ApigroupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ApigroupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ApiversionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_BindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_BindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ComponentstatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ComponentstatusesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ConfigmapArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ConfigmapsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_DeleteoptionsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_EndpointsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_EventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_EventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_LimitrangeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_LimitrangesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_NamespaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_NamespacesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_NodeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_NodesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PersistentvolumeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PersistentvolumeclaimArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PersistentvolumeclaimsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PersistentvolumesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PodArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PodsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PodtemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_PodtemplatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ReplicationcontrollerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ReplicationcontrollersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ResourcequotaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ResourcequotasArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_SecretArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_SecretsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ServiceaccountArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ServiceaccountsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_ServicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_StatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_StatusesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_WatcheventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionV1_WatcheventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackuprepositoriesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackuprepositoryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackupstoragelocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_BackupstoragelocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_DeletebackuprequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_DeletebackuprequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_DownloadrequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_DownloadrequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_PodvolumebackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_PodvolumebackupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_PodvolumerestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_PodvolumerestoresArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_RestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_RestoresArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_ScheduleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_SchedulesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_ServerstatusrequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_ServerstatusrequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_VolumesnapshotlocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V1_VolumesnapshotlocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V2alpha1_DatadownloadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V2alpha1_DatadownloadsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V2alpha1_DatauploadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionVelero_Io_V2alpha1_DatauploadsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type TokenRequest = {
@@ -6056,12 +12179,26 @@ export type TokenRequest = {
   status?: Maybe<Io_K8s_Api_Authentication_V1_TokenRequestStatusstatus>;
 };
 
+export type TokenRequestEvent = {
+  __typename?: 'TokenRequestEvent';
+  object?: Maybe<TokenRequest>;
+  type: WatchEventType;
+};
+
 export type TokenRequestInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Authentication_V1_TokenRequestSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Authentication_V1_TokenRequestStatusstatusInput>;
+};
+
+export type TokenRequestList = {
+  __typename?: 'TokenRequestList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<TokenRequest>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type TokenReview = {
@@ -6073,12 +12210,26 @@ export type TokenReview = {
   status?: Maybe<Io_K8s_Api_Authentication_V1_TokenReviewStatusstatus>;
 };
 
+export type TokenReviewEvent = {
+  __typename?: 'TokenReviewEvent';
+  object?: Maybe<TokenReview>;
+  type: WatchEventType;
+};
+
 export type TokenReviewInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Authentication_V1_TokenReviewSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Authentication_V1_TokenReviewStatusstatusInput>;
+};
+
+export type TokenReviewList = {
+  __typename?: 'TokenReviewList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<TokenReview>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type TypedLabelValidationParams = {
@@ -6088,7 +12239,13 @@ export type TypedLabelValidationParams = {
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
   typeLabel?: Maybe<Scalars['String']['output']>;
   valueLabel?: Maybe<Scalars['String']['output']>;
-  valueRegexes?: Maybe<Scalars['String']['output']>;
+  valueRegexes?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type TypedLabelValidationParamsEvent = {
+  __typename?: 'TypedLabelValidationParamsEvent';
+  object?: Maybe<TypedLabelValidationParams>;
+  type: WatchEventType;
 };
 
 export type TypedLabelValidationParamsInput = {
@@ -6097,7 +12254,1127 @@ export type TypedLabelValidationParamsInput = {
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   typeLabel?: InputMaybe<Scalars['String']['input']>;
   valueLabel?: InputMaybe<Scalars['String']['input']>;
-  valueRegexes?: InputMaybe<Scalars['String']['input']>;
+  valueRegexes?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type UsageOpenmcpCloudMutation = {
+  __typename?: 'UsageOpenmcpCloudMutation';
+  v1?: Maybe<UsageOpenmcpCloudV1Mutation>;
+};
+
+export type UsageOpenmcpCloudQuery = {
+  __typename?: 'UsageOpenmcpCloudQuery';
+  v1?: Maybe<UsageOpenmcpCloudV1Query>;
+};
+
+export type UsageOpenmcpCloudV1Mutation = {
+  __typename?: 'UsageOpenmcpCloudV1Mutation';
+  createMCPUsage?: Maybe<McpUsage>;
+  deleteMCPUsage?: Maybe<Scalars['Boolean']['output']>;
+  updateMCPUsage?: Maybe<McpUsage>;
+};
+
+
+export type UsageOpenmcpCloudV1MutationCreateMcpUsageArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: McpUsageInput;
+};
+
+
+export type UsageOpenmcpCloudV1MutationDeleteMcpUsageArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type UsageOpenmcpCloudV1MutationUpdateMcpUsageArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: McpUsageInput;
+};
+
+export type UsageOpenmcpCloudV1Query = {
+  __typename?: 'UsageOpenmcpCloudV1Query';
+  MCPUsage: McpUsage;
+  MCPUsageYaml: Scalars['String']['output'];
+  MCPUsages: McpUsageList;
+};
+
+
+export type UsageOpenmcpCloudV1QueryMcpUsageArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type UsageOpenmcpCloudV1QueryMcpUsageYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type UsageOpenmcpCloudV1QueryMcpUsagesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type V1Event = {
+  __typename?: 'V1Event';
+  action?: Maybe<Scalars['String']['output']>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  count?: Maybe<Scalars['Int']['output']>;
+  eventTime?: Maybe<Scalars['String']['output']>;
+  firstTimestamp?: Maybe<Scalars['String']['output']>;
+  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
+  kind?: Maybe<Scalars['String']['output']>;
+  lastTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  reason?: Maybe<Scalars['String']['output']>;
+  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
+  reportingComponent?: Maybe<Scalars['String']['output']>;
+  reportingInstance?: Maybe<Scalars['String']['output']>;
+  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
+  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type V1EventEvent = {
+  __typename?: 'V1EventEvent';
+  object?: Maybe<V1Event>;
+  type: WatchEventType;
+};
+
+export type V1EventInput = {
+  action?: InputMaybe<Scalars['String']['input']>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  count?: InputMaybe<Scalars['Int']['input']>;
+  eventTime?: InputMaybe<Scalars['String']['input']>;
+  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
+  reportingComponent?: InputMaybe<Scalars['String']['input']>;
+  reportingInstance?: InputMaybe<Scalars['String']['input']>;
+  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
+  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type V1EventList = {
+  __typename?: 'V1EventList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<V1Event>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type V1Mutation = {
+  __typename?: 'V1Mutation';
+  createAPIGroup?: Maybe<ApiGroup>;
+  createAPIVersions?: Maybe<ApiVersions>;
+  createBinding?: Maybe<Binding>;
+  createComponentStatus?: Maybe<ComponentStatus>;
+  createConfigMap?: Maybe<ConfigMap>;
+  createDeleteOptions?: Maybe<DeleteOptions>;
+  createEndpoints?: Maybe<Endpoints>;
+  createEvent?: Maybe<V1Event>;
+  createLimitRange?: Maybe<LimitRange>;
+  createNamespace?: Maybe<Namespace>;
+  createNode?: Maybe<Node>;
+  createPersistentVolume?: Maybe<PersistentVolume>;
+  createPersistentVolumeClaim?: Maybe<PersistentVolumeClaim>;
+  createPod?: Maybe<Pod>;
+  createPodTemplate?: Maybe<PodTemplate>;
+  createReplicationController?: Maybe<ReplicationController>;
+  createResourceQuota?: Maybe<ResourceQuota>;
+  createSecret?: Maybe<Secret>;
+  createService?: Maybe<Service>;
+  createServiceAccount?: Maybe<ServiceAccount>;
+  createStatus?: Maybe<Status>;
+  createWatchEvent?: Maybe<WatchEvent>;
+  deleteAPIGroup?: Maybe<Scalars['Boolean']['output']>;
+  deleteAPIVersions?: Maybe<Scalars['Boolean']['output']>;
+  deleteBinding?: Maybe<Scalars['Boolean']['output']>;
+  deleteComponentStatus?: Maybe<Scalars['Boolean']['output']>;
+  deleteConfigMap?: Maybe<Scalars['Boolean']['output']>;
+  deleteDeleteOptions?: Maybe<Scalars['Boolean']['output']>;
+  deleteEndpoints?: Maybe<Scalars['Boolean']['output']>;
+  deleteEvent?: Maybe<Scalars['Boolean']['output']>;
+  deleteLimitRange?: Maybe<Scalars['Boolean']['output']>;
+  deleteNamespace?: Maybe<Scalars['Boolean']['output']>;
+  deleteNode?: Maybe<Scalars['Boolean']['output']>;
+  deletePersistentVolume?: Maybe<Scalars['Boolean']['output']>;
+  deletePersistentVolumeClaim?: Maybe<Scalars['Boolean']['output']>;
+  deletePod?: Maybe<Scalars['Boolean']['output']>;
+  deletePodTemplate?: Maybe<Scalars['Boolean']['output']>;
+  deleteReplicationController?: Maybe<Scalars['Boolean']['output']>;
+  deleteResourceQuota?: Maybe<Scalars['Boolean']['output']>;
+  deleteSecret?: Maybe<Scalars['Boolean']['output']>;
+  deleteService?: Maybe<Scalars['Boolean']['output']>;
+  deleteServiceAccount?: Maybe<Scalars['Boolean']['output']>;
+  deleteStatus?: Maybe<Scalars['Boolean']['output']>;
+  deleteWatchEvent?: Maybe<Scalars['Boolean']['output']>;
+  updateAPIGroup?: Maybe<ApiGroup>;
+  updateAPIVersions?: Maybe<ApiVersions>;
+  updateBinding?: Maybe<Binding>;
+  updateComponentStatus?: Maybe<ComponentStatus>;
+  updateConfigMap?: Maybe<ConfigMap>;
+  updateDeleteOptions?: Maybe<DeleteOptions>;
+  updateEndpoints?: Maybe<Endpoints>;
+  updateEvent?: Maybe<V1Event>;
+  updateLimitRange?: Maybe<LimitRange>;
+  updateNamespace?: Maybe<Namespace>;
+  updateNode?: Maybe<Node>;
+  updatePersistentVolume?: Maybe<PersistentVolume>;
+  updatePersistentVolumeClaim?: Maybe<PersistentVolumeClaim>;
+  updatePod?: Maybe<Pod>;
+  updatePodTemplate?: Maybe<PodTemplate>;
+  updateReplicationController?: Maybe<ReplicationController>;
+  updateResourceQuota?: Maybe<ResourceQuota>;
+  updateSecret?: Maybe<Secret>;
+  updateService?: Maybe<Service>;
+  updateServiceAccount?: Maybe<ServiceAccount>;
+  updateStatus?: Maybe<Status>;
+  updateWatchEvent?: Maybe<WatchEvent>;
+};
+
+
+export type V1MutationCreateApiGroupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ApiGroupInput;
+};
+
+
+export type V1MutationCreateApiVersionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ApiVersionsInput;
+};
+
+
+export type V1MutationCreateBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BindingInput;
+};
+
+
+export type V1MutationCreateComponentStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: ComponentStatusInput;
+};
+
+
+export type V1MutationCreateConfigMapArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ConfigMapInput;
+};
+
+
+export type V1MutationCreateDeleteOptionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: DeleteOptionsInput;
+};
+
+
+export type V1MutationCreateEndpointsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EndpointsInput;
+};
+
+
+export type V1MutationCreateEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: V1EventInput;
+};
+
+
+export type V1MutationCreateLimitRangeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LimitRangeInput;
+};
+
+
+export type V1MutationCreateNamespaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: NamespaceInput;
+};
+
+
+export type V1MutationCreateNodeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: NodeInput;
+};
+
+
+export type V1MutationCreatePersistentVolumeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: PersistentVolumeInput;
+};
+
+
+export type V1MutationCreatePersistentVolumeClaimArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PersistentVolumeClaimInput;
+};
+
+
+export type V1MutationCreatePodArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodInput;
+};
+
+
+export type V1MutationCreatePodTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodTemplateInput;
+};
+
+
+export type V1MutationCreateReplicationControllerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ReplicationControllerInput;
+};
+
+
+export type V1MutationCreateResourceQuotaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ResourceQuotaInput;
+};
+
+
+export type V1MutationCreateSecretArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: SecretInput;
+};
+
+
+export type V1MutationCreateServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServiceInput;
+};
+
+
+export type V1MutationCreateServiceAccountArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServiceAccountInput;
+};
+
+
+export type V1MutationCreateStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: StatusInput;
+};
+
+
+export type V1MutationCreateWatchEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  object: WatchEventInput;
+};
+
+
+export type V1MutationDeleteApiGroupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteApiVersionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteComponentStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteConfigMapArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteDeleteOptionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteEndpointsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteLimitRangeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteNamespaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteNodeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeletePersistentVolumeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeletePersistentVolumeClaimArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeletePodArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeletePodTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteReplicationControllerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteResourceQuotaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteSecretArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteServiceAccountArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1MutationDeleteStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationDeleteWatchEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type V1MutationUpdateApiGroupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ApiGroupInput;
+};
+
+
+export type V1MutationUpdateApiVersionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ApiVersionsInput;
+};
+
+
+export type V1MutationUpdateBindingArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BindingInput;
+};
+
+
+export type V1MutationUpdateComponentStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: ComponentStatusInput;
+};
+
+
+export type V1MutationUpdateConfigMapArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ConfigMapInput;
+};
+
+
+export type V1MutationUpdateDeleteOptionsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: DeleteOptionsInput;
+};
+
+
+export type V1MutationUpdateEndpointsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EndpointsInput;
+};
+
+
+export type V1MutationUpdateEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: V1EventInput;
+};
+
+
+export type V1MutationUpdateLimitRangeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LimitRangeInput;
+};
+
+
+export type V1MutationUpdateNamespaceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: NamespaceInput;
+};
+
+
+export type V1MutationUpdateNodeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: NodeInput;
+};
+
+
+export type V1MutationUpdatePersistentVolumeArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: PersistentVolumeInput;
+};
+
+
+export type V1MutationUpdatePersistentVolumeClaimArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PersistentVolumeClaimInput;
+};
+
+
+export type V1MutationUpdatePodArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodInput;
+};
+
+
+export type V1MutationUpdatePodTemplateArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodTemplateInput;
+};
+
+
+export type V1MutationUpdateReplicationControllerArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ReplicationControllerInput;
+};
+
+
+export type V1MutationUpdateResourceQuotaArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ResourceQuotaInput;
+};
+
+
+export type V1MutationUpdateSecretArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: SecretInput;
+};
+
+
+export type V1MutationUpdateServiceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServiceInput;
+};
+
+
+export type V1MutationUpdateServiceAccountArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServiceAccountInput;
+};
+
+
+export type V1MutationUpdateStatusArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: StatusInput;
+};
+
+
+export type V1MutationUpdateWatchEventArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  object: WatchEventInput;
+};
+
+export type V1Query = {
+  __typename?: 'V1Query';
+  APIGroup: ApiGroup;
+  APIGroupYaml: Scalars['String']['output'];
+  APIGroups: ApiGroupList;
+  APIVersions: ApiVersions;
+  APIVersionsYaml: Scalars['String']['output'];
+  Binding: Binding;
+  BindingYaml: Scalars['String']['output'];
+  Bindings: BindingList;
+  ComponentStatus: ComponentStatus;
+  ComponentStatusYaml: Scalars['String']['output'];
+  ComponentStatuses: ComponentStatusList;
+  ConfigMap: ConfigMap;
+  ConfigMapYaml: Scalars['String']['output'];
+  ConfigMaps: ConfigMapList;
+  DeleteOptions: DeleteOptions;
+  DeleteOptionsYaml: Scalars['String']['output'];
+  Endpoints: Endpoints;
+  EndpointsYaml: Scalars['String']['output'];
+  Event: V1Event;
+  EventYaml: Scalars['String']['output'];
+  Events: V1EventList;
+  LimitRange: LimitRange;
+  LimitRangeYaml: Scalars['String']['output'];
+  LimitRanges: LimitRangeList;
+  Namespace: Namespace;
+  NamespaceYaml: Scalars['String']['output'];
+  Namespaces: NamespaceList;
+  Node: Node;
+  NodeYaml: Scalars['String']['output'];
+  Nodes: NodeList;
+  PersistentVolume: PersistentVolume;
+  PersistentVolumeClaim: PersistentVolumeClaim;
+  PersistentVolumeClaimYaml: Scalars['String']['output'];
+  PersistentVolumeClaims: PersistentVolumeClaimList;
+  PersistentVolumeYaml: Scalars['String']['output'];
+  PersistentVolumes: PersistentVolumeList;
+  Pod: Pod;
+  PodTemplate: PodTemplate;
+  PodTemplateYaml: Scalars['String']['output'];
+  PodTemplates: PodTemplateList;
+  PodYaml: Scalars['String']['output'];
+  Pods: PodList;
+  ReplicationController: ReplicationController;
+  ReplicationControllerYaml: Scalars['String']['output'];
+  ReplicationControllers: ReplicationControllerList;
+  ResourceQuota: ResourceQuota;
+  ResourceQuotaYaml: Scalars['String']['output'];
+  ResourceQuotas: ResourceQuotaList;
+  Secret: Secret;
+  SecretYaml: Scalars['String']['output'];
+  Secrets: SecretList;
+  Service: Service;
+  ServiceAccount: ServiceAccount;
+  ServiceAccountYaml: Scalars['String']['output'];
+  ServiceAccounts: ServiceAccountList;
+  ServiceYaml: Scalars['String']['output'];
+  Services: ServiceList;
+  Status: Status;
+  StatusYaml: Scalars['String']['output'];
+  Statuses: StatusList;
+  WatchEvent: WatchEvent;
+  WatchEventYaml: Scalars['String']['output'];
+  WatchEvents: WatchEventList;
+};
+
+
+export type V1QueryApiGroupArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryApiGroupYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryApiGroupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryApiVersionsArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryApiVersionsYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryBindingArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryBindingYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryBindingsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryComponentStatusArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryComponentStatusYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryComponentStatusesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryConfigMapArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryConfigMapYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryConfigMapsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryDeleteOptionsArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryDeleteOptionsYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryEndpointsArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryEndpointsYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryEventArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryEventYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryEventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryLimitRangeArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryLimitRangeYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryLimitRangesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryNamespaceArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryNamespaceYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryNamespacesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryNodeArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryNodeYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryNodesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPersistentVolumeArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryPersistentVolumeClaimArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPersistentVolumeClaimYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPersistentVolumeClaimsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPersistentVolumeYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryPersistentVolumesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodTemplateArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodTemplateYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodTemplatesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryPodsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryReplicationControllerArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryReplicationControllerYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryReplicationControllersArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryResourceQuotaArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryResourceQuotaYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryResourceQuotasArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QuerySecretArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QuerySecretYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QuerySecretsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServiceArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServiceAccountArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServiceAccountYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServiceAccountsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServiceYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryServicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryStatusArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryStatusYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryStatusesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type V1QueryWatchEventArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryWatchEventYamlArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type V1QueryWatchEventsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ValidatingAdmissionPolicy = {
@@ -6117,11 +13394,31 @@ export type ValidatingAdmissionPolicyBinding = {
   spec?: Maybe<Io_K8s_Api_Admissionregistration_V1_ValidatingAdmissionPolicyBindingSpecspec>;
 };
 
+export type ValidatingAdmissionPolicyBindingEvent = {
+  __typename?: 'ValidatingAdmissionPolicyBindingEvent';
+  object?: Maybe<ValidatingAdmissionPolicyBinding>;
+  type: WatchEventType;
+};
+
 export type ValidatingAdmissionPolicyBindingInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Admissionregistration_V1_ValidatingAdmissionPolicyBindingSpecspecInput>;
+};
+
+export type ValidatingAdmissionPolicyBindingList = {
+  __typename?: 'ValidatingAdmissionPolicyBindingList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ValidatingAdmissionPolicyBinding>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type ValidatingAdmissionPolicyEvent = {
+  __typename?: 'ValidatingAdmissionPolicyEvent';
+  object?: Maybe<ValidatingAdmissionPolicy>;
+  type: WatchEventType;
 };
 
 export type ValidatingAdmissionPolicyInput = {
@@ -6132,6 +13429,14 @@ export type ValidatingAdmissionPolicyInput = {
   status?: InputMaybe<Io_K8s_Api_Admissionregistration_V1_ValidatingAdmissionPolicyStatusstatusInput>;
 };
 
+export type ValidatingAdmissionPolicyList = {
+  __typename?: 'ValidatingAdmissionPolicyList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ValidatingAdmissionPolicy>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type ValidatingWebhookConfiguration = {
   __typename?: 'ValidatingWebhookConfiguration';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -6140,11 +13445,690 @@ export type ValidatingWebhookConfiguration = {
   webhooks?: Maybe<Array<Maybe<Io_K8s_Api_Admissionregistration_V1_ValidatingWebhookwebhooks>>>;
 };
 
+export type ValidatingWebhookConfigurationEvent = {
+  __typename?: 'ValidatingWebhookConfigurationEvent';
+  object?: Maybe<ValidatingWebhookConfiguration>;
+  type: WatchEventType;
+};
+
 export type ValidatingWebhookConfigurationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   webhooks?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Admissionregistration_V1_ValidatingWebhookwebhooksInput>>>;
+};
+
+export type ValidatingWebhookConfigurationList = {
+  __typename?: 'ValidatingWebhookConfigurationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<ValidatingWebhookConfiguration>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type VeleroIoMutation = {
+  __typename?: 'VeleroIoMutation';
+  v1?: Maybe<VeleroIoV1Mutation>;
+  v2alpha1?: Maybe<VeleroIoV2alpha1Mutation>;
+};
+
+export type VeleroIoQuery = {
+  __typename?: 'VeleroIoQuery';
+  v1?: Maybe<VeleroIoV1Query>;
+  v2alpha1?: Maybe<VeleroIoV2alpha1Query>;
+};
+
+export type VeleroIoV1Mutation = {
+  __typename?: 'VeleroIoV1Mutation';
+  createBackup?: Maybe<Backup>;
+  createBackupRepository?: Maybe<BackupRepository>;
+  createBackupStorageLocation?: Maybe<BackupStorageLocation>;
+  createDeleteBackupRequest?: Maybe<DeleteBackupRequest>;
+  createDownloadRequest?: Maybe<DownloadRequest>;
+  createPodVolumeBackup?: Maybe<PodVolumeBackup>;
+  createPodVolumeRestore?: Maybe<PodVolumeRestore>;
+  createRestore?: Maybe<Restore>;
+  createSchedule?: Maybe<Schedule>;
+  createServerStatusRequest?: Maybe<ServerStatusRequest>;
+  createVolumeSnapshotLocation?: Maybe<VolumeSnapshotLocation>;
+  deleteBackup?: Maybe<Scalars['Boolean']['output']>;
+  deleteBackupRepository?: Maybe<Scalars['Boolean']['output']>;
+  deleteBackupStorageLocation?: Maybe<Scalars['Boolean']['output']>;
+  deleteDeleteBackupRequest?: Maybe<Scalars['Boolean']['output']>;
+  deleteDownloadRequest?: Maybe<Scalars['Boolean']['output']>;
+  deletePodVolumeBackup?: Maybe<Scalars['Boolean']['output']>;
+  deletePodVolumeRestore?: Maybe<Scalars['Boolean']['output']>;
+  deleteRestore?: Maybe<Scalars['Boolean']['output']>;
+  deleteSchedule?: Maybe<Scalars['Boolean']['output']>;
+  deleteServerStatusRequest?: Maybe<Scalars['Boolean']['output']>;
+  deleteVolumeSnapshotLocation?: Maybe<Scalars['Boolean']['output']>;
+  updateBackup?: Maybe<Backup>;
+  updateBackupRepository?: Maybe<BackupRepository>;
+  updateBackupStorageLocation?: Maybe<BackupStorageLocation>;
+  updateDeleteBackupRequest?: Maybe<DeleteBackupRequest>;
+  updateDownloadRequest?: Maybe<DownloadRequest>;
+  updatePodVolumeBackup?: Maybe<PodVolumeBackup>;
+  updatePodVolumeRestore?: Maybe<PodVolumeRestore>;
+  updateRestore?: Maybe<Restore>;
+  updateSchedule?: Maybe<Schedule>;
+  updateServerStatusRequest?: Maybe<ServerStatusRequest>;
+  updateVolumeSnapshotLocation?: Maybe<VolumeSnapshotLocation>;
+};
+
+
+export type VeleroIoV1MutationCreateBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupInput;
+};
+
+
+export type VeleroIoV1MutationCreateBackupRepositoryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupRepositoryInput;
+};
+
+
+export type VeleroIoV1MutationCreateBackupStorageLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupStorageLocationInput;
+};
+
+
+export type VeleroIoV1MutationCreateDeleteBackupRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DeleteBackupRequestInput;
+};
+
+
+export type VeleroIoV1MutationCreateDownloadRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DownloadRequestInput;
+};
+
+
+export type VeleroIoV1MutationCreatePodVolumeBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodVolumeBackupInput;
+};
+
+
+export type VeleroIoV1MutationCreatePodVolumeRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodVolumeRestoreInput;
+};
+
+
+export type VeleroIoV1MutationCreateRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RestoreInput;
+};
+
+
+export type VeleroIoV1MutationCreateScheduleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ScheduleInput;
+};
+
+
+export type VeleroIoV1MutationCreateServerStatusRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServerStatusRequestInput;
+};
+
+
+export type VeleroIoV1MutationCreateVolumeSnapshotLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: VolumeSnapshotLocationInput;
+};
+
+
+export type VeleroIoV1MutationDeleteBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteBackupRepositoryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteBackupStorageLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteDeleteBackupRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteDownloadRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeletePodVolumeBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeletePodVolumeRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteScheduleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteServerStatusRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationDeleteVolumeSnapshotLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1MutationUpdateBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupInput;
+};
+
+
+export type VeleroIoV1MutationUpdateBackupRepositoryArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupRepositoryInput;
+};
+
+
+export type VeleroIoV1MutationUpdateBackupStorageLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: BackupStorageLocationInput;
+};
+
+
+export type VeleroIoV1MutationUpdateDeleteBackupRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DeleteBackupRequestInput;
+};
+
+
+export type VeleroIoV1MutationUpdateDownloadRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DownloadRequestInput;
+};
+
+
+export type VeleroIoV1MutationUpdatePodVolumeBackupArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodVolumeBackupInput;
+};
+
+
+export type VeleroIoV1MutationUpdatePodVolumeRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: PodVolumeRestoreInput;
+};
+
+
+export type VeleroIoV1MutationUpdateRestoreArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: RestoreInput;
+};
+
+
+export type VeleroIoV1MutationUpdateScheduleArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ScheduleInput;
+};
+
+
+export type VeleroIoV1MutationUpdateServerStatusRequestArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ServerStatusRequestInput;
+};
+
+
+export type VeleroIoV1MutationUpdateVolumeSnapshotLocationArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: VolumeSnapshotLocationInput;
+};
+
+export type VeleroIoV1Query = {
+  __typename?: 'VeleroIoV1Query';
+  Backup: Backup;
+  BackupRepositories: BackupRepositoryList;
+  BackupRepository: BackupRepository;
+  BackupRepositoryYaml: Scalars['String']['output'];
+  BackupStorageLocation: BackupStorageLocation;
+  BackupStorageLocationYaml: Scalars['String']['output'];
+  BackupStorageLocations: BackupStorageLocationList;
+  BackupYaml: Scalars['String']['output'];
+  Backups: BackupList;
+  DeleteBackupRequest: DeleteBackupRequest;
+  DeleteBackupRequestYaml: Scalars['String']['output'];
+  DeleteBackupRequests: DeleteBackupRequestList;
+  DownloadRequest: DownloadRequest;
+  DownloadRequestYaml: Scalars['String']['output'];
+  DownloadRequests: DownloadRequestList;
+  PodVolumeBackup: PodVolumeBackup;
+  PodVolumeBackupYaml: Scalars['String']['output'];
+  PodVolumeBackups: PodVolumeBackupList;
+  PodVolumeRestore: PodVolumeRestore;
+  PodVolumeRestoreYaml: Scalars['String']['output'];
+  PodVolumeRestores: PodVolumeRestoreList;
+  Restore: Restore;
+  RestoreYaml: Scalars['String']['output'];
+  Restores: RestoreList;
+  Schedule: Schedule;
+  ScheduleYaml: Scalars['String']['output'];
+  Schedules: ScheduleList;
+  ServerStatusRequest: ServerStatusRequest;
+  ServerStatusRequestYaml: Scalars['String']['output'];
+  ServerStatusRequests: ServerStatusRequestList;
+  VolumeSnapshotLocation: VolumeSnapshotLocation;
+  VolumeSnapshotLocationYaml: Scalars['String']['output'];
+  VolumeSnapshotLocations: VolumeSnapshotLocationList;
+};
+
+
+export type VeleroIoV1QueryBackupArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupRepositoriesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupRepositoryArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupRepositoryYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupStorageLocationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupStorageLocationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupStorageLocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryBackupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDeleteBackupRequestArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDeleteBackupRequestYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDeleteBackupRequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDownloadRequestArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDownloadRequestYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryDownloadRequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeBackupArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeBackupYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeBackupsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeRestoreArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeRestoreYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryPodVolumeRestoresArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryRestoreArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryRestoreYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryRestoresArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryScheduleArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryScheduleYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QuerySchedulesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryServerStatusRequestArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryServerStatusRequestYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryServerStatusRequestsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryVolumeSnapshotLocationArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryVolumeSnapshotLocationYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV1QueryVolumeSnapshotLocationsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type VeleroIoV2alpha1Mutation = {
+  __typename?: 'VeleroIoV2alpha1Mutation';
+  createDataDownload?: Maybe<DataDownload>;
+  createDataUpload?: Maybe<DataUpload>;
+  deleteDataDownload?: Maybe<Scalars['Boolean']['output']>;
+  deleteDataUpload?: Maybe<Scalars['Boolean']['output']>;
+  updateDataDownload?: Maybe<DataDownload>;
+  updateDataUpload?: Maybe<DataUpload>;
+};
+
+
+export type VeleroIoV2alpha1MutationCreateDataDownloadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DataDownloadInput;
+};
+
+
+export type VeleroIoV2alpha1MutationCreateDataUploadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DataUploadInput;
+};
+
+
+export type VeleroIoV2alpha1MutationDeleteDataDownloadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1MutationDeleteDataUploadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1MutationUpdateDataDownloadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DataDownloadInput;
+};
+
+
+export type VeleroIoV2alpha1MutationUpdateDataUploadArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: DataUploadInput;
+};
+
+export type VeleroIoV2alpha1Query = {
+  __typename?: 'VeleroIoV2alpha1Query';
+  DataDownload: DataDownload;
+  DataDownloadYaml: Scalars['String']['output'];
+  DataDownloads: DataDownloadList;
+  DataUpload: DataUpload;
+  DataUploadYaml: Scalars['String']['output'];
+  DataUploads: DataUploadList;
+};
+
+
+export type VeleroIoV2alpha1QueryDataDownloadArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1QueryDataDownloadYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1QueryDataDownloadsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1QueryDataUploadArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1QueryDataUploadYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type VeleroIoV2alpha1QueryDataUploadsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type VolumeAttachment = {
@@ -6156,12 +14140,26 @@ export type VolumeAttachment = {
   status?: Maybe<Io_K8s_Api_Storage_V1_VolumeAttachmentStatusstatus>;
 };
 
+export type VolumeAttachmentEvent = {
+  __typename?: 'VolumeAttachmentEvent';
+  object?: Maybe<VolumeAttachment>;
+  type: WatchEventType;
+};
+
 export type VolumeAttachmentInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<Io_K8s_Api_Storage_V1_VolumeAttachmentSpecspecInput>;
   status?: InputMaybe<Io_K8s_Api_Storage_V1_VolumeAttachmentStatusstatusInput>;
+};
+
+export type VolumeAttachmentList = {
+  __typename?: 'VolumeAttachmentList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<VolumeAttachment>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type VolumeSnapshotLocation = {
@@ -6173,6 +14171,12 @@ export type VolumeSnapshotLocation = {
   status?: Maybe<VolumeSnapshotLocationstatus>;
 };
 
+export type VolumeSnapshotLocationEvent = {
+  __typename?: 'VolumeSnapshotLocationEvent';
+  object?: Maybe<VolumeSnapshotLocation>;
+  type: WatchEventType;
+};
+
 export type VolumeSnapshotLocationInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -6181,15 +14185,23 @@ export type VolumeSnapshotLocationInput = {
   status?: InputMaybe<VolumeSnapshotLocationstatusInput>;
 };
 
+export type VolumeSnapshotLocationList = {
+  __typename?: 'VolumeSnapshotLocationList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<VolumeSnapshotLocation>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type VolumeSnapshotLocationspec = {
   __typename?: 'VolumeSnapshotLocationspec';
-  config?: Maybe<Scalars['StringMap']['output']>;
+  config?: Maybe<Scalars['StringMapInput']['output']>;
   credential?: Maybe<VolumeSnapshotLocationspecspeccredential>;
   provider?: Maybe<Scalars['String']['output']>;
 };
 
 export type VolumeSnapshotLocationspecInput = {
-  config?: InputMaybe<Scalars['StringMap']['input']>;
+  config?: InputMaybe<Scalars['StringMapInput']['input']>;
   credential?: InputMaybe<VolumeSnapshotLocationspecspeccredentialInput>;
   provider?: InputMaybe<Scalars['String']['input']>;
 };
@@ -6218,14 +14230,35 @@ export type VolumeSnapshotLocationstatusInput = {
 
 export type WatchEvent = {
   __typename?: 'WatchEvent';
-  object?: Maybe<Scalars['String']['output']>;
+  object?: Maybe<Scalars['JSONString']['output']>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
+export type WatchEventEvent = {
+  __typename?: 'WatchEventEvent';
+  object?: Maybe<WatchEvent>;
+  type: WatchEventType;
+};
+
 export type WatchEventInput = {
-  object?: InputMaybe<Scalars['String']['input']>;
+  object?: InputMaybe<Scalars['JSONString']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type WatchEventList = {
+  __typename?: 'WatchEventList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<WatchEvent>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+/** Event type for resource change notifications */
+export enum WatchEventType {
+  Added = 'ADDED',
+  Deleted = 'DELETED',
+  Modified = 'MODIFIED'
+}
 
 export type Workspace = {
   __typename?: 'Workspace';
@@ -6236,12 +14269,26 @@ export type Workspace = {
   status?: Maybe<Workspacestatus>;
 };
 
+export type WorkspaceEvent = {
+  __typename?: 'WorkspaceEvent';
+  object?: Maybe<Workspace>;
+  type: WatchEventType;
+};
+
 export type WorkspaceInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
   spec?: InputMaybe<WorkspacespecInput>;
   status?: InputMaybe<WorkspacestatusInput>;
+};
+
+export type WorkspaceList = {
+  __typename?: 'WorkspaceList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Workspace>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Workspacespec = {
@@ -6298,2546 +14345,125 @@ export type WorkspacestatusstatusconditionsInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Admissionregistration_K8s_IoMutation = {
-  __typename?: 'admissionregistration_k8s_ioMutation';
-  createMutatingWebhookConfiguration?: Maybe<MutatingWebhookConfiguration>;
-  createValidatingAdmissionPolicy?: Maybe<ValidatingAdmissionPolicy>;
-  createValidatingAdmissionPolicyBinding?: Maybe<ValidatingAdmissionPolicyBinding>;
-  createValidatingWebhookConfiguration?: Maybe<ValidatingWebhookConfiguration>;
-  deleteMutatingWebhookConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  deleteValidatingAdmissionPolicy?: Maybe<Scalars['Boolean']['output']>;
-  deleteValidatingAdmissionPolicyBinding?: Maybe<Scalars['Boolean']['output']>;
-  deleteValidatingWebhookConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  updateMutatingWebhookConfiguration?: Maybe<MutatingWebhookConfiguration>;
-  updateValidatingAdmissionPolicy?: Maybe<ValidatingAdmissionPolicy>;
-  updateValidatingAdmissionPolicyBinding?: Maybe<ValidatingAdmissionPolicyBinding>;
-  updateValidatingWebhookConfiguration?: Maybe<ValidatingWebhookConfiguration>;
-};
-
-
-export type Admissionregistration_K8s_IoMutationCreateMutatingWebhookConfigurationArgs = {
-  object: MutatingWebhookConfigurationInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationCreateValidatingAdmissionPolicyArgs = {
-  object: ValidatingAdmissionPolicyInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationCreateValidatingAdmissionPolicyBindingArgs = {
-  object: ValidatingAdmissionPolicyBindingInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationCreateValidatingWebhookConfigurationArgs = {
-  object: ValidatingWebhookConfigurationInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationDeleteMutatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoMutationDeleteValidatingAdmissionPolicyArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoMutationDeleteValidatingAdmissionPolicyBindingArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoMutationDeleteValidatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoMutationUpdateMutatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-  object: MutatingWebhookConfigurationInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationUpdateValidatingAdmissionPolicyArgs = {
-  name: Scalars['String']['input'];
-  object: ValidatingAdmissionPolicyInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationUpdateValidatingAdmissionPolicyBindingArgs = {
-  name: Scalars['String']['input'];
-  object: ValidatingAdmissionPolicyBindingInput;
-};
-
-
-export type Admissionregistration_K8s_IoMutationUpdateValidatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-  object: ValidatingWebhookConfigurationInput;
-};
-
-export type Admissionregistration_K8s_IoQuery = {
-  __typename?: 'admissionregistration_k8s_ioQuery';
-  MutatingWebhookConfiguration: MutatingWebhookConfiguration;
-  MutatingWebhookConfigurationYaml: Scalars['String']['output'];
-  MutatingWebhookConfigurations: Array<MutatingWebhookConfiguration>;
-  ValidatingAdmissionPolicy: ValidatingAdmissionPolicy;
-  ValidatingAdmissionPolicyBinding: ValidatingAdmissionPolicyBinding;
-  ValidatingAdmissionPolicyBindingYaml: Scalars['String']['output'];
-  ValidatingAdmissionPolicyBindings: Array<ValidatingAdmissionPolicyBinding>;
-  ValidatingAdmissionPolicyYaml: Scalars['String']['output'];
-  ValidatingAdmissionPolicys: Array<ValidatingAdmissionPolicy>;
-  ValidatingWebhookConfiguration: ValidatingWebhookConfiguration;
-  ValidatingWebhookConfigurationYaml: Scalars['String']['output'];
-  ValidatingWebhookConfigurations: Array<ValidatingWebhookConfiguration>;
-};
-
-
-export type Admissionregistration_K8s_IoQueryMutatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryMutatingWebhookConfigurationYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryMutatingWebhookConfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicyArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicyBindingArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicyBindingYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicyBindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicyYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingAdmissionPolicysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingWebhookConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingWebhookConfigurationYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Admissionregistration_K8s_IoQueryValidatingWebhookConfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Apiextensions_K8s_IoMutation = {
-  __typename?: 'apiextensions_k8s_ioMutation';
-  createCustomResourceDefinition?: Maybe<CustomResourceDefinition>;
-  deleteCustomResourceDefinition?: Maybe<Scalars['Boolean']['output']>;
-  updateCustomResourceDefinition?: Maybe<CustomResourceDefinition>;
-};
-
-
-export type Apiextensions_K8s_IoMutationCreateCustomResourceDefinitionArgs = {
-  object: CustomResourceDefinitionInput;
-};
-
-
-export type Apiextensions_K8s_IoMutationDeleteCustomResourceDefinitionArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiextensions_K8s_IoMutationUpdateCustomResourceDefinitionArgs = {
-  name: Scalars['String']['input'];
-  object: CustomResourceDefinitionInput;
-};
-
-export type Apiextensions_K8s_IoQuery = {
-  __typename?: 'apiextensions_k8s_ioQuery';
-  CustomResourceDefinition: CustomResourceDefinition;
-  CustomResourceDefinitionYaml: Scalars['String']['output'];
-  CustomResourceDefinitions: Array<CustomResourceDefinition>;
-};
-
-
-export type Apiextensions_K8s_IoQueryCustomResourceDefinitionArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiextensions_K8s_IoQueryCustomResourceDefinitionYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiextensions_K8s_IoQueryCustomResourceDefinitionsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Apiregistration_K8s_IoMutation = {
-  __typename?: 'apiregistration_k8s_ioMutation';
-  createAPIService?: Maybe<ApiService>;
-  deleteAPIService?: Maybe<Scalars['Boolean']['output']>;
-  updateAPIService?: Maybe<ApiService>;
-};
-
-
-export type Apiregistration_K8s_IoMutationCreateApiServiceArgs = {
-  object: ApiServiceInput;
-};
-
-
-export type Apiregistration_K8s_IoMutationDeleteApiServiceArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiregistration_K8s_IoMutationUpdateApiServiceArgs = {
-  name: Scalars['String']['input'];
-  object: ApiServiceInput;
-};
-
-export type Apiregistration_K8s_IoQuery = {
-  __typename?: 'apiregistration_k8s_ioQuery';
-  APIService: ApiService;
-  APIServiceYaml: Scalars['String']['output'];
-  APIServices: Array<ApiService>;
-};
-
-
-export type Apiregistration_K8s_IoQueryApiServiceArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiregistration_K8s_IoQueryApiServiceYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Apiregistration_K8s_IoQueryApiServicesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Authentication_Gardener_CloudMutation = {
-  __typename?: 'authentication_gardener_cloudMutation';
-  createOpenIDConnect?: Maybe<OpenIdConnect>;
-  deleteOpenIDConnect?: Maybe<Scalars['Boolean']['output']>;
-  updateOpenIDConnect?: Maybe<OpenIdConnect>;
-};
-
-
-export type Authentication_Gardener_CloudMutationCreateOpenIdConnectArgs = {
-  object: OpenIdConnectInput;
-};
-
-
-export type Authentication_Gardener_CloudMutationDeleteOpenIdConnectArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_Gardener_CloudMutationUpdateOpenIdConnectArgs = {
-  name: Scalars['String']['input'];
-  object: OpenIdConnectInput;
-};
-
-export type Authentication_Gardener_CloudQuery = {
-  __typename?: 'authentication_gardener_cloudQuery';
-  OpenIDConnect: OpenIdConnect;
-  OpenIDConnectYaml: Scalars['String']['output'];
-  OpenIDConnects: Array<OpenIdConnect>;
-};
-
-
-export type Authentication_Gardener_CloudQueryOpenIdConnectArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_Gardener_CloudQueryOpenIdConnectYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_Gardener_CloudQueryOpenIdConnectsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Authentication_K8s_IoMutation = {
-  __typename?: 'authentication_k8s_ioMutation';
-  createSelfSubjectReview?: Maybe<SelfSubjectReview>;
-  createTokenRequest?: Maybe<TokenRequest>;
-  createTokenReview?: Maybe<TokenReview>;
-  deleteSelfSubjectReview?: Maybe<Scalars['Boolean']['output']>;
-  deleteTokenRequest?: Maybe<Scalars['Boolean']['output']>;
-  deleteTokenReview?: Maybe<Scalars['Boolean']['output']>;
-  updateSelfSubjectReview?: Maybe<SelfSubjectReview>;
-  updateTokenRequest?: Maybe<TokenRequest>;
-  updateTokenReview?: Maybe<TokenReview>;
-};
-
-
-export type Authentication_K8s_IoMutationCreateSelfSubjectReviewArgs = {
-  object: SelfSubjectReviewInput;
-};
-
-
-export type Authentication_K8s_IoMutationCreateTokenRequestArgs = {
-  object: TokenRequestInput;
-};
-
-
-export type Authentication_K8s_IoMutationCreateTokenReviewArgs = {
-  object: TokenReviewInput;
-};
-
-
-export type Authentication_K8s_IoMutationDeleteSelfSubjectReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoMutationDeleteTokenRequestArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoMutationDeleteTokenReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoMutationUpdateSelfSubjectReviewArgs = {
-  name: Scalars['String']['input'];
-  object: SelfSubjectReviewInput;
-};
-
-
-export type Authentication_K8s_IoMutationUpdateTokenRequestArgs = {
-  name: Scalars['String']['input'];
-  object: TokenRequestInput;
-};
-
-
-export type Authentication_K8s_IoMutationUpdateTokenReviewArgs = {
-  name: Scalars['String']['input'];
-  object: TokenReviewInput;
-};
-
-export type Authentication_K8s_IoQuery = {
-  __typename?: 'authentication_k8s_ioQuery';
-  SelfSubjectReview: SelfSubjectReview;
-  SelfSubjectReviewYaml: Scalars['String']['output'];
-  SelfSubjectReviews: Array<SelfSubjectReview>;
-  TokenRequest: TokenRequest;
-  TokenRequestYaml: Scalars['String']['output'];
-  TokenRequests: Array<TokenRequest>;
-  TokenReview: TokenReview;
-  TokenReviewYaml: Scalars['String']['output'];
-  TokenReviews: Array<TokenReview>;
-};
-
-
-export type Authentication_K8s_IoQuerySelfSubjectReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQuerySelfSubjectReviewYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQuerySelfSubjectReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authentication_K8s_IoQueryTokenRequestArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQueryTokenRequestYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQueryTokenRequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authentication_K8s_IoQueryTokenReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQueryTokenReviewYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authentication_K8s_IoQueryTokenReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Authorization_K8s_IoMutation = {
-  __typename?: 'authorization_k8s_ioMutation';
-  createLocalSubjectAccessReview?: Maybe<LocalSubjectAccessReview>;
-  createSelfSubjectAccessReview?: Maybe<SelfSubjectAccessReview>;
-  createSelfSubjectRulesReview?: Maybe<SelfSubjectRulesReview>;
-  createSubjectAccessReview?: Maybe<SubjectAccessReview>;
-  deleteLocalSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
-  deleteSelfSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
-  deleteSelfSubjectRulesReview?: Maybe<Scalars['Boolean']['output']>;
-  deleteSubjectAccessReview?: Maybe<Scalars['Boolean']['output']>;
-  updateLocalSubjectAccessReview?: Maybe<LocalSubjectAccessReview>;
-  updateSelfSubjectAccessReview?: Maybe<SelfSubjectAccessReview>;
-  updateSelfSubjectRulesReview?: Maybe<SelfSubjectRulesReview>;
-  updateSubjectAccessReview?: Maybe<SubjectAccessReview>;
-};
-
-
-export type Authorization_K8s_IoMutationCreateLocalSubjectAccessReviewArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LocalSubjectAccessReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationCreateSelfSubjectAccessReviewArgs = {
-  object: SelfSubjectAccessReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationCreateSelfSubjectRulesReviewArgs = {
-  object: SelfSubjectRulesReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationCreateSubjectAccessReviewArgs = {
-  object: SubjectAccessReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationDeleteLocalSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoMutationDeleteSelfSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoMutationDeleteSelfSubjectRulesReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoMutationDeleteSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoMutationUpdateLocalSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LocalSubjectAccessReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationUpdateSelfSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-  object: SelfSubjectAccessReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationUpdateSelfSubjectRulesReviewArgs = {
-  name: Scalars['String']['input'];
-  object: SelfSubjectRulesReviewInput;
-};
-
-
-export type Authorization_K8s_IoMutationUpdateSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-  object: SubjectAccessReviewInput;
-};
-
-export type Authorization_K8s_IoQuery = {
-  __typename?: 'authorization_k8s_ioQuery';
-  LocalSubjectAccessReview: LocalSubjectAccessReview;
-  LocalSubjectAccessReviewYaml: Scalars['String']['output'];
-  LocalSubjectAccessReviews: Array<LocalSubjectAccessReview>;
-  SelfSubjectAccessReview: SelfSubjectAccessReview;
-  SelfSubjectAccessReviewYaml: Scalars['String']['output'];
-  SelfSubjectAccessReviews: Array<SelfSubjectAccessReview>;
-  SelfSubjectRulesReview: SelfSubjectRulesReview;
-  SelfSubjectRulesReviewYaml: Scalars['String']['output'];
-  SelfSubjectRulesReviews: Array<SelfSubjectRulesReview>;
-  SubjectAccessReview: SubjectAccessReview;
-  SubjectAccessReviewYaml: Scalars['String']['output'];
-  SubjectAccessReviews: Array<SubjectAccessReview>;
-};
-
-
-export type Authorization_K8s_IoQueryLocalSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoQueryLocalSubjectAccessReviewYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoQueryLocalSubjectAccessReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectAccessReviewYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectAccessReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectRulesReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectRulesReviewYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySelfSubjectRulesReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Authorization_K8s_IoQuerySubjectAccessReviewArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySubjectAccessReviewYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Authorization_K8s_IoQuerySubjectAccessReviewsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type AutoscalingMutation = {
-  __typename?: 'autoscalingMutation';
-  createHorizontalPodAutoscaler?: Maybe<HorizontalPodAutoscaler>;
-  createScale?: Maybe<Scale>;
-  deleteHorizontalPodAutoscaler?: Maybe<Scalars['Boolean']['output']>;
-  deleteScale?: Maybe<Scalars['Boolean']['output']>;
-  updateHorizontalPodAutoscaler?: Maybe<HorizontalPodAutoscaler>;
-  updateScale?: Maybe<Scale>;
-};
-
-
-export type AutoscalingMutationCreateHorizontalPodAutoscalerArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: HorizontalPodAutoscalerInput;
-};
-
-
-export type AutoscalingMutationCreateScaleArgs = {
-  object: ScaleInput;
-};
-
-
-export type AutoscalingMutationDeleteHorizontalPodAutoscalerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type AutoscalingMutationDeleteScaleArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type AutoscalingMutationUpdateHorizontalPodAutoscalerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: HorizontalPodAutoscalerInput;
-};
-
-
-export type AutoscalingMutationUpdateScaleArgs = {
-  name: Scalars['String']['input'];
-  object: ScaleInput;
-};
-
-export type AutoscalingQuery = {
-  __typename?: 'autoscalingQuery';
-  HorizontalPodAutoscaler: HorizontalPodAutoscaler;
-  HorizontalPodAutoscalerYaml: Scalars['String']['output'];
-  HorizontalPodAutoscalers: Array<HorizontalPodAutoscaler>;
-  Scale: Scale;
-  ScaleYaml: Scalars['String']['output'];
-  Scales: Array<Scale>;
-};
-
-
-export type AutoscalingQueryHorizontalPodAutoscalerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type AutoscalingQueryHorizontalPodAutoscalerYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type AutoscalingQueryHorizontalPodAutoscalersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type AutoscalingQueryScaleArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type AutoscalingQueryScaleYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type AutoscalingQueryScalesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Cert_Gardener_CloudMutation = {
-  __typename?: 'cert_gardener_cloudMutation';
-  createCertificate?: Maybe<Certificate>;
-  createCertificateRevocation?: Maybe<CertificateRevocation>;
-  deleteCertificate?: Maybe<Scalars['Boolean']['output']>;
-  deleteCertificateRevocation?: Maybe<Scalars['Boolean']['output']>;
-  updateCertificate?: Maybe<Certificate>;
-  updateCertificateRevocation?: Maybe<CertificateRevocation>;
-};
-
-
-export type Cert_Gardener_CloudMutationCreateCertificateArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CertificateInput;
-};
-
-
-export type Cert_Gardener_CloudMutationCreateCertificateRevocationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CertificateRevocationInput;
-};
-
-
-export type Cert_Gardener_CloudMutationDeleteCertificateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudMutationDeleteCertificateRevocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudMutationUpdateCertificateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CertificateInput;
-};
-
-
-export type Cert_Gardener_CloudMutationUpdateCertificateRevocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CertificateRevocationInput;
-};
-
-export type Cert_Gardener_CloudQuery = {
-  __typename?: 'cert_gardener_cloudQuery';
-  Certificate: Certificate;
-  CertificateRevocation: CertificateRevocation;
-  CertificateRevocationYaml: Scalars['String']['output'];
-  CertificateRevocations: Array<CertificateRevocation>;
-  CertificateYaml: Scalars['String']['output'];
-  Certificates: Array<Certificate>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificateRevocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificateRevocationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificateRevocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificateYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Cert_Gardener_CloudQueryCertificatesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Certificates_K8s_IoMutation = {
-  __typename?: 'certificates_k8s_ioMutation';
-  createCertificateSigningRequest?: Maybe<CertificateSigningRequest>;
-  deleteCertificateSigningRequest?: Maybe<Scalars['Boolean']['output']>;
-  updateCertificateSigningRequest?: Maybe<CertificateSigningRequest>;
-};
-
-
-export type Certificates_K8s_IoMutationCreateCertificateSigningRequestArgs = {
-  object: CertificateSigningRequestInput;
-};
-
-
-export type Certificates_K8s_IoMutationDeleteCertificateSigningRequestArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Certificates_K8s_IoMutationUpdateCertificateSigningRequestArgs = {
-  name: Scalars['String']['input'];
-  object: CertificateSigningRequestInput;
-};
-
-export type Certificates_K8s_IoQuery = {
-  __typename?: 'certificates_k8s_ioQuery';
-  CertificateSigningRequest: CertificateSigningRequest;
-  CertificateSigningRequestYaml: Scalars['String']['output'];
-  CertificateSigningRequests: Array<CertificateSigningRequest>;
-};
-
-
-export type Certificates_K8s_IoQueryCertificateSigningRequestArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Certificates_K8s_IoQueryCertificateSigningRequestYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Certificates_K8s_IoQueryCertificateSigningRequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Coordination_K8s_IoMutation = {
-  __typename?: 'coordination_k8s_ioMutation';
-  createLease?: Maybe<Lease>;
-  deleteLease?: Maybe<Scalars['Boolean']['output']>;
-  updateLease?: Maybe<Lease>;
-};
-
-
-export type Coordination_K8s_IoMutationCreateLeaseArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LeaseInput;
-};
-
-
-export type Coordination_K8s_IoMutationDeleteLeaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Coordination_K8s_IoMutationUpdateLeaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LeaseInput;
-};
-
-export type Coordination_K8s_IoQuery = {
-  __typename?: 'coordination_k8s_ioQuery';
-  Lease: Lease;
-  LeaseYaml: Scalars['String']['output'];
-  Leases: Array<Lease>;
-};
-
-
-export type Coordination_K8s_IoQueryLeaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Coordination_K8s_IoQueryLeaseYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Coordination_K8s_IoQueryLeasesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreMutation = {
-  __typename?: 'coreMutation';
-  createBinding?: Maybe<Binding>;
-  createComponentStatus?: Maybe<ComponentStatus>;
-  createConfigMap?: Maybe<ConfigMap>;
-  createDeleteOptions?: Maybe<DeleteOptions>;
-  createEndpoints?: Maybe<Endpoints>;
-  createEventcorev1?: Maybe<Eventcorev1>;
-  createLimitRange?: Maybe<LimitRange>;
-  createNamespace?: Maybe<Namespace>;
-  createNode?: Maybe<Node>;
-  createPersistentVolume?: Maybe<PersistentVolume>;
-  createPersistentVolumeClaim?: Maybe<PersistentVolumeClaim>;
-  createPod?: Maybe<Pod>;
-  createPodTemplate?: Maybe<PodTemplate>;
-  createReplicationController?: Maybe<ReplicationController>;
-  createResourceQuota?: Maybe<ResourceQuota>;
-  createSecret?: Maybe<Secret>;
-  createService?: Maybe<Service>;
-  createServiceAccount?: Maybe<ServiceAccount>;
-  createStatus?: Maybe<Status>;
-  createWatchEvent?: Maybe<WatchEvent>;
-  deleteBinding?: Maybe<Scalars['Boolean']['output']>;
-  deleteComponentStatus?: Maybe<Scalars['Boolean']['output']>;
-  deleteConfigMap?: Maybe<Scalars['Boolean']['output']>;
-  deleteDeleteOptions?: Maybe<Scalars['Boolean']['output']>;
-  deleteEndpoints?: Maybe<Scalars['Boolean']['output']>;
-  deleteEventcorev1?: Maybe<Scalars['Boolean']['output']>;
-  deleteLimitRange?: Maybe<Scalars['Boolean']['output']>;
-  deleteNamespace?: Maybe<Scalars['Boolean']['output']>;
-  deleteNode?: Maybe<Scalars['Boolean']['output']>;
-  deletePersistentVolume?: Maybe<Scalars['Boolean']['output']>;
-  deletePersistentVolumeClaim?: Maybe<Scalars['Boolean']['output']>;
-  deletePod?: Maybe<Scalars['Boolean']['output']>;
-  deletePodTemplate?: Maybe<Scalars['Boolean']['output']>;
-  deleteReplicationController?: Maybe<Scalars['Boolean']['output']>;
-  deleteResourceQuota?: Maybe<Scalars['Boolean']['output']>;
-  deleteSecret?: Maybe<Scalars['Boolean']['output']>;
-  deleteService?: Maybe<Scalars['Boolean']['output']>;
-  deleteServiceAccount?: Maybe<Scalars['Boolean']['output']>;
-  deleteStatus?: Maybe<Scalars['Boolean']['output']>;
-  deleteWatchEvent?: Maybe<Scalars['Boolean']['output']>;
-  updateBinding?: Maybe<Binding>;
-  updateComponentStatus?: Maybe<ComponentStatus>;
-  updateConfigMap?: Maybe<ConfigMap>;
-  updateDeleteOptions?: Maybe<DeleteOptions>;
-  updateEndpoints?: Maybe<Endpoints>;
-  updateEventcorev1?: Maybe<Eventcorev1>;
-  updateLimitRange?: Maybe<LimitRange>;
-  updateNamespace?: Maybe<Namespace>;
-  updateNode?: Maybe<Node>;
-  updatePersistentVolume?: Maybe<PersistentVolume>;
-  updatePersistentVolumeClaim?: Maybe<PersistentVolumeClaim>;
-  updatePod?: Maybe<Pod>;
-  updatePodTemplate?: Maybe<PodTemplate>;
-  updateReplicationController?: Maybe<ReplicationController>;
-  updateResourceQuota?: Maybe<ResourceQuota>;
-  updateSecret?: Maybe<Secret>;
-  updateService?: Maybe<Service>;
-  updateServiceAccount?: Maybe<ServiceAccount>;
-  updateStatus?: Maybe<Status>;
-  updateWatchEvent?: Maybe<WatchEvent>;
-};
-
-
-export type CoreMutationCreateBindingArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BindingInput;
-};
-
-
-export type CoreMutationCreateComponentStatusArgs = {
-  object: ComponentStatusInput;
-};
-
-
-export type CoreMutationCreateConfigMapArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ConfigMapInput;
-};
-
-
-export type CoreMutationCreateDeleteOptionsArgs = {
-  object: DeleteOptionsInput;
-};
-
-
-export type CoreMutationCreateEndpointsArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EndpointsInput;
-};
-
-
-export type CoreMutationCreateEventcorev1Args = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: Eventcorev1Input;
-};
-
-
-export type CoreMutationCreateLimitRangeArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LimitRangeInput;
-};
-
-
-export type CoreMutationCreateNamespaceArgs = {
-  object: NamespaceInput;
-};
-
-
-export type CoreMutationCreateNodeArgs = {
-  object: NodeInput;
-};
-
-
-export type CoreMutationCreatePersistentVolumeArgs = {
-  object: PersistentVolumeInput;
-};
-
-
-export type CoreMutationCreatePersistentVolumeClaimArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PersistentVolumeClaimInput;
-};
-
-
-export type CoreMutationCreatePodArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodInput;
-};
-
-
-export type CoreMutationCreatePodTemplateArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodTemplateInput;
-};
-
-
-export type CoreMutationCreateReplicationControllerArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ReplicationControllerInput;
-};
-
-
-export type CoreMutationCreateResourceQuotaArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ResourceQuotaInput;
-};
-
-
-export type CoreMutationCreateSecretArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: SecretInput;
-};
-
-
-export type CoreMutationCreateServiceArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServiceInput;
-};
-
-
-export type CoreMutationCreateServiceAccountArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServiceAccountInput;
-};
-
-
-export type CoreMutationCreateStatusArgs = {
-  object: StatusInput;
-};
-
-
-export type CoreMutationCreateWatchEventArgs = {
-  object: WatchEventInput;
-};
-
-
-export type CoreMutationDeleteBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteComponentStatusArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeleteConfigMapArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteDeleteOptionsArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeleteEndpointsArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteEventcorev1Args = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteLimitRangeArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteNamespaceArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeleteNodeArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeletePersistentVolumeArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeletePersistentVolumeClaimArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeletePodArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeletePodTemplateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteReplicationControllerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteResourceQuotaArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteSecretArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteServiceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteServiceAccountArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreMutationDeleteStatusArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationDeleteWatchEventArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreMutationUpdateBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BindingInput;
-};
-
-
-export type CoreMutationUpdateComponentStatusArgs = {
-  name: Scalars['String']['input'];
-  object: ComponentStatusInput;
-};
-
-
-export type CoreMutationUpdateConfigMapArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ConfigMapInput;
-};
-
-
-export type CoreMutationUpdateDeleteOptionsArgs = {
-  name: Scalars['String']['input'];
-  object: DeleteOptionsInput;
-};
-
-
-export type CoreMutationUpdateEndpointsArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EndpointsInput;
-};
-
-
-export type CoreMutationUpdateEventcorev1Args = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: Eventcorev1Input;
-};
-
-
-export type CoreMutationUpdateLimitRangeArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LimitRangeInput;
-};
-
-
-export type CoreMutationUpdateNamespaceArgs = {
-  name: Scalars['String']['input'];
-  object: NamespaceInput;
-};
-
-
-export type CoreMutationUpdateNodeArgs = {
-  name: Scalars['String']['input'];
-  object: NodeInput;
-};
-
-
-export type CoreMutationUpdatePersistentVolumeArgs = {
-  name: Scalars['String']['input'];
-  object: PersistentVolumeInput;
-};
-
-
-export type CoreMutationUpdatePersistentVolumeClaimArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PersistentVolumeClaimInput;
-};
-
-
-export type CoreMutationUpdatePodArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodInput;
-};
-
-
-export type CoreMutationUpdatePodTemplateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodTemplateInput;
-};
-
-
-export type CoreMutationUpdateReplicationControllerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ReplicationControllerInput;
-};
-
-
-export type CoreMutationUpdateResourceQuotaArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ResourceQuotaInput;
-};
-
-
-export type CoreMutationUpdateSecretArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: SecretInput;
-};
-
-
-export type CoreMutationUpdateServiceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServiceInput;
-};
-
-
-export type CoreMutationUpdateServiceAccountArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServiceAccountInput;
-};
-
-
-export type CoreMutationUpdateStatusArgs = {
-  name: Scalars['String']['input'];
-  object: StatusInput;
-};
-
-
-export type CoreMutationUpdateWatchEventArgs = {
-  name: Scalars['String']['input'];
-  object: WatchEventInput;
-};
-
-export type CoreQuery = {
-  __typename?: 'coreQuery';
-  Binding: Binding;
-  BindingYaml: Scalars['String']['output'];
-  Bindings: Array<Binding>;
-  ComponentStatus: ComponentStatus;
-  ComponentStatusYaml: Scalars['String']['output'];
-  ComponentStatuses: Array<ComponentStatus>;
-  ConfigMap: ConfigMap;
-  ConfigMapYaml: Scalars['String']['output'];
-  ConfigMaps: Array<ConfigMap>;
-  DeleteOptions: DeleteOptions;
-  DeleteOptionsYaml: Scalars['String']['output'];
-  DeleteOptionses: Array<DeleteOptions>;
-  Endpoints: Endpoints;
-  EndpointsYaml: Scalars['String']['output'];
-  Endpointses: Array<Endpoints>;
-  Eventcorev1: Eventcorev1;
-  Eventcorev1Yaml: Scalars['String']['output'];
-  Eventcorev1s: Array<Eventcorev1>;
-  LimitRange: LimitRange;
-  LimitRangeYaml: Scalars['String']['output'];
-  LimitRanges: Array<LimitRange>;
-  Namespace: Namespace;
-  NamespaceYaml: Scalars['String']['output'];
-  Namespaces: Array<Namespace>;
-  Node: Node;
-  NodeYaml: Scalars['String']['output'];
-  Nodes: Array<Node>;
-  PersistentVolume: PersistentVolume;
-  PersistentVolumeClaim: PersistentVolumeClaim;
-  PersistentVolumeClaimYaml: Scalars['String']['output'];
-  PersistentVolumeClaims: Array<PersistentVolumeClaim>;
-  PersistentVolumeYaml: Scalars['String']['output'];
-  PersistentVolumes: Array<PersistentVolume>;
-  Pod: Pod;
-  PodTemplate: PodTemplate;
-  PodTemplateYaml: Scalars['String']['output'];
-  PodTemplates: Array<PodTemplate>;
-  PodYaml: Scalars['String']['output'];
-  Pods: Array<Pod>;
-  ReplicationController: ReplicationController;
-  ReplicationControllerYaml: Scalars['String']['output'];
-  ReplicationControllers: Array<ReplicationController>;
-  ResourceQuota: ResourceQuota;
-  ResourceQuotaYaml: Scalars['String']['output'];
-  ResourceQuotas: Array<ResourceQuota>;
-  Secret: Secret;
-  SecretYaml: Scalars['String']['output'];
-  Secrets: Array<Secret>;
-  Service: Service;
-  ServiceAccount: ServiceAccount;
-  ServiceAccountYaml: Scalars['String']['output'];
-  ServiceAccounts: Array<ServiceAccount>;
-  ServiceYaml: Scalars['String']['output'];
-  Services: Array<Service>;
-  Status: Status;
-  StatusYaml: Scalars['String']['output'];
-  Statuses: Array<Status>;
-  WatchEvent: WatchEvent;
-  WatchEventYaml: Scalars['String']['output'];
-  WatchEvents: Array<WatchEvent>;
-};
-
-
-export type CoreQueryBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryBindingYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryBindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryComponentStatusArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryComponentStatusYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryComponentStatusesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryConfigMapArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryConfigMapYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryConfigMapsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryDeleteOptionsArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryDeleteOptionsYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryDeleteOptionsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEndpointsArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEndpointsYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEndpointsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEventcorev1Args = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEventcorev1YamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryEventcorev1sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryLimitRangeArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryLimitRangeYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryLimitRangesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryNamespaceArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryNamespaceYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryNamespacesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryNodeArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryNodeYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryNodesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPersistentVolumeArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryPersistentVolumeClaimArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPersistentVolumeClaimYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPersistentVolumeClaimsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPersistentVolumeYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryPersistentVolumesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodTemplateArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodTemplateYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodTemplatesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryPodsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryReplicationControllerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryReplicationControllerYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryReplicationControllersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryResourceQuotaArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryResourceQuotaYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryResourceQuotasArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQuerySecretArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQuerySecretYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQuerySecretsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServiceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServiceAccountArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServiceAccountYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServiceAccountsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServiceYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryServicesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryStatusArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryStatusYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryStatusesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type CoreQueryWatchEventArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryWatchEventYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type CoreQueryWatchEventsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Core_Openmcp_CloudMutation = {
-  __typename?: 'core_openmcp_cloudMutation';
-  createAPIServer?: Maybe<ApiServer>;
-  createAuthentication?: Maybe<Authentication>;
-  createAuthorization?: Maybe<Authorization>;
-  createCloudOrchestrator?: Maybe<CloudOrchestrator>;
-  createClusterAdmin?: Maybe<ClusterAdmin>;
-  createInternalConfiguration?: Maybe<InternalConfiguration>;
-  createLandscaper?: Maybe<Landscaper>;
-  createManagedComponent?: Maybe<ManagedComponent>;
-  createManagedControlPlane?: Maybe<ManagedControlPlane>;
-  createMemberOverrides?: Maybe<MemberOverrides>;
-  createProject?: Maybe<Project>;
-  createWorkspace?: Maybe<Workspace>;
-  deleteAPIServer?: Maybe<Scalars['Boolean']['output']>;
-  deleteAuthentication?: Maybe<Scalars['Boolean']['output']>;
-  deleteAuthorization?: Maybe<Scalars['Boolean']['output']>;
-  deleteCloudOrchestrator?: Maybe<Scalars['Boolean']['output']>;
-  deleteClusterAdmin?: Maybe<Scalars['Boolean']['output']>;
-  deleteInternalConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
-  deleteManagedComponent?: Maybe<Scalars['Boolean']['output']>;
-  deleteManagedControlPlane?: Maybe<Scalars['Boolean']['output']>;
-  deleteMemberOverrides?: Maybe<Scalars['Boolean']['output']>;
-  deleteProject?: Maybe<Scalars['Boolean']['output']>;
-  deleteWorkspace?: Maybe<Scalars['Boolean']['output']>;
-  updateAPIServer?: Maybe<ApiServer>;
-  updateAuthentication?: Maybe<Authentication>;
-  updateAuthorization?: Maybe<Authorization>;
-  updateCloudOrchestrator?: Maybe<CloudOrchestrator>;
-  updateClusterAdmin?: Maybe<ClusterAdmin>;
-  updateInternalConfiguration?: Maybe<InternalConfiguration>;
-  updateLandscaper?: Maybe<Landscaper>;
-  updateManagedComponent?: Maybe<ManagedComponent>;
-  updateManagedControlPlane?: Maybe<ManagedControlPlane>;
-  updateMemberOverrides?: Maybe<MemberOverrides>;
-  updateProject?: Maybe<Project>;
-  updateWorkspace?: Maybe<Workspace>;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateApiServerArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ApiServerInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateAuthenticationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: AuthenticationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateAuthorizationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: AuthorizationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateCloudOrchestratorArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CloudOrchestratorInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateClusterAdminArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ClusterAdminInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateInternalConfigurationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: InternalConfigurationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateLandscaperArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateManagedComponentArgs = {
-  object: ManagedComponentInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateManagedControlPlaneArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ManagedControlPlaneInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateMemberOverridesArgs = {
-  object: MemberOverridesInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateProjectArgs = {
-  object: ProjectInput;
-};
-
-
-export type Core_Openmcp_CloudMutationCreateWorkspaceArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: WorkspaceInput;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteApiServerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteAuthenticationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteAuthorizationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteCloudOrchestratorArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteClusterAdminArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteInternalConfigurationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteLandscaperArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteManagedComponentArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteManagedControlPlaneArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteMemberOverridesArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteProjectArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudMutationDeleteWorkspaceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateApiServerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ApiServerInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateAuthenticationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: AuthenticationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateAuthorizationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: AuthorizationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateCloudOrchestratorArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CloudOrchestratorInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateClusterAdminArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ClusterAdminInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateInternalConfigurationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: InternalConfigurationInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateLandscaperArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateManagedComponentArgs = {
-  name: Scalars['String']['input'];
-  object: ManagedComponentInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateManagedControlPlaneArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ManagedControlPlaneInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateMemberOverridesArgs = {
-  name: Scalars['String']['input'];
-  object: MemberOverridesInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateProjectArgs = {
-  name: Scalars['String']['input'];
-  object: ProjectInput;
-};
-
-
-export type Core_Openmcp_CloudMutationUpdateWorkspaceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: WorkspaceInput;
-};
-
-export type Core_Openmcp_CloudQuery = {
-  __typename?: 'core_openmcp_cloudQuery';
-  APIServer: ApiServer;
-  APIServerYaml: Scalars['String']['output'];
-  APIServers: Array<ApiServer>;
-  Authentication: Authentication;
-  AuthenticationYaml: Scalars['String']['output'];
-  Authentications: Array<Authentication>;
-  Authorization: Authorization;
-  AuthorizationYaml: Scalars['String']['output'];
-  Authorizations: Array<Authorization>;
-  CloudOrchestrator: CloudOrchestrator;
-  CloudOrchestratorYaml: Scalars['String']['output'];
-  CloudOrchestrators: Array<CloudOrchestrator>;
-  ClusterAdmin: ClusterAdmin;
-  ClusterAdminYaml: Scalars['String']['output'];
-  ClusterAdmins: Array<ClusterAdmin>;
-  InternalConfiguration: InternalConfiguration;
-  InternalConfigurationYaml: Scalars['String']['output'];
-  InternalConfigurations: Array<InternalConfiguration>;
-  Landscaper: Landscaper;
-  LandscaperYaml: Scalars['String']['output'];
-  Landscapers: Array<Landscaper>;
-  ManagedComponent: ManagedComponent;
-  ManagedComponentYaml: Scalars['String']['output'];
-  ManagedComponents: Array<ManagedComponent>;
-  ManagedControlPlane: ManagedControlPlane;
-  ManagedControlPlaneYaml: Scalars['String']['output'];
-  ManagedControlPlanes: Array<ManagedControlPlane>;
-  MemberOverrides: MemberOverrides;
-  MemberOverridesYaml: Scalars['String']['output'];
-  MemberOverrideses: Array<MemberOverrides>;
-  Project: Project;
-  ProjectYaml: Scalars['String']['output'];
-  Projects: Array<Project>;
-  Workspace: Workspace;
-  WorkspaceYaml: Scalars['String']['output'];
-  Workspaces: Array<Workspace>;
-};
-
-
-export type Core_Openmcp_CloudQueryApiServerArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryApiServerYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryApiServersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthenticationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthenticationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthenticationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthorizationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthorizationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryAuthorizationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryCloudOrchestratorArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryCloudOrchestratorYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryCloudOrchestratorsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryClusterAdminArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryClusterAdminYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryClusterAdminsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryInternalConfigurationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryInternalConfigurationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryInternalConfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryLandscaperArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryLandscaperYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryLandscapersArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryManagedComponentArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryManagedComponentYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryManagedComponentsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryManagedControlPlaneArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryManagedControlPlaneYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryManagedControlPlanesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryMemberOverridesArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryMemberOverridesYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryMemberOverridesesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryProjectArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryProjectYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Core_Openmcp_CloudQueryProjectsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryWorkspaceArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryWorkspaceYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Core_Openmcp_CloudQueryWorkspacesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Dns_Gardener_CloudMutation = {
-  __typename?: 'dns_gardener_cloudMutation';
-  createDNSAnnotation?: Maybe<DnsAnnotation>;
-  createDNSEntry?: Maybe<DnsEntry>;
-  deleteDNSAnnotation?: Maybe<Scalars['Boolean']['output']>;
-  deleteDNSEntry?: Maybe<Scalars['Boolean']['output']>;
-  updateDNSAnnotation?: Maybe<DnsAnnotation>;
-  updateDNSEntry?: Maybe<DnsEntry>;
-};
-
-
-export type Dns_Gardener_CloudMutationCreateDnsAnnotationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DnsAnnotationInput;
-};
-
-
-export type Dns_Gardener_CloudMutationCreateDnsEntryArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DnsEntryInput;
-};
-
-
-export type Dns_Gardener_CloudMutationDeleteDnsAnnotationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudMutationDeleteDnsEntryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudMutationUpdateDnsAnnotationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DnsAnnotationInput;
-};
-
-
-export type Dns_Gardener_CloudMutationUpdateDnsEntryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DnsEntryInput;
-};
-
-export type Dns_Gardener_CloudQuery = {
-  __typename?: 'dns_gardener_cloudQuery';
-  DNSAnnotation: DnsAnnotation;
-  DNSAnnotationYaml: Scalars['String']['output'];
-  DNSAnnotations: Array<DnsAnnotation>;
-  DNSEntry: DnsEntry;
-  DNSEntryYaml: Scalars['String']['output'];
-  DNSEntrys: Array<DnsEntry>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsAnnotationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsAnnotationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsAnnotationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsEntryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsEntryYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Dns_Gardener_CloudQueryDnsEntrysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Events_K8s_IoMutation = {
-  __typename?: 'events_k8s_ioMutation';
-  createEvent?: Maybe<Event>;
-  deleteEvent?: Maybe<Scalars['Boolean']['output']>;
-  updateEvent?: Maybe<Event>;
-};
-
-
-export type Events_K8s_IoMutationCreateEventArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
-};
-
-
-export type Events_K8s_IoMutationDeleteEventArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Events_K8s_IoMutationUpdateEventArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
-};
-
-export type Events_K8s_IoQuery = {
-  __typename?: 'events_k8s_ioQuery';
-  Event: Event;
-  EventYaml: Scalars['String']['output'];
-  Events: Array<Event>;
-};
-
-
-export type Events_K8s_IoQueryEventArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Events_K8s_IoQueryEventYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Events_K8s_IoQueryEventsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Flowcontrol_Apiserver_K8s_IoMutation = {
-  __typename?: 'flowcontrol_apiserver_k8s_ioMutation';
-  createFlowSchema?: Maybe<FlowSchema>;
-  createFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
-  createPriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  createPriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
-  deleteFlowSchema?: Maybe<Scalars['Boolean']['output']>;
-  deleteFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<Scalars['Boolean']['output']>;
-  deletePriorityLevelConfiguration?: Maybe<Scalars['Boolean']['output']>;
-  deletePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<Scalars['Boolean']['output']>;
-  updateFlowSchema?: Maybe<FlowSchema>;
-  updateFlowSchemaflowcontrol_apiserver_k8s_iov1?: Maybe<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
-  updatePriorityLevelConfiguration?: Maybe<PriorityLevelConfiguration>;
-  updatePriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3?: Maybe<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationCreateFlowSchemaArgs = {
-  object: FlowSchemaInput;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationCreateFlowSchemaflowcontrol_Apiserver_K8s_Iov1Args = {
-  object: FlowSchemaflowcontrol_Apiserver_K8s_Iov1Input;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationArgs = {
-  object: PriorityLevelConfigurationInput;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationCreatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationDeleteFlowSchemaArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationDeleteFlowSchemaflowcontrol_Apiserver_K8s_Iov1Args = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationDeletePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdateFlowSchemaArgs = {
-  name: Scalars['String']['input'];
-  object: FlowSchemaInput;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdateFlowSchemaflowcontrol_Apiserver_K8s_Iov1Args = {
-  name: Scalars['String']['input'];
-  object: FlowSchemaflowcontrol_Apiserver_K8s_Iov1Input;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationArgs = {
-  name: Scalars['String']['input'];
-  object: PriorityLevelConfigurationInput;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoMutationUpdatePriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  name: Scalars['String']['input'];
-  object: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Input;
-};
-
-export type Flowcontrol_Apiserver_K8s_IoQuery = {
-  __typename?: 'flowcontrol_apiserver_k8s_ioQuery';
-  FlowSchema: FlowSchema;
-  FlowSchemaYaml: Scalars['String']['output'];
-  FlowSchemaflowcontrol_apiserver_k8s_iov1: FlowSchemaflowcontrol_Apiserver_K8s_Iov1;
-  FlowSchemaflowcontrol_apiserver_k8s_iov1Yaml: Scalars['String']['output'];
-  FlowSchemaflowcontrol_apiserver_k8s_iov1s: Array<FlowSchemaflowcontrol_Apiserver_K8s_Iov1>;
-  FlowSchemas: Array<FlowSchema>;
-  PriorityLevelConfiguration: PriorityLevelConfiguration;
-  PriorityLevelConfigurationYaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3: PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3;
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3Yaml: Scalars['String']['output'];
-  PriorityLevelConfigurationflowcontrol_apiserver_k8s_iov1beta3s: Array<PriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3>;
-  PriorityLevelConfigurations: Array<PriorityLevelConfiguration>;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemaArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemaYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemaflowcontrol_Apiserver_K8s_Iov1Args = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemaflowcontrol_Apiserver_K8s_Iov1YamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemaflowcontrol_Apiserver_K8s_Iov1sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryFlowSchemasArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3Args = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3YamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationflowcontrol_Apiserver_K8s_Iov1beta3sArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Flowcontrol_Apiserver_K8s_IoQueryPriorityLevelConfigurationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
+export type Cloud_Gardener_Cert_V1alpha1_Certificate = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificate';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatespec>;
+  status?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatestatus>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatespec = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatespec';
+  commonName?: Maybe<Scalars['String']['output']>;
+  csr?: Maybe<Scalars['String']['output']>;
+  dnsNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  duration?: Maybe<Scalars['String']['output']>;
+  emailAddresses?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  ensureRenewedAfter?: Maybe<Scalars['String']['output']>;
+  followCNAME?: Maybe<Scalars['Boolean']['output']>;
+  ipAddresses?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  isCA?: Maybe<Scalars['Boolean']['output']>;
+  issuerRef?: Maybe<Cloud_Gardener_Cert_V1alpha1_CertificatespecspecissuerRef_Issuer_Enhanced>;
+  keystores?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystores>;
+  preferredChain?: Maybe<Scalars['String']['output']>;
+  privateKey?: Maybe<Cloud_Gardener_Cert_V1alpha1_CertificatespecspecprivateKey>;
+  renew?: Maybe<Scalars['Boolean']['output']>;
+  renewBefore?: Maybe<Scalars['String']['output']>;
+  secretLabels?: Maybe<Scalars['StringMapInput']['output']>;
+  secretName?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Cloud_Gardener_Cert_V1alpha1_CertificatespecspecsecretRef_Secret_Enhanced>;
+  uris?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_CertificatespecspecissuerRef_Issuer_Enhanced = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_CertificatespecspecissuerRef_issuer_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystores = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatespecspeckeystores';
+  jks?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystoresjks>;
+  pkcs12?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystoresjks = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatespecspeckeystoresspeckeystoresjks';
+  create?: Maybe<Scalars['Boolean']['output']>;
+  passwordSecretRef?: Maybe<Cloud_Gardener_Cert_V1alpha1_CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_PasswordSecret_Enhanced>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_PasswordSecret_Enhanced = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_CertificatespecspeckeystoresspeckeystoresjksspeckeystoresjkspasswordSecretRef_passwordSecret_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  secretName?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12 = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12';
+  create?: Maybe<Scalars['Boolean']['output']>;
+  passwordSecretRef?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_PasswordSecret_Enhanced>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_PasswordSecret_Enhanced = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12passwordSecretRef_passwordSecret_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  secretName?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_CertificatespecspecprivateKey = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_CertificatespecspecprivateKey';
+  algorithm?: Maybe<Scalars['String']['output']>;
+  size?: Maybe<Scalars['Int']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_CertificatespecspecsecretRef_Secret_Enhanced = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_CertificatespecspecsecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatestatus = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatestatus';
+  backoff?: Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatestatusstatusbackoff>;
+  commonName?: Maybe<Scalars['String']['output']>;
+  conditions?: Maybe<Array<Maybe<Cloud_Gardener_Cert_V1alpha1_Certificatestatusstatusconditions>>>;
+  dnsNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  expirationDate?: Maybe<Scalars['String']['output']>;
+  issuanceDate?: Maybe<Scalars['String']['output']>;
+  issuerRef?: Maybe<Cloud_Gardener_Cert_V1alpha1_CertificatestatusstatusissuerRef_Issuer_Enhanced>;
+  lastPendingTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  renewalDate?: Maybe<Scalars['String']['output']>;
+  state?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatestatusstatusbackoff = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatestatusstatusbackoff';
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  recheckAfter?: Maybe<Scalars['String']['output']>;
+  recheckInterval?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_Certificatestatusstatusconditions = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_Certificatestatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type Cloud_Gardener_Cert_V1alpha1_CertificatestatusstatusissuerRef_Issuer_Enhanced = {
+  __typename?: 'cloud_gardener_cert_v1alpha1_CertificatestatusstatusissuerRef_issuer_Enhanced';
+  cluster?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Admissionregistration_V1_AuditAnnotationspecauditAnnotations = {
@@ -9036,19 +14662,19 @@ export type Io_K8s_Api_Admissionregistration_V1_ParamKindspecparamKindInput = {
   kind?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Admissionregistration_V1_ParamRefspecparamRef = {
-  __typename?: 'io_k8s_api_admissionregistration_v1_ParamRefspecparamRef';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-  parameterNotFoundAction?: Maybe<Scalars['String']['output']>;
-  selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecparamRefselector>;
-};
-
 export type Io_K8s_Api_Admissionregistration_V1_ParamRefspecparamRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   parameterNotFoundAction?: InputMaybe<Scalars['String']['input']>;
   selector?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecparamRefselectorInput>;
+};
+
+export type Io_K8s_Api_Admissionregistration_V1_ParamRefspecparamRef_Param_Enhanced = {
+  __typename?: 'io_k8s_api_admissionregistration_v1_ParamRefspecparamRef_param_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  parameterNotFoundAction?: Maybe<Scalars['String']['output']>;
+  selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecparamRefselector>;
 };
 
 export type Io_K8s_Api_Admissionregistration_V1_RuleWithOperationswebhooksrules = {
@@ -9095,7 +14721,7 @@ export type Io_K8s_Api_Admissionregistration_V1_TypeCheckingstatustypeCheckingIn
 export type Io_K8s_Api_Admissionregistration_V1_ValidatingAdmissionPolicyBindingSpecspec = {
   __typename?: 'io_k8s_api_admissionregistration_v1_ValidatingAdmissionPolicyBindingSpecspec';
   matchResources?: Maybe<Io_K8s_Api_Admissionregistration_V1_MatchResourcesspecmatchResources>;
-  paramRef?: Maybe<Io_K8s_Api_Admissionregistration_V1_ParamRefspecparamRef>;
+  paramRef?: Maybe<Io_K8s_Api_Admissionregistration_V1_ParamRefspecparamRef_Param_Enhanced>;
   policyName?: Maybe<Scalars['String']['output']>;
   validationActions?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
@@ -9209,19 +14835,19 @@ export type Io_K8s_Api_Admissionregistration_V1_WebhookClientConfigwebhooksclien
   url?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Authentication_V1_BoundObjectReferencespecboundObjectRef = {
-  __typename?: 'io_k8s_api_authentication_v1_BoundObjectReferencespecboundObjectRef';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  uid?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Authentication_V1_BoundObjectReferencespecboundObjectRefInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   uid?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Authentication_V1_BoundObjectReferencespecboundObjectRef_BoundObject_Enhanced = {
+  __typename?: 'io_k8s_api_authentication_v1_BoundObjectReferencespecboundObjectRef_boundObject_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  uid?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Authentication_V1_SelfSubjectReviewStatusstatus = {
@@ -9236,7 +14862,7 @@ export type Io_K8s_Api_Authentication_V1_SelfSubjectReviewStatusstatusInput = {
 export type Io_K8s_Api_Authentication_V1_TokenRequestSpecspec = {
   __typename?: 'io_k8s_api_authentication_v1_TokenRequestSpecspec';
   audiences?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  boundObjectRef?: Maybe<Io_K8s_Api_Authentication_V1_BoundObjectReferencespecboundObjectRef>;
+  boundObjectRef?: Maybe<Io_K8s_Api_Authentication_V1_BoundObjectReferencespecboundObjectRef_BoundObject_Enhanced>;
   expirationSeconds?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -9285,7 +14911,7 @@ export type Io_K8s_Api_Authentication_V1_TokenReviewStatusstatusInput = {
 
 export type Io_K8s_Api_Authentication_V1_UserInfostatususer = {
   __typename?: 'io_k8s_api_authentication_v1_UserInfostatususer';
-  extra?: Maybe<Scalars['String']['output']>;
+  extra?: Maybe<Scalars['JSONString']['output']>;
   groups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   uid?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
@@ -9293,21 +14919,21 @@ export type Io_K8s_Api_Authentication_V1_UserInfostatususer = {
 
 export type Io_K8s_Api_Authentication_V1_UserInfostatususerInfo = {
   __typename?: 'io_k8s_api_authentication_v1_UserInfostatususerInfo';
-  extra?: Maybe<Scalars['String']['output']>;
+  extra?: Maybe<Scalars['JSONString']['output']>;
   groups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   uid?: Maybe<Scalars['String']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Authentication_V1_UserInfostatususerInfoInput = {
-  extra?: InputMaybe<Scalars['String']['input']>;
+  extra?: InputMaybe<Scalars['JSONString']['input']>;
   groups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   uid?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Io_K8s_Api_Authentication_V1_UserInfostatususerInput = {
-  extra?: InputMaybe<Scalars['String']['input']>;
+  extra?: InputMaybe<Scalars['JSONString']['input']>;
   groups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   uid?: InputMaybe<Scalars['String']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
@@ -9419,7 +15045,7 @@ export type Io_K8s_Api_Authorization_V1_SelfSubjectRulesReviewSpecspecInput = {
 
 export type Io_K8s_Api_Authorization_V1_SubjectAccessReviewSpecspec = {
   __typename?: 'io_k8s_api_authorization_v1_SubjectAccessReviewSpecspec';
-  extra?: Maybe<Scalars['String']['output']>;
+  extra?: Maybe<Scalars['JSONString']['output']>;
   groups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   nonResourceAttributes?: Maybe<Io_K8s_Api_Authorization_V1_NonResourceAttributesspecnonResourceAttributes>;
   resourceAttributes?: Maybe<Io_K8s_Api_Authorization_V1_ResourceAttributesspecresourceAttributes>;
@@ -9428,7 +15054,7 @@ export type Io_K8s_Api_Authorization_V1_SubjectAccessReviewSpecspec = {
 };
 
 export type Io_K8s_Api_Authorization_V1_SubjectAccessReviewSpecspecInput = {
-  extra?: InputMaybe<Scalars['String']['input']>;
+  extra?: InputMaybe<Scalars['JSONString']['input']>;
   groups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   nonResourceAttributes?: InputMaybe<Io_K8s_Api_Authorization_V1_NonResourceAttributesspecnonResourceAttributesInput>;
   resourceAttributes?: InputMaybe<Io_K8s_Api_Authorization_V1_ResourceAttributesspecresourceAttributesInput>;
@@ -9466,24 +15092,24 @@ export type Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusstatusInput = {
   resourceRules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Authorization_V1_ResourceRulestatusresourceRulesInput>>>;
 };
 
-export type Io_K8s_Api_Autoscaling_V1_CrossVersionObjectReferencespecscaleTargetRef = {
-  __typename?: 'io_k8s_api_autoscaling_v1_CrossVersionObjectReferencespecscaleTargetRef';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Autoscaling_V1_CrossVersionObjectReferencespecscaleTargetRefInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Io_K8s_Api_Autoscaling_V1_CrossVersionObjectReferencespecscaleTargetRef_ScaleTarget_Enhanced = {
+  __typename?: 'io_k8s_api_autoscaling_v1_CrossVersionObjectReferencespecscaleTargetRef_scaleTarget_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type Io_K8s_Api_Autoscaling_V1_HorizontalPodAutoscalerSpecspec = {
   __typename?: 'io_k8s_api_autoscaling_v1_HorizontalPodAutoscalerSpecspec';
   maxReplicas?: Maybe<Scalars['Int']['output']>;
   minReplicas?: Maybe<Scalars['Int']['output']>;
-  scaleTargetRef?: Maybe<Io_K8s_Api_Autoscaling_V1_CrossVersionObjectReferencespecscaleTargetRef>;
+  scaleTargetRef?: Maybe<Io_K8s_Api_Autoscaling_V1_CrossVersionObjectReferencespecscaleTargetRef_ScaleTarget_Enhanced>;
   targetCPUUtilizationPercentage?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -9553,7 +15179,7 @@ export type Io_K8s_Api_Certificates_V1_CertificateSigningRequestConditionstatusc
 export type Io_K8s_Api_Certificates_V1_CertificateSigningRequestSpecspec = {
   __typename?: 'io_k8s_api_certificates_v1_CertificateSigningRequestSpecspec';
   expirationSeconds?: Maybe<Scalars['Int']['output']>;
-  extra?: Maybe<Scalars['String']['output']>;
+  extra?: Maybe<Scalars['JSONString']['output']>;
   groups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   request?: Maybe<Scalars['String']['output']>;
   signerName?: Maybe<Scalars['String']['output']>;
@@ -9564,7 +15190,7 @@ export type Io_K8s_Api_Certificates_V1_CertificateSigningRequestSpecspec = {
 
 export type Io_K8s_Api_Certificates_V1_CertificateSigningRequestSpecspecInput = {
   expirationSeconds?: InputMaybe<Scalars['Int']['input']>;
-  extra?: InputMaybe<Scalars['String']['input']>;
+  extra?: InputMaybe<Scalars['JSONString']['input']>;
   groups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   request?: InputMaybe<Scalars['String']['input']>;
   signerName?: InputMaybe<Scalars['String']['input']>;
@@ -10028,15 +15654,15 @@ export type Io_K8s_Api_Core_V1_AzureFileVolumeSourcetemplatespecvolumesazureFile
 
 export type Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespeccsi = {
   __typename?: 'io_k8s_api_core_v1_CSIPersistentVolumeSourcespeccsi';
-  controllerExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRef>;
-  controllerPublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerPublishSecretRef>;
+  controllerExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRef_ControllerExpandSecret_Enhanced>;
+  controllerPublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerPublishSecretRef_ControllerPublishSecret_Enhanced>;
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  nodeExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodeExpandSecretRef>;
-  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRef>;
-  nodeStageSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRef>;
+  nodeExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodeExpandSecretRef_NodeExpandSecret_Enhanced>;
+  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRef_NodePublishSecret_Enhanced>;
+  nodeStageSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRef_NodeStageSecret_Enhanced>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  volumeAttributes?: Maybe<Scalars['StringMap']['output']>;
+  volumeAttributes?: Maybe<Scalars['StringMapInput']['output']>;
   volumeHandle?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10049,21 +15675,21 @@ export type Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespeccsiInput = {
   nodePublishSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRefInput>;
   nodeStageSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRefInput>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  volumeAttributes?: InputMaybe<Scalars['StringMap']['input']>;
+  volumeAttributes?: InputMaybe<Scalars['StringMapInput']['input']>;
   volumeHandle?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespecsourceinlineVolumeSpeccsi = {
   __typename?: 'io_k8s_api_core_v1_CSIPersistentVolumeSourcespecsourceinlineVolumeSpeccsi';
-  controllerExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef>;
-  controllerPublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef>;
+  controllerExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef_ControllerExpandSecret_Enhanced>;
+  controllerPublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef_ControllerPublishSecret_Enhanced>;
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  nodeExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef>;
-  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef>;
-  nodeStageSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef>;
+  nodeExpandSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef_NodeExpandSecret_Enhanced>;
+  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef_NodePublishSecret_Enhanced>;
+  nodeStageSecretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef_NodeStageSecret_Enhanced>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  volumeAttributes?: Maybe<Scalars['StringMap']['output']>;
+  volumeAttributes?: Maybe<Scalars['StringMapInput']['output']>;
   volumeHandle?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10076,7 +15702,7 @@ export type Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespecsourceinlineVolumeSp
   nodePublishSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRefInput>;
   nodeStageSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRefInput>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  volumeAttributes?: InputMaybe<Scalars['StringMap']['input']>;
+  volumeAttributes?: InputMaybe<Scalars['StringMapInput']['input']>;
   volumeHandle?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -10084,9 +15710,9 @@ export type Io_K8s_Api_Core_V1_CsiVolumeSourcespectemplatespecvolumescsi = {
   __typename?: 'io_k8s_api_core_v1_CSIVolumeSourcespectemplatespecvolumescsi';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef>;
+  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  volumeAttributes?: Maybe<Scalars['StringMap']['output']>;
+  volumeAttributes?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiVolumeSourcespectemplatespecvolumescsiInput = {
@@ -10094,16 +15720,16 @@ export type Io_K8s_Api_Core_V1_CsiVolumeSourcespectemplatespecvolumescsiInput = 
   fsType?: InputMaybe<Scalars['String']['input']>;
   nodePublishSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRefInput>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  volumeAttributes?: InputMaybe<Scalars['StringMap']['input']>;
+  volumeAttributes?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiVolumeSourcespecvolumescsi = {
   __typename?: 'io_k8s_api_core_v1_CSIVolumeSourcespecvolumescsi';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRef>;
+  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  volumeAttributes?: Maybe<Scalars['StringMap']['output']>;
+  volumeAttributes?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiVolumeSourcespecvolumescsiInput = {
@@ -10111,16 +15737,16 @@ export type Io_K8s_Api_Core_V1_CsiVolumeSourcespecvolumescsiInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   nodePublishSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRefInput>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  volumeAttributes?: InputMaybe<Scalars['StringMap']['input']>;
+  volumeAttributes?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiVolumeSourcetemplatespecvolumescsi = {
   __typename?: 'io_k8s_api_core_v1_CSIVolumeSourcetemplatespecvolumescsi';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef>;
+  nodePublishSecretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  volumeAttributes?: Maybe<Scalars['StringMap']['output']>;
+  volumeAttributes?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CsiVolumeSourcetemplatespecvolumescsiInput = {
@@ -10128,7 +15754,7 @@ export type Io_K8s_Api_Core_V1_CsiVolumeSourcetemplatespecvolumescsiInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   nodePublishSecretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRefInput>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  volumeAttributes?: InputMaybe<Scalars['StringMap']['input']>;
+  volumeAttributes?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_CapabilitiesspeccontainerssecurityContextcapabilities = {
@@ -10235,8 +15861,9 @@ export type Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespeccephfs = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   path?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
   secretFile?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRef>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10244,6 +15871,7 @@ export type Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespeccephfsInput = {
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   path?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretFile?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
@@ -10254,8 +15882,9 @@ export type Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespecsourceinlineVolum
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   path?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
   secretFile?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10263,6 +15892,7 @@ export type Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespecsourceinlineVolum
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   path?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretFile?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
@@ -10273,8 +15903,9 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcespectemplatespecvolumescephfs =
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   path?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
   secretFile?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRef>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10282,6 +15913,7 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcespectemplatespecvolumescephfsIn
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   path?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretFile?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
@@ -10292,8 +15924,9 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcespecvolumescephfs = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   path?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
   secretFile?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRef>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10301,6 +15934,7 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcespecvolumescephfsInput = {
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   path?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretFile?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
@@ -10311,8 +15945,9 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcetemplatespecvolumescephfs = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   path?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Scalars['String']['output']>;
   secretFile?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRef>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -10320,6 +15955,7 @@ export type Io_K8s_Api_Core_V1_CephFsVolumeSourcetemplatespecvolumescephfsInput 
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   path?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretFile?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
@@ -10329,13 +15965,15 @@ export type Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespeccinder = {
   __typename?: 'io_k8s_api_core_v1_CinderPersistentVolumeSourcespeccinder';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRef_Secret_Enhanced>;
   volumeID?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespeccinderInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRefInput>;
   volumeID?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10344,13 +15982,15 @@ export type Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespecsourceinlineVolum
   __typename?: 'io_k8s_api_core_v1_CinderPersistentVolumeSourcespecsourceinlineVolumeSpeccinder';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef_Secret_Enhanced>;
   volumeID?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespecsourceinlineVolumeSpeccinderInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRefInput>;
   volumeID?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10359,13 +15999,15 @@ export type Io_K8s_Api_Core_V1_CinderVolumeSourcespectemplatespecvolumescinder =
   __typename?: 'io_k8s_api_core_v1_CinderVolumeSourcespectemplatespecvolumescinder';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRef_Secret_Enhanced>;
   volumeID?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CinderVolumeSourcespectemplatespecvolumescinderInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRefInput>;
   volumeID?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10374,13 +16016,15 @@ export type Io_K8s_Api_Core_V1_CinderVolumeSourcespecvolumescinder = {
   __typename?: 'io_k8s_api_core_v1_CinderVolumeSourcespecvolumescinder';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRef_Secret_Enhanced>;
   volumeID?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CinderVolumeSourcespecvolumescinderInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRefInput>;
   volumeID?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10389,13 +16033,15 @@ export type Io_K8s_Api_Core_V1_CinderVolumeSourcetemplatespecvolumescinder = {
   __typename?: 'io_k8s_api_core_v1_CinderVolumeSourcetemplatespecvolumescinder';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRef_Secret_Enhanced>;
   volumeID?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_CinderVolumeSourcetemplatespecvolumescinderInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRefInput>;
   volumeID?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10475,19 +16121,13 @@ export type Io_K8s_Api_Core_V1_ComponentConditionconditionsInput = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef';
-  name?: Maybe<Scalars['String']['output']>;
-  optional?: Maybe<Scalars['Boolean']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10497,8 +16137,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromc
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10508,8 +16148,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfig
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10519,8 +16159,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFr
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10530,8 +16170,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContai
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10541,8 +16181,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainerse
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10552,8 +16192,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromco
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10563,8 +16203,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainers
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef';
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10574,9 +16214,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFr
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef';
-  key?: Maybe<Scalars['String']['output']>;
+export type Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef_configMap_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10587,8 +16226,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspeccontainersenvvalueFromcon
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10600,8 +16239,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecephemeralContainersenvval
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10613,8 +16252,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecinitContainersenvvalueFro
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10626,8 +16265,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespeccontainersenv
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10639,8 +16278,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecephemeralCont
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10652,8 +16291,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecinitContainer
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10665,8 +16304,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespeccontainersenvvalu
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10678,8 +16317,8 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecephemeralContaine
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef';
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -10689,6 +16328,13 @@ export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecinitContainersenv
   key?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   optional?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef_configMapKey_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  optional?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ConfigMapNodeConfigSourcespecconfigSourceconfigMap = {
@@ -11432,7 +17078,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatestatusinitContainerStatusesstateInp
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatuscontainerStatuses = {
   __typename?: 'io_k8s_api_core_v1_ContainerStatusstatuscontainerStatuses';
-  allocatedResources?: Maybe<Scalars['String']['output']>;
+  allocatedResources?: Maybe<Scalars['JSONString']['output']>;
   allocatedResourcesStatus?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceStatusstatuscontainerStatusesallocatedResourcesStatus>>>;
   containerID?: Maybe<Scalars['String']['output']>;
   image?: Maybe<Scalars['String']['output']>;
@@ -11449,7 +17095,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatusstatuscontainerStatuses = {
 };
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatuscontainerStatusesInput = {
-  allocatedResources?: InputMaybe<Scalars['String']['input']>;
+  allocatedResources?: InputMaybe<Scalars['JSONString']['input']>;
   allocatedResourcesStatus?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceStatusstatuscontainerStatusesallocatedResourcesStatusInput>>>;
   containerID?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
@@ -11467,7 +17113,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatusstatuscontainerStatusesInput = {
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatusephemeralContainerStatuses = {
   __typename?: 'io_k8s_api_core_v1_ContainerStatusstatusephemeralContainerStatuses';
-  allocatedResources?: Maybe<Scalars['String']['output']>;
+  allocatedResources?: Maybe<Scalars['JSONString']['output']>;
   allocatedResourcesStatus?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceStatusstatusephemeralContainerStatusesallocatedResourcesStatus>>>;
   containerID?: Maybe<Scalars['String']['output']>;
   image?: Maybe<Scalars['String']['output']>;
@@ -11484,7 +17130,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatusstatusephemeralContainerStatuses =
 };
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatusephemeralContainerStatusesInput = {
-  allocatedResources?: InputMaybe<Scalars['String']['input']>;
+  allocatedResources?: InputMaybe<Scalars['JSONString']['input']>;
   allocatedResourcesStatus?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceStatusstatusephemeralContainerStatusesallocatedResourcesStatusInput>>>;
   containerID?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
@@ -11502,7 +17148,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatusstatusephemeralContainerStatusesIn
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatusinitContainerStatuses = {
   __typename?: 'io_k8s_api_core_v1_ContainerStatusstatusinitContainerStatuses';
-  allocatedResources?: Maybe<Scalars['String']['output']>;
+  allocatedResources?: Maybe<Scalars['JSONString']['output']>;
   allocatedResourcesStatus?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceStatusstatusinitContainerStatusesallocatedResourcesStatus>>>;
   containerID?: Maybe<Scalars['String']['output']>;
   image?: Maybe<Scalars['String']['output']>;
@@ -11519,7 +17165,7 @@ export type Io_K8s_Api_Core_V1_ContainerStatusstatusinitContainerStatuses = {
 };
 
 export type Io_K8s_Api_Core_V1_ContainerStatusstatusinitContainerStatusesInput = {
-  allocatedResources?: InputMaybe<Scalars['String']['input']>;
+  allocatedResources?: InputMaybe<Scalars['JSONString']['input']>;
   allocatedResourcesStatus?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceStatusstatusinitContainerStatusesallocatedResourcesStatusInput>>>;
   containerID?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
@@ -11930,10 +17576,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiProjectiontemplatespecvolumesprojected
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFilespectemplatespecvolumesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesdownwardApIitemsInput = {
@@ -11945,10 +17591,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesdownw
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesprojectedsourcesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFilespectemplatespecvolumesprojectedsourcesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesprojectedsourcesdownwardApIitemsInput = {
@@ -11960,10 +17606,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespectemplatespecvolumesproje
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFilespecvolumesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesdownwardApIitemsInput = {
@@ -11975,10 +17621,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesdownwardApIitemsI
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesprojectedsourcesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFilespecvolumesprojectedsourcesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesprojectedsourcesdownwardApIitemsInput = {
@@ -11990,10 +17636,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiVolumeFilespecvolumesprojectedsourcesd
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFiletemplatespecvolumesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFiletemplatespecvolumesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFiletemplatespecvolumesdownwardApIitemsInput = {
@@ -12005,10 +17651,10 @@ export type Io_K8s_Api_Core_V1_DownwardApiVolumeFiletemplatespecvolumesdownwardA
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFiletemplatespecvolumesprojectedsourcesdownwardApIitems = {
   __typename?: 'io_k8s_api_core_v1_DownwardAPIVolumeFiletemplatespecvolumesprojectedsourcesdownwardAPIitems';
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced>;
   mode?: Maybe<Scalars['Int']['output']>;
   path?: Maybe<Scalars['String']['output']>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_DownwardApiVolumeFiletemplatespecvolumesprojectedsourcesdownwardApIitemsInput = {
@@ -12089,7 +17735,7 @@ export type Io_K8s_Api_Core_V1_EndpointAddresssubsetsaddresses = {
   hostname?: Maybe<Scalars['String']['output']>;
   ip?: Maybe<Scalars['String']['output']>;
   nodeName?: Maybe<Scalars['String']['output']>;
-  targetRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencesubsetsaddressestargetRef>;
+  targetRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencesubsetsaddressestargetRef_Target_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EndpointAddresssubsetsaddressesInput = {
@@ -12104,7 +17750,7 @@ export type Io_K8s_Api_Core_V1_EndpointAddresssubsetsnotReadyAddresses = {
   hostname?: Maybe<Scalars['String']['output']>;
   ip?: Maybe<Scalars['String']['output']>;
   nodeName?: Maybe<Scalars['String']['output']>;
-  targetRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencesubsetsnotReadyAddressestargetRef>;
+  targetRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencesubsetsnotReadyAddressestargetRef_Target_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EndpointAddresssubsetsnotReadyAddressesInput = {
@@ -12144,127 +17790,163 @@ export type Io_K8s_Api_Core_V1_EndpointSubsetsubsetsInput = {
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespeccontainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespeccontainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespeccontainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespeccontainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespecephemeralContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespecephemeralContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespecephemeralContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecephemeralContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespecinitContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespecinitContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespecinitContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespecinitContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespeccontainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespectemplatespeccontainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespeccontainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespeccontainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespecephemeralContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespectemplatespecephemeralContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespecephemeralContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecephemeralContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespecinitContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcespectemplatespecinitContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcespectemplatespecinitContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcespectemplatespecinitContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespeccontainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcetemplatespeccontainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespeccontainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespeccontainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespecephemeralContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcetemplatespecephemeralContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespecephemeralContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecephemeralContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespecinitContainersenvFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvFromSourcetemplatespecinitContainersenvFrom';
-  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef>;
+  configMapRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRef_ConfigMap_Enhanced>;
+  configmap?: Maybe<Scalars['String']['output']>;
   prefix?: Maybe<Scalars['String']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvFromSourcetemplatespecinitContainersenvFromInput = {
   configMapRef?: InputMaybe<Io_K8s_Api_Core_V1_ConfigMapEnvSourcetemplatespecinitContainersenvFromconfigMapRefInput>;
+  configmap?: InputMaybe<Scalars['String']['input']>;
   prefix?: InputMaybe<Scalars['String']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRefInput>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespeccontainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespeccontainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespeccontainersenvvalueFromInput = {
@@ -12276,10 +17958,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespeccontainersenvvalueFromInput = {
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespecephemeralContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespecephemeralContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespecephemeralContainersenvvalueFromInput = {
@@ -12291,10 +17973,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespecephemeralContainersenvvalueFromIn
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespecinitContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespecinitContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespecinitContainersenvvalueFromInput = {
@@ -12306,10 +17988,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespecinitContainersenvvalueFromInput =
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespeccontainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespectemplatespeccontainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespeccontainersenvvalueFromInput = {
@@ -12321,10 +18003,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespeccontainersenvvalueFro
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecephemeralContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespectemplatespecephemeralContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecephemeralContainersenvvalueFromInput = {
@@ -12336,10 +18018,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecephemeralContainersen
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecinitContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcespectemplatespecinitContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectorspectemplatespecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecinitContainersenvvalueFromInput = {
@@ -12351,10 +18033,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcespectemplatespecinitContainersenvvalu
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespeccontainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcetemplatespeccontainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespeccontainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespeccontainersenvvalueFromInput = {
@@ -12366,10 +18048,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespeccontainersenvvalueFromInp
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespecephemeralContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcetemplatespecephemeralContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecephemeralContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespecephemeralContainersenvvalueFromInput = {
@@ -12381,10 +18063,10 @@ export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespecephemeralContainersenvval
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespecinitContainersenvvalueFrom = {
   __typename?: 'io_k8s_api_core_v1_EnvVarSourcetemplatespecinitContainersenvvalueFrom';
-  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef>;
-  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef>;
-  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef>;
-  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef>;
+  configMapKeyRef?: Maybe<Io_K8s_Api_Core_V1_ConfigMapKeySelectortemplatespecinitContainersenvvalueFromconfigMapKeyRef_ConfigMapKey_Enhanced>;
+  fieldRef?: Maybe<Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef_Field_Enhanced>;
+  resourceFieldRef?: Maybe<Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced>;
+  secretKeyRef?: Maybe<Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_EnvVarSourcetemplatespecinitContainersenvvalueFromInput = {
@@ -13236,16 +18918,18 @@ export type Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecflexVolume = {
   __typename?: 'io_k8s_api_core_v1_FlexPersistentVolumeSourcespecflexVolume';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  options?: Maybe<Scalars['StringMap']['output']>;
+  options?: Maybe<Scalars['StringMapInput']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecflexVolumeInput = {
   driver?: InputMaybe<Scalars['String']['input']>;
   fsType?: InputMaybe<Scalars['String']['input']>;
-  options?: InputMaybe<Scalars['StringMap']['input']>;
+  options?: InputMaybe<Scalars['StringMapInput']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRefInput>;
 };
 
@@ -13253,16 +18937,18 @@ export type Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecsourceinlineVolumeS
   __typename?: 'io_k8s_api_core_v1_FlexPersistentVolumeSourcespecsourceinlineVolumeSpecflexVolume';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  options?: Maybe<Scalars['StringMap']['output']>;
+  options?: Maybe<Scalars['StringMapInput']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecsourceinlineVolumeSpecflexVolumeInput = {
   driver?: InputMaybe<Scalars['String']['input']>;
   fsType?: InputMaybe<Scalars['String']['input']>;
-  options?: InputMaybe<Scalars['StringMap']['input']>;
+  options?: InputMaybe<Scalars['StringMapInput']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRefInput>;
 };
 
@@ -13270,16 +18956,18 @@ export type Io_K8s_Api_Core_V1_FlexVolumeSourcespectemplatespecvolumesflexVolume
   __typename?: 'io_k8s_api_core_v1_FlexVolumeSourcespectemplatespecvolumesflexVolume';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  options?: Maybe<Scalars['StringMap']['output']>;
+  options?: Maybe<Scalars['StringMapInput']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_FlexVolumeSourcespectemplatespecvolumesflexVolumeInput = {
   driver?: InputMaybe<Scalars['String']['input']>;
   fsType?: InputMaybe<Scalars['String']['input']>;
-  options?: InputMaybe<Scalars['StringMap']['input']>;
+  options?: InputMaybe<Scalars['StringMapInput']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRefInput>;
 };
 
@@ -13287,16 +18975,18 @@ export type Io_K8s_Api_Core_V1_FlexVolumeSourcespecvolumesflexVolume = {
   __typename?: 'io_k8s_api_core_v1_FlexVolumeSourcespecvolumesflexVolume';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  options?: Maybe<Scalars['StringMap']['output']>;
+  options?: Maybe<Scalars['StringMapInput']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_FlexVolumeSourcespecvolumesflexVolumeInput = {
   driver?: InputMaybe<Scalars['String']['input']>;
   fsType?: InputMaybe<Scalars['String']['input']>;
-  options?: InputMaybe<Scalars['StringMap']['input']>;
+  options?: InputMaybe<Scalars['StringMapInput']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRefInput>;
 };
 
@@ -13304,16 +18994,18 @@ export type Io_K8s_Api_Core_V1_FlexVolumeSourcetemplatespecvolumesflexVolume = {
   __typename?: 'io_k8s_api_core_v1_FlexVolumeSourcetemplatespecvolumesflexVolume';
   driver?: Maybe<Scalars['String']['output']>;
   fsType?: Maybe<Scalars['String']['output']>;
-  options?: Maybe<Scalars['StringMap']['output']>;
+  options?: Maybe<Scalars['StringMapInput']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef_Secret_Enhanced>;
 };
 
 export type Io_K8s_Api_Core_V1_FlexVolumeSourcetemplatespecvolumesflexVolumeInput = {
   driver?: InputMaybe<Scalars['String']['input']>;
   fsType?: InputMaybe<Scalars['String']['input']>;
-  options?: InputMaybe<Scalars['StringMap']['input']>;
+  options?: InputMaybe<Scalars['StringMapInput']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRefInput>;
 };
 
@@ -15220,7 +20912,8 @@ export type Io_K8s_Api_Core_V1_IscsiPersistentVolumeSourcespeciscsi = {
   lun?: Maybe<Scalars['Int']['output']>;
   portals?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRef_Secret_Enhanced>;
   targetPortal?: Maybe<Scalars['String']['output']>;
 };
 
@@ -15234,6 +20927,7 @@ export type Io_K8s_Api_Core_V1_IscsiPersistentVolumeSourcespeciscsiInput = {
   lun?: InputMaybe<Scalars['Int']['input']>;
   portals?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRefInput>;
   targetPortal?: InputMaybe<Scalars['String']['input']>;
 };
@@ -15249,7 +20943,8 @@ export type Io_K8s_Api_Core_V1_IscsiPersistentVolumeSourcespecsourceinlineVolume
   lun?: Maybe<Scalars['Int']['output']>;
   portals?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef_Secret_Enhanced>;
   targetPortal?: Maybe<Scalars['String']['output']>;
 };
 
@@ -15263,6 +20958,7 @@ export type Io_K8s_Api_Core_V1_IscsiPersistentVolumeSourcespecsourceinlineVolume
   lun?: InputMaybe<Scalars['Int']['input']>;
   portals?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRefInput>;
   targetPortal?: InputMaybe<Scalars['String']['input']>;
 };
@@ -15278,7 +20974,8 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcespectemplatespecvolumesiscsi = {
   lun?: Maybe<Scalars['Int']['output']>;
   portals?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef_Secret_Enhanced>;
   targetPortal?: Maybe<Scalars['String']['output']>;
 };
 
@@ -15292,6 +20989,7 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcespectemplatespecvolumesiscsiInpu
   lun?: InputMaybe<Scalars['Int']['input']>;
   portals?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRefInput>;
   targetPortal?: InputMaybe<Scalars['String']['input']>;
 };
@@ -15307,7 +21005,8 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcespecvolumesiscsi = {
   lun?: Maybe<Scalars['Int']['output']>;
   portals?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRef_Secret_Enhanced>;
   targetPortal?: Maybe<Scalars['String']['output']>;
 };
 
@@ -15321,6 +21020,7 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcespecvolumesiscsiInput = {
   lun?: InputMaybe<Scalars['Int']['input']>;
   portals?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRefInput>;
   targetPortal?: InputMaybe<Scalars['String']['input']>;
 };
@@ -15336,7 +21036,8 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcetemplatespecvolumesiscsi = {
   lun?: Maybe<Scalars['Int']['output']>;
   portals?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRef_Secret_Enhanced>;
   targetPortal?: Maybe<Scalars['String']['output']>;
 };
 
@@ -15350,6 +21051,7 @@ export type Io_K8s_Api_Core_V1_IscsiVolumeSourcetemplatespecvolumesiscsiInput = 
   lun?: InputMaybe<Scalars['Int']['input']>;
   portals?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRefInput>;
   targetPortal?: InputMaybe<Scalars['String']['input']>;
 };
@@ -15914,20 +21616,20 @@ export type Io_K8s_Api_Core_V1_LifecycletemplatespecinitContainerslifecycleInput
 
 export type Io_K8s_Api_Core_V1_LimitRangeItemspeclimits = {
   __typename?: 'io_k8s_api_core_v1_LimitRangeItemspeclimits';
-  default?: Maybe<Scalars['String']['output']>;
-  defaultRequest?: Maybe<Scalars['String']['output']>;
-  max?: Maybe<Scalars['String']['output']>;
-  maxLimitRequestRatio?: Maybe<Scalars['String']['output']>;
-  min?: Maybe<Scalars['String']['output']>;
+  default?: Maybe<Scalars['JSONString']['output']>;
+  defaultRequest?: Maybe<Scalars['JSONString']['output']>;
+  max?: Maybe<Scalars['JSONString']['output']>;
+  maxLimitRequestRatio?: Maybe<Scalars['JSONString']['output']>;
+  min?: Maybe<Scalars['JSONString']['output']>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_LimitRangeItemspeclimitsInput = {
-  default?: InputMaybe<Scalars['String']['input']>;
-  defaultRequest?: InputMaybe<Scalars['String']['input']>;
-  max?: InputMaybe<Scalars['String']['input']>;
-  maxLimitRequestRatio?: InputMaybe<Scalars['String']['input']>;
-  min?: InputMaybe<Scalars['String']['input']>;
+  default?: InputMaybe<Scalars['JSONString']['input']>;
+  defaultRequest?: InputMaybe<Scalars['JSONString']['input']>;
+  max?: InputMaybe<Scalars['JSONString']['input']>;
+  maxLimitRequestRatio?: InputMaybe<Scalars['JSONString']['input']>;
+  min?: InputMaybe<Scalars['JSONString']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -16030,35 +21732,32 @@ export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecimagePullSecr
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescephfssecretRef';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescindersecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescephfssecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescephfssecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescindersecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescindersecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumescsinodePublishSecretRef_nodePublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -16066,71 +21765,78 @@ export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVo
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesflexVolumesecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesiscsisecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescephfssecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescindersecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescephfssecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescephfssecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescsinodePublishSecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescindersecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescindersecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesflexVolumesecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumescsinodePublishSecretRef_nodePublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -16138,40 +21844,50 @@ export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRe
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesiscsisecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesflexVolumesecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesflexVolumesecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesrbdsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesiscsisecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesiscsisecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesscaleIOsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesrbdsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesstorageossecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesscaleIOsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencespecvolumesstorageossecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecimagePullSecrets = {
@@ -16183,35 +21899,32 @@ export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecimagePullSecretsI
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescephfssecretRef';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescindersecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescephfssecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescephfssecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescindersecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescindersecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef_NodePublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumescsinodePublishSecretRef_nodePublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
 };
 
@@ -16219,40 +21932,50 @@ export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolume
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesiscsisecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesflexVolumesecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesrbdsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesiscsisecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesiscsisecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesrbdsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRef = {
-  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesstorageossecretRef';
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_LocalObjectReferencetemplatespecvolumesstorageossecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_LocalVolumeSourcespeclocal = {
@@ -16909,8 +22632,8 @@ export type Io_K8s_Api_Core_V1_NodeSpecspecInput = {
 export type Io_K8s_Api_Core_V1_NodeStatusstatus = {
   __typename?: 'io_k8s_api_core_v1_NodeStatusstatus';
   addresses?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_NodeAddressstatusaddresses>>>;
-  allocatable?: Maybe<Scalars['String']['output']>;
-  capacity?: Maybe<Scalars['String']['output']>;
+  allocatable?: Maybe<Scalars['JSONString']['output']>;
+  capacity?: Maybe<Scalars['JSONString']['output']>;
   conditions?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_NodeConditionstatusconditions>>>;
   config?: Maybe<Io_K8s_Api_Core_V1_NodeConfigStatusstatusconfig>;
   daemonEndpoints?: Maybe<Io_K8s_Api_Core_V1_NodeDaemonEndpointsstatusdaemonEndpoints>;
@@ -16925,8 +22648,8 @@ export type Io_K8s_Api_Core_V1_NodeStatusstatus = {
 
 export type Io_K8s_Api_Core_V1_NodeStatusstatusInput = {
   addresses?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_NodeAddressstatusaddressesInput>>>;
-  allocatable?: InputMaybe<Scalars['String']['input']>;
-  capacity?: InputMaybe<Scalars['String']['input']>;
+  allocatable?: InputMaybe<Scalars['JSONString']['input']>;
+  capacity?: InputMaybe<Scalars['JSONString']['input']>;
   conditions?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_NodeConditionstatusconditionsInput>>>;
   config?: InputMaybe<Io_K8s_Api_Core_V1_NodeConfigStatusstatusconfigInput>;
   daemonEndpoints?: InputMaybe<Io_K8s_Api_Core_V1_NodeDaemonEndpointsstatusdaemonEndpointsInput>;
@@ -16966,19 +22689,13 @@ export type Io_K8s_Api_Core_V1_NodeSystemInfostatusnodeInfoInput = {
   systemUUID?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  fieldPath?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRefInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspeccontainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -16988,8 +22705,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecephemeralContainersenvvalu
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecephemeralContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -16999,8 +22716,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecinitContainersenvvalueFrom
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecinitContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17010,8 +22727,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespeccontainersenvv
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespeccontainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17021,8 +22738,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecephemeralConta
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecephemeralContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17032,8 +22749,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecinitContainers
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecvolumesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecinitContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17043,8 +22760,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesdownwar
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecvolumesdownwardAPIitemsfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17054,8 +22771,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesproject
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecvolumesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardAPIitemsfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17065,8 +22782,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesdownwardApIitemsfie
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecvolumesdownwardAPIitemsfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17076,8 +22793,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesprojectedsourcesdow
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectorspecvolumesprojectedsourcesdownwardAPIitemsfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17087,8 +22804,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespeccontainersenvvalue
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespeccontainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17098,8 +22815,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecephemeralContainer
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecephemeralContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17109,8 +22826,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecinitContainersenvv
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecvolumesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecinitContainersenvvalueFromfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17120,8 +22837,8 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesdownwardApI
   fieldPath?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardAPIitemsfieldRef';
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecvolumesdownwardAPIitemsfieldRef_field_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
@@ -17129,6 +22846,12 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedso
 export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRefInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldPath?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsfieldRef_Field_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectFieldSelectortemplatespecvolumesprojectedsourcesdownwardAPIitemsfieldRef_field_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  fieldPath?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject = {
@@ -17215,17 +22938,6 @@ export type Io_K8s_Api_Core_V1_ObjectReferencesecretsInput = {
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencespecclaimRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecclaimRef';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  fieldPath?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-  uid?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_ObjectReferencespecclaimRefInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldPath?: InputMaybe<Scalars['String']['input']>;
@@ -17236,8 +22948,8 @@ export type Io_K8s_Api_Core_V1_ObjectReferencespecclaimRefInput = {
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecsourceinlineVolumeSpecclaimRef';
+export type Io_K8s_Api_Core_V1_ObjectReferencespecclaimRef_Claim_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecclaimRef_claim_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
@@ -17257,8 +22969,8 @@ export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRef
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef';
+export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRef_Claim_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecsourceinlineVolumeSpecclaimRef_claim_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
@@ -17278,14 +22990,15 @@ export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageo
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecstorageossecretRef';
+export type Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef_secret_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
   uid?: Maybe<Scalars['String']['output']>;
 };
 
@@ -17299,14 +23012,15 @@ export type Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRefInput = {
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsaddressestargetRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencesubsetsaddressestargetRef';
+export type Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencespecstorageossecretRef_secret_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
   uid?: Maybe<Scalars['String']['output']>;
 };
 
@@ -17320,8 +23034,8 @@ export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsaddressestargetRefInput = {
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsnotReadyAddressestargetRef = {
-  __typename?: 'io_k8s_api_core_v1_ObjectReferencesubsetsnotReadyAddressestargetRef';
+export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsaddressestargetRef_Target_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencesubsetsaddressestargetRef_target_Enhanced';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldPath?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
@@ -17339,6 +23053,17 @@ export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsnotReadyAddressestargetRefI
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   uid?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ObjectReferencesubsetsnotReadyAddressestargetRef_Target_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferencesubsetsnotReadyAddressestargetRef_target_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  fieldPath?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+  uid?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ObjectReferencetarget = {
@@ -17385,7 +23110,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimSpecspec = {
   __typename?: 'io_k8s_api_core_v1_PersistentVolumeClaimSpecspec';
   accessModes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   dataSource?: Maybe<Io_K8s_Api_Core_V1_TypedLocalObjectReferencespecdataSource>;
-  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRef>;
+  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRef_DataSource_Enhanced>;
   resources?: Maybe<Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecresources>;
   selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecselector>;
   storageClassName?: Maybe<Scalars['String']['output']>;
@@ -17410,7 +23135,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimSpecspectemplatespecvolumese
   __typename?: 'io_k8s_api_core_v1_PersistentVolumeClaimSpecspectemplatespecvolumesephemeralvolumeClaimTemplatespec';
   accessModes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   dataSource?: Maybe<Io_K8s_Api_Core_V1_TypedLocalObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSource>;
-  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef>;
+  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced>;
   resources?: Maybe<Io_K8s_Api_Core_V1_VolumeResourceRequirementsspectemplatespecvolumesephemeralvolumeClaimTemplatespecresources>;
   selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecvolumesephemeralvolumeClaimTemplatespecselector>;
   storageClassName?: Maybe<Scalars['String']['output']>;
@@ -17435,7 +23160,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimSpecspecvolumesephemeralvolu
   __typename?: 'io_k8s_api_core_v1_PersistentVolumeClaimSpecspecvolumesephemeralvolumeClaimTemplatespec';
   accessModes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   dataSource?: Maybe<Io_K8s_Api_Core_V1_TypedLocalObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSource>;
-  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef>;
+  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced>;
   resources?: Maybe<Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecvolumesephemeralvolumeClaimTemplatespecresources>;
   selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecvolumesephemeralvolumeClaimTemplatespecselector>;
   storageClassName?: Maybe<Scalars['String']['output']>;
@@ -17460,7 +23185,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimSpectemplatespecvolumesephem
   __typename?: 'io_k8s_api_core_v1_PersistentVolumeClaimSpectemplatespecvolumesephemeralvolumeClaimTemplatespec';
   accessModes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   dataSource?: Maybe<Io_K8s_Api_Core_V1_TypedLocalObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSource>;
-  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef>;
+  dataSourceRef?: Maybe<Io_K8s_Api_Core_V1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced>;
   resources?: Maybe<Io_K8s_Api_Core_V1_VolumeResourceRequirementstemplatespecvolumesephemeralvolumeClaimTemplatespecresources>;
   selector?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecvolumesephemeralvolumeClaimTemplatespecselector>;
   storageClassName?: Maybe<Scalars['String']['output']>;
@@ -17484,9 +23209,9 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimSpectemplatespecvolumesephem
 export type Io_K8s_Api_Core_V1_PersistentVolumeClaimStatusstatus = {
   __typename?: 'io_k8s_api_core_v1_PersistentVolumeClaimStatusstatus';
   accessModes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  allocatedResourceStatuses?: Maybe<Scalars['StringMap']['output']>;
-  allocatedResources?: Maybe<Scalars['String']['output']>;
-  capacity?: Maybe<Scalars['String']['output']>;
+  allocatedResourceStatuses?: Maybe<Scalars['StringMapInput']['output']>;
+  allocatedResources?: Maybe<Scalars['JSONString']['output']>;
+  capacity?: Maybe<Scalars['JSONString']['output']>;
   conditions?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PersistentVolumeClaimConditionstatusconditions>>>;
   currentVolumeAttributesClassName?: Maybe<Scalars['String']['output']>;
   modifyVolumeStatus?: Maybe<Io_K8s_Api_Core_V1_ModifyVolumeStatusstatusmodifyVolumeStatus>;
@@ -17495,9 +23220,9 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeClaimStatusstatus = {
 
 export type Io_K8s_Api_Core_V1_PersistentVolumeClaimStatusstatusInput = {
   accessModes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  allocatedResourceStatuses?: InputMaybe<Scalars['StringMap']['input']>;
-  allocatedResources?: InputMaybe<Scalars['String']['input']>;
-  capacity?: InputMaybe<Scalars['String']['input']>;
+  allocatedResourceStatuses?: InputMaybe<Scalars['StringMapInput']['input']>;
+  allocatedResources?: InputMaybe<Scalars['JSONString']['input']>;
+  capacity?: InputMaybe<Scalars['JSONString']['input']>;
   conditions?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PersistentVolumeClaimConditionstatusconditionsInput>>>;
   currentVolumeAttributesClassName?: InputMaybe<Scalars['String']['input']>;
   modifyVolumeStatus?: InputMaybe<Io_K8s_Api_Core_V1_ModifyVolumeStatusstatusmodifyVolumeStatusInput>;
@@ -17576,10 +23301,10 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeSpecspec = {
   awsElasticBlockStore?: Maybe<Io_K8s_Api_Core_V1_AwsElasticBlockStoreVolumeSourcespecawsElasticBlockStore>;
   azureDisk?: Maybe<Io_K8s_Api_Core_V1_AzureDiskVolumeSourcespecazureDisk>;
   azureFile?: Maybe<Io_K8s_Api_Core_V1_AzureFilePersistentVolumeSourcespecazureFile>;
-  capacity?: Maybe<Scalars['String']['output']>;
+  capacity?: Maybe<Scalars['JSONString']['output']>;
   cephfs?: Maybe<Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespeccephfs>;
   cinder?: Maybe<Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespeccinder>;
-  claimRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecclaimRef>;
+  claimRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecclaimRef_Claim_Enhanced>;
   csi?: Maybe<Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespeccsi>;
   fc?: Maybe<Io_K8s_Api_Core_V1_FcVolumeSourcespecfc>;
   flexVolume?: Maybe<Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecflexVolume>;
@@ -17610,7 +23335,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeSpecspecInput = {
   awsElasticBlockStore?: InputMaybe<Io_K8s_Api_Core_V1_AwsElasticBlockStoreVolumeSourcespecawsElasticBlockStoreInput>;
   azureDisk?: InputMaybe<Io_K8s_Api_Core_V1_AzureDiskVolumeSourcespecazureDiskInput>;
   azureFile?: InputMaybe<Io_K8s_Api_Core_V1_AzureFilePersistentVolumeSourcespecazureFileInput>;
-  capacity?: InputMaybe<Scalars['String']['input']>;
+  capacity?: InputMaybe<Scalars['JSONString']['input']>;
   cephfs?: InputMaybe<Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespeccephfsInput>;
   cinder?: InputMaybe<Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespeccinderInput>;
   claimRef?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencespecclaimRefInput>;
@@ -17645,10 +23370,10 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeSpecspecsourceinlineVolumeSpec = 
   awsElasticBlockStore?: Maybe<Io_K8s_Api_Core_V1_AwsElasticBlockStoreVolumeSourcespecsourceinlineVolumeSpecawsElasticBlockStore>;
   azureDisk?: Maybe<Io_K8s_Api_Core_V1_AzureDiskVolumeSourcespecsourceinlineVolumeSpecazureDisk>;
   azureFile?: Maybe<Io_K8s_Api_Core_V1_AzureFilePersistentVolumeSourcespecsourceinlineVolumeSpecazureFile>;
-  capacity?: Maybe<Scalars['String']['output']>;
+  capacity?: Maybe<Scalars['JSONString']['output']>;
   cephfs?: Maybe<Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespecsourceinlineVolumeSpeccephfs>;
   cinder?: Maybe<Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespecsourceinlineVolumeSpeccinder>;
-  claimRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRef>;
+  claimRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRef_Claim_Enhanced>;
   csi?: Maybe<Io_K8s_Api_Core_V1_CsiPersistentVolumeSourcespecsourceinlineVolumeSpeccsi>;
   fc?: Maybe<Io_K8s_Api_Core_V1_FcVolumeSourcespecsourceinlineVolumeSpecfc>;
   flexVolume?: Maybe<Io_K8s_Api_Core_V1_FlexPersistentVolumeSourcespecsourceinlineVolumeSpecflexVolume>;
@@ -17679,7 +23404,7 @@ export type Io_K8s_Api_Core_V1_PersistentVolumeSpecspecsourceinlineVolumeSpecInp
   awsElasticBlockStore?: InputMaybe<Io_K8s_Api_Core_V1_AwsElasticBlockStoreVolumeSourcespecsourceinlineVolumeSpecawsElasticBlockStoreInput>;
   azureDisk?: InputMaybe<Io_K8s_Api_Core_V1_AzureDiskVolumeSourcespecsourceinlineVolumeSpecazureDiskInput>;
   azureFile?: InputMaybe<Io_K8s_Api_Core_V1_AzureFilePersistentVolumeSourcespecsourceinlineVolumeSpecazureFileInput>;
-  capacity?: InputMaybe<Scalars['String']['input']>;
+  capacity?: InputMaybe<Scalars['JSONString']['input']>;
   cephfs?: InputMaybe<Io_K8s_Api_Core_V1_CephFsPersistentVolumeSourcespecsourceinlineVolumeSpeccephfsInput>;
   cinder?: InputMaybe<Io_K8s_Api_Core_V1_CinderPersistentVolumeSourcespecsourceinlineVolumeSpeccinderInput>;
   claimRef?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecclaimRefInput>;
@@ -18311,6 +24036,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContextspecsecurityContext = {
   runAsGroup?: Maybe<Scalars['Int']['output']>;
   runAsNonRoot?: Maybe<Scalars['Boolean']['output']>;
   runAsUser?: Maybe<Scalars['Int']['output']>;
+  seLinuxChangePolicy?: Maybe<Scalars['String']['output']>;
   seLinuxOptions?: Maybe<Io_K8s_Api_Core_V1_SeLinuxOptionsspecsecurityContextseLinuxOptions>;
   seccompProfile?: Maybe<Io_K8s_Api_Core_V1_SeccompProfilespecsecurityContextseccompProfile>;
   supplementalGroups?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
@@ -18326,6 +24052,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContextspecsecurityContextInput = {
   runAsGroup?: InputMaybe<Scalars['Int']['input']>;
   runAsNonRoot?: InputMaybe<Scalars['Boolean']['input']>;
   runAsUser?: InputMaybe<Scalars['Int']['input']>;
+  seLinuxChangePolicy?: InputMaybe<Scalars['String']['input']>;
   seLinuxOptions?: InputMaybe<Io_K8s_Api_Core_V1_SeLinuxOptionsspecsecurityContextseLinuxOptionsInput>;
   seccompProfile?: InputMaybe<Io_K8s_Api_Core_V1_SeccompProfilespecsecurityContextseccompProfileInput>;
   supplementalGroups?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
@@ -18342,6 +24069,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContextspectemplatespecsecurityContext
   runAsGroup?: Maybe<Scalars['Int']['output']>;
   runAsNonRoot?: Maybe<Scalars['Boolean']['output']>;
   runAsUser?: Maybe<Scalars['Int']['output']>;
+  seLinuxChangePolicy?: Maybe<Scalars['String']['output']>;
   seLinuxOptions?: Maybe<Io_K8s_Api_Core_V1_SeLinuxOptionsspectemplatespecsecurityContextseLinuxOptions>;
   seccompProfile?: Maybe<Io_K8s_Api_Core_V1_SeccompProfilespectemplatespecsecurityContextseccompProfile>;
   supplementalGroups?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
@@ -18357,6 +24085,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContextspectemplatespecsecurityContext
   runAsGroup?: InputMaybe<Scalars['Int']['input']>;
   runAsNonRoot?: InputMaybe<Scalars['Boolean']['input']>;
   runAsUser?: InputMaybe<Scalars['Int']['input']>;
+  seLinuxChangePolicy?: InputMaybe<Scalars['String']['input']>;
   seLinuxOptions?: InputMaybe<Io_K8s_Api_Core_V1_SeLinuxOptionsspectemplatespecsecurityContextseLinuxOptionsInput>;
   seccompProfile?: InputMaybe<Io_K8s_Api_Core_V1_SeccompProfilespectemplatespecsecurityContextseccompProfileInput>;
   supplementalGroups?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
@@ -18373,6 +24102,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContexttemplatespecsecurityContext = {
   runAsGroup?: Maybe<Scalars['Int']['output']>;
   runAsNonRoot?: Maybe<Scalars['Boolean']['output']>;
   runAsUser?: Maybe<Scalars['Int']['output']>;
+  seLinuxChangePolicy?: Maybe<Scalars['String']['output']>;
   seLinuxOptions?: Maybe<Io_K8s_Api_Core_V1_SeLinuxOptionstemplatespecsecurityContextseLinuxOptions>;
   seccompProfile?: Maybe<Io_K8s_Api_Core_V1_SeccompProfiletemplatespecsecurityContextseccompProfile>;
   supplementalGroups?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
@@ -18388,6 +24118,7 @@ export type Io_K8s_Api_Core_V1_PodSecurityContexttemplatespecsecurityContextInpu
   runAsGroup?: InputMaybe<Scalars['Int']['input']>;
   runAsNonRoot?: InputMaybe<Scalars['Boolean']['input']>;
   runAsUser?: InputMaybe<Scalars['Int']['input']>;
+  seLinuxChangePolicy?: InputMaybe<Scalars['String']['input']>;
   seLinuxOptions?: InputMaybe<Io_K8s_Api_Core_V1_SeLinuxOptionstemplatespecsecurityContextseLinuxOptionsInput>;
   seccompProfile?: InputMaybe<Io_K8s_Api_Core_V1_SeccompProfiletemplatespecsecurityContextseccompProfileInput>;
   supplementalGroups?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
@@ -18415,14 +24146,15 @@ export type Io_K8s_Api_Core_V1_PodSpecspec = {
   imagePullSecrets?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecimagePullSecrets>>>;
   initContainers?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ContainerspecinitContainers>>>;
   nodeName?: Maybe<Scalars['String']['output']>;
-  nodeSelector?: Maybe<Scalars['StringMap']['output']>;
+  nodeSelector?: Maybe<Scalars['StringMapInput']['output']>;
   os?: Maybe<Io_K8s_Api_Core_V1_PodOSspecos>;
-  overhead?: Maybe<Scalars['String']['output']>;
+  overhead?: Maybe<Scalars['JSONString']['output']>;
   preemptionPolicy?: Maybe<Scalars['String']['output']>;
   priority?: Maybe<Scalars['Int']['output']>;
   priorityClassName?: Maybe<Scalars['String']['output']>;
   readinessGates?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodReadinessGatespecreadinessGates>>>;
   resourceClaims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodResourceClaimspecresourceClaims>>>;
+  resources?: Maybe<Io_K8s_Api_Core_V1_ResourceRequirementsspecresources>;
   restartPolicy?: Maybe<Scalars['String']['output']>;
   runtimeClassName?: Maybe<Scalars['String']['output']>;
   schedulerName?: Maybe<Scalars['String']['output']>;
@@ -18457,14 +24189,15 @@ export type Io_K8s_Api_Core_V1_PodSpecspecInput = {
   imagePullSecrets?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecimagePullSecretsInput>>>;
   initContainers?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ContainerspecinitContainersInput>>>;
   nodeName?: InputMaybe<Scalars['String']['input']>;
-  nodeSelector?: InputMaybe<Scalars['StringMap']['input']>;
+  nodeSelector?: InputMaybe<Scalars['StringMapInput']['input']>;
   os?: InputMaybe<Io_K8s_Api_Core_V1_PodOSspecosInput>;
-  overhead?: InputMaybe<Scalars['String']['input']>;
+  overhead?: InputMaybe<Scalars['JSONString']['input']>;
   preemptionPolicy?: InputMaybe<Scalars['String']['input']>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   priorityClassName?: InputMaybe<Scalars['String']['input']>;
   readinessGates?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodReadinessGatespecreadinessGatesInput>>>;
   resourceClaims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodResourceClaimspecresourceClaimsInput>>>;
+  resources?: InputMaybe<Io_K8s_Api_Core_V1_ResourceRequirementsspecresourcesInput>;
   restartPolicy?: InputMaybe<Scalars['String']['input']>;
   runtimeClassName?: InputMaybe<Scalars['String']['input']>;
   schedulerName?: InputMaybe<Scalars['String']['input']>;
@@ -18500,14 +24233,15 @@ export type Io_K8s_Api_Core_V1_PodSpecspectemplatespec = {
   imagePullSecrets?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecimagePullSecrets>>>;
   initContainers?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ContainerspectemplatespecinitContainers>>>;
   nodeName?: Maybe<Scalars['String']['output']>;
-  nodeSelector?: Maybe<Scalars['StringMap']['output']>;
+  nodeSelector?: Maybe<Scalars['StringMapInput']['output']>;
   os?: Maybe<Io_K8s_Api_Core_V1_PodOSspectemplatespecos>;
-  overhead?: Maybe<Scalars['String']['output']>;
+  overhead?: Maybe<Scalars['JSONString']['output']>;
   preemptionPolicy?: Maybe<Scalars['String']['output']>;
   priority?: Maybe<Scalars['Int']['output']>;
   priorityClassName?: Maybe<Scalars['String']['output']>;
   readinessGates?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodReadinessGatespectemplatespecreadinessGates>>>;
   resourceClaims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodResourceClaimspectemplatespecresourceClaims>>>;
+  resources?: Maybe<Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecresources>;
   restartPolicy?: Maybe<Scalars['String']['output']>;
   runtimeClassName?: Maybe<Scalars['String']['output']>;
   schedulerName?: Maybe<Scalars['String']['output']>;
@@ -18542,14 +24276,15 @@ export type Io_K8s_Api_Core_V1_PodSpecspectemplatespecInput = {
   imagePullSecrets?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecimagePullSecretsInput>>>;
   initContainers?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ContainerspectemplatespecinitContainersInput>>>;
   nodeName?: InputMaybe<Scalars['String']['input']>;
-  nodeSelector?: InputMaybe<Scalars['StringMap']['input']>;
+  nodeSelector?: InputMaybe<Scalars['StringMapInput']['input']>;
   os?: InputMaybe<Io_K8s_Api_Core_V1_PodOSspectemplatespecosInput>;
-  overhead?: InputMaybe<Scalars['String']['input']>;
+  overhead?: InputMaybe<Scalars['JSONString']['input']>;
   preemptionPolicy?: InputMaybe<Scalars['String']['input']>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   priorityClassName?: InputMaybe<Scalars['String']['input']>;
   readinessGates?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodReadinessGatespectemplatespecreadinessGatesInput>>>;
   resourceClaims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodResourceClaimspectemplatespecresourceClaimsInput>>>;
+  resources?: InputMaybe<Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecresourcesInput>;
   restartPolicy?: InputMaybe<Scalars['String']['input']>;
   runtimeClassName?: InputMaybe<Scalars['String']['input']>;
   schedulerName?: InputMaybe<Scalars['String']['input']>;
@@ -18585,14 +24320,15 @@ export type Io_K8s_Api_Core_V1_PodSpectemplatespec = {
   imagePullSecrets?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecimagePullSecrets>>>;
   initContainers?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ContainertemplatespecinitContainers>>>;
   nodeName?: Maybe<Scalars['String']['output']>;
-  nodeSelector?: Maybe<Scalars['StringMap']['output']>;
+  nodeSelector?: Maybe<Scalars['StringMapInput']['output']>;
   os?: Maybe<Io_K8s_Api_Core_V1_PodOStemplatespecos>;
-  overhead?: Maybe<Scalars['String']['output']>;
+  overhead?: Maybe<Scalars['JSONString']['output']>;
   preemptionPolicy?: Maybe<Scalars['String']['output']>;
   priority?: Maybe<Scalars['Int']['output']>;
   priorityClassName?: Maybe<Scalars['String']['output']>;
   readinessGates?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodReadinessGatetemplatespecreadinessGates>>>;
   resourceClaims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_PodResourceClaimtemplatespecresourceClaims>>>;
+  resources?: Maybe<Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecresources>;
   restartPolicy?: Maybe<Scalars['String']['output']>;
   runtimeClassName?: Maybe<Scalars['String']['output']>;
   schedulerName?: Maybe<Scalars['String']['output']>;
@@ -18627,14 +24363,15 @@ export type Io_K8s_Api_Core_V1_PodSpectemplatespecInput = {
   imagePullSecrets?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecimagePullSecretsInput>>>;
   initContainers?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ContainertemplatespecinitContainersInput>>>;
   nodeName?: InputMaybe<Scalars['String']['input']>;
-  nodeSelector?: InputMaybe<Scalars['StringMap']['input']>;
+  nodeSelector?: InputMaybe<Scalars['StringMapInput']['input']>;
   os?: InputMaybe<Io_K8s_Api_Core_V1_PodOStemplatespecosInput>;
-  overhead?: InputMaybe<Scalars['String']['input']>;
+  overhead?: InputMaybe<Scalars['JSONString']['input']>;
   preemptionPolicy?: InputMaybe<Scalars['String']['input']>;
   priority?: InputMaybe<Scalars['Int']['input']>;
   priorityClassName?: InputMaybe<Scalars['String']['input']>;
   readinessGates?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodReadinessGatetemplatespecreadinessGatesInput>>>;
   resourceClaims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_PodResourceClaimtemplatespecresourceClaimsInput>>>;
+  resources?: InputMaybe<Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecresourcesInput>;
   restartPolicy?: InputMaybe<Scalars['String']['input']>;
   runtimeClassName?: InputMaybe<Scalars['String']['input']>;
   schedulerName?: InputMaybe<Scalars['String']['input']>;
@@ -19688,7 +25425,8 @@ export type Io_K8s_Api_Core_V1_RbdPersistentVolumeSourcespecrbd = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pool?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -19699,6 +25437,7 @@ export type Io_K8s_Api_Core_V1_RbdPersistentVolumeSourcespecrbdInput = {
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pool?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19711,7 +25450,8 @@ export type Io_K8s_Api_Core_V1_RbdPersistentVolumeSourcespecsourceinlineVolumeSp
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pool?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -19722,6 +25462,7 @@ export type Io_K8s_Api_Core_V1_RbdPersistentVolumeSourcespecsourceinlineVolumeSp
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pool?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19734,7 +25475,8 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcespectemplatespecvolumesrbd = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pool?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -19745,6 +25487,7 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcespectemplatespecvolumesrbdInput = 
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pool?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesrbdsecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19757,7 +25500,8 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcespecvolumesrbd = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pool?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -19768,6 +25512,7 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcespecvolumesrbdInput = {
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pool?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesrbdsecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19780,7 +25525,8 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcetemplatespecvolumesrbd = {
   monitors?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pool?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRef_Secret_Enhanced>;
   user?: Maybe<Scalars['String']['output']>;
 };
 
@@ -19791,6 +25537,7 @@ export type Io_K8s_Api_Core_V1_RbdVolumeSourcetemplatespecvolumesrbdInput = {
   monitors?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pool?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesrbdsecretRefInput>;
   user?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19816,14 +25563,14 @@ export type Io_K8s_Api_Core_V1_ReplicationControllerSpecspec = {
   __typename?: 'io_k8s_api_core_v1_ReplicationControllerSpecspec';
   minReadySeconds?: Maybe<Scalars['Int']['output']>;
   replicas?: Maybe<Scalars['Int']['output']>;
-  selector?: Maybe<Scalars['StringMap']['output']>;
+  selector?: Maybe<Scalars['StringMapInput']['output']>;
   template?: Maybe<Io_K8s_Api_Core_V1_PodTemplateSpecspectemplate>;
 };
 
 export type Io_K8s_Api_Core_V1_ReplicationControllerSpecspecInput = {
   minReadySeconds?: InputMaybe<Scalars['Int']['input']>;
   replicas?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<Scalars['StringMap']['input']>;
+  selector?: InputMaybe<Scalars['StringMapInput']['input']>;
   template?: InputMaybe<Io_K8s_Api_Core_V1_PodTemplateSpecspectemplateInput>;
 };
 
@@ -19879,6 +25626,17 @@ export type Io_K8s_Api_Core_V1_ResourceClaimspecinitContainersresourcesclaimsInp
   request?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Io_K8s_Api_Core_V1_ResourceClaimspecresourcesclaims = {
+  __typename?: 'io_k8s_api_core_v1_ResourceClaimspecresourcesclaims';
+  name?: Maybe<Scalars['String']['output']>;
+  request?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceClaimspecresourcesclaimsInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  request?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Io_K8s_Api_Core_V1_ResourceClaimspectemplatespeccontainersresourcesclaims = {
   __typename?: 'io_k8s_api_core_v1_ResourceClaimspectemplatespeccontainersresourcesclaims';
   name?: Maybe<Scalars['String']['output']>;
@@ -19908,6 +25666,17 @@ export type Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecinitContainersresour
 };
 
 export type Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecinitContainersresourcesclaimsInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  request?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecresourcesclaims = {
+  __typename?: 'io_k8s_api_core_v1_ResourceClaimspectemplatespecresourcesclaims';
+  name?: Maybe<Scalars['String']['output']>;
+  request?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecresourcesclaimsInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   request?: InputMaybe<Scalars['String']['input']>;
 };
@@ -19978,11 +25747,15 @@ export type Io_K8s_Api_Core_V1_ResourceClaimtemplatespecinitContainersresourcesc
   request?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef';
-  containerName?: Maybe<Scalars['String']['output']>;
-  divisor?: Maybe<Scalars['String']['output']>;
-  resource?: Maybe<Scalars['String']['output']>;
+export type Io_K8s_Api_Core_V1_ResourceClaimtemplatespecresourcesclaims = {
+  __typename?: 'io_k8s_api_core_v1_ResourceClaimtemplatespecresourcesclaims';
+  name?: Maybe<Scalars['String']['output']>;
+  request?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceClaimtemplatespecresourcesclaimsInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  request?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRefInput = {
@@ -19991,8 +25764,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromre
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspeccontainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20004,8 +25777,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecephemeralContainersenvva
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecephemeralContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20017,8 +25790,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecinitContainersenvvalueFr
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecinitContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20030,8 +25803,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespeccontainersen
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespeccontainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20043,8 +25816,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecephemeralCon
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecephemeralContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20056,8 +25829,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecinitContaine
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecvolumesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecinitContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20069,8 +25842,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesdownw
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecvolumesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20082,8 +25855,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesproje
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecvolumesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspectemplatespecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20095,8 +25868,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesdownwardApIitemsr
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecvolumesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20108,8 +25881,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesprojectedsourcesd
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectorspecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20121,8 +25894,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespeccontainersenvval
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespeccontainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20134,8 +25907,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecephemeralContain
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecephemeralContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20147,8 +25920,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecinitContainersen
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecvolumesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecinitContainersenvvalueFromresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20160,8 +25933,8 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesdownwardA
   resource?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef = {
-  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef';
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecvolumesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
   containerName?: Maybe<Scalars['String']['output']>;
   divisor?: Maybe<Scalars['String']['output']>;
   resource?: Maybe<Scalars['String']['output']>;
@@ -20171,6 +25944,13 @@ export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesprojected
   containerName?: InputMaybe<Scalars['String']['input']>;
   divisor?: InputMaybe<Scalars['String']['input']>;
   resource?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardApIitemsresourceFieldRef_ResourceField_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ResourceFieldSelectortemplatespecvolumesprojectedsourcesdownwardAPIitemsresourceFieldRef_resourceField_Enhanced';
+  containerName?: Maybe<Scalars['String']['output']>;
+  divisor?: Maybe<Scalars['String']['output']>;
+  resource?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceHealthstatuscontainerStatusesallocatedResourcesStatusresources = {
@@ -20208,182 +25988,221 @@ export type Io_K8s_Api_Core_V1_ResourceHealthstatusinitContainerStatusesallocate
 
 export type Io_K8s_Api_Core_V1_ResourceQuotaSpecspec = {
   __typename?: 'io_k8s_api_core_v1_ResourceQuotaSpecspec';
-  hard?: Maybe<Scalars['String']['output']>;
+  hard?: Maybe<Scalars['JSONString']['output']>;
   scopeSelector?: Maybe<Io_K8s_Api_Core_V1_ScopeSelectorspecscopeSelector>;
   scopes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceQuotaSpecspecInput = {
-  hard?: InputMaybe<Scalars['String']['input']>;
+  hard?: InputMaybe<Scalars['JSONString']['input']>;
   scopeSelector?: InputMaybe<Io_K8s_Api_Core_V1_ScopeSelectorspecscopeSelectorInput>;
   scopes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceQuotaStatusstatus = {
   __typename?: 'io_k8s_api_core_v1_ResourceQuotaStatusstatus';
-  hard?: Maybe<Scalars['String']['output']>;
-  used?: Maybe<Scalars['String']['output']>;
+  hard?: Maybe<Scalars['JSONString']['output']>;
+  used?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceQuotaStatusstatusInput = {
-  hard?: InputMaybe<Scalars['String']['input']>;
-  used?: InputMaybe<Scalars['String']['input']>;
+  hard?: InputMaybe<Scalars['JSONString']['input']>;
+  used?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspeccontainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspeccontainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspeccontainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspeccontainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspeccontainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspecephemeralContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspecephemeralContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspecephemeralContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspecephemeralContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspecephemeralContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspecinitContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspecinitContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspecinitContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspecinitContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspecinitContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementsspecresources = {
+  __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspecresources';
+  claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspecresourcesclaims>>>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementsspecresourcesInput = {
+  claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspecresourcesclaimsInput>>>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespeccontainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspectemplatespeccontainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespeccontainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespeccontainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespeccontainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecephemeralContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspectemplatespecephemeralContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecephemeralContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecephemeralContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecephemeralContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecinitContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspectemplatespecinitContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecinitContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecinitContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecinitContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecresources = {
+  __typename?: 'io_k8s_api_core_v1_ResourceRequirementsspectemplatespecresources';
+  claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecresourcesclaims>>>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementsspectemplatespecresourcesInput = {
+  claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimspectemplatespecresourcesclaimsInput>>>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatuscontainerStatusesresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsstatuscontainerStatusesresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimstatuscontainerStatusesresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatuscontainerStatusesresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimstatuscontainerStatusesresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatusephemeralContainerStatusesresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsstatusephemeralContainerStatusesresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimstatusephemeralContainerStatusesresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatusephemeralContainerStatusesresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimstatusephemeralContainerStatusesresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatusinitContainerStatusesresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementsstatusinitContainerStatusesresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimstatusinitContainerStatusesresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementsstatusinitContainerStatusesresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimstatusinitContainerStatusesresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespeccontainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementstemplatespeccontainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespeccontainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespeccontainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespeccontainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecephemeralContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementstemplatespecephemeralContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecephemeralContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecephemeralContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecephemeralContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecinitContainersresources = {
   __typename?: 'io_k8s_api_core_v1_ResourceRequirementstemplatespecinitContainersresources';
   claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecinitContainersresourcesclaims>>>;
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecinitContainersresourcesInput = {
   claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecinitContainersresourcesclaimsInput>>>;
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecresources = {
+  __typename?: 'io_k8s_api_core_v1_ResourceRequirementstemplatespecresources';
+  claims?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecresourcesclaims>>>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
+};
+
+export type Io_K8s_Api_Core_V1_ResourceRequirementstemplatespecresourcesInput = {
+  claims?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ResourceClaimtemplatespecresourcesclaimsInput>>>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_ResourceStatusstatuscontainerStatusesallocatedResourcesStatus = {
@@ -20605,7 +26424,8 @@ export type Io_K8s_Api_Core_V1_ScaleIoPersistentVolumeSourcespecscaleIo = {
   gateway?: Maybe<Scalars['String']['output']>;
   protectionDomain?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRef_Secret_Enhanced>;
   sslEnabled?: Maybe<Scalars['Boolean']['output']>;
   storageMode?: Maybe<Scalars['String']['output']>;
   storagePool?: Maybe<Scalars['String']['output']>;
@@ -20618,6 +26438,7 @@ export type Io_K8s_Api_Core_V1_ScaleIoPersistentVolumeSourcespecscaleIoInput = {
   gateway?: InputMaybe<Scalars['String']['input']>;
   protectionDomain?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRefInput>;
   sslEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   storageMode?: InputMaybe<Scalars['String']['input']>;
@@ -20632,7 +26453,8 @@ export type Io_K8s_Api_Core_V1_ScaleIoPersistentVolumeSourcespecsourceinlineVolu
   gateway?: Maybe<Scalars['String']['output']>;
   protectionDomain?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef_Secret_Enhanced>;
   sslEnabled?: Maybe<Scalars['Boolean']['output']>;
   storageMode?: Maybe<Scalars['String']['output']>;
   storagePool?: Maybe<Scalars['String']['output']>;
@@ -20645,6 +26467,7 @@ export type Io_K8s_Api_Core_V1_ScaleIoPersistentVolumeSourcespecsourceinlineVolu
   gateway?: InputMaybe<Scalars['String']['input']>;
   protectionDomain?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRefInput>;
   sslEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   storageMode?: InputMaybe<Scalars['String']['input']>;
@@ -20659,7 +26482,8 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcespectemplatespecvolumesscaleIo
   gateway?: Maybe<Scalars['String']['output']>;
   protectionDomain?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRef_Secret_Enhanced>;
   sslEnabled?: Maybe<Scalars['Boolean']['output']>;
   storageMode?: Maybe<Scalars['String']['output']>;
   storagePool?: Maybe<Scalars['String']['output']>;
@@ -20672,6 +26496,7 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcespectemplatespecvolumesscaleIo
   gateway?: InputMaybe<Scalars['String']['input']>;
   protectionDomain?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesscaleIOsecretRefInput>;
   sslEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   storageMode?: InputMaybe<Scalars['String']['input']>;
@@ -20686,7 +26511,8 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcespecvolumesscaleIo = {
   gateway?: Maybe<Scalars['String']['output']>;
   protectionDomain?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRef_Secret_Enhanced>;
   sslEnabled?: Maybe<Scalars['Boolean']['output']>;
   storageMode?: Maybe<Scalars['String']['output']>;
   storagePool?: Maybe<Scalars['String']['output']>;
@@ -20699,6 +26525,7 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcespecvolumesscaleIoInput = {
   gateway?: InputMaybe<Scalars['String']['input']>;
   protectionDomain?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesscaleIOsecretRefInput>;
   sslEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   storageMode?: InputMaybe<Scalars['String']['input']>;
@@ -20713,7 +26540,8 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcetemplatespecvolumesscaleIo = {
   gateway?: Maybe<Scalars['String']['output']>;
   protectionDomain?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRef_Secret_Enhanced>;
   sslEnabled?: Maybe<Scalars['Boolean']['output']>;
   storageMode?: Maybe<Scalars['String']['output']>;
   storagePool?: Maybe<Scalars['String']['output']>;
@@ -20726,6 +26554,7 @@ export type Io_K8s_Api_Core_V1_ScaleIoVolumeSourcetemplatespecvolumesscaleIoInpu
   gateway?: InputMaybe<Scalars['String']['input']>;
   protectionDomain?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesscaleIOsecretRefInput>;
   sslEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   storageMode?: InputMaybe<Scalars['String']['input']>;
@@ -20888,10 +26717,15 @@ export type Io_K8s_Api_Core_V1_SeccompProfiletemplatespecsecurityContextseccompP
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespeccontainersenvFromsecretRef';
-  name?: Maybe<Scalars['String']['output']>;
-  optional?: Maybe<Scalars['Boolean']['output']>;
+export type Io_K8s_Api_Core_V1_Secret = {
+  __typename?: 'io_k8s_api_core_v1_Secret';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  data?: Maybe<Scalars['StringMapInput']['output']>;
+  immutable?: Maybe<Scalars['Boolean']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  stringData?: Maybe<Scalars['StringMapInput']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRefInput = {
@@ -20899,10 +26733,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRefInpu
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespecephemeralContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespeccontainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespeccontainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRefInput = {
@@ -20910,10 +26745,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecr
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespecinitContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespecephemeralContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespecephemeralContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRefInput = {
@@ -20921,10 +26757,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRef
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespecinitContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespecinitContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRefInput = {
@@ -20932,10 +26769,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFroms
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespeccontainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRefInput = {
@@ -20943,10 +26781,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainer
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespecephemeralContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRefInput = {
@@ -20954,10 +26793,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvF
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcespectemplatespecinitContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRefInput = {
@@ -20965,10 +26805,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecre
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespeccontainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRefInput = {
@@ -20976,10 +26817,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenv
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef';
+export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespecephemeralContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRefInput = {
@@ -20987,11 +26829,11 @@ export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFroms
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef';
-  key?: Maybe<Scalars['String']['output']>;
+export type Io_K8s_Api_Core_V1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretEnvSourcetemplatespecinitContainersenvFromsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRefInput = {
@@ -21000,8 +26842,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecret
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspeccontainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21013,8 +26855,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspecephemeralContainersenvvalueF
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspecephemeralContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21026,8 +26868,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspecinitContainersenvvalueFromse
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspecinitContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21039,8 +26881,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespeccontainersenvval
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespeccontainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21052,8 +26894,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecephemeralContain
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespecephemeralContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21065,8 +26907,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecinitContainersen
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectorspectemplatespecinitContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21078,8 +26920,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespeccontainersenvvalueFr
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespeccontainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21091,8 +26933,8 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecephemeralContainerse
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef';
+export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespecephemeralContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
   key?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   optional?: Maybe<Scalars['Boolean']['output']>;
@@ -21102,6 +26944,13 @@ export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecinitContainersenvval
   key?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   optional?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef_SecretKey_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretKeySelectortemplatespecinitContainersenvvalueFromsecretKeyRef_secretKey_Enhanced';
+  key?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  optional?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretProjectionspectemplatespecvolumesprojectedsourcessecret = {
@@ -21143,21 +26992,16 @@ export type Io_K8s_Api_Core_V1_SecretProjectiontemplatespecvolumesprojectedsourc
   optional?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccephfssecretRef';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccindersecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccephfssecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccephfssecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRefInput = {
@@ -21165,10 +27009,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsicontrollerExpandSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccindersecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccindersecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRefInput = {
@@ -21176,8 +27021,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRefIn
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerPublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsicontrollerPublishSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerExpandSecretRef_ControllerExpandSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsicontrollerExpandSecretRef_controllerExpandSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21187,8 +27032,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerPublishSecretRefI
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeExpandSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodeExpandSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccsicontrollerPublishSecretRef_ControllerPublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsicontrollerPublishSecretRef_controllerPublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21198,8 +27043,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeExpandSecretRefInput = 
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodePublishSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeExpandSecretRef_NodeExpandSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodeExpandSecretRef_nodeExpandSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21209,8 +27054,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRefInput =
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodeStageSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodePublishSecretRef_NodePublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodePublishSecretRef_nodePublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21220,8 +27065,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecflexVolumesecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeccsinodeStageSecretRef_NodeStageSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeccsinodeStageSecretRef_nodeStageSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21231,10 +27076,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespeciscsisecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecflexVolumesecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecflexVolumesecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRefInput = {
@@ -21242,10 +27088,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecrbdsecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespeciscsisecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespeciscsisecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRefInput = {
@@ -21253,10 +27100,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecscaleIOsecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecrbdsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecrbdsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRefInput = {
@@ -21264,10 +27112,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecscaleIOsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecscaleIOsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRefInput = {
@@ -21275,10 +27124,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfsse
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccephfssecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRefInput = {
@@ -21286,10 +27136,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccinderse
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccindersecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRefInput = {
@@ -21297,8 +27148,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontr
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef_ControllerExpandSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerExpandSecretRef_controllerExpandSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21308,8 +27159,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontr
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef_ControllerPublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsicontrollerPublishSecretRef_controllerPublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21319,8 +27170,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeE
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef_NodeExpandSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodeExpandSecretRef_nodeExpandSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21330,8 +27181,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeP
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef_NodePublishSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodePublishSecretRef_nodePublishSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21341,8 +27192,8 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeS
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef_NodeStageSecret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeccsinodeStageSecretRef_nodeStageSecret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
 };
@@ -21352,10 +27203,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolu
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecflexVolumesecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRefInput = {
@@ -21363,10 +27215,11 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisec
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpeciscsisecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRefInput = {
@@ -21374,15 +27227,23 @@ export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecre
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef = {
-  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef';
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecrbdsecretRef_secret_Enhanced';
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRefInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef_Secret_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_SecretReferencespecsourceinlineVolumeSpecscaleIOsecretRef_secret_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  secret?: Maybe<Io_K8s_Api_Core_V1_Secret>;
 };
 
 export type Io_K8s_Api_Core_V1_SecretVolumeSourcespectemplatespecvolumessecret = {
@@ -21784,7 +27645,7 @@ export type Io_K8s_Api_Core_V1_ServiceSpecspec = {
   loadBalancerSourceRanges?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   ports?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_ServicePortspecports>>>;
   publishNotReadyAddresses?: Maybe<Scalars['Boolean']['output']>;
-  selector?: Maybe<Scalars['StringMap']['output']>;
+  selector?: Maybe<Scalars['StringMapInput']['output']>;
   sessionAffinity?: Maybe<Scalars['String']['output']>;
   sessionAffinityConfig?: Maybe<Io_K8s_Api_Core_V1_SessionAffinityConfigspecsessionAffinityConfig>;
   trafficDistribution?: Maybe<Scalars['String']['output']>;
@@ -21807,7 +27668,7 @@ export type Io_K8s_Api_Core_V1_ServiceSpecspecInput = {
   loadBalancerSourceRanges?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   ports?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_ServicePortspecportsInput>>>;
   publishNotReadyAddresses?: InputMaybe<Scalars['Boolean']['input']>;
-  selector?: InputMaybe<Scalars['StringMap']['input']>;
+  selector?: InputMaybe<Scalars['StringMapInput']['input']>;
   sessionAffinity?: InputMaybe<Scalars['String']['input']>;
   sessionAffinityConfig?: InputMaybe<Io_K8s_Api_Core_V1_SessionAffinityConfigspecsessionAffinityConfigInput>;
   trafficDistribution?: InputMaybe<Scalars['String']['input']>;
@@ -22000,7 +27861,8 @@ export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecsourceinlineVo
   __typename?: 'io_k8s_api_core_v1_StorageOSPersistentVolumeSourcespecsourceinlineVolumeSpecstorageos';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRef_Secret_Enhanced>;
   volumeName?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
 };
@@ -22008,6 +27870,7 @@ export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecsourceinlineVo
 export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecsourceinlineVolumeSpecstorageosInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencespecsourceinlineVolumeSpecstorageossecretRefInput>;
   volumeName?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -22017,7 +27880,8 @@ export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecstorageos = {
   __typename?: 'io_k8s_api_core_v1_StorageOSPersistentVolumeSourcespecstorageos';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRef_Secret_Enhanced>;
   volumeName?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
 };
@@ -22025,6 +27889,7 @@ export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecstorageos = {
 export type Io_K8s_Api_Core_V1_StorageOsPersistentVolumeSourcespecstorageosInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencespecstorageossecretRefInput>;
   volumeName?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -22034,7 +27899,8 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespectemplatespecvolumesstora
   __typename?: 'io_k8s_api_core_v1_StorageOSVolumeSourcespectemplatespecvolumesstorageos';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRef_Secret_Enhanced>;
   volumeName?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
 };
@@ -22042,6 +27908,7 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespectemplatespecvolumesstora
 export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespectemplatespecvolumesstorageosInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespectemplatespecvolumesstorageossecretRefInput>;
   volumeName?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -22051,7 +27918,8 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespecvolumesstorageos = {
   __typename?: 'io_k8s_api_core_v1_StorageOSVolumeSourcespecvolumesstorageos';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRef_Secret_Enhanced>;
   volumeName?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
 };
@@ -22059,6 +27927,7 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespecvolumesstorageos = {
 export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcespecvolumesstorageosInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencespecvolumesstorageossecretRefInput>;
   volumeName?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -22068,7 +27937,8 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcetemplatespecvolumesstorageos
   __typename?: 'io_k8s_api_core_v1_StorageOSVolumeSourcetemplatespecvolumesstorageos';
   fsType?: Maybe<Scalars['String']['output']>;
   readOnly?: Maybe<Scalars['Boolean']['output']>;
-  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRef>;
+  secret?: Maybe<Scalars['String']['output']>;
+  secretRef?: Maybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRef_Secret_Enhanced>;
   volumeName?: Maybe<Scalars['String']['output']>;
   volumeNamespace?: Maybe<Scalars['String']['output']>;
 };
@@ -22076,6 +27946,7 @@ export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcetemplatespecvolumesstorageos
 export type Io_K8s_Api_Core_V1_StorageOsVolumeSourcetemplatespecvolumesstorageosInput = {
   fsType?: InputMaybe<Scalars['String']['input']>;
   readOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  secret?: InputMaybe<Scalars['String']['input']>;
   secretRef?: InputMaybe<Io_K8s_Api_Core_V1_LocalObjectReferencetemplatespecvolumesstorageossecretRefInput>;
   volumeName?: InputMaybe<Scalars['String']['input']>;
   volumeNamespace?: InputMaybe<Scalars['String']['input']>;
@@ -22846,14 +28717,6 @@ export type Io_K8s_Api_Core_V1_TypedLocalObjectReferencetemplatespecvolumesephem
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRef = {
-  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespecdataSourceRef';
-  apiGroup?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
 export type Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRefInput = {
   apiGroup?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
@@ -22861,8 +28724,8 @@ export type Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRefInput = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef = {
-  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef';
+export type Io_K8s_Api_Core_V1_TypedObjectReferencespecdataSourceRef_DataSource_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespecdataSourceRef_dataSource_Enhanced';
   apiGroup?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -22876,8 +28739,8 @@ export type Io_K8s_Api_Core_V1_TypedObjectReferencespectemplatespecvolumesepheme
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef = {
-  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef';
+export type Io_K8s_Api_Core_V1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespectemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_dataSource_Enhanced';
   apiGroup?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -22891,8 +28754,8 @@ export type Io_K8s_Api_Core_V1_TypedObjectReferencespecvolumesephemeralvolumeCla
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Core_V1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef = {
-  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef';
+export type Io_K8s_Api_Core_V1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_dataSource_Enhanced';
   apiGroup?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -22904,6 +28767,14 @@ export type Io_K8s_Api_Core_V1_TypedObjectReferencetemplatespecvolumesephemeralv
   kind?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_DataSource_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_TypedObjectReferencetemplatespecvolumesephemeralvolumeClaimTemplatespecdataSourceRef_dataSource_Enhanced';
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeDevicespeccontainersvolumeDevices = {
@@ -23310,46 +29181,46 @@ export type Io_K8s_Api_Core_V1_VolumeProjectiontemplatespecvolumesprojectedsourc
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecresources = {
   __typename?: 'io_k8s_api_core_v1_VolumeResourceRequirementsspecresources';
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecresourcesInput = {
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspectemplatespecvolumesephemeralvolumeClaimTemplatespecresources = {
   __typename?: 'io_k8s_api_core_v1_VolumeResourceRequirementsspectemplatespecvolumesephemeralvolumeClaimTemplatespecresources';
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspectemplatespecvolumesephemeralvolumeClaimTemplatespecresourcesInput = {
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecvolumesephemeralvolumeClaimTemplatespecresources = {
   __typename?: 'io_k8s_api_core_v1_VolumeResourceRequirementsspecvolumesephemeralvolumeClaimTemplatespecresources';
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementsspecvolumesephemeralvolumeClaimTemplatespecresourcesInput = {
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementstemplatespecvolumesephemeralvolumeClaimTemplatespecresources = {
   __typename?: 'io_k8s_api_core_v1_VolumeResourceRequirementstemplatespecvolumesephemeralvolumeClaimTemplatespecresources';
-  limits?: Maybe<Scalars['String']['output']>;
-  requests?: Maybe<Scalars['String']['output']>;
+  limits?: Maybe<Scalars['JSONString']['output']>;
+  requests?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Core_V1_VolumeResourceRequirementstemplatespecvolumesephemeralvolumeClaimTemplatespecresourcesInput = {
-  limits?: InputMaybe<Scalars['String']['input']>;
-  requests?: InputMaybe<Scalars['String']['input']>;
+  limits?: InputMaybe<Scalars['JSONString']['input']>;
+  requests?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Core_V1_Volumespectemplatespecvolumes = {
@@ -24124,239 +29995,6 @@ export type Io_K8s_Api_Flowcontrol_V1_UserSubjectspecrulessubjectsuserInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Io_K8s_Api_Flowcontrol_V1beta3_ExemptPriorityLevelConfigurationspecexempt = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_ExemptPriorityLevelConfigurationspecexempt';
-  lendablePercent?: Maybe<Scalars['Int']['output']>;
-  nominalConcurrencyShares?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_ExemptPriorityLevelConfigurationspecexemptInput = {
-  lendablePercent?: InputMaybe<Scalars['Int']['input']>;
-  nominalConcurrencyShares?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowDistinguisherMethodspecdistinguisherMethod = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_FlowDistinguisherMethodspecdistinguisherMethod';
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowDistinguisherMethodspecdistinguisherMethodInput = {
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaConditionstatusconditions = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_FlowSchemaConditionstatusconditions';
-  lastTransitionTime?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  reason?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaConditionstatusconditionsInput = {
-  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaSpecspec = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_FlowSchemaSpecspec';
-  distinguisherMethod?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowDistinguisherMethodspecdistinguisherMethod>;
-  matchingPrecedence?: Maybe<Scalars['Int']['output']>;
-  priorityLevelConfiguration?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationReferencespecpriorityLevelConfiguration>;
-  rules?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PolicyRulesWithSubjectsspecrules>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaSpecspecInput = {
-  distinguisherMethod?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowDistinguisherMethodspecdistinguisherMethodInput>;
-  matchingPrecedence?: InputMaybe<Scalars['Int']['input']>;
-  priorityLevelConfiguration?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationReferencespecpriorityLevelConfigurationInput>;
-  rules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PolicyRulesWithSubjectsspecrulesInput>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaStatusstatus = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_FlowSchemaStatusstatus';
-  conditions?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaConditionstatusconditions>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaStatusstatusInput = {
-  conditions?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_FlowSchemaConditionstatusconditionsInput>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_GroupSubjectspecrulessubjectsgroup = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_GroupSubjectspecrulessubjectsgroup';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_GroupSubjectspecrulessubjectsgroupInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_LimitResponsespeclimitedlimitResponse = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_LimitResponsespeclimitedlimitResponse';
-  queuing?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_QueuingConfigurationspeclimitedlimitResponsequeuing>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_LimitResponsespeclimitedlimitResponseInput = {
-  queuing?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_QueuingConfigurationspeclimitedlimitResponsequeuingInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_LimitedPriorityLevelConfigurationspeclimited = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_LimitedPriorityLevelConfigurationspeclimited';
-  borrowingLimitPercent?: Maybe<Scalars['Int']['output']>;
-  lendablePercent?: Maybe<Scalars['Int']['output']>;
-  limitResponse?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_LimitResponsespeclimitedlimitResponse>;
-  nominalConcurrencyShares?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_LimitedPriorityLevelConfigurationspeclimitedInput = {
-  borrowingLimitPercent?: InputMaybe<Scalars['Int']['input']>;
-  lendablePercent?: InputMaybe<Scalars['Int']['input']>;
-  limitResponse?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_LimitResponsespeclimitedlimitResponseInput>;
-  nominalConcurrencyShares?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_NonResourcePolicyRulespecrulesnonResourceRules = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_NonResourcePolicyRulespecrulesnonResourceRules';
-  nonResourceURLs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  verbs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_NonResourcePolicyRulespecrulesnonResourceRulesInput = {
-  nonResourceURLs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PolicyRulesWithSubjectsspecrules = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_PolicyRulesWithSubjectsspecrules';
-  nonResourceRules?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_NonResourcePolicyRulespecrulesnonResourceRules>>>;
-  resourceRules?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_ResourcePolicyRulespecrulesresourceRules>>>;
-  subjects?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_Subjectspecrulessubjects>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PolicyRulesWithSubjectsspecrulesInput = {
-  nonResourceRules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_NonResourcePolicyRulespecrulesnonResourceRulesInput>>>;
-  resourceRules?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_ResourcePolicyRulespecrulesresourceRulesInput>>>;
-  subjects?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_SubjectspecrulessubjectsInput>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationConditionstatusconditions = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_PriorityLevelConfigurationConditionstatusconditions';
-  lastTransitionTime?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  reason?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationConditionstatusconditionsInput = {
-  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationReferencespecpriorityLevelConfiguration = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_PriorityLevelConfigurationReferencespecpriorityLevelConfiguration';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationReferencespecpriorityLevelConfigurationInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspec = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_PriorityLevelConfigurationSpecspec';
-  exempt?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_ExemptPriorityLevelConfigurationspecexempt>;
-  limited?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_LimitedPriorityLevelConfigurationspeclimited>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationSpecspecInput = {
-  exempt?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_ExemptPriorityLevelConfigurationspecexemptInput>;
-  limited?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_LimitedPriorityLevelConfigurationspeclimitedInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatus = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_PriorityLevelConfigurationStatusstatus';
-  conditions?: Maybe<Array<Maybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationConditionstatusconditions>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationStatusstatusInput = {
-  conditions?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_PriorityLevelConfigurationConditionstatusconditionsInput>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_QueuingConfigurationspeclimitedlimitResponsequeuing = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_QueuingConfigurationspeclimitedlimitResponsequeuing';
-  handSize?: Maybe<Scalars['Int']['output']>;
-  queueLengthLimit?: Maybe<Scalars['Int']['output']>;
-  queues?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_QueuingConfigurationspeclimitedlimitResponsequeuingInput = {
-  handSize?: InputMaybe<Scalars['Int']['input']>;
-  queueLengthLimit?: InputMaybe<Scalars['Int']['input']>;
-  queues?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_ResourcePolicyRulespecrulesresourceRules = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_ResourcePolicyRulespecrulesresourceRules';
-  apiGroups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  clusterScope?: Maybe<Scalars['Boolean']['output']>;
-  namespaces?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  resources?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  verbs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_ResourcePolicyRulespecrulesresourceRulesInput = {
-  apiGroups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  clusterScope?: InputMaybe<Scalars['Boolean']['input']>;
-  namespaces?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  resources?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_ServiceAccountSubjectspecrulessubjectsserviceAccount = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_ServiceAccountSubjectspecrulessubjectsserviceAccount';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_ServiceAccountSubjectspecrulessubjectsserviceAccountInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_Subjectspecrulessubjects = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_Subjectspecrulessubjects';
-  group?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_GroupSubjectspecrulessubjectsgroup>;
-  kind?: Maybe<Scalars['String']['output']>;
-  serviceAccount?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_ServiceAccountSubjectspecrulessubjectsserviceAccount>;
-  user?: Maybe<Io_K8s_Api_Flowcontrol_V1beta3_UserSubjectspecrulessubjectsuser>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_SubjectspecrulessubjectsInput = {
-  group?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_GroupSubjectspecrulessubjectsgroupInput>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  serviceAccount?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_ServiceAccountSubjectspecrulessubjectsserviceAccountInput>;
-  user?: InputMaybe<Io_K8s_Api_Flowcontrol_V1beta3_UserSubjectspecrulessubjectsuserInput>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_UserSubjectspecrulessubjectsuser = {
-  __typename?: 'io_k8s_api_flowcontrol_v1beta3_UserSubjectspecrulessubjectsuser';
-  name?: Maybe<Scalars['String']['output']>;
-};
-
-export type Io_K8s_Api_Flowcontrol_V1beta3_UserSubjectspecrulessubjectsuserInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type Io_K8s_Api_Networking_V1_IpBlockspecegresstoipBlock = {
   __typename?: 'io_k8s_api_networking_v1_IPBlockspecegresstoipBlock';
   cidr?: Maybe<Scalars['String']['output']>;
@@ -24612,21 +30250,21 @@ export type Io_K8s_Api_Networking_V1_ServiceBackendPortspecdefaultBackendservice
 
 export type Io_K8s_Api_Node_V1_Overheadoverhead = {
   __typename?: 'io_k8s_api_node_v1_Overheadoverhead';
-  podFixed?: Maybe<Scalars['String']['output']>;
+  podFixed?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Api_Node_V1_OverheadoverheadInput = {
-  podFixed?: InputMaybe<Scalars['String']['input']>;
+  podFixed?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Api_Node_V1_Schedulingscheduling = {
   __typename?: 'io_k8s_api_node_v1_Schedulingscheduling';
-  nodeSelector?: Maybe<Scalars['StringMap']['output']>;
+  nodeSelector?: Maybe<Scalars['StringMapInput']['output']>;
   tolerations?: Maybe<Array<Maybe<Io_K8s_Api_Core_V1_Tolerationschedulingtolerations>>>;
 };
 
 export type Io_K8s_Api_Node_V1_SchedulingschedulingInput = {
-  nodeSelector?: InputMaybe<Scalars['StringMap']['input']>;
+  nodeSelector?: InputMaybe<Scalars['StringMapInput']['input']>;
   tolerations?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Core_V1_TolerationschedulingtolerationsInput>>>;
 };
 
@@ -24656,17 +30294,26 @@ export type Io_K8s_Api_Rbac_V1_PolicyRulerulesInput = {
   verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type Io_K8s_Api_Rbac_V1_RoleRefroleRef = {
-  __typename?: 'io_k8s_api_rbac_v1_RoleRefroleRef';
-  apiGroup?: Maybe<Scalars['String']['output']>;
+export type Io_K8s_Api_Rbac_V1_Role = {
+  __typename?: 'io_k8s_api_rbac_v1_Role';
+  apiVersion?: Maybe<Scalars['String']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  rules?: Maybe<Array<Maybe<Io_K8s_Api_Rbac_V1_PolicyRulerules>>>;
 };
 
 export type Io_K8s_Api_Rbac_V1_RoleRefroleRefInput = {
   apiGroup?: InputMaybe<Scalars['String']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Rbac_V1_RoleRefroleRef_Role_Enhanced = {
+  __typename?: 'io_k8s_api_rbac_v1_RoleRefroleRef_role_Enhanced';
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  role?: Maybe<Io_K8s_Api_Rbac_V1_Role>;
 };
 
 export type Io_K8s_Api_Rbac_V1_Subjectsubjects = {
@@ -24746,14 +30393,14 @@ export type Io_K8s_Api_Storage_V1_VolumeAttachmentStatusstatus = {
   __typename?: 'io_k8s_api_storage_v1_VolumeAttachmentStatusstatus';
   attachError?: Maybe<Io_K8s_Api_Storage_V1_VolumeErrorstatusattachError>;
   attached?: Maybe<Scalars['Boolean']['output']>;
-  attachmentMetadata?: Maybe<Scalars['StringMap']['output']>;
+  attachmentMetadata?: Maybe<Scalars['StringMapInput']['output']>;
   detachError?: Maybe<Io_K8s_Api_Storage_V1_VolumeErrorstatusdetachError>;
 };
 
 export type Io_K8s_Api_Storage_V1_VolumeAttachmentStatusstatusInput = {
   attachError?: InputMaybe<Io_K8s_Api_Storage_V1_VolumeErrorstatusattachErrorInput>;
   attached?: InputMaybe<Scalars['Boolean']['input']>;
-  attachmentMetadata?: InputMaybe<Scalars['StringMap']['input']>;
+  attachmentMetadata?: InputMaybe<Scalars['StringMapInput']['input']>;
   detachError?: InputMaybe<Io_K8s_Api_Storage_V1_VolumeErrorstatusdetachErrorInput>;
 };
 
@@ -24937,12 +30584,12 @@ export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResou
 export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceSubresourcesspecversionssubresources = {
   __typename?: 'io_k8s_apiextensions_apiserver_pkg_apis_apiextensions_v1_CustomResourceSubresourcesspecversionssubresources';
   scale?: Maybe<Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceSubresourceScalespecversionssubresourcesscale>;
-  status?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['JSONString']['output']>;
 };
 
 export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceSubresourcesspecversionssubresourcesInput = {
   scale?: InputMaybe<Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceSubresourceScalespecversionssubresourcesscaleInput>;
-  status?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['JSONString']['input']>;
 };
 
 export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_CustomResourceValidationspecversionsschema = {
@@ -24963,8 +30610,8 @@ export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_JsonSchemaP
   allOf?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   anyOf?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   default?: Maybe<Scalars['String']['output']>;
-  definitions?: Maybe<Scalars['String']['output']>;
-  dependencies?: Maybe<Scalars['String']['output']>;
+  definitions?: Maybe<Scalars['JSONString']['output']>;
+  dependencies?: Maybe<Scalars['JSONString']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   enum?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   example?: Maybe<Scalars['String']['output']>;
@@ -24987,8 +30634,8 @@ export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_JsonSchemaP
   nullable?: Maybe<Scalars['Boolean']['output']>;
   oneOf?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   pattern?: Maybe<Scalars['String']['output']>;
-  patternProperties?: Maybe<Scalars['String']['output']>;
-  properties?: Maybe<Scalars['String']['output']>;
+  patternProperties?: Maybe<Scalars['JSONString']['output']>;
+  properties?: Maybe<Scalars['JSONString']['output']>;
   required?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   title?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -25010,8 +30657,8 @@ export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_JsonSchemaP
   allOf?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   anyOf?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   default?: InputMaybe<Scalars['String']['input']>;
-  definitions?: InputMaybe<Scalars['String']['input']>;
-  dependencies?: InputMaybe<Scalars['String']['input']>;
+  definitions?: InputMaybe<Scalars['JSONString']['input']>;
+  dependencies?: InputMaybe<Scalars['JSONString']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   enum?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   example?: InputMaybe<Scalars['String']['input']>;
@@ -25034,8 +30681,8 @@ export type Io_K8s_Apiextensions_Apiserver_Pkg_Apis_Apiextensions_V1_JsonSchemaP
   nullable?: InputMaybe<Scalars['Boolean']['input']>;
   oneOf?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   pattern?: InputMaybe<Scalars['String']['input']>;
-  patternProperties?: InputMaybe<Scalars['String']['input']>;
-  properties?: InputMaybe<Scalars['String']['input']>;
+  patternProperties?: InputMaybe<Scalars['JSONString']['input']>;
+  properties?: InputMaybe<Scalars['JSONString']['input']>;
   required?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
@@ -25140,6 +30787,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_DeleteOptionsdeleteOptions = {
   apiVersion?: Maybe<Scalars['String']['output']>;
   dryRun?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   gracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
+  ignoreStoreReadErrorWithClusterBreakingPotential?: Maybe<Scalars['Boolean']['output']>;
   kind?: Maybe<Scalars['String']['output']>;
   orphanDependents?: Maybe<Scalars['Boolean']['output']>;
   preconditions?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_PreconditionsdeleteOptionspreconditions>;
@@ -25150,6 +30798,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_DeleteOptionsdeleteOptionsInput
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   dryRun?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   gracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
+  ignoreStoreReadErrorWithClusterBreakingPotential?: InputMaybe<Scalars['Boolean']['input']>;
   kind?: InputMaybe<Scalars['String']['input']>;
   orphanDependents?: InputMaybe<Scalars['Boolean']['input']>;
   preconditions?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_PreconditionsdeleteOptionspreconditionsInput>;
@@ -25167,6 +30816,28 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_FieldSelectorRequirementspecres
   key?: InputMaybe<Scalars['String']['input']>;
   operator?: InputMaybe<Scalars['String']['input']>;
   values?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoverypreferredVersion = {
+  __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_GroupVersionForDiscoverypreferredVersion';
+  groupVersion?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoverypreferredVersionInput = {
+  groupVersion?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoveryversions = {
+  __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_GroupVersionForDiscoveryversions';
+  groupVersion?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_GroupVersionForDiscoveryversionsInput = {
+  groupVersion?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementaggregationRuleclusterRoleSelectorsmatchExpressions = {
@@ -25809,529 +31480,529 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementwebhook
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectoraggregationRuleclusterRoleSelectors = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectoraggregationRuleclusterRoleSelectors';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementaggregationRuleclusterRoleSelectorsmatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectoraggregationRuleclusterRoleSelectorsInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementaggregationRuleclusterRoleSelectorsmatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectornodeTopology = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectornodeTopology';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementnodeTopologymatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectornodeTopologyInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementnodeTopologymatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecegresstonamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecegresstonamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecegresstonamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecegresstonamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecegresstonamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecegresstopodSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecegresstopodSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecegresstopodSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecegresstopodSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecegresstopodSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecingressfromnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecingressfromnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecingressfromnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecingressfromnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecingressfromnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecingressfrompodSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecingressfrompodSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecingressfrompodSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecingressfrompodSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecingressfrompodSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchConstraintsnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecmatchConstraintsnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchConstraintsnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchConstraintsnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchConstraintsnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchConstraintsobjectSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecmatchConstraintsobjectSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchConstraintsobjectSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchConstraintsobjectSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchConstraintsobjectSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchResourcesnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecmatchResourcesnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchResourcesnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchResourcesnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchResourcesnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchResourcesobjectSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecmatchResourcesobjectSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchResourcesobjectSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecmatchResourcesobjectSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecmatchResourcesobjectSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecparamRefselector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecparamRefselector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecparamRefselectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecparamRefselectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecparamRefselectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecpodSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecpodSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecpodSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecpodSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecpodSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecselector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecselector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecselectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecselectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecselectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespectopologySpreadConstraintslabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespectopologySpreadConstraintslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespectopologySpreadConstraintslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespectopologySpreadConstraintslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespectopologySpreadConstraintslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecvolumesephemeralvolumeClaimTemplatespecselector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecvolumesephemeralvolumeClaimTemplatespecselector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecvolumesephemeralvolumeClaimTemplatespecselectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectopologySpreadConstraintslabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspectopologySpreadConstraintslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectopologySpreadConstraintslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspectopologySpreadConstraintslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspectopologySpreadConstraintslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecvolumesephemeralvolumeClaimTemplatespecselector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecvolumesephemeralvolumeClaimTemplatespecselector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecvolumesephemeralvolumeClaimTemplatespecselectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecvolumesprojectedsourcesclusterTrustBundlelabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorspecvolumesprojectedsourcesclusterTrustBundlelabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorspecvolumesprojectedsourcesclusterTrustBundlelabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementspecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinitypreferredDuringSchedulingIgnoredDuringExecutionpodAffinityTermnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionlabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecaffinitypodAntiAffinityrequiredDuringSchedulingIgnoredDuringExecutionnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespectopologySpreadConstraintslabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespectopologySpreadConstraintslabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespectopologySpreadConstraintslabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespectopologySpreadConstraintslabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespectopologySpreadConstraintslabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecvolumesephemeralvolumeClaimTemplatespecselector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecvolumesephemeralvolumeClaimTemplatespecselector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecvolumesephemeralvolumeClaimTemplatespecselectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecvolumesephemeralvolumeClaimTemplatespecselectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectortemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectortemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementtemplatespecvolumesprojectedsourcesclusterTrustBundlelabelSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorwebhooksnamespaceSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorwebhooksnamespaceSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementwebhooksnamespaceSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorwebhooksnamespaceSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementwebhooksnamespaceSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorwebhooksobjectSelector = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_LabelSelectorwebhooksobjectSelector';
   matchExpressions?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementwebhooksobjectSelectormatchExpressions>>>;
-  matchLabels?: Maybe<Scalars['StringMap']['output']>;
+  matchLabels?: Maybe<Scalars['StringMapInput']['output']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorwebhooksobjectSelectorInput = {
   matchExpressions?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_LabelSelectorRequirementwebhooksobjectSelectormatchExpressionsInput>>>;
-  matchLabels?: InputMaybe<Scalars['StringMap']['input']>;
+  matchLabels?: InputMaybe<Scalars['StringMapInput']['input']>;
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ListMetametadata = {
@@ -26353,7 +32024,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrymetadatamanag
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrymetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26363,7 +32034,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrymetadatamanag
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrymetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26374,7 +32045,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatem
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntryspectemplatemetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26384,7 +32055,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatem
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatemetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26395,7 +32066,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplates
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntryspectemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26405,7 +32076,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplates
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26416,7 +32087,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspecvolumesep
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntryspecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26426,7 +32097,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspecvolumesep
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26437,7 +32108,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatemetad
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrytemplatemetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26447,7 +32118,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatemetad
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatemetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26458,7 +32129,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecv
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ManagedFieldsEntrytemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields';
   apiVersion?: Maybe<Scalars['String']['output']>;
   fieldsType?: Maybe<Scalars['String']['output']>;
-  fieldsV1?: Maybe<Scalars['String']['output']>;
+  fieldsV1?: Maybe<Scalars['JSONString']['output']>;
   manager?: Maybe<Scalars['String']['output']>;
   operation?: Maybe<Scalars['String']['output']>;
   subresource?: Maybe<Scalars['String']['output']>;
@@ -26468,7 +32139,7 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecv
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   fieldsType?: InputMaybe<Scalars['String']['input']>;
-  fieldsV1?: InputMaybe<Scalars['String']['input']>;
+  fieldsV1?: InputMaybe<Scalars['JSONString']['input']>;
   manager?: InputMaybe<Scalars['String']['input']>;
   operation?: InputMaybe<Scalars['String']['input']>;
   subresource?: InputMaybe<Scalars['String']['input']>;
@@ -26477,14 +32148,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecv
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrymetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26495,14 +32166,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata = {
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrymetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26514,14 +32185,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput = {
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatemetadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaspectemplatemetadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatemetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26532,14 +32203,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatemetadata 
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatemetadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatemetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26551,14 +32222,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatemetadataI
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatespecvolumesephemeralvolumeClaimTemplatemetadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaspectemplatespecvolumesephemeralvolumeClaimTemplatemetadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26569,14 +32240,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatespecvolum
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatespecvolumesephemeralvolumeClaimTemplatemetadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspectemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26588,14 +32259,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspectemplatespecvolum
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspecvolumesephemeralvolumeClaimTemplatemetadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaspecvolumesephemeralvolumeClaimTemplatemetadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26606,14 +32277,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspecvolumesephemeralv
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspecvolumesephemeralvolumeClaimTemplatemetadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntryspecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26625,14 +32296,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaspecvolumesephemeralv
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatemetadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetatemplatemetadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatemetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26643,14 +32314,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatemetadata = {
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatemetadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatemetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26662,14 +32333,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatemetadataInput
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatespecvolumesephemeralvolumeClaimTemplatemetadata = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetatemplatespecvolumesephemeralvolumeClaimTemplatemetadata';
-  annotations?: Maybe<Scalars['StringMap']['output']>;
+  annotations?: Maybe<Scalars['StringMapInput']['output']>;
   creationTimestamp?: Maybe<Scalars['String']['output']>;
   deletionGracePeriodSeconds?: Maybe<Scalars['Int']['output']>;
   deletionTimestamp?: Maybe<Scalars['String']['output']>;
   finalizers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   generateName?: Maybe<Scalars['String']['output']>;
   generation?: Maybe<Scalars['Int']['output']>;
-  labels?: Maybe<Scalars['StringMap']['output']>;
+  labels?: Maybe<Scalars['StringMapInput']['output']>;
   managedFields?: Maybe<Array<Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFields>>>;
   name?: Maybe<Scalars['String']['output']>;
   namespace?: Maybe<Scalars['String']['output']>;
@@ -26680,14 +32351,14 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatespecvolumesep
 };
 
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetatemplatespecvolumesephemeralvolumeClaimTemplatemetadataInput = {
-  annotations?: InputMaybe<Scalars['StringMap']['input']>;
+  annotations?: InputMaybe<Scalars['StringMapInput']['input']>;
   creationTimestamp?: InputMaybe<Scalars['String']['input']>;
   deletionGracePeriodSeconds?: InputMaybe<Scalars['Int']['input']>;
   deletionTimestamp?: InputMaybe<Scalars['String']['input']>;
   finalizers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   generateName?: InputMaybe<Scalars['String']['input']>;
   generation?: InputMaybe<Scalars['Int']['input']>;
-  labels?: InputMaybe<Scalars['StringMap']['input']>;
+  labels?: InputMaybe<Scalars['StringMapInput']['input']>;
   managedFields?: InputMaybe<Array<InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ManagedFieldsEntrytemplatespecvolumesephemeralvolumeClaimTemplatemetadatamanagedFieldsInput>>>;
   name?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -26833,6 +32504,17 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_PreconditionspreconditionsInput
   uid?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRs = {
+  __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ServerAddressByClientCIDRserverAddressByClientCIDRs';
+  clientCIDR?: Maybe<Scalars['String']['output']>;
+  serverAddress?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ServerAddressByClientCidRserverAddressByClientCidRsInput = {
+  clientCIDR?: InputMaybe<Scalars['String']['input']>;
+  serverAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_StatusCausedetailscauses = {
   __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_StatusCausedetailscauses';
   field?: Maybe<Scalars['String']['output']>;
@@ -26925,706 +32607,6 @@ export type Io_K8s_Kube_Aggregator_Pkg_Apis_Apiregistration_V1_ServiceReferences
   port?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type Networking_K8s_IoMutation = {
-  __typename?: 'networking_k8s_ioMutation';
-  createIngress?: Maybe<Ingress>;
-  createIngressClass?: Maybe<IngressClass>;
-  createNetworkPolicy?: Maybe<NetworkPolicy>;
-  deleteIngress?: Maybe<Scalars['Boolean']['output']>;
-  deleteIngressClass?: Maybe<Scalars['Boolean']['output']>;
-  deleteNetworkPolicy?: Maybe<Scalars['Boolean']['output']>;
-  updateIngress?: Maybe<Ingress>;
-  updateIngressClass?: Maybe<IngressClass>;
-  updateNetworkPolicy?: Maybe<NetworkPolicy>;
-};
-
-
-export type Networking_K8s_IoMutationCreateIngressArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: IngressInput;
-};
-
-
-export type Networking_K8s_IoMutationCreateIngressClassArgs = {
-  object: IngressClassInput;
-};
-
-
-export type Networking_K8s_IoMutationCreateNetworkPolicyArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: NetworkPolicyInput;
-};
-
-
-export type Networking_K8s_IoMutationDeleteIngressArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoMutationDeleteIngressClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Networking_K8s_IoMutationDeleteNetworkPolicyArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoMutationUpdateIngressArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: IngressInput;
-};
-
-
-export type Networking_K8s_IoMutationUpdateIngressClassArgs = {
-  name: Scalars['String']['input'];
-  object: IngressClassInput;
-};
-
-
-export type Networking_K8s_IoMutationUpdateNetworkPolicyArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: NetworkPolicyInput;
-};
-
-export type Networking_K8s_IoQuery = {
-  __typename?: 'networking_k8s_ioQuery';
-  Ingress: Ingress;
-  IngressClass: IngressClass;
-  IngressClassYaml: Scalars['String']['output'];
-  IngressClasses: Array<IngressClass>;
-  IngressYaml: Scalars['String']['output'];
-  Ingresses: Array<Ingress>;
-  NetworkPolicy: NetworkPolicy;
-  NetworkPolicyYaml: Scalars['String']['output'];
-  NetworkPolicys: Array<NetworkPolicy>;
-};
-
-
-export type Networking_K8s_IoQueryIngressArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryIngressClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Networking_K8s_IoQueryIngressClassYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Networking_K8s_IoQueryIngressClassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryIngressYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryIngressesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryNetworkPolicyArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryNetworkPolicyYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Networking_K8s_IoQueryNetworkPolicysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Node_K8s_IoMutation = {
-  __typename?: 'node_k8s_ioMutation';
-  createRuntimeClass?: Maybe<RuntimeClass>;
-  deleteRuntimeClass?: Maybe<Scalars['Boolean']['output']>;
-  updateRuntimeClass?: Maybe<RuntimeClass>;
-};
-
-
-export type Node_K8s_IoMutationCreateRuntimeClassArgs = {
-  object: RuntimeClassInput;
-};
-
-
-export type Node_K8s_IoMutationDeleteRuntimeClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Node_K8s_IoMutationUpdateRuntimeClassArgs = {
-  name: Scalars['String']['input'];
-  object: RuntimeClassInput;
-};
-
-export type Node_K8s_IoQuery = {
-  __typename?: 'node_k8s_ioQuery';
-  RuntimeClass: RuntimeClass;
-  RuntimeClassYaml: Scalars['String']['output'];
-  RuntimeClasses: Array<RuntimeClass>;
-};
-
-
-export type Node_K8s_IoQueryRuntimeClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Node_K8s_IoQueryRuntimeClassYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Node_K8s_IoQueryRuntimeClassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Openmcp_CloudMutation = {
-  __typename?: 'openmcp_cloudMutation';
-  createQuotaIncrease?: Maybe<QuotaIncrease>;
-  createTypedLabelValidationParams?: Maybe<TypedLabelValidationParams>;
-  deleteQuotaIncrease?: Maybe<Scalars['Boolean']['output']>;
-  deleteTypedLabelValidationParams?: Maybe<Scalars['Boolean']['output']>;
-  updateQuotaIncrease?: Maybe<QuotaIncrease>;
-  updateTypedLabelValidationParams?: Maybe<TypedLabelValidationParams>;
-};
-
-
-export type Openmcp_CloudMutationCreateQuotaIncreaseArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: QuotaIncreaseInput;
-};
-
-
-export type Openmcp_CloudMutationCreateTypedLabelValidationParamsArgs = {
-  object: TypedLabelValidationParamsInput;
-};
-
-
-export type Openmcp_CloudMutationDeleteQuotaIncreaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Openmcp_CloudMutationDeleteTypedLabelValidationParamsArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Openmcp_CloudMutationUpdateQuotaIncreaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: QuotaIncreaseInput;
-};
-
-
-export type Openmcp_CloudMutationUpdateTypedLabelValidationParamsArgs = {
-  name: Scalars['String']['input'];
-  object: TypedLabelValidationParamsInput;
-};
-
-export type Openmcp_CloudQuery = {
-  __typename?: 'openmcp_cloudQuery';
-  QuotaIncrease: QuotaIncrease;
-  QuotaIncreaseYaml: Scalars['String']['output'];
-  QuotaIncreases: Array<QuotaIncrease>;
-  TypedLabelValidationParams: TypedLabelValidationParams;
-  TypedLabelValidationParamsYaml: Scalars['String']['output'];
-  TypedLabelValidationParamses: Array<TypedLabelValidationParams>;
-};
-
-
-export type Openmcp_CloudQueryQuotaIncreaseArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Openmcp_CloudQueryQuotaIncreaseYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Openmcp_CloudQueryQuotaIncreasesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Openmcp_CloudQueryTypedLabelValidationParamsArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Openmcp_CloudQueryTypedLabelValidationParamsYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Openmcp_CloudQueryTypedLabelValidationParamsesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type PolicyMutation = {
-  __typename?: 'policyMutation';
-  createEviction?: Maybe<Eviction>;
-  deleteEviction?: Maybe<Scalars['Boolean']['output']>;
-  updateEviction?: Maybe<Eviction>;
-};
-
-
-export type PolicyMutationCreateEvictionArgs = {
-  object: EvictionInput;
-};
-
-
-export type PolicyMutationDeleteEvictionArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type PolicyMutationUpdateEvictionArgs = {
-  name: Scalars['String']['input'];
-  object: EvictionInput;
-};
-
-export type PolicyQuery = {
-  __typename?: 'policyQuery';
-  Eviction: Eviction;
-  EvictionYaml: Scalars['String']['output'];
-  Evictions: Array<Eviction>;
-};
-
-
-export type PolicyQueryEvictionArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type PolicyQueryEvictionYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type PolicyQueryEvictionsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Rbac_Authorization_K8s_IoMutation = {
-  __typename?: 'rbac_authorization_k8s_ioMutation';
-  createClusterRole?: Maybe<ClusterRole>;
-  createClusterRoleBinding?: Maybe<ClusterRoleBinding>;
-  createRole?: Maybe<Role>;
-  createRoleBinding?: Maybe<RoleBinding>;
-  deleteClusterRole?: Maybe<Scalars['Boolean']['output']>;
-  deleteClusterRoleBinding?: Maybe<Scalars['Boolean']['output']>;
-  deleteRole?: Maybe<Scalars['Boolean']['output']>;
-  deleteRoleBinding?: Maybe<Scalars['Boolean']['output']>;
-  updateClusterRole?: Maybe<ClusterRole>;
-  updateClusterRoleBinding?: Maybe<ClusterRoleBinding>;
-  updateRole?: Maybe<Role>;
-  updateRoleBinding?: Maybe<RoleBinding>;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationCreateClusterRoleArgs = {
-  object: ClusterRoleInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationCreateClusterRoleBindingArgs = {
-  object: ClusterRoleBindingInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationCreateRoleArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RoleInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationCreateRoleBindingArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RoleBindingInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationDeleteClusterRoleArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationDeleteClusterRoleBindingArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationDeleteRoleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationDeleteRoleBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationUpdateClusterRoleArgs = {
-  name: Scalars['String']['input'];
-  object: ClusterRoleInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationUpdateClusterRoleBindingArgs = {
-  name: Scalars['String']['input'];
-  object: ClusterRoleBindingInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationUpdateRoleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RoleInput;
-};
-
-
-export type Rbac_Authorization_K8s_IoMutationUpdateRoleBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RoleBindingInput;
-};
-
-export type Rbac_Authorization_K8s_IoQuery = {
-  __typename?: 'rbac_authorization_k8s_ioQuery';
-  ClusterRole: ClusterRole;
-  ClusterRoleBinding: ClusterRoleBinding;
-  ClusterRoleBindingYaml: Scalars['String']['output'];
-  ClusterRoleBindings: Array<ClusterRoleBinding>;
-  ClusterRoleYaml: Scalars['String']['output'];
-  ClusterRoles: Array<ClusterRole>;
-  Role: Role;
-  RoleBinding: RoleBinding;
-  RoleBindingYaml: Scalars['String']['output'];
-  RoleBindings: Array<RoleBinding>;
-  RoleYaml: Scalars['String']['output'];
-  Roles: Array<Role>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRoleArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRoleBindingArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRoleBindingYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRoleBindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRoleYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryClusterRolesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRoleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRoleBindingArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRoleBindingYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRoleBindingsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRoleYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Rbac_Authorization_K8s_IoQueryRolesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Scheduling_K8s_IoMutation = {
-  __typename?: 'scheduling_k8s_ioMutation';
-  createPriorityClass?: Maybe<PriorityClass>;
-  deletePriorityClass?: Maybe<Scalars['Boolean']['output']>;
-  updatePriorityClass?: Maybe<PriorityClass>;
-};
-
-
-export type Scheduling_K8s_IoMutationCreatePriorityClassArgs = {
-  object: PriorityClassInput;
-};
-
-
-export type Scheduling_K8s_IoMutationDeletePriorityClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Scheduling_K8s_IoMutationUpdatePriorityClassArgs = {
-  name: Scalars['String']['input'];
-  object: PriorityClassInput;
-};
-
-export type Scheduling_K8s_IoQuery = {
-  __typename?: 'scheduling_k8s_ioQuery';
-  PriorityClass: PriorityClass;
-  PriorityClassYaml: Scalars['String']['output'];
-  PriorityClasses: Array<PriorityClass>;
-};
-
-
-export type Scheduling_K8s_IoQueryPriorityClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Scheduling_K8s_IoQueryPriorityClassYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Scheduling_K8s_IoQueryPriorityClassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Storage_K8s_IoMutation = {
-  __typename?: 'storage_k8s_ioMutation';
-  createCSIDriver?: Maybe<CsiDriver>;
-  createCSIStorageCapacity?: Maybe<CsiStorageCapacity>;
-  createStorageClass?: Maybe<StorageClass>;
-  createVolumeAttachment?: Maybe<VolumeAttachment>;
-  deleteCSIDriver?: Maybe<Scalars['Boolean']['output']>;
-  deleteCSIStorageCapacity?: Maybe<Scalars['Boolean']['output']>;
-  deleteStorageClass?: Maybe<Scalars['Boolean']['output']>;
-  deleteVolumeAttachment?: Maybe<Scalars['Boolean']['output']>;
-  updateCSIDriver?: Maybe<CsiDriver>;
-  updateCSIStorageCapacity?: Maybe<CsiStorageCapacity>;
-  updateStorageClass?: Maybe<StorageClass>;
-  updateVolumeAttachment?: Maybe<VolumeAttachment>;
-};
-
-
-export type Storage_K8s_IoMutationCreateCsiDriverArgs = {
-  object: CsiDriverInput;
-};
-
-
-export type Storage_K8s_IoMutationCreateCsiStorageCapacityArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CsiStorageCapacityInput;
-};
-
-
-export type Storage_K8s_IoMutationCreateStorageClassArgs = {
-  object: StorageClassInput;
-};
-
-
-export type Storage_K8s_IoMutationCreateVolumeAttachmentArgs = {
-  object: VolumeAttachmentInput;
-};
-
-
-export type Storage_K8s_IoMutationDeleteCsiDriverArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoMutationDeleteCsiStorageCapacityArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoMutationDeleteStorageClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoMutationDeleteVolumeAttachmentArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoMutationUpdateCsiDriverArgs = {
-  name: Scalars['String']['input'];
-  object: CsiDriverInput;
-};
-
-
-export type Storage_K8s_IoMutationUpdateCsiStorageCapacityArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CsiStorageCapacityInput;
-};
-
-
-export type Storage_K8s_IoMutationUpdateStorageClassArgs = {
-  name: Scalars['String']['input'];
-  object: StorageClassInput;
-};
-
-
-export type Storage_K8s_IoMutationUpdateVolumeAttachmentArgs = {
-  name: Scalars['String']['input'];
-  object: VolumeAttachmentInput;
-};
-
-export type Storage_K8s_IoQuery = {
-  __typename?: 'storage_k8s_ioQuery';
-  CSIDriver: CsiDriver;
-  CSIDriverYaml: Scalars['String']['output'];
-  CSIDrivers: Array<CsiDriver>;
-  CSIStorageCapacity: CsiStorageCapacity;
-  CSIStorageCapacityYaml: Scalars['String']['output'];
-  CSIStorageCapacitys: Array<CsiStorageCapacity>;
-  StorageClass: StorageClass;
-  StorageClassYaml: Scalars['String']['output'];
-  StorageClasses: Array<StorageClass>;
-  VolumeAttachment: VolumeAttachment;
-  VolumeAttachmentYaml: Scalars['String']['output'];
-  VolumeAttachments: Array<VolumeAttachment>;
-};
-
-
-export type Storage_K8s_IoQueryCsiDriverArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryCsiDriverYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryCsiDriversArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoQueryCsiStorageCapacityArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoQueryCsiStorageCapacityYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoQueryCsiStorageCapacitysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoQueryStorageClassArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryStorageClassYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryStorageClassesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Storage_K8s_IoQueryVolumeAttachmentArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryVolumeAttachmentYamlArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type Storage_K8s_IoQueryVolumeAttachmentsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type TypeByCategoryObject = {
   __typename?: 'typeByCategoryObject';
   group: Scalars['String']['output'];
@@ -27633,592 +32615,12 @@ export type TypeByCategoryObject = {
   version: Scalars['String']['output'];
 };
 
-export type Velero_IoMutation = {
-  __typename?: 'velero_ioMutation';
-  createBackup?: Maybe<Backup>;
-  createBackupRepository?: Maybe<BackupRepository>;
-  createBackupStorageLocation?: Maybe<BackupStorageLocation>;
-  createDataDownload?: Maybe<DataDownload>;
-  createDataUpload?: Maybe<DataUpload>;
-  createDeleteBackupRequest?: Maybe<DeleteBackupRequest>;
-  createDownloadRequest?: Maybe<DownloadRequest>;
-  createPodVolumeBackup?: Maybe<PodVolumeBackup>;
-  createPodVolumeRestore?: Maybe<PodVolumeRestore>;
-  createRestore?: Maybe<Restore>;
-  createSchedule?: Maybe<Schedule>;
-  createServerStatusRequest?: Maybe<ServerStatusRequest>;
-  createVolumeSnapshotLocation?: Maybe<VolumeSnapshotLocation>;
-  deleteBackup?: Maybe<Scalars['Boolean']['output']>;
-  deleteBackupRepository?: Maybe<Scalars['Boolean']['output']>;
-  deleteBackupStorageLocation?: Maybe<Scalars['Boolean']['output']>;
-  deleteDataDownload?: Maybe<Scalars['Boolean']['output']>;
-  deleteDataUpload?: Maybe<Scalars['Boolean']['output']>;
-  deleteDeleteBackupRequest?: Maybe<Scalars['Boolean']['output']>;
-  deleteDownloadRequest?: Maybe<Scalars['Boolean']['output']>;
-  deletePodVolumeBackup?: Maybe<Scalars['Boolean']['output']>;
-  deletePodVolumeRestore?: Maybe<Scalars['Boolean']['output']>;
-  deleteRestore?: Maybe<Scalars['Boolean']['output']>;
-  deleteSchedule?: Maybe<Scalars['Boolean']['output']>;
-  deleteServerStatusRequest?: Maybe<Scalars['Boolean']['output']>;
-  deleteVolumeSnapshotLocation?: Maybe<Scalars['Boolean']['output']>;
-  updateBackup?: Maybe<Backup>;
-  updateBackupRepository?: Maybe<BackupRepository>;
-  updateBackupStorageLocation?: Maybe<BackupStorageLocation>;
-  updateDataDownload?: Maybe<DataDownload>;
-  updateDataUpload?: Maybe<DataUpload>;
-  updateDeleteBackupRequest?: Maybe<DeleteBackupRequest>;
-  updateDownloadRequest?: Maybe<DownloadRequest>;
-  updatePodVolumeBackup?: Maybe<PodVolumeBackup>;
-  updatePodVolumeRestore?: Maybe<PodVolumeRestore>;
-  updateRestore?: Maybe<Restore>;
-  updateSchedule?: Maybe<Schedule>;
-  updateServerStatusRequest?: Maybe<ServerStatusRequest>;
-  updateVolumeSnapshotLocation?: Maybe<VolumeSnapshotLocation>;
-};
-
-
-export type Velero_IoMutationCreateBackupArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupInput;
-};
-
-
-export type Velero_IoMutationCreateBackupRepositoryArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupRepositoryInput;
-};
-
-
-export type Velero_IoMutationCreateBackupStorageLocationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupStorageLocationInput;
-};
-
-
-export type Velero_IoMutationCreateDataDownloadArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DataDownloadInput;
-};
-
-
-export type Velero_IoMutationCreateDataUploadArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DataUploadInput;
-};
-
-
-export type Velero_IoMutationCreateDeleteBackupRequestArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DeleteBackupRequestInput;
-};
-
-
-export type Velero_IoMutationCreateDownloadRequestArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DownloadRequestInput;
-};
-
-
-export type Velero_IoMutationCreatePodVolumeBackupArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodVolumeBackupInput;
-};
-
-
-export type Velero_IoMutationCreatePodVolumeRestoreArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodVolumeRestoreInput;
-};
-
-
-export type Velero_IoMutationCreateRestoreArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RestoreInput;
-};
-
-
-export type Velero_IoMutationCreateScheduleArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ScheduleInput;
-};
-
-
-export type Velero_IoMutationCreateServerStatusRequestArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServerStatusRequestInput;
-};
-
-
-export type Velero_IoMutationCreateVolumeSnapshotLocationArgs = {
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: VolumeSnapshotLocationInput;
-};
-
-
-export type Velero_IoMutationDeleteBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteBackupRepositoryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteBackupStorageLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteDataDownloadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteDataUploadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteDeleteBackupRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteDownloadRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeletePodVolumeBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeletePodVolumeRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteScheduleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteServerStatusRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationDeleteVolumeSnapshotLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoMutationUpdateBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupInput;
-};
-
-
-export type Velero_IoMutationUpdateBackupRepositoryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupRepositoryInput;
-};
-
-
-export type Velero_IoMutationUpdateBackupStorageLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: BackupStorageLocationInput;
-};
-
-
-export type Velero_IoMutationUpdateDataDownloadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DataDownloadInput;
-};
-
-
-export type Velero_IoMutationUpdateDataUploadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DataUploadInput;
-};
-
-
-export type Velero_IoMutationUpdateDeleteBackupRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DeleteBackupRequestInput;
-};
-
-
-export type Velero_IoMutationUpdateDownloadRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: DownloadRequestInput;
-};
-
-
-export type Velero_IoMutationUpdatePodVolumeBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodVolumeBackupInput;
-};
-
-
-export type Velero_IoMutationUpdatePodVolumeRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: PodVolumeRestoreInput;
-};
-
-
-export type Velero_IoMutationUpdateRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: RestoreInput;
-};
-
-
-export type Velero_IoMutationUpdateScheduleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ScheduleInput;
-};
-
-
-export type Velero_IoMutationUpdateServerStatusRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ServerStatusRequestInput;
-};
-
-
-export type Velero_IoMutationUpdateVolumeSnapshotLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: VolumeSnapshotLocationInput;
-};
-
-export type Velero_IoQuery = {
-  __typename?: 'velero_ioQuery';
-  Backup: Backup;
-  BackupRepository: BackupRepository;
-  BackupRepositoryYaml: Scalars['String']['output'];
-  BackupRepositorys: Array<BackupRepository>;
-  BackupStorageLocation: BackupStorageLocation;
-  BackupStorageLocationYaml: Scalars['String']['output'];
-  BackupStorageLocations: Array<BackupStorageLocation>;
-  BackupYaml: Scalars['String']['output'];
-  Backups: Array<Backup>;
-  DataDownload: DataDownload;
-  DataDownloadYaml: Scalars['String']['output'];
-  DataDownloads: Array<DataDownload>;
-  DataUpload: DataUpload;
-  DataUploadYaml: Scalars['String']['output'];
-  DataUploads: Array<DataUpload>;
-  DeleteBackupRequest: DeleteBackupRequest;
-  DeleteBackupRequestYaml: Scalars['String']['output'];
-  DeleteBackupRequests: Array<DeleteBackupRequest>;
-  DownloadRequest: DownloadRequest;
-  DownloadRequestYaml: Scalars['String']['output'];
-  DownloadRequests: Array<DownloadRequest>;
-  PodVolumeBackup: PodVolumeBackup;
-  PodVolumeBackupYaml: Scalars['String']['output'];
-  PodVolumeBackups: Array<PodVolumeBackup>;
-  PodVolumeRestore: PodVolumeRestore;
-  PodVolumeRestoreYaml: Scalars['String']['output'];
-  PodVolumeRestores: Array<PodVolumeRestore>;
-  Restore: Restore;
-  RestoreYaml: Scalars['String']['output'];
-  Restores: Array<Restore>;
-  Schedule: Schedule;
-  ScheduleYaml: Scalars['String']['output'];
-  Schedules: Array<Schedule>;
-  ServerStatusRequest: ServerStatusRequest;
-  ServerStatusRequestYaml: Scalars['String']['output'];
-  ServerStatusRequests: Array<ServerStatusRequest>;
-  VolumeSnapshotLocation: VolumeSnapshotLocation;
-  VolumeSnapshotLocationYaml: Scalars['String']['output'];
-  VolumeSnapshotLocations: Array<VolumeSnapshotLocation>;
-};
-
-
-export type Velero_IoQueryBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupRepositoryArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupRepositoryYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupRepositorysArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupStorageLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupStorageLocationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupStorageLocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryBackupsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataDownloadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataDownloadYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataDownloadsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataUploadArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataUploadYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDataUploadsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDeleteBackupRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDeleteBackupRequestYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDeleteBackupRequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDownloadRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDownloadRequestYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryDownloadRequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeBackupArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeBackupYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeBackupsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeRestoreYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryPodVolumeRestoresArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryRestoreArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryRestoreYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryRestoresArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryScheduleArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryScheduleYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQuerySchedulesArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryServerStatusRequestArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryServerStatusRequestYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryServerStatusRequestsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryVolumeSnapshotLocationArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryVolumeSnapshotLocationYamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type Velero_IoQueryVolumeSnapshotLocationsArgs = {
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type GetWorkspacesQueryVariables = Exact<{
   projectNamespace: Scalars['String']['input'];
 }>;
 
 
-export type GetWorkspacesQuery = { __typename?: 'PrivateNameForQuery', core_openmcp_cloud?: { __typename?: 'core_openmcp_cloudQuery', Workspaces: Array<{ __typename?: 'Workspace', metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null } | null }> } | null };
+export type GetWorkspacesQuery = { __typename?: 'Query', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudQuery', v1alpha1?: { __typename?: 'CoreOpenmcpCloudV1alpha1Query', Workspaces: { __typename?: 'WorkspaceList', items: Array<{ __typename?: 'Workspace', apiVersion?: string | null, kind?: string | null, metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null, namespace?: string | null, annotations?: any | null } | null, spec?: { __typename?: 'Workspacespec', members?: Array<{ __typename?: 'Workspacespecspecmembers', kind?: string | null, name?: string | null, roles?: Array<string | null> | null, namespace?: string | null } | null> | null } | null, status?: { __typename?: 'Workspacestatus', namespace?: string | null } | null }> } } | null } | null };
 
 
-export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
+export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiVersion"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;

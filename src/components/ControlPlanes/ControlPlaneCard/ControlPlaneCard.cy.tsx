@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import '@ui5/webcomponents-cypress-commands';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
-import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 
 describe('ControlPlaneCard', () => {
   let deleteManagedControlPlaneCalled = false;
@@ -25,11 +25,11 @@ describe('ControlPlaneCard', () => {
       },
     } as unknown as ListControlPlanesType;
 
-    const workspace: ListWorkspacesType = {
+    const workspace: Workspace = {
       metadata: {
         name: 'workspaceName',
       },
-    } as unknown as ListWorkspacesType;
+    } as unknown as Workspace;
 
     cy.mount(
       <MemoryRouter>
