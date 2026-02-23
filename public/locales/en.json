@@ -413,7 +413,7 @@
     "readMore": "Read more"
   },
   "deprecated": {
-    "deprecatedPopoverMessage": "There is new version of Managed Control Plane available."
+    "deprecatedPopoverMessage": "There is a new version of Managed Control Plane available."
   },
   "errors": {
     "installError": "Install error",

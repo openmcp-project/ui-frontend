@@ -88,7 +88,7 @@ export default function McpPage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-  const { mark_mcp_v1_as_deprecated } = useFeatureToggle();
+  const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
@@ -189,7 +189,7 @@ export default function McpPage() {
                       project={projectName}
                       workspace={workspaceName}
                     />
-                    {mark_mcp_v1_as_deprecated && (
+                    {markMcpV1asDeprecated && (
                       <span className={styles.deprecatedWrapper}>
                         <DeprecatedLabel />
                       </span>

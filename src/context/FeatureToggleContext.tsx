@@ -1,7 +1,7 @@
-import { ReactNode, createContext, use } from 'react';
+import { ReactNode, createContext, use, useMemo } from 'react';
 
 interface FeatureToggles {
-  mark_mcp_v1_as_deprecated: boolean;
+  markMcpV1asDeprecated: boolean;
 }
 
 export const FeatureToggleContext = createContext<FeatureToggles | null>(null);
@@ -16,12 +16,12 @@ function parseBoolean(value: string | undefined): boolean {
 
 function getFeatureToggles(): FeatureToggles {
   return {
-    mark_mcp_v1_as_deprecated: parseBoolean(import.meta.env.VITE_MARK_MCP_V1_AS_DEPRECATED),
+    markMcpV1asDeprecated: parseBoolean(import.meta.env.VITE_MARK_MCP_V1_AS_DEPRECATED),
   };
 }
 
 export function FeatureToggleProvider({ children }: FeatureToggleProviderProps) {
-  const featureToggles = getFeatureToggles();
+  const featureToggles = useMemo(() => getFeatureToggles(), []);
   return <FeatureToggleContext.Provider value={featureToggles}>{children}</FeatureToggleContext.Provider>;
 }
 
@@ -31,8 +31,8 @@ export function FeatureToggleProvider({ children }: FeatureToggleProviderProps) 
  * @throws Error if used outside FeatureToggleProvider
  * @example
  * ```tsx
- * const { mark_mcp_v1_as_deprecated } = useFeatureToggle();
- * if (mark_mcp_v1_as_deprecated) {
+ * const { markMcpV1asDeprecated } = useFeatureToggle();
+ * if (markMcpV1asDeprecated) {
  *   // Show deprecated warning
  * }
  * ```

@@ -40,7 +40,7 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
 }: Props) => {
-  const { mark_mcp_v1_as_deprecated } = useFeatureToggle();
+  const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
@@ -88,7 +88,7 @@ export const ControlPlaneCard = ({
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                 setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
               />
-              {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
+              {markMcpV1asDeprecated && <DeprecatedLabel />}
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButton
                   variant="loader"

@@ -24,7 +24,7 @@ describe('FeatureToggleContext', () => {
 
       // ASSERT
       expect(result.current).toEqual({
-        mark_mcp_v1_as_deprecated: true,
+        markMcpV1asDeprecated: true,
       });
     });
 
@@ -38,7 +38,7 @@ describe('FeatureToggleContext', () => {
       });
 
       // ASSERT
-      expect(result.current.mark_mcp_v1_as_deprecated).toBe(false);
+      expect(result.current.markMcpV1asDeprecated).toBe(false);
     });
 
     it('should return false when env variable is undefined', () => {
@@ -51,7 +51,7 @@ describe('FeatureToggleContext', () => {
       });
 
       // ASSERT
-      expect(result.current.mark_mcp_v1_as_deprecated).toBe(false);
+      expect(result.current.markMcpV1asDeprecated).toBe(false);
     });
 
     it('should return false when env variable has unexpected value', () => {
@@ -64,7 +64,7 @@ describe('FeatureToggleContext', () => {
       });
 
       // ASSERT
-      expect(result.current.mark_mcp_v1_as_deprecated).toBe(false);
+      expect(result.current.markMcpV1asDeprecated).toBe(false);
     });
 
     it('should throw error when used outside provider', () => {

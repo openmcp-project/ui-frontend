@@ -7,19 +7,19 @@ import styles from './DeprecatedLabel.module.css';
 export const DeprecatedLabel = () => {
   const { t } = useTranslation();
   const popoverRef = useRef<PopoverDomRef>(null);
-  const spanRef = useRef<ButtonDomRef>(null);
+  const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
   const docsUrl = import.meta.env.VITE_MCP2_DOCS_URL;
   const handleClick = () => {
     if (popoverRef.current) {
-      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = spanRef.current;
+      (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current;
       setOpen((prev) => !prev);
     }
   };
 
   return (
     <>
-      <Button ref={spanRef} icon={'message-warning'} className={styles.label} onClick={handleClick}>
+      <Button ref={buttonRef} icon={'message-warning'} className={styles.label} onClick={handleClick}>
         {t('common.deprecated')}
       </Button>
       <ResponsivePopover
@@ -31,7 +31,7 @@ export const DeprecatedLabel = () => {
         <div className={styles.popoverContent}>
           <Text>{t('deprecated.deprecatedPopoverMessage')}</Text>
           {docsUrl && (
-            <Link href={docsUrl} target="_blank">
+            <Link href={docsUrl} target="_blank" rel="noopener noreferrer">
               {t('common.readMore')}
             </Link>
           )}
