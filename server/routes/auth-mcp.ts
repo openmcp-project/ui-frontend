@@ -189,7 +189,10 @@ async function authPlugin(fastify) {
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
-    // Attempt to refresh the tokens
+    if (!namespace || !mcpName) {
+      return reply.badRequest('Missing required query parameters');
+    }
+
     try {
       const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
 

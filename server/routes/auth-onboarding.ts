@@ -77,7 +77,7 @@ async function authPlugin(fastify) {
     const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
     if (!refreshToken) {
       req.log.error('Missing refresh token; deleting encryptedSession.');
-      await req.encryptedSession.clear(); //TODO: also clear user encrpytion key?
+      await req.encryptedSession.clear();
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
