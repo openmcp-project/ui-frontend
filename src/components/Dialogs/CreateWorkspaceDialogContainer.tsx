@@ -58,7 +58,7 @@ export function CreateWorkspaceDialogContainer({
   const username = user?.email;
   const namespace = projectnameToNamespace(project);
 
-  const { createWorkspace } = useCreateWorkspace(project, namespace);
+  const { createWorkspace } = useCreateWorkspace(namespace);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {
