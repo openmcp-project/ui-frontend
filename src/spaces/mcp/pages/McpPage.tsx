@@ -189,7 +189,11 @@ export default function McpPage() {
                       project={projectName}
                       workspace={workspaceName}
                     />
-                    {mark_mcp_v1_as_deprecated && <DeprecatedLabel />}
+                    {mark_mcp_v1_as_deprecated && (
+                      <span className={styles.deprecatedWrapper}>
+                        <DeprecatedLabel />
+                      </span>
+                    )}
                   </FlexBox>
                 </ObjectPageHeader>
               }
