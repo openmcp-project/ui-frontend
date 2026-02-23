@@ -79,6 +79,8 @@ export default function McpPage() {
     }
   }, [searchParams]);
 
+  const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
+
   const {
     data: mcp,
     error,
@@ -144,7 +146,7 @@ export default function McpPage() {
                 <ObjectPageTitle
                   header={displayName ?? controlPlaneName}
                   subHeader={t('Entities.ManagedControlPlane')}
-                  breadcrumbs={<BreadcrumbFeedbackHeader />}
+                  breadcrumbs={showBreadcrumbs ? <BreadcrumbFeedbackHeader /> : undefined}
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                   actionsBar={
                     <div className={styles.actionsBar}>
