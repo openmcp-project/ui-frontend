@@ -22,7 +22,7 @@ function App() {
 
   Sentry.setContext('auth', {
     isAuthenticated: auth.isAuthenticated,
-    isLoading: auth.isLoading,
+    isPending: auth.isPending,
   });
 
   return <AppRouter />;
