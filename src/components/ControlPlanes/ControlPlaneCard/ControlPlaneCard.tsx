@@ -12,7 +12,7 @@ import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.ts
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
-import { ListWorkspacesType } from '../../../lib/api/types/crate/listWorkspaces.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 
@@ -25,7 +25,7 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
-  workspace: ListWorkspacesType;
+  workspace: Workspace;
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
 }

@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react';
 import React from 'react';
-import { Routes, useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from 'react-router-dom';
+import { createRoutesFromChildren, matchRoutes, Routes, useLocation, useNavigationType } from 'react-router-dom';
 
 // Define proper typing for Sentry configuration
 interface SentryConfig {
@@ -38,18 +38,22 @@ async function fetchSentryConfig(): Promise<unknown> {
 }
 
 // Initialize Sentry and return the wrapped Routes component
-export async function initializeSentry(): Promise<typeof Routes> {
+export async function initializeSentry(): Promise<{
+  SentryRoutes: typeof Routes;
+  isSentryEnabled: boolean;
+}> {
   const sentryConfig = await fetchSentryConfig();
 
   if (!isValidSentryConfig(sentryConfig)) {
     console.warn('Invalid or missing Sentry configuration, continuing without Sentry integration');
-    return Routes;
+    return { SentryRoutes: Routes, isSentryEnabled: false };
   }
 
   // Initialize Sentry with valid configuration
   Sentry.init({
     dsn: sentryConfig.FRONTEND_SENTRY_DSN,
     environment: sentryConfig.FRONTEND_SENTRY_ENVIRONMENT,
+
     integrations: [
       Sentry.reactRouterV7BrowserTracingIntegration({
         useEffect: React.useEffect,
@@ -59,7 +63,35 @@ export async function initializeSentry(): Promise<typeof Routes> {
         matchRoutes,
       }),
     ],
+
+    // Filter out noisy errors
+    ignoreErrors: [
+      'ResizeObserver loop limit exceeded',
+      'Non-Error promise rejection captured',
+      /^Non-Error.*captured$/,
+    ],
+
+    // Filter sensitive data before sending
+    beforeSend(event, _hint) {
+      // Remove sensitive query params
+      if (event.request?.url) {
+        try {
+          const url = new URL(event.request.url);
+          if (url.searchParams.has('token') || url.searchParams.has('apiKey')) {
+            url.searchParams.delete('token');
+            url.searchParams.delete('apiKey');
+            event.request.url = url.toString();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      return event;
+    },
   });
 
-  return Sentry.withSentryReactRouterV7Routing(Routes);
+  return {
+    SentryRoutes: Sentry.withSentryReactRouterV7Routing(Routes),
+    isSentryEnabled: true,
+  };
 }

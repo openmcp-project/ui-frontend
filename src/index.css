@@ -28,12 +28,11 @@ body {
 }
 
 .component-card-header-content {
-  padding: 20px;
   display: flex;
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  padding-left: 28px;
+  padding: 20px 20px 20px 28px;
   height: 60px;
   transition: height 0.3s ease;
 }
@@ -81,9 +80,9 @@ body {
 }
 
 .component-status {
-  width: '96px';
-  height: '28px';
-  text-align: 'center';
+  width: 96px;
+  height: 28px;
+  text-align: center;
 }
 
 .component-card-header-status {
@@ -117,4 +116,9 @@ ui5-toast {
 .mono-font {
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
+}
+
+.infobox {
+  margin: 1rem auto;
+  max-width: 80%;
 }
