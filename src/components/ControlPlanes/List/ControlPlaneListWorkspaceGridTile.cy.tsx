@@ -6,6 +6,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
 import '@ui5/webcomponents-cypress-commands';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;
@@ -125,12 +126,14 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ControlPlaneListWorkspaceGridTile
-            workspace={workspace}
-            projectName="some-project"
-            useManagedControlPlanesQuery={fakeUseManagedControlPlanesQuery}
-            useDeleteWorkspace={fakeUseDeleteWorkspace}
-          />
+          <FeatureToggleProvider>
+            <ControlPlaneListWorkspaceGridTile
+              workspace={workspace}
+              projectName="some-project"
+              useManagedControlPlanesQuery={fakeUseManagedControlPlanesQuery}
+              useDeleteWorkspace={fakeUseDeleteWorkspace}
+            />
+          </FeatureToggleProvider>
         </SplitterProvider>
       </MemoryRouter>,
     );

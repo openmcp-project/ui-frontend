@@ -5,6 +5,7 @@ import '@ui5/webcomponents-cypress-commands';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 
 describe('ControlPlaneCard', () => {
   let deleteManagedControlPlaneCalled = false;
@@ -34,12 +35,14 @@ describe('ControlPlaneCard', () => {
     cy.mount(
       <MemoryRouter>
         <SplitterProvider>
-          <ControlPlaneCard
-            controlPlane={managedControlPlane}
-            workspace={workspace}
-            projectName="projectName"
-            useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
-          />
+          <FeatureToggleProvider>
+            <ControlPlaneCard
+              controlPlane={managedControlPlane}
+              workspace={workspace}
+              projectName="projectName"
+              useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+            />
+          </FeatureToggleProvider>
         </SplitterProvider>
       </MemoryRouter>,
     );
