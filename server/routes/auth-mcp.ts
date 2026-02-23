@@ -159,7 +159,7 @@ async function authPlugin(fastify) {
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.get('/auth/mcp/me', async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
@@ -178,7 +178,7 @@ async function authPlugin(fastify) {
     return reply.send({ isAuthenticated, tokenExpiresAt });
   });
 
-  // @ts-ignore
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.post('/auth/mcp/refresh', async function (req, reply) {
     const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
@@ -189,9 +189,11 @@ async function authPlugin(fastify) {
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
-    if (!namespace || !mcpName) {
-      return reply.badRequest('Missing required query parameters');
+    if (idpName && (!namespace || !mcpName)) {
+      return reply.badRequest('Missing required query parameters for custom IdP');
     }
+
+    req.log.info({ namespace, mcpName, idpName }, 'Attempting MCP token refresh');
 
     try {
       const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
