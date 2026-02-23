@@ -1,11 +1,11 @@
-import { createContext, useState, useEffect, ReactNode, use } from 'react';
+import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
 import { MeResponseSchema, User } from './auth.schemas';
 import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.tsx';
 import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 
 interface AuthContextOnboardingType {
-  isLoading: boolean;
+  isPending: boolean;
   isAuthenticated: boolean;
   user: User | null;
   error: Error | null;
@@ -18,16 +18,14 @@ const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(nu
 export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
 
-  // Check the authentication status when the component mounts
-  useEffect(() => {
-    void refreshAuthStatus();
-  }, []);
-
-  async function refreshAuthStatus() {
-    setIsLoading(true);
+  const refreshAuthStatus = useCallback(async (isBackground: boolean) => {
+    if (!isBackground) {
+      setIsPending(true);
+    }
     setError(null);
 
     try {
@@ -48,9 +46,14 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
       }
 
-      const { isAuthenticated: apiIsAuthenticated, user: apiUser } = validationResult.data;
+      const {
+        isAuthenticated: apiIsAuthenticated,
+        user: apiUser,
+        tokenExpiresAt: apiTokenExpiresAt,
+      } = validationResult.data;
       setUser(apiUser);
       setIsAuthenticated(apiIsAuthenticated);
+      setTokenExpiry(apiTokenExpiresAt);
 
       Sentry.addBreadcrumb({
         category: 'auth',
@@ -68,10 +71,50 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       setError(err instanceof Error ? err : new Error('Authentication error.'));
       setUser(null);
       setIsAuthenticated(false);
+      setTokenExpiry(null);
     } finally {
-      setIsLoading(false);
+      setIsPending(false);
     }
-  }
+  }, []);
+
+  // Check the authentication status when the component mounts
+  useEffect(() => {
+    void refreshAuthStatus(false);
+  }, []); // TODO: refreshAuthStatus in dep array?
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
+      if (response.ok) {
+        await refreshAuthStatus(true);
+      } else {
+        console.error('Onboarding token refresh failed');
+      }
+    } catch (error) {
+      console.error('Onboarding failed to contact refresh endpoint', error);
+    }
+  }, [refreshAuthStatus]);
+
+  // Effect to manage the refresh timer
+  useEffect(() => {
+    if (!tokenExpiry || !isAuthenticated) return;
+
+    // Refresh 55 seconds before actual expiry to account for clock skew and network delays
+    const BUFFER_MS = 55 * 1000; // 55 seconds
+    const expiresAt = new Date(tokenExpiry).getTime();
+    const now = Date.now();
+    const delay = expiresAt - now - BUFFER_MS;
+
+    if (delay <= 0) {
+      // Token already expired or about to; refresh immediately
+      void refreshSession();
+      return;
+    }
+
+    const timerId = setTimeout(refreshSession, delay);
+
+    return () => clearTimeout(timerId);
+  }, [tokenExpiry, isAuthenticated, refreshSession]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
@@ -94,7 +137,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         throw new Error(errorBody?.message || `Logout failed with status: ${response.status}`);
       }
 
-      await refreshAuthStatus();
+      await refreshAuthStatus(false);
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -108,7 +151,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContextOnboarding value={{ isLoading, isAuthenticated, user, error, login, logout }}>
+    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, login, logout }}>
       {children}
     </AuthContextOnboarding>
   );

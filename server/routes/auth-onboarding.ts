@@ -65,10 +65,66 @@ async function authPlugin(fastify) {
   fastify.get('/auth/onboarding/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('onboarding_accessToken');
     const userInfo = req.encryptedSession.get('onboarding_userInfo');
+    const tokenExpiresAt = req.encryptedSession.get('onboarding_tokenExpiresAt');
 
     const isAuthenticated = Boolean(accessToken);
     const user = isAuthenticated ? userInfo : null;
-    return reply.send({ isAuthenticated, user });
+    return reply.send({ isAuthenticated, user, tokenExpiresAt });
+  });
+
+  // @ts-ignore
+  fastify.post('/auth/onboarding/refresh', async function (req, reply) {
+    const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
+    if (!refreshToken) {
+      req.log.error('Missing refresh token; deleting encryptedSession.');
+      await req.encryptedSession.clear(); //TODO: also clear user encrpytion key?
+      return reply.unauthorized('Session expired without token refresh capability.');
+    }
+
+    // Attempt to refresh the tokens
+    try {
+      const issuerConfiguration = fastify.issuerConfiguration;
+
+      const refreshedTokenData = await fastify.refreshAuthTokens(
+        refreshToken,
+        {
+          clientId: OIDC_CLIENT_ID,
+          scopes: OIDC_SCOPES,
+        },
+        issuerConfiguration.tokenEndpoint,
+      );
+      if (!refreshedTokenData || !refreshedTokenData.accessToken) {
+        req.log.error('Token refresh failed (no access token); deleting session.');
+        await req.encryptedSession.clear();
+        return reply.unauthorized('Session expired and token refresh failed.');
+      }
+
+      req.log.info('Token refresh successful; updating the session.');
+
+      await req.encryptedSession.set('onboarding_accessToken', refreshedTokenData.accessToken);
+      if (refreshedTokenData.refreshToken) {
+        await req.encryptedSession.set('onboarding_refreshToken', refreshedTokenData.refreshToken);
+      } else {
+        await req.encryptedSession.delete('onboarding_refreshToken');
+      }
+      if (refreshedTokenData.expiresIn) {
+        const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
+        await req.encryptedSession.set('onboarding_tokenExpiresAt', newExpiresAt);
+      } else {
+        await req.encryptedSession.delete('onboarding_tokenExpiresAt');
+      }
+
+      req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
+    } catch (error) {
+      if (error instanceof AuthenticationError) {
+        req.log.error('AuthenticationError during token refresh: %s', error);
+        return reply.unauthorized('Error during token refresh.');
+      } else {
+        throw error;
+      }
+    }
+
+    return reply.send({ success: true });
   });
 
   // @ts-ignore

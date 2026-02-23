@@ -8,7 +8,7 @@ import * as Sentry from '@sentry/react';
 function App() {
   const auth = useAuthOnboarding();
 
-  if (auth.isLoading) {
+  if (auth.isPending) {
     return <BusyIndicator active />;
   }
 

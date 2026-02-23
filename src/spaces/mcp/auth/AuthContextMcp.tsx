@@ -11,7 +11,7 @@ import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 interface AuthContextMcpType {
-  isLoading: boolean;
+  isPending: boolean;
   isAuthenticated: boolean;
   error: Error | null;
   login: () => void;
@@ -21,18 +21,78 @@ const AuthContextMcp = createContext<AuthContextMcpType | null>(null);
 
 export function AuthProviderMcp({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
 
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams] = useSearchParams();
   const idpName = searchParams.get('idp');
   const namespace = `project-${projectName}--ws-${workspaceName}`;
 
-  const refreshAuthStatus = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const refreshAuthStatus = useCallback(
+    async (isBackground: boolean) => {
+      if (!isBackground) {
+        setIsPending(true);
+      }
+      setError(null);
 
+      const queryParams = new URLSearchParams();
+      if (projectName && workspaceName && controlPlaneName && idpName) {
+        // Custom identity provider
+        queryParams.set('namespace', namespace);
+        queryParams.set('mcp', controlPlaneName);
+        queryParams.set('idp', idpName);
+      }
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+      try {
+        const response = await fetch(`/api/auth/mcp/me${queryString}`, {
+          method: 'GET',
+        });
+        if (!response.ok) {
+          let errorBody;
+          try {
+            errorBody = await response.json();
+          } catch (_) {
+            /* safe to ignore */
+          }
+          throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
+        }
+
+        const body = await response.json();
+        const validationResult = MeResponseSchema.safeParse(body);
+        if (!validationResult.success) {
+          throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
+        }
+
+        const { isAuthenticated: apiIsAuthenticated, tokenExpiresAt: apiTokenExpiresAt } = validationResult.data;
+        setIsAuthenticated(apiIsAuthenticated);
+        setTokenExpiry(apiTokenExpiresAt);
+      } catch (err) {
+        Sentry.captureException(err, {
+          extra: {
+            context: 'AuthContextMcp',
+            path: '/api/auth/mcp/me',
+            method: 'GET',
+          },
+        });
+        setError(err instanceof Error ? err : new Error('Authentication error.'));
+        setIsAuthenticated(false);
+        setTokenExpiry(null);
+      } finally {
+        setIsPending(false);
+      }
+    },
+    [projectName, workspaceName, controlPlaneName, idpName, namespace],
+  );
+
+  // Check the authentication status when the component mounts
+  useEffect(() => {
+    void refreshAuthStatus(false);
+  }, [refreshAuthStatus]);
+
+  const refreshSession = useCallback(async () => {
     const queryParams = new URLSearchParams();
     if (projectName && workspaceName && controlPlaneName && idpName) {
       // Custom identity provider
@@ -43,46 +103,37 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
     try {
-      const response = await fetch(`/api/auth/mcp/me${queryString}`, {
-        method: 'GET',
-      });
-      if (!response.ok) {
-        let errorBody;
-        try {
-          errorBody = await response.json();
-        } catch (_) {
-          /* safe to ignore */
-        }
-        throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
+      const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
+      if (response.ok) {
+        await refreshAuthStatus(true);
+      } else {
+        console.error('MCP token refresh failed');
       }
-
-      const body = await response.json();
-      const validationResult = MeResponseSchema.safeParse(body);
-      if (!validationResult.success) {
-        throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
-      }
-
-      const { isAuthenticated: apiIsAuthenticated } = validationResult.data;
-      setIsAuthenticated(apiIsAuthenticated);
-    } catch (err) {
-      Sentry.captureException(err, {
-        extra: {
-          context: 'AuthContextMcp',
-          path: '/api/auth/mcp/me',
-          method: 'GET',
-        },
-      });
-      setError(err instanceof Error ? err : new Error('Authentication error.'));
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error('MCP failed to contact refresh endpoint', error);
     }
-  }, [projectName, workspaceName, controlPlaneName, idpName, namespace]);
-
-  // Check the authentication status when the component mounts
-  useEffect(() => {
-    void refreshAuthStatus();
   }, [refreshAuthStatus]);
+
+  // Effect to manage the refresh timer
+  useEffect(() => {
+    if (!tokenExpiry || !isAuthenticated) return;
+
+    // Refresh 55 seconds before actual expiry to account for clock skew and network delays
+    const BUFFER_MS = 55 * 1000; // 55 seconds
+    const expiresAt = new Date(tokenExpiry).getTime();
+    const now = Date.now();
+    const delay = expiresAt - now - BUFFER_MS;
+
+    if (delay <= 0) {
+      // Token already expired or about to; refresh immediately
+      void refreshSession();
+      return;
+    }
+
+    const timerId = setTimeout(refreshSession, delay);
+
+    return () => clearTimeout(timerId);
+  }, [tokenExpiry, isAuthenticated, refreshSession]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'mcp');
@@ -111,7 +162,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     );
   };
 
-  return <AuthContextMcp value={{ isLoading, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
+  return <AuthContextMcp value={{ isPending, isAuthenticated, error, login }}>{children}</AuthContextMcp>;
 }
 
 export const useAuthMcp = () => {

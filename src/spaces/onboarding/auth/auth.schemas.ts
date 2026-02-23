@@ -7,6 +7,7 @@ export const UserSchema = z.object({
 export const MeResponseSchema = z.object({
   isAuthenticated: z.boolean(),
   user: UserSchema.nullable(),
+  tokenExpiresAt: z.number().nullable(),
 });
 
 export type User = z.infer<typeof UserSchema>;
