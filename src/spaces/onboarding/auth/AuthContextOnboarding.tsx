@@ -25,6 +25,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
 
   const refreshAuthStatus = useCallback(async (isBackground: boolean) => {
+    // Only show loading spinner for user-initiated auth checks, not background token refreshes
     if (!isBackground) {
       setIsPending(true);
     }
@@ -90,11 +91,19 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       if (response.ok) {
         await refreshAuthStatus(true);
       } else {
-        Sentry.captureException(new Error('Onboarding token refresh failed'), {
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setUser(null);
+          setTokenExpiry(null);
+        }
+        const error = new Error('Failed to refresh authentication token');
+        setError(error);
+        Sentry.captureException(error, {
           extra: { status: response.status, context: 'AuthContextOnboarding:refreshSession' },
         });
       }
     } catch (error) {
+      setError(error instanceof Error ? error : new Error('Network error during token refresh'));
       Sentry.captureException(error, {
         extra: { context: 'AuthContextOnboarding:refreshSession' },
       });
@@ -135,7 +144,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
         let errorBody;
         try {
           errorBody = await response.json();
-        } catch (_) {
+        } catch (_error) {
           /* safe to ignore */
         }
         throw new Error(errorBody?.message || `Logout failed with status: ${response.status}`);

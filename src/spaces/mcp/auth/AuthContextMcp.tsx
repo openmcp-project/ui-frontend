@@ -34,6 +34,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
 
   const refreshAuthStatus = useCallback(
     async (isBackground: boolean) => {
+      // Only show loading spinner for user-initiated auth checks, not background token refreshes
       if (!isBackground) {
         setIsPending(true);
       }
@@ -59,13 +60,13 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
           } catch (_error) {
             /* safe to ignore */
           }
-          throw new Error(errorBody?.message || `Authentication check failed with status: ${response.status}`);
+          throw new Error(errorBody?.message || `MCP authentication check failed with status: ${response.status}`);
         }
 
         const body = await response.json();
         const validationResult = MeResponseSchema.safeParse(body);
         if (!validationResult.success) {
-          throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
+          throw new Error(`MCP auth API response validation failed: ${validationResult.error.flatten()}`);
         }
 
         const { isAuthenticated: apiIsAuthenticated, tokenExpiresAt: apiTokenExpiresAt } = validationResult.data;
@@ -79,7 +80,7 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
             method: 'GET',
           },
         });
-        setError(err instanceof Error ? err : new Error('Authentication error.'));
+        setError(err instanceof Error ? err : new Error('MCP authentication error.'));
         setIsAuthenticated(false);
         setTokenExpiry(null);
       } finally {
@@ -109,11 +110,18 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
       if (response.ok) {
         await refreshAuthStatus(true);
       } else {
-        Sentry.captureException(new Error('MCP token refresh failed'), {
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setTokenExpiry(null);
+        }
+        const error = new Error('Failed to refresh MCP authentication token');
+        setError(error);
+        Sentry.captureException(error, {
           extra: { status: response.status, context: 'AuthContextMcp:refreshSession' },
         });
       }
     } catch (error) {
+      setError(error instanceof Error ? error : new Error('Network error during MCP token refresh'));
       Sentry.captureException(error, {
         extra: { context: 'AuthContextMcp:refreshSession' },
       });
