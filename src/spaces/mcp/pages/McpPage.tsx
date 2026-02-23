@@ -129,7 +129,7 @@ export default function McpPage() {
   const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;
   const isComponentInstalledFlux = !!mcp.spec?.components.flux;
   const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
-  console.log('MCP', mcp);
+
   return (
     <McpContextProvider
       context={{
