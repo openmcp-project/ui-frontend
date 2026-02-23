@@ -61,7 +61,7 @@ async function authPlugin(fastify) {
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.get('/auth/onboarding/me', async function (req, reply) {
     const accessToken = req.encryptedSession.get('onboarding_accessToken');
     const userInfo = req.encryptedSession.get('onboarding_userInfo');
@@ -72,7 +72,7 @@ async function authPlugin(fastify) {
     return reply.send({ isAuthenticated, user, tokenExpiresAt });
   });
 
-  // @ts-ignore
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.post('/auth/onboarding/refresh', async function (req, reply) {
     const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
     if (!refreshToken) {
@@ -81,7 +81,8 @@ async function authPlugin(fastify) {
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
-    // Attempt to refresh the tokens
+    req.log.info('Attempting onboarding token refresh');
+
     try {
       const issuerConfiguration = fastify.issuerConfiguration;
 
