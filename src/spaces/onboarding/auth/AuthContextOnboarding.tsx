@@ -46,7 +46,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       const body = await response.json();
       const validationResult = MeResponseSchema.safeParse(body);
       if (!validationResult.success) {
-        throw new Error(`Auth API response validation failed: ${validationResult.error.flatten()}`);
+        throw new Error(`Auth API response validation failed: ${validationResult.error}`);
       }
 
       const {
@@ -56,7 +56,9 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       } = validationResult.data;
       setUser(apiUser);
       setIsAuthenticated(apiIsAuthenticated);
-      setTokenExpiry(apiTokenExpiresAt);
+
+      const validTokenExpiry = apiTokenExpiresAt && apiTokenExpiresAt > Date.now() ? apiTokenExpiresAt : null;
+      setTokenExpiry(validTokenExpiry);
 
       Sentry.addBreadcrumb({
         category: 'auth',
@@ -96,11 +98,6 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
           setUser(null);
           setTokenExpiry(null);
         }
-        const error = new Error('Failed to refresh authentication token');
-        setError(error);
-        Sentry.captureException(error, {
-          extra: { status: response.status, context: 'AuthContextOnboarding:refreshSession' },
-        });
       }
     } catch (error) {
       setError(error instanceof Error ? error : new Error('Network error during token refresh'));
@@ -115,9 +112,8 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     if (!tokenExpiry || !isAuthenticated) return;
 
     // Refresh before actual expiry to account for clock skew and network delays
-    const expiresAt = new Date(tokenExpiry).getTime();
     const now = Date.now();
-    const delay = expiresAt - now - REFRESH_BUFFER_MS;
+    const delay = tokenExpiry - now - REFRESH_BUFFER_MS;
 
     if (delay <= 0) {
       void refreshSession();
