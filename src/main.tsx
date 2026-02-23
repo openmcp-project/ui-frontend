@@ -1,42 +1,62 @@
-import { configureMonaco } from './lib/monaco.ts';
-import React, { Suspense } from 'react';
-import './index.css';
-import App from './App';
+import * as Sentry from '@sentry/react';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { BusyIndicator, ThemeProvider } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
+import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SWRConfig } from 'swr';
-import { ToastProvider } from './context/ToastContext.tsx';
+import App from './App';
+import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
+import { ThemeManager } from './components/ThemeManager.tsx';
+import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { Infobox } from './components/Ui/Infobox/Infobox.tsx';
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
 import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
-import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
-import { ThemeManager } from './components/ThemeManager.tsx';
+import { ToastProvider } from './context/ToastContext.tsx';
+import './index.css';
+import { configureMonaco } from './lib/monaco.ts';
+import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
 import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
-import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
-import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { useTranslation } from 'react-i18next';
-import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
 
 configureMonaco();
 
-const ErrorFallback = ({ error }: FallbackProps) => {
+interface SentryErrorFallbackProps {
+  error: Error;
+  componentStack: string | null;
+}
+
+const ErrorFallback = ({ error, componentStack }: SentryErrorFallbackProps) => {
   const { t } = useTranslation();
 
   return (
-    <IllustratedBanner
-      illustrationName={IllustrationMessageType.SimpleError}
-      title={t('IllustratedError.titleText')}
-      subtitle={error ? error : t('IllustratedError.subtitleText')}
-    />
+    <div className="error-message">
+      <div>
+        <IllustratedBanner
+          illustrationName={IllustrationMessageType.SimpleError}
+          title={t('IllustratedError.titleText')}
+          subtitle={error?.message || t('IllustratedError.subtitleText')}
+        />
+      </div>
+      <div>
+        <Infobox className="infobox" size="sm">
+          <pre>{error.toString()}</pre>
+          <pre>{componentStack}</pre>
+        </Infobox>
+      </div>
+    </div>
   );
 };
 
 export function createApp() {
   return (
     <React.StrictMode>
-      <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+      <Sentry.ErrorBoundary
+        fallback={({ error, componentStack }) => (
+          <ErrorFallback error={error as Error} componentStack={componentStack} />
+        )}
+      >
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
             <AuthCallbackHandler>
@@ -61,7 +81,7 @@ export function createApp() {
             </AuthCallbackHandler>
           </FrontendConfigProvider>
         </Suspense>
-      </ErrorBoundary>
+      </Sentry.ErrorBoundary>
     </React.StrictMode>
   );
 }

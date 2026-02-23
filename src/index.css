@@ -2,7 +2,8 @@
   height: 144px;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
@@ -16,21 +17,22 @@ html, body {
 
 .component-card:hover {
   /* height: 144px; */
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow:
+    0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .component-card-header {
   display: flex;
-  flex-direction: column
+  flex-direction: column;
 }
 
 .component-card-header-content {
-  padding: 20px;
   display: flex;
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  padding-left: 28px;
+  padding: 20px 20px 20px 28px;
   height: 60px;
   transition: height 0.3s ease;
 }
@@ -78,9 +80,9 @@ html, body {
 }
 
 .component-status {
-  width: "96px";
-  height: "28px";
-  text-align: "center"
+  width: 96px;
+  height: 28px;
+  text-align: center;
 }
 
 .component-card-header-status {
@@ -114,4 +116,9 @@ ui5-toast {
 .mono-font {
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
+}
+
+.infobox {
+  margin: 1rem auto;
+  max-width: 80%;
 }

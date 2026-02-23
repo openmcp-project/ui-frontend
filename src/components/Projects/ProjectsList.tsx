@@ -1,16 +1,16 @@
 import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
 
-import { CopyButton } from '../Shared/CopyButton.tsx';
-import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
-import IllustratedError from '../Shared/IllustratedError.tsx';
+import '@ui5/webcomponents-icons/dist/arrow-right';
+import '@ui5/webcomponents-icons/dist/copy';
+import { t } from 'i18next';
+import { useMemo } from 'react';
+import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { projectnameToNamespace } from '../../utils';
-import '@ui5/webcomponents-icons/dist/copy';
-import '@ui5/webcomponents-icons/dist/arrow-right';
-import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { t } from 'i18next';
+import { CopyButton } from '../Shared/CopyButton.tsx';
+import IllustratedError from '../Shared/IllustratedError.tsx';
+import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { useMemo } from 'react';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
