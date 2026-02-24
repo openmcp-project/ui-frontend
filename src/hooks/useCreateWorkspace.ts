@@ -1,9 +1,11 @@
 import { useCallback } from 'react';
-import { useApiResourceMutation } from '../lib/api/useApiResource';
-import { CreateWorkspace, CreateWorkspaceResource, CreateWorkspaceType } from '../lib/api/types/crate/createWorkspace';
+import { gql } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { CreateWorkspace, CreateWorkspaceType } from '../lib/api/types/crate/createWorkspace';
 import { useToast } from '../context/ToastContext';
 import { Member } from '../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
+import { WorkspaceInput } from '../types/__generated__/graphql/graphql';
 
 export interface CreateWorkspaceParams {
   name: string;
@@ -13,10 +15,25 @@ export interface CreateWorkspaceParams {
   members: Member[];
 }
 
+const CreateWorkspaceMutation = gql`
+  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {
+    core_openmcp_cloud {
+      v1alpha1 {
+        createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {
+          metadata {
+            name
+            namespace
+          }
+        }
+      }
+    }
+  }
+`;
+
 export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const { trigger } = useApiResourceMutation<CreateWorkspaceType>(CreateWorkspaceResource(namespace));
+  const [createWorkspaceMutation] = useMutation(CreateWorkspaceMutation);
 
   const createWorkspace = useCallback(
     async ({
@@ -26,17 +43,22 @@ export function useCreateWorkspace(namespace: string) {
       chargingTargetType,
       members,
     }: CreateWorkspaceParams): Promise<void> => {
-      await trigger(
-        CreateWorkspace(name, namespace, {
-          displayName,
-          chargingTarget,
-          chargingTargetType,
-          members,
-        }),
-      );
+      const object = CreateWorkspace(name, namespace, {
+        displayName,
+        chargingTarget,
+        chargingTargetType,
+        members,
+      }) as CreateWorkspaceType as WorkspaceInput;
+
+      await createWorkspaceMutation({
+        variables: {
+          namespace,
+          object,
+        },
+      });
       toast.show(t('CreateWorkspaceDialog.toastMessage'));
     },
-    [trigger, toast, t, namespace],
+    [createWorkspaceMutation, toast, t, namespace],
   );
 
   return {
