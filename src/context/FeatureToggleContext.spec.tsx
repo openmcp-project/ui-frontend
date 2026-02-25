@@ -1,21 +1,26 @@
 import { renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as FrontendConfigContext from './FrontendConfigContext';
 import { FeatureToggleProvider, useFeatureToggle } from './FeatureToggleContext';
 
-describe('FeatureToggleContext', () => {
-  // Store original import.meta.env to restore after tests
-  const originalEnv = { ...import.meta.env };
+const mockUseFrontendConfig = (markMcpV1asDeprecated: boolean) => {
+  vi.spyOn(FrontendConfigContext, 'useFrontendConfig').mockReturnValue({
+    documentationBaseUrl: '',
+    githubBaseUrl: '',
+    featureToggles: { markMcpV1asDeprecated },
+  });
+};
 
+describe('FeatureToggleContext', () => {
   afterEach(() => {
-    // Restore original environment
-    Object.assign(import.meta.env, originalEnv);
+    vi.restoreAllMocks();
   });
 
   describe('useFeatureToggle', () => {
     it('should return feature toggles when used within provider', () => {
       // ARRANGE
-      (import.meta.env as Record<string, string>).VITE_MARK_MCP_V1_AS_DEPRECATED = 'true';
+      mockUseFrontendConfig(true);
 
       // ACT
       const { result } = renderHook(() => useFeatureToggle(), {
@@ -28,35 +33,9 @@ describe('FeatureToggleContext', () => {
       });
     });
 
-    it('should return false when env variable is not "true"', () => {
+    it('should return false when toggle is false', () => {
       // ARRANGE
-      (import.meta.env as Record<string, string>).VITE_MARK_MCP_V1_AS_DEPRECATED = 'false';
-
-      // ACT
-      const { result } = renderHook(() => useFeatureToggle(), {
-        wrapper: ({ children }: { children: ReactNode }) => <FeatureToggleProvider>{children}</FeatureToggleProvider>,
-      });
-
-      // ASSERT
-      expect(result.current.markMcpV1asDeprecated).toBe(false);
-    });
-
-    it('should return false when env variable is undefined', () => {
-      // ARRANGE
-      delete (import.meta.env as Record<string, string>).VITE_MARK_MCP_V1_AS_DEPRECATED;
-
-      // ACT
-      const { result } = renderHook(() => useFeatureToggle(), {
-        wrapper: ({ children }: { children: ReactNode }) => <FeatureToggleProvider>{children}</FeatureToggleProvider>,
-      });
-
-      // ASSERT
-      expect(result.current.markMcpV1asDeprecated).toBe(false);
-    });
-
-    it('should return false when env variable has unexpected value', () => {
-      // ARRANGE
-      (import.meta.env as Record<string, string>).VITE_MARK_MCP_V1_AS_DEPRECATED = 'yes';
+      mockUseFrontendConfig(false);
 
       // ACT
       const { result } = renderHook(() => useFeatureToggle(), {
@@ -77,6 +56,9 @@ describe('FeatureToggleContext', () => {
 
   describe('FeatureToggleProvider', () => {
     it('should render children', () => {
+      // ARRANGE
+      mockUseFrontendConfig(false);
+
       // ACT
       const { result } = renderHook(() => useFeatureToggle(), {
         wrapper: ({ children }: { children: ReactNode }) => <FeatureToggleProvider>{children}</FeatureToggleProvider>,

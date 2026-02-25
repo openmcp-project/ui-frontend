@@ -1,4 +1,5 @@
-import { ReactNode, createContext, use, useMemo } from 'react';
+import { ReactNode, createContext, use } from 'react';
+import { useFrontendConfig } from './FrontendConfigContext';
 
 interface FeatureToggles {
   markMcpV1asDeprecated: boolean;
@@ -10,18 +11,8 @@ interface FeatureToggleProviderProps {
   children: ReactNode;
 }
 
-function parseBoolean(value: string | undefined): boolean {
-  return value === 'true';
-}
-
-function getFeatureToggles(): FeatureToggles {
-  return {
-    markMcpV1asDeprecated: parseBoolean(import.meta.env.VITE_MARK_MCP_V1_AS_DEPRECATED),
-  };
-}
-
 export function FeatureToggleProvider({ children }: FeatureToggleProviderProps) {
-  const featureToggles = useMemo(() => getFeatureToggles(), []);
+  const { featureToggles } = useFrontendConfig();
   return <FeatureToggleContext.Provider value={featureToggles}>{children}</FeatureToggleContext.Provider>;
 }
 

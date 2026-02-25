@@ -2,13 +2,14 @@ import { useTranslation } from 'react-i18next';
 import { useId, useState } from 'react';
 import { Button, Link, ResponsivePopover, Text } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext';
 import styles from './DeprecatedLabel.module.css';
 
 export const DeprecatedLabel = () => {
   const { t } = useTranslation();
   const buttonId = useId();
   const [open, setOpen] = useState(false);
-  const docsUrl = import.meta.env.VITE_MCP2_DOCS_URL;
+  const { mcp2DocsUrl } = useFrontendConfig();
   const handleClick = () => {
     setOpen((prev) => !prev);
   };
@@ -26,8 +27,8 @@ export const DeprecatedLabel = () => {
       >
         <div className={styles.popoverContent}>
           <Text>{t('deprecated.deprecatedPopoverMessage')}</Text>
-          {docsUrl && (
-            <Link href={docsUrl} target="_blank" rel="noopener noreferrer">
+          {mcp2DocsUrl && (
+            <Link href={mcp2DocsUrl} target="_blank" rel="noopener noreferrer">
               {t('common.readMore')}
             </Link>
           )}
