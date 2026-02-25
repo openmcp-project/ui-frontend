@@ -8,7 +8,7 @@ import { SignInPage } from './spaces/onboarding/pages/SignInPage/SignInPage.tsx'
 function App() {
   const auth = useAuthOnboarding();
 
-  if (auth.isLoading) {
+  if (auth.isPending) {
     return <BusyIndicator active />;
   }
 
@@ -22,7 +22,7 @@ function App() {
 
   Sentry.setContext('auth', {
     isAuthenticated: auth.isAuthenticated,
-    isLoading: auth.isLoading,
+    isPending: auth.isPending,
   });
 
   return <AppRouter />;

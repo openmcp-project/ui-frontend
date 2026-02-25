@@ -71,7 +71,7 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
 export function WithinManagedControlPlane({ children }: { children?: ReactNode }) {
   const auth = useAuthMcp();
 
-  if (auth.isLoading) {
+  if (auth.isPending) {
     return <BusyIndicator active />;
   }
 

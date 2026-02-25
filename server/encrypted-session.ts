@@ -25,31 +25,39 @@ async function encryptedSession(fastify) {
 
   await fastify.register(fastifyCookie);
 
+  const isLocalDev = process.argv.includes('--local-dev');
+
+  // For local development, use simpler cookie settings that work reliably over HTTP.
+  const localDevCookieOptions = {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'Lax',
+    secure: false,
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  };
+
+  // For production/embedded, use strict settings for cross-site cookie support
+  const productionCookieOptions = {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'None',
+    partitioned: true,
+    secure: true,
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  };
+
+  const cookieOptions = isLocalDev ? localDevCookieOptions : productionCookieOptions;
+
   fastify.register(secureSession, {
     secret: Buffer.from(COOKIE_SECRET, 'hex'),
     cookieName: ENCRYPTION_KEY_COOKIE_NAME,
     sessionName: ENCRYPTED_COOKIE_REQUEST_DECORATOR,
-    cookie: {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'None', // cross-site cookies are needed for the session to work when embedded. By setting CORS to None and CSP.frame-anchestors we restrict the api calls from the browser that contain the cookies to originating from our site only.
-      partitioned: true, // use for modern isolation of third party cookies when embedded, every embedded iframe (or not embedded) gets its own cookie partition
-      secure: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    },
+    cookie: cookieOptions,
   });
   fastify.register(fastifySession, {
     secret: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
-    // sessionName: UNDERLYING_SESSION_NAME, //NOT POSSIBLE to change the name it is decorated on the request object
-    cookie: {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'None', // see secureSession cookie for explanation
-      partitioned: true, // see secureSession cookie for explanation
-      secure: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    },
+    cookie: cookieOptions,
   });
 
   await fastify.decorateRequest(REQUEST_DECORATOR, {
