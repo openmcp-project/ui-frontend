@@ -15,6 +15,27 @@ export interface CreateWorkspaceParams {
   members: Member[];
 }
 
+function transformToWorkspaceInput(workspace: CreateWorkspaceType): WorkspaceInput {
+  return {
+    apiVersion: workspace.apiVersion,
+    kind: workspace.kind,
+    metadata: {
+      name: workspace.metadata.name,
+      namespace: workspace.metadata.namespace,
+      annotations: workspace.metadata.annotations,
+      labels: workspace.metadata.labels,
+    },
+    spec: {
+      members: workspace.spec.members.map((member) => ({
+        kind: member.kind,
+        name: member.name,
+        namespace: member.namespace,
+        roles: member.roles,
+      })),
+    },
+  };
+}
+
 const CreateWorkspaceMutation = gql`
   mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {
     core_openmcp_cloud {
@@ -43,12 +64,14 @@ export function useCreateWorkspace(namespace: string) {
       chargingTargetType,
       members,
     }: CreateWorkspaceParams): Promise<void> => {
-      const object = CreateWorkspace(name, namespace, {
+      const workspaceData = CreateWorkspace(name, namespace, {
         displayName,
         chargingTarget,
         chargingTargetType,
         members,
-      }) as CreateWorkspaceType as WorkspaceInput;
+      });
+
+      const object = transformToWorkspaceInput(workspaceData);
 
       await createWorkspaceMutation({
         variables: {
