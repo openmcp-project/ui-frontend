@@ -1,15 +1,17 @@
 import { renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import * as FrontendConfigContext from './FrontendConfigContext';
+import { useFrontendConfig } from './FrontendConfigContext';
 import { FeatureToggleProvider, useFeatureToggle } from './FeatureToggleContext';
 
+vi.mock('./FrontendConfigContext', () => ({
+  useFrontendConfig: vi.fn(),
+}));
+
 const mockUseFrontendConfig = (markMcpV1asDeprecated: boolean) => {
-  vi.spyOn(FrontendConfigContext, 'useFrontendConfig').mockReturnValue({
-    documentationBaseUrl: '',
-    githubBaseUrl: '',
+  vi.mocked(useFrontendConfig).mockReturnValue({
     featureToggles: { markMcpV1asDeprecated },
-  });
+  } as ReturnType<typeof useFrontendConfig>);
 };
 
 describe('FeatureToggleContext', () => {
