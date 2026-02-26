@@ -2,10 +2,15 @@ import { NetworkStatus, ServerError } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 
 import { graphql } from '../../../../types/__generated__/graphql';
+import {
+  GetMcPsListQuery,
+  ManagedControlPlanestatusstatusconditions,
+  ManagedControlPlaneV2statusstatusconditions,
+} from '../../../../types/__generated__/graphql/graphql';
 import { ControlPlaneType, ControlPlaneStatusType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 import { APIError } from '../../../../lib/api/error';
 
-const GetMCPsListQuery = graphql(`
+const GET_MCPS_LIST_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -67,118 +72,95 @@ const GetMCPsListQuery = graphql(`
 `);
 
 type V1Item = NonNullable<
-  NonNullable<
-    NonNullable<
-      NonNullable<ReturnType<typeof useQuery<typeof GetMCPsListQuery>>['data']>['core_openmcp_cloud']
-    >['v1alpha1']
-  >['ManagedControlPlanes']
->['items'][number];
-
+  NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']
+>['ManagedControlPlanes']['items'][number];
 type V2Item = NonNullable<
-  NonNullable<
-    NonNullable<
-      NonNullable<ReturnType<typeof useQuery<typeof GetMCPsListQuery>>['data']>['core_openmcp_cloud']
-    >['v2alpha1']
-  >['ManagedControlPlaneV2s']
->['items'][number];
+  NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v2alpha1']
+>['ManagedControlPlaneV2s']['items'][number];
+
+function mapMetadata(metadata?: V1Item['metadata']) {
+  return {
+    name: metadata?.name ?? '',
+    namespace: metadata?.namespace ?? '',
+    creationTimestamp: metadata?.creationTimestamp ?? '',
+    annotations: metadata?.annotations as ControlPlaneType['metadata']['annotations'],
+  };
+}
+
+function mapCondition(
+  condition: ManagedControlPlanestatusstatusconditions | ManagedControlPlaneV2statusstatusconditions | null | undefined,
+): ControlPlaneStatusType['conditions'][number] {
+  return {
+    type: condition?.type ?? '',
+    status: condition?.status ?? '',
+    reason: condition?.reason ?? '',
+    message: condition?.message ?? '',
+    lastTransitionTime: condition?.lastTransitionTime ?? '',
+  };
+}
+
+function parseAccess(accessData: unknown): ControlPlaneStatusType['access'] {
+  if (!accessData) return undefined;
+
+  try {
+    const parsed = typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
+    return {
+      key: parsed.key ?? undefined,
+      name: parsed.name ?? undefined,
+      namespace: parsed.namespace ?? undefined,
+      kubeconfig: undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
 
 function mapV1Item(item: V1Item): ControlPlaneType {
   return {
-    metadata: {
-      name: item.metadata?.name ?? '',
-      namespace: item.metadata?.namespace ?? '',
-      creationTimestamp: item.metadata?.creationTimestamp ?? '',
-      annotations: item.metadata?.annotations,
-    },
+    metadata: mapMetadata(item.metadata),
     spec: undefined,
     status: item.status
       ? {
           status: (item.status.status as ReadyStatus) ?? ReadyStatus.NotReady,
-          conditions: (item.status.conditions ?? []).map((c) => ({
-            type: c?.type ?? '',
-            status: c?.status ?? '',
-            reason: c?.reason ?? '',
-            message: c?.message ?? '',
-            lastTransitionTime: c?.lastTransitionTime ?? '',
-          })),
-          access: item.status.components?.authentication?.access
-            ? {
-                key: item.status.components.authentication.access.key ?? undefined,
-                name: item.status.components.authentication.access.name ?? undefined,
-                namespace: item.status.components.authentication.access.namespace ?? undefined,
-                kubeconfig: undefined,
-              }
-            : undefined,
+          conditions: (item.status.conditions ?? []).map(mapCondition),
+          access: parseAccess(item.status.components?.authentication?.access),
         }
       : undefined,
   };
 }
 
 function mapV2Item(item: V2Item): ControlPlaneType {
-  let access: ControlPlaneStatusType['access'] = undefined;
-  if (item.status?.access) {
-    try {
-      const parsed = JSON.parse(item.status.access as string);
-      access = {
-        key: parsed.key ?? undefined,
-        name: parsed.name ?? undefined,
-        namespace: parsed.namespace ?? undefined,
-        kubeconfig: undefined,
-      };
-    } catch {
-      // leave access undefined if JSON is malformed
-    }
-  }
-
   return {
-    metadata: {
-      name: item.metadata?.name ?? '',
-      namespace: item.metadata?.namespace ?? '',
-      creationTimestamp: item.metadata?.creationTimestamp ?? '',
-      annotations: item.metadata?.annotations,
-    },
+    metadata: mapMetadata(item.metadata),
     spec: undefined,
     status: item.status
       ? {
           status: (item.status.phase as ReadyStatus) ?? ReadyStatus.NotReady,
-          conditions: (item.status.conditions ?? []).map((c) => ({
-            type: c?.type ?? '',
-            status: c?.status ?? '',
-            reason: c?.reason ?? '',
-            message: c?.message ?? '',
-            lastTransitionTime: c?.lastTransitionTime ?? '',
-          })),
-          access,
+          conditions: (item.status.conditions ?? []).map(mapCondition),
+          access: parseAccess(item.status.access),
         }
       : undefined,
   };
 }
 
-function toAPIError(apolloError: ReturnType<typeof useQuery>['error']): APIError | undefined {
-  if (!apolloError) return undefined;
-  const networkError = apolloError.networkError as ServerError | null;
-  const status = networkError?.statusCode ?? 500;
-  return new APIError(apolloError.message, status);
-}
-
 export function useMCPsListQuery(workspaceNamespace?: string) {
-  const query = useQuery(GetMCPsListQuery, {
+  const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
     skip: !workspaceNamespace,
     pollInterval: 10000,
     notifyOnNetworkStatusChange: true,
   });
 
-  const isPending = query.loading && query.networkStatus === NetworkStatus.loading;
+  const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
 
-  const v1Items = query.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items ?? [];
-  const v2Items = query.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [];
+  const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items ?? [];
+  const v2Items = queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [];
 
-  const data: ControlPlaneType[] = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
+  const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
-  return {
-    data,
-    error: toAPIError(query.error),
-    isPending,
-  };
+  const error = queryResult.error
+    ? new APIError(queryResult.error.message, (queryResult.error.networkError as ServerError | null)?.statusCode ?? 500)
+    : undefined;
+
+  return { data: controlPlanes, error, isPending };
 }
