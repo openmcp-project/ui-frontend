@@ -15,7 +15,7 @@ const mockedUseMcp = vi.mocked(useMcp);
 const mockAuth = (userEmail: string | null | undefined) => {
   mockedUseAuthOnboarding.mockReturnValue({
     user: userEmail !== null && userEmail !== undefined ? ({ email: userEmail } as any) : null,
-    isLoading: false,
+    isPending: false,
     isAuthenticated: userEmail !== null,
     error: null,
     login: vi.fn(),
