@@ -408,7 +408,12 @@
     "copyToClipboardSuccessToast": "Copied to clipboard",
     "copyToClipboardFailedToast": "Failed to copy to clipboard",
     "resourcesCount": "Resources ({{count}})",
-    "itemsCount": "Items ({{count}})"
+    "itemsCount": "Items ({{count}})",
+    "deprecated": "Deprecated",
+    "readMore": "Read more"
+  },
+  "deprecated": {
+    "deprecatedPopoverMessage": "There is a new version of Managed Control Plane available."
   },
   "errors": {
     "installError": "Install error",

@@ -1,4 +1,8 @@
 {
   "landscape": "LOCAL",
-  "documentationBaseUrl": "http://localhost:3000"
+  "documentationBaseUrl": "http://localhost:3000",
+  "mcp2DocsUrl": "#",
+  "featureToggles": {
+    "markMcpV1asDeprecated": false
+  }
 }
