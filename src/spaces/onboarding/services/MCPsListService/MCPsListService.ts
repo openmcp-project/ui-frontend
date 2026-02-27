@@ -9,69 +9,14 @@ import {
 } from '../../../../types/__generated__/graphql/graphql';
 import { ControlPlaneType, ControlPlaneStatusType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 import { APIError } from '../../../../lib/api/error';
-import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext';
 
+/**
+ * Fetches both v1alpha1 and v2alpha1 ManagedControlPlanes in a single query.
+ * The `enableMcpV2` feature toggle controls whether v2 items are included
+ * in the returned data (filtered at mapping time, not query time).
+ */
 const GET_MCPS_LIST_QUERY = graphql(`
-  query GetMCPsList($workspaceNamespace: String!) {
-    core_openmcp_cloud {
-      v1alpha1 {
-        ManagedControlPlanes(namespace: $workspaceNamespace) {
-          items {
-            metadata {
-              name
-              namespace
-              creationTimestamp
-              annotations
-            }
-            status {
-              status
-              conditions {
-                type
-                status
-                reason
-                message
-                lastTransitionTime
-              }
-              components {
-                authentication {
-                  access {
-                    key
-                    name
-                    namespace
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      v2alpha1 {
-        ManagedControlPlaneV2s(namespace: $workspaceNamespace) {
-          items {
-            metadata {
-              name
-              namespace
-              creationTimestamp
-              annotations
-            }
-            status {
-              phase
-              conditions {
-                type
-                status
-                reason
-                message
-                lastTransitionTime
-              }
-              access
-            }
-          }
-        }
-      }
-    }
-  }
-`);
-const GET_MCPS_LIST_MCP_V1_ONLY_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -139,7 +84,7 @@ type V2Item = NonNullable<
   NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v2alpha1']
 >['ManagedControlPlaneV2s']['items'][number];
 
-function mapMetadata(metadata?: V1Item['metadata']) {
+function mapMetadata(metadata?: V1Item['metadata']): ControlPlaneType['metadata'] {
   return {
     name: metadata?.name ?? '',
     namespace: metadata?.namespace ?? '',
@@ -166,9 +111,9 @@ function parseAccess(accessData: unknown): ControlPlaneStatusType['access'] {
   try {
     const parsed = typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
     return {
-      key: parsed.key ?? undefined,
-      name: parsed.name ?? undefined,
-      namespace: parsed.namespace ?? undefined,
+      key: parsed.key,
+      name: parsed.name,
+      namespace: parsed.namespace,
       kubeconfig: undefined,
     };
   } catch {
@@ -193,6 +138,7 @@ function mapV1Item(item: V1Item): ControlPlaneType {
 function mapV2Item(item: V2Item): ControlPlaneType {
   return {
     metadata: mapMetadata(item.metadata),
+    isV2: true,
     spec: undefined,
     status: item.status
       ? {
@@ -206,16 +152,22 @@ function mapV2Item(item: V2Item): ControlPlaneType {
 
 export function useMCPsListQuery(workspaceNamespace?: string) {
   const { enableMcpV2 } = useFeatureToggle();
-  const queryResult = useQuery(enableMcpV2 ? GET_MCPS_LIST_QUERY : GET_MCPS_LIST_MCP_V1_ONLY_QUERY, {
+
+  const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
     skip: !workspaceNamespace,
     notifyOnNetworkStatusChange: true,
   });
 
-  const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
+  // NetworkStatus.loading covers only the initial load; `.loading` alone would
+  // also be true during refetch/poll cycles, which we do not want to treat as
+  // the initial pending state.
+  const isPending = queryResult.networkStatus === NetworkStatus.loading;
 
   const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items ?? [];
-  const v2Items = queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [];
+  const v2Items = enableMcpV2
+    ? (queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [])
+    : [];
 
   const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
