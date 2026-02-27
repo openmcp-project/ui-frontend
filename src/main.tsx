@@ -19,6 +19,7 @@ import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnbo
 import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
 import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
+import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
 
 configureMonaco();
 
@@ -59,26 +60,28 @@ export function createApp() {
       >
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
-            <AuthCallbackHandler>
-              <AuthProviderOnboarding>
-                <ThemeProvider>
-                  <ToastProvider>
-                    <CopyButtonProvider>
-                      <SWRConfig
-                        value={{
-                          refreshInterval: 10000,
-                        }}
-                      >
-                        <ApolloClientProvider>
-                          <App />
-                        </ApolloClientProvider>
-                        <ThemeManager />
-                      </SWRConfig>
-                    </CopyButtonProvider>
-                  </ToastProvider>
-                </ThemeProvider>
-              </AuthProviderOnboarding>
-            </AuthCallbackHandler>
+            <FeatureToggleProvider>
+              <AuthCallbackHandler>
+                <AuthProviderOnboarding>
+                  <ThemeProvider>
+                    <ToastProvider>
+                      <CopyButtonProvider>
+                        <SWRConfig
+                          value={{
+                            refreshInterval: 10000,
+                          }}
+                        >
+                          <ApolloClientProvider>
+                            <App />
+                          </ApolloClientProvider>
+                          <ThemeManager />
+                        </SWRConfig>
+                      </CopyButtonProvider>
+                    </ToastProvider>
+                  </ThemeProvider>
+                </AuthProviderOnboarding>
+              </AuthCallbackHandler>
+            </FeatureToggleProvider>
           </FrontendConfigProvider>
         </Suspense>
       </Sentry.ErrorBoundary>
