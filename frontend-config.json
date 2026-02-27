@@ -3,6 +3,7 @@
   "documentationBaseUrl": "http://localhost:3000",
   "mcp2DocsUrl": "#",
   "featureToggles": {
-    "markMcpV1asDeprecated": false
+    "markMcpV1asDeprecated": false,
+    "enableMcpV2": false
   }
 }
