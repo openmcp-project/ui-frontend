@@ -9,8 +9,69 @@ import {
 } from '../../../../types/__generated__/graphql/graphql';
 import { ControlPlaneType, ControlPlaneStatusType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 import { APIError } from '../../../../lib/api/error';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
 
 const GET_MCPS_LIST_QUERY = graphql(`
+  query GetMCPsList($workspaceNamespace: String!) {
+    core_openmcp_cloud {
+      v1alpha1 {
+        ManagedControlPlanes(namespace: $workspaceNamespace) {
+          items {
+            metadata {
+              name
+              namespace
+              creationTimestamp
+              annotations
+            }
+            status {
+              status
+              conditions {
+                type
+                status
+                reason
+                message
+                lastTransitionTime
+              }
+              components {
+                authentication {
+                  access {
+                    key
+                    name
+                    namespace
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      v2alpha1 {
+        ManagedControlPlaneV2s(namespace: $workspaceNamespace) {
+          items {
+            metadata {
+              name
+              namespace
+              creationTimestamp
+              annotations
+            }
+            status {
+              phase
+              conditions {
+                type
+                status
+                reason
+                message
+                lastTransitionTime
+              }
+              access
+            }
+          }
+        }
+      }
+    }
+  }
+`);
+const GET_MCPS_LIST_MCP_V1_ONLY_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -144,10 +205,10 @@ function mapV2Item(item: V2Item): ControlPlaneType {
 }
 
 export function useMCPsListQuery(workspaceNamespace?: string) {
-  const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
+  const { enableMcpV2 } = useFeatureToggle();
+  const queryResult = useQuery(enableMcpV2 ? GET_MCPS_LIST_QUERY : GET_MCPS_LIST_MCP_V1_ONLY_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
     skip: !workspaceNamespace,
-    pollInterval: 10000,
     notifyOnNetworkStatusChange: true,
   });
 
