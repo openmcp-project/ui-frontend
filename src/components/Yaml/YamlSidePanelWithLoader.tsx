@@ -21,7 +21,7 @@ export function YamlSidePanelWithLoader({
 }: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
   const { isLoading, data, error } = useApiResource(
-    ResourceObject(workspaceName ?? '', resourceType, resourceName),
+    ResourceObject(workspaceName ?? '', resourceType, resourceName, resourceType === 'managedcontrolplanev2s'),
     undefined,
     null,
   );

@@ -74,7 +74,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
     <span>
       <Button
         className={styles.button}
-        design="Transparent"
+        design={'Transparent'}
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
         onClick={openSplitterSidePanel}
