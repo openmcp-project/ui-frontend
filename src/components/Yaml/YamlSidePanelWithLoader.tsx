@@ -9,7 +9,7 @@ import { YamlSidePanel } from './YamlSidePanel.tsx';
 
 export interface YamlSidePanelWithLoaderProps {
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
   resourceName: string;
   isEdit?: boolean;
 }

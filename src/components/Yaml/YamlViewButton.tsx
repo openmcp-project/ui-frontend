@@ -20,7 +20,7 @@ export interface YamlViewButtonResourceProps {
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
   resourceName: string;
   withoutApiConfig?: boolean;
 }
