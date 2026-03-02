@@ -11,11 +11,6 @@ import { ControlPlaneType, ControlPlaneStatusType, ReadyStatus } from '../../../
 import { APIError } from '../../../../lib/api/error';
 import { useFeatureToggle } from '../../../../context/FeatureToggleContext';
 
-/**
- * Fetches both v1alpha1 and v2alpha1 ManagedControlPlanes in a single query.
- * The `enableMcpV2` feature toggle controls whether v2 items are included
- * in the returned data (filtered at mapping time, not query time).
- */
 const GET_MCPS_LIST_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
     core_openmcp_cloud {
@@ -159,16 +154,13 @@ export function useMCPsListQuery(workspaceNamespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  // NetworkStatus.loading covers only the initial load; `.loading` alone would
-  // also be true during refetch/poll cycles, which we do not want to treat as
-  // the initial pending state.
   const isPending = queryResult.networkStatus === NetworkStatus.loading;
 
   const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items ?? [];
   const v2Items = enableMcpV2
     ? (queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [])
     : [];
-
+  console.log(v2Items);
   const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
   const error = queryResult.error
