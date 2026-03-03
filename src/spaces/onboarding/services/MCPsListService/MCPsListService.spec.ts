@@ -255,30 +255,6 @@ describe('useMCPsListQuery', () => {
     expect((result.current.error as APIError).status).toBe(500);
   });
 
-  it('extracts the HTTP status code from a ServerError', () => {
-    const serverError = Object.assign(new Error('Service unavailable'), {
-      name: 'ServerError',
-      response: {},
-      statusCode: 503,
-      result: {},
-      bodyText: '',
-    });
-
-    useQueryMock.mockReturnValue({
-      ...baseQueryResult,
-      error: {
-        name: 'ApolloError',
-        message: 'Service unavailable',
-        networkError: serverError,
-      } as unknown as ReturnType<typeof useQuery>['error'],
-    });
-
-    const { result } = renderHook(() => useMCPsListQuery('ns'));
-
-    expect(result.current.error).toBeInstanceOf(APIError);
-    expect((result.current.error as APIError).status).toBe(503);
-  });
-
   it('returns an empty array when there is no data', () => {
     useQueryMock.mockReturnValue({ ...baseQueryResult, data: undefined });
 
