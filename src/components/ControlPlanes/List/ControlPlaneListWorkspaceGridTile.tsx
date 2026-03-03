@@ -21,18 +21,20 @@ import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
-import { useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
+import { useMCPsListQuery as _useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
 
 interface Props {
   projectName: string;
   workspace: Workspace;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMCPsListQuery?: typeof _useMCPsListQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMCPsListQuery = _useMCPsListQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
