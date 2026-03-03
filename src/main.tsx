@@ -4,9 +4,9 @@ import { BusyIndicator, ThemeProvider } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-react/dist/Assets'; //used for loading themes
 import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SWRConfig } from 'swr';
 import App from './App';
 import { AuthCallbackHandler } from './common/auth/AuthCallbackHandler.tsx';
+import { SWRConfigWithTokenRefresh } from './components/SWRConfigWithTokenRefresh.tsx';
 import { ThemeManager } from './components/ThemeManager.tsx';
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { Infobox } from './components/Ui/Infobox/Infobox.tsx';
@@ -66,16 +66,12 @@ export function createApp() {
                   <ThemeProvider>
                     <ToastProvider>
                       <CopyButtonProvider>
-                        <SWRConfig
-                          value={{
-                            refreshInterval: 10000,
-                          }}
-                        >
+                        <SWRConfigWithTokenRefresh>
                           <ApolloClientProvider>
                             <App />
                           </ApolloClientProvider>
                           <ThemeManager />
-                        </SWRConfig>
+                        </SWRConfigWithTokenRefresh>
                       </CopyButtonProvider>
                     </ToastProvider>
                   </ThemeProvider>

@@ -3,6 +3,7 @@ import { MeResponseSchema, User } from './auth.schemas';
 import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.tsx';
 import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
+import { registerRefreshFn, refreshToken } from './tokenRefresh';
 
 interface AuthContextOnboardingType {
   isPending: boolean;
@@ -87,25 +88,40 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
-  const refreshSession = useCallback(async () => {
+  const ensureFreshToken = useCallback(async () => {
+    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
+      return true; // Token still valid
+    }
+
     try {
       const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
       if (response.ok) {
         await refreshAuthStatus(true);
-      } else {
-        if (response.status === 401) {
-          setIsAuthenticated(false);
-          setUser(null);
-          setTokenExpiry(null);
-        }
+        return true;
       }
+
+      if (response.status === 401) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setTokenExpiry(null);
+      }
+
+      return false;
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('Network error during token refresh'));
-      Sentry.captureException(error, {
-        extra: { context: 'AuthContextOnboarding:refreshSession' },
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Background token refresh failed',
+        level: 'warning',
+        ...(error instanceof Error && { data: { error: error.message } }),
       });
+      return false;
     }
-  }, [refreshAuthStatus]);
+  }, [tokenExpiry, refreshAuthStatus]);
+
+  // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
+  useEffect(() => {
+    registerRefreshFn(ensureFreshToken);
+  }, [ensureFreshToken]);
 
   // Effect to manage the refresh timer
   useEffect(() => {
@@ -116,14 +132,14 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     const delay = tokenExpiry - now - REFRESH_BUFFER_MS;
 
     if (delay <= 0) {
-      void refreshSession();
+      void refreshToken();
       return;
     }
 
-    const timerId = setTimeout(refreshSession, delay);
+    const timerId = setTimeout(refreshToken, delay);
 
     return () => clearTimeout(timerId);
-  }, [tokenExpiry, isAuthenticated, refreshSession]);
+  }, [tokenExpiry, isAuthenticated]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
