@@ -1,4 +1,5 @@
-import { NetworkStatus, ServerError, ApolloError } from '@apollo/client';
+import { NetworkStatus, ServerError } from '@apollo/client';
+import { ApolloError } from '@apollo/client/errors';
 import { useQuery } from '@apollo/client/react';
 
 import { graphql } from '../../../../types/__generated__/graphql';
@@ -160,7 +161,7 @@ export function useMCPsListQuery(workspaceNamespace?: string) {
   const v2Items = enableMcpV2
     ? (queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2s?.items ?? [])
     : [];
-  console.log(v2Items);
+
   const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
   const error = queryResult.error
