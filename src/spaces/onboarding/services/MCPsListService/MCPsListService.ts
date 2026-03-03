@@ -81,11 +81,15 @@ type V2Item = NonNullable<
 >['ManagedControlPlaneV2s']['items'][number];
 
 function mapMetadata(metadata?: V1Item['metadata']): ControlPlaneType['metadata'] {
+  const annotations = metadata?.annotations;
   return {
     name: metadata?.name ?? '',
     namespace: metadata?.namespace ?? '',
     creationTimestamp: metadata?.creationTimestamp ?? '',
-    annotations: metadata?.annotations as ControlPlaneType['metadata']['annotations'],
+    annotations:
+      annotations && typeof annotations === 'object'
+        ? (annotations as ControlPlaneType['metadata']['annotations'])
+        : undefined,
   };
 }
 
@@ -165,7 +169,11 @@ export function useMCPsListQuery(workspaceNamespace?: string) {
   const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
   const error = queryResult.error
-    ? new APIError(queryResult.error.message, ServerError.is(queryResult.error) ? queryResult.error.statusCode : 500)
+    ? (() => {
+        const networkError = (queryResult.error as { networkError?: unknown }).networkError;
+        const statusCode = ServerError.is(networkError) ? networkError.statusCode : 500;
+        return new APIError(queryResult.error.message, statusCode);
+      })()
     : undefined;
 
   return { data: controlPlanes, error, isPending };
