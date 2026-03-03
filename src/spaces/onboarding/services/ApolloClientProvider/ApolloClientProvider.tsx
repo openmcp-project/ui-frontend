@@ -27,22 +27,34 @@ const authLink = new ApolloLink((operation, forward) => {
  */
 const tokenRefreshLink = new ApolloLink((operation, forward) => {
   return new Observable((observer) => {
+    let subscription: { unsubscribe(): void } | null = null;
+    let isUnsubscribed = false;
+
     refreshToken()
       .then((valid) => {
+        if (isUnsubscribed) return;
+
         if (!valid) {
           // So far we only connect to the Onboarding API, so we can hardcode the flow here.
           redirectToLogin('onboarding');
           observer.error(new Error('Session expired'));
           return;
         }
-        const subscription = forward(operation).subscribe({
-          next: observer.next.bind(observer),
-          error: observer.error.bind(observer),
-          complete: observer.complete.bind(observer),
+
+        subscription = forward(operation).subscribe({
+          next: (value) => !isUnsubscribed && observer.next(value),
+          error: (err) => !isUnsubscribed && observer.error(err),
+          complete: () => !isUnsubscribed && observer.complete(),
         });
-        return () => subscription.unsubscribe();
       })
-      .catch((err) => observer.error(err));
+      .catch((err) => {
+        if (!isUnsubscribed) observer.error(err);
+      });
+
+    return () => {
+      isUnsubscribed = true;
+      subscription?.unsubscribe();
+    };
   });
 });
 

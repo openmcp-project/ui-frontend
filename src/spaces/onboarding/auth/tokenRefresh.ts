@@ -30,7 +30,7 @@ export async function refreshToken(): Promise<boolean> {
   if (!registeredRefreshFn) return true;
 
   if (!pendingRefresh) {
-    pendingRefresh = performRefresh().finally(() => {
+    pendingRefresh = acquireLockAndRefresh().finally(() => {
       pendingRefresh = null;
     });
   }
@@ -51,20 +51,27 @@ function notifyListeners() {
   listeners.forEach((listener) => listener());
 }
 
+async function acquireLockAndRefresh(): Promise<boolean> {
+  if (!registeredRefreshFn) return false;
+
+  // Fallback for browsers without Web Locks API
+  if (!navigator.locks) {
+    return performRefresh();
+  }
+
+  return navigator.locks.request(LOCK_NAME, performRefresh);
+}
+
 async function performRefresh(): Promise<boolean> {
   if (!registeredRefreshFn) return false;
 
-  return navigator.locks.request(LOCK_NAME, async () => {
-    if (!registeredRefreshFn) return false;
+  isRefreshInProgress = true;
+  notifyListeners();
 
-    isRefreshInProgress = true;
+  try {
+    return await registeredRefreshFn();
+  } finally {
+    isRefreshInProgress = false;
     notifyListeners();
-
-    try {
-      return await registeredRefreshFn();
-    } finally {
-      isRefreshInProgress = false;
-      notifyListeners();
-    }
-  });
+  }
 }
