@@ -1,5 +1,5 @@
-import { NetworkStatus, ServerError } from '@apollo/client';
-import { ApolloError } from '@apollo/client/errors';
+import { NetworkStatus } from '@apollo/client';
+import { ServerError } from '@apollo/client/errors';
 import { useQuery } from '@apollo/client/react';
 
 import { graphql } from '../../../../types/__generated__/graphql';
@@ -165,10 +165,7 @@ export function useMCPsListQuery(workspaceNamespace?: string) {
   const controlPlanes = [...v1Items.map(mapV1Item), ...v2Items.map(mapV2Item)];
 
   const error = queryResult.error
-    ? new APIError(
-        queryResult.error.message,
-        ((queryResult.error as ApolloError).networkError as ServerError | null)?.statusCode ?? 500,
-      )
+    ? new APIError(queryResult.error.message, ServerError.is(queryResult.error) ? queryResult.error.statusCode : 500)
     : undefined;
 
   return { data: controlPlanes, error, isPending };
