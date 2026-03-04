@@ -103,7 +103,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   ];
 
-  // Matches the real return shape of useMCPsListQuery: { data, error, isPending }
   const fakeUseMCPsListQuery: typeof useMCPsListQuery = () => ({
     data: fakeManagedControlPlanes,
     error: undefined,
