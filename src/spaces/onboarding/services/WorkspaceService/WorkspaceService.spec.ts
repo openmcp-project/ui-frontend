@@ -1,18 +1,22 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useSubscription } from '@apollo/client/react';
 import { useWorkspacesQuery } from './WorkspaceService';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
+  useSubscription: vi.fn(),
 }));
 
 const useQueryMock = vi.mocked(useQuery);
+const useSubscriptionMock = vi.mocked(useSubscription);
 
 describe('useWorkspacesQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
+    useSubscriptionMock.mockReset();
+    useSubscriptionMock.mockReturnValue({} as ReturnType<typeof useSubscription>);
   });
 
   it('maps workspaces and applies defaults', () => {
@@ -53,8 +57,15 @@ describe('useWorkspacesQuery', () => {
       expect.objectContaining({
         variables: { projectNamespace: 'project-demo' },
         skip: false,
-        pollInterval: 10000,
+        pollInterval: 0,
         notifyOnNetworkStatusChange: true,
+      }),
+    );
+
+    expect(useSubscriptionMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        skip: false,
       }),
     );
   });
@@ -86,6 +97,13 @@ describe('useWorkspacesQuery', () => {
       expect.anything(),
       expect.objectContaining({
         variables: { projectNamespace: '' },
+        skip: true,
+      }),
+    );
+
+    expect(useSubscriptionMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
         skip: true,
       }),
     );

@@ -2566,11 +2566,13 @@ export type Certificatespecspeckeystoresspeckeystorespkcs12speckeystorespkcs12pa
 export type CertificatespecspecprivateKey = {
   __typename?: 'CertificatespecspecprivateKey';
   algorithm?: Maybe<Scalars['String']['output']>;
+  encoding?: Maybe<Scalars['String']['output']>;
   size?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CertificatespecspecprivateKeyInput = {
   algorithm?: InputMaybe<Scalars['String']['input']>;
+  encoding?: InputMaybe<Scalars['String']['input']>;
   size?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -3086,100 +3088,6 @@ export type CoreOpenmcpCloudQuery = {
   v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Query>;
 };
 
-export type CoreOpenmcpCloudV1alpha1Landscaper = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaper';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperspec>;
-  status?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatus>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperEvent = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperEvent';
-  object?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
-  type: WatchEventType;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperInput = {
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperspecInput>;
-  status?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusInput>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperList = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperList';
-  continue?: Maybe<Scalars['String']['output']>;
-  items: Array<CoreOpenmcpCloudV1alpha1Landscaper>;
-  remainingItemCount?: Maybe<Scalars['Int']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperspec = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperspec';
-  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperspecInput = {
-  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperstatus = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatus';
-  conditions?: Maybe<Array<Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions>>>;
-  landscaperDeployment?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment>;
-  observedGenerations?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusInput = {
-  conditions?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput>>>;
-  landscaperDeployment?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput>;
-  observedGenerations?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions';
-  lastTransitionTime?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  reason?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput = {
-  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations';
-  internalConfiguration?: Maybe<Scalars['Int']['output']>;
-  managedControlPlane?: Maybe<Scalars['Int']['output']>;
-  resource?: Maybe<Scalars['Int']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput = {
-  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
-  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
-  resource?: InputMaybe<Scalars['Int']['input']>;
-};
-
 export type CoreOpenmcpCloudV1alpha1Mutation = {
   __typename?: 'CoreOpenmcpCloudV1alpha1Mutation';
   createAPIServer?: Maybe<ApiServer>;
@@ -3188,7 +3096,7 @@ export type CoreOpenmcpCloudV1alpha1Mutation = {
   createCloudOrchestrator?: Maybe<CloudOrchestrator>;
   createClusterAdmin?: Maybe<ClusterAdmin>;
   createInternalConfiguration?: Maybe<InternalConfiguration>;
-  createLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  createLandscaper?: Maybe<Landscaper>;
   createManagedComponent?: Maybe<ManagedComponent>;
   createManagedControlPlane?: Maybe<ManagedControlPlane>;
   createMemberOverrides?: Maybe<MemberOverrides>;
@@ -3214,7 +3122,7 @@ export type CoreOpenmcpCloudV1alpha1Mutation = {
   updateCloudOrchestrator?: Maybe<CloudOrchestrator>;
   updateClusterAdmin?: Maybe<ClusterAdmin>;
   updateInternalConfiguration?: Maybe<InternalConfiguration>;
-  updateLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  updateLandscaper?: Maybe<Landscaper>;
   updateManagedComponent?: Maybe<ManagedComponent>;
   updateManagedControlPlane?: Maybe<ManagedControlPlane>;
   updateMemberOverrides?: Maybe<MemberOverrides>;
@@ -3269,7 +3177,7 @@ export type CoreOpenmcpCloudV1alpha1MutationCreateInternalConfigurationArgs = {
 export type CoreOpenmcpCloudV1alpha1MutationCreateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+  object: LandscaperInput;
 };
 
 
@@ -3450,7 +3358,7 @@ export type CoreOpenmcpCloudV1alpha1MutationUpdateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+  object: LandscaperInput;
 };
 
 
@@ -3517,9 +3425,9 @@ export type CoreOpenmcpCloudV1alpha1Query = {
   InternalConfiguration: InternalConfiguration;
   InternalConfigurationYaml: Scalars['String']['output'];
   InternalConfigurations: InternalConfigurationList;
-  Landscaper: CoreOpenmcpCloudV1alpha1Landscaper;
+  Landscaper: Landscaper;
   LandscaperYaml: Scalars['String']['output'];
-  Landscapers: CoreOpenmcpCloudV1alpha1LandscaperList;
+  Landscapers: LandscaperList;
   ManagedComponent: ManagedComponent;
   ManagedComponentYaml: Scalars['String']['output'];
   ManagedComponents: ManagedComponentList;
@@ -4715,6 +4623,73 @@ export type DeleteOptionsInput = {
   propagationPolicy?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type DiscoveryK8sIoMutation = {
+  __typename?: 'DiscoveryK8sIoMutation';
+  v1?: Maybe<DiscoveryK8sIoV1Mutation>;
+};
+
+export type DiscoveryK8sIoQuery = {
+  __typename?: 'DiscoveryK8sIoQuery';
+  v1?: Maybe<DiscoveryK8sIoV1Query>;
+};
+
+export type DiscoveryK8sIoV1Mutation = {
+  __typename?: 'DiscoveryK8sIoV1Mutation';
+  createEndpointSlice?: Maybe<EndpointSlice>;
+  deleteEndpointSlice?: Maybe<Scalars['Boolean']['output']>;
+  updateEndpointSlice?: Maybe<EndpointSlice>;
+};
+
+
+export type DiscoveryK8sIoV1MutationCreateEndpointSliceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EndpointSliceInput;
+};
+
+
+export type DiscoveryK8sIoV1MutationDeleteEndpointSliceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DiscoveryK8sIoV1MutationUpdateEndpointSliceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: EndpointSliceInput;
+};
+
+export type DiscoveryK8sIoV1Query = {
+  __typename?: 'DiscoveryK8sIoV1Query';
+  EndpointSlice: EndpointSlice;
+  EndpointSliceYaml: Scalars['String']['output'];
+  EndpointSlices: EndpointSliceList;
+};
+
+
+export type DiscoveryK8sIoV1QueryEndpointSliceArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DiscoveryK8sIoV1QueryEndpointSliceYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type DiscoveryK8sIoV1QueryEndpointSlicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type DownloadRequest = {
   __typename?: 'DownloadRequest';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -4777,6 +4752,39 @@ export type DownloadRequeststatusInput = {
   downloadURL?: InputMaybe<Scalars['String']['input']>;
   expiration?: InputMaybe<Scalars['String']['input']>;
   phase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EndpointSlice = {
+  __typename?: 'EndpointSlice';
+  addressType?: Maybe<Scalars['String']['output']>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  endpoints?: Maybe<Array<Maybe<Io_K8s_Api_Discovery_V1_Endpointendpoints>>>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  ports?: Maybe<Array<Maybe<Io_K8s_Api_Discovery_V1_EndpointPortports>>>;
+};
+
+export type EndpointSliceEvent = {
+  __typename?: 'EndpointSliceEvent';
+  object?: Maybe<EndpointSlice>;
+  type: WatchEventType;
+};
+
+export type EndpointSliceInput = {
+  addressType?: InputMaybe<Scalars['String']['input']>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  endpoints?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Discovery_V1_EndpointendpointsInput>>>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  ports?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Discovery_V1_EndpointPortportsInput>>>;
+};
+
+export type EndpointSliceList = {
+  __typename?: 'EndpointSliceList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<EndpointSlice>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 export type Endpoints = {
@@ -5524,18 +5532,112 @@ export type LandscaperServicesOpenmcpCloudQuery = {
   v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Query>;
 };
 
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec>;
+  status?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent';
+  object?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  type: WatchEventType;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecInput>;
+  status?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusInput>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperList = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec';
+  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecInput = {
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRefInput>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRefInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus';
+  conditions?: Maybe<Array<Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions>>>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusconditionsInput>>>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRefInput>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRefInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type LandscaperServicesOpenmcpCloudV1alpha2Mutation = {
   __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
-  createLandscaper?: Maybe<Landscaper>;
+  createLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
   deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
-  updateLandscaper?: Maybe<Landscaper>;
+  updateLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
 };
 
 
 export type LandscaperServicesOpenmcpCloudV1alpha2MutationCreateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
+  object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput;
 };
 
 
@@ -5550,14 +5652,14 @@ export type LandscaperServicesOpenmcpCloudV1alpha2MutationUpdateLandscaperArgs =
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
+  object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput;
 };
 
 export type LandscaperServicesOpenmcpCloudV1alpha2Query = {
   __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Query';
-  Landscaper: Landscaper;
+  Landscaper: LandscaperServicesOpenmcpCloudV1alpha2Landscaper;
   LandscaperYaml: Scalars['String']['output'];
-  Landscapers: LandscaperList;
+  Landscapers: LandscaperServicesOpenmcpCloudV1alpha2LandscaperList;
 };
 
 
@@ -5583,44 +5685,30 @@ export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscapersArgs = {
 
 export type Landscaperspec = {
   __typename?: 'Landscaperspec';
-  providerConfigRef?: Maybe<LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced>;
-  version?: Maybe<Scalars['String']['output']>;
+  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
 export type LandscaperspecInput = {
-  providerConfigRef?: InputMaybe<LandscaperspecspecproviderConfigRefInput>;
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LandscaperspecspecproviderConfigRefInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced = {
-  __typename?: 'LandscaperspecspecproviderConfigRef_providerConfig_Enhanced';
-  name?: Maybe<Scalars['String']['output']>;
+  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type Landscaperstatus = {
   __typename?: 'Landscaperstatus';
   conditions?: Maybe<Array<Maybe<Landscaperstatusstatusconditions>>>;
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
-  phase?: Maybe<Scalars['String']['output']>;
-  providerConfigRef?: Maybe<LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced>;
+  landscaperDeployment?: Maybe<LandscaperstatusstatuslandscaperDeployment>;
+  observedGenerations?: Maybe<LandscaperstatusstatusobservedGenerations>;
 };
 
 export type LandscaperstatusInput = {
   conditions?: InputMaybe<Array<InputMaybe<LandscaperstatusstatusconditionsInput>>>;
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
-  phase?: InputMaybe<Scalars['String']['input']>;
-  providerConfigRef?: InputMaybe<LandscaperstatusstatusproviderConfigRefInput>;
+  landscaperDeployment?: InputMaybe<LandscaperstatusstatuslandscaperDeploymentInput>;
+  observedGenerations?: InputMaybe<LandscaperstatusstatusobservedGenerationsInput>;
 };
 
 export type Landscaperstatusstatusconditions = {
   __typename?: 'Landscaperstatusstatusconditions';
   lastTransitionTime?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
   reason?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -5629,19 +5717,33 @@ export type Landscaperstatusstatusconditions = {
 export type LandscaperstatusstatusconditionsInput = {
   lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   reason?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperstatusstatusproviderConfigRefInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
+export type LandscaperstatusstatuslandscaperDeployment = {
+  __typename?: 'LandscaperstatusstatuslandscaperDeployment';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
-export type LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced = {
-  __typename?: 'LandscaperstatusstatusproviderConfigRef_providerConfig_Enhanced';
-  name?: Maybe<Scalars['String']['output']>;
+export type LandscaperstatusstatuslandscaperDeploymentInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperstatusstatusobservedGenerations = {
+  __typename?: 'LandscaperstatusstatusobservedGenerations';
+  internalConfiguration?: Maybe<Scalars['Int']['output']>;
+  managedControlPlane?: Maybe<Scalars['Int']['output']>;
+  resource?: Maybe<Scalars['Int']['output']>;
+};
+
+export type LandscaperstatusstatusobservedGenerationsInput = {
+  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
+  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
+  resource?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Lease = {
@@ -6872,6 +6974,7 @@ export type Mutation = {
   coordination_k8s_io?: Maybe<CoordinationK8sIoMutation>;
   core_openmcp_cloud?: Maybe<CoreOpenmcpCloudMutation>;
   crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudMutation>;
+  discovery_k8s_io?: Maybe<DiscoveryK8sIoMutation>;
   dns_gardener_cloud?: Maybe<DnsGardenerCloudMutation>;
   events_k8s_io?: Maybe<EventsK8sIoMutation>;
   externaldns_k8s_io?: Maybe<ExternaldnsK8sIoMutation>;
@@ -6880,6 +6983,7 @@ export type Mutation = {
   landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudMutation>;
   networking_k8s_io?: Maybe<NetworkingK8sIoMutation>;
   node_k8s_io?: Maybe<NodeK8sIoMutation>;
+  ocm_services_openmcp_cloud?: Maybe<OcmServicesOpenmcpCloudMutation>;
   openmcp_cloud?: Maybe<OpenmcpCloudMutation>;
   policy?: Maybe<PolicyMutation>;
   rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoMutation>;
@@ -7269,6 +7373,147 @@ export type NodeList = {
   items: Array<Node>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type Ocm = {
+  __typename?: 'OCM';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<OcMspec>;
+  status?: Maybe<OcMstatus>;
+};
+
+export type OcmEvent = {
+  __typename?: 'OCMEvent';
+  object?: Maybe<Ocm>;
+  type: WatchEventType;
+};
+
+export type OcmInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<OcMspecInput>;
+  status?: InputMaybe<OcMstatusInput>;
+};
+
+export type OcmList = {
+  __typename?: 'OCMList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<Ocm>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type OcMspec = {
+  __typename?: 'OCMspec';
+  url?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type OcMspecInput = {
+  url?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OcMstatus = {
+  __typename?: 'OCMstatus';
+  conditions?: Maybe<Array<Maybe<OcMstatusstatusconditions>>>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+};
+
+export type OcMstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<OcMstatusstatusconditionsInput>>>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OcMstatusstatusconditions = {
+  __typename?: 'OCMstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type OcMstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type OcmServicesOpenmcpCloudMutation = {
+  __typename?: 'OcmServicesOpenmcpCloudMutation';
+  v1alpha1?: Maybe<OcmServicesOpenmcpCloudV1alpha1Mutation>;
+};
+
+export type OcmServicesOpenmcpCloudQuery = {
+  __typename?: 'OcmServicesOpenmcpCloudQuery';
+  v1alpha1?: Maybe<OcmServicesOpenmcpCloudV1alpha1Query>;
+};
+
+export type OcmServicesOpenmcpCloudV1alpha1Mutation = {
+  __typename?: 'OcmServicesOpenmcpCloudV1alpha1Mutation';
+  createOCM?: Maybe<Ocm>;
+  deleteOCM?: Maybe<Scalars['Boolean']['output']>;
+  updateOCM?: Maybe<Ocm>;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1MutationCreateOcmArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: OcmInput;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1MutationDeleteOcmArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1MutationUpdateOcmArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: OcmInput;
+};
+
+export type OcmServicesOpenmcpCloudV1alpha1Query = {
+  __typename?: 'OcmServicesOpenmcpCloudV1alpha1Query';
+  OCM: Ocm;
+  OCMYaml: Scalars['String']['output'];
+  OCMs: OcmList;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1QueryOcmArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1QueryOcmYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type OcmServicesOpenmcpCloudV1alpha1QueryOcMsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type OpenIdConnect = {
@@ -8106,6 +8351,7 @@ export type Query = {
   coordination_k8s_io?: Maybe<CoordinationK8sIoQuery>;
   core_openmcp_cloud?: Maybe<CoreOpenmcpCloudQuery>;
   crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudQuery>;
+  discovery_k8s_io?: Maybe<DiscoveryK8sIoQuery>;
   dns_gardener_cloud?: Maybe<DnsGardenerCloudQuery>;
   events_k8s_io?: Maybe<EventsK8sIoQuery>;
   externaldns_k8s_io?: Maybe<ExternaldnsK8sIoQuery>;
@@ -8114,6 +8360,7 @@ export type Query = {
   landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudQuery>;
   networking_k8s_io?: Maybe<NetworkingK8sIoQuery>;
   node_k8s_io?: Maybe<NodeK8sIoQuery>;
+  ocm_services_openmcp_cloud?: Maybe<OcmServicesOpenmcpCloudQuery>;
   openmcp_cloud?: Maybe<OpenmcpCloudQuery>;
   policy?: Maybe<PolicyQuery>;
   rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoQuery>;
@@ -10080,9 +10327,9 @@ export type Subscription = {
   /** Subscribe to changes of InternalConfigurations */
   core_openmcp_cloud_v1alpha1_internalconfigurations?: Maybe<InternalConfigurationEvent>;
   /** Subscribe to changes of Landscaper */
-  core_openmcp_cloud_v1alpha1_landscaper?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  core_openmcp_cloud_v1alpha1_landscaper?: Maybe<LandscaperEvent>;
   /** Subscribe to changes of Landscapers */
-  core_openmcp_cloud_v1alpha1_landscapers?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  core_openmcp_cloud_v1alpha1_landscapers?: Maybe<LandscaperEvent>;
   /** Subscribe to changes of ManagedComponent */
   core_openmcp_cloud_v1alpha1_managedcomponent?: Maybe<ManagedComponentEvent>;
   /** Subscribe to changes of ManagedComponents */
@@ -10113,6 +10360,10 @@ export type Subscription = {
   crossplane_services_openmcp_cloud_v1alpha1_crossplane?: Maybe<CrossplaneEvent>;
   /** Subscribe to changes of Crossplanes */
   crossplane_services_openmcp_cloud_v1alpha1_crossplanes?: Maybe<CrossplaneEvent>;
+  /** Subscribe to changes of EndpointSlice */
+  discovery_k8s_io_v1_endpointslice?: Maybe<EndpointSliceEvent>;
+  /** Subscribe to changes of EndpointSlices */
+  discovery_k8s_io_v1_endpointslices?: Maybe<EndpointSliceEvent>;
   /** Subscribe to changes of DNSAnnotation */
   dns_gardener_cloud_v1alpha1_dnsannotation?: Maybe<DnsAnnotationEvent>;
   /** Subscribe to changes of DNSAnnotations */
@@ -10150,9 +10401,9 @@ export type Subscription = {
   /** Subscribe to changes of ResourceGraphDefinitions */
   kro_run_v1alpha1_resourcegraphdefinitions?: Maybe<ResourceGraphDefinitionEvent>;
   /** Subscribe to changes of Landscaper */
-  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperEvent>;
+  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Landscapers */
-  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperEvent>;
+  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Ingress */
   networking_k8s_io_v1_ingress?: Maybe<IngressEvent>;
   /** Subscribe to changes of IngressClass */
@@ -10169,6 +10420,10 @@ export type Subscription = {
   node_k8s_io_v1_runtimeclass?: Maybe<RuntimeClassEvent>;
   /** Subscribe to changes of RuntimeClasses */
   node_k8s_io_v1_runtimeclasses?: Maybe<RuntimeClassEvent>;
+  /** Subscribe to changes of OCM */
+  ocm_services_openmcp_cloud_v1alpha1_ocm?: Maybe<OcmEvent>;
+  /** Subscribe to changes of OCMs */
+  ocm_services_openmcp_cloud_v1alpha1_ocms?: Maybe<OcmEvent>;
   /** Subscribe to changes of QuotaIncrease */
   openmcp_cloud_v1alpha1_quotaincrease?: Maybe<QuotaIncreaseEvent>;
   /** Subscribe to changes of QuotaIncreases */
@@ -11010,6 +11265,26 @@ export type SubscriptionCrossplane_Services_Openmcp_Cloud_V1alpha1_CrossplanesAr
 };
 
 
+export type SubscriptionDiscovery_K8s_Io_V1_EndpointsliceArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionDiscovery_K8s_Io_V1_EndpointslicesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type SubscriptionDns_Gardener_Cloud_V1alpha1_DnsannotationArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
@@ -11274,6 +11549,26 @@ export type SubscriptionNode_K8s_Io_V1_RuntimeclassesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionOcm_Services_Openmcp_Cloud_V1alpha1_OcmArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type SubscriptionOcm_Services_Openmcp_Cloud_V1alpha1_OcmsArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
@@ -14416,6 +14711,7 @@ export type Cloud_Gardener_Cert_V1alpha1_Certificatespecspeckeystoresspeckeystor
 export type Cloud_Gardener_Cert_V1alpha1_CertificatespecspecprivateKey = {
   __typename?: 'cloud_gardener_cert_v1alpha1_CertificatespecspecprivateKey';
   algorithm?: Maybe<Scalars['String']['output']>;
+  encoding?: Maybe<Scalars['String']['output']>;
   size?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -22854,6 +23150,27 @@ export type Io_K8s_Api_Core_V1_ObjectFieldSelectortemplatespecvolumesprojectedso
   fieldPath?: Maybe<Scalars['String']['output']>;
 };
 
+export type Io_K8s_Api_Core_V1_ObjectReferenceendpointstargetRefInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  fieldPath?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  uid?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Core_V1_ObjectReferenceendpointstargetRef_Target_Enhanced = {
+  __typename?: 'io_k8s_api_core_v1_ObjectReferenceendpointstargetRef_target_Enhanced';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  fieldPath?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+  uid?: Maybe<Scalars['String']['output']>;
+};
+
 export type Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject = {
   __typename?: 'io_k8s_api_core_v1_ObjectReferenceinvolvedObject';
   apiVersion?: Maybe<Scalars['String']['output']>;
@@ -29751,6 +30068,75 @@ export type Io_K8s_Api_Core_V1_WindowsSecurityContextOptionstemplatespecsecurity
   runAsUserName?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Io_K8s_Api_Discovery_V1_EndpointConditionsendpointsconditions = {
+  __typename?: 'io_k8s_api_discovery_v1_EndpointConditionsendpointsconditions';
+  ready?: Maybe<Scalars['Boolean']['output']>;
+  serving?: Maybe<Scalars['Boolean']['output']>;
+  terminating?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointConditionsendpointsconditionsInput = {
+  ready?: InputMaybe<Scalars['Boolean']['input']>;
+  serving?: InputMaybe<Scalars['Boolean']['input']>;
+  terminating?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointHintsendpointshints = {
+  __typename?: 'io_k8s_api_discovery_v1_EndpointHintsendpointshints';
+  forZones?: Maybe<Array<Maybe<Io_K8s_Api_Discovery_V1_ForZoneendpointshintsforZones>>>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointHintsendpointshintsInput = {
+  forZones?: InputMaybe<Array<InputMaybe<Io_K8s_Api_Discovery_V1_ForZoneendpointshintsforZonesInput>>>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointPortports = {
+  __typename?: 'io_k8s_api_discovery_v1_EndpointPortports';
+  appProtocol?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  port?: Maybe<Scalars['Int']['output']>;
+  protocol?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointPortportsInput = {
+  appProtocol?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  port?: InputMaybe<Scalars['Int']['input']>;
+  protocol?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_Endpointendpoints = {
+  __typename?: 'io_k8s_api_discovery_v1_Endpointendpoints';
+  addresses?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  conditions?: Maybe<Io_K8s_Api_Discovery_V1_EndpointConditionsendpointsconditions>;
+  deprecatedTopology?: Maybe<Scalars['StringMapInput']['output']>;
+  hints?: Maybe<Io_K8s_Api_Discovery_V1_EndpointHintsendpointshints>;
+  hostname?: Maybe<Scalars['String']['output']>;
+  nodeName?: Maybe<Scalars['String']['output']>;
+  targetRef?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceendpointstargetRef_Target_Enhanced>;
+  zone?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_EndpointendpointsInput = {
+  addresses?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  conditions?: InputMaybe<Io_K8s_Api_Discovery_V1_EndpointConditionsendpointsconditionsInput>;
+  deprecatedTopology?: InputMaybe<Scalars['StringMapInput']['input']>;
+  hints?: InputMaybe<Io_K8s_Api_Discovery_V1_EndpointHintsendpointshintsInput>;
+  hostname?: InputMaybe<Scalars['String']['input']>;
+  nodeName?: InputMaybe<Scalars['String']['input']>;
+  targetRef?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceendpointstargetRefInput>;
+  zone?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_ForZoneendpointshintsforZones = {
+  __typename?: 'io_k8s_api_discovery_v1_ForZoneendpointshintsforZones';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+export type Io_K8s_Api_Discovery_V1_ForZoneendpointshintsforZonesInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Io_K8s_Api_Events_V1_EventSeriesseries = {
   __typename?: 'io_k8s_api_events_v1_EventSeriesseries';
   count?: Maybe<Scalars['Int']['output']>;
@@ -32620,7 +33006,15 @@ export type GetWorkspacesQueryVariables = Exact<{
 }>;
 
 
-export type GetWorkspacesQuery = { __typename?: 'Query', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudQuery', v1alpha1?: { __typename?: 'CoreOpenmcpCloudV1alpha1Query', Workspaces: { __typename?: 'WorkspaceList', items: Array<{ __typename?: 'Workspace', apiVersion?: string | null, kind?: string | null, metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null, namespace?: string | null, annotations?: any | null } | null, spec?: { __typename?: 'Workspacespec', members?: Array<{ __typename?: 'Workspacespecspecmembers', kind?: string | null, name?: string | null, roles?: Array<string | null> | null, namespace?: string | null } | null> | null } | null, status?: { __typename?: 'Workspacestatus', namespace?: string | null } | null }> } } | null } | null };
+export type GetWorkspacesQuery = { __typename?: 'Query', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudQuery', v1alpha1?: { __typename?: 'CoreOpenmcpCloudV1alpha1Query', Workspaces: { __typename?: 'WorkspaceList', resourceVersion?: string | null, items: Array<{ __typename?: 'Workspace', apiVersion?: string | null, kind?: string | null, metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null, namespace?: string | null, annotations?: any | null } | null, spec?: { __typename?: 'Workspacespec', members?: Array<{ __typename?: 'Workspacespecspecmembers', kind?: string | null, name?: string | null, roles?: Array<string | null> | null, namespace?: string | null } | null> | null } | null, status?: { __typename?: 'Workspacestatus', namespace?: string | null } | null }> } } | null } | null };
+
+export type WorkspacesSubscriptionSubscriptionVariables = Exact<{
+  namespace: Scalars['String']['input'];
+}>;
 
 
-export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiVersion"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
+export type WorkspacesSubscriptionSubscription = { __typename?: 'Subscription', core_openmcp_cloud_v1alpha1_workspaces?: { __typename?: 'WorkspaceEvent', type: WatchEventType } | null };
+
+
+export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"resourceVersion"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiVersion"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
+export const WorkspacesSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"WorkspacesSubscription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud_v1alpha1_workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]} as unknown as DocumentNode<WorkspacesSubscriptionSubscription, WorkspacesSubscriptionSubscriptionVariables>;
