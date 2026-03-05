@@ -57,7 +57,6 @@ describe('useWorkspacesQuery', () => {
       expect.objectContaining({
         variables: { projectNamespace: 'project-demo' },
         skip: false,
-        pollInterval: 0,
         notifyOnNetworkStatusChange: true,
       }),
     );
