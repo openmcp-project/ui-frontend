@@ -9,7 +9,7 @@ import { YamlSidePanel } from './YamlSidePanel.tsx';
 
 export interface YamlSidePanelWithLoaderProps {
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
   resourceName: string;
   isEdit?: boolean;
 }
@@ -21,7 +21,7 @@ export function YamlSidePanelWithLoader({
 }: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
   const { isLoading, data, error } = useApiResource(
-    ResourceObject(workspaceName ?? '', resourceType, resourceName),
+    ResourceObject(workspaceName ?? '', resourceType, resourceName, resourceType === 'managedcontrolplanev2s'),
     undefined,
     null,
   );

@@ -28,6 +28,7 @@ export interface Authorization {
 
 export interface ControlPlaneType {
   metadata: Metadata;
+  isV2?: boolean;
   spec:
     | {
         authentication: {

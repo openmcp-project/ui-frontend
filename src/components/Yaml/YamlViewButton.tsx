@@ -20,7 +20,7 @@ export interface YamlViewButtonResourceProps {
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes';
+  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
   resourceName: string;
   withoutApiConfig?: boolean;
 }
@@ -74,7 +74,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
     <span>
       <Button
         className={styles.button}
-        design="Transparent"
+        design={'Transparent'}
         aria-label={t('buttons.viewResource')}
         title={t('buttons.viewResource')}
         onClick={openSplitterSidePanel}

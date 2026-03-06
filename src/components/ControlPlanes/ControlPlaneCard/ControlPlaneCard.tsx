@@ -83,28 +83,32 @@ export const ControlPlaneCard = ({
               </div>
             </FlexBox>
             <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              <ControlPlaneCardMenu
-                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
-              />
-              {markMcpV1asDeprecated && <DeprecatedLabel />}
+              {!controlPlane.isV2 && (
+                <ControlPlaneCardMenu
+                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                  setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+                />
+              )}
+              {markMcpV1asDeprecated && !controlPlane.isV2 && <DeprecatedLabel />}
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButton
                   variant="loader"
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
-                  resourceType={'managedcontrolplanes'}
+                  resourceType={controlPlane.isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
-                <ConnectButton
-                  disabled={!isConnectButtonEnabled}
-                  controlPlaneName={name}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  namespace={controlPlane.status?.access?.namespace ?? ''}
-                  secretName={controlPlane.status?.access?.name ?? ''}
-                  secretKey={controlPlane.status?.access?.key ?? ''}
-                />
+                {!controlPlane.isV2 && (
+                  <ConnectButton
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
+                )}
               </FlexBox>
             </FlexBox>
           </FlexBox>

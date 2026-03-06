@@ -1,6 +1,6 @@
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { useManagedControlPlanesQuery } from '../../../hooks/useManagedControlPlanesQuery.ts';
+import { useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
 import { ControlPlaneType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { MemoryRouter } from 'react-router-dom';
 import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
@@ -103,9 +103,10 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   ];
 
-  const fakeUseManagedControlPlanesQuery: typeof useManagedControlPlanesQuery = () => ({
-    managedControlPlanes: fakeManagedControlPlanes,
+  const fakeUseMCPsListQuery: typeof useMCPsListQuery = () => ({
+    data: fakeManagedControlPlanes,
     error: undefined,
+    isPending: false,
   });
 
   beforeEach(() => {
@@ -130,7 +131,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
           value={{
             documentationBaseUrl: '',
             githubBaseUrl: '',
-            featureToggles: { markMcpV1asDeprecated: false },
+            featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
           }}
         >
           <SplitterProvider>
@@ -138,7 +139,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
               <ControlPlaneListWorkspaceGridTile
                 workspace={workspace}
                 projectName="some-project"
-                useManagedControlPlanesQuery={fakeUseManagedControlPlanesQuery}
+                useMCPsListQuery={fakeUseMCPsListQuery}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
               />
             </FeatureToggleProvider>
