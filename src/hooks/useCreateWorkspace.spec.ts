@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { useCreateWorkspace } from './useCreateWorkspace';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
-import { assertNonNullish, assertString } from '../utils/test/vitest-utils';
 import { MemberRoles } from '../lib/api/types/shared/members';
+import { useMutation } from '@apollo/client/react';
 
 // Mock toast and translation
 vi.mock('../context/ToastContext', () => ({
@@ -17,12 +17,17 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('@apollo/client/react', () => ({
+  useMutation: vi.fn(),
+}));
+
 describe('useCreateWorkspace', () => {
-  let fetchMock: Mock<typeof fetch>;
+  let mutateMock: Mock;
+  const useMutationMock = vi.mocked(useMutation);
 
   beforeEach(() => {
-    fetchMock = vi.fn();
-    global.fetch = fetchMock;
+    mutateMock = vi.fn();
+    useMutationMock.mockReturnValue([mutateMock] as unknown as ReturnType<typeof useMutation>);
   });
 
   afterEach(() => {
@@ -44,11 +49,7 @@ describe('useCreateWorkspace', () => {
       ],
     };
 
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: vi.fn().mockResolvedValue({}),
-    } as unknown as Response);
+    mutateMock.mockResolvedValue({});
 
     // ACT
     const renderHookResult = renderHook(() => useCreateWorkspace('test-project--ns'));
@@ -59,36 +60,23 @@ describe('useCreateWorkspace', () => {
     });
 
     // ASSERT
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(mutateMock).toHaveBeenCalledTimes(1);
 
-    const call = fetchMock.mock.calls[0];
-    const [url, init] = call;
-    assertNonNullish(init);
-    const { method, headers, body } = init;
-
-    expect(url).toContain('/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/test-project--ns/workspaces');
-    expect(method).toBe('POST');
-    expect(headers).toEqual(
-      expect.objectContaining({
-        'Content-Type': 'application/json',
-        'X-use-crate': 'true',
-      }),
-    );
-
-    assertString(body);
-    const parsedBody = JSON.parse(body);
-    expect(parsedBody.metadata.name).toBe('test-workspace');
-    expect(parsedBody.metadata.annotations?.['openmcp.cloud/display-name']).toBe('Test Workspace');
-    expect(parsedBody.metadata.labels?.['openmcp.cloud.sap/charging-target']).toBe(
+    const call = mutateMock.mock.calls[0][0];
+    const { variables } = call;
+    expect(variables.namespace).toBe('test-project--ns');
+    expect(variables.object.metadata.name).toBe('test-workspace');
+    expect(variables.object.metadata.annotations?.['openmcp.cloud/display-name']).toBe('Test Workspace');
+    expect(variables.object.metadata.labels?.['openmcp.cloud.sap/charging-target']).toBe(
       '12345678-1234-1234-1234-123456789abc',
     );
-    expect(parsedBody.spec.members).toHaveLength(1);
-    expect(parsedBody.spec.members[0].name).toBe('user@domain.com');
+    expect(variables.object.spec.members).toHaveLength(1);
+    expect(variables.object.spec.members[0].name).toBe('user@domain.com');
   });
 
   it('should throw error on API failure', async () => {
     // ARRANGE
-    fetchMock.mockRejectedValue(new Error('API Error'));
+    mutateMock.mockRejectedValue(new Error('API Error'));
 
     const mockWorkspaceData = {
       name: 'test-workspace',
