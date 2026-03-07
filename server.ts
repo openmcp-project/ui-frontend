@@ -115,28 +115,6 @@ if (DYNATRACE_SCRIPT_URL) {
   }
 }
 
-fastify.register(helmet, {
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      // styleSrc: unsafe-inline is needed for our styling
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:'],
-      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
-      'script-src': isLocalDev
-        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
-        : ["'self'", sentryHost, dynatraceOrigin],
-      // @ts-ignore
-      'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
-    },
-  },
-  // Needed for https enforcement
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-});
 
 fastify.register(proxy, {
   prefix: '/api',

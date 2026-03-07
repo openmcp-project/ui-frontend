@@ -58,7 +58,14 @@ export default function ComponentList({ mcp, onEditClick }: { mcp: ControlPlaneT
         </Toolbar>
       }
     >
-      <AnalyticalTable scaleWidthMode="Smart" columns={componentTableColumns} minRows={0} data={data} />
+      <div className="iframe-container">
+        <iframe
+          src="http://localhost:8080/c/main"
+          title="Embedded Content"
+          width="100%"
+          height="600"
+        />
+      </div>
     </Panel>
   );
 }
