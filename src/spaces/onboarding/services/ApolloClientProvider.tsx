@@ -2,8 +2,8 @@ import { ApolloClient, ApolloLink, InMemoryCache, Observable } from '@apollo/cli
 import { ApolloProvider } from '@apollo/client/react';
 import { HttpLink } from '@apollo/client/link/http';
 import { ReactNode } from 'react';
-import { refreshToken } from '../../auth/tokenRefresh';
-import { redirectToLogin } from '../../../../common/auth/redirectToLogin';
+import { refreshToken } from '../auth/tokenRefresh';
+import { redirectToLogin } from '../../../common/auth/redirectToLogin';
 
 const graphqlUrl = '/api/graphql';
 
