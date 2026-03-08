@@ -5,6 +5,16 @@ import '@ui5/webcomponents-cypress-commands';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
+import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+
+const mockFrontendConfig = {
+  documentationBaseUrl: 'https://example.com',
+  githubBaseUrl: 'https://github.com',
+  featureToggles: {
+    markMcpV1asDeprecated: false,
+  },
+};
 
 describe('ControlPlaneCard', () => {
   let deleteManagedControlPlaneCalled = false;
@@ -33,14 +43,18 @@ describe('ControlPlaneCard', () => {
 
     cy.mount(
       <MemoryRouter>
-        <SplitterProvider>
-          <ControlPlaneCard
-            controlPlane={managedControlPlane}
-            workspace={workspace}
-            projectName="projectName"
-            useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
-          />
-        </SplitterProvider>
+        <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+          <SplitterProvider>
+            <FeatureToggleProvider>
+              <ControlPlaneCard
+                controlPlane={managedControlPlane}
+                workspace={workspace}
+                projectName="projectName"
+                useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+              />
+            </FeatureToggleProvider>
+          </SplitterProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
 

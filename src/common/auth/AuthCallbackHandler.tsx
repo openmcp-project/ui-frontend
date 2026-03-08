@@ -6,7 +6,7 @@ const REDIRECT_TARGETS = {
   mcp: '/api/auth/mcp/callback',
 } as const;
 
-type AuthFlow = keyof typeof REDIRECT_TARGETS;
+export type AuthFlow = keyof typeof REDIRECT_TARGETS;
 
 function isAuthFlow(value: unknown): value is AuthFlow {
   if (typeof value !== 'string') {

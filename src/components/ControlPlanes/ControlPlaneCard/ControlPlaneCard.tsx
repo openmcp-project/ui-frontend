@@ -20,6 +20,8 @@ import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
+import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -38,6 +40,7 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
 }: Props) => {
+  const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
@@ -85,6 +88,7 @@ export const ControlPlaneCard = ({
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                 setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
               />
+              {markMcpV1asDeprecated && <DeprecatedLabel />}
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButton
                   variant="loader"
