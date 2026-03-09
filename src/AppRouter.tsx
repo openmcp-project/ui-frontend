@@ -8,6 +8,7 @@ import McpPage from './spaces/mcp/pages/McpPage.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
+import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
 
 function AppRouter() {
   return (
@@ -29,6 +30,10 @@ function AppRouter() {
               <Route path="/mcp" element={<GlobalProviderOutlet />}>
                 <Route path="projects" element={<ProjectListView />} />
                 <Route path="projects/:projectName" element={<ProjectPage />} />
+                <Route
+                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+                  element={<div />}
+                />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
                   element={<McpPage />}

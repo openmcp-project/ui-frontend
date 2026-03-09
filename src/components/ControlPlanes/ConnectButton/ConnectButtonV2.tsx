@@ -17,13 +17,21 @@ interface ConnectButtonProps {
   useNavigate?: typeof _useNavigate;
 }
 
-export default function ConnectButtonV2({ useNavigate = _useNavigate }: ConnectButtonProps) {
+export default function ConnectButtonV2({
+  useNavigate = _useNavigate,
+  controlPlaneName,
+  projectName,
+  workspaceName,
+}: ConnectButtonProps) {
   const navigate = useNavigate();
 
   const { t } = useTranslation();
 
   return (
-    <Button endIcon="navigation-right-arrow" onClick={() => navigate('#')}>
+    <Button
+      endIcon="navigation-right-arrow"
+      onClick={() => navigate(`projects/${projectName}/workspaces/${workspaceName}/mcpsv2/${controlPlaneName}`)}
+    >
       {t('ConnectButton.buttonText')}
     </Button>
   );
