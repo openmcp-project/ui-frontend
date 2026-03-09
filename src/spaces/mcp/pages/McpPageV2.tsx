@@ -56,6 +56,7 @@ const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as c
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPageV2() {
+  const showObjectPage = false;
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
@@ -89,7 +90,7 @@ export default function McpPageV2() {
     data: mcp,
     error,
     isLoading,
-  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName, true));
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
@@ -128,7 +129,7 @@ export default function McpPageV2() {
     );
   }
 
-  const isComponentInstalledCrossplane = !!mcp.spec?.components.crossplane;
+  const isComponentInstalledCrossplane = !!mcp.spec?.components?.crossplane;
   const isComponentInstalledFlux = !!mcp.spec?.components.flux;
   const isComponentInstalledLandscaper = !!mcp.spec?.components.landscaper;
 
@@ -143,151 +144,157 @@ export default function McpPageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <ObjectPage
-              mode="IconTabBar"
-              titleArea={
-                <ObjectPageTitle
-                  header={displayName ?? controlPlaneName}
-                  subHeader={t('Entities.ManagedControlPlane')}
-                  breadcrumbs={showBreadcrumbs ? <BreadcrumbFeedbackHeader /> : undefined}
-                  //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
-                  actionsBar={
-                    <div className={styles.actionsBar}>
-                      <YamlViewButton
-                        variant="loader"
-                        workspaceName={mcp?.status?.access?.namespace}
-                        resourceType={'managedcontrolplanes'}
-                        resourceName={controlPlaneName}
-                        withoutApiConfig
-                      />
-                      <CopyKubeconfigButton />
-                      <ControlPlanePageMenu
-                        setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
-                      />
-                      <EditManagedControlPlaneWizardDataLoader
-                        isOpen={isEditManagedControlPlaneWizardOpen}
-                        setIsOpen={handleEditManagedControlPlaneWizardClose}
-                        workspaceName={mcp?.status?.access?.namespace}
-                        resourceName={controlPlaneName}
-                        initialSection={editManagedControlPlaneWizardSection}
-                      />
-                    </div>
-                  }
-                />
-              }
-              selectedSectionId={selectedSectionId}
-              headerArea={
-                <ObjectPageHeader>
-                  <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
-                    <McpHeader mcp={mcp} />
-                    <McpStatusSection
-                      mcpStatus={mcp?.status}
-                      projectName={projectName}
-                      workspaceName={workspaceName}
-                      mcpName={controlPlaneName}
-                    />
-                    <McpMembersAvatarView
-                      roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
-                    {markMcpV1asDeprecated && (
-                      <span className={styles.deprecatedWrapper}>
-                        <DeprecatedLabel />
-                      </span>
-                    )}
-                  </FlexBox>
-                </ObjectPageHeader>
-              }
-              onSelectedSectionChange={handleSectionChange}
-            >
-              <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
-                <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
-                  <ComponentsDashboard
-                    components={mcp.spec?.components}
-                    onInstallButtonClick={onEditComponents}
-                    onNavigateToMcpSection={(sectionId) => {
-                      setTabFromSection(sectionId);
-                    }}
+            {showObjectPage && (
+              <ObjectPage
+                mode="IconTabBar"
+                titleArea={
+                  <ObjectPageTitle
+                    header={displayName ?? controlPlaneName}
+                    subHeader={t('Entities.ManagedControlPlane')}
+                    breadcrumbs={showBreadcrumbs ? <BreadcrumbFeedbackHeader /> : undefined}
+                    //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
+                    actionsBar={
+                      <div className={styles.actionsBar}>
+                        <YamlViewButton
+                          variant="loader"
+                          workspaceName={mcp?.status?.access?.namespace}
+                          resourceType={'managedcontrolplanes'}
+                          resourceName={controlPlaneName}
+                          withoutApiConfig
+                        />
+                        <CopyKubeconfigButton />
+                        <ControlPlanePageMenu
+                          setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        />
+                        <EditManagedControlPlaneWizardDataLoader
+                          isOpen={isEditManagedControlPlaneWizardOpen}
+                          setIsOpen={handleEditManagedControlPlaneWizardClose}
+                          workspaceName={mcp?.status?.access?.namespace}
+                          resourceName={controlPlaneName}
+                          initialSection={editManagedControlPlaneWizardSection}
+                        />
+                      </div>
+                    }
                   />
-                </ObjectPageSubSection>
-                <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
-                  <Graph />
-                </ObjectPageSubSection>
-                <ObjectPageSubSection
-                  id="components"
-                  titleText={t('McpPage.componentsTitle')}
-                  className={styles.section}
-                >
-                  <ComponentList mcp={mcp} onEditClick={onEditComponents} />
-                </ObjectPageSubSection>
-                <ObjectPageSubSection
-                  id="configmaps"
-                  titleText={t('McpPage.configMapsTitle')}
-                  className={styles.section}
-                >
-                  <McpConfigMaps />
-                </ObjectPageSubSection>
-                <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
-                  <McpSecrets />
-                </ObjectPageSubSection>
-              </ObjectPageSection>
-
-              {isComponentInstalledCrossplane && (
-                <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
+                }
+                selectedSectionId={selectedSectionId}
+                headerArea={
+                  <ObjectPageHeader>
+                    <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
+                      <McpHeader mcp={mcp} />
+                      <McpStatusSection
+                        mcpStatus={mcp?.status}
+                        projectName={projectName}
+                        workspaceName={workspaceName}
+                        mcpName={controlPlaneName}
+                      />
+                      <McpMembersAvatarView
+                        roleBindings={mcp.spec?.authorization?.roleBindings}
+                        project={projectName}
+                        workspace={workspaceName}
+                      />
+                      {markMcpV1asDeprecated && (
+                        <span className={styles.deprecatedWrapper}>
+                          <DeprecatedLabel />
+                        </span>
+                      )}
+                    </FlexBox>
+                  </ObjectPageHeader>
+                }
+                onSelectedSectionChange={handleSectionChange}
+              >
+                <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                   <ObjectPageSubSection
-                    id="providers"
-                    titleText={t('McpPage.providersTitle')}
+                    id="dashboard"
+                    titleText={t('McpPage.dashboardTitle')}
                     className={styles.section}
                   >
-                    <Providers />
+                    <ComponentsDashboard
+                      components={mcp.spec?.components}
+                      onInstallButtonClick={onEditComponents}
+                      onNavigateToMcpSection={(sectionId) => {
+                        setTabFromSection(sectionId);
+                      }}
+                    />
+                  </ObjectPageSubSection>
+                  <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
+                    <Graph />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
-                    id="provider-configs"
-                    titleText={t('McpPage.providerConfigsTitle')}
+                    id="components"
+                    titleText={t('McpPage.componentsTitle')}
                     className={styles.section}
                   >
-                    <ProvidersConfig />
+                    <ComponentList mcp={mcp} onEditClick={onEditComponents} />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
-                    id="managed-resources"
-                    titleText={t('McpPage.managedResourcesTitle')}
+                    id="configmaps"
+                    titleText={t('McpPage.configMapsTitle')}
                     className={styles.section}
                   >
-                    <ManagedResources />
+                    <McpConfigMaps />
                   </ObjectPageSubSection>
-                </ObjectPageSection>
-              )}
-
-              {isComponentInstalledFlux && (
-                <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
-                  <ObjectPageSubSection
-                    id="git-repositories"
-                    titleText={t('McpPage.gitRepositoriesTitle')}
-                    className={styles.section}
-                  >
-                    <GitRepositories />
-                  </ObjectPageSubSection>
-                  <ObjectPageSubSection
-                    id="kustomizations"
-                    titleText={t('McpPage.kustomizationsTitle')}
-                    className={styles.section}
-                  >
-                    <Kustomizations />
+                  <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
+                    <McpSecrets />
                   </ObjectPageSubSection>
                 </ObjectPageSection>
-              )}
 
-              {isComponentInstalledLandscaper && (
-                <ObjectPageSection
-                  id="landscapers"
-                  titleText={t('McpPage.landscapersTitle')}
-                  className={styles.section}
-                >
-                  <Landscapers />
-                </ObjectPageSection>
-              )}
-            </ObjectPage>
+                {isComponentInstalledCrossplane && (
+                  <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
+                    <ObjectPageSubSection
+                      id="providers"
+                      titleText={t('McpPage.providersTitle')}
+                      className={styles.section}
+                    >
+                      <Providers />
+                    </ObjectPageSubSection>
+                    <ObjectPageSubSection
+                      id="provider-configs"
+                      titleText={t('McpPage.providerConfigsTitle')}
+                      className={styles.section}
+                    >
+                      <ProvidersConfig />
+                    </ObjectPageSubSection>
+                    <ObjectPageSubSection
+                      id="managed-resources"
+                      titleText={t('McpPage.managedResourcesTitle')}
+                      className={styles.section}
+                    >
+                      <ManagedResources />
+                    </ObjectPageSubSection>
+                  </ObjectPageSection>
+                )}
+
+                {isComponentInstalledFlux && (
+                  <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
+                    <ObjectPageSubSection
+                      id="git-repositories"
+                      titleText={t('McpPage.gitRepositoriesTitle')}
+                      className={styles.section}
+                    >
+                      <GitRepositories />
+                    </ObjectPageSubSection>
+                    <ObjectPageSubSection
+                      id="kustomizations"
+                      titleText={t('McpPage.kustomizationsTitle')}
+                      className={styles.section}
+                    >
+                      <Kustomizations />
+                    </ObjectPageSubSection>
+                  </ObjectPageSection>
+                )}
+
+                {isComponentInstalledLandscaper && (
+                  <ObjectPageSection
+                    id="landscapers"
+                    titleText={t('McpPage.landscapersTitle')}
+                    className={styles.section}
+                  >
+                    <Landscapers />
+                  </ObjectPageSection>
+                )}
+              </ObjectPage>
+            )}
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>
       </AuthProviderMcp>
