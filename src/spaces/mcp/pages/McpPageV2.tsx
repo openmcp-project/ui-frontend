@@ -47,6 +47,7 @@ import { WizardStepType } from '../../../components/Wizards/CreateManagedControl
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { useGetMcpV2Query } from '../../onboarding/services/GetMcpService/GetMcpServiceV2.ts';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
@@ -55,7 +56,6 @@ const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as c
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPageV2() {
-  alert('test');
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
@@ -64,7 +64,8 @@ export default function McpPageV2() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
-
+  const { data, isPending, error: mcpV2error } = useGetMcpV2Query(workspaceName, controlPlaneName);
+  console.log('MCP V2 data:', data, 'isPending:', isPending, 'error:', mcpV2error);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
