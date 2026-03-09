@@ -22,6 +22,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 
 interface Props {
   controlPlane: ListControlPlanesType;
@@ -61,7 +62,7 @@ export const ControlPlaneCard = ({
 
   const namespace = controlPlane.metadata.namespace;
 
-  const isConnectButtonEnabled = controlPlane.isV2 ? true : canConnectToMCP(controlPlane);
+  const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   return (
     <>
@@ -99,15 +100,27 @@ export const ControlPlaneCard = ({
                   resourceType={controlPlane.isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
 
-                <ConnectButton
-                  disabled={!isConnectButtonEnabled}
-                  controlPlaneName={name}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  namespace={controlPlane.status?.access?.namespace ?? ''}
-                  secretName={controlPlane.status?.access?.name ?? ''}
-                  secretKey={controlPlane.status?.access?.key ?? ''}
-                />
+                {controlPlane.isV2 ? (
+                  <ConnectButtonV2
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
+                ) : (
+                  <ConnectButton
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
+                )}
               </FlexBox>
             </FlexBox>
           </FlexBox>

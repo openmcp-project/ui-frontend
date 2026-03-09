@@ -41,7 +41,6 @@ export default function ConnectButton({
     isLoading,
   } = useApiResource(GetKubeconfig(secretKey, secretName, namespace));
 
-  console.log(kubeconfigResource);
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
   const handleMenuAction = (event: CustomEvent) => {
