@@ -58,14 +58,7 @@ export default function ComponentList({ mcp, onEditClick }: { mcp: ControlPlaneT
         </Toolbar>
       }
     >
-      <div className="iframe-container">
-        <iframe
-          src="http://localhost:8080/c/main"
-          title="Embedded Content"
-          width="100%"
-          height="600"
-        />
-      </div>
+      <AnalyticalTable columns={componentTableColumns} data={data} />
     </Panel>
   );
 }

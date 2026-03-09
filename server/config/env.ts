@@ -38,6 +38,8 @@ const schema = {
     // OpenTelemetry OTLP Export (optional)
     DYNATRACE_OTLP_ENDPOINT: { type: 'string' },
     DYNATRACE_OTLP_TOKEN: { type: 'string' },
+    // Headlamp embedded iframe
+    HEADLAMP_URL: { type: 'string' },
     // System variables
     NODE_ENV: { type: 'string', enum: ['development', 'production'] },
   },

@@ -34,8 +34,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
 import { useEffect, useState } from 'react';
-import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
-import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
+import { HeadlampIframe } from '../../../components/ControlPlane/HeadlampIframe.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
@@ -260,18 +259,11 @@ export default function McpPage() {
               {isComponentInstalledFlux && (
                 <ObjectPageSection id="flux" titleText={t('McpPage.fluxTitle')}>
                   <ObjectPageSubSection
-                    id="git-repositories"
-                    titleText={t('McpPage.gitRepositoriesTitle')}
+                    id="flux-overview"
+                    titleText={t('McpPage.fluxOverviewTitle', 'Flux Overview')}
                     className={styles.section}
                   >
-                    <GitRepositories />
-                  </ObjectPageSubSection>
-                  <ObjectPageSubSection
-                    id="kustomizations"
-                    titleText={t('McpPage.kustomizationsTitle')}
-                    className={styles.section}
-                  >
-                    <Kustomizations />
+                    <HeadlampIframe />
                   </ObjectPageSubSection>
                 </ObjectPageSection>
               )}

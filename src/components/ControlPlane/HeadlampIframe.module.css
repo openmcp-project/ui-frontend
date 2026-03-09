@@ -1,0 +1,14 @@
+.iframe {
+  width: 100%;
+  height: 75vh;
+  border: none;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--sapContent_LabelColor, #6a6d70);
+  font-size: 0.875rem;
+}
