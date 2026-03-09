@@ -61,7 +61,7 @@ export const ControlPlaneCard = ({
 
   const namespace = controlPlane.metadata.namespace;
 
-  const isConnectButtonEnabled = canConnectToMCP(controlPlane);
+  const isConnectButtonEnabled = controlPlane.isV2 ? true : canConnectToMCP(controlPlane);
 
   return (
     <>
@@ -98,17 +98,16 @@ export const ControlPlaneCard = ({
                   resourceName={controlPlane.metadata.name}
                   resourceType={controlPlane.isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
-                {!controlPlane.isV2 && (
-                  <ConnectButton
-                    disabled={!isConnectButtonEnabled}
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
-                    namespace={controlPlane.status?.access?.namespace ?? ''}
-                    secretName={controlPlane.status?.access?.name ?? ''}
-                    secretKey={controlPlane.status?.access?.key ?? ''}
-                  />
-                )}
+
+                <ConnectButton
+                  disabled={!isConnectButtonEnabled}
+                  controlPlaneName={name}
+                  projectName={projectName}
+                  workspaceName={workspace.metadata.name ?? ''}
+                  namespace={controlPlane.status?.access?.namespace ?? ''}
+                  secretName={controlPlane.status?.access?.name ?? ''}
+                  secretKey={controlPlane.status?.access?.key ?? ''}
+                />
               </FlexBox>
             </FlexBox>
           </FlexBox>
