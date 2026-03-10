@@ -63,6 +63,7 @@ export interface ControlPlaneStatusType {
         name: string | undefined;
         namespace: string | undefined;
         kubeconfig: string | undefined;
+        oidc_openmcp: { name: string | undefined } | undefined;
       }
     | undefined;
 }
