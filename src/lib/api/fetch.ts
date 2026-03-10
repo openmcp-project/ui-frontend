@@ -1,8 +1,9 @@
 import { APIError } from './error';
 import * as Sentry from '@sentry/react';
 import { ApiConfig } from './types/apiConfig';
-import { STORAGE_KEY_AUTH_FLOW } from '../../common/auth/AuthCallbackHandler.tsx';
-import { getRedirectSuffix } from '../../common/auth/getRedirectSuffix.ts';
+import { redirectToLogin } from '../../common/auth/redirectToLogin';
+import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
+import { refreshToken as refreshMcpToken } from '../../spaces/mcp/auth/tokenRefresh';
 
 const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
@@ -46,6 +47,13 @@ export const fetchApiServer = async (
   httpMethod: string = 'GET',
   body?: BodyInit,
 ): Promise<Response> => {
+  const isMcpRequest = config.mcpConfig !== undefined;
+  const hasValidSession = isMcpRequest ? await refreshMcpToken() : await refreshOnboardingToken();
+  if (!hasValidSession) {
+    redirectToLogin(isMcpRequest ? 'mcp' : 'onboarding');
+    throw new APIError('Session expired', 401);
+  }
+
   // The default headers used for the fetch request.
   // The Authorization header is required for both the Crate API and the MCP API and the correct token is passed in the config object that is consumed outside this function from the context that has handled the OIDC flow to get a token.
   const headers: { [key: string]: string } = {};
@@ -87,9 +95,7 @@ export const fetchApiServer = async (
 
   if (!res.ok) {
     if (res.status === 401) {
-      // Unauthorized (token expired), redirect to the login page.
-      sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'onboarding');
-      window.location.replace(`/api/auth/onboarding/login?redirectTo=${encodeURIComponent(getRedirectSuffix())}`);
+      redirectToLogin(isMcpRequest ? 'mcp' : 'onboarding');
     }
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
