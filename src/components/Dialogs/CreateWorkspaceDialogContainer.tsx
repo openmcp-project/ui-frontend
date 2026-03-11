@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../hooks/useCreateWorkspace.ts';
-import { APIError } from '../../lib/api/error.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 export type CreateDialogProps = {
@@ -96,11 +95,8 @@ export function CreateWorkspaceDialogContainer({
       return true;
     } catch (e) {
       console.error(e);
-      if (e instanceof APIError) {
-        if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        }
-      }
+      const message = e instanceof Error ? e.message : String(e);
+      errorDialogRef.current?.showErrorDialog(message);
       return false;
     }
   };

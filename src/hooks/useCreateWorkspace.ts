@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import { gql } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
-import { CreateWorkspace, CreateWorkspaceType } from '../lib/api/types/crate/createWorkspace';
 import { useToast } from '../context/ToastContext';
 import { Member } from '../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../lib/api/types/shared/keyNames';
 import { WorkspaceInput } from '../types/__generated__/graphql/graphql';
+import { graphql } from '../types/__generated__/graphql/index';
 
 export interface CreateWorkspaceParams {
   name: string;
@@ -15,28 +15,33 @@ export interface CreateWorkspaceParams {
   members: Member[];
 }
 
-function transformToWorkspaceInput(workspace: CreateWorkspaceType): WorkspaceInput {
+function buildWorkspaceInput(namespace: string, params: CreateWorkspaceParams): WorkspaceInput {
   return {
-    apiVersion: workspace.apiVersion,
-    kind: workspace.kind,
+    apiVersion: 'core.openmcp.cloud/v1alpha1',
+    kind: 'Workspace',
     metadata: {
-      name: workspace.metadata.name,
-      namespace: workspace.metadata.namespace,
-      annotations: workspace.metadata.annotations,
-      labels: workspace.metadata.labels,
+      name: params.name,
+      namespace,
+      annotations: {
+        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
+      },
+      labels: {
+        [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
+        [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',
+      },
     },
     spec: {
-      members: workspace.spec.members.map((member) => ({
+      members: params.members.map((member) => ({
         kind: member.kind,
         name: member.name,
-        namespace: member.namespace,
+        namespace: member.kind === 'ServiceAccount' ? (member.namespace ?? 'default') : undefined,
         roles: member.roles,
       })),
     },
   };
 }
 
-const CreateWorkspaceMutation = gql`
+const CreateWorkspaceMutation = graphql(`
   mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -49,7 +54,7 @@ const CreateWorkspaceMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
@@ -57,21 +62,8 @@ export function useCreateWorkspace(namespace: string) {
   const [createWorkspaceMutation] = useMutation(CreateWorkspaceMutation);
 
   const createWorkspace = useCallback(
-    async ({
-      name,
-      displayName,
-      chargingTarget,
-      chargingTargetType,
-      members,
-    }: CreateWorkspaceParams): Promise<void> => {
-      const workspaceData = CreateWorkspace(name, namespace, {
-        displayName,
-        chargingTarget,
-        chargingTargetType,
-        members,
-      });
-
-      const object = transformToWorkspaceInput(workspaceData);
+    async (params: CreateWorkspaceParams): Promise<void> => {
+      const object = buildWorkspaceInput(namespace, params);
 
       await createWorkspaceMutation({
         variables: {

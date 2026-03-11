@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
-import { gql } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../context/ToastContext';
 import { useTranslation } from 'react-i18next';
-const DeleteWorkspaceMutation = gql`
+import { graphql } from '../types/__generated__/graphql/index';
+
+const DeleteWorkspaceMutation = graphql(`
   mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -11,7 +12,7 @@ const DeleteWorkspaceMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useDeleteWorkspace(projectNamespace: string, workspaceName: string) {
   const { t } = useTranslation();
@@ -19,13 +20,19 @@ export function useDeleteWorkspace(projectNamespace: string, workspaceName: stri
   const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceMutation);
 
   const deleteWorkspace = useCallback(async (): Promise<void> => {
-    await deleteWorkspaceMutation({
-      variables: {
-        name: workspaceName,
-        namespace: projectNamespace,
-      },
-    });
-    toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
+    try {
+      await deleteWorkspaceMutation({
+        variables: {
+          name: workspaceName,
+          namespace: projectNamespace,
+        },
+      });
+      toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.show(message);
+      throw new Error(message);
+    }
   }, [deleteWorkspaceMutation, projectNamespace, toast, t, workspaceName]);
 
   return {
