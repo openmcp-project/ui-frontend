@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client/react';
 import { useDeleteWorkspace } from './useDeleteWorkspace';
 
 // Mock toast and translation
-vi.mock('../context/ToastContext', () => ({
+vi.mock('../../../context/ToastContext', () => ({
   useToast: () => ({
     show: vi.fn(),
   }),

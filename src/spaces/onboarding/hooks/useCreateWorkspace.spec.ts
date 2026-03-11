@@ -7,7 +7,7 @@ import { MemberRoles } from '../../../lib/api/types/shared/members';
 import { useCreateWorkspace } from './useCreateWorkspace';
 
 // Mock toast and translation
-vi.mock('../context/ToastContext', () => ({
+vi.mock('../../../context/ToastContext', () => ({
   useToast: () => ({
     show: vi.fn(),
   }),
