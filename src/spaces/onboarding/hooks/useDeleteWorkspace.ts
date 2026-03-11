@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client/react';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../../../context/ToastContext';
 import { useTranslation } from 'react-i18next';
-import { graphql } from '../types/__generated__/graphql/index';
+import { graphql } from '../../../types/__generated__/graphql/index';
 
 const DeleteWorkspaceMutation = graphql(`
   mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {

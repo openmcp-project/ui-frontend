@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
-import { useCreateWorkspace as _useCreateWorkspace } from '../../hooks/useCreateWorkspace.ts';
+import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 export type CreateDialogProps = {

@@ -1,8 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
-import { useCreateWorkspace } from './useCreateWorkspace';
+
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
-import { MemberRoles } from '../lib/api/types/shared/members';
+
 import { useMutation } from '@apollo/client/react';
+import { MemberRoles } from '../../../lib/api/types/shared/members';
+import { useCreateWorkspace } from './useCreateWorkspace';
 
 // Mock toast and translation
 vi.mock('../context/ToastContext', () => ({

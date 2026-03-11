@@ -1,5 +1,5 @@
 import { CreateWorkspaceDialogContainer } from './CreateWorkspaceDialogContainer';
-import { useCreateWorkspace, CreateWorkspaceParams } from '../../hooks/useCreateWorkspace';
+import { useCreateWorkspace, CreateWorkspaceParams } from '../../spaces/onboarding/hooks/useCreateWorkspace';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
 
 describe('CreateWorkspaceDialogContainer', () => {
