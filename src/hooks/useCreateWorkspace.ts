@@ -3,7 +3,11 @@ import { useMutation } from '@apollo/client/react';
 import { useToast } from '../context/ToastContext';
 import { Member } from '../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL, DISPLAY_NAME_ANNOTATION } from '../lib/api/types/shared/keyNames';
+import {
+  CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
+  DISPLAY_NAME_ANNOTATION,
+} from '../lib/api/types/shared/keyNames';
 import { WorkspaceInput } from '../types/__generated__/graphql/graphql';
 import { graphql } from '../types/__generated__/graphql/index';
 
