@@ -13,7 +13,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { JSX, useRef, useState } from 'react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import type { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
-import { ControlPlaneListItem, ReadyStatus } from '../../spaces/onboarding/types/ControlPlane';
+import { ControlPlaneListItem, ReadyStatus, ReadyStatusValue } from '../../spaces/onboarding/types/ControlPlane';
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
@@ -120,7 +120,7 @@ const MCPHealthPopoverButton = ({
 
 export default MCPHealthPopoverButton;
 
-const getIconForOverallStatus = (status: string | undefined): JSX.Element => {
+const getIconForOverallStatus = (status: ReadyStatusValue | undefined): JSX.Element => {
   switch (status) {
     case ReadyStatus.Ready:
       return <Icon className={styles.iconReady} name="sap-icon://sys-enter" />;

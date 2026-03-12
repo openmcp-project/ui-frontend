@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+export const ReadyStatus = {
+  Ready: 'Ready',
+  NotReady: 'Not Ready',
+  InDeletion: 'Deleting',
+} as const;
+
+/** Known status values with autocomplete, but any string is accepted since the API may return new statuses. */
+export type ReadyStatusValue = (typeof ReadyStatus)[keyof typeof ReadyStatus] | (string & {});
+
 const ConditionSchema = z.object({
   type: z.string(),
   status: z.string(),
@@ -22,7 +31,7 @@ const AccessSchema = z.object({
 });
 
 const StatusSchema = z.object({
-  status: z.string(),
+  status: z.string() as z.ZodType<ReadyStatusValue>,
   conditions: ConditionsSchema,
   access: AccessSchema.nullish(),
 });
@@ -51,9 +60,3 @@ export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [Contr
 export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
 export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
 export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
-
-export const ReadyStatus = {
-  Ready: 'Ready',
-  NotReady: 'Not Ready',
-  InDeletion: 'Deleting',
-} as const;

@@ -6,7 +6,6 @@ import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 
 import styles from './AnimatedHoverTextButton.module.css';
 import { getClassNameForOverallStatus } from '../ControlPlane/statusUtils';
-import { ReadyStatus } from '../../lib/api/types/crate/controlPlanes.ts';
 import cx from 'clsx';
 type HoverTextButtonProps = {
   id?: string;
@@ -27,7 +26,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
       <FlexBox alignItems={FlexBoxAlignItems.Center}>
         {hover || large ? (
           <span
-            className={cx(styles.text, styles[getClassNameForOverallStatus(text as ReadyStatus)], {
+            className={cx(styles.text, styles[getClassNameForOverallStatus(text)], {
               [styles.large]: large,
             })}
           >
@@ -44,7 +43,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
           ref={ref}
           id={id}
           design={'Transparent'}
-          className={cx(styles.link, styles[getClassNameForOverallStatus(text ? (text as ReadyStatus) : undefined)])}
+          className={cx(styles.link, styles[getClassNameForOverallStatus(text)])}
           onClick={onClick}
           onMouseLeave={() => setHover(false)}
           onMouseOver={() => setHover(true)}

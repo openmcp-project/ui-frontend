@@ -1,6 +1,6 @@
-import { ReadyStatus } from '../../lib/api/types/crate/controlPlanes';
+import { ReadyStatus, ReadyStatusValue } from '../../spaces/onboarding/types/ControlPlane';
 
-export const getClassNameForOverallStatus = (status: ReadyStatus | undefined): string => {
+export const getClassNameForOverallStatus = (status: ReadyStatusValue | undefined): string => {
   switch (status) {
     case ReadyStatus.Ready:
       return 'ready';
