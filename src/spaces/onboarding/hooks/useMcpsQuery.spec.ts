@@ -5,7 +5,6 @@ import { useQuery } from '@apollo/client/react';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { useMcpsQuery } from './useMcpsQuery';
 import { ReadyStatus } from '../types/ControlPlane';
-import { APIError } from '../../../lib/api/error';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
@@ -280,21 +279,22 @@ describe('useMcpsQuery', () => {
     warnSpy.mockRestore();
   });
 
-  it('wraps a generic Apollo error in APIError with status 500', () => {
+  it('passes through the Apollo error directly', () => {
+    const apolloError = {
+      name: 'ApolloError',
+      message: 'Something went wrong',
+      networkError: null,
+    } as unknown as ReturnType<typeof useQuery>['error'];
+
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
-      error: {
-        name: 'ApolloError',
-        message: 'Something went wrong',
-        networkError: null,
-      } as unknown as ReturnType<typeof useQuery>['error'],
+      error: apolloError,
     });
 
     const { result } = renderHook(() => useMcpsQuery('ns'));
 
-    expect(result.current.error).toBeInstanceOf(APIError);
+    expect(result.current.error).toBe(apolloError);
     expect(result.current.error?.message).toBe('Something went wrong');
-    expect((result.current.error as APIError).status).toBe(500);
   });
 
   it('returns an empty array when there is no data', () => {
