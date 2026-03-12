@@ -6,9 +6,6 @@ export const ReadyStatus = {
   InDeletion: 'Deleting',
 } as const;
 
-/** Known status values with autocomplete, but any string is accepted since the API may return new statuses. */
-export type ReadyStatusValue = (typeof ReadyStatus)[keyof typeof ReadyStatus] | (string & {});
-
 const ConditionSchema = z.object({
   type: z.string(),
   status: z.string(),
@@ -31,7 +28,7 @@ const AccessSchema = z.object({
 });
 
 const StatusSchema = z.object({
-  status: z.string() as z.ZodType<ReadyStatusValue>,
+  status: z.string(),
   conditions: ConditionsSchema,
   access: AccessSchema.nullish(),
 });
