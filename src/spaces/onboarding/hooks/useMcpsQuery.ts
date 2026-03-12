@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 import { NetworkStatus } from '@apollo/client';
-import { ServerError } from '@apollo/client/errors';
 import { useQuery } from '@apollo/client/react';
 import { z } from 'zod';
 
 import { graphql } from '../../../types/__generated__/graphql';
 import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
-import { APIError } from '../../../lib/api/error';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 
 const GET_MCPS_LIST_QUERY = graphql(`
@@ -92,10 +90,12 @@ function toV1Input(item: V1Item) {
   };
 }
 
-function parseAccess(accessData: unknown): unknown {
+/** Parses the v2 access field which may arrive as a JSON string or an object. */
+function parseAccess(accessData: unknown): Record<string, unknown> | undefined {
   if (!accessData) return undefined;
   try {
-    return typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
+    const parsed = typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
+    return parsed as Record<string, unknown>;
   } catch {
     return undefined;
   }
@@ -121,6 +121,7 @@ export function useMcpsQuery(workspaceNamespace?: string) {
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
     skip: !workspaceNamespace,
+    // TODO: replace with a GraphQL subscription
     notifyOnNetworkStatusChange: true,
   });
 
@@ -141,15 +142,7 @@ export function useMcpsQuery(workspaceNamespace?: string) {
     });
   }, [v1Items, v2Items, enableMcpV2]);
 
-  const isPending = queryResult.networkStatus === NetworkStatus.loading;
+  const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
 
-  const error = queryResult.error
-    ? (() => {
-        const networkError = (queryResult.error as { networkError?: unknown }).networkError;
-        const statusCode = ServerError.is(networkError) ? networkError.statusCode : 500;
-        return new APIError(queryResult.error.message, statusCode);
-      })()
-    : undefined;
-
-  return { data: controlPlanes, error, isPending };
+  return { data: controlPlanes, error: queryResult.error, isPending };
 }

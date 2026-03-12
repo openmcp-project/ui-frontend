@@ -11,7 +11,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
-import { APIError } from '../../../lib/api/error.ts';
+import { isForbiddenError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -57,9 +57,9 @@ export function ControlPlaneListWorkspaceGridTile({
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
   }
 
-  function createErrorView(error: APIError | undefined) {
+  function createErrorView(error: Error | undefined) {
     if (error) {
-      if (error.status === 403) {
+      if (isForbiddenError(error)) {
         return (
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}

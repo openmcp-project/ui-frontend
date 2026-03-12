@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isNotFoundError, APIError } from './error';
+import { isNotFoundError, isForbiddenError, APIError } from './error';
 import { ErrorLike } from '@apollo/client';
 
 describe('error', () => {
@@ -35,6 +35,31 @@ describe('error', () => {
       expect(isNotFoundError(new APIError('', 500))).toBe(false);
       expect(isNotFoundError(new APIError('', 400))).toBe(false);
       expect(isNotFoundError(new APIError('', 401))).toBe(false);
+    });
+  });
+
+  describe('isForbiddenError', () => {
+    it('should return true for APIError with status 403', () => {
+      expect(isForbiddenError(new APIError('', 403))).toBe(true);
+    });
+
+    it('should return true for ErrorLike networkError with statusCode 403', () => {
+      expect(isForbiddenError({ networkError: { statusCode: 403 } } as unknown as ErrorLike)).toBe(true);
+    });
+
+    it('should return true when error message contains "is forbidden"', () => {
+      const error = new Error('unable to list objects: managedcontrolplanes.core.openmcp.cloud is forbidden: User "foo"');
+      expect(isForbiddenError(error as unknown as ErrorLike)).toBe(true);
+    });
+
+    it('should return false for status 404', () => {
+      expect(isForbiddenError(new APIError('', 404))).toBe(false);
+    });
+
+    it('should return false for other statuses', () => {
+      expect(isForbiddenError(new APIError('', 500))).toBe(false);
+      expect(isForbiddenError(undefined)).toBe(false);
+      expect(isForbiddenError(null)).toBe(false);
     });
   });
 });
