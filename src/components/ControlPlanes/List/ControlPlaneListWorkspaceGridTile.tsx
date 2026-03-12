@@ -26,15 +26,15 @@ import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/
 interface Props {
   projectName: string;
   workspace: Workspace;
-  useDeleteWorkspace?: typeof _useDeleteWorkspace;
   useMcpsQuery?: typeof _useMcpsQuery;
+  useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
-  useDeleteWorkspace = _useDeleteWorkspace,
   useMcpsQuery = _useMcpsQuery,
+  useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
