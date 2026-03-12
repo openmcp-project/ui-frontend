@@ -48,7 +48,9 @@ describe('error', () => {
     });
 
     it('should return true when error message contains "is forbidden"', () => {
-      const error = new Error('unable to list objects: managedcontrolplanes.core.openmcp.cloud is forbidden: User "foo"');
+      const error = new Error(
+        'unable to list objects: managedcontrolplanes.core.openmcp.cloud is forbidden: User "foo"',
+      );
       expect(isForbiddenError(error as unknown as ErrorLike)).toBe(true);
     });
 
