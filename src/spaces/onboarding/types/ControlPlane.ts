@@ -37,7 +37,7 @@ const MetadataSchema = z.object({
   name: z.string(),
   namespace: z.string(),
   creationTimestamp: z.string(),
-  annotations: z.record(z.string(), z.string()).default({}),
+  annotations: z.record(z.string(), z.string()).catch({}),
 });
 
 const ControlPlaneV1Schema = z.object({
