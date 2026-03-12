@@ -30,16 +30,25 @@ describe('ControlPlaneCard', () => {
 
   it('deletes the workspace', () => {
     const managedControlPlane: ControlPlaneListItem = {
+      version: 'v1',
       metadata: {
         name: 'mcp-name',
+        namespace: 'test-namespace',
+        creationTimestamp: '2024-01-01T00:00:00Z',
+        annotations: {},
       },
-    } as unknown as ControlPlaneListItem;
+      status: null,
+    };
 
     const workspace: Workspace = {
       metadata: {
         name: 'workspaceName',
+        namespace: 'test-namespace',
+        annotations: {},
       },
-    } as unknown as Workspace;
+      spec: { members: [] },
+      status: null,
+    };
 
     cy.mount(
       <MemoryRouter>

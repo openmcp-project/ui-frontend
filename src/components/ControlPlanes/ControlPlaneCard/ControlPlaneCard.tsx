@@ -56,7 +56,7 @@ export const ControlPlaneCard = ({
   );
 
   const name = controlPlane.metadata.name;
-  const displayName = controlPlane.metadata.annotations[DISPLAY_NAME_ANNOTATION];
+  const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
 
   const namespace = controlPlane.metadata.namespace;
 
