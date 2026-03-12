@@ -1,11 +1,11 @@
 import { FlexBox, Text } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import MCPHealthPopoverButton from './MCPHealthPopoverButton.tsx';
-import { ControlPlaneListItem } from '../../spaces/onboarding/types/ControlPlane.ts';
+import { ControlPlaneStatus } from '../../spaces/onboarding/types/ControlPlane.ts';
 import styles from './McpStatusSection.module.css';
 
 interface McpStatusSectionProps {
-  mcpStatus: ControlPlaneListItem['status'];
+  mcpStatus: ControlPlaneStatus | null | undefined;
   projectName: string;
   workspaceName: string;
   mcpName: string;

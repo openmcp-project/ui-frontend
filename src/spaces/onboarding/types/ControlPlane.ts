@@ -60,3 +60,5 @@ export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [Contr
 export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
 export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
 export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
+export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
+export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
