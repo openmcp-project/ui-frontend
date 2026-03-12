@@ -1,5 +1,5 @@
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { ListControlPlanesType } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { MemoryRouter } from 'react-router-dom';
 import '@ui5/webcomponents-cypress-commands';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
@@ -29,11 +29,11 @@ describe('ControlPlaneCard', () => {
   });
 
   it('deletes the workspace', () => {
-    const managedControlPlane: ListControlPlanesType = {
+    const managedControlPlane: ControlPlaneListItem = {
       metadata: {
         name: 'mcp-name',
       },
-    } as unknown as ListControlPlanesType;
+    } as unknown as ControlPlaneListItem;
 
     const workspace: Workspace = {
       metadata: {

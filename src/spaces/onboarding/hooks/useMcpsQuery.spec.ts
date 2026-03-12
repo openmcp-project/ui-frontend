@@ -2,16 +2,16 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
-import { useFeatureToggle } from '../../../../context/FeatureToggleContext';
-import { useMCPsListQuery } from './MCPsListService';
-import { ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
-import { APIError } from '../../../../lib/api/error';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext';
+import { useMcpsQuery } from './useMcpsQuery';
+import { ReadyStatus } from '../types/ControlPlane';
+import { APIError } from '../../../lib/api/error';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
-vi.mock('../../../../context/FeatureToggleContext', () => ({
+vi.mock('../../../context/FeatureToggleContext', () => ({
   useFeatureToggle: vi.fn(),
 }));
 
@@ -25,7 +25,7 @@ const baseQueryResult = {
   data: undefined,
 } as ReturnType<typeof useQuery>;
 
-describe('useMCPsListQuery', () => {
+describe('useMcpsQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
@@ -34,7 +34,7 @@ describe('useMCPsListQuery', () => {
   it('passes namespace as a variable and skips the query when namespace is undefined', () => {
     useQueryMock.mockReturnValue(baseQueryResult);
 
-    renderHook(() => useMCPsListQuery(undefined));
+    renderHook(() => useMcpsQuery(undefined));
 
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -49,7 +49,7 @@ describe('useMCPsListQuery', () => {
   it('runs the query when namespace is provided', () => {
     useQueryMock.mockReturnValue(baseQueryResult);
 
-    renderHook(() => useMCPsListQuery('my-namespace'));
+    renderHook(() => useMcpsQuery('my-namespace'));
 
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -67,7 +67,7 @@ describe('useMCPsListQuery', () => {
       networkStatus: NetworkStatus.loading,
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMCPsListQuery('my-namespace'));
+    const { result } = renderHook(() => useMcpsQuery('my-namespace'));
 
     expect(result.current.isPending).toBe(true);
   });
@@ -113,10 +113,10 @@ describe('useMCPsListQuery', () => {
       },
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMCPsListQuery('ns-v1'));
+    const { result } = renderHook(() => useMcpsQuery('ns-v1'));
     const mcp = result.current.data[0];
 
-    expect(mcp.isV2).toBeUndefined();
+    expect(mcp.version).toBe('v1');
     expect(mcp.metadata).toEqual({
       name: 'mcp-v1',
       namespace: 'ns-v1',
@@ -125,7 +125,7 @@ describe('useMCPsListQuery', () => {
     });
     expect(mcp.status?.status).toBe(ReadyStatus.Ready);
     expect(mcp.status?.conditions[0].type).toBe('Ready');
-    expect(mcp.status?.access).toEqual({ key: 'my-key', name: 'my-secret', namespace: 'my-ns', kubeconfig: undefined });
+    expect(mcp.status?.access).toEqual({ key: 'my-key', name: 'my-secret', namespace: 'my-ns' });
   });
 
   it('maps a v2 ManagedControlPlaneV2 to the expected shape when enableMcpV2 is true', () => {
@@ -168,14 +168,14 @@ describe('useMCPsListQuery', () => {
       },
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMCPsListQuery('ns-v2'));
+    const { result } = renderHook(() => useMcpsQuery('ns-v2'));
     const mcp = result.current.data[0];
 
-    expect(mcp.isV2).toBe(true);
+    expect(mcp.version).toBe('v2');
     expect(mcp.metadata.name).toBe('mcp-v2');
     expect(mcp.status?.status).toBe(ReadyStatus.Ready);
     expect(mcp.status?.conditions[0].type).toBe('Synced');
-    expect(mcp.status?.access).toEqual({ key: 'k2', name: 'n2', namespace: 'ns2', kubeconfig: undefined });
+    expect(mcp.status?.access).toEqual({ key: 'k2', name: 'n2', namespace: 'ns2' });
   });
 
   it('excludes v2 items when enableMcpV2 feature flag is off', () => {
@@ -187,14 +187,20 @@ describe('useMCPsListQuery', () => {
           v1alpha1: {
             ManagedControlPlanes: {
               items: [
-                { metadata: { name: 'mcp-v1', namespace: 'ns', creationTimestamp: '', annotations: {} }, status: null },
+                {
+                  metadata: { name: 'mcp-v1', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
               ],
             },
           },
           v2alpha1: {
             ManagedControlPlaneV2s: {
               items: [
-                { metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} }, status: null },
+                {
+                  metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
               ],
             },
           },
@@ -202,7 +208,7 @@ describe('useMCPsListQuery', () => {
       },
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMCPsListQuery('ns'));
+    const { result } = renderHook(() => useMcpsQuery('ns'));
 
     expect(result.current.data).toHaveLength(1);
     expect(result.current.data[0].metadata.name).toBe('mcp-v1');
@@ -217,14 +223,20 @@ describe('useMCPsListQuery', () => {
           v1alpha1: {
             ManagedControlPlanes: {
               items: [
-                { metadata: { name: 'mcp-v1', namespace: 'ns', creationTimestamp: '', annotations: {} }, status: null },
+                {
+                  metadata: { name: 'mcp-v1', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
               ],
             },
           },
           v2alpha1: {
             ManagedControlPlaneV2s: {
               items: [
-                { metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} }, status: null },
+                {
+                  metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
               ],
             },
           },
@@ -232,10 +244,40 @@ describe('useMCPsListQuery', () => {
       },
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMCPsListQuery('ns'));
+    const { result } = renderHook(() => useMcpsQuery('ns'));
 
     expect(result.current.data).toHaveLength(2);
     expect(result.current.data.map((mcp) => mcp.metadata.name)).toEqual(['mcp-v1', 'mcp-v2']);
+  });
+
+  it('filters out and warns about malformed items', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: {
+          v1alpha1: {
+            ManagedControlPlanes: {
+              items: [
+                { metadata: null, status: null },
+                {
+                  metadata: { name: 'valid', namespace: 'ns', creationTimestamp: '', annotations: {} },
+                  status: null,
+                },
+              ],
+            },
+          },
+          v2alpha1: { ManagedControlPlaneV2s: { items: [] } },
+        },
+      },
+    } as ReturnType<typeof useQuery>);
+
+    const { result } = renderHook(() => useMcpsQuery('ns'));
+
+    expect(result.current.data).toHaveLength(1);
+    expect(result.current.data[0].metadata.name).toBe('valid');
+    expect(warnSpy).toHaveBeenCalledWith('Invalid control plane data:', expect.anything(), expect.anything());
+    warnSpy.mockRestore();
   });
 
   it('wraps a generic Apollo error in APIError with status 500', () => {
@@ -248,7 +290,7 @@ describe('useMCPsListQuery', () => {
       } as unknown as ReturnType<typeof useQuery>['error'],
     });
 
-    const { result } = renderHook(() => useMCPsListQuery('ns'));
+    const { result } = renderHook(() => useMcpsQuery('ns'));
 
     expect(result.current.error).toBeInstanceOf(APIError);
     expect(result.current.error?.message).toBe('Something went wrong');
@@ -258,7 +300,7 @@ describe('useMCPsListQuery', () => {
   it('returns an empty array when there is no data', () => {
     useQueryMock.mockReturnValue({ ...baseQueryResult, data: undefined });
 
-    const { result } = renderHook(() => useMCPsListQuery('ns'));
+    const { result } = renderHook(() => useMcpsQuery('ns'));
 
     expect(result.current.data).toEqual([]);
   });

@@ -21,20 +21,20 @@ import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
-import { useMCPsListQuery as _useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
+import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 
 interface Props {
   projectName: string;
   workspace: Workspace;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
-  useMCPsListQuery?: typeof _useMCPsListQuery;
+  useMcpsQuery?: typeof _useMcpsQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
   useDeleteWorkspace = _useDeleteWorkspace,
-  useMCPsListQuery = _useMCPsListQuery,
+  useMcpsQuery = _useMcpsQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
@@ -47,9 +47,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: managedControlPlanes, error: cpsError } = useMCPsListQuery(
-    `project-${projectName}--ws-${workspaceName}`,
-  );
+  const { data: managedControlPlanes, error: cpsError } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
