@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { NetworkStatus } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useSubscription } from '@apollo/client/react';
 import { z } from 'zod';
 import { Workspace, WorkspaceSchema } from '../types/Workspace.ts';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
@@ -36,14 +36,36 @@ const GetWorkspacesQuery = graphql(`
   }
 `);
 
+const WorkspacesSubscription = graphql(`
+  subscription WorkspacesSubscription($namespace: String!) {
+    core_openmcp_cloud_v1alpha1_workspaces(namespace: $namespace) {
+      type
+    }
+  }
+`);
+
 export function useWorkspacesQuery(projectName?: string) {
   const projectNamespace = projectName ? `project-${projectName}` : undefined;
   const query = useQuery(GetWorkspacesQuery, {
     variables: { projectNamespace: projectNamespace ?? '' },
     skip: !projectNamespace,
-    pollInterval: 10000,
     notifyOnNetworkStatusChange: true,
   });
+
+  // Subscribe to workspace changes - use events as signals to refetch
+  const { data: subscriptionData } = useSubscription(WorkspacesSubscription, {
+    variables: { namespace: projectNamespace ?? '' },
+    skip: !projectNamespace,
+  });
+
+  const { refetch } = query;
+
+  // Refetch when subscription receives any event
+  useEffect(() => {
+    if (subscriptionData?.core_openmcp_cloud_v1alpha1_workspaces) {
+      refetch();
+    }
+  }, [subscriptionData, refetch]);
 
   const workspaces = useMemo<Workspace[]>(() => {
     return (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? []).flatMap((item) => {
