@@ -1,11 +1,13 @@
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { useManagedControlPlanesQuery } from '../../../hooks/useManagedControlPlanesQuery.ts';
-import { ControlPlaneType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { MemoryRouter } from 'react-router-dom';
-import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
+import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import '@ui5/webcomponents-cypress-commands';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
+import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;
@@ -15,25 +17,14 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   });
 
-  const fakeManagedControlPlanes: ControlPlaneType[] = [
+  const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     {
+      version: 'v1',
       metadata: {
         name: 'mcp-a',
         namespace: 'project-webapp-playground--ws-workspaceName',
         creationTimestamp: '2024-05-28T10:00:00Z',
-      },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
+        annotations: {},
       },
       status: {
         status: ReadyStatus.Ready,
@@ -42,6 +33,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       },
     },
     {
+      version: 'v1',
       metadata: {
         annotations: {
           'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
@@ -51,19 +43,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         namespace: 'project-webapp-playground--ws-d056765',
         creationTimestamp: '2024-05-28T10:00:00Z',
       },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
-      },
       status: {
         status: ReadyStatus.Ready,
         conditions: [],
@@ -71,6 +50,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       },
     },
     {
+      version: 'v1',
       metadata: {
         annotations: {
           'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
@@ -80,19 +60,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         namespace: 'project-webapp-playground--ws-d056765',
         creationTimestamp: '2024-05-28T10:00:00Z',
       },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
-      },
       status: {
         status: ReadyStatus.Ready,
         conditions: [],
@@ -101,9 +68,10 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   ];
 
-  const fakeUseManagedControlPlanesQuery: typeof useManagedControlPlanesQuery = () => ({
-    managedControlPlanes: fakeManagedControlPlanes,
+  const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
+    data: fakeManagedControlPlanes,
     error: undefined,
+    isPending: false,
   });
 
   beforeEach(() => {
@@ -124,14 +92,24 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
     cy.mount(
       <MemoryRouter>
-        <SplitterProvider>
-          <ControlPlaneListWorkspaceGridTile
-            workspace={workspace}
-            projectName="some-project"
-            useManagedControlPlanesQuery={fakeUseManagedControlPlanesQuery}
-            useDeleteWorkspace={fakeUseDeleteWorkspace}
-          />
-        </SplitterProvider>
+        <FrontendConfigContext.Provider
+          value={{
+            documentationBaseUrl: '',
+            githubBaseUrl: '',
+            featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+          }}
+        >
+          <SplitterProvider>
+            <FeatureToggleProvider>
+              <ControlPlaneListWorkspaceGridTile
+                workspace={workspace}
+                projectName="some-project"
+                useMcpsQuery={fakeUseMCPsListQuery}
+                useDeleteWorkspace={fakeUseDeleteWorkspace}
+              />
+            </FeatureToggleProvider>
+          </SplitterProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
 

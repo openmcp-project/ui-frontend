@@ -53,6 +53,13 @@ const FrontendConfigSchema = z.object({
   documentationBaseUrl: z.string(),
   githubBaseUrl: z.string(),
   landscape: z.optional(z.nativeEnum(Landscape)),
+  mcp2DocsUrl: z.string().optional(),
+  featureToggles: z
+    .object({
+      markMcpV1asDeprecated: z.boolean().default(false),
+      enableMcpV2: z.boolean().default(false),
+    })
+    .default({ markMcpV1asDeprecated: false, enableMcpV2: false }),
 });
 type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
 

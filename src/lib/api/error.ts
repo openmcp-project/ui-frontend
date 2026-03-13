@@ -25,15 +25,24 @@ export class ValidationError extends Error {
 }
 
 export function isNotFoundError(error?: ErrorLike | APIError | null): boolean {
+  return hasHttpStatus(error, 403, 404);
+}
+
+export function isForbiddenError(error?: ErrorLike | APIError | null): boolean {
+  if (hasHttpStatus(error, 403)) return true;
+  return error?.message?.includes('is forbidden') ?? false;
+}
+
+function hasHttpStatus(error: ErrorLike | APIError | null | undefined, ...codes: number[]): boolean {
   if (error instanceof APIError) {
-    return error.status === 404 || error.status === 403;
+    return codes.includes(error.status);
   }
 
   if (error && typeof error === 'object' && 'networkError' in error) {
     const networkError = (error as { networkError?: unknown }).networkError;
     if (networkError && typeof networkError === 'object') {
       const statusCode = (networkError as { statusCode?: unknown }).statusCode;
-      return statusCode === 404 || statusCode === 403;
+      if (typeof statusCode === 'number' && codes.includes(statusCode)) return true;
     }
   }
 

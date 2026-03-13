@@ -1,6 +1,6 @@
-import { ControlPlaneType } from '../../lib/api/types/crate/controlPlanes';
+import { ControlPlaneListItem } from '../../spaces/onboarding/types/ControlPlane';
 
-export const canConnectToMCP = (controlPlane: ControlPlaneType): boolean => {
+export const canConnectToMCP = (controlPlane: ControlPlaneListItem): boolean => {
   const conditions = controlPlane.status?.conditions ?? [];
 
   return ['APIServerHealthy', 'AuthenticationHealthy', 'AuthorizationHealthy'].every((type) =>

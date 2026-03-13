@@ -39,6 +39,10 @@ describe('generateInitialsForEmail', () => {
     expect(generateInitialsForEmail('double..dot@example.com')).toBe('DD');
   });
 
+  it('should handle emails with a colon-separated prefix', () => {
+    expect(generateInitialsForEmail('prefix:first.last@example.com')).toBe('FL');
+  });
+
   it('should return an empty string for undefined input', () => {
     expect(generateInitialsForEmail(undefined)).toBe('');
   });

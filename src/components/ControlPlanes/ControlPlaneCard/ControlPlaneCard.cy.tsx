@@ -1,10 +1,20 @@
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { ListControlPlanesType } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { MemoryRouter } from 'react-router-dom';
 import '@ui5/webcomponents-cypress-commands';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
+import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+
+const mockFrontendConfig = {
+  documentationBaseUrl: 'https://example.com',
+  githubBaseUrl: 'https://github.com',
+  featureToggles: {
+    markMcpV1asDeprecated: false,
+  },
+};
 
 describe('ControlPlaneCard', () => {
   let deleteManagedControlPlaneCalled = false;
@@ -19,28 +29,41 @@ describe('ControlPlaneCard', () => {
   });
 
   it('deletes the workspace', () => {
-    const managedControlPlane: ListControlPlanesType = {
+    const managedControlPlane: ControlPlaneListItem = {
+      version: 'v1',
       metadata: {
         name: 'mcp-name',
+        namespace: 'test-namespace',
+        creationTimestamp: '2024-01-01T00:00:00Z',
+        annotations: {},
       },
-    } as unknown as ListControlPlanesType;
+      status: null,
+    };
 
     const workspace: Workspace = {
       metadata: {
         name: 'workspaceName',
+        namespace: 'test-namespace',
+        annotations: {},
       },
-    } as unknown as Workspace;
+      spec: { members: [] },
+      status: null,
+    };
 
     cy.mount(
       <MemoryRouter>
-        <SplitterProvider>
-          <ControlPlaneCard
-            controlPlane={managedControlPlane}
-            workspace={workspace}
-            projectName="projectName"
-            useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
-          />
-        </SplitterProvider>
+        <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+          <SplitterProvider>
+            <FeatureToggleProvider>
+              <ControlPlaneCard
+                controlPlane={managedControlPlane}
+                workspace={workspace}
+                projectName="projectName"
+                useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+              />
+            </FeatureToggleProvider>
+          </SplitterProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
 

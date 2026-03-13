@@ -159,11 +159,12 @@ async function authPlugin(fastify) {
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.get('/auth/mcp/me', async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
     const sessionAccessToken = req.encryptedSession.get('mcp_accessToken');
+    const tokenExpiresAt = req.encryptedSession.get('mcp_tokenExpiresAt');
     const sessionNamespace = req.encryptedSession.get('mcp_namespace');
     const sessionMcp = req.encryptedSession.get('mcp_name');
     const sessionIdp = req.encryptedSession.get('mcp_idp');
@@ -174,7 +175,74 @@ async function authPlugin(fastify) {
         !sessionNamespace && !sessionMcp && !sessionIdp && Boolean(sessionAccessToken)
       : sessionNamespace === namespace && sessionMcp === mcp && sessionIdp === idp && Boolean(sessionAccessToken);
 
-    return reply.send({ isAuthenticated });
+    return reply.send({ isAuthenticated, tokenExpiresAt: tokenExpiresAt ?? null });
+  });
+
+  // @ts-expect-error - Fastify plugin route handler typing needs refinement
+  fastify.post('/auth/mcp/refresh', async function (req, reply) {
+    const { namespace, mcp, idp } = req.query;
+
+    const refreshToken = req.encryptedSession.get('mcp_refreshToken');
+    if (!refreshToken) {
+      req.log.error('Missing refresh token; deleting encryptedSession.');
+      await req.encryptedSession.clear();
+      return reply.unauthorized('Session expired without token refresh capability.');
+    }
+
+    const isSystemIdp = isSystemIdpRequest(idp);
+    if (!isSystemIdp && (!namespace || !mcp)) {
+      return reply.badRequest('Missing required query parameters for custom IdP');
+    }
+
+    req.log.info({ namespace, mcp, idp }, 'Attempting MCP token refresh');
+
+    try {
+      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
+        namespace,
+        mcpName: mcp,
+        idpName: idp,
+      });
+
+      const refreshedTokenData = await fastify.refreshAuthTokens(
+        refreshToken,
+        {
+          clientId,
+          scopes,
+        },
+        issuerConfiguration.tokenEndpoint,
+      );
+      if (!refreshedTokenData || !refreshedTokenData.accessToken) {
+        req.log.error('Token refresh failed (no access token); deleting session.');
+        await req.encryptedSession.clear();
+        return reply.unauthorized('Session expired and token refresh failed.');
+      }
+
+      req.log.info('Token refresh successful; updating the session.');
+
+      await req.encryptedSession.set('mcp_accessToken', refreshedTokenData.accessToken);
+      if (refreshedTokenData.refreshToken) {
+        await req.encryptedSession.set('mcp_refreshToken', refreshedTokenData.refreshToken);
+      } else {
+        await req.encryptedSession.delete('mcp_refreshToken');
+      }
+      if (refreshedTokenData.expiresIn) {
+        const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
+        await req.encryptedSession.set('mcp_tokenExpiresAt', newExpiresAt);
+      } else {
+        await req.encryptedSession.delete('mcp_tokenExpiresAt');
+      }
+
+      req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
+    } catch (error) {
+      if (error instanceof AuthenticationError) {
+        req.log.error('AuthenticationError during token refresh: %s', error);
+        return reply.unauthorized('Error during token refresh.');
+      } else {
+        throw error;
+      }
+    }
+
+    return reply.send({ success: true });
   });
 }
 
