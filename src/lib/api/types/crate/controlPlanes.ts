@@ -26,6 +26,7 @@ export interface Authorization {
 
 export interface ControlPlaneType {
   metadata: Metadata;
+  isV2?: boolean;
   spec:
     | {
         authentication: {
@@ -33,6 +34,11 @@ export interface ControlPlaneType {
         };
         authorization?: Authorization;
         components: ControlPlaneComponentsType;
+        iam?: {
+          oidc?: {
+            defaultProvider?: { roleBindings?: (RoleBinding | null)[] | null } | null;
+          } | null;
+        } | null;
       }
     | undefined;
   status: ControlPlaneStatusType | undefined;
@@ -60,6 +66,7 @@ export interface ControlPlaneStatusType {
         name: string | undefined;
         namespace: string | undefined;
         kubeconfig: string | undefined;
+        oidc_openmcp: { name: string | undefined } | undefined;
       }
     | undefined;
 }
@@ -82,9 +89,12 @@ export const ControlPlane = (
   projectName?: string,
   workspaceName?: string,
   controlPlaneName?: string,
+  isV2 = false,
 ): Resource<ControlPlaneType> => {
   return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes/${controlPlaneName}`,
-    jq: '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
+    path: `/apis/core.openmcp.cloud/${isV2 ? 'v2alpha1' : 'v1alpha1'}/namespaces/project-${projectName}--ws-${workspaceName}/${isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}/${controlPlaneName}`,
+    jq: isV2
+      ? undefined
+      : '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
   };
 };
