@@ -11,7 +11,7 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
-import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
@@ -25,7 +25,7 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 
 interface Props {
-  controlPlane: ListControlPlanesType;
+  controlPlane: ControlPlaneListItem;
   workspace: Workspace;
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
@@ -57,8 +57,7 @@ export const ControlPlaneCard = ({
   );
 
   const name = controlPlane.metadata.name;
-  const displayName =
-    controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION as keyof typeof controlPlane.metadata.annotations];
+  const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
 
   const namespace = controlPlane.metadata.namespace;
 
@@ -84,23 +83,22 @@ export const ControlPlaneCard = ({
               </div>
             </FlexBox>
             <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              {!controlPlane.isV2 && (
+              {controlPlane.version !== 'v2' && (
                 <ControlPlaneCardMenu
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                   setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
                 />
               )}
-              {markMcpV1asDeprecated && !controlPlane.isV2 && <DeprecatedLabel />}
+              {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButton
                   variant="loader"
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
-                  resourceType={controlPlane.isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
+                  resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
-
-                {controlPlane.isV2 ? (
+                {controlPlane.version === 'v2' ? (
                   <ConnectButtonV2
                     disabled={!isConnectButtonEnabled}
                     controlPlaneName={name}

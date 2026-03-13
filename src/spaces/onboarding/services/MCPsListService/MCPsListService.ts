@@ -115,6 +115,7 @@ function parseAccess(accessData: unknown): ControlPlaneStatusType['access'] {
       name: parsed.name,
       namespace: parsed.namespace,
       kubeconfig: undefined,
+      oidc_openmcp: parsed.oidc_openmcp,
     };
   } catch {
     return undefined;

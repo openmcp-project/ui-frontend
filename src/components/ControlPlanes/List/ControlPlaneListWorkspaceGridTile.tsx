@@ -11,7 +11,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
-import { APIError } from '../../../lib/api/error.ts';
+import { isForbiddenError } from '../../../lib/api/error.ts';
 import { useTranslation } from 'react-i18next';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -20,21 +20,21 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import styles from './WorkspacesList.module.css';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
-import { useMCPsListQuery as _useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
+import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
+import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 
 interface Props {
   projectName: string;
   workspace: Workspace;
+  useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
-  useMCPsListQuery?: typeof _useMCPsListQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
-  useMCPsListQuery = _useMCPsListQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
@@ -47,9 +47,11 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: managedControlPlanes, error: cpsError } = useMCPsListQuery(
-    `project-${projectName}--ws-${workspaceName}`,
-  );
+  const {
+    data: managedControlPlanes,
+    error: cpsError,
+    isPending,
+  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
@@ -59,9 +61,9 @@ export function ControlPlaneListWorkspaceGridTile({
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
   }
 
-  function createErrorView(error: APIError | undefined) {
+  function createErrorView(error: Error | undefined) {
     if (error) {
-      if (error.status === 403) {
+      if (isForbiddenError(error)) {
         return (
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
@@ -144,7 +146,7 @@ export function ControlPlaneListWorkspaceGridTile({
         >
           {errorView ? (
             errorView
-          ) : managedControlPlanes?.length === 0 ? (
+          ) : isPending ? null : managedControlPlanes?.length === 0 ? (
             <IllustratedBanner
               title={t('IllustratedBanner.titleMessage')}
               subtitle={t('IllustratedBanner.subtitleMessage')}

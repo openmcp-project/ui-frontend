@@ -1,9 +1,9 @@
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { useMCPsListQuery } from '../../../spaces/onboarding/services/MCPsListService/MCPsListService.ts';
-import { ControlPlaneType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { MemoryRouter } from 'react-router-dom';
-import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
+import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import '@ui5/webcomponents-cypress-commands';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
@@ -17,25 +17,14 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   });
 
-  const fakeManagedControlPlanes: ControlPlaneType[] = [
+  const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     {
+      version: 'v1',
       metadata: {
         name: 'mcp-a',
         namespace: 'project-webapp-playground--ws-workspaceName',
         creationTimestamp: '2024-05-28T10:00:00Z',
-      },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
+        annotations: {},
       },
       status: {
         status: ReadyStatus.Ready,
@@ -44,6 +33,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       },
     },
     {
+      version: 'v1',
       metadata: {
         annotations: {
           'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
@@ -53,19 +43,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         namespace: 'project-webapp-playground--ws-d056765',
         creationTimestamp: '2024-05-28T10:00:00Z',
       },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
-      },
       status: {
         status: ReadyStatus.Ready,
         conditions: [],
@@ -73,6 +50,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       },
     },
     {
+      version: 'v1',
       metadata: {
         annotations: {
           'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
@@ -82,19 +60,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         namespace: 'project-webapp-playground--ws-d056765',
         creationTimestamp: '2024-05-28T10:00:00Z',
       },
-      spec: {
-        authentication: {
-          enableSystemIdentityProvider: true,
-        },
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-          landscaper: undefined,
-        },
-      },
       status: {
         status: ReadyStatus.Ready,
         conditions: [],
@@ -103,7 +68,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     },
   ];
 
-  const fakeUseMCPsListQuery: typeof useMCPsListQuery = () => ({
+  const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
     data: fakeManagedControlPlanes,
     error: undefined,
     isPending: false,
@@ -139,7 +104,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
               <ControlPlaneListWorkspaceGridTile
                 workspace={workspace}
                 projectName="some-project"
-                useMCPsListQuery={fakeUseMCPsListQuery}
+                useMcpsQuery={fakeUseMCPsListQuery}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
               />
             </FeatureToggleProvider>

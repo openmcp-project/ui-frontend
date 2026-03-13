@@ -9,7 +9,7 @@ import Loading from '../../../components/Shared/Loading.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { useWorkspacesQuery } from '../services/WorkspaceService/WorkspaceService.ts';
+import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();

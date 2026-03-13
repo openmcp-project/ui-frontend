@@ -165,7 +165,7 @@ function parseAccess(accessData: unknown): ControlPlaneStatusType['access'] {
   if (!accessData) return undefined;
   try {
     const parsed = typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
-    return { key: parsed.key, name: parsed.name, namespace: parsed.namespace, kubeconfig: undefined };
+    return { key: parsed.key, name: parsed.name, namespace: parsed.namespace, kubeconfig: undefined, oidc_openmcp: parsed.oidc_openmcp };
   } catch {
     return undefined;
   }

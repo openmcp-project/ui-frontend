@@ -191,7 +191,7 @@ export default function McpPageV2() {
                       mcpName={controlPlaneName}
                     />
                     <McpMembersAvatarView
-                      roleBindings={mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings}
+                      roleBindings={mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings as any}
                       project={projectName}
                       workspace={workspaceName}
                     />

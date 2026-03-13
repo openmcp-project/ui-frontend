@@ -10,6 +10,7 @@ import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
 import { JSX, useContext } from 'react';
 
 import { ApiConfigContext } from '../Shared/k8s';
+import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -20,7 +21,7 @@ export interface YamlViewButtonResourceProps {
 export interface YamlViewButtonLoaderProps {
   variant: 'loader';
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
+  resourceType: ResourceType;
   resourceName: string;
   withoutApiConfig?: boolean;
 }

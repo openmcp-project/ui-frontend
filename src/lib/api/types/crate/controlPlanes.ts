@@ -1,7 +1,5 @@
 import { Resource } from '../resource';
 
-export type ListControlPlanesType = ControlPlaneType;
-
 export interface Metadata {
   name: string;
   namespace: string;
@@ -36,6 +34,11 @@ export interface ControlPlaneType {
         };
         authorization?: Authorization;
         components: ControlPlaneComponentsType;
+        iam?: {
+          oidc?: {
+            defaultProvider?: { roleBindings?: (RoleBinding | null)[] | null } | null;
+          } | null;
+        } | null;
       }
     | undefined;
   status: ControlPlaneStatusType | undefined;
@@ -70,7 +73,7 @@ export interface ControlPlaneStatusType {
 
 export interface ControlPlaneStatusCondition {
   type: string;
-  status: boolean | string;
+  status: string;
   reason: string;
   message: string;
   lastTransitionTime: string;
@@ -81,19 +84,6 @@ export enum ReadyStatus {
   NotReady = 'Not Ready',
   InDeletion = 'Deleting',
 }
-
-export const ListControlPlanes = (
-  projectName: string | null,
-  workspaceName: string,
-): Resource<ListControlPlanesType[]> => {
-  return {
-    path:
-      projectName === null
-        ? null
-        : `/apis/core.openmcp.cloud/v1alpha1/namespaces/project-${projectName}--ws-${workspaceName}/managedcontrolplanes`,
-    jq: '[.items[] |{spec: .spec | {authentication}, metadata: .metadata | {name, namespace, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status } }]',
-  };
-};
 
 export const ControlPlane = (
   projectName?: string,

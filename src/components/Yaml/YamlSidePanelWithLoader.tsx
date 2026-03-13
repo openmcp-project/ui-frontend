@@ -1,5 +1,5 @@
 import { useApiResource } from '../../lib/api/useApiResource.ts';
-import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
+import { ResourceObject, ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 import { useTranslation } from 'react-i18next';
 import Loading from '../Shared/Loading.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -9,7 +9,7 @@ import { YamlSidePanel } from './YamlSidePanel.tsx';
 
 export interface YamlSidePanelWithLoaderProps {
   workspaceName?: string;
-  resourceType: 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
+  resourceType: ResourceType;
   resourceName: string;
   isEdit?: boolean;
 }
@@ -21,7 +21,7 @@ export function YamlSidePanelWithLoader({
 }: YamlSidePanelWithLoaderProps) {
   const { t } = useTranslation();
   const { isLoading, data, error } = useApiResource(
-    ResourceObject(workspaceName ?? '', resourceType, resourceName, resourceType === 'managedcontrolplanev2s'),
+    ResourceObject(workspaceName ?? '', resourceType, resourceName),
     undefined,
     null,
   );

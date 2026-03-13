@@ -1,18 +1,22 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
-import { useWorkspacesQuery } from './WorkspaceService';
+import { useQuery, useSubscription } from '@apollo/client/react';
+import { useWorkspacesQuery } from './useWorkspacesQuery';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
+  useSubscription: vi.fn(),
 }));
 
 const useQueryMock = vi.mocked(useQuery);
+const useSubscriptionMock = vi.mocked(useSubscription);
 
 describe('useWorkspacesQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
+    useSubscriptionMock.mockReset();
+    useSubscriptionMock.mockReturnValue({} as ReturnType<typeof useSubscription>);
   });
 
   it('maps workspaces and applies defaults', () => {
@@ -53,8 +57,14 @@ describe('useWorkspacesQuery', () => {
       expect.objectContaining({
         variables: { projectNamespace: 'project-demo' },
         skip: false,
-        pollInterval: 10000,
         notifyOnNetworkStatusChange: true,
+      }),
+    );
+
+    expect(useSubscriptionMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        skip: false,
       }),
     );
   });
@@ -89,5 +99,31 @@ describe('useWorkspacesQuery', () => {
         skip: true,
       }),
     );
+
+    expect(useSubscriptionMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        skip: true,
+      }),
+    );
+  });
+
+  it('refetches query when subscription receives data', () => {
+    const refetch = vi.fn();
+    useQueryMock.mockReturnValue({
+      data: undefined,
+      loading: false,
+      networkStatus: NetworkStatus.ready,
+      error: undefined,
+      refetch,
+    } as unknown as ReturnType<typeof useQuery>);
+
+    useSubscriptionMock.mockReturnValue({
+      data: { core_openmcp_cloud_v1alpha1_workspaces: { type: 'MODIFIED' } },
+    } as ReturnType<typeof useSubscription>);
+
+    renderHook(() => useWorkspacesQuery('demo'));
+
+    expect(refetch).toHaveBeenCalled();
   });
 });

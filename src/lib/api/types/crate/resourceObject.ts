@@ -1,12 +1,16 @@
 import { Resource } from '../resource.ts';
 
+export type ResourceType = 'projects' | 'workspaces' | 'managedcontrolplanes' | 'managedcontrolplanev2s';
+
+const V2_RESOURCE_TYPES: ReadonlySet<ResourceType> = new Set(['managedcontrolplanev2s']);
+
 export const ResourceObject = <T>(
   workspaceName: string,
-  resourceType: string,
+  resourceType: ResourceType,
   resourceName: string,
-  isV2: boolean = false,
 ): Resource<T> => {
+  const apiVersion = V2_RESOURCE_TYPES.has(resourceType) ? 'v2alpha1' : 'v1alpha1';
   return {
-    path: `/apis/core.openmcp.cloud/${isV2 ? 'v2alpha1' : 'v1alpha1'}/${workspaceName ? `namespaces/${workspaceName}/` : ''}${resourceType}/${resourceName}`,
+    path: `/apis/core.openmcp.cloud/${apiVersion}/${workspaceName ? `namespaces/${workspaceName}/` : ''}${resourceType}/${resourceName}`,
   };
 };
