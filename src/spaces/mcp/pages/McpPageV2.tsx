@@ -17,7 +17,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlane as ControlPlaneResource, type RoleBinding } from '../../../lib/api/types/crate/controlPlanes.ts';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
@@ -191,7 +191,9 @@ export default function McpPageV2() {
                       mcpName={controlPlaneName}
                     />
                     <McpMembersAvatarView
-                      roleBindings={mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings as any}
+                      roleBindings={mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings?.filter(
+                        (rb): rb is RoleBinding => rb !== null,
+                      )}
                       project={projectName}
                       workspace={workspaceName}
                     />
