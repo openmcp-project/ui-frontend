@@ -47,7 +47,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
-  const { data: managedControlPlanes, error: cpsError } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+  const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
@@ -142,6 +142,8 @@ export function ControlPlaneListWorkspaceGridTile({
         >
           {errorView ? (
             errorView
+          ) : isPending ? (
+            null
           ) : managedControlPlanes?.length === 0 ? (
             <IllustratedBanner
               title={t('IllustratedBanner.titleMessage')}
