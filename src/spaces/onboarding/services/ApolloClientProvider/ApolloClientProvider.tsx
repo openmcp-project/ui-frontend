@@ -19,7 +19,8 @@ class SSELink extends ApolloLink {
 
   public override request(operation: Operation): Observable<FetchResult> {
     return new Observable((sink) => {
-      const ctxHeaders = (operation.getContext && (operation.getContext() as any).headers) ?? undefined;
+      const ctx = operation.getContext ? (operation.getContext() as { headers?: Record<string, string> }) : undefined;
+      const ctxHeaders = ctx?.headers ?? undefined;
       const client = createClient({ ...this.options, headers: ctxHeaders ?? this.options.headers });
 
       return client.subscribe(

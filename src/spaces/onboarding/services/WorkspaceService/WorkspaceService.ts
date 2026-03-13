@@ -54,20 +54,19 @@ export function useWorkspacesQuery(projectName?: string) {
   });
 
   // Subscribe to workspace changes - use events as signals to refetch
-  const { data: subscriptionData } = useSubscription(
-    WorkspacesSubscription,
-    {
-      variables: { namespace: projectNamespace ?? '' },
-      skip: !projectNamespace,
-    },
-  );
+  const { data: subscriptionData } = useSubscription(WorkspacesSubscription, {
+    variables: { namespace: projectNamespace ?? '' },
+    skip: !projectNamespace,
+  });
+
+  const { refetch } = query;
 
   // Refetch when subscription receives any event
   useEffect(() => {
     if (subscriptionData?.core_openmcp_cloud_v1alpha1_workspaces) {
-      query.refetch();
+      refetch();
     }
-  }, [subscriptionData, query.refetch]);
+  }, [subscriptionData, refetch]);
 
   const workspaces = useMemo<Workspace[]>(() => {
     return (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? []).flatMap((item) => {
