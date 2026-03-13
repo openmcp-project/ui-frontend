@@ -107,4 +107,23 @@ describe('useWorkspacesQuery', () => {
       }),
     );
   });
+
+  it('refetches query when subscription receives data', () => {
+    const refetch = vi.fn();
+    useQueryMock.mockReturnValue({
+      data: undefined,
+      loading: false,
+      networkStatus: NetworkStatus.ready,
+      error: undefined,
+      refetch,
+    } as unknown as ReturnType<typeof useQuery>);
+
+    useSubscriptionMock.mockReturnValue({
+      data: { core_openmcp_cloud_v1alpha1_workspaces: { type: 'MODIFIED' } },
+    } as ReturnType<typeof useSubscription>);
+
+    renderHook(() => useWorkspacesQuery('demo'));
+
+    expect(refetch).toHaveBeenCalled();
+  });
 });

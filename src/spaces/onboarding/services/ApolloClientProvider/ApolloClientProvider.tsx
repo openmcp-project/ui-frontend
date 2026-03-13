@@ -2,7 +2,7 @@ import { ApolloClient, ApolloLink, FetchResult, InMemoryCache, Observable, Opera
 import { ApolloProvider } from '@apollo/client/react';
 import { HttpLink } from '@apollo/client/link/http';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { Client, ClientOptions, createClient } from 'graphql-sse';
+import { ClientOptions, createClient } from 'graphql-sse';
 import { print } from 'graphql';
 import { ReactNode } from 'react';
 
@@ -10,16 +10,19 @@ const graphqlUrl = '/api/graphql';
 
 // SSE Link using graphql-sse library
 class SSELink extends ApolloLink {
-  private client: Client;
+  private options: ClientOptions;
 
   constructor(options: ClientOptions) {
     super();
-    this.client = createClient(options);
+    this.options = options;
   }
 
   public override request(operation: Operation): Observable<FetchResult> {
     return new Observable((sink) => {
-      return this.client.subscribe(
+      const ctxHeaders = (operation.getContext && (operation.getContext() as any).headers) ?? undefined;
+      const client = createClient({ ...this.options, headers: ctxHeaders ?? this.options.headers });
+
+      return client.subscribe(
         { ...operation, query: print(operation.query) },
         {
           next: sink.next.bind(sink),
@@ -48,19 +51,20 @@ const authLink = new ApolloLink((operation, forward) => {
 
 const sseLink = new SSELink({
   url: graphqlUrl,
-  headers: {
-    'x-use-crate': 'true',
-  },
 });
 
 // Split: SSE for subscriptions, HTTP for queries/mutations
-const splitLink = split(
-  ({ query }) => {
-    const definition = getMainDefinition(query);
-    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-  },
-  sseLink,
-  ApolloLink.from([authLink, httpLink]),
+// Ensure `authLink` runs before the split so subscription operations
+// get the same `operation.setContext` headers as queries/mutations.
+const splitLink = authLink.concat(
+  split(
+    ({ query }) => {
+      const definition = getMainDefinition(query);
+      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+    },
+    sseLink,
+    httpLink,
+  ),
 );
 
 const client = new ApolloClient({
