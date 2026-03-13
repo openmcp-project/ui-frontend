@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery, useSubscription } from '@apollo/client/react';
-import { useWorkspacesQuery } from './WorkspaceService';
+import { useWorkspacesQuery } from './useCreateWorkspace';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
