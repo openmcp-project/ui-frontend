@@ -14,9 +14,13 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n": typeof types.CreateWorkspaceDocument,
+    "\n  mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        deleteWorkspace(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n": typeof types.DeleteWorkspaceDocument,
     "\n  query GetWorkspaces($projectNamespace: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Workspaces(namespace: $projectNamespace) {\n          items {\n            apiVersion\n            kind\n            metadata {\n              name\n              namespace\n              annotations\n            }\n            spec {\n              members {\n                kind\n                name\n                roles\n                namespace\n              }\n            }\n            status {\n              namespace\n            }\n          }\n        }\n      }\n    }\n  }\n": typeof types.GetWorkspacesDocument,
 };
 const documents: Documents = {
+    "\n  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n": types.CreateWorkspaceDocument,
+    "\n  mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        deleteWorkspace(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n": types.DeleteWorkspaceDocument,
     "\n  query GetWorkspaces($projectNamespace: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Workspaces(namespace: $projectNamespace) {\n          items {\n            apiVersion\n            kind\n            metadata {\n              name\n              namespace\n              annotations\n            }\n            spec {\n              members {\n                kind\n                name\n                roles\n                namespace\n              }\n            }\n            status {\n              namespace\n            }\n          }\n        }\n      }\n    }\n  }\n": types.GetWorkspacesDocument,
 };
 
@@ -34,6 +38,14 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        deleteWorkspace(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        deleteWorkspace(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

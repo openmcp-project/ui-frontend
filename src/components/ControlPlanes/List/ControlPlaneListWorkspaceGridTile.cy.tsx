@@ -3,7 +3,7 @@ import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { useManagedControlPlanesQuery } from '../../../hooks/useManagedControlPlanesQuery.ts';
 import { ControlPlaneType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { MemoryRouter } from 'react-router-dom';
-import { useDeleteWorkspace } from '../../../hooks/useDeleteWorkspace.ts';
+import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import '@ui5/webcomponents-cypress-commands';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';

@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { z } from 'zod';
-import { Workspace, WorkspaceSchema } from '../../types/Workspace.ts';
-import { graphql } from '../../../../types/__generated__/graphql';
+import { Workspace, WorkspaceSchema } from '../types/Workspace.ts';
+import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
 const GetWorkspacesQuery = graphql(`
   query GetWorkspaces($projectNamespace: String!) {
