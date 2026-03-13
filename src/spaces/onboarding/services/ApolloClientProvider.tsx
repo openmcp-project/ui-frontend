@@ -19,7 +19,9 @@ class SSELink extends ApolloLink {
     this.options = options;
   }
 
-  public override request(operation: Parameters<ApolloLink['request']>[0]): Observable<ExecutionResult | FormattedExecutionResult> {
+  public override request(
+    operation: Parameters<ApolloLink['request']>[0],
+  ): Observable<ExecutionResult | FormattedExecutionResult> {
     return new Observable((sink) => {
       const ctx = operation.getContext ? (operation.getContext() as { headers?: Record<string, string> }) : undefined;
       const ctxHeaders = ctx?.headers ?? undefined;
