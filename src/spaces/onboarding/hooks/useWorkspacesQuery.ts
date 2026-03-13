@@ -10,7 +10,6 @@ const GetWorkspacesQuery = graphql(`
     core_openmcp_cloud {
       v1alpha1 {
         Workspaces(namespace: $projectNamespace) {
-          resourceVersion
           items {
             apiVersion
             kind
