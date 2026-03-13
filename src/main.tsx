@@ -16,7 +16,7 @@ import { ToastProvider } from './context/ToastContext.tsx';
 import './index.css';
 import { configureMonaco } from './lib/monaco.ts';
 import { AuthProviderOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider/ApolloClientProvider.tsx';
+import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientProvider.tsx';
 import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
 import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
