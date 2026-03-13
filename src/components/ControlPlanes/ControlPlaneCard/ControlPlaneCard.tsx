@@ -11,7 +11,7 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
-import { ListControlPlanesType, ReadyStatus } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
@@ -24,7 +24,7 @@ import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 
 interface Props {
-  controlPlane: ListControlPlanesType;
+  controlPlane: ControlPlaneListItem;
   workspace: Workspace;
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
@@ -56,8 +56,7 @@ export const ControlPlaneCard = ({
   );
 
   const name = controlPlane.metadata.name;
-  const displayName =
-    controlPlane?.metadata?.annotations?.[DISPLAY_NAME_ANNOTATION as keyof typeof controlPlane.metadata.annotations];
+  const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
 
   const namespace = controlPlane.metadata.namespace;
 
@@ -83,28 +82,32 @@ export const ControlPlaneCard = ({
               </div>
             </FlexBox>
             <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              <ControlPlaneCardMenu
-                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
-              />
-              {markMcpV1asDeprecated && <DeprecatedLabel />}
+              {controlPlane.version !== 'v2' && (
+                <ControlPlaneCardMenu
+                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                  setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+                />
+              )}
+              {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
               <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
                 <YamlViewButton
                   variant="loader"
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
-                  resourceType={'managedcontrolplanes'}
+                  resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
-                <ConnectButton
-                  disabled={!isConnectButtonEnabled}
-                  controlPlaneName={name}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  namespace={controlPlane.status?.access?.namespace ?? ''}
-                  secretName={controlPlane.status?.access?.name ?? ''}
-                  secretKey={controlPlane.status?.access?.key ?? ''}
-                />
+                {controlPlane.version !== 'v2' && (
+                  <ConnectButton
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
+                )}
               </FlexBox>
             </FlexBox>
           </FlexBox>

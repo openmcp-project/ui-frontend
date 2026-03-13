@@ -60,7 +60,18 @@ const tokenRefreshLink = new ApolloLink((operation, forward) => {
 
 const client = new ApolloClient({
   link: ApolloLink.from([tokenRefreshLink, authLink, httpLink]),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          core_openmcp_cloud: { merge: true },
+        },
+      },
+      CoreOpenmcpCloudQuery: { merge: true },
+      CoreOpenmcpCloudV1alpha1Query: { merge: true },
+      CoreOpenmcpCloudV2alpha1Query: { merge: true },
+    },
+  }),
 });
 
 export function ApolloClientProvider({ children }: { children: ReactNode }) {

@@ -1,35 +1,26 @@
 import { describe, it, expect } from 'vitest';
 
-import { ControlPlaneType, ControlPlaneStatusCondition, ReadyStatus } from '../../lib/api/types/crate/controlPlanes';
+import { ControlPlaneListItem, ReadyStatus } from '../../spaces/onboarding/types/ControlPlane';
 import { canConnectToMCP } from './controlPlanes';
 
-const createCondition = (overrides: Partial<ControlPlaneStatusCondition>): ControlPlaneStatusCondition => ({
+type Condition = NonNullable<ControlPlaneListItem['status']>['conditions'][number];
+
+const createCondition = (overrides: Partial<Condition>): Condition => ({
   type: 'Unknown',
-  status: false,
+  status: 'False',
   reason: 'DefaultReason',
   message: 'Default message',
   lastTransitionTime: new Date().toISOString(),
   ...overrides,
 });
 
-const createControlPlane = (conditions: ControlPlaneStatusCondition[]): ControlPlaneType => ({
+const createControlPlane = (conditions: Condition[]): ControlPlaneListItem => ({
+  version: 'v1',
   metadata: {
     name: '',
     namespace: '',
     creationTimestamp: '2024-01-01T00:00:00Z',
-  },
-  spec: {
-    authentication: {
-      enableSystemIdentityProvider: true,
-    },
-    components: {
-      crossplane: undefined,
-      btpServiceOperator: undefined,
-      externalSecretsOperator: undefined,
-      kyverno: undefined,
-      flux: undefined,
-      landscaper: undefined,
-    },
+    annotations: {},
   },
   status: {
     conditions,
@@ -85,37 +76,21 @@ describe('canConnectToMCP', () => {
     expect(canConnectToMCP(controlPlane)).toBe(true);
   });
 
-  it('returns true when required statuses are boolean', () => {
-    const controlPlane = createControlPlane(
-      baseConditions.map((c) => ({
-        ...c,
-        status: true,
-      })),
-    );
-    expect(canConnectToMCP(controlPlane)).toBe(true);
-  });
-
   it('returns false when there are no conditions', () => {
     const controlPlane = createControlPlane([]);
     expect(canConnectToMCP(controlPlane)).toBe(false);
   });
 
   it('returns false when status field is missing', () => {
-    const controlPlane = {
+    const controlPlane: ControlPlaneListItem = {
+      version: 'v1',
       metadata: {
         name: '',
         namespace: '',
+        creationTimestamp: '',
+        annotations: {},
       },
-      spec: {
-        components: {
-          crossplane: undefined,
-          btpServiceOperator: undefined,
-          externalSecretsOperator: undefined,
-          kyverno: undefined,
-          flux: undefined,
-        },
-      },
-    } as ControlPlaneType;
+    };
     expect(canConnectToMCP(controlPlane)).toBe(false);
   });
 });
