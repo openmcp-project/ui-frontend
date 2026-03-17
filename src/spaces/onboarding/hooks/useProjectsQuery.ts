@@ -1,17 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
-import { CreateSelfSubjectRulesReviewMutation } from '../../../types/__generated__/graphql/graphql.ts';
-
-type ResourceRule = NonNullable<
-  NonNullable<
-    NonNullable<
-      NonNullable<CreateSelfSubjectRulesReviewMutation['authorization_k8s_io']>['v1']
-    >['createSelfSubjectRulesReview']
-  >['status']
->['resourceRules'] extends (infer Rule)[] | null | undefined
-  ? Rule
-  : never;
+import { Io_K8s_Api_Authorization_V1_ResourceRulestatusresourceRules as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
 
 const PROJECTS_REFRESH_INTERVAL_MS = 60_000;
 
