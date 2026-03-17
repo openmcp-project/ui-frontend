@@ -7,7 +7,7 @@ import '@ui5/webcomponents-icons/dist/accept';
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.tsx';
 
-import { useDeleteProject as _useDeleteProject } from '../../hooks/useDeleteProject.ts';
+import { useDeleteProject as _useDeleteProject } from '../../spaces/onboarding/hooks/useDeleteProject.ts';
 import { KubectlDeleteProjectDialog } from '../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
 
 type ProjectsListItemMenuProps = {

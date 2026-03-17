@@ -1,5 +1,5 @@
 import { CreateProjectDialogContainer } from './CreateProjectDialogContainer';
-import { useCreateProject, CreateProjectParams } from '../../hooks/useCreateProject';
+import { useCreateProject, CreateProjectParams } from '../../spaces/onboarding/hooks/useCreateProject';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
 
 describe('CreateProjectDialogContainer', () => {
