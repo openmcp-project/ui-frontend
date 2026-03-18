@@ -33,7 +33,12 @@ async function feedbackRoute(fastify) {
       fastify.config.NODE_ENV ||
       'unknown';
 
-    const { message, rating } = request.body;
+    const body = request.body;
+    if (!body || typeof body !== 'object') {
+      return reply.badRequest('Invalid feedback data.');
+    }
+
+    const { message, rating } = body;
 
     if (typeof message !== 'string' || message.length > MAX_MESSAGE_LENGTH) {
       return reply.badRequest('Invalid feedback data.');
@@ -41,6 +46,11 @@ async function feedbackRoute(fastify) {
 
     if (!VALID_RATINGS.includes(rating)) {
       return reply.badRequest('Invalid feedback data.');
+    }
+
+    if (!FEEDBACK_SLACK_URL) {
+      fastify.log.error('FEEDBACK_SLACK_URL is not configured.');
+      return reply.status(503).send({ error: 'Feedback is currently unavailable.' });
     }
 
     try {
