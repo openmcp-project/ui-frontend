@@ -21,32 +21,18 @@ export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = 'encryptionKey';
 // name of the cookie that stores the session identifier on user side (__Host- prefix in production prevents cookie tossing from subdomains).
 export const SESSION_COOKIE_NAME = isLocalDev ? 'session' : '__Host-session';
 
+// Cookie attributes must match between set and clear — exported for logout cookie clearing
+export const COOKIE_OPTIONS = isLocalDev
+  ? { path: '/', httpOnly: true, sameSite: 'Lax', secure: false }
+  : { path: '/', httpOnly: true, sameSite: 'None', partitioned: true, secure: true };
+
 // @ts-ignore
 async function encryptedSession(fastify) {
   const { COOKIE_SECRET, SESSION_SECRET } = fastify.config;
 
   await fastify.register(fastifyCookie);
 
-  // For local development, use simpler cookie settings that work reliably over HTTP.
-  const localDevCookieOptions = {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'Lax',
-    secure: false,
-    maxAge: 60 * 60 * 24, // 24 hours
-  };
-
-  // For production/embedded, use strict settings for cross-site cookie support
-  const productionCookieOptions = {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'None',
-    partitioned: true,
-    secure: true,
-    maxAge: 60 * 60 * 24, // 24 hours
-  };
-
-  const cookieOptions = isLocalDev ? localDevCookieOptions : productionCookieOptions;
+  const cookieOptions = { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 24 }; // 24 hours
 
   fastify.register(secureSession, {
     secret: Buffer.from(COOKIE_SECRET, 'hex'),
