@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import { AuthenticationError } from '../plugins/auth-utils.js';
 import {
+  COOKIE_OPTIONS,
   ENCRYPTED_COOKIE_REQUEST_DECORATOR,
   ENCRYPTION_KEY_COOKIE_NAME,
   SESSION_COOKIE_NAME,
@@ -150,8 +151,8 @@ async function authPlugin(fastify) {
     req[ENCRYPTED_COOKIE_REQUEST_DECORATOR].delete();
 
     // Explicitly clear cookies from browser
-    reply.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
-    reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, { path: '/' });
+    reply.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
+    reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, COOKIE_OPTIONS);
 
     return reply.send({ message: 'Logged out' });
   });
