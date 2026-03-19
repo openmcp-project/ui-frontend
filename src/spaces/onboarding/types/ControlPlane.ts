@@ -4,6 +4,7 @@ export const ReadyStatus = {
   Ready: 'Ready',
   NotReady: 'Not Ready',
   InDeletion: 'Deleting',
+  Progressing: 'Progressing',
 } as const;
 
 const ConditionSchema = z.object({
@@ -29,6 +30,7 @@ const AccessSchema = z.object({
 
 const StatusSchema = z.object({
   status: z.string(),
+  phase: z.string(),
   conditions: ConditionsSchema,
   access: AccessSchema.nullish(),
 });
