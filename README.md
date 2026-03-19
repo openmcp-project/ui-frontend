@@ -78,6 +78,22 @@ An example docker run command would be
 docker run -p 5001:80 -e BACKEND_CONFIG="$(cat frontend-config.json)"  -t ui-test
 ```
 
+### Generating GraphQL Types
+
+GraphQL types can be generated from the remote schema using the `generate-graphql-types` script. Pass your access token directly via the `--token` flag:
+
+```bash
+npm run generate-graphql-types --token=myaccesstokenhere
+```
+
+To run in watch mode (re-generates on file changes):
+
+```bash
+npm run generate-graphql-types:watch --token=myaccesstokenhere
+```
+
+The token is passed as the `Authorization` header when fetching the remote GraphQL schema.
+
 ## Support & Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/openmcp-project/ui-frontend/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
