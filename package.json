@@ -20,8 +20,8 @@
     "test:vi": "vitest",
     "test:cy": "cypress run --component --browser chrome",
     "test:cy:open": "cypress open --component --browser chrome",
-    "generate-graphql-types": "GRAPHQL_AUTH_TOKEN=\"$npm_config_token\" graphql-codegen --config graphql.config.yaml",
-    "generate-graphql-types:watch": "GRAPHQL_AUTH_TOKEN=\"$npm_config_token\" graphql-codegen --config graphql.config.yaml --watch",
+    "generate-graphql-types": "sh scripts/generate-graphql-types.sh",
+    "generate-graphql-types:watch": "sh scripts/generate-graphql-types-watch.sh",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

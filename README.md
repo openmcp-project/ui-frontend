@@ -80,19 +80,19 @@ docker run -p 5001:80 -e BACKEND_CONFIG="$(cat frontend-config.json)"  -t ui-tes
 
 ### Generating GraphQL Types
 
-GraphQL types can be generated from the remote schema using the `generate-graphql-types` script. Pass your access token directly via the `--token` flag:
+GraphQL types can be generated from the remote schema using the `generate-graphql-types` script. Pass your access token as a positional argument directly after the script name:
 
 ```bash
-npm run generate-graphql-types --token=myaccesstokenhere
+npm run generate-graphql-types -- myaccesstokenhere
 ```
 
 To run in watch mode (re-generates on file changes):
 
 ```bash
-npm run generate-graphql-types:watch --token=myaccesstokenhere
+npm run generate-graphql-types:watch -- myaccesstokenhere
 ```
 
-The token is passed as the `Authorization` header when fetching the remote GraphQL schema.
+The token is automatically prefixed with `Bearer` and passed as the `Authorization` header when fetching the remote GraphQL schema.
 
 ## Support & Contributing
 
