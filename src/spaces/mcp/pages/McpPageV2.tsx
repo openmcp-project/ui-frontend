@@ -159,7 +159,7 @@ export default function McpPageV2() {
                     <div className={styles.actionsBar}>
                       <YamlViewButton
                         variant="loader"
-                        workspaceName={mcp?.status?.access?.namespace}
+                        workspaceName={mcp?.metadata?.namespace}
                         resourceType={'managedcontrolplanev2s'}
                         resourceName={controlPlaneName}
                         withoutApiConfig
