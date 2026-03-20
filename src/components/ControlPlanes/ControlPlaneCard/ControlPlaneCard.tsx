@@ -82,7 +82,12 @@ export const ControlPlaneCard = ({
                 />
               </div>
             </FlexBox>
-            <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
+            <FlexBox
+              direction="Row"
+              justifyContent={controlPlane.version === 'v2' ? 'End' : 'SpaceBetween'}
+              alignItems="Center"
+              className={styles.row}
+            >
               {controlPlane.version !== 'v2' && (
                 <ControlPlaneCardMenu
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
