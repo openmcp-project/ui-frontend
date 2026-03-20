@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { useCreateProject as _useCreateProject } from '../../hooks/useCreateProject.ts';
+import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
 
 export function CreateProjectDialogContainer({
   isOpen,
