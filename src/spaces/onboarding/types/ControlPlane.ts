@@ -30,7 +30,7 @@ const AccessSchema = z.object({
 
 const StatusSchema = z.object({
   status: z.string(),
-  phase: z.string(),
+  phase: z.string().optional(),
   conditions: ConditionsSchema,
   access: AccessSchema.nullish(),
 });
