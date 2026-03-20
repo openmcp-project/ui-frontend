@@ -1,10 +1,10 @@
-import { createContext, ReactNode, useContext } from 'react';
-import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
-import { ApiConfigProvider } from '../../components/Shared/k8s';
-import { useApiResource } from '../api/useApiResource.ts';
-import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
-import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { BusyIndicator } from '@ui5/webcomponents-react';
+import { createContext, ReactNode, useContext } from 'react';
+import { ApiConfigProvider } from '../../components/Shared/k8s';
+import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
+import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
+import { GetKubeconfig } from '../api/types/crate/getKubeconfig.ts';
+import { useApiResource } from '../api/useApiResource.ts';
 
 interface Mcp {
   project: string;
@@ -20,6 +20,7 @@ interface Mcp {
 interface Props {
   context: Mcp;
   children?: ReactNode;
+  isV2?: boolean;
 }
 
 export const McpContext = createContext({} as Mcp);
@@ -28,12 +29,12 @@ export const useMcp = () => {
   return useContext(McpContext);
 };
 
-export const McpContextProvider = ({ children, context }: Props) => {
-  const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name));
-
-  const secretNamespace = mcp.data?.status?.access?.namespace;
-  const secretName = mcp.data?.status?.access?.name;
-  const secretKey = mcp.data?.status?.access?.key;
+export const McpContextProvider = ({ children, context, isV2 = false }: Props) => {
+  const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name, isV2));
+  console.log('MCP Context Provider', mcp);
+  const secretNamespace = isV2 ? mcp.data?.metadata?.namespace : mcp.data?.status?.access?.namespace;
+  const secretName = isV2 ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
+  const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
 
   const kubeconfig = useApiResource(GetKubeconfig(secretKey ?? '', secretName ?? '', secretNamespace ?? ''));
 
