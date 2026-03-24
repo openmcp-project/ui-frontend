@@ -227,7 +227,7 @@ export default function McpPageV2() {
                   titleText={t('McpPage.configMapsTitle')}
                   className={styles.section}
                 >
-                  <McpConfigMaps isV2 />
+                  <McpConfigMaps />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
                   <McpSecrets />
