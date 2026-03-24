@@ -27,7 +27,7 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 
 import { useEffect, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
-import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
@@ -202,37 +202,37 @@ export default function McpPageV2() {
               }
               onSelectedSectionChange={handleSectionChange}
             >
-              {/*<ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>*/}
-              {/*<ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>*/}
-              {/*  <ComponentsDashboard*/}
-              {/*    components={mcp.spec?.components}*/}
-              {/*    onInstallButtonClick={onEditComponents}*/}
-              {/*    onNavigateToMcpSection={(sectionId) => {*/}
-              {/*      setTabFromSection(sectionId);*/}
-              {/*    }}*/}
-              {/*  />*/}
-              {/*</ObjectPageSubSection>*/}
-              {/*<ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>*/}
-              {/*  <Graph />*/}
-              {/*</ObjectPageSubSection>*/}
-              {/*<ObjectPageSubSection*/}
-              {/*  id="components"*/}
-              {/*  titleText={t('McpPage.componentsTitle')}*/}
-              {/*  className={styles.section}*/}
-              {/*>*/}
-              {/*  <ComponentList mcp={mcp} onEditClick={onEditComponents} />*/}
-              {/*</ObjectPageSubSection>*/}
-              {/*<ObjectPageSubSection*/}
-              {/*  id="configmaps"*/}
-              {/*  titleText={t('McpPage.configMapsTitle')}*/}
-              {/*  className={styles.section}*/}
-              {/*>*/}
-              {/*  <McpConfigMaps />*/}
-              {/*</ObjectPageSubSection>*/}
-              {/*<ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>*/}
-              {/*  <McpSecrets />*/}
-              {/*</ObjectPageSubSection>*/}
-              {/*</ObjectPageSection>*/}
+              <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
+                <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
+                  <ComponentsDashboard
+                    components={mcp.spec?.components}
+                    onInstallButtonClick={onEditComponents}
+                    onNavigateToMcpSection={(sectionId) => {
+                      setTabFromSection(sectionId);
+                    }}
+                  />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
+                  <Graph />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="components"
+                  titleText={t('McpPage.componentsTitle')}
+                  className={styles.section}
+                >
+                  <ComponentList mcp={mcp} onEditClick={onEditComponents} />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection
+                  id="configmaps"
+                  titleText={t('McpPage.configMapsTitle')}
+                  className={styles.section}
+                >
+                  <McpConfigMaps isV2 />
+                </ObjectPageSubSection>
+                <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
+                  <McpSecrets />
+                </ObjectPageSubSection>
+              </ObjectPageSection>
 
               {isComponentInstalledCrossplane && (
                 <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
