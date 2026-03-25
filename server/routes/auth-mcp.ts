@@ -85,7 +85,10 @@ async function authPlugin(fastify) {
       max: 20,
       timeWindow: '1 minute',
       // @ts-ignore
-      keyGenerator: (req) => req.encryptedSession?.get('onboarding_accessToken') ?? req.ip,
+      keyGenerator: (req) =>
+        req.encryptedSession?.get('mcp_accessToken') ??
+        req.encryptedSession?.get('onboarding_accessToken') ??
+        req.ip,
     },
   };
 
