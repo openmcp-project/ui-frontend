@@ -56,6 +56,7 @@ export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPageV2() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
+  const namespace = `project-${projectName}--ws-${workspaceName}`;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
