@@ -64,8 +64,7 @@ export default function McpPageV2() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
-  const { data, isPending, error: mcpV2error } = useGetMcpV2Query(controlPlaneName, namespace);
-  console.log('MCP V2 data:', data, 'isPending:', isPending, 'error:', mcpV2error);
+  const { data: mcp, isPending: isLoading, error } = useGetMcpV2Query(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
@@ -85,16 +84,16 @@ export default function McpPageV2() {
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
-  const {
-    data: mcp,
-    error,
-    isLoading,
-  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName, true));
+  // TODO: this will be replaced with GraphQL
+  const { data: mcpRestData } = useApiResource(
+    ControlPlaneResource(projectName, workspaceName, controlPlaneName, true),
+  );
 
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);
@@ -116,7 +115,7 @@ export default function McpPageV2() {
     );
   }
 
-  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {
+  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error) || (!isLoading && !mcp)) {
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 
@@ -128,10 +127,9 @@ export default function McpPageV2() {
     );
   }
 
-  const isComponentInstalledCrossplane = !!mcp.spec?.components?.crossplane;
-  const isComponentInstalledFlux = !!mcp.spec?.components?.flux;
-  const isComponentInstalledLandscaper = !!mcp.spec?.components?.landscaper;
-  console.log('MCP:', mcp);
+  const isComponentInstalledCrossplane = !!mcpRestData?.spec?.components?.crossplane;
+  const isComponentInstalledFlux = !!mcpRestData?.spec?.components?.flux;
+  const isComponentInstalledLandscaper = !!mcpRestData?.spec?.components?.landscaper;
   return (
     <McpContextProvider
       context={{
@@ -202,7 +200,7 @@ export default function McpPageV2() {
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboard
-                    components={mcp.spec?.components}
+                    components={mcpRestData?.spec?.components}
                     onInstallButtonClick={onEditComponents}
                     onNavigateToMcpSection={(sectionId) => {
                       setTabFromSection(sectionId);
@@ -217,7 +215,7 @@ export default function McpPageV2() {
                   titleText={t('McpPage.componentsTitle')}
                   className={styles.section}
                 >
-                  <ComponentList mcp={mcp} onEditClick={onEditComponents} />
+                  <ComponentList mcp={mcpRestData} onEditClick={onEditComponents} />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
