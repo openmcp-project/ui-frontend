@@ -62,7 +62,7 @@ if (
 
 const fastify = Fastify({
   logger: true,
-  trustProxy: true,
+  trustProxy: 1,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
