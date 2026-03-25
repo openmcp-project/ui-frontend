@@ -63,11 +63,7 @@ export default function McpPageV2() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
-  const {
-    data,
-    isPending,
-    error: mcpV2error,
-  } = useGetMcpV2Query(controlPlaneName, `${projectName}-ws-${workspaceName}`);
+  const { data, isPending, error: mcpV2error } = useGetMcpV2Query(controlPlaneName, namespace);
   console.log('MCP V2 data:', data, 'isPending:', isPending, 'error:', mcpV2error);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
