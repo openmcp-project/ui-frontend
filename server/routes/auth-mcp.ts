@@ -80,8 +80,17 @@ async function authPlugin(fastify) {
     }
   };
 
+  const authRateLimit = {
+    rateLimit: {
+      max: 20,
+      timeWindow: '1 minute',
+      // @ts-ignore
+      keyGenerator: (req) => req.encryptedSession?.get('onboarding_accessToken') ?? req.ip,
+    },
+  };
+
   // @ts-ignore
-  fastify.get('/auth/mcp/login', async function (req, reply) {
+  fastify.get('/auth/mcp/login', { config: authRateLimit }, async function (req, reply) {
     try {
       const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
@@ -110,7 +119,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-ignore
-  fastify.get('/auth/mcp/callback', async function (req, reply) {
+  fastify.get('/auth/mcp/callback', { config: authRateLimit }, async function (req, reply) {
     const { namespace, mcp: mcpName, idp: idpName } = req.query;
 
     try {
@@ -160,7 +169,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.get('/auth/mcp/me', async function (req, reply) {
+  fastify.get('/auth/mcp/me', { config: authRateLimit }, async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
     const sessionAccessToken = req.encryptedSession.get('mcp_accessToken');
@@ -179,7 +188,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.post('/auth/mcp/refresh', async function (req, reply) {
+  fastify.post('/auth/mcp/refresh', { config: authRateLimit }, async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
     const refreshToken = req.encryptedSession.get('mcp_refreshToken');
