@@ -1,8 +1,8 @@
 import { NetworkStatus, gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
-import { TypedDocumentNode, ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
+import { ResultOf, TypedDocumentNode, VariablesOf } from '@graphql-typed-document-node/core';
 
-import { ControlPlaneType, ControlPlaneStatusType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
+import { ControlPlaneStatusType, ControlPlaneType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 
 type RoleRef = {
   kind?: string | null;
@@ -180,6 +180,15 @@ function parseAccess(accessData: unknown): ControlPlaneStatusType['access'] {
 function mapMcpV2Item(item: McpV2Item): ControlPlaneType | undefined {
   if (!item) return undefined;
   const annotations = item.metadata?.annotations;
+  const defaultProviderRoleBindings =
+    item.spec?.iam?.oidc?.defaultProvider?.roleBindings
+      ?.filter((rb): rb is RoleBinding => rb !== null)
+      .map((rb) => ({
+        role: rb.roleRefs?.find((r) => r !== null)?.name ?? '',
+        subjects: (rb.subjects ?? [])
+          .filter((s): s is Subject => s !== null)
+          .map((s) => ({ kind: s.kind ?? '', name: s.name ?? '' })),
+      })) ?? [];
   return {
     metadata: {
       name: item.metadata?.name ?? '',
@@ -191,7 +200,15 @@ function mapMcpV2Item(item: McpV2Item): ControlPlaneType | undefined {
           : undefined,
     },
     isV2: true,
-    spec: undefined,
+    spec: {
+      authentication: {},
+      iam: {
+        oidc: {
+          defaultProvider:
+            defaultProviderRoleBindings.length > 0 ? { roleBindings: defaultProviderRoleBindings } : null,
+        },
+      },
+    },
     status: item.status
       ? {
           status: (item.status.phase as ReadyStatus) ?? ReadyStatus.NotReady,

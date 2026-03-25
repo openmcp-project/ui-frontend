@@ -33,7 +33,7 @@ export interface ControlPlaneType {
           enableSystemIdentityProvider?: boolean;
         };
         authorization?: Authorization;
-        components: ControlPlaneComponentsType;
+        components?: ControlPlaneComponentsType;
         iam?: {
           oidc?: {
             defaultProvider?: { roleBindings?: (RoleBinding | null)[] | null } | null;
