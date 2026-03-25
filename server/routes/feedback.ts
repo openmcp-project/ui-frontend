@@ -3,6 +3,22 @@ import fetch from 'node-fetch';
 import fp from 'fastify-plugin';
 import * as Sentry from '@sentry/node';
 
+// TODO: After merging PR #466, remove the local @fastify/rate-limit registration
+// that PR #466 adds here (fastify.register(rateLimit, { max: 5, ... })).
+// Instead, use a route-level config override on the POST /feedback route:
+//
+//   fastify.post('/feedback', {
+//     config: {
+//       rateLimit: {
+//         max: 5,
+//         timeWindow: 60_000,
+//         keyGenerator: (req) => req.encryptedSession.get('onboarding_accessToken') ?? req.ip,
+//       },
+//     },
+//   }, async (request, reply) => { ... });
+//
+// The global rate-limit plugin (server/plugins/rate-limit.ts) handles registration.
+
 // @ts-ignore
 async function feedbackRoute(fastify) {
   const { FEEDBACK_SLACK_URL } = fastify.config;
