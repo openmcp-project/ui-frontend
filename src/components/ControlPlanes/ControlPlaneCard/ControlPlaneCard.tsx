@@ -22,6 +22,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -81,7 +82,12 @@ export const ControlPlaneCard = ({
                 />
               </div>
             </FlexBox>
-            <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
+            <FlexBox
+              direction="Row"
+              justifyContent={controlPlane.version === 'v2' ? 'End' : 'SpaceBetween'}
+              alignItems="Center"
+              className={styles.row}
+            >
               {controlPlane.version !== 'v2' && (
                 <ControlPlaneCardMenu
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
@@ -97,7 +103,17 @@ export const ControlPlaneCard = ({
                   resourceName={controlPlane.metadata.name}
                   resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
                 />
-                {controlPlane.version !== 'v2' && (
+                {controlPlane.version === 'v2' ? (
+                  <ConnectButtonV2
+                    disabled={!isConnectButtonEnabled}
+                    controlPlaneName={name}
+                    projectName={projectName}
+                    workspaceName={workspace.metadata.name ?? ''}
+                    namespace={controlPlane.status?.access?.namespace ?? ''}
+                    secretName={controlPlane.status?.access?.name ?? ''}
+                    secretKey={controlPlane.status?.access?.key ?? ''}
+                  />
+                ) : (
                   <ConnectButton
                     disabled={!isConnectButtonEnabled}
                     controlPlaneName={name}

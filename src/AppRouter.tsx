@@ -1,13 +1,14 @@
-import { HashRouter as Router, Navigate, Route } from 'react-router-dom';
-import ProjectListView from './views/ProjectList';
+import { Navigate, Route, HashRouter as Router } from 'react-router-dom';
 import GlobalProviderOutlet from './components/Core/ApiConfigWrapper.tsx';
 import { ShellBarComponent } from './components/Core/ShellBar.tsx';
-import { SentryRoutes } from './mount.ts';
-import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
-import McpPage from './spaces/mcp/pages/McpPage.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
+import { SentryRoutes } from './mount.ts';
+import McpPage from './spaces/mcp/pages/McpPage.tsx';
+import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
+import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
+import ProjectListView from './views/ProjectList';
 
 function AppRouter() {
   return (
@@ -29,6 +30,10 @@ function AppRouter() {
               <Route path="/mcp" element={<GlobalProviderOutlet />}>
                 <Route path="projects" element={<ProjectListView />} />
                 <Route path="projects/:projectName" element={<ProjectPage />} />
+                <Route
+                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+                  element={<McpPageV2 />}
+                />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
                   element={<McpPage />}
