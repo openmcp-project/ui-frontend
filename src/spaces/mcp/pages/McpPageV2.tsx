@@ -12,7 +12,7 @@ import {
 import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
-// thorws error sometimes if not imported
+// throws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
