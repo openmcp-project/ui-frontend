@@ -31,7 +31,6 @@ export const useMcp = () => {
 
 export const McpContextProvider = ({ children, context, isV2 = false }: Props) => {
   const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name, isV2));
-  console.log('MCP Context Provider', mcp);
   const secretNamespace = isV2 ? mcp.data?.metadata?.namespace : mcp.data?.status?.access?.namespace;
   const secretName = isV2 ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
   const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
