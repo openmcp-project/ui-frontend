@@ -9,11 +9,6 @@ interface ConnectButtonProps {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
-  secretName: string;
-  namespace: string;
-  secretKey: string;
-  disabled?: boolean;
-  useApiResource?: typeof _useApiResource;
   useNavigate?: typeof _useNavigate;
 }
 
