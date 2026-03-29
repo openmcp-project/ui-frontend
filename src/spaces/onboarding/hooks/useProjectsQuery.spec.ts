@@ -102,4 +102,20 @@ describe('useProjectsQuery', () => {
 
     expect(mutateMock).toHaveBeenCalledTimes(2);
   });
+
+  it('handles mutation errors and exposes local error state', async () => {
+    mutateMock.mockRejectedValue(new Error('Failed to fetch projects from API'));
+
+    const { result } = renderHook(() => useProjectsQuery());
+
+    await waitFor(() => {
+      expect(result.current.error?.message).toBe('Failed to fetch projects from API');
+    });
+
+    await act(async () => {
+      await expect(result.current.refetch()).resolves.toEqual([]);
+    });
+
+    expect(result.current.error?.message).toBe('Failed to fetch projects from API');
+  });
 });

@@ -3,10 +3,12 @@ import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { useMutation } from '@apollo/client/react';
 import { useDeleteWorkspace } from './useDeleteWorkspace';
 
+const toastShowMock = vi.fn();
+
 // Mock toast and translation
 vi.mock('../../../context/ToastContext', () => ({
   useToast: () => ({
-    show: vi.fn(),
+    show: toastShowMock,
   }),
 }));
 
@@ -54,7 +56,7 @@ describe('useDeleteWorkspace', () => {
     });
   });
 
-  it('should throw error on API failure', async () => {
+  it('should show toast on API failure without throwing', async () => {
     // ARRANGE
     mutateMock.mockRejectedValue(new Error('API Error'));
 
@@ -64,11 +66,13 @@ describe('useDeleteWorkspace', () => {
 
     // ASSERT
     await act(async () => {
-      await expect(deleteWorkspace()).rejects.toThrow('API Error');
+      await expect(deleteWorkspace()).resolves.toBeUndefined();
     });
+
+    expect(toastShowMock).toHaveBeenCalledWith('API Error');
   });
 
-  it('should throw error on network failure', async () => {
+  it('should show toast on network failure without throwing', async () => {
     // ARRANGE
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
@@ -78,8 +82,10 @@ describe('useDeleteWorkspace', () => {
 
     // ASSERT
     await act(async () => {
-      await expect(deleteWorkspace()).rejects.toThrow('Network error');
+      await expect(deleteWorkspace()).resolves.toBeUndefined();
     });
+
+    expect(toastShowMock).toHaveBeenCalledWith('Network error');
     expect(mutateMock).toHaveBeenCalledTimes(1);
   });
 });

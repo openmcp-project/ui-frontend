@@ -30,7 +30,6 @@ export function useDeleteProject(projectName: string) {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       toast.show(message);
-      throw new Error(message);
     }
   }, [deleteProjectMutation, projectName, toast, t]);
 

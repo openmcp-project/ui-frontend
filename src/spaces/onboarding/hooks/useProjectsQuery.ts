@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
 import { Io_K8s_Api_Authorization_V1_ResourceRulestatusresourceRules as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
+import { useTranslation } from 'react-i18next';
 
-const PROJECTS_REFRESH_INTERVAL_MS = 60_000;
+const PROJECTS_REFRESH_INTERVAL_MS = 30_000;
 
 const CreateSelfSubjectRulesReview = graphql(`
   mutation CreateSelfSubjectRulesReview($object: SelfSubjectRulesReviewInput!) {
@@ -46,34 +47,48 @@ function parseProjectNamesFromRules(rules: (ResourceRule | null)[] | null | unde
 
 export function useProjectsQuery() {
   const [data, setData] = useState<string[]>([]);
+  const [localError, setLocalError] = useState<Error | null>(null);
   const [fetchMutation, { loading, error }] = useMutation(CreateSelfSubjectRulesReview);
+  const { t } = useTranslation();
 
   const fetch = useCallback(async () => {
-    const res = await fetchMutation({
-      variables: {
-        object: {
-          apiVersion: 'authorization.k8s.io/v1',
-          kind: 'SelfSubjectRulesReview',
-          metadata: {
-            name: 'projects-access-check',
-          },
-          spec: { namespace: '*' },
-        },
-      },
-    });
-    const status = res.data?.authorization_k8s_io?.v1?.createSelfSubjectRulesReview?.status;
-    if (status?.evaluationError) {
-      console.warn('SelfSubjectRulesReview evaluation error:', status.evaluationError);
-    }
-    if (status?.incomplete) {
-      console.warn('SelfSubjectRulesReview result is incomplete');
-    }
+    try {
+      if (localError) {
+        setLocalError(null);
+      }
 
-    const rules = status?.resourceRules;
-    const names = parseProjectNamesFromRules(rules);
-    setData(names);
-    return names;
-  }, [fetchMutation]);
+      const res = await fetchMutation({
+        variables: {
+          object: {
+            apiVersion: 'authorization.k8s.io/v1',
+            kind: 'SelfSubjectRulesReview',
+            metadata: {
+              name: 'projects-access-check',
+            },
+            spec: { namespace: '*' },
+          },
+        },
+      });
+
+      const status = res.data?.authorization_k8s_io?.v1?.createSelfSubjectRulesReview?.status;
+      if (status?.evaluationError) {
+        console.warn('SelfSubjectRulesReview evaluation error:', status.evaluationError);
+      }
+      if (status?.incomplete) {
+        console.warn('SelfSubjectRulesReview result is incomplete');
+      }
+
+      const rules = status?.resourceRules;
+      const names = parseProjectNamesFromRules(rules);
+      setData(names);
+      return names;
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(t('ProjectsListView.fetchError'));
+      console.error(err);
+      setLocalError(err);
+      return [];
+    }
+  }, [fetchMutation, localError]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -89,5 +104,5 @@ export function useProjectsQuery() {
     };
   }, [fetch]);
 
-  return { data, isLoading: loading, error: error ?? null, refetch: fetch } as const;
+  return { data, isLoading: loading, error: localError ?? error ?? null, refetch: fetch } as const;
 }

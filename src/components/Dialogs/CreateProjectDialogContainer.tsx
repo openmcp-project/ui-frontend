@@ -82,11 +82,9 @@ export function CreateProjectDialogContainer({
       return true;
     } catch (e) {
       console.error(e);
-      if (e instanceof APIError) {
-        if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        }
-      }
+      const message =
+        e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
+      errorDialogRef.current?.showErrorDialog(message);
       return false;
     }
   };

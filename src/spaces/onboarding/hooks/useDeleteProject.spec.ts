@@ -3,9 +3,11 @@ import { useDeleteProject } from './useDeleteProject';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { useMutation } from '@apollo/client/react';
 
+const toastShowMock = vi.fn();
+
 vi.mock('../../../context/ToastContext', () => ({
   useToast: () => ({
-    show: vi.fn(),
+    show: toastShowMock,
   }),
 }));
 
@@ -50,26 +52,30 @@ describe('useDeleteProject', () => {
     });
   });
 
-  it('should throw error on API failure', async () => {
+  it('should show toast on API failure without throwing', async () => {
     mutateMock.mockRejectedValue(new Error('API Error'));
 
     const renderHookResult = renderHook(() => useDeleteProject('test-project'));
     const { deleteProject } = renderHookResult.result.current;
 
     await act(async () => {
-      await expect(deleteProject()).rejects.toThrow('API Error');
+      await expect(deleteProject()).resolves.toBeUndefined();
     });
+
+    expect(toastShowMock).toHaveBeenCalledWith('API Error');
   });
 
-  it('should throw error on network failure', async () => {
+  it('should show toast on network failure without throwing', async () => {
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
     const renderHookResult = renderHook(() => useDeleteProject('test-project'));
     const { deleteProject } = renderHookResult.result.current;
 
     await act(async () => {
-      await expect(deleteProject()).rejects.toThrow('Network error');
+      await expect(deleteProject()).resolves.toBeUndefined();
     });
+
+    expect(toastShowMock).toHaveBeenCalledWith('Network error');
     expect(mutateMock).toHaveBeenCalledTimes(1);
   });
 });
