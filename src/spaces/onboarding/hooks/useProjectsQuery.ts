@@ -53,9 +53,7 @@ export function useProjectsQuery() {
 
   const fetch = useCallback(async () => {
     try {
-      if (localError) {
-        setLocalError(null);
-      }
+      setLocalError((previousError) => (previousError ? null : previousError));
 
       const res = await fetchMutation({
         variables: {
@@ -88,7 +86,7 @@ export function useProjectsQuery() {
       setLocalError(err);
       return [];
     }
-  }, [fetchMutation, localError]);
+  }, [fetchMutation, t]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
