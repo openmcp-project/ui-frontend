@@ -150,7 +150,11 @@ describe('CreateProjectDialogContainer', () => {
     // Dialog should NOT close on failure
     cy.wrap(setIsOpen).should('not.have.been.called');
 
-    // Dialog should still be visible
-    cy.contains('Create').should('be.visible');
+    // Error dialog should be shown
+    cy.contains('Error').should('be.visible');
+    cy.contains('Creation failed').should('be.visible');
+
+    // Create dialog stays mounted
+    cy.get('#name').find('input[id*="inner"]').should('have.value', 'test-project');
   });
 });
