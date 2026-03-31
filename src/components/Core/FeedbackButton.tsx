@@ -15,7 +15,7 @@ import {
 } from '@ui5/webcomponents-react';
 import * as Sentry from '@sentry/react';
 import { Dispatch, RefObject, SetStateAction, useRef, useState } from 'react';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding';
+import { useToast } from '../../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
@@ -30,7 +30,8 @@ export function FeedbackButton() {
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
   const [rating, setRating] = useState(0);
-  const { user } = useAuthOnboarding();
+  const toast = useToast();
+  const { t } = useTranslation();
 
   const onFeedbackClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     feedbackPopoverRef.current!.opener = e.target;
@@ -46,26 +47,30 @@ export function FeedbackButton() {
     const payload = {
       message: feedbackMessage,
       rating: rating.toString(),
-      user: user?.email,
-      environment: window.location.hostname,
     };
     try {
-      await fetch('/api/feedback', {
+      const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        toast.show(data?.message ?? data?.error ?? t('ShellBar.feedbackError'));
+        return;
+      }
+
+      setFeedbackSent(true);
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
           context: 'FeedbackButton',
         },
       });
-      console.log(err);
-    } finally {
-      setFeedbackSent(true);
+      toast.show(t('ShellBar.feedbackError'));
     }
   }
 
@@ -135,6 +140,7 @@ const FeedbackPopover = ({
                 >
                   <TextArea
                     value={feedbackMessage}
+                    maxlength={2000} // keep in sync with server/routes/feedback.ts
                     placeholder={t('ShellBar.feedbackPlaceholder')}
                     rows={5}
                     onInput={onFeedbackMessageChange}
