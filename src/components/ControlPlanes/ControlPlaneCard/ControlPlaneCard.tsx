@@ -105,7 +105,6 @@ export const ControlPlaneCard = ({
                 />
                 {controlPlane.version === 'v2' ? (
                   <ConnectButtonV2
-                    disabled={!isConnectButtonEnabled}
                     controlPlaneName={name}
                     projectName={projectName}
                     workspaceName={workspace.metadata.name ?? ''}
