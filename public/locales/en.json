@@ -228,8 +228,9 @@
   "ProjectsListView": {
     "pageTitle": "Let's get started",
     "title": "Projects",
+    "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
-    "deleteConfirmationDialog": "Project deleted"
+    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {
     "accessError": "Managed Control Plane does not have access information yet",

@@ -1,5 +1,5 @@
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
-import { useDeleteProject } from '../../hooks/useDeleteProject.ts';
+import { useDeleteProject } from '../../spaces/onboarding/hooks/useDeleteProject.ts';
 import '@ui5/webcomponents-cypress-commands';
 
 describe('ProjectsListItemMenu', () => {

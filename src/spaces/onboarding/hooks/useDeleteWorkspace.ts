@@ -31,7 +31,6 @@ export function useDeleteWorkspace(projectNamespace: string, workspaceName: stri
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       toast.show(message);
-      throw new Error(message);
     }
   }, [deleteWorkspaceMutation, projectNamespace, toast, t, workspaceName]);
 
