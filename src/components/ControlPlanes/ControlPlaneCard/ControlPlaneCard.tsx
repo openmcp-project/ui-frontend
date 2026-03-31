@@ -108,9 +108,6 @@ export const ControlPlaneCard = ({
                     controlPlaneName={name}
                     projectName={projectName}
                     workspaceName={workspace.metadata.name ?? ''}
-                    namespace={controlPlane.status?.access?.namespace ?? ''}
-                    secretName={controlPlane.status?.access?.name ?? ''}
-                    secretKey={controlPlane.status?.access?.key ?? ''}
                   />
                 ) : (
                   <ConnectButton
