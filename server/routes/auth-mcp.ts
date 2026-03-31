@@ -126,6 +126,9 @@ async function authPlugin(fastify) {
         stateSessionKey,
       );
 
+      // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
+      await req.encryptedSession.regenerate();
+
       await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
       await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
 

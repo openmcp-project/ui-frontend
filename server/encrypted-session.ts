@@ -4,6 +4,8 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import crypto from 'node:crypto';
 
+const isLocalDev = process.argv.includes('--local-dev');
+
 // name of the request decorator this plugin exposes. Using request.encryptedSession can be used with set, get, clear delete
 // functions and the encryption will then be handled in this plugin.
 export const REQUEST_DECORATOR = 'encryptedSession';
@@ -12,12 +14,17 @@ export const ENCRYPTED_COOKIE_REQUEST_DECORATOR = 'encryptedSessionInternal';
 // name of the request decorator of the session library that is used as underlying store for this library.
 export const UNDERLYING_SESSION_NAME_REQUEST_DECORATOR = 'underlyingSessionNotPerUserEncrypted';
 
-// name of the secure-session cookie that stores the encryption key on user side.
-export const ENCRYPTION_KEY_COOKIE_NAME = 'session-encryption-key';
+// name of the secure-session cookie that stores the encryption key on user side (__Host- prefix in production prevents cookie tossing from subdomains).
+export const ENCRYPTION_KEY_COOKIE_NAME = isLocalDev ? 'session-encryption-key' : '__Host-session-encryption-key';
 // the key used to store the encryption key in the secure-session cookie on user side.
 export const ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY = 'encryptionKey';
-// name of the cookie that stores the session identifier on user side.
-export const SESSION_COOKIE_NAME = 'session';
+// name of the cookie that stores the session identifier on user side (__Host- prefix in production prevents cookie tossing from subdomains).
+export const SESSION_COOKIE_NAME = isLocalDev ? 'session' : '__Host-session';
+
+// Cookie attributes must match between set and clear — exported for logout cookie clearing
+export const COOKIE_OPTIONS = isLocalDev
+  ? { path: '/', httpOnly: true, sameSite: 'Lax', secure: false }
+  : { path: '/', httpOnly: true, sameSite: 'None', partitioned: true, secure: true };
 
 // @ts-ignore
 async function encryptedSession(fastify) {
@@ -25,28 +32,7 @@ async function encryptedSession(fastify) {
 
   await fastify.register(fastifyCookie);
 
-  const isLocalDev = process.argv.includes('--local-dev');
-
-  // For local development, use simpler cookie settings that work reliably over HTTP.
-  const localDevCookieOptions = {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'Lax',
-    secure: false,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  };
-
-  // For production/embedded, use strict settings for cross-site cookie support
-  const productionCookieOptions = {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'None',
-    partitioned: true,
-    secure: true,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  };
-
-  const cookieOptions = isLocalDev ? localDevCookieOptions : productionCookieOptions;
+  const cookieOptions = { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 24 }; // 24 hours
 
   fastify.register(secureSession, {
     secret: Buffer.from(COOKIE_SECRET, 'hex'),
@@ -83,12 +69,13 @@ function createStore(request) {
   }
 
   const loadedEncryptionKey = Buffer.from(userEncryptionKey, 'base64');
+  let currentEncryptionKey = loadedEncryptionKey;
   const encryptedStore = request.session.get('encryptedStore');
   if (encryptedStore) {
     try {
       const { cipherText, iv, tag } = encryptedStore;
 
-      const decryptedCypherText = decryptSymetric(cipherText, iv, tag, loadedEncryptionKey);
+      const decryptedCypherText = decryptSymetric(cipherText, iv, tag, currentEncryptionKey);
       const decryptedStore = JSON.parse(decryptedCypherText);
       unencryptedStore = decryptedStore;
     } catch (error) {
@@ -101,7 +88,7 @@ function createStore(request) {
 
   async function save() {
     const stringifiedData = JSON.stringify(unencryptedStore);
-    const { cipherText, iv, tag } = encryptSymetric(stringifiedData, loadedEncryptionKey);
+    const { cipherText, iv, tag } = encryptSymetric(stringifiedData, currentEncryptionKey);
 
     request.session.set('encryptedStore', {
       cipherText,
@@ -132,6 +119,22 @@ function createStore(request) {
     },
     async clear() {
       unencryptedStore = {}; // Clear all data
+      await save();
+    },
+    async regenerate() {
+      const preservedStore = { ...unencryptedStore };
+
+      // New session ID
+      await request.session.regenerate();
+
+      // New encryption key
+      const newKey = generateSecureEncryptionKey();
+      userEncryptionKey = newKey.toString('base64');
+      currentEncryptionKey = Buffer.from(userEncryptionKey, 'base64');
+      setUserEncryptionKeyIntoUserCookie(request, newKey);
+
+      // Re-encrypt preserved data into new session
+      unencryptedStore = preservedStore;
       await save();
     },
   };
