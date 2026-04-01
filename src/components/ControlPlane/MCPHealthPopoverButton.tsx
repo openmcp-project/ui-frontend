@@ -56,7 +56,7 @@ const MCPHealthPopoverButton = ({
     switch (mcpStatus?.status) {
       case ReadyStatus.Ready:
         return t('MCPHealthPopoverButton.supportTicketTitleReady');
-      case ReadyStatus.NotReady:
+      case ReadyStatus.NotReady || ReadyStatus.Progressing:
         return t('MCPHealthPopoverButton.supportTicketTitleNotReady');
       case ReadyStatus.InDeletion:
         return t('MCPHealthPopoverButton.supportTicketTitleDeletion');
@@ -94,8 +94,8 @@ const MCPHealthPopoverButton = ({
     <div className="component-title-row">
       <AnimatedHoverTextButton
         ref={buttonRef}
-        icon={getIconForOverallStatus(mcpStatus?.status)}
-        text={mcpStatus?.status ?? ''}
+        icon={getIconForOverallStatus(mcpStatus?.status ?? mcpStatus?.phase)}
+        text={mcpStatus?.status ?? mcpStatus?.phase ?? ''}
         large={large}
         onClick={handleOpenerClick}
       />
@@ -125,6 +125,8 @@ const getIconForOverallStatus = (status: string | undefined): JSX.Element => {
     case ReadyStatus.Ready:
       return <Icon className={styles.iconReady} name="sap-icon://sys-enter" />;
     case ReadyStatus.NotReady:
+      return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;
+    case ReadyStatus.Progressing:
       return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;
     case ReadyStatus.InDeletion:
       return <Icon className={styles.iconInDeletion} name="sap-icon://delete" />;
