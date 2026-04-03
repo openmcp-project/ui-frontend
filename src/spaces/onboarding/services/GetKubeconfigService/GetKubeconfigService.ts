@@ -1,10 +1,7 @@
-import { NetworkStatus } from '@apollo/client';
+import { gql, NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 
-import { graphql } from '../../../../types/__generated__/graphql';
-import { GetKubeconfigQuery } from '../../../../types/__generated__/graphql/graphql';
-
-const GET_KUBECONFIG_QUERY = graphql(`
+const GET_KUBECONFIG_QUERY = gql`
   query GetKubeconfig($kubeConfigName: String!, $namespaceName: String) {
     v1 {
       Secret(name: $kubeConfigName, namespace: $namespaceName) {
@@ -12,12 +9,20 @@ const GET_KUBECONFIG_QUERY = graphql(`
       }
     }
   }
-`);
+`;
 
-type KubeconfigData = NonNullable<NonNullable<GetKubeconfigQuery['v1']>['Secret']>['data'];
+type KubeconfigData = Record<string, string> | null | undefined;
+
+interface GetKubeconfigQueryResult {
+  v1?: {
+    Secret?: {
+      data?: KubeconfigData;
+    } | null;
+  } | null;
+}
 
 export function useGetKubeconfig(kubeConfigName?: string, namespaceName?: string) {
-  const queryResult = useQuery(GET_KUBECONFIG_QUERY, {
+  const queryResult = useQuery<GetKubeconfigQueryResult>(GET_KUBECONFIG_QUERY, {
     variables: { kubeConfigName: kubeConfigName ?? '', namespaceName },
     skip: !kubeConfigName || !namespaceName,
     notifyOnNetworkStatusChange: true,

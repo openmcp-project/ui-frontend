@@ -1,9 +1,9 @@
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 
+import { ControlPlaneStatusType, ControlPlaneType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 import { graphql } from '../../../../types/__generated__/graphql';
 import { GetMcPv2Query } from '../../../../types/__generated__/graphql/graphql';
-import { ControlPlaneStatusType, ControlPlaneType, ReadyStatus } from '../../../../lib/api/types/crate/controlPlanes';
 
 const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
