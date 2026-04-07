@@ -9,6 +9,7 @@ import {
 } from '../../../common/auth/AuthCallbackHandler.tsx';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { registerRefreshFn, refreshToken } from './tokenRefresh';
 
 interface AuthContextMcpType {
   isPending: boolean;
@@ -97,7 +98,11 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
-  const refreshSession = useCallback(async () => {
+  const ensureFreshToken = useCallback(async () => {
+    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
+      return true; // Token still valid
+    }
+
     const queryParams = new URLSearchParams();
     if (projectName && workspaceName && controlPlaneName && idpName) {
       // Custom identity provider
@@ -111,19 +116,30 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
       const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
       if (response.ok) {
         await refreshAuthStatus(true);
-      } else {
-        if (response.status === 401) {
-          setIsAuthenticated(false);
-          setTokenExpiry(null);
-        }
+        return true;
       }
+
+      if (response.status === 401) {
+        setIsAuthenticated(false);
+        setTokenExpiry(null);
+      }
+
+      return false;
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('Network error during MCP token refresh'));
-      Sentry.captureException(error, {
-        extra: { context: 'AuthContextMcp:refreshSession' },
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Background token refresh failed',
+        level: 'warning',
+        ...(error instanceof Error && { data: { error: error.message } }),
       });
+      return false;
     }
-  }, [projectName, workspaceName, controlPlaneName, idpName, namespace, refreshAuthStatus]);
+  }, [tokenExpiry, refreshAuthStatus, projectName, workspaceName, controlPlaneName, idpName, namespace]);
+
+  // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
+  useEffect(() => {
+    registerRefreshFn(ensureFreshToken);
+  }, [ensureFreshToken]);
 
   // Effect to manage the refresh timer
   useEffect(() => {
@@ -134,14 +150,14 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     const delay = tokenExpiry - now - REFRESH_BUFFER_MS;
 
     if (delay <= 0) {
-      void refreshSession();
+      void refreshToken();
       return;
     }
 
-    const timerId = setTimeout(refreshSession, delay);
+    const timerId = setTimeout(refreshToken, delay);
 
     return () => clearTimeout(timerId);
-  }, [tokenExpiry, isAuthenticated, refreshSession]);
+  }, [tokenExpiry, isAuthenticated]);
 
   const login = () => {
     sessionStorage.setItem(STORAGE_KEY_AUTH_FLOW, 'mcp');
