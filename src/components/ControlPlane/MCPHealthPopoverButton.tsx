@@ -56,7 +56,9 @@ const MCPHealthPopoverButton = ({
     switch (mcpStatus?.status) {
       case ReadyStatus.Ready:
         return t('MCPHealthPopoverButton.supportTicketTitleReady');
-      case ReadyStatus.NotReady || ReadyStatus.Progressing:
+      case ReadyStatus.NotReady:
+        return t('MCPHealthPopoverButton.supportTicketTitleNotReady');
+      case ReadyStatus.Progressing:
         return t('MCPHealthPopoverButton.supportTicketTitleNotReady');
       case ReadyStatus.InDeletion:
         return t('MCPHealthPopoverButton.supportTicketTitleDeletion');
