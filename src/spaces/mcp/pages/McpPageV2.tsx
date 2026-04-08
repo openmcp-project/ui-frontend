@@ -17,7 +17,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { ControlPlane as ControlPlaneResource, type RoleBinding } from '../../../lib/api/types/crate/controlPlanes.ts';
+import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
@@ -25,7 +25,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -94,6 +94,19 @@ export default function McpPageV2() {
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
 
+  const roleBindings = useMemo(
+    () =>
+      mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings
+        ?.filter((roleBinding) => roleBinding !== null)
+        .map((roleBinding) => ({
+          role: roleBinding.roleRefs?.find((roleRef) => roleRef !== null)?.name ?? '',
+          subjects: (roleBinding.subjects ?? [])
+            .filter((subject) => subject !== null)
+            .map((subject) => ({ kind: subject.kind ?? '', name: subject.name ?? '' })),
+        })),
+    [mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings],
+  );
+
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);
@@ -130,6 +143,7 @@ export default function McpPageV2() {
   const isComponentInstalledCrossplane = !!mcpRestData?.spec?.components?.crossplane;
   const isComponentInstalledFlux = !!mcpRestData?.spec?.components?.flux;
   const isComponentInstalledLandscaper = !!mcpRestData?.spec?.components?.landscaper;
+
   return (
     <McpContextProvider
       context={{
@@ -185,13 +199,7 @@ export default function McpPageV2() {
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView
-                      roleBindings={mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings?.filter(
-                        (rb): rb is RoleBinding => rb !== null,
-                      )}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
+                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
                   </FlexBox>
                 </ObjectPageHeader>
               }

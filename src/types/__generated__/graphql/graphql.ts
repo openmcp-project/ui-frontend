@@ -4906,20 +4906,20 @@ export type Event = {
   __typename?: 'Event';
   action?: Maybe<Scalars['String']['output']>;
   apiVersion?: Maybe<Scalars['String']['output']>;
-  count?: Maybe<Scalars['Int']['output']>;
+  deprecatedCount?: Maybe<Scalars['Int']['output']>;
+  deprecatedFirstTimestamp?: Maybe<Scalars['String']['output']>;
+  deprecatedLastTimestamp?: Maybe<Scalars['String']['output']>;
+  deprecatedSource?: Maybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSource>;
   eventTime?: Maybe<Scalars['String']['output']>;
-  firstTimestamp?: Maybe<Scalars['String']['output']>;
-  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
   kind?: Maybe<Scalars['String']['output']>;
-  lastTimestamp?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  note?: Maybe<Scalars['String']['output']>;
   reason?: Maybe<Scalars['String']['output']>;
+  regarding?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceregarding>;
   related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingComponent?: Maybe<Scalars['String']['output']>;
+  reportingController?: Maybe<Scalars['String']['output']>;
   reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
-  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
+  series?: Maybe<Io_K8s_Api_Events_V1_EventSeriesseries>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
@@ -4932,20 +4932,20 @@ export type EventEvent = {
 export type EventInput = {
   action?: InputMaybe<Scalars['String']['input']>;
   apiVersion?: InputMaybe<Scalars['String']['input']>;
-  count?: InputMaybe<Scalars['Int']['input']>;
+  deprecatedCount?: InputMaybe<Scalars['Int']['input']>;
+  deprecatedFirstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  deprecatedLastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  deprecatedSource?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSourceInput>;
   eventTime?: InputMaybe<Scalars['String']['input']>;
-  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
   kind?: InputMaybe<Scalars['String']['input']>;
-  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  note?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Scalars['String']['input']>;
+  regarding?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceregardingInput>;
   related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingComponent?: InputMaybe<Scalars['String']['input']>;
+  reportingController?: InputMaybe<Scalars['String']['input']>;
   reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
-  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
+  series?: InputMaybe<Io_K8s_Api_Events_V1_EventSeriesseriesInput>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4967,73 +4967,18 @@ export type EventsK8sIoQuery = {
   v1?: Maybe<EventsK8sIoV1Query>;
 };
 
-export type EventsK8sIoV1Event = {
-  __typename?: 'EventsK8sIoV1Event';
-  action?: Maybe<Scalars['String']['output']>;
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  deprecatedCount?: Maybe<Scalars['Int']['output']>;
-  deprecatedFirstTimestamp?: Maybe<Scalars['String']['output']>;
-  deprecatedLastTimestamp?: Maybe<Scalars['String']['output']>;
-  deprecatedSource?: Maybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSource>;
-  eventTime?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  note?: Maybe<Scalars['String']['output']>;
-  reason?: Maybe<Scalars['String']['output']>;
-  regarding?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceregarding>;
-  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingController?: Maybe<Scalars['String']['output']>;
-  reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Events_V1_EventSeriesseries>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type EventsK8sIoV1EventEvent = {
-  __typename?: 'EventsK8sIoV1EventEvent';
-  object?: Maybe<EventsK8sIoV1Event>;
-  type: WatchEventType;
-};
-
-export type EventsK8sIoV1EventInput = {
-  action?: InputMaybe<Scalars['String']['input']>;
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  deprecatedCount?: InputMaybe<Scalars['Int']['input']>;
-  deprecatedFirstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  deprecatedLastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  deprecatedSource?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSourceInput>;
-  eventTime?: InputMaybe<Scalars['String']['input']>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  note?: InputMaybe<Scalars['String']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  regarding?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceregardingInput>;
-  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingController?: InputMaybe<Scalars['String']['input']>;
-  reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Events_V1_EventSeriesseriesInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type EventsK8sIoV1EventList = {
-  __typename?: 'EventsK8sIoV1EventList';
-  continue?: Maybe<Scalars['String']['output']>;
-  items: Array<EventsK8sIoV1Event>;
-  remainingItemCount?: Maybe<Scalars['Int']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-};
-
 export type EventsK8sIoV1Mutation = {
   __typename?: 'EventsK8sIoV1Mutation';
-  createEvent?: Maybe<EventsK8sIoV1Event>;
+  createEvent?: Maybe<Event>;
   deleteEvent?: Maybe<Scalars['Boolean']['output']>;
-  updateEvent?: Maybe<EventsK8sIoV1Event>;
+  updateEvent?: Maybe<Event>;
 };
 
 
 export type EventsK8sIoV1MutationCreateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventsK8sIoV1EventInput;
+  object: EventInput;
 };
 
 
@@ -5048,14 +4993,14 @@ export type EventsK8sIoV1MutationUpdateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventsK8sIoV1EventInput;
+  object: EventInput;
 };
 
 export type EventsK8sIoV1Query = {
   __typename?: 'EventsK8sIoV1Query';
-  Event: EventsK8sIoV1Event;
+  Event: Event;
   EventYaml: Scalars['String']['output'];
-  Events: EventsK8sIoV1EventList;
+  Events: EventList;
 };
 
 
@@ -10428,9 +10373,9 @@ export type Subscription = {
   /** Subscribe to changes of DNSEntry */
   dns_gardener_cloud_v1alpha1_dnsentry?: Maybe<DnsEntryEvent>;
   /** Subscribe to changes of Event */
-  events_k8s_io_v1_event?: Maybe<EventsK8sIoV1EventEvent>;
+  events_k8s_io_v1_event?: Maybe<EventEvent>;
   /** Subscribe to changes of Events */
-  events_k8s_io_v1_events?: Maybe<EventsK8sIoV1EventEvent>;
+  events_k8s_io_v1_events?: Maybe<EventEvent>;
   /** Subscribe to changes of DNSEndpoint */
   externaldns_k8s_io_v1alpha1_dnsendpoint?: Maybe<DnsEndpointEvent>;
   /** Subscribe to changes of DNSEndpoints */
@@ -10552,9 +10497,9 @@ export type Subscription = {
   /** Subscribe to changes of Endpoints */
   v1_endpoints?: Maybe<EndpointsEvent>;
   /** Subscribe to changes of Event */
-  v1_event?: Maybe<EventEvent>;
+  v1_event?: Maybe<V1EventEvent>;
   /** Subscribe to changes of Events */
-  v1_events?: Maybe<EventEvent>;
+  v1_events?: Maybe<V1EventEvent>;
   /** Subscribe to changes of LimitRange */
   v1_limitrange?: Maybe<LimitRangeEvent>;
   /** Subscribe to changes of LimitRanges */
@@ -12668,6 +12613,61 @@ export type UsageOpenmcpCloudV1QueryMcpUsagesArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type V1Event = {
+  __typename?: 'V1Event';
+  action?: Maybe<Scalars['String']['output']>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  count?: Maybe<Scalars['Int']['output']>;
+  eventTime?: Maybe<Scalars['String']['output']>;
+  firstTimestamp?: Maybe<Scalars['String']['output']>;
+  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
+  kind?: Maybe<Scalars['String']['output']>;
+  lastTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  reason?: Maybe<Scalars['String']['output']>;
+  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
+  reportingComponent?: Maybe<Scalars['String']['output']>;
+  reportingInstance?: Maybe<Scalars['String']['output']>;
+  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
+  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type V1EventEvent = {
+  __typename?: 'V1EventEvent';
+  object?: Maybe<V1Event>;
+  type: WatchEventType;
+};
+
+export type V1EventInput = {
+  action?: InputMaybe<Scalars['String']['input']>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  count?: InputMaybe<Scalars['Int']['input']>;
+  eventTime?: InputMaybe<Scalars['String']['input']>;
+  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
+  reportingComponent?: InputMaybe<Scalars['String']['input']>;
+  reportingInstance?: InputMaybe<Scalars['String']['input']>;
+  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
+  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type V1EventList = {
+  __typename?: 'V1EventList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<V1Event>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type V1Mutation = {
   __typename?: 'V1Mutation';
   createAPIGroup?: Maybe<ApiGroup>;
@@ -12677,7 +12677,7 @@ export type V1Mutation = {
   createConfigMap?: Maybe<ConfigMap>;
   createDeleteOptions?: Maybe<DeleteOptions>;
   createEndpoints?: Maybe<Endpoints>;
-  createEvent?: Maybe<Event>;
+  createEvent?: Maybe<V1Event>;
   createLimitRange?: Maybe<LimitRange>;
   createNamespace?: Maybe<Namespace>;
   createNode?: Maybe<Node>;
@@ -12721,7 +12721,7 @@ export type V1Mutation = {
   updateConfigMap?: Maybe<ConfigMap>;
   updateDeleteOptions?: Maybe<DeleteOptions>;
   updateEndpoints?: Maybe<Endpoints>;
-  updateEvent?: Maybe<Event>;
+  updateEvent?: Maybe<V1Event>;
   updateLimitRange?: Maybe<LimitRange>;
   updateNamespace?: Maybe<Namespace>;
   updateNode?: Maybe<Node>;
@@ -12787,7 +12787,7 @@ export type V1MutationCreateEndpointsArgs = {
 export type V1MutationCreateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: V1EventInput;
 };
 
 
@@ -13085,7 +13085,7 @@ export type V1MutationUpdateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: V1EventInput;
 };
 
 
@@ -13215,9 +13215,9 @@ export type V1Query = {
   DeleteOptionsYaml: Scalars['String']['output'];
   Endpoints: Endpoints;
   EndpointsYaml: Scalars['String']['output'];
-  Event: Event;
+  Event: V1Event;
   EventYaml: Scalars['String']['output'];
-  Events: EventList;
+  Events: V1EventList;
   LimitRange: LimitRange;
   LimitRangeYaml: Scalars['String']['output'];
   LimitRanges: LimitRangeList;
