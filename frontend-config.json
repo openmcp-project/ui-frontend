@@ -1,6 +1,7 @@
 {
   "landscape": "LOCAL",
   "documentationBaseUrl": "http://localhost:3000",
+  "githubBaseUrl": "https://github.com",
   "mcp2DocsUrl": "",
   "featureToggles": {
     "markMcpV1asDeprecated": false,

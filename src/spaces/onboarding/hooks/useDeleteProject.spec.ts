@@ -1,11 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
+import { useDeleteProject } from './useDeleteProject';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { useMutation } from '@apollo/client/react';
-import { useDeleteWorkspace } from './useDeleteWorkspace';
 
 const toastShowMock = vi.fn();
 
-// Mock toast and translation
 vi.mock('../../../context/ToastContext', () => ({
   useToast: () => ({
     show: toastShowMock,
@@ -22,7 +21,7 @@ vi.mock('@apollo/client/react', () => ({
   useMutation: vi.fn(),
 }));
 
-describe('useDeleteWorkspace', () => {
+describe('useDeleteProject', () => {
   let mutateMock: Mock;
   const useMutationMock = vi.mocked(useMutation);
 
@@ -35,54 +34,45 @@ describe('useDeleteWorkspace', () => {
     vi.clearAllMocks();
   });
 
-  it('should perform a valid delete workspace request', async () => {
-    // ARRANGE
+  it('should perform a valid delete project request', async () => {
     mutateMock.mockResolvedValue({});
 
-    // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
-    const { deleteWorkspace } = renderHookResult.result.current;
+    const renderHookResult = renderHook(() => useDeleteProject('test-project'));
+    const { deleteProject } = renderHookResult.result.current;
 
     await act(async () => {
-      await deleteWorkspace();
+      await deleteProject();
     });
 
-    // ASSERT
     expect(mutateMock).toHaveBeenCalledTimes(1);
+
     const call = mutateMock.mock.calls[0][0];
     expect(call.variables).toEqual({
-      name: 'test-workspace',
-      namespace: 'test-project--ns',
+      name: 'test-project',
     });
   });
 
   it('should show toast on API failure without throwing', async () => {
-    // ARRANGE
     mutateMock.mockRejectedValue(new Error('API Error'));
 
-    // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
-    const { deleteWorkspace } = renderHookResult.result.current;
+    const renderHookResult = renderHook(() => useDeleteProject('test-project'));
+    const { deleteProject } = renderHookResult.result.current;
 
-    // ASSERT
     await act(async () => {
-      await expect(deleteWorkspace()).resolves.toBeUndefined();
+      await expect(deleteProject()).resolves.toBeUndefined();
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('API Error');
   });
 
   it('should show toast on network failure without throwing', async () => {
-    // ARRANGE
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
-    // ACT
-    const renderHookResult = renderHook(() => useDeleteWorkspace('test-project--ns', 'test-workspace'));
-    const { deleteWorkspace } = renderHookResult.result.current;
+    const renderHookResult = renderHook(() => useDeleteProject('test-project'));
+    const { deleteProject } = renderHookResult.result.current;
 
-    // ASSERT
     await act(async () => {
-      await expect(deleteWorkspace()).resolves.toBeUndefined();
+      await expect(deleteProject()).resolves.toBeUndefined();
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('Network error');

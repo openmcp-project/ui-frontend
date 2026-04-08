@@ -4,8 +4,7 @@ import '@ui5/webcomponents-icons/dist/arrow-right';
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useMemo } from 'react';
-import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { useApiResource } from '../../lib/api/useApiResource';
+import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -20,9 +19,7 @@ type ProjectListRow = {
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
-  const { data, error } = useApiResource(ListProjectNames, {
-    refreshInterval: 3000,
-  });
+  const { data, error } = useProjectsQuery();
   const stabilizedData = useMemo<ProjectListRow[]>(
     () =>
       data?.map((projectName) => {
