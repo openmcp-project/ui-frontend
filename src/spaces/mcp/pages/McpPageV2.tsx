@@ -12,41 +12,41 @@ import {
 import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
-// thorws error sometimes if not imported
+// throws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
-import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
-import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { Providers } from '../../../components/ControlPlane/Providers.tsx';
-import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
-import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
-import Graph from '../../../components/Graphs/Graph.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
-import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useEffect, useState } from 'react';
-import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
-import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
-import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
-import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
+import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
-import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
+import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
+
+import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
+import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
+import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
+import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
+import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
+import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
+import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
+import { Providers } from '../../../components/ControlPlane/Providers.tsx';
+import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
+import Graph from '../../../components/Graphs/Graph.tsx';
+import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
@@ -54,8 +54,9 @@ import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function McpPage() {
+export default function McpPageV2() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
+  const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
@@ -63,7 +64,7 @@ export default function McpPage() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
-
+  const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
@@ -83,16 +84,29 @@ export default function McpPage() {
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
-  const {
-    data: mcp,
-    error,
-    isLoading,
-  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
-  const { markMcpV1asDeprecated } = useFeatureToggle();
+  // TODO: this will be replaced with GraphQL
+  const { data: mcpRestData } = useApiResource(
+    ControlPlaneResource(projectName, workspaceName, controlPlaneName, true),
+  );
+
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
+
+  const roleBindings = useMemo(
+    () =>
+      mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings
+        ?.filter((roleBinding) => roleBinding !== null)
+        .map((roleBinding) => ({
+          role: roleBinding.roleRefs?.find((roleRef) => roleRef !== null)?.name ?? '',
+          subjects: (roleBinding.subjects ?? [])
+            .filter((subject) => subject !== null)
+            .map((subject) => ({ kind: subject.kind ?? '', name: subject.name ?? '' })),
+        })),
+    [mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings],
+  );
+
   const onEditComponents = () => {
     setEditManagedControlPlaneWizardSection('componentSelection');
     setIsEditManagedControlPlaneWizardOpen(true);
@@ -114,7 +128,7 @@ export default function McpPage() {
     );
   }
 
-  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error)) {
+  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error) || (!isLoading && !mcp)) {
     return <NotFoundBanner entityType={t('Entities.ManagedControlPlane')} />;
   }
 
@@ -126,9 +140,9 @@ export default function McpPage() {
     );
   }
 
-  const isComponentInstalledCrossplane = !!mcp?.spec?.components?.crossplane;
-  const isComponentInstalledFlux = !!mcp?.spec?.components?.flux;
-  const isComponentInstalledLandscaper = !!mcp?.spec?.components?.landscaper;
+  const isComponentInstalledCrossplane = !!mcpRestData?.spec?.components?.crossplane;
+  const isComponentInstalledFlux = !!mcpRestData?.spec?.components?.flux;
+  const isComponentInstalledLandscaper = !!mcpRestData?.spec?.components?.landscaper;
 
   return (
     <McpContextProvider
@@ -137,6 +151,7 @@ export default function McpPage() {
         workspace: workspaceName,
         name: controlPlaneName,
       }}
+      isV2
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
@@ -153,15 +168,15 @@ export default function McpPage() {
                     <div className={styles.actionsBar}>
                       <YamlViewButton
                         variant="loader"
-                        workspaceName={mcp?.status?.access?.namespace}
-                        resourceType={'managedcontrolplanes'}
+                        workspaceName={mcp?.metadata?.namespace}
+                        resourceType={'managedcontrolplanev2s'}
                         resourceName={controlPlaneName}
                         withoutApiConfig
                       />
                       <CopyKubeconfigButton />
-                      <ControlPlanePageMenu
-                        setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
-                      />
+                      {/*<ControlPlanePageMenu*/}
+                      {/*  setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}*/}
+                      {/*/>*/}
                       <EditManagedControlPlaneWizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
                         setIsOpen={handleEditManagedControlPlaneWizardClose}
@@ -184,16 +199,7 @@ export default function McpPage() {
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView
-                      roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
-                    {markMcpV1asDeprecated && (
-                      <span className={styles.deprecatedWrapper}>
-                        <DeprecatedLabel />
-                      </span>
-                    )}
+                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
                   </FlexBox>
                 </ObjectPageHeader>
               }
@@ -202,7 +208,7 @@ export default function McpPage() {
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboard
-                    components={mcp.spec?.components}
+                    components={mcpRestData?.spec?.components}
                     onInstallButtonClick={onEditComponents}
                     onNavigateToMcpSection={(sectionId) => {
                       setTabFromSection(sectionId);
@@ -217,7 +223,7 @@ export default function McpPage() {
                   titleText={t('McpPage.componentsTitle')}
                   className={styles.section}
                 >
-                  <ComponentList mcp={mcp} onEditClick={onEditComponents} />
+                  <ComponentList mcp={mcpRestData} onEditClick={onEditComponents} />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
