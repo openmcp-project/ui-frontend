@@ -6,6 +6,8 @@ export const getClassNameForOverallStatus = (status: string | undefined): string
       return 'ready';
     case ReadyStatus.NotReady:
       return 'not-ready';
+    case ReadyStatus.Progressing:
+      return 'not-ready';
     case ReadyStatus.InDeletion:
       return 'deleting';
     default:
