@@ -103,7 +103,7 @@ const MCPHealthPopoverButton = ({
     <div className="component-title-row">
       <AnimatedHoverTextButton
         ref={buttonRef}
-        icon={getIconForOverallStatus(mcpStatus?.status ?? mcpStatus?.phase)}
+        icon={getIconForOverallStatus(mcpStatus?.status ?? mcpStatus?.phase ?? undefined)}
         text={mcpStatus?.status ?? mcpStatus?.phase ?? ''}
         large={large}
         onClick={handleOpenerClick}
@@ -121,7 +121,7 @@ const MCPHealthPopoverButton = ({
         open={open}
         onClose={() => setOpen(false)}
       >
-        <ConditionsMessageListView conditions={mcpStatus?.conditions} />
+        <ConditionsMessageListView conditions={mcpStatus?.conditions ?? undefined} />
       </ResponsivePopover>
     </div>
   );
