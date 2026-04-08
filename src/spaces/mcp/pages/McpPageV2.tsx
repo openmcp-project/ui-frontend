@@ -34,7 +34,7 @@ import { WizardStepType } from '../../../components/Wizards/CreateManagedControl
 import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { useGetMcpV2Query } from '../../onboarding/services/GetMcpService/GetMcpServiceV2.ts';
+import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
 
 import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
@@ -64,7 +64,7 @@ export default function McpPageV2() {
     undefined | WizardStepType
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
-  const { data: mcp, isPending: isLoading, error } = useGetMcpV2Query(controlPlaneName, namespace);
+  const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
