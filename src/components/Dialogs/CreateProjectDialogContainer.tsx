@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { useCreateProject as _useCreateProject } from '../../hooks/useCreateProject.ts';
+import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
 
 export function CreateProjectDialogContainer({
   isOpen,
@@ -82,11 +82,9 @@ export function CreateProjectDialogContainer({
       return true;
     } catch (e) {
       console.error(e);
-      if (e instanceof APIError) {
-        if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        }
-      }
+      const message =
+        e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
+      errorDialogRef.current?.showErrorDialog(message);
       return false;
     }
   };
