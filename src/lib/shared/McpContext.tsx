@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext } from 'react';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useApiResource } from '../api/useApiResource.ts';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
-import { useGetKubeconfig } from '../../spaces/onboarding/services/GetKubeconfigService/GetKubeconfigService.ts';
+import { useGetKubeconfig } from '../../spaces/onboarding/hooks/GetKubeconfigService.ts';
 import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
 import { BusyIndicator } from '@ui5/webcomponents-react';
 interface Mcp {
