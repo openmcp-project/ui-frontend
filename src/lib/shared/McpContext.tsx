@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext } from 'react';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useApiResource } from '../api/useApiResource.ts';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
-import { useGetKubeconfig } from '../../spaces/onboarding/hooks/GetKubeconfigService.ts';
+import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
 import { BusyIndicator } from '@ui5/webcomponents-react';
 interface Mcp {
@@ -34,7 +34,7 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
   const secretName = isV2 ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
   const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
 
-  const kubeconfigQuery = useGetKubeconfig(secretName, secretNamespace);
+  const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace);
   const kubeconfigBase64 = kubeconfigQuery.data?.[secretKey ?? ''];
   const kubeconfigDecoded = kubeconfigBase64 ? atob(kubeconfigBase64) : undefined;
 

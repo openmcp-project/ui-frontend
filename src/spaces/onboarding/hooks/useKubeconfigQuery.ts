@@ -21,7 +21,7 @@ interface GetKubeconfigQueryResult {
   } | null;
 }
 
-export function useGetKubeconfig(kubeConfigName?: string, namespaceName?: string) {
+export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: string) {
   const queryResult = useQuery<GetKubeconfigQueryResult>(GET_KUBECONFIG_QUERY, {
     variables: { kubeConfigName: kubeConfigName ?? '', namespaceName },
     skip: !kubeConfigName || !namespaceName,
