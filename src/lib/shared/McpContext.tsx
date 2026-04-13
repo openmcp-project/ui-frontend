@@ -35,8 +35,6 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
   const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
 
   const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace);
-  const kubeconfigBase64 = kubeconfigQuery.data?.[secretKey ?? ''];
-  const kubeconfigDecoded = kubeconfigBase64 ? atob(kubeconfigBase64) : undefined;
 
   if (mcp.isLoading || mcp.error) {
     return <></>;
@@ -44,6 +42,12 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
   if (kubeconfigQuery.isPending || kubeconfigQuery.error) {
     return <></>;
   }
+  if (!secretKey) {
+    return <></>;
+  }
+
+  const kubeconfigBase64 = kubeconfigQuery.data?.[secretKey];
+  const kubeconfigDecoded = kubeconfigBase64 ? atob(kubeconfigBase64) : undefined;
   context.kubeconfig = kubeconfigDecoded;
   context.roleBindings = mcp.data?.spec?.authorization?.roleBindings;
   return <McpContext.Provider value={context}>{children}</McpContext.Provider>;
