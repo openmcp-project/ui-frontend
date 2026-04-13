@@ -33,7 +33,6 @@ import {
   CreateManagedControlPlane,
   CreateManagedControlPlaneResource,
   CreateManagedControlPlaneType,
-  replaceComponentsName,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
   CHARGING_TARGET_LABEL,
@@ -45,35 +44,19 @@ import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { APIError } from '../../../lib/api/error.ts';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
-import { ComponentsSelectionContainer } from '../../ComponentsSelection/ComponentsSelectionContainer.tsx';
+
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
-import {
-  ManagedControlPlaneInterface,
-  MCPComponentsSpec,
-  MCPCrossplaneComponent,
-  MCPVersionedComponent,
-  MCPSubject,
-} from '../../../lib/api/types/mcpResource.ts';
+import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
 import { stringify } from 'yaml';
-import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
+
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
-
-// Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
-const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
-  const remappedEntries = Object.entries(components).map(([key, value]) => {
-    const mapping = replaceComponentsName.find((m) => m.replaceName === key);
-    const newKey = mapping ? mapping.originalName : key;
-    return [newKey, value] as const;
-  });
-  return Object.fromEntries(remappedEntries) as MCPComponentsSpec;
-};
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -108,7 +91,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   useCreateManagedControlPlane = _useCreateManagedControlPlane,
   useUpdateManagedControlPlane = _useUpdateManagedControlPlane,
   useAuthOnboarding = _useAuthOnboarding,
-  useComponentsQuery = _useComponentsQuery,
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
@@ -355,13 +337,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     [setValue],
   );
 
-  const setComponentsList = useCallback(
-    (components: ComponentsListItem[]) => {
-      setValue('componentsList', components, { shouldValidate: true });
-    },
-    [setValue],
-  );
-
   const isStepDisabled = useCallback(
     (step: WizardStepType) => {
       switch (step) {
@@ -395,33 +370,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       setSelectedStep(wizardStepOrder[currentIndex - 1]);
     }
   }, [selectedStep]);
-
-  // Prepare initial selections for components when editing or duplicating
-  const initialSelection = useMemo(() => {
-    if (!isEditMode && !isDuplicateMode) return undefined;
-
-    const originalComponentsMap: MCPComponentsSpec = initialData?.spec.components ?? {};
-    const componentsMap = remapComponentsKeysToOriginalNames(originalComponentsMap);
-
-    const selection: Record<string, { isSelected: boolean; version: string }> = {};
-    (Object.keys(componentsMap) as (keyof MCPComponentsSpec)[]).forEach((key) => {
-      if (key === 'apiServer') return;
-      const value = componentsMap[key];
-      if (key === 'crossplane') {
-        const crossplane = (value as MCPCrossplaneComponent) ?? {};
-        selection[key as string] = { isSelected: true, version: crossplane.version ?? '' };
-        (crossplane.providers ?? []).forEach((prov) => {
-          selection[prov.name] = { isSelected: true, version: prov.version ?? '' };
-        });
-      } else {
-        const versioned = value as MCPVersionedComponent | undefined;
-        if (versioned) {
-          selection[key as string] = { isSelected: true, version: versioned.version ?? '' };
-        }
-      }
-    });
-    return selection;
-  }, [isEditMode, isDuplicateMode, initialData]);
 
   // Prefill form when editing
   useEffect(() => {
@@ -506,22 +454,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
   }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
-  const {
-    isLoading: componentsLoading,
-    error: componentsError,
-    templateDefaultsError,
-  } = useComponentsSelectionData(
-    selectedTemplate,
-    initialSelection,
-    (name: 'componentsList', value: ComponentsListItem[], options?: { shouldValidate?: boolean }) =>
-      setValue(name, value, options),
-    (components) =>
-      setInitialMcpDataWhenInEditMode((prev) => ({
-        ...prev,
-        componentsList: components,
-      })),
-    useComponentsQuery,
-  );
+
   // Template application for components is handled inside the hook
 
   if (!isOpen) return null;
@@ -620,24 +553,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               </FormGroup>
             </Form>
           </WizardStep>
-          <WizardStep
-            icon="add-product"
-            titleText={t('common.componentSelection')}
-            selected={selectedStep === 'componentSelection'}
-            data-step="componentSelection"
-            disabled={isStepDisabled('componentSelection')}
-          >
-            {/* this condition is to remount the component from scratch to fix a bug with data loading */}
-            {selectedStep === 'componentSelection' && (
-              <ComponentsSelectionContainer
-                componentsList={componentsList ?? []}
-                setComponentsList={setComponentsList}
-                isLoading={componentsLoading}
-                error={componentsError}
-                templateDefaultsError={templateDefaultsError || undefined}
-              />
-            )}
-          </WizardStep>
+
           <WizardStep
             icon="activities"
             titleText={t('common.summarize')}
