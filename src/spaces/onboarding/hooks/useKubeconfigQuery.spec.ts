@@ -19,7 +19,6 @@ const baseQueryResult = {
 } as ReturnType<typeof useQuery>;
 
 const validKubeconfigData = {
-  'ca.crt': 'base64-encoded-ca',
   token: 'base64-encoded-token',
 };
 
