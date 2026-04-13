@@ -10,6 +10,7 @@ import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTe
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  setIsCreateManagedControlPlaneWizardOpenV2: Dispatch<SetStateAction<boolean>>;
   setInitialTemplateName: Dispatch<SetStateAction<string | undefined>>;
 };
 
@@ -17,6 +18,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
   setIsCreateManagedControlPlaneWizardOpen,
   setInitialTemplateName,
+  setIsCreateManagedControlPlaneWizardOpenV2,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
@@ -46,6 +48,9 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
             setInitialTemplateName(undefined);
             setIsCreateManagedControlPlaneWizardOpen(true);
           }
+          if (action === 'newManagedControlPlaneV2') {
+            setIsCreateManagedControlPlaneWizardOpenV2(true);
+          }
           if (action === 'newManagedControlPlaneWithTemplate') {
             const tplName = item.dataset.templateName || undefined;
             setInitialTemplateName(tplName);
@@ -61,6 +66,12 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           key={'add'}
           text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           data-action="newManagedControlPlane"
+          icon="add"
+        />
+        <MenuItem
+          key={'addV2'}
+          text={t('ControlPlaneListToolbar.createNewManagedControlPlaneV2')}
+          data-action="newManagedControlPlaneV2"
           icon="add"
         />
         {allTemplates.map((tpl) => (

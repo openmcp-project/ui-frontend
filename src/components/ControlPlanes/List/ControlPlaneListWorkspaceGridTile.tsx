@@ -22,6 +22,7 @@ import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
 
 interface Props {
   projectName: string;
@@ -37,6 +38,7 @@ export function ControlPlaneListWorkspaceGridTile({
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
+  const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
   const [initialTemplateName, setInitialTemplateName] = useState<string | undefined>(undefined);
   const workspaceName = workspace.metadata.name;
   const workspaceDisplayName = workspace.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] || '';
@@ -138,6 +140,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
                   setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
                   setInitialTemplateName={setInitialTemplateName}
+                  setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 />
               </FlexBox>
             </div>
@@ -203,6 +206,15 @@ export function ControlPlaneListWorkspaceGridTile({
         <CreateManagedControlPlaneWizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpen}
           setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+          projectName={projectNamespace}
+          workspaceName={workspaceName}
+          initialTemplateName={initialTemplateName}
+        />
+      ) : null}
+      {isCreateManagedControlPlaneWizardOpenV2 ? (
+        <CreateManagedControlPlaneV2WizardContainer
+          isOpen={isCreateManagedControlPlaneWizardOpenV2}
+          setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}
           workspaceName={workspaceName}
           initialTemplateName={initialTemplateName}
