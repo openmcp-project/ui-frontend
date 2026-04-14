@@ -9,6 +9,9 @@
     ":disableDependencyDashboard"
   ],
   "prCreation": "not-pending",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "packageRules": [
     {
       "groupName": "@ui5/webcomponents packages",
