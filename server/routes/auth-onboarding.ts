@@ -73,7 +73,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.post('/auth/onboarding/refresh', async function (req, reply) {
+  fastify.post('/auth/onboarding/refresh', { preHandler: fastify.csrfPreHandler }, async function (req, reply) {
     const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
     if (!refreshToken) {
       req.log.error('Missing refresh token; deleting encryptedSession.');
@@ -129,7 +129,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-ignore
-  fastify.post('/auth/logout', async function (req, reply) {
+  fastify.post('/auth/logout', { preHandler: fastify.csrfPreHandler }, async function (req, reply) {
     // TODO: Idp sign out flow
     await req.encryptedSession.clear();
     return reply.send({ message: 'Logged out' });
