@@ -4,7 +4,7 @@ import {
 } from '../lib/api/types/crate/createManagedControlPlane.ts';
 import { useApiResourceMutation } from '../lib/api/useApiResource.ts';
 
-export function useCreateManagedControlPlane(projectName: string, workspaceName: string) {
+export function useCreateManagedControlPlaneV2(projectName: string, workspaceName: string) {
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneV2Resource(projectName, workspaceName),
   );

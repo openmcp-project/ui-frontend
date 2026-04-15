@@ -2,8 +2,8 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
-import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { useForm } from 'react-hook-form';
 
 import {
@@ -13,21 +13,15 @@ import {
   FlexBox,
   Form,
   FormGroup,
+  Text,
   Ui5CustomEvent,
   Wizard,
   WizardDomRef,
   WizardStep,
-  Text,
 } from '@ui5/webcomponents-react';
 
-import { SummarizeStep } from './SummarizeStep.tsx';
 import { Trans, useTranslation } from 'react-i18next';
-import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
-import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
-import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
-import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
+import { APIError } from '../../../lib/api/error.ts';
 import {
   ComponentsListItem,
   CreateManagedControlPlane,
@@ -39,24 +33,31 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames.ts';
-import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
+import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
+import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
-import { APIError } from '../../../lib/api/error.ts';
+import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
+import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
+import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
+import { SummarizeStep } from './SummarizeStep.tsx';
 
-import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
-import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
-import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
-import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
 import { stringify } from 'yaml';
+import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
+import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
+import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
+import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
+import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
-import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
-import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
+import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
+import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -88,7 +89,6 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   initialTemplateName,
   initialData,
   initialSection,
-  useCreateManagedControlPlane = _useCreateManagedControlPlane,
   useUpdateManagedControlPlane = _useUpdateManagedControlPlane,
   useAuthOnboarding = _useAuthOnboarding,
 }) => {
@@ -217,7 +217,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
     CreateManagedControlPlaneResource(projectName, workspaceName),
   );
-  const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
+  const { createMcp } = useCreateManagedControlPlaneV2GraphQL();
   const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
     projectName,
     workspaceName,
@@ -232,9 +232,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const handleCreateManagedControlPlane = useCallback(
     async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
-        const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
-
-        const normalizedType = (chargingTargetType ?? '').trim().toUpperCase();
+        const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
 
         if (isEditMode) {
           await updateManagedControlPlane(
@@ -253,20 +251,19 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             ),
           );
         } else {
-          await createManagedControlPlane(
-            CreateManagedControlPlane(
-              finalName,
-              `${projectName}--ws-${workspaceName}`,
+          await createMcp({
+            name: finalName,
+            namespace: `${projectName}--ws-${workspaceName}`,
+            roleBindings: [
               {
-                displayName: finalDisplayName,
-                chargingTarget,
-                chargingTargetType: normalizedType,
-                members,
-                componentsList,
+                roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
+                subjects: (members ?? []).map((m) => ({
+                  kind: m.kind as 'User' | 'Group' | 'ServiceAccount',
+                  name: m.name,
+                })),
               },
-              idpPrefix,
-            ),
-          );
+            ],
+          });
         }
         setSelectedStep('success');
         return true;
@@ -294,12 +291,6 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
-        setSelectedStep('componentSelection');
-        break;
-      case 'componentSelection':
-        if (hasMissingComponentVersions) {
-          return;
-        }
         setSelectedStep('summarize');
         break;
       case 'summarize':
@@ -311,15 +302,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       default:
         break;
     }
-  }, [
-    selectedStep,
-    handleSubmit,
-    setSelectedStep,
-    handleCreateManagedControlPlane,
-    watch,
-    resetFormAndClose,
-    hasMissingComponentVersions,
-  ]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose]);
 
   const normalizeMemberRole = useCallback((roleInput?: string | null) => {
     const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
