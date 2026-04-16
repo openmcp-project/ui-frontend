@@ -43,7 +43,6 @@ import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
-import { SummarizeStep } from './SummarizeStep.tsx';
 
 import { stringify } from 'yaml';
 import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
@@ -225,16 +224,34 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     initialData?.metadata?.name ?? '',
   );
   const componentsList = watch('componentsList');
+  const name = watch('name');
+  const displayName = watch('displayName');
+  const members = watch('members');
+  const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
+  const rawInput = useMemo(
+    () => ({
+      name: finalName,
+      namespace: `${projectName}--ws-${workspaceName}`,
+      roleBindings: [
+        {
+          roleRefs: [{ kind: 'ClusterRole' as const, name: 'cluster-admin' }],
+          subjects: (members ?? []).map((m) => ({
+            kind: m.kind as 'User' | 'Group' | 'ServiceAccount',
+            name: m.name,
+          })),
+        },
+      ],
+    }),
+    [finalName, projectName, workspaceName, members],
+  );
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
     return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
   }, [componentsList]);
 
   const handleCreateManagedControlPlane = useCallback(
-    async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
+    async ({ displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
       try {
-        const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
-
         if (isEditMode) {
           await updateManagedControlPlane(
             CreateManagedControlPlane(
@@ -252,19 +269,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             ),
           );
         } else {
-          await createMcp({
-            name: finalName,
-            namespace: `${projectName}--ws-${workspaceName}`,
-            roleBindings: [
-              {
-                roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                subjects: (members ?? []).map((m) => ({
-                  kind: m.kind as 'User' | 'Group' | 'ServiceAccount',
-                  name: m.name,
-                })),
-              },
-            ],
-          });
+          await createMcp(rawInput);
         }
         setSelectedStep('success');
         return true;
@@ -547,21 +552,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             data-step="summarize"
           >
             <SummarizeStepV2
-              originalYamlString={stringify(
-                CreateManagedControlPlane(
-                  initialMcpDataWhenInEditMode.name,
-                  `${projectName}--ws-${workspaceName}`,
-                  {
-                    displayName: initialMcpDataWhenInEditMode.displayName,
-                    chargingTarget: initialMcpDataWhenInEditMode.chargingTarget,
-                    members: initialMcpDataWhenInEditMode.members,
-                    componentsList: initialMcpDataWhenInEditMode.componentsList,
-                    chargingTargetType: initialMcpDataWhenInEditMode.chargingTargetType,
-                  },
-                  idpPrefix,
-                  initialData,
-                ),
-              )}
+              originalYamlString={stringify(rawInput)}
               watch={watch}
               workspaceName={workspaceName}
               projectName={projectName}
