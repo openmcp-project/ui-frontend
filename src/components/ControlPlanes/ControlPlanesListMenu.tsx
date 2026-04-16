@@ -70,9 +70,10 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
         />
         <MenuItem
           key={'addV2'}
-          text={t('ControlPlaneListToolbar.createNewManagedControlPlaneV2')}
+          text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           data-action="newManagedControlPlaneV2"
           icon="add"
+          additionalText={t('ControlPlaneListToolbar.V2')}
         />
         {allTemplates.map((tpl) => (
           <MenuItem

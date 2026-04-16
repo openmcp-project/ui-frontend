@@ -1,4 +1,5 @@
 import {
+  FlexBox,
   Form,
   FormGroup,
   Input,
@@ -29,6 +30,7 @@ export interface MetadataFormProps {
   nameSuffix?: string;
   displayNameSuffix?: string;
   isEditMode?: boolean;
+  isV2?: boolean;
 }
 
 interface SelectOption {
@@ -49,6 +51,7 @@ export function MetadataForm({
   displayNamePrefix = '',
   nameSuffix: propNameSuffix = '',
   displayNameSuffix: propDisplayNameSuffix = '',
+  isV2 = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
 
@@ -155,72 +158,80 @@ export function MetadataForm({
             disabled={isEditMode}
           />
         )}
+        {!isV2 && (
+          <FlexBox direction={'Column'}>
+            <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
 
-        <Label for={'displayName'}>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
+            {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (
+              <div className={styles.affixRow}>
+                {resolvedDisplayNamePrefix ? (
+                  <Input
+                    className={styles.input}
+                    id="displayNamePrefix"
+                    value={resolvedDisplayNamePrefix}
+                    disabled
+                    style={{ width: affixWidth(resolvedDisplayNamePrefix) }}
+                  />
+                ) : null}
+                <input type="hidden" {...register('displayName')} value={currentDisplayName} readOnly />
+                <Input
+                  className={styles.input}
+                  id="displayName"
+                  value={displayNameCore}
+                  onInput={onDisplayNameCoreInput}
+                />
+                {resolvedDisplayNameSuffix ? (
+                  <Input
+                    className={styles.input}
+                    id="displayNameSuffix"
+                    value={resolvedDisplayNameSuffix}
+                    disabled
+                    style={{ width: affixWidth(resolvedDisplayNameSuffix) }}
+                  />
+                ) : null}
+              </div>
+            ) : (
+              <Input id="displayName" {...register('displayName')} className={styles.input} />
+            )}
+            <div>
+              <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
+            </div>
 
-        {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (
-          <div className={styles.affixRow}>
-            {resolvedDisplayNamePrefix ? (
-              <Input
+            <div className={styles.wrapper}>
+              <Select
+                value={watch?.('chargingTargetType') ?? ''}
+                id={'chargingTargetType'}
                 className={styles.input}
-                id="displayNamePrefix"
-                value={resolvedDisplayNamePrefix}
-                disabled
-                style={{ width: affixWidth(resolvedDisplayNamePrefix) }}
-              />
-            ) : null}
-            <input type="hidden" {...register('displayName')} value={currentDisplayName} readOnly />
-            <Input className={styles.input} id="displayName" value={displayNameCore} onInput={onDisplayNameCoreInput} />
-            {resolvedDisplayNameSuffix ? (
-              <Input
-                className={styles.input}
-                id="displayNameSuffix"
-                value={resolvedDisplayNameSuffix}
-                disabled
-                style={{ width: affixWidth(resolvedDisplayNameSuffix) }}
-              />
-            ) : null}
-          </div>
-        ) : (
-          <Input id="displayName" {...register('displayName')} className={styles.input} />
-        )}
-        <div>
-          <Label for={'chargingTargetType'}>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
-        </div>
-
-        <div className={styles.wrapper}>
-          <Select
-            value={watch?.('chargingTargetType') ?? ''}
-            id={'chargingTargetType'}
-            className={styles.input}
-            disabled={disableChargingFields}
-            onChange={handleChargingTargetTypeChange}
-          >
-            {chargingTypes.map((option) => (
-              <Option
-                key={option.value}
-                value={option.value}
-                data-value={option.value}
-                selected={currentChargingTargetType === option.value}
+                disabled={disableChargingFields}
+                onChange={handleChargingTargetTypeChange}
               >
-                {option.label}
-              </Option>
-            ))}
-          </Select>
-        </div>
-        <div className={styles.wrapper}>
-          <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
-            {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-          </Label>
-          <Input
-            id="chargingTarget"
-            {...register('chargingTarget')}
-            className={styles.input}
-            valueState={errors.chargingTarget ? 'Negative' : 'None'}
-            valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
-            disabled={disableChargingFields || !watch?.('chargingTargetType')}
-          />
-        </div>
+                {chargingTypes.map((option) => (
+                  <Option
+                    key={option.value}
+                    value={option.value}
+                    data-value={option.value}
+                    selected={currentChargingTargetType === option.value}
+                  >
+                    {option.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            <div className={styles.wrapper}>
+              <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
+                {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+              </Label>
+              <Input
+                id="chargingTarget"
+                {...register('chargingTarget')}
+                className={styles.input}
+                valueState={errors.chargingTarget ? 'Negative' : 'None'}
+                valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
+                disabled={disableChargingFields || !watch?.('chargingTargetType')}
+              />
+            </div>
+          </FlexBox>
+        )}
       </FormGroup>
 
       {sideFormContent ? sideFormContent : null}

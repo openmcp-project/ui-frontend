@@ -58,6 +58,7 @@ import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '.
 import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 
 type CreateManagedControlPlaneWizardContainerProps = {
   isOpen: boolean;
@@ -446,7 +447,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     <>
       <Dialog
         stretch
-        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitle')}
+        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitleV2')}
         open={isOpen}
         initialFocus="project-name-input"
         footer={
@@ -496,6 +497,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
                   displayNamePrefix={templateAffixes.displayNamePrefix}
                   nameSuffix={templateAffixes.nameSuffix}
                   displayNameSuffix={templateAffixes.displayNameSuffix}
+                  isV2
                 />
               </div>
               {isDuplicateMode && (
@@ -544,7 +546,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStep
+            <SummarizeStepV2
               originalYamlString={stringify(
                 CreateManagedControlPlane(
                   initialMcpDataWhenInEditMode.name,
