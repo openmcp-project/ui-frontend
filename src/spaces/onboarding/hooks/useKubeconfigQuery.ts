@@ -20,7 +20,7 @@ const KubeconfigDataSchema = z.record(z.string(), z.string());
 
 type KubeconfigData = z.infer<typeof KubeconfigDataSchema> | undefined;
 
-export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: string) {
+export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: string, secretKey?: string) {
   const queryResult = useQuery(GET_KUBECONFIG_QUERY, {
     variables: { kubeConfigName: kubeConfigName ?? '', namespaceName },
     skip: !kubeConfigName || !namespaceName,
@@ -40,8 +40,15 @@ export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: stri
     return result.data;
   }, [rawData]);
 
+  const kubeconfigDecoded = useMemo<string | undefined>(() => {
+    if (!data || !secretKey) return undefined;
+    const base64 = data[secretKey];
+    return base64 ? atob(base64) : undefined;
+  }, [data, secretKey]);
+
   return {
     data,
+    kubeconfigDecoded,
     error: queryResult.error,
     isPending,
   };

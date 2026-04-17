@@ -125,4 +125,37 @@ describe('useKubeconfigQuery', () => {
 
     expect(result.current.error).toBe(apolloError);
   });
+
+  describe('kubeconfigDecoded', () => {
+    it('returns undefined when secretKey is not provided', () => {
+      useQueryMock.mockReturnValue(makeQueryResult({ kubeconfig: btoa('some-kubeconfig') }));
+
+      const { result } = renderHook(() => useKubeconfigQuery('my-kubeconfig', 'my-namespace'));
+
+      expect(result.current.kubeconfigDecoded).toBeUndefined();
+    });
+
+    it('returns decoded kubeconfig when secretKey matches a key in data', () => {
+      const rawKubeconfig = 'apiVersion: v1\nkind: Config';
+      useQueryMock.mockReturnValue(makeQueryResult({ kubeconfig: btoa(rawKubeconfig) }));
+
+      const { result } = renderHook(() => useKubeconfigQuery('my-kubeconfig', 'my-namespace', 'kubeconfig'));
+
+      expect(result.current.kubeconfigDecoded).toBe(rawKubeconfig);
+    });
+
+    it('returns undefined when secretKey does not match any key in data', () => {
+      useQueryMock.mockReturnValue(makeQueryResult({ kubeconfig: btoa('some-kubeconfig') }));
+
+      const { result } = renderHook(() => useKubeconfigQuery('my-kubeconfig', 'my-namespace', 'nonexistent-key'));
+
+      expect(result.current.kubeconfigDecoded).toBeUndefined();
+    });
+
+    it('returns undefined when data is absent', () => {
+      const { result } = renderHook(() => useKubeconfigQuery('my-kubeconfig', 'my-namespace', 'kubeconfig'));
+
+      expect(result.current.kubeconfigDecoded).toBeUndefined();
+    });
+  });
 });
