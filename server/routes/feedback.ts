@@ -1,5 +1,4 @@
 import fp from 'fastify-plugin';
-import rateLimit from '@fastify/rate-limit';
 import * as Sentry from '@sentry/node';
 
 const VALID_RATINGS = ['1', '2', '3', '4', '5'];
@@ -9,17 +8,17 @@ const MAX_MESSAGE_LENGTH = 2000; // keep in sync with FeedbackButton.tsx
 async function feedbackRoute(fastify) {
   const { FEEDBACK_SLACK_URL } = fastify.config;
 
-  await fastify.register(rateLimit, {
-    max: 5,
-    timeWindow: 60_000,
-    // @ts-ignore
-    keyGenerator: (req) => {
-      return req.encryptedSession.get('onboarding_accessToken') ?? req.ip;
+  fastify.post('/feedback', {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: 60_000,
+        // @ts-ignore
+        keyGenerator: (req) => req.encryptedSession.get('onboarding_accessToken') ?? req.ip,
+      },
     },
-  });
-
   // @ts-ignore
-  fastify.post('/feedback', async (request, reply) => {
+  }, async (request, reply) => {
     const accessToken = request.encryptedSession.get('onboarding_accessToken');
     if (!accessToken) {
       return reply.unauthorized('Authentication required.');
