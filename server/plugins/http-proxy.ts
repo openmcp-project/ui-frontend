@@ -12,7 +12,7 @@ function proxyPlugin(fastify) {
     rewriteRequestHeaders: (req, headers) => {
       const useCrate = req.headers['x-use-crate'];
       const accessToken = useCrate
-        ? req.encryptedSession.get('onboarding_accessToken')
+        ? `Bearer ${req.encryptedSession.get('onboarding_accessToken')}`
         : `${req.encryptedSession.get('onboarding_accessToken')},${req.encryptedSession.get('mcp_accessToken')}`;
 
       // Remove accept-encoding to prevent backend from compressing
