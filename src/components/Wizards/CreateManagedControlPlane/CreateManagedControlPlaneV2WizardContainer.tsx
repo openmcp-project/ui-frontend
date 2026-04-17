@@ -44,7 +44,6 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
-import { stringify } from 'yaml';
 import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
@@ -99,7 +98,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
-  const [initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
+  const [_initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
     name: '',
     displayName: '',
     chargingTarget: '',
@@ -228,22 +227,25 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const displayName = watch('displayName');
   const members = watch('members');
   const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
-  const rawInput = useMemo(
-    () => ({
+  const rawInput = useMemo(() => {
+    const normalizeKind = (kind: string): 'User' | 'Group' | 'ServiceAccount' => {
+      const lower = kind.trim().toLowerCase();
+      if (lower === 'group') return 'Group';
+      if (lower === 'serviceaccount') return 'ServiceAccount';
+      return 'User';
+    };
+    const subjects = (members ?? [])
+      .filter((m) => !!m.name)
+      .map((m) => ({ kind: normalizeKind(m.kind), name: m.name }));
+    const roleBindings = subjects.length
+      ? [{ roleRefs: [{ kind: 'ClusterRole' as const, name: 'cluster-admin' }], subjects }]
+      : [];
+    return {
       name: finalName,
       namespace: `${projectName}--ws-${workspaceName}`,
-      roleBindings: [
-        {
-          roleRefs: [{ kind: 'ClusterRole' as const, name: 'cluster-admin' }],
-          subjects: (members ?? []).map((m) => ({
-            kind: m.kind as 'User' | 'Group' | 'ServiceAccount',
-            name: m.name,
-          })),
-        },
-      ],
-    }),
-    [finalName, projectName, workspaceName, members],
-  );
+      roleBindings,
+    };
+  }, [finalName, projectName, workspaceName, members]);
   const hasMissingComponentVersions = useMemo(() => {
     const list = (componentsList ?? []) as ComponentsListItem[];
     return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
@@ -282,8 +284,18 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
         return false;
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trigger, projectName, workspaceName, componentsList, templateAffixes],
+    [
+      trigger,
+      projectName,
+      workspaceName,
+      componentsList,
+      templateAffixes,
+      isEditMode,
+      updateManagedControlPlane,
+      initialData,
+      createMcp,
+      rawInput,
+    ],
   );
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
@@ -551,15 +563,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2
-              originalYamlString={stringify(rawInput)}
-              watch={watch}
-              workspaceName={workspaceName}
-              projectName={projectName}
-              componentsList={componentsList}
-              isEditMode={isEditMode}
-              initialData={initialData}
-            />
+            <SummarizeStepV2 rawInput={rawInput} />
           </WizardStep>
           <WizardStep
             icon="activities"
