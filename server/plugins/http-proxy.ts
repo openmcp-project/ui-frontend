@@ -33,9 +33,12 @@ function proxyPlugin(fastify) {
   });
 
   if (GRAPHQL_BACKEND_URL) {
+    const graphqlUrl = new URL(GRAPHQL_BACKEND_URL);
+
     fastify.register(httpProxy, {
       prefix: '/graphql',
-      upstream: GRAPHQL_BACKEND_URL,
+      upstream: graphqlUrl.origin,
+      rewritePrefix: graphqlUrl.pathname,
       replyOptions,
     });
   }
