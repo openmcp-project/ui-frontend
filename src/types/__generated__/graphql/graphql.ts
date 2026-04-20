@@ -3088,100 +3088,6 @@ export type CoreOpenmcpCloudQuery = {
   v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Query>;
 };
 
-export type CoreOpenmcpCloudV1alpha1Landscaper = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaper';
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  kind?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  spec?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperspec>;
-  status?: Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatus>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperEvent = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperEvent';
-  object?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
-  type: WatchEventType;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperInput = {
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  spec?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperspecInput>;
-  status?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusInput>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperList = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperList';
-  continue?: Maybe<Scalars['String']['output']>;
-  items: Array<CoreOpenmcpCloudV1alpha1Landscaper>;
-  remainingItemCount?: Maybe<Scalars['Int']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperspec = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperspec';
-  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperspecInput = {
-  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperstatus = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatus';
-  conditions?: Maybe<Array<Maybe<CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions>>>;
-  landscaperDeployment?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment>;
-  observedGenerations?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusInput = {
-  conditions?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput>>>;
-  landscaperDeployment?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput>;
-  observedGenerations?: InputMaybe<CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput>;
-};
-
-export type CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1Landscaperstatusstatusconditions';
-  lastTransitionTime?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  reason?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusconditionsInput = {
-  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeployment';
-  name?: Maybe<Scalars['String']['output']>;
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatuslandscaperDeploymentInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations = {
-  __typename?: 'CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerations';
-  internalConfiguration?: Maybe<Scalars['Int']['output']>;
-  managedControlPlane?: Maybe<Scalars['Int']['output']>;
-  resource?: Maybe<Scalars['Int']['output']>;
-};
-
-export type CoreOpenmcpCloudV1alpha1LandscaperstatusstatusobservedGenerationsInput = {
-  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
-  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
-  resource?: InputMaybe<Scalars['Int']['input']>;
-};
-
 export type CoreOpenmcpCloudV1alpha1Mutation = {
   __typename?: 'CoreOpenmcpCloudV1alpha1Mutation';
   createAPIServer?: Maybe<ApiServer>;
@@ -3190,7 +3096,7 @@ export type CoreOpenmcpCloudV1alpha1Mutation = {
   createCloudOrchestrator?: Maybe<CloudOrchestrator>;
   createClusterAdmin?: Maybe<ClusterAdmin>;
   createInternalConfiguration?: Maybe<InternalConfiguration>;
-  createLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  createLandscaper?: Maybe<Landscaper>;
   createManagedComponent?: Maybe<ManagedComponent>;
   createManagedControlPlane?: Maybe<ManagedControlPlane>;
   createMemberOverrides?: Maybe<MemberOverrides>;
@@ -3216,7 +3122,7 @@ export type CoreOpenmcpCloudV1alpha1Mutation = {
   updateCloudOrchestrator?: Maybe<CloudOrchestrator>;
   updateClusterAdmin?: Maybe<ClusterAdmin>;
   updateInternalConfiguration?: Maybe<InternalConfiguration>;
-  updateLandscaper?: Maybe<CoreOpenmcpCloudV1alpha1Landscaper>;
+  updateLandscaper?: Maybe<Landscaper>;
   updateManagedComponent?: Maybe<ManagedComponent>;
   updateManagedControlPlane?: Maybe<ManagedControlPlane>;
   updateMemberOverrides?: Maybe<MemberOverrides>;
@@ -3271,7 +3177,7 @@ export type CoreOpenmcpCloudV1alpha1MutationCreateInternalConfigurationArgs = {
 export type CoreOpenmcpCloudV1alpha1MutationCreateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+  object: LandscaperInput;
 };
 
 
@@ -3452,7 +3358,7 @@ export type CoreOpenmcpCloudV1alpha1MutationUpdateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV1alpha1LandscaperInput;
+  object: LandscaperInput;
 };
 
 
@@ -3519,9 +3425,9 @@ export type CoreOpenmcpCloudV1alpha1Query = {
   InternalConfiguration: InternalConfiguration;
   InternalConfigurationYaml: Scalars['String']['output'];
   InternalConfigurations: InternalConfigurationList;
-  Landscaper: CoreOpenmcpCloudV1alpha1Landscaper;
+  Landscaper: Landscaper;
   LandscaperYaml: Scalars['String']['output'];
-  Landscapers: CoreOpenmcpCloudV1alpha1LandscaperList;
+  Landscapers: LandscaperList;
   ManagedComponent: ManagedComponent;
   ManagedComponentYaml: Scalars['String']['output'];
   ManagedComponents: ManagedComponentList;
@@ -4906,20 +4812,20 @@ export type Event = {
   __typename?: 'Event';
   action?: Maybe<Scalars['String']['output']>;
   apiVersion?: Maybe<Scalars['String']['output']>;
-  deprecatedCount?: Maybe<Scalars['Int']['output']>;
-  deprecatedFirstTimestamp?: Maybe<Scalars['String']['output']>;
-  deprecatedLastTimestamp?: Maybe<Scalars['String']['output']>;
-  deprecatedSource?: Maybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSource>;
+  count?: Maybe<Scalars['Int']['output']>;
   eventTime?: Maybe<Scalars['String']['output']>;
+  firstTimestamp?: Maybe<Scalars['String']['output']>;
+  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
   kind?: Maybe<Scalars['String']['output']>;
+  lastTimestamp?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  note?: Maybe<Scalars['String']['output']>;
   reason?: Maybe<Scalars['String']['output']>;
-  regarding?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceregarding>;
   related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingController?: Maybe<Scalars['String']['output']>;
+  reportingComponent?: Maybe<Scalars['String']['output']>;
   reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Events_V1_EventSeriesseries>;
+  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
+  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
@@ -4932,20 +4838,20 @@ export type EventEvent = {
 export type EventInput = {
   action?: InputMaybe<Scalars['String']['input']>;
   apiVersion?: InputMaybe<Scalars['String']['input']>;
-  deprecatedCount?: InputMaybe<Scalars['Int']['input']>;
-  deprecatedFirstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  deprecatedLastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  deprecatedSource?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSourceInput>;
+  count?: InputMaybe<Scalars['Int']['input']>;
   eventTime?: InputMaybe<Scalars['String']['input']>;
+  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
   kind?: InputMaybe<Scalars['String']['input']>;
+  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  note?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Scalars['String']['input']>;
-  regarding?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceregardingInput>;
   related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingController?: InputMaybe<Scalars['String']['input']>;
+  reportingComponent?: InputMaybe<Scalars['String']['input']>;
   reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Events_V1_EventSeriesseriesInput>;
+  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
+  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4967,18 +4873,73 @@ export type EventsK8sIoQuery = {
   v1?: Maybe<EventsK8sIoV1Query>;
 };
 
+export type EventsK8sIoV1Event = {
+  __typename?: 'EventsK8sIoV1Event';
+  action?: Maybe<Scalars['String']['output']>;
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  deprecatedCount?: Maybe<Scalars['Int']['output']>;
+  deprecatedFirstTimestamp?: Maybe<Scalars['String']['output']>;
+  deprecatedLastTimestamp?: Maybe<Scalars['String']['output']>;
+  deprecatedSource?: Maybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSource>;
+  eventTime?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  note?: Maybe<Scalars['String']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  regarding?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceregarding>;
+  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
+  reportingController?: Maybe<Scalars['String']['output']>;
+  reportingInstance?: Maybe<Scalars['String']['output']>;
+  series?: Maybe<Io_K8s_Api_Events_V1_EventSeriesseries>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type EventsK8sIoV1EventEvent = {
+  __typename?: 'EventsK8sIoV1EventEvent';
+  object?: Maybe<EventsK8sIoV1Event>;
+  type: WatchEventType;
+};
+
+export type EventsK8sIoV1EventInput = {
+  action?: InputMaybe<Scalars['String']['input']>;
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  deprecatedCount?: InputMaybe<Scalars['Int']['input']>;
+  deprecatedFirstTimestamp?: InputMaybe<Scalars['String']['input']>;
+  deprecatedLastTimestamp?: InputMaybe<Scalars['String']['input']>;
+  deprecatedSource?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcedeprecatedSourceInput>;
+  eventTime?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  regarding?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceregardingInput>;
+  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
+  reportingController?: InputMaybe<Scalars['String']['input']>;
+  reportingInstance?: InputMaybe<Scalars['String']['input']>;
+  series?: InputMaybe<Io_K8s_Api_Events_V1_EventSeriesseriesInput>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EventsK8sIoV1EventList = {
+  __typename?: 'EventsK8sIoV1EventList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<EventsK8sIoV1Event>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
 export type EventsK8sIoV1Mutation = {
   __typename?: 'EventsK8sIoV1Mutation';
-  createEvent?: Maybe<Event>;
+  createEvent?: Maybe<EventsK8sIoV1Event>;
   deleteEvent?: Maybe<Scalars['Boolean']['output']>;
-  updateEvent?: Maybe<Event>;
+  updateEvent?: Maybe<EventsK8sIoV1Event>;
 };
 
 
 export type EventsK8sIoV1MutationCreateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: EventsK8sIoV1EventInput;
 };
 
 
@@ -4993,14 +4954,14 @@ export type EventsK8sIoV1MutationUpdateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: EventInput;
+  object: EventsK8sIoV1EventInput;
 };
 
 export type EventsK8sIoV1Query = {
   __typename?: 'EventsK8sIoV1Query';
-  Event: Event;
+  Event: EventsK8sIoV1Event;
   EventYaml: Scalars['String']['output'];
-  Events: EventList;
+  Events: EventsK8sIoV1EventList;
 };
 
 
@@ -5626,18 +5587,112 @@ export type LandscaperServicesOpenmcpCloudQuery = {
   v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Query>;
 };
 
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
+  spec?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec>;
+  status?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent';
+  object?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  type: WatchEventType;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput = {
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  kind?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
+  spec?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecInput>;
+  status?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusInput>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperList = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperspec';
+  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced>;
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecInput = {
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRefInput>;
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRefInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperspecspecproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatus';
+  conditions?: Maybe<Array<Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions>>>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  phase?: Maybe<Scalars['String']['output']>;
+  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusInput = {
+  conditions?: InputMaybe<Array<InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusconditionsInput>>>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  phase?: InputMaybe<Scalars['String']['input']>;
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRefInput>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaperstatusstatusconditions';
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusconditionsInput = {
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRefInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced = {
+  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperstatusstatusproviderConfigRef_providerConfig_Enhanced';
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type LandscaperServicesOpenmcpCloudV1alpha2Mutation = {
   __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
-  createLandscaper?: Maybe<Landscaper>;
+  createLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
   deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
-  updateLandscaper?: Maybe<Landscaper>;
+  updateLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
 };
 
 
 export type LandscaperServicesOpenmcpCloudV1alpha2MutationCreateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
+  object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput;
 };
 
 
@@ -5652,14 +5707,14 @@ export type LandscaperServicesOpenmcpCloudV1alpha2MutationUpdateLandscaperArgs =
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperInput;
+  object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput;
 };
 
 export type LandscaperServicesOpenmcpCloudV1alpha2Query = {
   __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Query';
-  Landscaper: Landscaper;
+  Landscaper: LandscaperServicesOpenmcpCloudV1alpha2Landscaper;
   LandscaperYaml: Scalars['String']['output'];
-  Landscapers: LandscaperList;
+  Landscapers: LandscaperServicesOpenmcpCloudV1alpha2LandscaperList;
 };
 
 
@@ -5685,44 +5740,30 @@ export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscapersArgs = {
 
 export type Landscaperspec = {
   __typename?: 'Landscaperspec';
-  providerConfigRef?: Maybe<LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced>;
-  version?: Maybe<Scalars['String']['output']>;
+  deployers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
 export type LandscaperspecInput = {
-  providerConfigRef?: InputMaybe<LandscaperspecspecproviderConfigRefInput>;
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LandscaperspecspecproviderConfigRefInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LandscaperspecspecproviderConfigRef_ProviderConfig_Enhanced = {
-  __typename?: 'LandscaperspecspecproviderConfigRef_providerConfig_Enhanced';
-  name?: Maybe<Scalars['String']['output']>;
+  deployers?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
 export type Landscaperstatus = {
   __typename?: 'Landscaperstatus';
   conditions?: Maybe<Array<Maybe<Landscaperstatusstatusconditions>>>;
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
-  phase?: Maybe<Scalars['String']['output']>;
-  providerConfigRef?: Maybe<LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced>;
+  landscaperDeployment?: Maybe<LandscaperstatusstatuslandscaperDeployment>;
+  observedGenerations?: Maybe<LandscaperstatusstatusobservedGenerations>;
 };
 
 export type LandscaperstatusInput = {
   conditions?: InputMaybe<Array<InputMaybe<LandscaperstatusstatusconditionsInput>>>;
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
-  phase?: InputMaybe<Scalars['String']['input']>;
-  providerConfigRef?: InputMaybe<LandscaperstatusstatusproviderConfigRefInput>;
+  landscaperDeployment?: InputMaybe<LandscaperstatusstatuslandscaperDeploymentInput>;
+  observedGenerations?: InputMaybe<LandscaperstatusstatusobservedGenerationsInput>;
 };
 
 export type Landscaperstatusstatusconditions = {
   __typename?: 'Landscaperstatusstatusconditions';
   lastTransitionTime?: Maybe<Scalars['String']['output']>;
   message?: Maybe<Scalars['String']['output']>;
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
   reason?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
@@ -5731,19 +5772,33 @@ export type Landscaperstatusstatusconditions = {
 export type LandscaperstatusstatusconditionsInput = {
   lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
   message?: InputMaybe<Scalars['String']['input']>;
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   reason?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperstatusstatusproviderConfigRefInput = {
-  name?: InputMaybe<Scalars['String']['input']>;
+export type LandscaperstatusstatuslandscaperDeployment = {
+  __typename?: 'LandscaperstatusstatuslandscaperDeployment';
+  name?: Maybe<Scalars['String']['output']>;
+  namespace?: Maybe<Scalars['String']['output']>;
 };
 
-export type LandscaperstatusstatusproviderConfigRef_ProviderConfig_Enhanced = {
-  __typename?: 'LandscaperstatusstatusproviderConfigRef_providerConfig_Enhanced';
-  name?: Maybe<Scalars['String']['output']>;
+export type LandscaperstatusstatuslandscaperDeploymentInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LandscaperstatusstatusobservedGenerations = {
+  __typename?: 'LandscaperstatusstatusobservedGenerations';
+  internalConfiguration?: Maybe<Scalars['Int']['output']>;
+  managedControlPlane?: Maybe<Scalars['Int']['output']>;
+  resource?: Maybe<Scalars['Int']['output']>;
+};
+
+export type LandscaperstatusstatusobservedGenerationsInput = {
+  internalConfiguration?: InputMaybe<Scalars['Int']['input']>;
+  managedControlPlane?: InputMaybe<Scalars['Int']['input']>;
+  resource?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Lease = {
@@ -10327,9 +10382,9 @@ export type Subscription = {
   /** Subscribe to changes of InternalConfigurations */
   core_openmcp_cloud_v1alpha1_internalconfigurations?: Maybe<InternalConfigurationEvent>;
   /** Subscribe to changes of Landscaper */
-  core_openmcp_cloud_v1alpha1_landscaper?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  core_openmcp_cloud_v1alpha1_landscaper?: Maybe<LandscaperEvent>;
   /** Subscribe to changes of Landscapers */
-  core_openmcp_cloud_v1alpha1_landscapers?: Maybe<CoreOpenmcpCloudV1alpha1LandscaperEvent>;
+  core_openmcp_cloud_v1alpha1_landscapers?: Maybe<LandscaperEvent>;
   /** Subscribe to changes of ManagedComponent */
   core_openmcp_cloud_v1alpha1_managedcomponent?: Maybe<ManagedComponentEvent>;
   /** Subscribe to changes of ManagedComponents */
@@ -10373,9 +10428,9 @@ export type Subscription = {
   /** Subscribe to changes of DNSEntry */
   dns_gardener_cloud_v1alpha1_dnsentry?: Maybe<DnsEntryEvent>;
   /** Subscribe to changes of Event */
-  events_k8s_io_v1_event?: Maybe<EventEvent>;
+  events_k8s_io_v1_event?: Maybe<EventsK8sIoV1EventEvent>;
   /** Subscribe to changes of Events */
-  events_k8s_io_v1_events?: Maybe<EventEvent>;
+  events_k8s_io_v1_events?: Maybe<EventsK8sIoV1EventEvent>;
   /** Subscribe to changes of DNSEndpoint */
   externaldns_k8s_io_v1alpha1_dnsendpoint?: Maybe<DnsEndpointEvent>;
   /** Subscribe to changes of DNSEndpoints */
@@ -10401,9 +10456,9 @@ export type Subscription = {
   /** Subscribe to changes of ResourceGraphDefinitions */
   kro_run_v1alpha1_resourcegraphdefinitions?: Maybe<ResourceGraphDefinitionEvent>;
   /** Subscribe to changes of Landscaper */
-  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperEvent>;
+  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Landscapers */
-  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperEvent>;
+  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Ingress */
   networking_k8s_io_v1_ingress?: Maybe<IngressEvent>;
   /** Subscribe to changes of IngressClass */
@@ -10497,9 +10552,9 @@ export type Subscription = {
   /** Subscribe to changes of Endpoints */
   v1_endpoints?: Maybe<EndpointsEvent>;
   /** Subscribe to changes of Event */
-  v1_event?: Maybe<V1EventEvent>;
+  v1_event?: Maybe<EventEvent>;
   /** Subscribe to changes of Events */
-  v1_events?: Maybe<V1EventEvent>;
+  v1_events?: Maybe<EventEvent>;
   /** Subscribe to changes of LimitRange */
   v1_limitrange?: Maybe<LimitRangeEvent>;
   /** Subscribe to changes of LimitRanges */
@@ -12613,61 +12668,6 @@ export type UsageOpenmcpCloudV1QueryMcpUsagesArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type V1Event = {
-  __typename?: 'V1Event';
-  action?: Maybe<Scalars['String']['output']>;
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  count?: Maybe<Scalars['Int']['output']>;
-  eventTime?: Maybe<Scalars['String']['output']>;
-  firstTimestamp?: Maybe<Scalars['String']['output']>;
-  involvedObject?: Maybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObject>;
-  kind?: Maybe<Scalars['String']['output']>;
-  lastTimestamp?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadata>;
-  reason?: Maybe<Scalars['String']['output']>;
-  related?: Maybe<Io_K8s_Api_Core_V1_ObjectReferencerelated>;
-  reportingComponent?: Maybe<Scalars['String']['output']>;
-  reportingInstance?: Maybe<Scalars['String']['output']>;
-  series?: Maybe<Io_K8s_Api_Core_V1_EventSeriesseries>;
-  source?: Maybe<Io_K8s_Api_Core_V1_EventSourcesource>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type V1EventEvent = {
-  __typename?: 'V1EventEvent';
-  object?: Maybe<V1Event>;
-  type: WatchEventType;
-};
-
-export type V1EventInput = {
-  action?: InputMaybe<Scalars['String']['input']>;
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  count?: InputMaybe<Scalars['Int']['input']>;
-  eventTime?: InputMaybe<Scalars['String']['input']>;
-  firstTimestamp?: InputMaybe<Scalars['String']['input']>;
-  involvedObject?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferenceinvolvedObjectInput>;
-  kind?: InputMaybe<Scalars['String']['input']>;
-  lastTimestamp?: InputMaybe<Scalars['String']['input']>;
-  message?: InputMaybe<Scalars['String']['input']>;
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetametadataInput>;
-  reason?: InputMaybe<Scalars['String']['input']>;
-  related?: InputMaybe<Io_K8s_Api_Core_V1_ObjectReferencerelatedInput>;
-  reportingComponent?: InputMaybe<Scalars['String']['input']>;
-  reportingInstance?: InputMaybe<Scalars['String']['input']>;
-  series?: InputMaybe<Io_K8s_Api_Core_V1_EventSeriesseriesInput>;
-  source?: InputMaybe<Io_K8s_Api_Core_V1_EventSourcesourceInput>;
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type V1EventList = {
-  __typename?: 'V1EventList';
-  continue?: Maybe<Scalars['String']['output']>;
-  items: Array<V1Event>;
-  remainingItemCount?: Maybe<Scalars['Int']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-};
-
 export type V1Mutation = {
   __typename?: 'V1Mutation';
   createAPIGroup?: Maybe<ApiGroup>;
@@ -12677,7 +12677,7 @@ export type V1Mutation = {
   createConfigMap?: Maybe<ConfigMap>;
   createDeleteOptions?: Maybe<DeleteOptions>;
   createEndpoints?: Maybe<Endpoints>;
-  createEvent?: Maybe<V1Event>;
+  createEvent?: Maybe<Event>;
   createLimitRange?: Maybe<LimitRange>;
   createNamespace?: Maybe<Namespace>;
   createNode?: Maybe<Node>;
@@ -12721,7 +12721,7 @@ export type V1Mutation = {
   updateConfigMap?: Maybe<ConfigMap>;
   updateDeleteOptions?: Maybe<DeleteOptions>;
   updateEndpoints?: Maybe<Endpoints>;
-  updateEvent?: Maybe<V1Event>;
+  updateEvent?: Maybe<Event>;
   updateLimitRange?: Maybe<LimitRange>;
   updateNamespace?: Maybe<Namespace>;
   updateNode?: Maybe<Node>;
@@ -12787,7 +12787,7 @@ export type V1MutationCreateEndpointsArgs = {
 export type V1MutationCreateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: V1EventInput;
+  object: EventInput;
 };
 
 
@@ -13085,7 +13085,7 @@ export type V1MutationUpdateEventArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: V1EventInput;
+  object: EventInput;
 };
 
 
@@ -13215,9 +13215,9 @@ export type V1Query = {
   DeleteOptionsYaml: Scalars['String']['output'];
   Endpoints: Endpoints;
   EndpointsYaml: Scalars['String']['output'];
-  Event: V1Event;
+  Event: Event;
   EventYaml: Scalars['String']['output'];
-  Events: V1EventList;
+  Events: EventList;
   LimitRange: LimitRange;
   LimitRangeYaml: Scalars['String']['output'];
   LimitRanges: LimitRangeList;
@@ -33035,6 +33035,22 @@ export type DeleteWorkspaceMutationVariables = Exact<{
 
 export type DeleteWorkspaceMutation = { __typename?: 'Mutation', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudMutation', v1alpha1?: { __typename?: 'CoreOpenmcpCloudV1alpha1Mutation', deleteWorkspace?: boolean | null } | null } | null };
 
+export type GetKubeconfigQueryVariables = Exact<{
+  kubeConfigName: Scalars['String']['input'];
+  namespaceName?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetKubeconfigQuery = { __typename?: 'Query', v1?: { __typename?: 'V1Query', Secret: { __typename?: 'Secret', data?: any | null } } | null };
+
+export type GetMcPv2QueryVariables = Exact<{
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetMcPv2Query = { __typename?: 'Query', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudQuery', v2alpha1?: { __typename?: 'CoreOpenmcpCloudV2alpha1Query', ManagedControlPlaneV2: { __typename?: 'ManagedControlPlaneV2', kind?: string | null, metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null, namespace?: string | null, annotations?: any | null, creationTimestamp?: string | null } | null, spec?: { __typename?: 'ManagedControlPlaneV2spec', iam?: { __typename?: 'ManagedControlPlaneV2specspeciam', oidc?: { __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidc', defaultProvider?: { __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProvider', roleBindings?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindings', roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null, subjects?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjects', apiGroup?: string | null, kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null, extraProviders?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProviders', roleBindings?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindings', roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null, subjects?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjects', apiGroup?: string | null, kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null> | null } | null, tokens?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokens', name?: string | null, permissions?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissions', rules?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrules', apiGroups?: Array<string | null> | null, resources?: Array<string | null> | null, verbs?: Array<string | null> | null } | null> | null } | null> | null, roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null } | null, status?: { __typename?: 'ManagedControlPlaneV2status', phase?: string | null, access?: any | null, observedGeneration?: number | null, conditions?: Array<{ __typename?: 'ManagedControlPlaneV2statusstatusconditions', type?: string | null, status?: string | null, reason?: string | null, message?: string | null, lastTransitionTime?: string | null } | null> | null } | null } } | null } | null };
+
 export type GetMcPsListQueryVariables = Exact<{
   workspaceNamespace: Scalars['String']['input'];
 }>;
@@ -33063,21 +33079,14 @@ export type WorkspacesSubscriptionSubscriptionVariables = Exact<{
 
 export type WorkspacesSubscriptionSubscription = { __typename?: 'Subscription', core_openmcp_cloud_v1alpha1_workspaces?: { __typename?: 'WorkspaceEvent', type: WatchEventType } | null };
 
-export type GetMcPv2QueryVariables = Exact<{
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetMcPv2Query = { __typename?: 'Query', core_openmcp_cloud?: { __typename?: 'CoreOpenmcpCloudQuery', v2alpha1?: { __typename?: 'CoreOpenmcpCloudV2alpha1Query', ManagedControlPlaneV2: { __typename?: 'ManagedControlPlaneV2', kind?: string | null, metadata?: { __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetametadata', name?: string | null, namespace?: string | null, annotations?: any | null, creationTimestamp?: string | null } | null, spec?: { __typename?: 'ManagedControlPlaneV2spec', iam?: { __typename?: 'ManagedControlPlaneV2specspeciam', oidc?: { __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidc', defaultProvider?: { __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProvider', roleBindings?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindings', roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingsroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null, subjects?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcdefaultProviderspeciamoidcdefaultProviderroleBindingsspeciamoidcdefaultProviderroleBindingssubjects', apiGroup?: string | null, kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null, extraProviders?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProviders', roleBindings?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindings', roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingsroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null, subjects?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamoidcspeciamoidcextraProvidersspeciamoidcextraProvidersroleBindingsspeciamoidcextraProvidersroleBindingssubjects', apiGroup?: string | null, kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null> | null } | null, tokens?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokens', name?: string | null, permissions?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissions', rules?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokenspermissionsspeciamtokenspermissionsrules', apiGroups?: Array<string | null> | null, resources?: Array<string | null> | null, verbs?: Array<string | null> | null } | null> | null } | null> | null, roleRefs?: Array<{ __typename?: 'ManagedControlPlaneV2specspeciamspeciamtokensspeciamtokensroleRefs', kind?: string | null, name?: string | null, namespace?: string | null } | null> | null } | null> | null } | null } | null, status?: { __typename?: 'ManagedControlPlaneV2status', phase?: string | null, access?: any | null, observedGeneration?: number | null, conditions?: Array<{ __typename?: 'ManagedControlPlaneV2statusstatusconditions', type?: string | null, status?: string | null, reason?: string | null, message?: string | null, lastTransitionTime?: string | null } | null> | null } | null } } | null } | null };
-
 
 export const CreateProjectDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateProject"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"object"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ProjectInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createProject"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"object"},"value":{"kind":"Variable","name":{"kind":"Name","value":"object"}}},{"kind":"Argument","name":{"kind":"Name","value":"dryRun"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateProjectMutation, CreateProjectMutationVariables>;
 export const CreateWorkspaceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWorkspace"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"object"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WorkspaceInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWorkspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}},{"kind":"Argument","name":{"kind":"Name","value":"object"},"value":{"kind":"Variable","name":{"kind":"Name","value":"object"}}},{"kind":"Argument","name":{"kind":"Name","value":"dryRun"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateWorkspaceMutation, CreateWorkspaceMutationVariables>;
 export const DeleteProjectDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteProject"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteProject"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"dryRun"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}}}]}]}}]}}]}}]} as unknown as DocumentNode<DeleteProjectMutation, DeleteProjectMutationVariables>;
 export const DeleteWorkspaceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteWorkspace"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteWorkspace"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}},{"kind":"Argument","name":{"kind":"Name","value":"dryRun"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dryRun"}}}]}]}}]}}]}}]} as unknown as DocumentNode<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>;
+export const GetKubeconfigDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetKubeconfig"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"kubeConfigName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespaceName"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Secret"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"kubeConfigName"}}},{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespaceName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"}}]}}]}}]}}]} as unknown as DocumentNode<GetKubeconfigQuery, GetKubeconfigQueryVariables>;
+export const GetMcPv2Document = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMCPv2"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v2alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ManagedControlPlaneV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}},{"kind":"Field","name":{"kind":"Name","value":"creationTimestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iam"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oidc"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"defaultProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleBindings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroup"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"extraProviders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleBindings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroup"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"tokens"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"permissions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rules"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroups"}},{"kind":"Field","name":{"kind":"Name","value":"resources"}},{"kind":"Field","name":{"kind":"Name","value":"verbs"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"phase"}},{"kind":"Field","name":{"kind":"Name","value":"access"}},{"kind":"Field","name":{"kind":"Name","value":"observedGeneration"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"lastTransitionTime"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetMcPv2Query, GetMcPv2QueryVariables>;
 export const GetMcPsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMCPsList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"workspaceNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ManagedControlPlanes"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"creationTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"lastTransitionTime"}}]}},{"kind":"Field","name":{"kind":"Name","value":"components"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"key"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"v2alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ManagedControlPlaneV2s"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"workspaceNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"creationTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"phase"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"lastTransitionTime"}}]}},{"kind":"Field","name":{"kind":"Name","value":"access"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetMcPsListQuery, GetMcPsListQueryVariables>;
 export const CreateSelfSubjectRulesReviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateSelfSubjectRulesReview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"object"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SelfSubjectRulesReviewInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorization_k8s_io"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createSelfSubjectRulesReview"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"object"},"value":{"kind":"Variable","name":{"kind":"Name","value":"object"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"evaluationError"}},{"kind":"Field","name":{"kind":"Name","value":"incomplete"}},{"kind":"Field","name":{"kind":"Name","value":"resourceRules"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroups"}},{"kind":"Field","name":{"kind":"Name","value":"resources"}},{"kind":"Field","name":{"kind":"Name","value":"verbs"}},{"kind":"Field","name":{"kind":"Name","value":"resourceNames"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateSelfSubjectRulesReviewMutation, CreateSelfSubjectRulesReviewMutationVariables>;
 export const GetWorkspacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWorkspaces"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v1alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectNamespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiVersion"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWorkspacesQuery, GetWorkspacesQueryVariables>;
 export const WorkspacesSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"WorkspacesSubscription"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud_v1alpha1_workspaces"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}}]} as unknown as DocumentNode<WorkspacesSubscriptionSubscription, WorkspacesSubscriptionSubscriptionVariables>;
-export const GetMcPv2Document = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetMCPv2"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"core_openmcp_cloud"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"v2alpha1"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ManagedControlPlaneV2"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"Argument","name":{"kind":"Name","value":"namespace"},"value":{"kind":"Variable","name":{"kind":"Name","value":"namespace"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}},{"kind":"Field","name":{"kind":"Name","value":"annotations"}},{"kind":"Field","name":{"kind":"Name","value":"creationTimestamp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"spec"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iam"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oidc"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"defaultProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleBindings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroup"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"extraProviders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleBindings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroup"}},{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"tokens"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"permissions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rules"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apiGroups"}},{"kind":"Field","name":{"kind":"Name","value":"resources"}},{"kind":"Field","name":{"kind":"Name","value":"verbs"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"roleRefs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"kind"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"namespace"}}]}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"status"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"phase"}},{"kind":"Field","name":{"kind":"Name","value":"access"}},{"kind":"Field","name":{"kind":"Name","value":"observedGeneration"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"lastTransitionTime"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetMcPv2Query, GetMcPv2QueryVariables>;
