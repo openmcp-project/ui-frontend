@@ -1,4 +1,5 @@
 import { Grid, List, ListItemStandard, Title } from '@ui5/webcomponents-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
@@ -15,9 +16,13 @@ interface SummarizeStepProps {
 export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
   const { t } = useTranslation();
 
-  const resource = buildMcpV2GraphQLInput(rawInput);
-  const yamlString = stringify(resource);
-  const { apiGroupName, apiVersion } = parseResourceApiInfo(resource as unknown as Resource);
+  const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
+    const res = buildMcpV2GraphQLInput(rawInput);
+    return {
+      yamlString: stringify(res),
+      ...parseResourceApiInfo(res as unknown as Resource),
+    };
+  }, [rawInput]);
 
   return (
     <div className={styles.wrapper}>
@@ -31,9 +36,18 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
           <br />
           <List headerText={t('common.members')}>
             {rawInput.roleBindings
-              .flatMap((rb) => rb.subjects)
+              .flatMap((rb) =>
+                rb.subjects.map((subject) => ({
+                  ...subject,
+                  role: rb.roleRefs[0]?.name ?? '',
+                })),
+              )
               .map((subject) => (
-                <ListItemStandard key={subject.name} text={subject.name} additionalText={subject.kind} />
+                <ListItemStandard
+                  key={subject.name}
+                  text={subject.name}
+                  additionalText={`${subject.kind} · ${subject.role}`}
+                />
               ))}
           </List>
         </div>

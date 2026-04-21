@@ -22,19 +22,13 @@ import {
 
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
-import {
-  ComponentsListItem,
-  CreateManagedControlPlane,
-  CreateManagedControlPlaneResource,
-  CreateManagedControlPlaneType,
-} from '../../../lib/api/types/crate/createManagedControlPlane.ts';
+import { CreateManagedControlPlane } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames.ts';
-import { MCP_V2_DEFAULT_ROLE, Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
+import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
@@ -49,8 +43,6 @@ import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPr
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
-import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
@@ -58,7 +50,7 @@ import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 
-type CreateManagedControlPlaneWizardContainerProps = {
+type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName?: string;
@@ -68,17 +60,15 @@ type CreateManagedControlPlaneWizardContainerProps = {
   initialTemplateName?: string;
   initialData?: ManagedControlPlaneInterface;
   initialSection?: WizardStepType;
-  useCreateManagedControlPlane?: typeof _useCreateManagedControlPlane;
   useUpdateManagedControlPlane?: typeof _useUpdateManagedControlPlane;
   useAuthOnboarding?: typeof _useAuthOnboarding;
-  useComponentsQuery?: typeof _useComponentsQuery;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
+const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'summarize', 'success'];
 
-export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneWizardContainerProps> = ({
+export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
   setIsOpen,
   projectName = '',
@@ -98,14 +88,6 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const [metadataFormKey, setMetadataFormKey] = useState(0);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
-  const [_initialMcpDataWhenInEditMode, setInitialMcpDataWhenInEditMode] = useState<CreateDialogProps>({
-    name: '',
-    displayName: '',
-    chargingTarget: '',
-    chargingTargetType: '',
-    members: [],
-    componentsList: [],
-  });
   // Here we will use OnboardingAPI to get all available templates
   const templates = useMemo<ManagedControlPlaneTemplate[]>(() => [], []);
 
@@ -186,9 +168,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       summarize: isEditMode ? t('buttons.update') : t('buttons.create'),
       success: t('buttons.close'),
     }),
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t],
+    [t, isEditMode],
   );
 
   const resetFormAndClose = useCallback(() => {
@@ -213,9 +193,6 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     }
   }, [user?.email, isOpen, setValue, clearFormFields]);
 
-  const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    CreateManagedControlPlaneResource(projectName, workspaceName),
-  );
   const { createMcp } = useCreateManagedControlPlaneV2GraphQL();
   const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
     projectName,
@@ -226,8 +203,8 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const name = watch('name');
   const displayName = watch('displayName');
   const members = watch('members');
-  const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
   const rawInput = useMemo(() => {
+    const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const normalizeKind = (kind: string): 'User' | 'Group' | 'ServiceAccount' => {
       const lower = kind.trim().toLowerCase();
       if (lower === 'group') return 'Group';
@@ -251,11 +228,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       namespace: `${projectName}--ws-${workspaceName}`,
       roleBindings,
     };
-  }, [finalName, projectName, workspaceName, members]);
-  const hasMissingComponentVersions = useMemo(() => {
-    const list = (componentsList ?? []) as ComponentsListItem[];
-    return list.some(({ isSelected, selectedVersion }) => isSelected && !selectedVersion);
-  }, [componentsList]);
+  }, [name, displayName, templateAffixes, projectName, workspaceName, members]);
 
   const handleCreateManagedControlPlane = useCallback(
     async ({ displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
@@ -291,11 +264,9 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       }
     },
     [
-      trigger,
       projectName,
       workspaceName,
       componentsList,
-      templateAffixes,
       isEditMode,
       updateManagedControlPlane,
       initialData,
@@ -328,13 +299,8 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     }
   }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose]);
 
-  const normalizeMemberRole = useCallback((roleInput?: string | null) => {
-    const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-    if (normalizedRole === 'admin' || normalizedRole === 'administrator') return MemberRoles.admin;
-    if (normalizedRole === 'viewer' || normalizedRole === 'view' || normalizedRole === 'readonly') {
-      return MemberRoles.view;
-    }
-    return MemberRoles.view;
+  const normalizeMemberRole = useCallback((_roleInput?: string | null): string => {
+    return MCP_V2_DEFAULT_ROLE;
   }, []);
 
   const setMembers = useCallback(
@@ -351,24 +317,15 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
           return false;
         case 'members':
           return (selectedStep === 'metadata' && !isEditMode) || !isValid;
-        case 'componentSelection':
-          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
         case 'summarize':
-          return (
-            ((selectedStep === 'metadata' ||
-              selectedStep === 'members' ||
-              selectedStep === 'componentSelection' ||
-              hasMissingComponentVersions) &&
-              !isEditMode) ||
-            !isValid
-          );
+          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
         case 'success':
           return selectedStep !== 'success';
         default:
           return false;
       }
     },
-    [selectedStep, isValid, hasMissingComponentVersions, isEditMode],
+    [selectedStep, isValid, isEditMode],
   );
 
   const onBackClick = useCallback(() => {
@@ -402,7 +359,6 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       componentsList: componentsList ?? [],
     };
     reset(data);
-    setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode, isDuplicateMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -411,11 +367,9 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   }, []);
 
   const appliedTemplateMembersRef = useRef(false);
-  const appliedTemplateComponentsRef = useRef(false);
 
   useEffect(() => {
     appliedTemplateMembersRef.current = false;
-    appliedTemplateComponentsRef.current = false;
   }, [selectedTemplateValue, isOpen]);
 
   useEffect(() => {
@@ -434,7 +388,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
 
     let merged = currentMembers;
     if (user?.email && !currentMembers.some((m) => m.name === user.email)) {
-      merged = [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }, ...currentMembers];
+      merged = [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }, ...currentMembers];
     }
 
     const mappedFromTemplate: Member[] = templateMembers
@@ -455,7 +409,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       ...m,
       roles: (m.roles ?? []).length
         ? m.roles.map((r) => normalizeMemberRole(r as unknown as string))
-        : [MemberRoles.view],
+        : [MCP_V2_DEFAULT_ROLE],
     }));
 
     setValue('members', normalizedMembers, { shouldValidate: true });
