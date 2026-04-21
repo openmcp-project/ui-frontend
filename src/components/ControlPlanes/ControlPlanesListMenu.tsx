@@ -1,10 +1,11 @@
-import { Button, ButtonDomRef, Menu, MenuItem, Ui5CustomEvent, MenuDomRef } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/accept';
+import '@ui5/webcomponents-icons/dist/copy';
+import { Button, ButtonDomRef, Menu, MenuDomRef, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
-import '@ui5/webcomponents-icons/dist/copy';
-import '@ui5/webcomponents-icons/dist/accept';
 
 import { useTranslation } from 'react-i18next';
+import { useFeatureToggle } from '../../context/FeatureToggleContext.tsx';
 import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTemplate.ts';
 
 type ControlPlanesListMenuProps = {
@@ -24,6 +25,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   const [open, setOpen] = useState(false);
 
   const { t } = useTranslation();
+  const { enableMcpV2 } = useFeatureToggle();
 
   // Here we will pass template list from OnboardingAPI
   const allTemplates: ManagedControlPlaneTemplate[] = [];
@@ -68,13 +70,15 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           data-action="newManagedControlPlane"
           icon="add"
         />
-        <MenuItem
-          key={'addV2'}
-          text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
-          data-action="newManagedControlPlaneV2"
-          icon="add"
-          additionalText={t('ControlPlaneListToolbar.V2')}
-        />
+        {enableMcpV2 && (
+          <MenuItem
+            key={'addV2'}
+            text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+            data-action="newManagedControlPlaneV2"
+            icon="add"
+            additionalText={t('ControlPlaneListToolbar.V2')}
+          />
+        )}
         {allTemplates.map((tpl) => (
           <MenuItem
             key={`tpl-${tpl.metadata.name}`}

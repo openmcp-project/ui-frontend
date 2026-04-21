@@ -87,6 +87,7 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "createNewManagedControlPlane": "Create new Managed Control Plane",
+    "createNewManagedControlPlaneV2": "Create new Managed Control Plane V2",
     "V2": "V2"
   },
   "ControlPlaneListWorkspaceGridTile": {
@@ -375,6 +376,7 @@
     "urlFormat": "Must be a valid HTTPS URL"
   },
   "common": {
+    "or": "or",
     "all": "All",
     "ok": "OK",
     "notOk": "Not OK",

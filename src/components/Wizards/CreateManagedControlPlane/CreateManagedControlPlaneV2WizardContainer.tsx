@@ -33,7 +33,7 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames.ts';
-import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
+import { MCP_V2_DEFAULT_ROLE, Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -41,7 +41,6 @@ import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
-import { EditMembers } from '../../Members/EditMembers.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
@@ -54,6 +53,7 @@ import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useCom
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
@@ -206,7 +206,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
 
   useEffect(() => {
     if (user?.email && isOpen) {
-      setValue('members', [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }]);
+      setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
     }
     if (!isOpen) {
       clearFormFields();
@@ -234,12 +234,18 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       if (lower === 'serviceaccount') return 'ServiceAccount';
       return 'User';
     };
-    const subjects = (members ?? [])
+    const roleMap = new Map<string, { kind: 'User' | 'Group' | 'ServiceAccount'; name: string }[]>();
+    (members ?? [])
       .filter((m) => !!m.name)
-      .map((m) => ({ kind: normalizeKind(m.kind), name: m.name }));
-    const roleBindings = subjects.length
-      ? [{ roleRefs: [{ kind: 'ClusterRole' as const, name: 'cluster-admin' }], subjects }]
-      : [];
+      .forEach((m) => {
+        const roleName = m.roles?.[0] ?? MCP_V2_DEFAULT_ROLE;
+        if (!roleMap.has(roleName)) roleMap.set(roleName, []);
+        roleMap.get(roleName)!.push({ kind: normalizeKind(m.kind), name: m.name });
+      });
+    const roleBindings = Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
+      roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
+      subjects,
+    }));
     return {
       name: finalName,
       namespace: `${projectName}--ws-${workspaceName}`,
@@ -550,6 +556,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
                   workspaceName={workspaceName}
                   projectName={projectName}
                   type={'mcp'}
+                  isV2
                   onMemberChanged={setMembers}
                 />
               </FormGroup>

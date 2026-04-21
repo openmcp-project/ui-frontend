@@ -1,14 +1,14 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import { Activity, FC, useEffect, useMemo } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
-import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
-import styles from './Members.module.css';
-import { RadioButtonsSelect } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
-import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { useLink } from '../../lib/shared/useLink.ts';
+import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
+import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
+import styles from './Members.module.css';
 
 interface AddEditMemberDialogProps {
   open: boolean;
@@ -16,6 +16,8 @@ interface AddEditMemberDialogProps {
   onSave: (member: Member, isEdit: boolean) => void;
   existingMembers: Member[];
   memberToEdit?: Member;
+  roleOptions?: RadioButtonsSelectOption[];
+  defaultRole?: string;
 }
 
 type MemberFormData = {
@@ -31,7 +33,11 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   onSave,
   existingMembers,
   memberToEdit,
+  roleOptions,
+  defaultRole,
 }) => {
+  const effectiveRoleOptions = roleOptions ?? memberRolesOptions;
+  const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
   const { serviceAccoutsGuide } = useLink();
@@ -77,7 +83,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     defaultValues: {
       accountType: 'User',
       name: '',
-      role: MemberRoles.view,
+      role: effectiveDefaultRole,
       namespace: '',
     },
   });
@@ -90,7 +96,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       if (memberToEdit) {
         reset({
           name: memberToEdit.name,
-          role: memberToEdit.roles?.[0] || MemberRoles.view,
+          role: memberToEdit.roles?.[0] || effectiveDefaultRole,
           accountType: memberToEdit.kind === 'User' ? 'User' : 'ServiceAccount',
           namespace: memberToEdit?.namespace || '',
         });
@@ -98,7 +104,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         reset({
           accountType: 'User',
           name: '',
-          role: MemberRoles.view,
+          role: effectiveDefaultRole,
           namespace: '',
         });
       }
@@ -147,14 +153,16 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           />
         </FlexBox>
         <FlexBox alignItems="Stretch" direction={'Column'}>
-          <div className={styles.wrapper}>
-            <RadioButtonsSelect
-              selectedValue={role}
-              options={memberRolesOptions}
-              handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
-              label={t('MemberTable.columnRoleHeader')}
-            />
-          </div>
+          {effectiveRoleOptions.length > 1 && (
+            <div className={styles.wrapper}>
+              <RadioButtonsSelect
+                selectedValue={role}
+                options={effectiveRoleOptions}
+                handleOnClick={(value) => setValue('role', value, { shouldValidate: true })}
+                label={t('MemberTable.columnRoleHeader')}
+              />
+            </div>
+          )}
 
           <div className={styles.placeholder}>
             <Activity mode={accountType === 'ServiceAccount' ? 'visible' : 'hidden'}>

@@ -1,28 +1,29 @@
-import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
-import '@ui5/webcomponents-icons/dist/delete';
-import { CopyButton } from '../../Shared/CopyButton.tsx';
-import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
-import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
-import { useMemo, useState } from 'react';
-import { MembersAvatarView } from './MembersAvatarView.tsx';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
-import IllustratedError from '../../Shared/IllustratedError.tsx';
-import { isForbiddenError } from '../../../lib/api/error.ts';
-import { useTranslation } from 'react-i18next';
-import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
-import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { useLink } from '../../../lib/shared/useLink.ts';
+import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import styles from './WorkspacesList.module.css';
-import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
-import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import '@ui5/webcomponents-icons/dist/delete';
+import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import { isForbiddenError } from '../../../lib/api/error.ts';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
+import { CopyButton } from '../../Shared/CopyButton.tsx';
+import IllustratedError from '../../Shared/IllustratedError.tsx';
+import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
+import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
+import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
+import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
+import { MembersAvatarView } from './MembersAvatarView.tsx';
+import styles from './WorkspacesList.module.css';
 
 interface Props {
   projectName: string;
@@ -46,6 +47,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const projectNamespace = workspace.metadata.namespace;
 
   const { t } = useTranslation();
+  const { enableMcpV2 } = useFeatureToggle();
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
@@ -160,16 +162,30 @@ export function ControlPlaneListWorkspaceGridTile({
                 buttonText: t('IllustratedBanner.helpButton'),
               }}
               button={
-                <Button
-                  className={styles.createButton}
-                  icon={'add'}
-                  design={'Emphasized'}
-                  onClick={() => {
-                    setIsCreateManagedControlPlaneWizardOpen(true);
-                  }}
-                >
-                  {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
-                </Button>
+                <>
+                  <Button
+                    className={styles.createButton}
+                    icon={'add'}
+                    onClick={() => {
+                      setIsCreateManagedControlPlaneWizardOpen(true);
+                    }}
+                  >
+                    {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+                  </Button>
+
+                  {enableMcpV2 && (
+                    <Button
+                      className={styles.createButton}
+                      icon={'add'}
+                      design={'Emphasized'}
+                      onClick={() => {
+                        setIsCreateManagedControlPlaneWizardOpenV2(true);
+                      }}
+                    >
+                      {t('ControlPlaneListToolbar.createNewManagedControlPlaneV2')}
+                    </Button>
+                  )}
+                </>
               }
             />
           ) : (
