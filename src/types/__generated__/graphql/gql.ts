@@ -75,9 +75,6 @@ export function graphql(source: "\n  mutation DeleteProject($name: String!, $dry
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function graphql(source: "\n  mutation DeleteManagedControlPlaneV2($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        deleteManagedControlPlaneV2(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation DeleteManagedControlPlaneV2($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        deleteManagedControlPlaneV2(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
