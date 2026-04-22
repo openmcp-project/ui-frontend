@@ -1,14 +1,15 @@
 import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
-import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
+import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
-import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
-import { Trans, useTranslation } from 'react-i18next';
-import Loading from '../../../components/Shared/Loading.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
-import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
+import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
+import Loading from '../../../components/Shared/Loading.tsx';
+import { Center } from '../../../components/Ui/Center/Center.tsx';
+import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
+import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
 export default function ProjectPage() {
@@ -21,11 +22,19 @@ export default function ProjectPage() {
   }
 
   if (isNotFoundError(error)) {
-    return <NotFoundBanner entityType={t('Entities.Project')} />;
+    return (
+      <Center>
+        <NotFoundBanner entityType={t('Entities.Project')} />
+      </Center>
+    );
   }
 
   if (error || !workspaces || !projectName) {
-    return <IllustratedError details={error?.message} />;
+    return (
+      <Center>
+        <IllustratedError details={error?.message} />
+      </Center>
+    );
   }
 
   return (
