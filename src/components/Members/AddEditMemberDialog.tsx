@@ -109,7 +109,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         });
       }
     }
-  }, [open, memberToEdit, reset]);
+  }, [open, memberToEdit, reset, effectiveDefaultRole]);
 
   const onFormSubmit = (data: MemberFormData) => {
     const trimmedName = data.name.trim();
