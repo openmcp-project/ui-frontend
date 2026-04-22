@@ -17,9 +17,11 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
 
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
+import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
+import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
@@ -29,6 +31,7 @@ interface Props {
   workspace: Workspace;
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
+  useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
 }
 
 type MCPWizardState = {
@@ -40,6 +43,7 @@ export const ControlPlaneCard = ({
   workspace,
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
+  useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -52,6 +56,10 @@ export const ControlPlaneCard = ({
     setManagedControlPlaneWizardState({ isOpen, mode });
   };
   const { deleteManagedControlPlane } = useDeleteManagedControlPlane(
+    controlPlane.metadata.namespace,
+    controlPlane.metadata.name,
+  );
+  const { deleteManagedControlPlaneV2 } = useDeleteManagedControlPlaneV2GraphQL(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
@@ -84,7 +92,7 @@ export const ControlPlaneCard = ({
             </FlexBox>
             <FlexBox
               direction="Row"
-              justifyContent={controlPlane.version === 'v2' ? 'End' : 'SpaceBetween'}
+              justifyContent="SpaceBetween"
               alignItems="Center"
               className={styles.row}
             >
@@ -93,6 +101,12 @@ export const ControlPlaneCard = ({
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                   setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+                />
+              )}
+              {controlPlane.version === 'v2' && (
+                <ControlPlaneCardMenuV2
+                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                 />
               )}
               {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
@@ -125,21 +139,31 @@ export const ControlPlaneCard = ({
           </FlexBox>
         </div>
       </Card>
-      <DeleteConfirmationDialog
-        resourceName={controlPlane.metadata.name}
-        kubectlDialog={({ isOpen, onClose }) => (
-          <KubectlDeleteMcpDialog
-            projectName={projectName}
-            workspaceName={workspace.metadata.name}
-            resourceName={controlPlane.metadata.name}
-            isOpen={isOpen}
-            onClose={onClose}
-          />
-        )}
-        isOpen={dialogDeleteMcpIsOpen}
-        setIsOpen={setDialogDeleteMcpIsOpen}
-        onDeletionConfirmed={deleteManagedControlPlane}
-      />
+      {controlPlane.version !== 'v2' && (
+        <DeleteConfirmationDialog
+          resourceName={controlPlane.metadata.name}
+          kubectlDialog={({ isOpen, onClose }) => (
+            <KubectlDeleteMcpDialog
+              projectName={projectName}
+              workspaceName={workspace.metadata.name}
+              resourceName={controlPlane.metadata.name}
+              isOpen={isOpen}
+              onClose={onClose}
+            />
+          )}
+          isOpen={dialogDeleteMcpIsOpen}
+          setIsOpen={setDialogDeleteMcpIsOpen}
+          onDeletionConfirmed={deleteManagedControlPlane}
+        />
+      )}
+      {controlPlane.version === 'v2' && (
+        <DeleteConfirmationDialog
+          resourceName={controlPlane.metadata.name}
+          isOpen={dialogDeleteMcpIsOpen}
+          setIsOpen={setDialogDeleteMcpIsOpen}
+          onDeletionConfirmed={deleteManagedControlPlaneV2}
+        />
+      )}
       <EditManagedControlPlaneWizardDataLoader
         isOpen={managedControlPlaneWizardState.isOpen}
         setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
