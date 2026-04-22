@@ -169,18 +169,6 @@ export const CreateManagedControlPlaneResource = (projectName: string, workspace
   };
 };
 
-export const CreateManagedControlPlaneV2Resource = (
-  projectName: string,
-  workspaceName: string,
-): Resource<undefined> => {
-  return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/namespaces/${projectName}--ws-${workspaceName}/managedcontrolplanes`,
-    method: 'POST',
-    jq: undefined,
-    body: undefined,
-  };
-};
-
 export const UpdateManagedControlPlaneResource = (
   projectName: string,
   workspaceName: string,
