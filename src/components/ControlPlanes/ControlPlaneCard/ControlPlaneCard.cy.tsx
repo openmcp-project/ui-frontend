@@ -1,12 +1,13 @@
-import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import { MemoryRouter } from 'react-router-dom';
 import '@ui5/webcomponents-cypress-commands';
-import { ControlPlaneCard } from './ControlPlaneCard.tsx';
-import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
-import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
+import { useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
+import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
+import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
@@ -22,6 +23,10 @@ describe('ControlPlaneCard', () => {
     deleteManagedControlPlane: async (): Promise<void> => {
       deleteManagedControlPlaneCalled = true;
     },
+  });
+
+  const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteManagedControlPlaneV2GraphQL = () => ({
+    deleteManagedControlPlaneV2: async (): Promise<void> => {},
   });
 
   beforeEach(() => {
@@ -60,6 +65,7 @@ describe('ControlPlaneCard', () => {
                 workspace={workspace}
                 projectName="projectName"
                 useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
               />
             </FeatureToggleProvider>
           </SplitterProvider>
