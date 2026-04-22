@@ -92,7 +92,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     };
 
     cy.mount(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider mocks={[]}>
         <MemoryRouter>
           <FrontendConfigContext.Provider
             value={{
