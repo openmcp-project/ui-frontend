@@ -19,7 +19,11 @@ export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2
           defaultProvider: {
             roleBindings: input.roleBindings.map((rb) => ({
               roleRefs: rb.roleRefs.map((ref) => ({ kind: ref.kind, name: ref.name })),
-              subjects: rb.subjects.map((s) => ({ kind: s.kind, name: s.name })),
+              subjects: rb.subjects.map((s) => ({
+                kind: s.kind,
+                name: s.name,
+                ...(s.kind === 'ServiceAccount' ? { namespace: s.namespace } : { apiGroup: 'rbac.authorization.k8s.io' }),
+              })),
             })),
           },
         },

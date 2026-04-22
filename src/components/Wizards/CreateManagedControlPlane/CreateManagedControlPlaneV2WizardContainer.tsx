@@ -211,13 +211,18 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       if (lower === 'serviceaccount') return 'ServiceAccount';
       return 'User';
     };
-    const roleMap = new Map<string, { kind: 'User' | 'Group' | 'ServiceAccount'; name: string }[]>();
+    const roleMap = new Map<string, { kind: 'User' | 'Group' | 'ServiceAccount'; name: string; namespace?: string }[]>();
     (members ?? [])
       .filter((m) => !!m.name)
       .forEach((m) => {
+        const kind = normalizeKind(m.kind);
         const roleName = m.roles?.[0] ?? MCP_V2_DEFAULT_ROLE;
         if (!roleMap.has(roleName)) roleMap.set(roleName, []);
-        roleMap.get(roleName)!.push({ kind: normalizeKind(m.kind), name: m.name });
+        roleMap.get(roleName)!.push({
+          kind,
+          name: m.name,
+          ...(kind === 'ServiceAccount' ? { namespace: m.namespace } : {}),
+        });
       });
     const roleBindings = Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
       roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],

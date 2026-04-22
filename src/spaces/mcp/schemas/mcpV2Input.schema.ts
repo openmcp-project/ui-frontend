@@ -5,10 +5,17 @@ const RoleRefSchema = z.object({
   name: z.string().min(1),
 });
 
-const SubjectSchema = z.object({
-  kind: z.enum(['User', 'Group', 'ServiceAccount']),
-  name: z.string().min(1),
-});
+const SubjectSchema = z
+  .object({
+    kind: z.enum(['User', 'Group', 'ServiceAccount']),
+    name: z.string().min(1),
+    namespace: z.string().optional(),
+    apiGroup: z.string().optional(),
+  })
+  .refine((s) => s.kind !== 'ServiceAccount' || !!s.namespace?.trim(), {
+    message: 'namespace is required for ServiceAccount subjects',
+    path: ['namespace'],
+  });
 
 const RoleBindingSchema = z.object({
   roleRefs: z.array(RoleRefSchema).min(1),
