@@ -43,7 +43,14 @@ export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: stri
   const kubeconfigDecoded = useMemo<string | undefined>(() => {
     if (!data || !secretKey) return undefined;
     const base64 = data[secretKey];
-    return base64 ? atob(base64) : undefined;
+    if (!base64) return undefined;
+
+    try {
+      return atob(base64);
+    } catch (error) {
+      console.warn(`[useKubeconfigQuery] Failed to decode secret value for key "${secretKey}"`, error);
+      return undefined;
+    }
   }, [data, secretKey]);
 
   return {

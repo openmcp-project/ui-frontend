@@ -44,7 +44,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
               )
               .map((subject) => (
                 <ListItemStandard
-                  key={subject.name}
+                  key={`${subject.kind}:${subject.name}:${subject.role}`}
                   text={subject.name}
                   additionalText={`${subject.kind} · ${subject.role}`}
                 />
