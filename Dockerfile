@@ -22,8 +22,8 @@ FROM gcr.io/distroless/nodejs24-debian12@sha256:61f4f4341db81820c24ce771b83d202e
 WORKDIR /usr/src/app
 
 # Copy built files
-COPY --from=build-stage /usr/src/app/dist /usr/src/app/dist
-COPY --from=build-stage /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --from=build-stage --chown=65532:65532 /usr/src/app/dist /usr/src/app/dist
+COPY --from=build-stage --chown=65532:65532 /usr/src/app/node_modules /usr/src/app/node_modules
 
 USER 65532:65532
 
