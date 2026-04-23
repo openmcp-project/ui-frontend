@@ -211,7 +211,10 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       if (lower === 'serviceaccount') return 'ServiceAccount';
       return 'User';
     };
-    const roleMap = new Map<string, { kind: 'User' | 'Group' | 'ServiceAccount'; name: string; namespace?: string }[]>();
+    const roleMap = new Map<
+      string,
+      { kind: 'User' | 'Group' | 'ServiceAccount'; name: string; namespace?: string }[]
+    >();
     (members ?? [])
       .filter((m) => !!m.name)
       .forEach((m) => {

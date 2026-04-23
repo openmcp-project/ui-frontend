@@ -22,7 +22,9 @@ export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2
               subjects: rb.subjects.map((s) => ({
                 kind: s.kind,
                 name: s.name,
-                ...(s.kind === 'ServiceAccount' ? { namespace: s.namespace } : { apiGroup: 'rbac.authorization.k8s.io' }),
+                ...(s.kind === 'ServiceAccount'
+                  ? { namespace: s.namespace }
+                  : { apiGroup: 'rbac.authorization.k8s.io' }),
               })),
             })),
           },
