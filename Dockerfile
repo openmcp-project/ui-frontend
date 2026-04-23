@@ -25,5 +25,6 @@ WORKDIR /usr/src/app
 COPY --from=build-stage /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-stage /usr/src/app/node_modules /usr/src/app/node_modules
 
-# Run
+USER nonroot
+
 CMD ["dist/server.js"]
