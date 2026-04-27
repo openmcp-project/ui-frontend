@@ -14,6 +14,13 @@
   },
   "packageRules": [
     {
+      "groupName": "vite",
+      "matchPackageNames": [
+        "vite",
+        "@vitejs/{/,}**"
+      ]
+    },
+    {
       "groupName": "@ui5/webcomponents packages",
       "matchPackageNames": [
         "@ui5/webcomponents{/,}**"
