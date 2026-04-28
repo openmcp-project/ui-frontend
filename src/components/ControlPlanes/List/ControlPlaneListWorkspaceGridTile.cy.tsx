@@ -1,13 +1,14 @@
-import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
-import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
-import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
-import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import { MemoryRouter } from 'react-router-dom';
-import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
+import { MockedProvider } from '@apollo/client/testing/react';
 import '@ui5/webcomponents-cypress-commands';
-import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
+import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
+import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;
@@ -91,26 +92,28 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     };
 
     cy.mount(
-      <MemoryRouter>
-        <FrontendConfigContext.Provider
-          value={{
-            documentationBaseUrl: '',
-            githubBaseUrl: '',
-            featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
-          }}
-        >
-          <SplitterProvider>
-            <FeatureToggleProvider>
-              <ControlPlaneListWorkspaceGridTile
-                workspace={workspace}
-                projectName="some-project"
-                useMcpsQuery={fakeUseMCPsListQuery}
-                useDeleteWorkspace={fakeUseDeleteWorkspace}
-              />
-            </FeatureToggleProvider>
-          </SplitterProvider>
-        </FrontendConfigContext.Provider>
-      </MemoryRouter>,
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="some-project"
+                  useMcpsQuery={fakeUseMCPsListQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
     cy.get("[data-testid='ControlPlanesListMenu-opener']").click();

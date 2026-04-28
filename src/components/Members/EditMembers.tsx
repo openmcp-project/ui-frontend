@@ -1,14 +1,14 @@
-import { FC, useCallback, useMemo, useState } from 'react';
 import { Button, FlexBox } from '@ui5/webcomponents-react';
-import { MemberTable } from './MemberTable.tsx';
-import { areMembersEqual, Member } from '../../lib/api/types/shared/members';
+import { TFunction } from 'i18next';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './Members.module.css';
+import { useToast } from '../../context/ToastContext.tsx';
+import { areMembersEqual, MCP_V2_DEFAULT_ROLE, mcpV2RoleOptions, Member } from '../../lib/api/types/shared/members';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
-import { useToast } from '../../context/ToastContext.tsx';
-import { TFunction } from 'i18next';
+import styles from './Members.module.css';
+import { MemberTable } from './MemberTable.tsx';
 
 export interface EditMembersProps {
   members: Member[];
@@ -18,6 +18,7 @@ export interface EditMembersProps {
   projectName?: string;
   workspaceName?: string;
   type: 'workspace' | 'project' | 'mcp';
+  isV2?: boolean;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -39,6 +40,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   workspaceName,
   projectName,
   type,
+  isV2 = false,
 }) => {
   const { t } = useTranslation();
 
@@ -84,20 +86,21 @@ export const EditMembers: FC<EditMembersProps> = ({
 
       const membersByName = new Map<string, Member>(members.map((member) => [member.name, member]));
       imported.forEach((importedMember) => {
-        const existingMember = membersByName.get(importedMember.name);
+        const normalized = isV2 ? { ...importedMember, roles: [MCP_V2_DEFAULT_ROLE] } : importedMember;
+        const existingMember = membersByName.get(normalized.name);
         if (!existingMember) {
           numberOfAddedMembers++;
-        } else if (!areMembersEqual(importedMember, existingMember)) {
+        } else if (!areMembersEqual(normalized, existingMember)) {
           numberOfChangedMembers++;
         }
-        membersByName.set(importedMember.name, importedMember);
+        membersByName.set(normalized.name, normalized);
       });
       const updatedMembers = Array.from(membersByName.values());
 
       toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
       onMemberChanged(updatedMembers);
     },
-    [members, onMemberChanged, t, toast],
+    [members, onMemberChanged, t, toast, isV2],
   );
 
   const handleSaveMember = useCallback(
@@ -153,6 +156,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         open={isMemberDialogOpen}
         existingMembers={members}
         memberToEdit={memberToEdit}
+        {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
