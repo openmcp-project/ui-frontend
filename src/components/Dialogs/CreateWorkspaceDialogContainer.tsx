@@ -5,7 +5,7 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { Member, MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
@@ -42,6 +42,7 @@ export function CreateWorkspaceDialogContainer({
     setValue,
     formState: { errors },
     watch,
+    control,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
@@ -52,6 +53,7 @@ export function CreateWorkspaceDialogContainer({
       chargingTargetType: '',
     },
   });
+  const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
@@ -108,12 +110,13 @@ export function CreateWorkspaceDialogContainer({
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
       titleText="Create Workspace"
-      members={watch('members')}
+      members={members}
       register={register}
       errors={errors}
       setValue={setValue}
       type={'workspace'}
       projectName={project}
+      // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleWorkspaceCreate)}
     />
   );

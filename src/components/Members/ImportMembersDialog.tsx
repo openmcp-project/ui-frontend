@@ -1,4 +1,4 @@
-import { FC, useMemo, useState, useEffect } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import styles from './ImportMembersDialog.module.css';
 import {
   Button,
@@ -108,6 +108,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedRowIds({});
   }, [isOpen]);
 
