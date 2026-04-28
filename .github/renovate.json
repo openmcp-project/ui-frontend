@@ -30,7 +30,8 @@
       "groupName": "opentelemetry-js packages",
       "matchPackageNames": [
         "@opentelemetry/{/,}**"
-      ]
+      ],
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"]
     }
   ]
 }
