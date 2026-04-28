@@ -25,6 +25,12 @@
       "matchPackageNames": [
         "@ui5/webcomponents{/,}**"
       ]
+    },
+    {
+      "groupName": "opentelemetry-js packages",
+      "matchPackageNames": [
+        "@opentelemetry/{/,}**"
+      ]
     }
   ]
 }
