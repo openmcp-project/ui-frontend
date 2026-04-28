@@ -8,7 +8,7 @@
     "npm:unpublishSafe",
     ":disableDependencyDashboard"
   ],
-  "prCreation": "not-pending",
+  "prCreation": "immediate",
   "lockFileMaintenance": {
     "enabled": true
   },
