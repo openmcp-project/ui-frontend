@@ -9,12 +9,12 @@ function proxyPlugin(fastify) {
   const { GRAPHQL_BACKEND_URL } = fastify.config;
 
   // @ts-ignore
-  fastify.addHook('onRequest', (req, reply, done) => {
-    if (BLOCKED_PATH_PATTERN.test(req.url)) {
+  fastify.addHook('onRequest', async (req, reply) => {
+    const pathname = req.url.split('?')[0];
+    if (BLOCKED_PATH_PATTERN.test(pathname)) {
       reply.code(400).send();
       return;
     }
-    done();
   });
 
   // Remove accept-encoding to prevent backend from compressing
