@@ -17,6 +17,14 @@ function proxyPlugin(fastify) {
     }
   });
 
+  const requireAuthentication = async (req, reply) => {
+    const accessToken = req.encryptedSession.get('onboarding_accessToken');
+    if (!accessToken) {
+      reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
+      return;
+    }
+  };
+
   // Remove accept-encoding to prevent backend from compressing
   // This avoids double-compression or encoding issues
   // @ts-ignore
@@ -28,6 +36,7 @@ function proxyPlugin(fastify) {
   fastify.register(httpProxy, {
     prefix: '/onboarding',
     upstream: API_BACKEND_URL,
+    preHandler: requireAuthentication,
     replyOptions: {
       // @ts-ignore
       rewriteRequestHeaders: (req, headers) => {
@@ -48,6 +57,7 @@ function proxyPlugin(fastify) {
       prefix: '/graphql',
       upstream: graphqlUrl.origin,
       rewritePrefix: graphqlUrl.pathname,
+      preHandler: requireAuthentication,
       replyOptions: {
         // @ts-ignore
         rewriteRequestHeaders: (req, headers) => {
