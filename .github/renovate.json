@@ -31,7 +31,8 @@
       "matchPackageNames": [
         "@opentelemetry/{/,}**"
       ],
-      "matchUpdateTypes": ["major", "minor", "patch", "digest"]
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "separateMajorMinor": false
     }
   ]
 }
