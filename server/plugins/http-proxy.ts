@@ -17,11 +17,22 @@ function proxyPlugin(fastify) {
     }
   });
 
-  const requireAuthentication = async (req, reply) => {
-    const accessToken = req.encryptedSession.get('onboarding_accessToken');
-    if (!accessToken) {
-      reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Authentication required' });
-      return;
+  // @ts-ignore
+  const requireOnboardingAuth = async (req, reply) => {
+    const onboardingToken = req.encryptedSession.get('onboarding_accessToken');
+    if (!onboardingToken) {
+      return reply.unauthorized('Authentication required.');
+    }
+    const useCrate = req.headers['x-use-crate'];
+    if (!useCrate && !req.encryptedSession.get('mcp_accessToken')) {
+      return reply.unauthorized('Authentication required.');
+    }
+  };
+
+  // @ts-ignore
+  const requireGraphqlAuth = async (req, reply) => {
+    if (!req.encryptedSession.get('onboarding_accessToken')) {
+      return reply.unauthorized('Authentication required.');
     }
   };
 
@@ -36,7 +47,7 @@ function proxyPlugin(fastify) {
   fastify.register(httpProxy, {
     prefix: '/onboarding',
     upstream: API_BACKEND_URL,
-    preHandler: requireAuthentication,
+    preHandler: requireOnboardingAuth,
     replyOptions: {
       // @ts-ignore
       rewriteRequestHeaders: (req, headers) => {
@@ -57,7 +68,7 @@ function proxyPlugin(fastify) {
       prefix: '/graphql',
       upstream: graphqlUrl.origin,
       rewritePrefix: graphqlUrl.pathname,
-      preHandler: requireAuthentication,
+      preHandler: requireGraphqlAuth,
       replyOptions: {
         // @ts-ignore
         rewriteRequestHeaders: (req, headers) => {
