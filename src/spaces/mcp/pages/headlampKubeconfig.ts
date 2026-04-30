@@ -62,55 +62,36 @@ function toBase64(str: string): string {
  *     and doesn't redirect to its own login screen.
  *
  * Multi-tenancy: each MCP gets a unique clusterAlias (project--workspace--name).
- * IndexedDB is per-browser so different users are naturally isolated.
- * Within the same session, stale aliases from previous MCPs are removed to
- * prevent cluster list accumulation.
+ * IndexedDB is per-browser so different users are naturally isolated. Stale
+ * aliases from previous MCPs accumulate in the sidebar but are harmless — the
+ * iframe always navigates directly to /c/<alias> so the list is never shown.
  *
  * The kubeconfig sent to parseKubeConfig is credential-free (server + CA only).
  * The actual bearer token is never exposed to the browser; the BFF injects it.
  *
- * Returns the cluster name Headlamp registered (same as clusterAlias).
+ * Returns the cluster alias that was registered.
  */
 export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAlias: string): Promise<string> {
   const prepared = prepareKubeconfigForHeadlamp(rawKubeconfig, clusterAlias);
   const base64 = toBase64(prepared);
 
-  // 1. Store in BFF session for server-side KUBECONFIG header injection.
-  await fetch('/api/headlamp-kubeconfig', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kubeconfig: base64 }),
-  });
-
-  // 2. Remove any previously registered clusters from Headlamp's SPA state so
-  //    stale entries don't accumulate when navigating between MCPs.
-  try {
-    const existing = await fetch('/api/headlamp/parseKubeConfig', {
+  // Fire both registrations in parallel — neither depends on the other.
+  await Promise.all([
+    // Store in BFF session for server-side KUBECONFIG header injection.
+    fetch('/api/headlamp-kubeconfig', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kubeconfigs: [] }),
-    });
-    if (existing.ok) {
-      const data = await existing.json();
-      const staleClusters: string[] = (data?.clusters ?? [])
-        .map((c: { name: string }) => c.name)
-        .filter((name: string) => name !== clusterAlias);
-      if (staleClusters.length > 0) {
-        await Promise.all(
-          staleClusters.map((name) => fetch(`/api/headlamp/cluster/${encodeURIComponent(name)}`, { method: 'DELETE' })),
-        );
-      }
-    }
-  } catch {
-    // Non-fatal — stale clusters are a cosmetic issue, not a security one
-  }
-
-  // 3. Register the current cluster with Headlamp's SPA (IndexedDB state).
-  await fetch('/api/headlamp/parseKubeConfig', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kubeconfigs: [base64] }),
-  });
+      body: JSON.stringify({ kubeconfig: base64 }),
+    }),
+    // Register with Headlamp's SPA so it doesn't redirect to its login screen.
+    // parseKubeConfig stores the cluster in the browser's IndexedDB state.
+    // The kubeconfig is credential-free — server URL + CA only, no token.
+    fetch('/api/headlamp/parseKubeConfig', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kubeconfigs: [base64] }),
+    }),
+  ]);
 
   return clusterAlias;
 }
