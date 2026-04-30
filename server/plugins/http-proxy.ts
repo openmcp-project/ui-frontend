@@ -5,8 +5,6 @@ import httpProxy from '@fastify/http-proxy';
 function proxyPlugin(fastify) {
   const { API_BACKEND_URL, GRAPHQL_BACKEND_URL, HEADLAMP_UPSTREAM_URL } = fastify.config;
 
-  // Remove accept-encoding to prevent backend from compressing
-  // This avoids double-compression or encoding issues
   // @ts-ignore
   const stripEncoding = (headers) => {
     const { 'accept-encoding': _, ...rest } = headers;
@@ -48,10 +46,7 @@ function proxyPlugin(fastify) {
 
   if (HEADLAMP_UPSTREAM_URL) {
     fastify.register(async (child: any) => {
-      // After helmet sets its headers on the reply, strip the ones that break
-      // iframe embedding and sever the parent↔iframe postMessage channel (COOP/CORP).
-      // This must run after the onRequest helmet hook, so we use onSend which fires last.
-      child.addHook('onSend', async (req: any, reply: any, payload: any) => {
+      child.addHook('onSend', async (_req: any, reply: any, payload: any) => {
         reply.removeHeader('x-frame-options');
         reply.removeHeader('cross-origin-opener-policy');
         reply.removeHeader('cross-origin-resource-policy');
@@ -59,8 +54,6 @@ function proxyPlugin(fastify) {
         return payload;
       });
 
-      // Store a kubeconfig (base64) in the session so the proxy can forward it
-      // as the KUBECONFIG header to Headlamp, enabling per-request stateless clusters.
       child.post('/headlamp-kubeconfig', async (req: any, reply: any) => {
         const { kubeconfig } = req.body as { kubeconfig?: string };
         if (!kubeconfig || typeof kubeconfig !== 'string') {
@@ -85,7 +78,6 @@ function proxyPlugin(fastify) {
             if (kubeconfig) base['kubeconfig'] = kubeconfig;
             return base;
           },
-          // Strip upstream headers that would conflict with the BFF's own CSP or block embedding
           // @ts-ignore
           rewriteHeaders: (headers: Record<string, string>) => {
             const out = { ...headers };
