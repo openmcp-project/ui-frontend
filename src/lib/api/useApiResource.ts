@@ -255,13 +255,13 @@ export function useMultipleApiResources<T>(
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (namespaces.length === 0) {
-      setData([]);
-      setError(null);
-      return;
-    }
-
     const fetchData = async () => {
+      if (namespaces.length === 0) {
+        setData([]);
+        setError(null);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 

@@ -33,7 +33,7 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -62,24 +62,21 @@ export default function McpPage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
-  const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
+  const selectedSectionId = useMemo(() => {
+    const tab = searchParams.get('tab');
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
+      return tab as McpPageSectionId;
+    }
+    return 'overview' as McpPageSectionId;
+  }, [searchParams]);
 
   const setTabFromSection = (sectionId: McpPageSectionId) => {
-    setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set('tab', sectionId);
       return newParams;
     });
   };
-
-  // Effect to handle tab switching via URL params
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
-      setSelectedSectionId(tab as McpPageSectionId);
-    }
-  }, [searchParams]);
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 

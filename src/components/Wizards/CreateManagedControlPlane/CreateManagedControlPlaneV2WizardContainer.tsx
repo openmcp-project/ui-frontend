@@ -4,7 +4,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import {
   Bar,
@@ -111,12 +111,14 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   useEffect(() => {
     const exists = templates.some((t) => t.metadata.name === selectedTemplateValue);
     if (!exists && selectedTemplateValue !== noTemplateValue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTemplateValue(noTemplateValue);
     }
   }, [templates, selectedTemplateValue]);
 
   useEffect(() => {
     if (!isOpen) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTemplateValue(initialTemplateName ?? noTemplateValue);
   }, [isOpen, initialTemplateName]);
 
@@ -128,6 +130,8 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     setValue,
     reset,
     watch,
+    getValues,
+    control,
 
     formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
@@ -157,6 +161,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       });
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 
@@ -199,10 +204,10 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     workspaceName,
     initialData?.metadata?.name ?? '',
   );
-  const componentsList = watch('componentsList');
-  const name = watch('name');
-  const displayName = watch('displayName');
-  const members = watch('members');
+  const componentsList = useWatch({ control, name: 'componentsList' });
+  const name = useWatch({ control, name: 'name' });
+  const displayName = useWatch({ control, name: 'displayName' });
+  const members = useWatch({ control, name: 'members' });
   const rawInput = useMemo(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const normalizeKind = (kind: string): 'User' | 'Group' | 'ServiceAccount' => {
@@ -297,7 +302,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(watch());
+        handleCreateManagedControlPlane(getValues());
         break;
       case 'success':
         resetFormAndClose();
@@ -305,7 +310,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       default:
         break;
     }
-  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, watch, resetFormAndClose]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, getValues, resetFormAndClose]);
 
   const normalizeMemberRole = useCallback((_roleInput?: string | null): string => {
     return MCP_V2_DEFAULT_ROLE;
@@ -392,7 +397,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       return;
     }
 
-    const currentMembers = (watch('members') ?? []) as Member[];
+    const currentMembers = (getValues('members') ?? []) as Member[];
 
     let merged = currentMembers;
     if (user?.email && !currentMembers.some((m) => m.name === user.email)) {
@@ -422,7 +427,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
 
     setValue('members', normalizedMembers, { shouldValidate: true });
     appliedTemplateMembersRef.current = true;
-  }, [selectedStep, selectedTemplate, watch, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
+  }, [selectedStep, selectedTemplate, getValues, setValue, user?.email, normalizeMemberRole, normalizeMemberKind]);
 
   // Template application for components is handled inside the hook
 
@@ -512,7 +517,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             <Form>
               <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
                 <EditMembers
-                  members={watch('members')}
+                  members={members}
                   isValidationError={!!errors.members}
                   requireAtLeastOneMember={false}
                   workspaceName={workspaceName}

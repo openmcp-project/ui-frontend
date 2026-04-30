@@ -6,7 +6,7 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
@@ -26,6 +26,7 @@ export function CreateProjectDialogContainer({
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     watch,
+    control,
     register,
     handleSubmit,
     resetField,
@@ -41,6 +42,7 @@ export function CreateProjectDialogContainer({
       members: [],
     },
   });
+  const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
@@ -96,11 +98,12 @@ export function CreateProjectDialogContainer({
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
       titleText="Create Project"
-      members={watch('members')}
+      members={members}
       register={register}
       errors={errors}
       setValue={setValue}
       type={'project'}
+      // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleProjectCreate)}
     />
   );
