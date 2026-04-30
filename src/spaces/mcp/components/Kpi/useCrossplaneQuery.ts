@@ -1,9 +1,8 @@
 import { useQuery } from '@apollo/client/react';
+import { gql } from '@apollo/client';
 import { useMemo } from 'react';
 
-import { graphql } from '../../../types/__generated__/graphql';
-
-const GET_CROSSPLANE_QUERY = graphql(`
+const GET_CROSSPLANE_QUERY = gql`
   query GetCrossplane($name: String!, $namespace: String) {
     crossplane_services_openmcp_cloud {
       v1alpha1 {
@@ -31,7 +30,7 @@ const GET_CROSSPLANE_QUERY = graphql(`
       }
     }
   }
-`);
+`;
 
 export interface CrossplaneProvider {
   name?: string | null;
