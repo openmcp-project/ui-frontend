@@ -36,12 +36,7 @@ function HeadlampIframe() {
 
   return (
     <div className={styles.wrapper}>
-      <iframe
-        key={iframeSrc}
-        src={iframeSrc}
-        className={styles.iframe}
-        title={`Headlamp — ${mcp.name}`}
-      />
+      <iframe key={iframeSrc} src={iframeSrc} className={styles.iframe} title={`Headlamp — ${mcp.name}`} />
     </div>
   );
 }

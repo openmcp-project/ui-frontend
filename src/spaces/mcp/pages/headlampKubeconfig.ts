@@ -10,34 +10,32 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
  *   by the same upstream cluster share a single cached entry.
  */
 export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias: string): string {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let kc: any;
+  let kc: Record<string, unknown>;
   try {
-    kc = parseYaml(rawKubeconfig);
+    const parsed = parseYaml(rawKubeconfig);
+    if (!parsed || typeof parsed !== 'object') return rawKubeconfig;
+    kc = parsed as Record<string, unknown>;
   } catch {
     return rawKubeconfig;
   }
 
-  if (!kc || typeof kc !== 'object') return rawKubeconfig;
+  type NamedEntry = { name: string; [key: string]: unknown };
 
   // Rename the first cluster entry
   if (Array.isArray(kc.clusters) && kc.clusters.length > 0) {
-    kc.clusters = kc.clusters.slice(0, 1).map((c: any) => ({ ...c, name: clusterAlias }));
+    kc.clusters = kc.clusters.slice(0, 1).map((c: NamedEntry) => ({ ...c, name: clusterAlias }));
   }
 
   // Rename the first user entry and strip all credentials
   if (Array.isArray(kc.users) && kc.users.length > 0) {
-    kc.users = kc.users.slice(0, 1).map(() => ({
-      name: clusterAlias,
-      user: {}, // no credentials — BFF injects the token server-side
-    }));
+    kc.users = [{ name: clusterAlias, user: {} }];
   } else {
     kc.users = [{ name: clusterAlias, user: {} }];
   }
 
   // Rename the first context entry to point at the renamed cluster + user
   if (Array.isArray(kc.contexts) && kc.contexts.length > 0) {
-    const firstCtx = kc.contexts[0];
+    const firstCtx = kc.contexts[0] as { context?: Record<string, unknown> };
     kc.contexts = [
       {
         name: clusterAlias,
@@ -65,7 +63,7 @@ export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias
  */
 export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAlias: string): Promise<string> {
   const prepared = prepareKubeconfigForHeadlamp(rawKubeconfig, clusterAlias);
-  const base64 = btoa(unescape(encodeURIComponent(prepared)));
+  const base64 = btoa(new TextEncoder().encode(prepared).reduce((s, b) => s + String.fromCharCode(b), ''));
   await fetch('/api/headlamp-kubeconfig', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
