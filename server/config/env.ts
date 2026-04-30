@@ -31,6 +31,7 @@ const schema = {
     FEEDBACK_SLACK_URL: { type: 'string' },
     FEEDBACK_URL_LINK: { type: 'string' },
     FRAME_ANCESTORS: { type: 'string' },
+    HEADLAMP_UPSTREAM_URL: { type: 'string' },
     ALLOWED_CORS_ORIGINS: { type: 'string' },
     BFF_SENTRY_DSN: { type: 'string' },
     FRONTEND_SENTRY_DSN: { type: 'string' },

@@ -22,7 +22,7 @@ import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfi
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
@@ -51,8 +51,22 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
-export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
+function HeadlampSection() {
+  const mcp = useMcp();
+  return (
+    <div style={{ width: '100%', height: 'calc(100vh - 200px)' }}>
+      <iframe
+        src="/api/headlamp/"
+        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+        title={`Headlamp — ${mcp.name}`}
+      />
+    </div>
+  );
+}
+
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers', 'headlamp'] as const;
+export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
+type McpPageSectionIdAll = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -64,19 +78,20 @@ export default function McpPage() {
   >(undefined);
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
-    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
-      return tab as McpPageSectionId;
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionIdAll)) {
+      return tab as McpPageSectionIdAll;
     }
-    return 'overview' as McpPageSectionId;
+    return 'overview' as McpPageSectionIdAll;
   }, [searchParams]);
 
-  const setTabFromSection = (sectionId: McpPageSectionId) => {
+  const setTabFromSection = (sectionId: McpPageSectionIdAll) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set('tab', sectionId);
       return newParams;
     });
   };
+
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
@@ -100,7 +115,7 @@ export default function McpPage() {
   };
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
-    const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
+    const newSectionId = e.detail.selectedSectionId as McpPageSectionIdAll;
     setTabFromSection(newSectionId);
   };
   if (isLoading) {
@@ -282,6 +297,10 @@ export default function McpPage() {
                   <Landscapers />
                 </ObjectPageSection>
               )}
+
+              <ObjectPageSection id="headlamp" titleText="Headlamp">
+                <HeadlampSection />
+              </ObjectPageSection>
             </ObjectPage>
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>

@@ -116,6 +116,9 @@ if (DYNATRACE_SCRIPT_URL) {
 }
 
 fastify.register(helmet, {
+  // X-Frame-Options is superseded by CSP frame-ancestors — disable it so the
+  // Headlamp iframe (served via /api/headlamp/ on the same origin) can load.
+  frameguard: false,
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -126,6 +129,7 @@ fastify.register(helmet, {
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
         : ["'self'", sentryHost, dynatraceOrigin],
+      'frame-src': ["'self'"],
       // @ts-ignore
       'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
     },
