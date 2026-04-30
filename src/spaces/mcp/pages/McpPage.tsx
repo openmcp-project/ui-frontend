@@ -33,7 +33,8 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -53,10 +54,23 @@ import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
 function HeadlampSection() {
   const mcp = useMcp();
+  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+
+  useEffect(() => {
+    if (!mcp.kubeconfig) return;
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias).then(() => {
+      setIframeSrc(`/api/headlamp/c/${clusterAlias}/flux/overview`);
+    });
+  }, [mcp.kubeconfig, clusterAlias]);
+
+  if (!iframeSrc) return null;
+
   return (
     <div style={{ width: '100%', height: 'calc(100vh - 200px)' }}>
       <iframe
-        src="/api/headlamp/"
+        key={iframeSrc}
+        src={iframeSrc}
         style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
         title={`Headlamp — ${mcp.name}`}
       />
@@ -299,7 +313,7 @@ export default function McpPage() {
               )}
 
               <ObjectPageSection id="headlamp" titleText="Headlamp">
-                <HeadlampSection />
+                <HeadlampSection key={`${projectName}/${workspaceName}/${controlPlaneName}`} />
               </ObjectPageSection>
             </ObjectPage>
           </ManagedControlPlaneAuthorization>

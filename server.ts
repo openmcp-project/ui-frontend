@@ -119,6 +119,11 @@ fastify.register(helmet, {
   // X-Frame-Options is superseded by CSP frame-ancestors — disable it so the
   // Headlamp iframe (served via /api/headlamp/ on the same origin) can load.
   frameguard: false,
+  // COOP same-origin severs window.parent for iframes — disable so the
+  // Headlamp iframe plugin can send postMessage to the parent page.
+  crossOriginOpenerPolicy: false,
+  // CORP same-origin would block the iframe from being embedded cross-context.
+  crossOriginResourcePolicy: false,
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],

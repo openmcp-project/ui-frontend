@@ -47,13 +47,27 @@ function proxyPlugin(fastify) {
   }
 
   if (HEADLAMP_UPSTREAM_URL) {
-    // Register a scoped child plugin so the onSend hook only applies to /headlamp routes
     fastify.register(async (child: any) => {
-      // Strip headers that would block Headlamp from loading in an iframe
-      child.addHook('onSend', async (_req: any, reply: any, payload: any) => {
+      // After helmet sets its headers on the reply, strip the ones that break
+      // iframe embedding and sever the parent↔iframe postMessage channel (COOP/CORP).
+      // This must run after the onRequest helmet hook, so we use onSend which fires last.
+      child.addHook('onSend', async (req: any, reply: any, payload: any) => {
         reply.removeHeader('x-frame-options');
-        reply.removeHeader('content-security-policy');
+        reply.removeHeader('cross-origin-opener-policy');
+        reply.removeHeader('cross-origin-resource-policy');
+        reply.removeHeader('cross-origin-embedder-policy');
         return payload;
+      });
+
+      // Store a kubeconfig (base64) in the session so the proxy can forward it
+      // as the KUBECONFIG header to Headlamp, enabling per-request stateless clusters.
+      child.post('/headlamp-kubeconfig', async (req: any, reply: any) => {
+        const { kubeconfig } = req.body as { kubeconfig?: string };
+        if (!kubeconfig || typeof kubeconfig !== 'string') {
+          return reply.badRequest('Missing kubeconfig');
+        }
+        await req.encryptedSession.set('headlamp_kubeconfig', kubeconfig);
+        return reply.send({ ok: true });
       });
 
       child.register(httpProxy, {
@@ -65,8 +79,22 @@ function proxyPlugin(fastify) {
           // @ts-ignore
           rewriteRequestHeaders: (req: any, headers: any) => {
             const token = req.encryptedSession.get('mcp_accessToken');
-            if (!token) return stripEncoding(headers);
-            return { ...stripEncoding(headers), authorization: `Bearer ${token}` };
+            const kubeconfig = req.encryptedSession.get('headlamp_kubeconfig');
+            const base = { ...stripEncoding(headers) };
+            if (token) base.authorization = `Bearer ${token}`;
+            if (kubeconfig) base['kubeconfig'] = kubeconfig;
+            return base;
+          },
+          // Strip upstream headers that would conflict with the BFF's own CSP or block embedding
+          // @ts-ignore
+          rewriteHeaders: (headers: Record<string, string>) => {
+            const out = { ...headers };
+            delete out['x-frame-options'];
+            delete out['content-security-policy'];
+            delete out['cross-origin-opener-policy'];
+            delete out['cross-origin-resource-policy'];
+            delete out['cross-origin-embedder-policy'];
+            return out;
           },
         },
       });
