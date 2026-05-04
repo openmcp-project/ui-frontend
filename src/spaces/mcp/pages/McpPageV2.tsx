@@ -49,7 +49,6 @@ import Graph from '../../../components/Graphs/Graph.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboardV2 } from '../components/ComponentsDashboard/ComponentsDashboardV2.tsx';
-import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
@@ -66,7 +65,6 @@ export default function McpPageV2() {
   >(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<McpPageSectionId | undefined>('overview');
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSelectedSectionId(sectionId);
     setSearchParams((prev) => {
@@ -211,7 +209,6 @@ export default function McpPageV2() {
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboardV2
                     components={mcpRestData?.spec?.components}
-                    crossplaneData={crossplaneData}
                     onInstallButtonClick={onEditComponents}
                     onNavigateToMcpSection={(sectionId) => {
                       setTabFromSection(sectionId);

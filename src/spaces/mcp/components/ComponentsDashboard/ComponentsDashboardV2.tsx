@@ -7,43 +7,43 @@ import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
+import { useMcp } from '../../../../lib/shared/McpContext.tsx';
 import { McpPageSectionId } from '../../pages/McpPage.tsx';
+import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
+import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
 
 import { useTranslation } from 'react-i18next';
 import styles from './ComponentsDashboard.module.css';
 
-export interface CrossplaneData {
-  isInstalled: boolean;
-  providers: {
-    name?: string | null;
-    version?: string | null;
-  }[];
-}
-
 export interface ComponentsDashboardProps {
   components?: ControlPlaneComponentsType;
-  crossplaneData?: CrossplaneData | null;
   onInstallButtonClick: () => void;
   onNavigateToMcpSection: (sectionId: McpPageSectionId) => void;
 }
 
 export function ComponentsDashboardV2({
   components,
-  crossplaneData,
   onInstallButtonClick,
   onNavigateToMcpSection,
 }: ComponentsDashboardProps) {
   const { t } = useTranslation();
   const crossplaneKpi = useKpiCrossplane();
   const fluxKpi = useKpiFlux();
+  const { name, project, workspace } = useMcp();
+  const namespace = project && workspace ? `project-${project}--ws-${workspace}` : undefined;
+  const { crossplaneData } = useCrossplaneQuery(name, namespace);
+  const { landscaperData } = useLandscaperQuery(name, namespace);
 
-  // Use crossplaneData from GraphQL query if available, otherwise fall back to components
+  // Use GraphQL query data if available, otherwise fall back to REST components spec
   const isCrossplaneInstalled = crossplaneData?.isInstalled ?? !!components?.crossplane;
   const crossplaneVersion = crossplaneData?.isInstalled
     ? (crossplaneData.providers?.[0]?.version ?? components?.crossplane?.version)
     : components?.crossplane?.version;
+
+  const isLandscaperInstalled = landscaperData?.isInstalled ?? !!components?.landscaper;
+  const landscaperVersion = landscaperData?.version ?? undefined;
 
   return (
     <Panel fixed>
@@ -68,23 +68,13 @@ export function ComponentsDashboardV2({
           onInstallButtonClick={onInstallButtonClick}
           {...fluxKpi}
         />
-        {/* not yet available
-        <ComponentCard
-          name="Vault"
-          description={'Security and secrets management'}
-          logoImgSrc={LogoVault}
-          isInstalled={!!components?.vault}
-          version={components?.vault?.version}
-          kpiType="enabled"
-          onNavigateToComponentSection={undefined}
-          onInstallButtonClick={onInstallButtonClick}
-        />*/}
+
         <ComponentCard
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
           logoImgSrc={LogoLandscaper}
-          isInstalled={!!components?.landscaper}
-          version={undefined} // Landscaper does not have a version
+          isInstalled={isLandscaperInstalled}
+          version={landscaperVersion}
           kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
           onInstallButtonClick={undefined}
@@ -109,17 +99,6 @@ export function ComponentsDashboardV2({
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={onInstallButtonClick}
         />
-        {/* not yet available
-        <ComponentCard
-          name="Velero"
-          description="Safely back up, restore, recover, and migrate Kubernetes resources"
-          logoImgSrc={LogoVelero}
-          isInstalled={!!components?.velero}
-          version={components?.velero?.version}
-          kpiType="enabled"
-          onNavigateToComponentSection={undefined}
-          onInstallButtonClick={onInstallButtonClick}
-        />*/}
       </div>
     </Panel>
   );
