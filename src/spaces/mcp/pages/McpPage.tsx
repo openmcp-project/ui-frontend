@@ -106,7 +106,6 @@ export default function McpPage() {
     });
   };
 
-
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
   const {
