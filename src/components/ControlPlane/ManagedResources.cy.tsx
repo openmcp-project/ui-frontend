@@ -317,7 +317,7 @@ describe('ManagedResources - Edit Resource', () => {
 
     // Open actions menu and click Edit
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Edit').click({ force: true });
+    cy.contains('Edit').should('be.visible').click();
 
     // Verify YAML panel opened
     cy.contains('YAML').should('be.visible');
