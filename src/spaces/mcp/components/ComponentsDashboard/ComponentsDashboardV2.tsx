@@ -4,7 +4,6 @@ import { Panel } from '@ui5/webcomponents-react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
-import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { useMcp } from '../../../../lib/shared/McpContext.tsx';
@@ -12,9 +11,9 @@ import { McpPageSectionId } from '../../pages/McpPage.tsx';
 import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
 import { useEsoQuery } from '../Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../Kpi/useFluxQuery.ts';
-import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
+import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
 
 import { useTranslation } from 'react-i18next';
 import styles from './ComponentsDashboard.module.css';
@@ -78,7 +77,6 @@ export function ComponentsDashboardV2({
           onInstallButtonClick={onInstallButtonClick}
           {...fluxKpi}
         />
-
         <ComponentCard
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
@@ -88,16 +86,6 @@ export function ComponentsDashboardV2({
           kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
           onInstallButtonClick={undefined}
-        />
-        <ComponentCard
-          name="Kyverno"
-          description={t('componentCardKyverno.description')}
-          logoImgSrc={LogoKyverno}
-          isInstalled={!!components?.kyverno}
-          version={components?.kyverno?.version}
-          kpiType="enabled"
-          onNavigateToComponentSection={undefined}
-          onInstallButtonClick={onInstallButtonClick}
         />
         <ComponentCard
           name="External Secrets Operator"
