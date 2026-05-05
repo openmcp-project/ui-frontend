@@ -166,9 +166,9 @@ describe('ManagedResources - Delete Resource', () => {
     // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
-    // Verify both delete and patch were called
+    // Verify both delete and patch were called (patch runs after delete, so retry until settled)
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
   });
 
   it('keeps delete button disabled until confirmation text is entered', () => {
