@@ -52,17 +52,34 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+
 function HeadlampSection() {
   const mcp = useMcp();
+  const { documentationBaseUrl } = useFrontendConfig();
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
 
   useEffect(() => {
     if (!mcp.kubeconfig) return;
-    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias).then(() => {
-      setIframeSrc(`/api/headlamp/c/${clusterAlias}/flux/overview`);
-    });
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
+      .then(() => setIframeSrc(`/api/headlamp/c/${clusterAlias}/flux/overview`))
+      .catch(() => setError(true));
   }, [mcp.kubeconfig, clusterAlias]);
+
+  if (error) {
+    return (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title="Headlamp unavailable"
+        subtitle="The Headlamp service could not be reached. Please check that it is deployed and healthy."
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: 'Get support' }}
+      />
+    );
+  }
 
   if (!iframeSrc) return null;
 

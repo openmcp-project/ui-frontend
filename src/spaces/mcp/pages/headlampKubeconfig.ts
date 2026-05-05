@@ -41,10 +41,14 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
     body: JSON.stringify(body),
   });
 
-  await Promise.all([
+  const [bff, headlamp] = await Promise.all([
     fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64 })),
     fetch('/api/headlamp/parseKubeConfig', json({ kubeconfigs: [base64] })),
   ]);
+
+  if (!bff.ok || !headlamp.ok) {
+    throw new Error(`Headlamp registration failed: BFF ${bff.status}, Headlamp ${headlamp.status}`);
+  }
 
   return clusterAlias;
 }
