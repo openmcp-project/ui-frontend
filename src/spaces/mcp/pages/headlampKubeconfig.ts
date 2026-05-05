@@ -16,7 +16,7 @@ export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias
     kc.clusters = kc.clusters.slice(0, 1).map((c: KubeEntry) => ({ ...c, name: clusterAlias }));
   }
 
-  kc.users = [{ name: clusterAlias, user: {} }];
+  kc.users = [{ name: clusterAlias, user: { token: 'bff-managed' } }];
 
   if (Array.isArray(kc.contexts) && kc.contexts.length > 0) {
     const firstCtx = kc.contexts[0] as { context?: Record<string, unknown> };
@@ -41,13 +41,28 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
     body: JSON.stringify(body),
   });
 
-  const [bff, headlamp] = await Promise.all([
-    fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64 })),
-    fetch('/api/headlamp/parseKubeConfig', json({ kubeconfigs: [base64] })),
-  ]);
+  // Remove all dynamic clusters from headlamp-server so stale aliases don't fire requests on iframe boot.
+  const configRes = await fetch('/api/headlamp/config');
+  if (configRes.ok) {
+    const { clusters } = await configRes.json() as { clusters: Array<{ name: string }> | null };
+    await Promise.all(
+      (clusters ?? [])
+        .filter((c) => c.name !== clusterAlias)
+        .map((c) => fetch(`/api/headlamp/cluster/${c.name}`, { method: 'DELETE' })),
+    );
+  }
 
-  if (!bff.ok || !headlamp.ok) {
-    throw new Error(`Headlamp registration failed: BFF ${bff.status}, Headlamp ${headlamp.status}`);
+  // BFF patches 'bff-managed' → real mcp_accessToken and returns the result.
+  const bff = await fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64 }));
+  if (!bff.ok) {
+    throw new Error(`BFF kubeconfig registration failed: ${bff.status}`);
+  }
+  const { kubeconfig: patchedKubeconfig } = await bff.json() as { kubeconfig: string };
+
+  // parseKubeConfig registers the cluster server-side with the real token — headlamp uses it for internal auth checks (e.g. selfsubjectreviews), not the per-request Authorization header the BFF injects.
+  const parseKube = await fetch('/api/headlamp/parseKubeConfig', json({ kubeconfigs: [patchedKubeconfig] }));
+  if (!parseKube.ok) {
+    throw new Error(`Headlamp registration failed: parseKubeConfig ${parseKube.status}`);
   }
 
   return clusterAlias;

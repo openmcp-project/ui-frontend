@@ -59,8 +59,19 @@ function proxyPlugin(fastify) {
         if (!kubeconfig || typeof kubeconfig !== 'string') {
           return reply.badRequest('Missing kubeconfig');
         }
-        await req.encryptedSession.set('headlamp_kubeconfig', kubeconfig);
-        return reply.send({ ok: true });
+        const mcpToken = req.encryptedSession.get('mcp_accessToken');
+        let finalKubeconfig = kubeconfig;
+        if (mcpToken) {
+          try {
+            const raw = Buffer.from(kubeconfig, 'base64').toString('utf8');
+            const patched = raw.replace(/((?:^|\n)\s*token:\s*)bff-managed(\s|$)/m, `$1${mcpToken}$2`);
+            finalKubeconfig = Buffer.from(patched).toString('base64');
+          } catch {
+            // keep original if patching fails
+          }
+        }
+        await req.encryptedSession.set('headlamp_kubeconfig', finalKubeconfig);
+        return reply.send({ ok: true, kubeconfig: finalKubeconfig });
       });
 
       child.register(httpProxy, {
