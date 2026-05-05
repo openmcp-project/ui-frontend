@@ -10,6 +10,8 @@ import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/cont
 import { useMcp } from '../../../../lib/shared/McpContext.tsx';
 import { McpPageSectionId } from '../../pages/McpPage.tsx';
 import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
+import { useEsoQuery } from '../Kpi/useEsoQuery.ts';
+import { useFluxQuery } from '../Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
@@ -35,6 +37,8 @@ export function ComponentsDashboardV2({
   const namespace = project && workspace ? `project-${project}--ws-${workspace}` : undefined;
   const { crossplaneData } = useCrossplaneQuery(name, namespace);
   const { landscaperData } = useLandscaperQuery(name, namespace);
+  const { fluxData } = useFluxQuery(name, namespace);
+  const { esoData } = useEsoQuery(name, namespace);
 
   // Use GraphQL query data if available, otherwise fall back to REST components spec
   const isCrossplaneInstalled = crossplaneData?.isInstalled ?? !!components?.crossplane;
@@ -44,6 +48,12 @@ export function ComponentsDashboardV2({
 
   const isLandscaperInstalled = landscaperData?.isInstalled ?? !!components?.landscaper;
   const landscaperVersion = landscaperData?.version ?? undefined;
+
+  const isFluxInstalled = fluxData?.isInstalled ?? !!components?.flux;
+  const fluxVersion = fluxData?.version ?? components?.flux?.version;
+
+  const isEsoInstalled = esoData?.isInstalled ?? !!components?.externalSecretsOperator;
+  const esoVersion = esoData?.version ?? components?.externalSecretsOperator?.version;
 
   return (
     <Panel fixed>
@@ -62,8 +72,8 @@ export function ComponentsDashboardV2({
           name="Flux"
           description={t('componentCardFlux.description')}
           logoImgSrc={LogoFlux}
-          isInstalled={!!components?.flux}
-          version={components?.flux?.version}
+          isInstalled={isFluxInstalled}
+          version={fluxVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
           onInstallButtonClick={onInstallButtonClick}
           {...fluxKpi}
@@ -93,8 +103,8 @@ export function ComponentsDashboardV2({
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
           logoImgSrc={LogoEso}
-          isInstalled={!!components?.externalSecretsOperator}
-          version={components?.externalSecretsOperator?.version}
+          isInstalled={isEsoInstalled}
+          version={esoVersion}
           kpiType="enabled"
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={onInstallButtonClick}
