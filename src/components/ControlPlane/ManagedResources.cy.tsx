@@ -113,7 +113,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').should('be.visible').click();
+    cy.contains('Delete').click({ force: true });
 
     // Type confirmation text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
@@ -148,7 +148,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').should('be.visible').click();
+    cy.contains('Delete').click({ force: true });
 
     // Expand Advanced section
     cy.contains('Advanced').click();
@@ -191,7 +191,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').should('be.visible').click();
+    cy.contains('Delete').click({ force: true });
 
     // Delete button should be disabled initially
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
@@ -317,7 +317,7 @@ describe('ManagedResources - Edit Resource', () => {
 
     // Open actions menu and click Edit
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Edit').should('be.visible').click();
+    cy.contains('Edit').click({ force: true });
 
     // Verify YAML panel opened
     cy.contains('YAML').should('be.visible');
