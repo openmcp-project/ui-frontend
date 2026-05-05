@@ -46,9 +46,12 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
     return <></>;
   }
 
-  context.kubeconfig = kubeconfigQuery.kubeconfigDecoded;
-  context.roleBindings = mcp.data?.spec?.authorization?.roleBindings;
-  return <McpContext.Provider value={context}>{children}</McpContext.Provider>;
+  const enrichedContext: Mcp = {
+    ...context,
+    kubeconfig: kubeconfigQuery.kubeconfigDecoded,
+    roleBindings: mcp.data?.spec?.authorization?.roleBindings,
+  };
+  return <McpContext.Provider value={enrichedContext}>{children}</McpContext.Provider>;
 };
 
 function RequireDownstreamLogin(props: { children?: ReactNode }) {

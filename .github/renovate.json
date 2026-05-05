@@ -8,7 +8,7 @@
     "npm:unpublishSafe",
     ":disableDependencyDashboard"
   ],
-  "prCreation": "not-pending",
+  "prCreation": "immediate",
   "lockFileMaintenance": {
     "enabled": true
   },
@@ -25,6 +25,13 @@
       "matchPackageNames": [
         "@ui5/webcomponents{/,}**"
       ]
+    },
+    {
+      "groupName": "opentelemetry-js packages",
+      "matchPackageNames": [
+        "@opentelemetry/{/,}**"
+      ],
+      "separateMajorMinor": false
     }
   ]
 }

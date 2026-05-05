@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ManagedControlPlaneTemplate } from '../../../lib/api/types/templates/mcpTemplate.ts';
 import { ComponentsListItem, removeComponents } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import { sortVersions } from '../../../utils/componentsVersions.ts';
@@ -225,12 +225,9 @@ export const useComponentsSelectionData = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(data?.items), selectedTemplate, initialSelection]);
 
-  const [defaultsError, setDefaultsError] = useState<string | null>(null);
-
-  useEffect(() => {
+  const defaultsError = useMemo(() => {
     const items = data?.items ?? [];
-    const error = validateTemplateDefaults(items, selectedTemplate);
-    setDefaultsError(error);
+    return validateTemplateDefaults(items, selectedTemplate);
   }, [data, selectedTemplate]);
 
   return { isLoading: Boolean(isLoading), error, templateDefaultsError: defaultsError };

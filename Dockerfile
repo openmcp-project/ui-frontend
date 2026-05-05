@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM node:24-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8 AS build-stage
+FROM node:24-slim@sha256:03eae3ef7e88a9de535496fb488d67e02b9d96a063a8967bae657744ecd513f2 AS build-stage
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -21,7 +21,8 @@ RUN npm prune --omit=dev
 FROM gcr.io/distroless/nodejs24-debian12@sha256:61f4f4341db81820c24ce771b83d202eb6452076f58628cd536cc7d94a10978b AS production
 WORKDIR /usr/src/app
 
-# Copy built files
+# Copy built files and package.json (required by @fastify/vite v9 to resolve application root)
+COPY --from=build-stage --chown=65532:65532 /usr/src/app/package.json /usr/src/app/package.json
 COPY --from=build-stage --chown=65532:65532 /usr/src/app/dist /usr/src/app/dist
 COPY --from=build-stage --chown=65532:65532 /usr/src/app/node_modules /usr/src/app/node_modules
 

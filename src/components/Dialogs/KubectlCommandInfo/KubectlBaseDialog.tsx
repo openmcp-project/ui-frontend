@@ -12,7 +12,7 @@ import {
   Bar,
 } from '@ui5/webcomponents-react';
 import { KubectlTerminal } from './KubectlTerminal';
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useLink } from '../../../lib/shared/useLink.ts';
 
@@ -48,16 +48,13 @@ export const KubectlBaseDialog = ({
 }: KubectlBaseDialogProps) => {
   const { t } = useTranslation();
   const { gettingStartedGuide } = useLink();
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
-
-  useEffect(() => {
+  const [formValues, setFormValues] = useState<Record<string, string>>(() => {
     const initialValues: Record<string, string> = {};
     formFields?.forEach((field) => {
       initialValues[field.id] = field.defaultValue;
     });
-    setFormValues(initialValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return initialValues;
+  });
 
   const handleFieldChange = (fieldId: string) => (event: Ui5CustomEvent<InputDomRef>) => {
     setFormValues((prev) => ({
