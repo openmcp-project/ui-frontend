@@ -12,16 +12,16 @@ import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 describe('ManagedResources - Delete Resource', () => {
   let deleteCalled = false;
   let patchCalled = false;
-  let triggerCallCount = 0;
+  let callCount = 0;
 
   const fakeUseApiResourceMutation: typeof useApiResourceMutation = (): any => {
+    const instanceIndex = callCount++;
     return {
       data: undefined,
       error: undefined,
       reset: () => {},
       trigger: async (): Promise<any> => {
-        const currentTriggerCall = triggerCallCount++;
-        if (currentTriggerCall === 0) {
+        if (instanceIndex === 0) {
           deleteCalled = true;
         } else {
           patchCalled = true;
@@ -90,7 +90,7 @@ describe('ManagedResources - Delete Resource', () => {
   beforeEach(() => {
     deleteCalled = false;
     patchCalled = false;
-    triggerCallCount = 0;
+    callCount = 0;
   });
 
   it('deletes a managed resource', () => {
@@ -166,9 +166,9 @@ describe('ManagedResources - Delete Resource', () => {
     // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
-    // Verify both delete and patch were called (patch runs after delete, so retry until settled)
+    // Verify both delete and patch were called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
-    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
+    cy.then(() => cy.wrap(patchCalled).should('equal', true));
   });
 
   it('keeps delete button disabled until confirmation text is entered', () => {
