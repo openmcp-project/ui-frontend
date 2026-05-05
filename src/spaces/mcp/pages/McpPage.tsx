@@ -65,10 +65,6 @@ function HeadlampSection() {
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
 
   useEffect(() => {
-    // Reset state immediately so the iframe never shows while the BFF session holds a different cluster's kubeconfig.
-    setIframeSrc(null);
-    setError(false);
-
     if (!mcp.kubeconfig) return;
     let cancelled = false;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
@@ -80,6 +76,9 @@ function HeadlampSection() {
       });
     return () => {
       cancelled = true;
+      // Reset immediately on cleanup so the iframe never shows while the BFF session holds a different cluster's kubeconfig.
+      setIframeSrc(null);
+      setError(false);
     };
   }, [mcp.kubeconfig, clusterAlias]);
 
