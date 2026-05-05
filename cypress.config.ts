@@ -17,7 +17,7 @@ const viteConfig = defineViteConfig({
   },
   optimizeDeps: {
     include: ['path-browserify'],
-    esbuildOptions: {
+    rolldownOptions: {
       define: {
         global: 'globalThis',
       },
