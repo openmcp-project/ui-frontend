@@ -98,7 +98,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@ui5/webcomponents-cypress-commands": "2.21.3",
-    "@vitejs/plugin-react": "5.1.0",
+    "@vitejs/plugin-react": "5.2.0",
     "@vitest/eslint-plugin": "1.6.16",
     "cypress": "15.14.1",
     "eslint-config-prettier": "10.1.8",
