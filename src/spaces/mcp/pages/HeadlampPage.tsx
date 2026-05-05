@@ -20,15 +20,23 @@ function HeadlampIframe() {
 
   useEffect(() => {
     // Reset state immediately so the iframe never shows while the BFF session holds a different cluster's kubeconfig.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIframeSrc(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(false);
 
     if (!mcp.kubeconfig) return;
     let cancelled = false;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
-      .then(() => { if (!cancelled) setIframeSrc(`/api/headlamp/c/${clusterAlias}`); })
-      .catch(() => { if (!cancelled) setError(true); });
-    return () => { cancelled = true; };
+      .then(() => {
+        if (!cancelled) setIframeSrc(`/api/headlamp/c/${clusterAlias}`);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [mcp.kubeconfig, clusterAlias]);
 
   if (error) {

@@ -44,7 +44,7 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
   // Remove all dynamic clusters from headlamp-server so stale aliases don't fire requests on iframe boot.
   const configRes = await fetch('/api/headlamp/config');
   if (configRes.ok) {
-    const { clusters } = await configRes.json() as { clusters: Array<{ name: string }> | null };
+    const { clusters } = (await configRes.json()) as { clusters: { name: string }[] | null };
     await Promise.all(
       (clusters ?? [])
         .filter((c) => c.name !== clusterAlias)
@@ -57,7 +57,7 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
   if (!bff.ok) {
     throw new Error(`BFF kubeconfig registration failed: ${bff.status}`);
   }
-  const { kubeconfig: patchedKubeconfig } = await bff.json() as { kubeconfig: string };
+  const { kubeconfig: patchedKubeconfig } = (await bff.json()) as { kubeconfig: string };
 
   // parseKubeConfig registers the cluster server-side with the real token — headlamp uses it for internal auth checks (e.g. selfsubjectreviews), not the per-request Authorization header the BFF injects.
   const parseKube = await fetch('/api/headlamp/parseKubeConfig', json({ kubeconfigs: [patchedKubeconfig] }));
