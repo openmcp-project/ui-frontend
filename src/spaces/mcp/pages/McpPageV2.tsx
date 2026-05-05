@@ -41,14 +41,17 @@ import { GitRepositories } from '../../../components/ControlPlane/GitRepositorie
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
-import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
+import { McpConfigMapsV2 } from '../../../components/ControlPlane/McpConfigMapsV2.tsx';
+import { McpSecretsV2 } from '../../../components/ControlPlane/McpSecretsV2.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboardV2 } from '../components/ComponentsDashboard/ComponentsDashboardV2.tsx';
+import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
+import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
+import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
@@ -71,6 +74,9 @@ export default function McpPageV2() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
+  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -136,10 +142,10 @@ export default function McpPageV2() {
       </Center>
     );
   }
-
-  const isComponentInstalledCrossplane = !!mcpRestData?.spec?.components?.crossplane;
-  const isComponentInstalledFlux = !!mcpRestData?.spec?.components?.flux;
-  const isComponentInstalledLandscaper = !!mcpRestData?.spec?.components?.landscaper;
+  console.log(crossplaneData);
+  const isComponentInstalledCrossplane = !!crossplaneData?.isInstalled;
+  const isComponentInstalledFlux = !!fluxData?.isInstalled;
+  const isComponentInstalledLandscaper = !!landscaperData?.isInstalled;
 
   return (
     <McpContextProvider
@@ -227,10 +233,10 @@ export default function McpPageV2() {
                   titleText={t('McpPage.configMapsTitle')}
                   className={styles.section}
                 >
-                  <McpConfigMaps />
+                  <McpConfigMapsV2 />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
-                  <McpSecrets />
+                  <McpSecretsV2 />
                 </ObjectPageSubSection>
               </ObjectPageSection>
 
