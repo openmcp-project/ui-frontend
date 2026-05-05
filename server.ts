@@ -125,7 +125,16 @@ fastify.register(helmet, {
       // styleSrc: unsafe-inline is needed for our styling
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:'],
-      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
+      'connect-src': [
+        "'self'",
+        'sdk.openui5.org',
+        // Headlamp uses iconify for icons — these CDNs are fetched by the iframe (same-origin via BFF proxy)
+        'api.iconify.design',
+        'api.simplesvg.com',
+        'api.unisvg.com',
+        sentryHost,
+        dynatraceOrigin,
+      ],
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
         : ["'self'", sentryHost, dynatraceOrigin],
