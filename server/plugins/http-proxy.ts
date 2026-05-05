@@ -1,10 +1,23 @@
 import fp from 'fastify-plugin';
 import httpProxy from '@fastify/http-proxy';
 
+const BLOCKED_PATH_PATTERN = /:\/\/|%2e%2e/i;
+
 // @ts-ignore
 function proxyPlugin(fastify) {
   const { API_BACKEND_URL, GRAPHQL_BACKEND_URL, HEADLAMP_UPSTREAM_URL } = fastify.config;
 
+  // @ts-ignore
+  fastify.addHook('onRequest', async (req, reply) => {
+    const pathname = req.url.split('?')[0];
+    if (BLOCKED_PATH_PATTERN.test(pathname)) {
+      reply.code(400).send();
+      return;
+    }
+  });
+
+  // Remove accept-encoding to prevent backend from compressing
+  // This avoids double-compression or encoding issues
   // @ts-ignore
   const stripEncoding = (headers) => {
     const { 'accept-encoding': _, ...rest } = headers;
