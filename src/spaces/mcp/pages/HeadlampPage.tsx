@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
@@ -11,6 +12,7 @@ import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
 
 function HeadlampIframe() {
   const mcp = useMcp();
+  const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -27,9 +29,9 @@ function HeadlampIframe() {
     return (
       <IllustratedBanner
         illustrationName={IllustrationMessageType.SimpleError}
-        title="Headlamp unavailable"
-        subtitle="The Headlamp service could not be reached. Please check that it is deployed and healthy."
-        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: 'Get support' }}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={t('McpPage.headlampUnavailableSubtitle')}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
       />
     );
   }
@@ -38,7 +40,12 @@ function HeadlampIframe() {
 
   return (
     <div className={styles.wrapper}>
-      <iframe key={iframeSrc} src={iframeSrc} className={styles.iframe} title={`Headlamp — ${mcp.name}`} />
+      <iframe
+        key={iframeSrc}
+        src={iframeSrc}
+        className={styles.iframe}
+        title={`${t('McpPage.headlampTitle')} — ${mcp.name}`}
+      />
     </div>
   );
 }
