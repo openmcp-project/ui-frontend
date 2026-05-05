@@ -21,7 +21,7 @@ function HeadlampIframe() {
   useEffect(() => {
     if (!mcp.kubeconfig) return;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
-      .then(() => setIframeSrc(`/api/headlamp/c/${clusterAlias}/flux/overview`))
+      .then(() => setIframeSrc(`/api/headlamp/c/${clusterAlias}`))
       .catch(() => setError(true));
   }, [mcp.kubeconfig, clusterAlias]);
 
