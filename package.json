@@ -54,7 +54,7 @@
     "@opentelemetry/semantic-conventions": "1.30.0",
     "@sentry/node": "10.50.0",
     "@sentry/react": "10.50.0",
-    "@sentry/vite-plugin": "4.9.1",
+    "@sentry/vite-plugin": "5.2.1",
     "@ui5/webcomponents": "2.21.1",
     "@ui5/webcomponents-fiori": "2.21.1",
     "@ui5/webcomponents-icons": "2.21.1",
