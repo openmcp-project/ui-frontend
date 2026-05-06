@@ -5,7 +5,6 @@ import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
-import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { useMcp } from '../../../../lib/shared/McpContext.tsx';
 import { McpPageSectionId } from '../../pages/McpPage.tsx';
 import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
@@ -19,16 +18,10 @@ import { useTranslation } from 'react-i18next';
 import styles from './ComponentsDashboard.module.css';
 
 export interface ComponentsDashboardProps {
-  components?: ControlPlaneComponentsType;
-  onInstallButtonClick: () => void;
   onNavigateToMcpSection: (sectionId: McpPageSectionId) => void;
 }
 
-export function ComponentsDashboardV2({
-  components,
-  onInstallButtonClick,
-  onNavigateToMcpSection,
-}: ComponentsDashboardProps) {
+export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDashboardProps) {
   const { t } = useTranslation();
   const crossplaneKpi = useKpiCrossplane();
   const fluxKpi = useKpiFlux();
@@ -40,19 +33,17 @@ export function ComponentsDashboardV2({
   const { esoData } = useEsoQuery(name, namespace);
 
   // Use GraphQL query data if available, otherwise fall back to REST components spec
-  const isCrossplaneInstalled = crossplaneData?.isInstalled ?? !!components?.crossplane;
-  const crossplaneVersion = crossplaneData?.isInstalled
-    ? (crossplaneData.providers?.[0]?.version ?? components?.crossplane?.version)
-    : components?.crossplane?.version;
+  const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
+  const crossplaneVersion = crossplaneData?.version ?? '';
 
-  const isLandscaperInstalled = landscaperData?.isInstalled ?? !!components?.landscaper;
-  const landscaperVersion = landscaperData?.version ?? undefined;
+  const isLandscaperInstalled = !!landscaperData?.isInstalled;
+  const landscaperVersion = landscaperData?.version ?? '';
 
-  const isFluxInstalled = fluxData?.isInstalled ?? !!components?.flux;
-  const fluxVersion = fluxData?.version ?? components?.flux?.version;
+  const isFluxInstalled = !!fluxData?.isInstalled;
+  const fluxVersion = fluxData?.version ?? '';
 
-  const isEsoInstalled = esoData?.isInstalled ?? !!components?.externalSecretsOperator;
-  const esoVersion = esoData?.version ?? components?.externalSecretsOperator?.version;
+  const isEsoInstalled = !!esoData?.isInstalled;
+  const esoVersion = esoData?.version ?? '';
 
   return (
     <Panel fixed>
@@ -64,7 +55,6 @@ export function ComponentsDashboardV2({
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
-          onInstallButtonClick={onInstallButtonClick}
           {...crossplaneKpi}
         />
         <ComponentCard
@@ -74,7 +64,6 @@ export function ComponentsDashboardV2({
           isInstalled={isFluxInstalled}
           version={fluxVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
-          onInstallButtonClick={onInstallButtonClick}
           {...fluxKpi}
         />
         <ComponentCard
@@ -85,7 +74,6 @@ export function ComponentsDashboardV2({
           version={landscaperVersion}
           kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
-          onInstallButtonClick={undefined}
         />
         <ComponentCard
           name="External Secrets Operator"
@@ -95,7 +83,6 @@ export function ComponentsDashboardV2({
           version={esoVersion}
           kpiType="enabled"
           onNavigateToComponentSection={undefined}
-          onInstallButtonClick={onInstallButtonClick}
         />
       </div>
     </Panel>
