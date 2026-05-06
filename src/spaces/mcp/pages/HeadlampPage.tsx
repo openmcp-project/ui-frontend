@@ -23,7 +23,7 @@ function HeadlampIframe() {
     let cancelled = false;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
       .then(() => {
-        if (!cancelled) setIframeSrc(`/api/headlamp/c/${clusterAlias}`);
+        if (!cancelled) setIframeSrc(`/api/headlamp/c/${encodeURIComponent(clusterAlias)}`);
       })
       .catch(() => {
         if (!cancelled) setError(true);

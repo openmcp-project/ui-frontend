@@ -69,7 +69,7 @@ function HeadlampSection() {
     let cancelled = false;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
       .then(() => {
-        if (!cancelled) setIframeSrc(`/api/headlamp/c/${clusterAlias}`);
+        if (!cancelled) setIframeSrc(`/api/headlamp/c/${encodeURIComponent(clusterAlias)}`);
       })
       .catch(() => {
         if (!cancelled) setError(true);
@@ -108,8 +108,9 @@ function HeadlampSection() {
 }
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers', 'headlamp'] as const;
-export type McpPageSectionId = 'overview' | 'crossplane' | 'flux' | 'landscapers';
 type McpPageSectionIdAll = (typeof MCP_PAGE_SECTIONS)[number];
+// Headlamp is excluded from the exported type — external navigation to it is not supported.
+export type McpPageSectionId = Exclude<McpPageSectionIdAll, 'headlamp'>;
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();

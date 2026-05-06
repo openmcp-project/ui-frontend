@@ -77,7 +77,7 @@ function proxyPlugin(fastify) {
         if (mcpToken) {
           try {
             const raw = Buffer.from(kubeconfig, 'base64').toString('utf8');
-            const patched = raw.replace(/((?:^|\n)\s*token:\s*)bff-managed(\s|$)/m, `$1${mcpToken}$2`);
+            const patched = raw.replace(/((?:^|\n)\s*token:\s*)bff-managed(\s|$)/m, (_m, pre, post) => `${pre}${mcpToken}${post}`);
             finalKubeconfig = Buffer.from(patched).toString('base64');
           } catch {
             // keep original if patching fails

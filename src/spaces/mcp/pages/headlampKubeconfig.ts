@@ -48,7 +48,7 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
     await Promise.all(
       (clusters ?? [])
         .filter((c) => c.name !== clusterAlias)
-        .map((c) => fetch(`/api/headlamp/cluster/${c.name}`, { method: 'DELETE' })),
+        .map((c) => fetch(`/api/headlamp/cluster/${encodeURIComponent(c.name)}`, { method: 'DELETE' })),
     );
   }
 

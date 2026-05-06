@@ -116,7 +116,6 @@ export function CreateWorkspaceDialogContainer({
       setValue={setValue}
       type={'workspace'}
       projectName={project}
-      // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleWorkspaceCreate)}
     />
   );
