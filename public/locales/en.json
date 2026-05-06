@@ -41,6 +41,7 @@
   },
   "Kpi": {
     "installed": "Installed",
+    "notInstalled": "Not Installed",
     "error": "There was a problem loading this data. Please try again later."
   },
   "FluxList": {
