@@ -687,7 +687,8 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.get('#displayName').typeIntoUi5Input('displayName');
     cy.get('#chargingTargetType').openDropDownByClick();
     cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
-    cy.get('#chargingTarget').should('not.have.attr', 'disabled').typeIntoUi5Input('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb').type('{enter}');
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
+    cy.get('#chargingTarget').typeIntoUi5Input('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb').type('{enter}');
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Members
 

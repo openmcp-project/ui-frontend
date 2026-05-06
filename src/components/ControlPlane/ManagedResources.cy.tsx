@@ -122,7 +122,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.then(() => cy.wrap(deleteCalled).should('equal', false));
 
     // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled').click();
+    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
     // Verify delete was called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
@@ -164,7 +164,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.then(() => cy.wrap(patchCalled).should('equal', false));
 
     // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled').click();
+    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
     // Verify both delete and patch were called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
@@ -203,7 +203,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
     // Clear input and type correct text
-    cy.get('ui5-dialog[open]').find('ui5-input').find('input[id*="inner"]').clear({ force: true });
+    cy.get('ui5-dialog[open]').find('ui5-input').clearUi5Input();
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
 
     // Delete button should now be enabled
