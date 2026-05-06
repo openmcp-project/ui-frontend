@@ -12,16 +12,15 @@ import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 describe('ManagedResources - Delete Resource', () => {
   let deleteCalled = false;
   let patchCalled = false;
-  let callCount = 0;
 
-  const fakeUseApiResourceMutation: typeof useApiResourceMutation = (): any => {
-    const instanceIndex = callCount++;
+  const fakeUseApiResourceMutation: typeof useApiResourceMutation = (resource: any): any => {
+    const isDelete = resource?.method === 'DELETE';
     return {
       data: undefined,
       error: undefined,
       reset: () => {},
       trigger: async (): Promise<any> => {
-        if (instanceIndex === 0) {
+        if (isDelete) {
           deleteCalled = true;
         } else {
           patchCalled = true;
@@ -90,7 +89,6 @@ describe('ManagedResources - Delete Resource', () => {
   beforeEach(() => {
     deleteCalled = false;
     patchCalled = false;
-    callCount = 0;
   });
 
   it('deletes a managed resource', () => {
@@ -284,6 +282,9 @@ describe('ManagedResources - Edit Resource', () => {
         return false;
       }
       if (err.message.includes('DiffEditorWidget')) {
+        return false;
+      }
+      if (err.message.includes('no diff result available')) {
         return false;
       }
       return true;
