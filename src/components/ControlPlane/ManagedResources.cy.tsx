@@ -278,18 +278,6 @@ describe('ManagedResources - Edit Resource', () => {
     },
   ];
 
-  before(() => {
-    cy.on('uncaught:exception', (err) => {
-      if (err.message.includes('TextModel got disposed')) {
-        return false;
-      }
-      if (err.message.includes('DiffEditorWidget')) {
-        return false;
-      }
-      return true;
-    });
-  });
-
   beforeEach(() => {
     patchCalled = false;
     patchedItem = null;
