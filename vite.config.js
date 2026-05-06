@@ -38,7 +38,7 @@ export default defineConfig({
 
   optimizeDeps: {
     include: ['path-browserify'],
-    esbuildOptions: {
+    rolldownOptions: {
       define: {
         global: 'globalThis',
       },
