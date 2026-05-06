@@ -277,15 +277,17 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     },
   })) as typeof useAuthOnboarding;
 
-  beforeEach(() => {
-    createMutationPayload = null;
-    updateMutationPayload = null;
-
+  before(() => {
     cy.on('uncaught:exception', (err) => {
       if (err.message.includes('module is not defined')) {
         return false;
       }
     });
+  });
+
+  beforeEach(() => {
+    createMutationPayload = null;
+    updateMutationPayload = null;
   });
 
   it('creates an empty MCP', () => {
