@@ -47,7 +47,7 @@ export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDash
 
   return (
     <Panel fixed>
-      <div className={styles.container}>
+      <div className={styles['container-v2']}>
         <ComponentCard
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
