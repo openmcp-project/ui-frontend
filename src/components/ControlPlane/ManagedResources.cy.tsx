@@ -122,7 +122,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.then(() => cy.wrap(deleteCalled).should('equal', false));
 
     // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled').click();
 
     // Verify delete was called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
@@ -164,7 +164,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.then(() => cy.wrap(patchCalled).should('equal', false));
 
     // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled').click();
 
     // Verify both delete and patch were called
     cy.then(() => cy.wrap(deleteCalled).should('equal', true));
