@@ -49,24 +49,27 @@ export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDash
     <Panel fixed>
       <div className={styles['container-v2']}>
         <ComponentCard
+          isV2
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
           logoImgSrc={LogoCrossplane}
+          kpiType="enabled"
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
-          {...crossplaneKpi}
         />
         <ComponentCard
+          isV2
           name="Flux"
           description={t('componentCardFlux.description')}
           logoImgSrc={LogoFlux}
+          kpiType="enabled"
           isInstalled={isFluxInstalled}
           version={fluxVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
-          {...fluxKpi}
         />
         <ComponentCard
+          isV2
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
           logoImgSrc={LogoLandscaper}
@@ -76,6 +79,7 @@ export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDash
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
         />
         <ComponentCard
+          isV2
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
           logoImgSrc={LogoEso}
