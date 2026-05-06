@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 
 const GET_CROSSPLANE_QUERY = gql`
@@ -13,6 +13,7 @@ const GET_CROSSPLANE_QUERY = gql`
             namespace
           }
           spec {
+            version
             providers {
               name
               version
@@ -40,6 +41,7 @@ export interface CrossplaneProvider {
 export interface UseCrossplaneQueryResult {
   crossplaneData: {
     isInstalled: boolean;
+    version: string | null;
     providers: CrossplaneProvider[];
   } | null;
   isLoading: boolean;
@@ -61,10 +63,10 @@ export function useCrossplaneQuery(name?: string, namespace?: string): UseCrossp
     }
 
     const providers = rawCrossplane.spec?.providers ?? [];
-    console.log('Crossplane providers:', providers);
 
     return {
       isInstalled: true,
+      version: rawCrossplane.spec?.version ?? null,
       providers: providers.map((p: CrossplaneProvider) => ({
         name: p?.name ?? null,
         version: p?.version ?? null,

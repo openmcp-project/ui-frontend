@@ -17,9 +17,6 @@ import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
-
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
@@ -36,7 +33,6 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
 
-import ComponentList from '../../../components/ControlPlane/ComponentList.tsx';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
@@ -87,11 +83,6 @@ export default function McpPageV2() {
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
-  // TODO: this will be replaced with GraphQL
-  const { data: mcpRestData } = useApiResource(
-    ControlPlaneResource(projectName, workspaceName, controlPlaneName, true),
-  );
-
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
@@ -110,10 +101,6 @@ export default function McpPageV2() {
     [mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings],
   );
 
-  const onEditComponents = () => {
-    setEditManagedControlPlaneWizardSection('componentSelection');
-    setIsEditManagedControlPlaneWizardOpen(true);
-  };
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
     setEditManagedControlPlaneWizardSection(undefined);
@@ -142,7 +129,7 @@ export default function McpPageV2() {
       </Center>
     );
   }
-  console.log(crossplaneData);
+
   const isComponentInstalledCrossplane = !!crossplaneData?.isInstalled;
   const isComponentInstalledFlux = !!fluxData?.isInstalled;
   const isComponentInstalledLandscaper = !!landscaperData?.isInstalled;
@@ -211,8 +198,6 @@ export default function McpPageV2() {
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboardV2
-                    components={mcpRestData?.spec?.components}
-                    onInstallButtonClick={onEditComponents}
                     onNavigateToMcpSection={(sectionId) => {
                       setTabFromSection(sectionId);
                     }}
@@ -220,13 +205,6 @@ export default function McpPageV2() {
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
                   <Graph />
-                </ObjectPageSubSection>
-                <ObjectPageSubSection
-                  id="components"
-                  titleText={t('McpPage.componentsTitle')}
-                  className={styles.section}
-                >
-                  <ComponentList mcp={mcpRestData} onEditClick={onEditComponents} />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
