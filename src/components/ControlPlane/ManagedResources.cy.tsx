@@ -314,11 +314,12 @@ describe('ManagedResources - Edit Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Edit').click({ force: true });
 
-    // Verify YAML panel opened
+    // Wait for YAML panel and Monaco editor to fully load (schema loader async re-renders)
     cy.contains('YAML').should('be.visible');
+    cy.get('.monaco-editor', { timeout: 10000 }).should('exist');
 
-    // Click Apply button
-    cy.get('[data-testid="yaml-apply-button"]').should('be.visible').click();
+    // Click Apply button — use force to avoid detached-DOM race from SWR revalidation re-renders
+    cy.get('[data-testid="yaml-apply-button"]').click({ force: true });
 
     // Confirm in dialog
     cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').click({ force: true });
