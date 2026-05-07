@@ -25,7 +25,8 @@
       "Bash(git commit -m 'feat\\(project\\): redesign Create Project wizard with live YAML preview *)",
       "Bash(git commit -m 'fix\\(project\\): move Wizard to Dialog header slot for proper rendering *)",
       "Bash(git commit -m 'feat\\(project\\): improve wizard UI layout and spacing *)",
-      "Bash(git commit -m 'refactor\\(project\\): replace UI5 Wizard with clean custom step indicator *)"
+      "Bash(git commit -m 'refactor\\(project\\): replace UI5 Wizard with clean custom step indicator *)",
+      "Bash(git commit -m 'refactor\\(project\\): complete rewrite with clean simple layout *)"
     ]
   }
 }

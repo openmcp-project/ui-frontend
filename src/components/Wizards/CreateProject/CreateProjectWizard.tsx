@@ -1,5 +1,5 @@
 import { useState, useMemo, FormEvent } from 'react';
-import { Dialog, FlexBox, Button, Bar, FormGroup, Icon } from '@ui5/webcomponents-react';
+import { Dialog, FlexBox, Button, Bar, FormGroup } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { UseFormRegister, UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
 import * as yaml from 'js-yaml';
@@ -37,7 +37,6 @@ export function CreateProjectWizard({
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const [currentStep, setCurrentStep] = useState<WizardStepType>('metadata');
-  const [showYaml, setShowYaml] = useState(true);
 
   const name = watch('name') || '';
   const displayName = watch('displayName') || '';
@@ -84,7 +83,6 @@ export function CreateProjectWizard({
     if (currentStep === 'metadata') {
       setCurrentStep('members');
     } else {
-      // Step 2 - Create button
       onCreate();
     }
   };
@@ -123,25 +121,7 @@ export function CreateProjectWizard({
       stretch
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      header={
-        <div className={styles.wizardHeader}>
-          <div
-            className={`${styles.step} ${currentStep === 'metadata' ? styles.stepActive : ''}`}
-            onClick={() => setCurrentStep('metadata')}
-          >
-            <div className={styles.stepNumber}>1</div>
-            <div className={styles.stepTitle}>{t('CreateProjectWorkspaceDialog.metadataHeader')}</div>
-          </div>
-          <div className={styles.stepConnector}></div>
-          <div
-            className={`${styles.step} ${currentStep === 'members' ? styles.stepActive : ''}`}
-            onClick={() => currentStep === 'members' && setCurrentStep('members')}
-          >
-            <div className={styles.stepNumber}>2</div>
-            <div className={styles.stepTitle}>{t('CreateProjectWorkspaceDialog.membersHeader')}</div>
-          </div>
-        </div>
-      }
+      headerText="Create Project"
       footer={
         <Bar
           design="Footer"
@@ -159,72 +139,70 @@ export function CreateProjectWizard({
         />
       }
     >
-      <FlexBox className={styles.container}>
-        {/* Left side: Form */}
-        <div className={showYaml ? styles.leftPanel : styles.leftPanelFull}>
+      {/* Step Indicator */}
+      <div className={styles.stepIndicator}>
+        <div className={`${styles.stepItem} ${currentStep === 'metadata' ? styles.active : ''}`}  onClick={() => setCurrentStep('metadata')}>
+          <div className={styles.stepNumber}>1</div>
+          <div className={styles.stepLabel}>{t('CreateProjectWorkspaceDialog.metadataHeader')}</div>
+        </div>
+        <div className={styles.stepDivider}></div>
+        <div className={`${styles.stepItem} ${currentStep === 'members' ? styles.active : ''}`} onClick={() => setCurrentStep('members')}>
+          <div className={styles.stepNumber}>2</div>
+          <div className={styles.stepLabel}>{t('CreateProjectWorkspaceDialog.membersHeader')}</div>
+        </div>
+      </div>
+
+      {/* Main Content with Splitter */}
+      <div className={styles.splitContainer}>
+        <div className={styles.leftPane}>
           {currentStep === 'metadata' && (
-            <div className={styles.formWrapper}>
-              <MetadataForm
-                watch={watch}
-                register={register}
-                errors={errors}
-                setValue={setValue}
-                requireChargingTarget={true}
-              />
-            </div>
+            <MetadataForm
+              watch={watch}
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              requireChargingTarget={true}
+            />
           )}
 
           {currentStep === 'members' && (
-            <div className={styles.formWrapper}>
-              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-                <EditMembers
-                  type="project"
-                  members={members}
-                  isValidationError={!!errors.members}
-                  onMemberChanged={setMembers}
-                />
-              </FormGroup>
-            </div>
+            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+              <EditMembers
+                type="project"
+                members={members}
+                isValidationError={!!errors.members}
+                onMemberChanged={setMembers}
+              />
+            </FormGroup>
           )}
         </div>
 
-        {/* YAML Toggle Button */}
-        <div className={styles.toggleButton}>
-          <Button
-            icon={showYaml ? 'close-command-field' : 'open-command-field'}
-            design="Transparent"
-            onClick={() => setShowYaml(!showYaml)}
-            tooltip={showYaml ? 'Hide YAML' : 'Show YAML'}
-          />
-        </div>
+        <div className={styles.resizer}></div>
 
-        {/* Right side: YAML Preview */}
-        {showYaml && (
-          <div className={styles.rightPanel}>
-            <FlexBox className={styles.yamlHeader} justifyContent="SpaceBetween" alignItems="Center">
-              <span className={styles.yamlTitle}>{t('common.yamlPreview')}</span>
-              <FlexBox style={{ gap: '0.5rem' }}>
-                <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
-                  {t('buttons.copy')}
-                </Button>
-                <Button icon="download" onClick={downloadYaml}>
-                  {t('buttons.download')}
-                </Button>
-              </FlexBox>
+        <div className={styles.rightPane}>
+          <div className={styles.yamlHeader}>
+            <span className={styles.yamlTitle}>{t('common.yamlPreview')}</span>
+            <FlexBox style={{ gap: '0.5rem' }}>
+              <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
+                {t('buttons.copy')}
+              </Button>
+              <Button icon="download" onClick={downloadYaml}>
+                {t('buttons.download')}
+              </Button>
             </FlexBox>
-            <div className={styles.yamlEditor}>
-              <YamlResourceEditorSchemaLoader
-                apiGroupName="core.openmcp.cloud"
-                apiVersion="v1alpha1"
-                yamlString={yamlString}
-                filename={`project-${name || 'new'}`}
-                isEdit={false}
-                kind="project"
-              />
-            </div>
           </div>
-        )}
-      </FlexBox>
+          <div className={styles.yamlContent}>
+            <YamlResourceEditorSchemaLoader
+              apiGroupName="core.openmcp.cloud"
+              apiVersion="v1alpha1"
+              yamlString={yamlString}
+              filename={`project-${name || 'new'}`}
+              isEdit={false}
+              kind="project"
+            />
+          </div>
+        </div>
+      </div>
     </Dialog>
   );
 }
