@@ -29,6 +29,18 @@ import { configureMonaco } from '../../src/lib/monaco';
 // Initialize Monaco Editor for Cypress tests
 configureMonaco();
 
+// Known Monaco Editor race conditions during test teardown.
+Cypress.on('uncaught:exception', (err) => {
+  if (
+    err.message.includes('Missing requestHandler or method') ||
+    err.message.includes('TextModel got disposed') ||
+    err.message.includes('DiffEditorWidget') ||
+    err.message.includes('no diff result available')
+  ) {
+    return false;
+  }
+});
+
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
 // Alternatively, can be defined in cypress/support/component.d.ts
