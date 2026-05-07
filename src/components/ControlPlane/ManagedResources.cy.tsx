@@ -115,14 +115,18 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
-    // Type confirmation text
+    // Type confirmation text and verify it was accepted
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.attr', 'value', 'test-subaccount');
 
     // Verify delete not called yet
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
 
-    // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    // Wait for delete button to become enabled, then click
+    cy.get('ui5-dialog[open]')
+      .find('ui5-button[design="Negative"]')
+      .should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify delete was called
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
@@ -163,8 +167,11 @@ describe('ManagedResources - Delete Resource', () => {
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
     cy.wrap(null).should(() => expect(patchCalled).to.equal(false));
 
-    // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    // Wait for delete button to become enabled, then click
+    cy.get('ui5-dialog[open]')
+      .find('ui5-button[design="Negative"]')
+      .should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify both delete and patch were called
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
