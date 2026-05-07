@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 
 const GET_ESO_QUERY = gql`
@@ -44,8 +44,7 @@ export function useEsoQuery(name?: string, namespace?: string): UseEsoQueryResul
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawEso =
-    queryResult.data?.external_secrets_services_openmcp_cloud?.v1alpha1?.ExternalSecretsOperator;
+  const rawEso = queryResult.data?.external_secrets_services_openmcp_cloud?.v1alpha1?.ExternalSecretsOperator;
 
   const data = useMemo(() => {
     if (!rawEso) {
