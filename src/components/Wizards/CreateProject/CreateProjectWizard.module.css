@@ -1,39 +1,54 @@
 .container {
   display: flex;
   flex-direction: row;
-  height: 70vh;
-  gap: 1.5rem;
-  padding: 1rem;
+  height: calc(80vh - 120px);
+  gap: 2rem;
+  padding: 0;
+  margin: 0;
 }
 
 .leftPanel {
-  flex: 1;
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
-  padding-right: 1rem;
+  padding: 1.5rem 2rem 1.5rem 1.5rem;
+}
+
+.formWrapper {
+  width: 100%;
+}
+
+.formWrapper :global(.input) {
+  max-width: none !important;
+  width: 100% !important;
 }
 
 .rightPanel {
-  flex: 1;
+  flex: 0 0 55%;
   display: flex;
   flex-direction: column;
+  background-color: var(--sapBackgroundColor);
   border-left: 1px solid var(--sapGroup_BorderColor);
-  padding-left: 1.5rem;
+  padding: 1.5rem 1.5rem 1.5rem 2rem;
 }
 
 .yamlHeader {
   margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--sapGroup_BorderColor);
 }
 
 .yamlTitle {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.125rem;
+  color: var(--sapTextColor);
 }
 
 .yamlEditor {
   flex: 1;
   overflow: hidden;
   border: 1px solid var(--sapGroup_BorderColor);
-  border-radius: 0.25rem;
+  border-radius: 0.375rem;
+  min-height: 0;
 }

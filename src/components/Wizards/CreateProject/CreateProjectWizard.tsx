@@ -126,7 +126,6 @@ export function CreateProjectWizard({
   return (
     <Dialog
       stretch
-      headerText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       open={isOpen}
       onClose={() => setIsOpen(false)}
       header={
@@ -164,24 +163,28 @@ export function CreateProjectWizard({
         {/* Left side: Form */}
         <div className={styles.leftPanel}>
           {currentStep === 'metadata' && (
-            <MetadataForm
-              watch={watch}
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              requireChargingTarget={true}
-            />
+            <div className={styles.formWrapper}>
+              <MetadataForm
+                watch={watch}
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                requireChargingTarget={true}
+              />
+            </div>
           )}
 
           {currentStep === 'members' && (
-            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-              <EditMembers
-                type="project"
-                members={members}
-                isValidationError={!!errors.members}
-                onMemberChanged={setMembers}
-              />
-            </FormGroup>
+            <div className={styles.formWrapper}>
+              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+                <EditMembers
+                  type="project"
+                  members={members}
+                  isValidationError={!!errors.members}
+                  onMemberChanged={setMembers}
+                />
+              </FormGroup>
+            </div>
           )}
         </div>
 

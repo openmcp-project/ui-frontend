@@ -23,7 +23,8 @@
       "Bash(git commit -m 'feat\\(migration\\): add ArgoCD support and improve reconciliation status *)",
       "Bash(git stash *)",
       "Bash(git commit -m 'feat\\(project\\): redesign Create Project wizard with live YAML preview *)",
-      "Bash(git commit -m 'fix\\(project\\): move Wizard to Dialog header slot for proper rendering *)"
+      "Bash(git commit -m 'fix\\(project\\): move Wizard to Dialog header slot for proper rendering *)",
+      "Bash(git commit -m 'feat\\(project\\): improve wizard UI layout and spacing *)"
     ]
   }
 }
