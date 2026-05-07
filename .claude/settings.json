@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:pages.github.tools.sap)",
+      "Bash(npm run *)",
+      "Bash(git checkout *)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:ui5.github.io)",
+      "Bash(git commit -m 'refactor: use MessageBox for validation warnings *)",
+      "Bash(git commit -m 'feat: use real reconciliation status from Flux and Crossplane resources *)",
+      "Bash(git restore *)",
+      "Bash(git commit -m 'fix: improve button responsiveness in migration wizard *)",
+      "Bash(git commit -m 'fix: allow users to proceed after clicking OK on validation warnings *)",
+      "WebSearch",
+      "Bash(xargs cat)",
+      "Bash(git commit -m 'feat: improve MessageBox warning styling with proper title *)",
+      "Bash(git commit -m 'fix: improve warning message formatting and MessageBox action handling *)",
+      "Bash(git commit -m 'feat: add expandable resource lists and improve reconciliation UI *)",
+      "WebFetch(domain:docs.crossplane.io)",
+      "Bash(git commit -m 'feat: implement Crossplane observe-only mode for migration *)",
+      "Bash(git commit -m 'fix: focus pause reconciliation UI on reconciliation state, not health *)",
+      "Bash(curl -s https://raw.githubusercontent.com/cncf/artwork/master/projects/argo/icon/color/argo-icon-color.svg -o /Users/d056754/Documents/Repos/ui-frontend-open-source/src/assets/images/logo-argocd.svg)",
+      "Bash(git commit -m 'feat\\(migration\\): add ArgoCD support and improve reconciliation status *)",
+      "Bash(git stash *)",
+      "Bash(git commit -m 'feat\\(project\\): redesign Create Project wizard with live YAML preview *)",
+      "Bash(git commit -m 'fix\\(project\\): move Wizard to Dialog header slot for proper rendering *)"
+    ]
+  }
+}

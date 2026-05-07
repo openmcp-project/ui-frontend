@@ -129,6 +129,20 @@ export function CreateProjectWizard({
       headerText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       open={isOpen}
       onClose={() => setIsOpen(false)}
+      header={
+        <Wizard onStepChange={(e) => handleStepChange(e.detail.step?.dataset.stepIndex as any)}>
+          <WizStep
+            titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+            selected={currentStep === 'metadata'}
+            data-step-index={0}
+          />
+          <WizStep
+            titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
+            selected={currentStep === 'members'}
+            data-step-index={1}
+          />
+        </Wizard>
+      }
       footer={
         <Bar
           design="Footer"
@@ -146,19 +160,6 @@ export function CreateProjectWizard({
         />
       }
     >
-      <Wizard onStepChange={(e) => handleStepChange(e.detail.step?.dataset.stepIndex as any)}>
-        <WizStep
-          titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
-          selected={currentStep === 'metadata'}
-          data-step-index={0}
-        />
-        <WizStep
-          titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
-          selected={currentStep === 'members'}
-          data-step-index={1}
-        />
-      </Wizard>
-
       <FlexBox className={styles.container}>
         {/* Left side: Form */}
         <div className={styles.leftPanel}>
