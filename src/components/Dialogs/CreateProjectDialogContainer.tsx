@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 import { APIError } from '../../lib/api/error';
-import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
+import { OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
+import { CreateProjectWizard } from '../Wizards/CreateProject/CreateProjectWizard.tsx';
 
 export function CreateProjectDialogContainer({
   isOpen,
@@ -92,17 +93,14 @@ export function CreateProjectDialogContainer({
   };
 
   return (
-    <CreateProjectWorkspaceDialog
+    <CreateProjectWizard
       watch={watch}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      errorDialogRef={errorDialogRef}
-      titleText="Create Project"
       members={members}
       register={register}
       errors={errors}
       setValue={setValue}
-      type={'project'}
       // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleProjectCreate)}
     />

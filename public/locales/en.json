@@ -206,7 +206,8 @@
     "displayNameLabel": "Display Name",
     "nameLabel": "Name",
     "metadataHeader": "Metadata",
-    "membersHeader": "Members"
+    "membersHeader": "Members",
+    "createProjectTitle": "Create Project"
   },
   "EditMembers": {
     "addButton": "Add User or ServiceAccount",
@@ -415,7 +416,12 @@
     "resourcesCount": "Resources ({{count}})",
     "itemsCount": "Items ({{count}})",
     "deprecated": "Deprecated",
-    "readMore": "Read more"
+    "readMore": "Read more",
+    "yamlPreview": "YAML Preview",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "create": "Create"
   },
   "deprecated": {
     "deprecatedPopoverMessage": "There is a new version of Managed Control Plane available."
