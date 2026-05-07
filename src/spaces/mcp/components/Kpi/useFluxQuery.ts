@@ -1,8 +1,8 @@
 import { useQuery } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useMemo } from 'react';
+import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 
-const GET_FLUX_QUERY = gql`
+const GET_FLUX_QUERY = graphql(`
   query GetFlux($name: String!, $namespace: String) {
     flux_services_openmcp_cloud {
       v1alpha1 {
@@ -26,7 +26,7 @@ const GET_FLUX_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export interface UseFluxQueryResult {
   fluxData: {
