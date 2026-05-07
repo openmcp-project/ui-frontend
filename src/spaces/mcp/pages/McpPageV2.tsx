@@ -37,8 +37,8 @@ import { GitRepositories } from '../../../components/ControlPlane/GitRepositorie
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import { ManagedResources } from '../../../components/ControlPlane/ManagedResources.tsx';
-import { McpConfigMapsV2 } from '../../../components/ControlPlane/McpConfigMapsV2.tsx';
-import { McpSecretsV2 } from '../../../components/ControlPlane/McpSecretsV2.tsx';
+import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
+import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
@@ -211,10 +211,10 @@ export default function McpPageV2() {
                   titleText={t('McpPage.configMapsTitle')}
                   className={styles.section}
                 >
-                  <McpConfigMapsV2 />
+                  <McpConfigMaps />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="secrets" titleText={t('McpPage.secretsTitle')} className={styles.section}>
-                  <McpSecretsV2 />
+                  <McpSecrets />
                 </ObjectPageSubSection>
               </ObjectPageSection>
 
