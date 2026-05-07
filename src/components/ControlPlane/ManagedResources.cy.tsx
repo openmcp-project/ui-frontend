@@ -116,7 +116,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.contains('Delete').click({ force: true });
 
     // Type confirmation text and verify it was accepted
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
     cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', 'test-subaccount');
 
     // Verify delete not called yet
@@ -159,8 +159,9 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-checkbox').toggleUi5Checkbox();
     cy.get('ui5-dialog[open]').find('ui5-checkbox').should('have.attr', 'checked');
 
-    // Type confirmation text
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    // Type confirmation text and verify it was accepted
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', 'test-subaccount');
 
     // Verify neither delete nor patch called yet
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
@@ -201,14 +202,14 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
     // Type wrong text
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('wrong-text');
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('wrong-text');
 
     // Delete button should still be disabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
     // Clear input and type correct text
     cy.get('ui5-dialog[open]').find('ui5-input').clearUi5Input();
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
 
     // Delete button should now be enabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled');
