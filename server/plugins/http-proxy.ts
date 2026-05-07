@@ -84,7 +84,16 @@ function proxyPlugin(fastify) {
           }
         }
         await req.encryptedSession.set('headlamp_kubeconfig', finalKubeconfig);
-        return reply.send({ ok: true, kubeconfig: finalKubeconfig });
+        // Register with headlamp server-to-server so the patched kubeconfig (containing the real token) never leaves the BFF.
+        const parseRes = await fetch(`${HEADLAMP_UPSTREAM_URL}/api/headlamp/parseKubeConfig`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kubeconfigs: [finalKubeconfig] }),
+        });
+        if (!parseRes.ok) {
+          return reply.internalServerError(`Headlamp parseKubeConfig failed: ${parseRes.status}`);
+        }
+        return reply.send({ ok: true });
       });
 
       child.register(httpProxy, {
@@ -110,6 +119,13 @@ function proxyPlugin(fastify) {
             delete out['cross-origin-opener-policy'];
             delete out['cross-origin-resource-policy'];
             delete out['cross-origin-embedder-policy'];
+            // Prevent browsers from caching Headlamp plugin JS files so updates
+            // (e.g. kiosk-plugin ConfigMap changes) take effect on next reload.
+            if (out['content-type']?.includes('javascript')) {
+              out['cache-control'] = 'no-store';
+              delete out['last-modified'];
+              delete out['etag'];
+            }
             return out;
           },
         },

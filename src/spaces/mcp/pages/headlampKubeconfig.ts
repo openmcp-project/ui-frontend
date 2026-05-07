@@ -52,17 +52,10 @@ export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAl
     );
   }
 
-  // BFF patches 'bff-managed' → real mcp_accessToken and returns the result.
+  // BFF patches 'bff-managed' → real mcp_accessToken and calls parseKubeConfig server-to-server.
   const bff = await fetch('/api/headlamp-kubeconfig', json({ kubeconfig: base64 }));
   if (!bff.ok) {
     throw new Error(`BFF kubeconfig registration failed: ${bff.status}`);
-  }
-  const { kubeconfig: patchedKubeconfig } = (await bff.json()) as { kubeconfig: string };
-
-  // parseKubeConfig registers the cluster server-side with the real token — headlamp uses it for internal auth checks (e.g. selfsubjectreviews), not the per-request Authorization header the BFF injects.
-  const parseKube = await fetch('/api/headlamp/parseKubeConfig', json({ kubeconfigs: [patchedKubeconfig] }));
-  if (!parseKube.ok) {
-    throw new Error(`Headlamp registration failed: parseKubeConfig ${parseKube.status}`);
   }
 
   return clusterAlias;
