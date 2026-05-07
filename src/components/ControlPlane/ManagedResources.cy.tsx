@@ -117,7 +117,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Type confirmation text and verify it was accepted
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
-    cy.get('ui5-dialog[open]').find('ui5-input').should('have.attr', 'value', 'test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', 'test-subaccount');
 
     // Verify delete not called yet
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
@@ -156,7 +156,8 @@ describe('ManagedResources - Delete Resource', () => {
     cy.contains('Advanced').click();
 
     // Enable force deletion checkbox
-    cy.contains('Force deletion').click({ force: true });
+    cy.get('ui5-dialog[open]').find('ui5-checkbox').toggleUi5Checkbox();
+    cy.get('ui5-dialog[open]').find('ui5-checkbox').should('have.attr', 'checked');
 
     // Type confirmation text
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
