@@ -68,9 +68,10 @@
   display: flex;
   flex-direction: row;
   height: calc(80vh - 120px);
-  gap: 2rem;
+  gap: 0;
   padding: 0;
   margin: 0;
+  position: relative;
 }
 
 .leftPanel {
@@ -79,6 +80,28 @@
   flex-direction: column;
   overflow-y: auto;
   padding: 1.5rem 2rem 1.5rem 1.5rem;
+  transition: flex 0.3s ease;
+}
+
+.leftPanelFull {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem 2rem 1.5rem 1.5rem;
+  transition: flex 0.3s ease;
+}
+
+.toggleButton {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: var(--sapButton_Background);
+  border: 1px solid var(--sapButton_BorderColor);
+  border-radius: 0.5rem 0 0 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .formWrapper {
@@ -97,6 +120,18 @@
   background-color: var(--sapBackgroundColor);
   border-left: 1px solid var(--sapGroup_BorderColor);
   padding: 1.5rem 1.5rem 1.5rem 2rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .yamlHeader {

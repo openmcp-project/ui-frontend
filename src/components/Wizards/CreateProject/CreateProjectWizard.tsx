@@ -1,5 +1,5 @@
 import { useState, useMemo, FormEvent } from 'react';
-import { Dialog, FlexBox, Button, Bar, FormGroup } from '@ui5/webcomponents-react';
+import { Dialog, FlexBox, Button, Bar, FormGroup, Icon } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { UseFormRegister, UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
 import * as yaml from 'js-yaml';
@@ -37,6 +37,7 @@ export function CreateProjectWizard({
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const [currentStep, setCurrentStep] = useState<WizardStepType>('metadata');
+  const [showYaml, setShowYaml] = useState(true);
 
   const name = watch('name') || '';
   const displayName = watch('displayName') || '';
@@ -160,7 +161,7 @@ export function CreateProjectWizard({
     >
       <FlexBox className={styles.container}>
         {/* Left side: Form */}
-        <div className={styles.leftPanel}>
+        <div className={showYaml ? styles.leftPanel : styles.leftPanelFull}>
           {currentStep === 'metadata' && (
             <div className={styles.formWrapper}>
               <MetadataForm
@@ -187,30 +188,42 @@ export function CreateProjectWizard({
           )}
         </div>
 
-        {/* Right side: YAML Preview */}
-        <div className={styles.rightPanel}>
-          <FlexBox className={styles.yamlHeader} justifyContent="SpaceBetween" alignItems="Center">
-            <span className={styles.yamlTitle}>{t('common.yamlPreview')}</span>
-            <FlexBox style={{ gap: '0.5rem' }}>
-              <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
-                {t('buttons.copy')}
-              </Button>
-              <Button icon="download" onClick={downloadYaml}>
-                {t('buttons.download')}
-              </Button>
-            </FlexBox>
-          </FlexBox>
-          <div className={styles.yamlEditor}>
-            <YamlResourceEditorSchemaLoader
-              apiGroupName="core.openmcp.cloud"
-              apiVersion="v1alpha1"
-              yamlString={yamlString}
-              filename={`project-${name || 'new'}`}
-              isEdit={false}
-              kind="project"
-            />
-          </div>
+        {/* YAML Toggle Button */}
+        <div className={styles.toggleButton}>
+          <Button
+            icon={showYaml ? 'close-command-field' : 'open-command-field'}
+            design="Transparent"
+            onClick={() => setShowYaml(!showYaml)}
+            tooltip={showYaml ? 'Hide YAML' : 'Show YAML'}
+          />
         </div>
+
+        {/* Right side: YAML Preview */}
+        {showYaml && (
+          <div className={styles.rightPanel}>
+            <FlexBox className={styles.yamlHeader} justifyContent="SpaceBetween" alignItems="Center">
+              <span className={styles.yamlTitle}>{t('common.yamlPreview')}</span>
+              <FlexBox style={{ gap: '0.5rem' }}>
+                <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
+                  {t('buttons.copy')}
+                </Button>
+                <Button icon="download" onClick={downloadYaml}>
+                  {t('buttons.download')}
+                </Button>
+              </FlexBox>
+            </FlexBox>
+            <div className={styles.yamlEditor}>
+              <YamlResourceEditorSchemaLoader
+                apiGroupName="core.openmcp.cloud"
+                apiVersion="v1alpha1"
+                yamlString={yamlString}
+                filename={`project-${name || 'new'}`}
+                isEdit={false}
+                kind="project"
+              />
+            </div>
+          </div>
+        )}
       </FlexBox>
     </Dialog>
   );
