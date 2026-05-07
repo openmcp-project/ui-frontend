@@ -277,22 +277,17 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     },
   })) as typeof useAuthOnboarding;
 
-  beforeEach(() => {
-    createMutationPayload = null;
-    updateMutationPayload = null;
-
-    // Suppress Monaco Editor disposal errors in tests
+  before(() => {
     cy.on('uncaught:exception', (err) => {
-      // Ignore Monaco Editor disposal errors
-      if (err.message.includes('TextModel got disposed') || err.message.includes('DiffEditorWidget')) {
-        return false;
-      }
-      // Ignore module is not defined errors from path-browserify
       if (err.message.includes('module is not defined')) {
         return false;
       }
-      return true;
     });
+  });
+
+  beforeEach(() => {
+    createMutationPayload = null;
+    updateMutationPayload = null;
   });
 
   it('creates an empty MCP', () => {
@@ -692,6 +687,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.get('#displayName').typeIntoUi5Input('displayName');
     cy.get('#chargingTargetType').openDropDownByClick();
     cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').typeIntoUi5Input('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb').type('{enter}');
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Members
