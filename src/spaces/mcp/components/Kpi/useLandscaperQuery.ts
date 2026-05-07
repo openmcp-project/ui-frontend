@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
+import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 
-const GET_LANDSCAPER_QUERY = gql`
+const GET_LANDSCAPER_QUERY = graphql(`
   query GetLandscaper($name: String!, $namespace: String) {
     landscaper_services_openmcp_cloud {
       v1alpha2 {
@@ -27,7 +27,7 @@ const GET_LANDSCAPER_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export interface UseLandscaperQueryResult {
   landscaperData: {

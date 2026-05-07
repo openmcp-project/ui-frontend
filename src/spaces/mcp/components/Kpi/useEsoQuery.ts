@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
+import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 
-const GET_ESO_QUERY = gql`
+const GET_ESO_QUERY = graphql(`
   query GetExternalSecretsOperator($name: String!, $namespace: String) {
     external_secrets_services_openmcp_cloud {
       v1alpha1 {
@@ -26,7 +26,7 @@ const GET_ESO_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export interface UseEsoQueryResult {
   esoData: {
