@@ -1,3 +1,69 @@
+/* Custom Wizard Header */
+.wizardHeader {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--sapObjectHeader_Background);
+  border-bottom: 1px solid var(--sapGroup_BorderColor);
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.step:hover {
+  background-color: var(--sapList_Hover_Background);
+}
+
+.stepActive {
+  background-color: var(--sapList_SelectionBackground);
+}
+
+.stepNumber {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--sapButton_Background);
+  color: var(--sapButton_TextColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 2px solid var(--sapButton_BorderColor);
+}
+
+.stepActive .stepNumber {
+  background-color: var(--sapButton_Emphasized_Background);
+  color: var(--sapButton_Emphasized_TextColor);
+  border-color: var(--sapButton_Emphasized_BorderColor);
+}
+
+.stepTitle {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--sapTextColor);
+}
+
+.stepActive .stepTitle {
+  font-weight: 600;
+  color: var(--sapButton_Emphasized_Background);
+}
+
+.stepConnector {
+  height: 2px;
+  flex: 0 0 3rem;
+  background-color: var(--sapGroup_BorderColor);
+  margin: 0 0.5rem;
+}
+
+/* Container and Panels */
 .container {
   display: flex;
   flex-direction: row;

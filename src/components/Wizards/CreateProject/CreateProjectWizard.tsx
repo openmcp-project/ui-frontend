@@ -1,5 +1,5 @@
 import { useState, useMemo, FormEvent } from 'react';
-import { Dialog, Wizard, WizardStep as WizStep, FlexBox, Button, Bar } from '@ui5/webcomponents-react';
+import { Dialog, FlexBox, Button, Bar, FormGroup } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { UseFormRegister, UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
 import * as yaml from 'js-yaml';
@@ -9,7 +9,6 @@ import { MetadataForm } from '../../Dialogs/MetadataForm';
 import { EditMembers } from '../../Members/EditMembers';
 import { YamlResourceEditorSchemaLoader } from '../../Yaml/YamlResourceEditorSchemaLoader';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard';
-import { FormGroup } from '@ui5/webcomponents-react';
 import styles from './CreateProjectWizard.module.css';
 
 export interface CreateProjectWizardProps {
@@ -80,11 +79,6 @@ export function CreateProjectWizard({
     return yaml.dump(projectObj, { lineWidth: -1 });
   }, [name, displayName, chargingTarget, chargingTargetType, members]);
 
-  const handleStepChange = (stepIndex: number) => {
-    const steps: WizardStepType[] = ['metadata', 'members'];
-    setCurrentStep(steps[stepIndex]);
-  };
-
   const handleNext = () => {
     if (currentStep === 'metadata') {
       setCurrentStep('members');
@@ -129,18 +123,23 @@ export function CreateProjectWizard({
       open={isOpen}
       onClose={() => setIsOpen(false)}
       header={
-        <Wizard onStepChange={(e) => handleStepChange(e.detail.step?.dataset.stepIndex as any)}>
-          <WizStep
-            titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
-            selected={currentStep === 'metadata'}
-            data-step-index={0}
-          />
-          <WizStep
-            titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
-            selected={currentStep === 'members'}
-            data-step-index={1}
-          />
-        </Wizard>
+        <div className={styles.wizardHeader}>
+          <div
+            className={`${styles.step} ${currentStep === 'metadata' ? styles.stepActive : ''}`}
+            onClick={() => setCurrentStep('metadata')}
+          >
+            <div className={styles.stepNumber}>1</div>
+            <div className={styles.stepTitle}>{t('CreateProjectWorkspaceDialog.metadataHeader')}</div>
+          </div>
+          <div className={styles.stepConnector}></div>
+          <div
+            className={`${styles.step} ${currentStep === 'members' ? styles.stepActive : ''}`}
+            onClick={() => currentStep === 'members' && setCurrentStep('members')}
+          >
+            <div className={styles.stepNumber}>2</div>
+            <div className={styles.stepTitle}>{t('CreateProjectWorkspaceDialog.membersHeader')}</div>
+          </div>
+        </div>
       }
       footer={
         <Bar
