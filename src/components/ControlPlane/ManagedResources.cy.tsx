@@ -119,13 +119,13 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
 
     // Verify delete not called yet
-    cy.then(() => cy.wrap(deleteCalled).should('equal', false));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
 
     // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
     // Verify delete was called
-    cy.then(() => cy.wrap(deleteCalled).should('equal', true));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
   });
 
   it('force deletes a managed resource', () => {
@@ -160,15 +160,15 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
 
     // Verify neither delete nor patch called yet
-    cy.then(() => cy.wrap(deleteCalled).should('equal', false));
-    cy.then(() => cy.wrap(patchCalled).should('equal', false));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(false));
 
     // Click delete button
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
 
     // Verify both delete and patch were called
-    cy.then(() => cy.wrap(deleteCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
   });
 
   it('keeps delete button disabled until confirmation text is entered', () => {
@@ -320,8 +320,8 @@ describe('ManagedResources - Edit Resource', () => {
     cy.contains('Update submitted', { timeout: 10000 }).should('be.visible');
 
     // Verify patch was called
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
+    cy.wrap(null).should(() => expect(patchedItem).to.not.be.null);
   });
 });
 
