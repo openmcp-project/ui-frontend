@@ -10,8 +10,6 @@ import { McpPageSectionId } from '../../pages/McpPage.tsx';
 import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
 import { useEsoQuery } from '../Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../Kpi/useFluxQuery.ts';
-import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
-import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
 import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
 
 import { useTranslation } from 'react-i18next';
@@ -23,8 +21,6 @@ export interface ComponentsDashboardProps {
 
 export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDashboardProps) {
   const { t } = useTranslation();
-  const crossplaneKpi = useKpiCrossplane();
-  const fluxKpi = useKpiFlux();
   const { name, project, workspace } = useMcp();
   const namespace = project && workspace ? `project-${project}--ws-${workspace}` : undefined;
   const { crossplaneData } = useCrossplaneQuery(name, namespace);
