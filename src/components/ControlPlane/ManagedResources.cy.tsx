@@ -152,10 +152,12 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
-    // Expand Advanced section
-    cy.contains('Advanced').click();
+    // Wait for dialog open animation to complete (onOpen fires resetForm which clears state)
+    cy.get('ui5-dialog[open]').should('be.visible');
+    cy.wait(500);
 
-    // Enable force deletion checkbox
+    // Expand Advanced section and enable force deletion checkbox
+    cy.contains('Advanced').click();
     cy.get('ui5-dialog[open]').find('ui5-checkbox').toggleUi5Checkbox();
     cy.get('ui5-dialog[open]').find('ui5-checkbox').should('have.attr', 'checked');
 
