@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useApiResource } from '../lib/api/useApiResource.ts';
 import { CustomResourceDefinition } from '../types/customResourceDefinition.ts';
 
-import openapiSchemaToJsonSchema from '@openapi-contrib/openapi-schema-to-json-schema';
+import { openapiSchemaToJsonSchema } from '@openapi-contrib/openapi-schema-to-json-schema';
 import { APIError } from '../lib/api/error.ts';
 import { useResourcePluralNames } from './useResourcePluralNames.ts';
 
