@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 
 const GET_LANDSCAPER_QUERY = gql`
@@ -45,8 +45,7 @@ export function useLandscaperQuery(name?: string, namespace?: string): UseLandsc
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawLandscaper =
-    queryResult.data?.landscaper_services_openmcp_cloud?.v1alpha2?.Landscaper;
+  const rawLandscaper = queryResult.data?.landscaper_services_openmcp_cloud?.v1alpha2?.Landscaper;
 
   const data = useMemo(() => {
     if (!rawLandscaper) {

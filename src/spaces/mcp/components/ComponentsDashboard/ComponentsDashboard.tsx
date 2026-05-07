@@ -1,18 +1,18 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 
+import { Panel } from '@ui5/webcomponents-react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
-import LogoFlux from '../../../../assets/images/logo-flux.svg';
-import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
-import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
-import { McpPageSectionId } from '../../pages/McpPage.tsx';
+import LogoFlux from '../../../../assets/images/logo-flux.svg';
+import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
+import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
+import { McpPageSectionId } from '../../pages/McpPage.tsx';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
-import { Panel } from '@ui5/webcomponents-react';
 
-import styles from './ComponentsDashboard.module.css';
 import { useTranslation } from 'react-i18next';
+import styles from './ComponentsDashboard.module.css';
 
 export interface ComponentsDashboardProps {
   components?: ControlPlaneComponentsType;
