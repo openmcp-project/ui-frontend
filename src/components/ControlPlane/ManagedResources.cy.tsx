@@ -123,9 +123,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
 
     // Wait for delete button to become enabled, then click
-    cy.get('ui5-dialog[open]')
-      .find('ui5-button[design="Negative"]')
-      .should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').should('not.have.attr', 'disabled');
     cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify delete was called
@@ -168,9 +166,7 @@ describe('ManagedResources - Delete Resource', () => {
     cy.wrap(null).should(() => expect(patchCalled).to.equal(false));
 
     // Wait for delete button to become enabled, then click
-    cy.get('ui5-dialog[open]')
-      .find('ui5-button[design="Negative"]')
-      .should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').should('not.have.attr', 'disabled');
     cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify both delete and patch were called
