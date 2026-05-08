@@ -2,8 +2,9 @@
   "SignInPage": {
     "welcomeMessage": "Welcome to ManagedControlPlane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
-    "learnMoreLink": "Learn about ManagedControlPlanes",
-    "signInButton": "Sign In"
+    "learnMoreLink": "Learn more about Control Planes",
+    "signInButton": "Sign In",
+    "contributeLink": "Contribute on GitHub"
   },
   "Entities": {
     "ManagedControlPlane": "ManagedControlPlane",
