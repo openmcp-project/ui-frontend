@@ -232,8 +232,9 @@
 
 .signInButton {
   font-size: 1.125rem;
-  padding: 0.875rem 3rem;
-  min-height: 3rem;
+  padding: 1rem 3rem;
+  min-height: 3.5rem;
+  line-height: 1.5;
 }
 
 .docsLink {
