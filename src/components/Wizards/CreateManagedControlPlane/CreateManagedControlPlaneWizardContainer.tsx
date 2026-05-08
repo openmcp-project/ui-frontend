@@ -64,6 +64,7 @@ import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 // Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
 const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
@@ -112,6 +113,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthOnboarding();
+  const analytics = useAnalyticsOptional();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
@@ -255,6 +257,11 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const handleCreateManagedControlPlane = useCallback(
     async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
+      const actionId = analytics?.startAction(
+        isEditMode ? 'Edit MCP Wizard' : 'Create MCP Wizard',
+        'wizard',
+      );
+
       try {
         const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
 
@@ -276,6 +283,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               initialData,
             ),
           );
+
+          analytics?.trackEvent('MCP Updated', {
+            controlPlane: initialData?.metadata?.name ?? '',
+            workspace: workspaceName,
+            project: projectName,
+            componentsCount: componentsList.length,
+            membersCount: members.length,
+          });
         } else {
           await createManagedControlPlane(
             CreateManagedControlPlane(
@@ -291,10 +306,27 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
               idpPrefix,
             ),
           );
+
+          analytics?.trackEvent('MCP Created', {
+            controlPlane: finalName,
+            workspace: workspaceName,
+            project: projectName,
+            template: initialTemplateName || 'custom',
+            componentsCount: componentsList.length,
+            membersCount: members.length,
+          });
         }
         setSelectedStep('success');
+        if (actionId) analytics?.endAction(actionId);
         return true;
       } catch (e) {
+        if (actionId) analytics?.endAction(actionId);
+        analytics?.trackError(e as Error, {
+          action: isEditMode ? 'update_mcp' : 'create_mcp',
+          workspace: workspaceName,
+          project: projectName,
+        });
+
         if (e instanceof APIError && errorDialogRef.current) {
           errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
         } else {

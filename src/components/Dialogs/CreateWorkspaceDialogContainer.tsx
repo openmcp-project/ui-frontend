@@ -10,6 +10,7 @@ import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export type CreateDialogProps = {
   name: string;
@@ -34,6 +35,7 @@ export function CreateWorkspaceDialogContainer({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     register,
@@ -93,11 +95,21 @@ export function CreateWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
+      analytics?.trackEvent('Workspace Created', {
+        workspace: name,
+        project,
+        membersCount: members.length,
+      });
       setIsOpen(false);
       return true;
     } catch (e) {
       console.error(e);
       const message = e instanceof Error ? e.message : String(e);
+      analytics?.trackError(e instanceof Error ? e : new Error(message), {
+        action: 'create_workspace',
+        workspace: name,
+        project,
+      });
       errorDialogRef.current?.showErrorDialog(message);
       return false;
     }

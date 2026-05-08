@@ -11,7 +11,7 @@ import { ThemeManager } from './components/ThemeManager.tsx';
 import { IllustratedBanner } from './components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { Infobox } from './components/Ui/Infobox/Infobox.tsx';
 import { CopyButtonProvider } from './context/CopyButtonContext.tsx';
-import { FrontendConfigProvider } from './context/FrontendConfigContext.tsx';
+import { FrontendConfigProvider, useFrontendConfig } from './context/FrontendConfigContext.tsx';
 import { ToastProvider } from './context/ToastContext.tsx';
 import './index.css';
 import { configureMonaco } from './lib/monaco.ts';
@@ -20,6 +20,7 @@ import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientP
 import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
 import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
+import { AnalyticsProvider } from './lib/analytics';
 
 configureMonaco();
 
@@ -50,6 +51,15 @@ const ErrorFallback = ({ error, componentStack }: SentryErrorFallbackProps) => {
   );
 };
 
+/**
+ * Analytics wrapper that reads config and initializes the provider
+ */
+function AnalyticsWrapper({ children }: { children: React.ReactNode }) {
+  const config = useFrontendConfig();
+
+  return <AnalyticsProvider config={config.analytics}>{children}</AnalyticsProvider>;
+}
+
 export function createApp() {
   return (
     <React.StrictMode>
@@ -60,24 +70,26 @@ export function createApp() {
       >
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
-            <FeatureToggleProvider>
-              <AuthCallbackHandler>
-                <AuthProviderOnboarding>
-                  <ThemeProvider>
-                    <ToastProvider>
-                      <CopyButtonProvider>
-                        <SWRConfigWithTokenRefresh>
-                          <ApolloClientProvider>
-                            <App />
-                          </ApolloClientProvider>
-                          <ThemeManager />
-                        </SWRConfigWithTokenRefresh>
-                      </CopyButtonProvider>
-                    </ToastProvider>
-                  </ThemeProvider>
-                </AuthProviderOnboarding>
-              </AuthCallbackHandler>
-            </FeatureToggleProvider>
+            <AnalyticsWrapper>
+              <FeatureToggleProvider>
+                <AuthCallbackHandler>
+                  <AuthProviderOnboarding>
+                    <ThemeProvider>
+                      <ToastProvider>
+                        <CopyButtonProvider>
+                          <SWRConfigWithTokenRefresh>
+                            <ApolloClientProvider>
+                              <App />
+                            </ApolloClientProvider>
+                            <ThemeManager />
+                          </SWRConfigWithTokenRefresh>
+                        </CopyButtonProvider>
+                      </ToastProvider>
+                    </ThemeProvider>
+                  </AuthProviderOnboarding>
+                </AuthCallbackHandler>
+              </FeatureToggleProvider>
+            </AnalyticsWrapper>
           </FrontendConfigProvider>
         </Suspense>
       </Sentry.ErrorBoundary>

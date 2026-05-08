@@ -6,6 +6,7 @@ import { useNavigate as _useNavigate } from 'react-router-dom';
 import { useConnectOptions } from './useConnectOptions.ts';
 import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -34,6 +35,7 @@ export default function ConnectButton({
   const buttonId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   const {
     data: kubeconfigResource,
@@ -47,12 +49,25 @@ export default function ConnectButton({
     const { action, target } = event.detail.item.dataset;
 
     if (action === 'download') {
+      analytics?.trackEvent('Kubeconfig Downloaded', {
+        controlPlane: controlPlaneName,
+        workspace: workspaceName,
+        project: projectName,
+      });
       DownloadKubeconfig(kubeconfigResource, controlPlaneName);
       setIsMenuOpen(false);
       return;
     }
 
     if (target) {
+      const selectedTarget = connectionTargets.find((t) => t.url === target);
+      analytics?.trackEvent('Connect to MCP', {
+        controlPlane: controlPlaneName,
+        workspace: workspaceName,
+        project: projectName,
+        user: selectedTarget?.user || 'unknown',
+        isSystemIdP: selectedTarget?.isSystemIdP || false,
+      });
       navigate(target);
       setIsMenuOpen(false);
       return;
@@ -70,7 +85,20 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => navigate(directTarget.url)}>
+      <Button
+        endIcon="navigation-right-arrow"
+        disabled={disabled}
+        onClick={() => {
+          analytics?.trackEvent('Connect to MCP', {
+            controlPlane: controlPlaneName,
+            workspace: workspaceName,
+            project: projectName,
+            user: directTarget.user,
+            isSystemIdP: directTarget.isSystemIdP,
+          });
+          navigate(directTarget.url);
+        }}
+      >
         {t('ConnectButton.buttonText')}
       </Button>
     );

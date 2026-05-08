@@ -60,6 +60,28 @@ const FrontendConfigSchema = z.object({
       enableMcpV2: z.boolean().default(false),
     })
     .default({ markMcpV1asDeprecated: false, enableMcpV2: false }),
+  analytics: z
+    .object({
+      provider: z.enum(['dynatrace', 'plausible', 'noop']).default('noop'),
+      enabled: z.boolean().default(false),
+      debug: z.boolean().optional().default(false),
+      autoTrack: z
+        .object({
+          clicks: z.boolean().optional().default(true),
+          pageViews: z.boolean().optional().default(true),
+          errors: z.boolean().optional().default(true),
+        })
+        .optional()
+        .default({}),
+      config: z.record(z.any()).optional(),
+    })
+    .optional()
+    .default({
+      provider: 'noop',
+      enabled: false,
+      debug: false,
+      autoTrack: { clicks: true, pageViews: true, errors: true },
+    }),
 });
 type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
 

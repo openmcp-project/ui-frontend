@@ -24,6 +24,7 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import styles from './WorkspacesList.module.css';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 interface Props {
   projectName: string;
@@ -48,6 +49,7 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const { t } = useTranslation();
   const { enableMcpV2 } = useFeatureToggle();
+  const analytics = useAnalyticsOptional();
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
 
@@ -112,6 +114,14 @@ export function ControlPlaneListWorkspaceGridTile({
           headerLevel="H2"
           style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
           collapsed={shouldCollapsePanel}
+          onToggle={(event) => {
+            const isExpanded = !event.detail.collapsed;
+            analytics?.trackEvent('Workspace Panel Toggled', {
+              workspace: workspaceName,
+              project: projectName,
+              action: isExpanded ? 'expanded' : 'collapsed',
+            });
+          }}
           header={
             <div
               style={{
@@ -167,6 +177,12 @@ export function ControlPlaneListWorkspaceGridTile({
                     className={styles.createButton}
                     icon={'add'}
                     onClick={() => {
+                      analytics?.trackEvent('Create MCP Button Clicked', {
+                        location: 'workspace_empty_state',
+                        workspace: workspaceName,
+                        project: projectName,
+                        version: 'v1',
+                      });
                       setIsCreateManagedControlPlaneWizardOpen(true);
                     }}
                   >
@@ -179,6 +195,12 @@ export function ControlPlaneListWorkspaceGridTile({
                       icon={'add'}
                       design={'Emphasized'}
                       onClick={() => {
+                        analytics?.trackEvent('Create MCP Button Clicked', {
+                          location: 'workspace_empty_state',
+                          workspace: workspaceName,
+                          project: projectName,
+                          version: 'v2',
+                        });
                         setIsCreateManagedControlPlaneWizardOpenV2(true);
                       }}
                     >

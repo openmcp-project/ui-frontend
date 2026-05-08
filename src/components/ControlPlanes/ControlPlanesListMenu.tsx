@@ -7,6 +7,7 @@ import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../context/FeatureToggleContext.tsx';
 import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTemplate.ts';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -26,6 +27,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
 
   const { t } = useTranslation();
   const { enableMcpV2 } = useFeatureToggle();
+  const analytics = useAnalyticsOptional();
 
   // Here we will pass template list from OnboardingAPI
   const allTemplates: ManagedControlPlaneTemplate[] = [];
@@ -47,18 +49,34 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           const item = event.detail.item as HTMLElement;
           const action = item.dataset.action;
           if (action === 'newManagedControlPlane') {
+            analytics?.trackEvent('Create MCP Menu Item Clicked', {
+              location: 'workspace_menu',
+              version: 'v1',
+            });
             setInitialTemplateName(undefined);
             setIsCreateManagedControlPlaneWizardOpen(true);
           }
           if (action === 'newManagedControlPlaneV2') {
+            analytics?.trackEvent('Create MCP Menu Item Clicked', {
+              location: 'workspace_menu',
+              version: 'v2',
+            });
             setIsCreateManagedControlPlaneWizardOpenV2(true);
           }
           if (action === 'newManagedControlPlaneWithTemplate') {
             const tplName = item.dataset.templateName || undefined;
+            analytics?.trackEvent('Create MCP Menu Item Clicked', {
+              location: 'workspace_menu',
+              version: 'v1',
+              template: tplName,
+            });
             setInitialTemplateName(tplName);
             setIsCreateManagedControlPlaneWizardOpen(true);
           }
           if (action === 'deleteWorkspace') {
+            analytics?.trackEvent('Delete Workspace Menu Item Clicked', {
+              location: 'workspace_menu',
+            });
             setDialogDeleteWsIsOpen(true);
           }
           setOpen(false);

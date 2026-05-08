@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { graphql } from '../../../types/__generated__/graphql/index';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 const DeleteWorkspaceMutation = graphql(`
   mutation DeleteWorkspace($name: String!, $namespace: String, $dryRun: Boolean) {
@@ -17,6 +18,7 @@ const DeleteWorkspaceMutation = graphql(`
 export function useDeleteWorkspace(projectNamespace: string, workspaceName: string) {
   const { t } = useTranslation();
   const toast = useToast();
+  const analytics = useAnalyticsOptional();
   const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceMutation);
 
   const deleteWorkspace = useCallback(async (): Promise<void> => {
@@ -27,12 +29,21 @@ export function useDeleteWorkspace(projectNamespace: string, workspaceName: stri
           namespace: projectNamespace,
         },
       });
+      analytics?.trackEvent('Workspace Deleted', {
+        workspace: workspaceName,
+        namespace: projectNamespace,
+      });
       toast.show(t('ControlPlaneListWorkspaceGridTile.deleteConfirmationDialog'));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      analytics?.trackError(error instanceof Error ? error : new Error(message), {
+        action: 'delete_workspace',
+        workspace: workspaceName,
+        namespace: projectNamespace,
+      });
       toast.show(message);
     }
-  }, [deleteWorkspaceMutation, projectNamespace, toast, t, workspaceName]);
+  }, [deleteWorkspaceMutation, projectNamespace, toast, t, workspaceName, analytics]);
 
   return {
     deleteWorkspace,

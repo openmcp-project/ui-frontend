@@ -11,6 +11,7 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 type ProjectListRow = {
   projectName: string;
@@ -19,6 +20,7 @@ type ProjectListRow = {
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
+  const analytics = useAnalyticsOptional();
   const { data, error } = useProjectsQuery();
   const stabilizedData = useMemo<ProjectListRow[]>(
     () =>
@@ -45,7 +47,12 @@ export default function ProjectsList() {
               paddingBottom: '0.5rem',
             }}
             onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
+              const projectName = instance.cell.row.original?.projectName as string;
+              analytics?.trackEvent('Project Opened', {
+                project: projectName,
+                location: 'project_list',
+              });
+              navigate(`/mcp/projects/${projectName}`);
             }}
           >
             {instance.cell.value}
@@ -114,7 +121,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, analytics],
   );
   if (error) {
     return <IllustratedError details={error.message} />;

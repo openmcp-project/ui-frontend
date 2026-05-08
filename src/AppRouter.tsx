@@ -9,6 +9,31 @@ import McpPage from './spaces/mcp/pages/McpPage.tsx';
 import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
+import { useAutoPageTracking } from './lib/analytics';
+
+function RoutesWithTracking() {
+  // Automatically track page views on route changes
+  useAutoPageTracking();
+
+  return (
+    <SentryRoutes>
+      <Route path="/mcp" element={<GlobalProviderOutlet />}>
+        <Route path="projects" element={<ProjectListView />} />
+        <Route path="projects/:projectName" element={<ProjectPage />} />
+        <Route
+          path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+          element={<McpPageV2 />}
+        />
+        <Route
+          path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
+          element={<McpPage />}
+        />
+      </Route>
+      <Route path="/" element={<Navigate to="/mcp/projects" />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </SentryRoutes>
+  );
+}
 
 function AppRouter() {
   return (
@@ -26,22 +51,7 @@ function AppRouter() {
       <SplitterProvider>
         <SplitterLayout>
           <Router>
-            <SentryRoutes>
-              <Route path="/mcp" element={<GlobalProviderOutlet />}>
-                <Route path="projects" element={<ProjectListView />} />
-                <Route path="projects/:projectName" element={<ProjectPage />} />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
-                  element={<McpPageV2 />}
-                />
-                <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
-                  element={<McpPage />}
-                />
-              </Route>
-              <Route path="/" element={<Navigate to="/mcp/projects" />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </SentryRoutes>
+            <RoutesWithTracking />
           </Router>
         </SplitterLayout>
       </SplitterProvider>
