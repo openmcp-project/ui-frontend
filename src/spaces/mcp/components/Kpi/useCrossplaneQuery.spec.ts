@@ -103,9 +103,7 @@ describe('useCrossplaneQuery', () => {
   });
 
   it('returns empty providers array when spec.providers is absent', () => {
-    useQueryMock.mockReturnValue(
-      makeQueryResult({ ...validCrossplane, spec: { version: '1.14.0', providers: null } }),
-    );
+    useQueryMock.mockReturnValue(makeQueryResult({ ...validCrossplane, spec: { version: '1.14.0', providers: null } }));
 
     const { result } = renderHook(() => useCrossplaneQuery('my-cp', 'project-foo--ws-bar'));
 
