@@ -340,12 +340,14 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
             </Button>
           </div>
 
-          <a href={documentationHomepage} target="_blank" rel="noreferrer" className={styles.docsLink}>
-            {t('SignInPage.learnMoreLink')}
-          </a>
-          <a href="https://github.com/openmcp-project" target="_blank" rel="noreferrer" className={styles.docsLink}>
-            {t('SignInPage.contributeLink')}
-          </a>
+          <div className={styles.linksContainer}>
+            <a href={documentationHomepage} target="_blank" rel="noreferrer" className={styles.docsLink}>
+              {t('SignInPage.learnMoreLink')}
+            </a>
+            <a href="https://github.com/openmcp-project" target="_blank" rel="noreferrer" className={styles.docsLink}>
+              {t('SignInPage.contributeLink')}
+            </a>
+          </div>
         </div>
       </div>
 

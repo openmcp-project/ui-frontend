@@ -224,9 +224,17 @@
 
 .actionContainer {
   margin-top: 1rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  align-items: center;
+}
+
+.linksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   align-items: center;
 }
 
@@ -238,16 +246,16 @@
 }
 
 .docsLink {
-  color: #0d9488;
+  color: #64748b;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: color 0.2s ease;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 .docsLink:hover {
-  color: #0f766e;
+  color: #475569;
   text-decoration: underline;
 }
 
