@@ -1,4 +1,5 @@
 import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useId, useState } from 'react';
 import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ export default function ConnectButton({
 
   if (isLoading || error || connectionTargets.length === 0) {
     return (
-      <Button endIcon="navigation-right-arrow" disabled={true}>
+      <Button design={ButtonDesign.Emphasized} endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -70,7 +71,12 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => navigate(directTarget.url)}>
+      <Button
+        design={ButtonDesign.Emphasized}
+        endIcon="navigation-right-arrow"
+        disabled={disabled}
+        onClick={() => navigate(directTarget.url)}
+      >
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -79,6 +85,7 @@ export default function ConnectButton({
   return (
     <div>
       <Button
+        design={ButtonDesign.Emphasized}
         id={buttonId}
         disabled={disabled}
         endIcon="slim-arrow-down"

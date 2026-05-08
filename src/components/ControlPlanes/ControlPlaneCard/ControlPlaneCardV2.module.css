@@ -2,18 +2,42 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid var(--sapList_BorderColor);
-  background: var(--sapTile_Background);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.02),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8) 20%,
+    rgba(255, 255, 255, 0.8) 80%,
+    transparent
+  );
+  pointer-events: none;
 }
 
 .card:hover {
-  border-color: var(--sapList_BorderColor);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  transform: translateY(-3px);
 }
 
 .cardHeader {
@@ -21,24 +45,26 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 1.25rem 1.25rem 1rem 1.25rem;
-  border-bottom: 1px solid var(--sapList_BorderColor);
-  background: var(--sapObjectHeader_Background);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(250, 251, 252, 0.4) 100%);
+  backdrop-filter: blur(8px);
 }
 
 .titleSection {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 0.875rem;
   flex: 1;
   min-width: 0;
 }
 
 .statusIndicator {
-  width: 0.375rem;
-  height: 2.5rem;
+  width: 0.25rem;
+  height: 2.75rem;
   border-radius: 0.25rem;
   flex-shrink: 0;
   margin-top: 0.125rem;
+  opacity: 1;
 }
 
 .statusIndicator.success {
@@ -60,23 +86,24 @@
 .titleContent {
   flex: 1;
   min-width: 0;
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .title {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   color: var(--sapTextColor);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .metaRow {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .subtitle {
@@ -96,47 +123,69 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.membersSection {
+  margin-top: 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+  border-radius: 0.625rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  min-height: 80px;
 }
 
 .componentsSection {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+  border-radius: 0.625rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  min-height: 80px;
+}
+
+.deprecatedSection {
+  margin-top: 0.5rem;
 }
 
 .sectionLabel {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--sapContent_LabelColor);
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .componentIcons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
 }
 
 .componentIcon {
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0.25rem;
-  background: var(--sapButton_Background);
-  border: 1px solid var(--sapList_BorderColor);
-  border-radius: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.375rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: help;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .componentIcon:hover {
-  background: var(--sapList_Hover_Background);
-  border-color: var(--sapButton_BorderColor);
-  transform: scale(1.1);
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .componentLogo {
@@ -148,22 +197,23 @@
 .emptyComponents {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: var(--sapGroup_ContentBackground);
-  border-radius: 0.5rem;
-  border: 1px dashed var(--sapList_BorderColor);
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.6) 0%, rgba(241, 243, 245, 0.4) 100%);
+  border-radius: 0.625rem;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .emptyIcon {
-  color: var(--sapContent_LabelColor);
+  color: rgba(0, 0, 0, 0.35);
   font-size: 1rem;
 }
 
 .emptyText {
-  font-size: 0.875rem;
-  color: var(--sapContent_LabelColor);
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.5);
   font-style: italic;
+  font-weight: 500;
 }
 
 .metaInfo {
@@ -175,9 +225,11 @@
 }
 
 .membersSection {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--sapList_BorderColor);
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+  border-radius: 0.625rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .deprecatedSection {
@@ -187,23 +239,25 @@
 .metaItem {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .metaIcon {
-  color: var(--sapContent_LabelColor);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 0.875rem;
 }
 
 .metaText {
   font-size: 0.8125rem;
-  color: var(--sapContent_LabelColor);
+  color: rgba(0, 0, 0, 0.55);
+  font-weight: 500;
 }
 
 .cardFooter {
   padding: 1rem 1.25rem;
-  border-top: 1px solid var(--sapList_BorderColor);
-  background: var(--sapGroup_ContentBackground);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg, rgba(250, 251, 252, 0.8) 0%, rgba(245, 247, 249, 0.6) 100%);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -213,11 +267,64 @@
 .footerLeft {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .footerRight {
   display: flex;
   align-items: center;
   margin-left: auto;
+}
+
+/* Skeleton loading styles */
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonLabel {
+  width: 80px;
+  height: 10px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeletonAvatars {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeletonAvatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonIcons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeletonIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

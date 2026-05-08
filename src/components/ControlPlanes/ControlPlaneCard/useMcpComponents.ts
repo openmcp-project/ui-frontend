@@ -14,6 +14,11 @@ interface McpComponents {
   externalSecretsOperator?: ComponentVersion;
 }
 
+interface RoleBinding {
+  role: string;
+  subjects: { kind: string; name: string }[];
+}
+
 export function useMcpComponents(projectName: string, workspaceName: string, controlPlaneName: string) {
   const { data: mcp, isLoading } = useApiResource(
     ControlPlaneResource(projectName, workspaceName, controlPlaneName),
@@ -24,5 +29,9 @@ export function useMcpComponents(projectName: string, workspaceName: string, con
     return mcp.spec.components as McpComponents;
   }, [mcp]);
 
-  return { components, isLoading };
+  const roleBindings = useMemo<RoleBinding[] | undefined>(() => {
+    return mcp?.spec?.authorization?.roleBindings as RoleBinding[] | undefined;
+  }, [mcp]);
+
+  return { components, roleBindings, isLoading };
 }

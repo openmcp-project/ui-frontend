@@ -85,7 +85,11 @@ export const ControlPlaneCardV2 = ({
   const namespace = controlPlane.metadata.namespace;
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
-  const { components: mcpComponents } = useMcpComponents(projectName, workspace.metadata.name, name);
+  const { components: mcpComponents, roleBindings, isLoading } = useMcpComponents(
+    projectName,
+    workspace.metadata.name,
+    name,
+  );
 
   const components = useMemo<ComponentInfo[]>(() => {
     return [
@@ -169,9 +173,34 @@ export const ControlPlaneCardV2 = ({
         </div>
 
         <div className={styles.cardBody}>
+          <div className={styles.membersSection}>
+            {isLoading ? (
+              <div className={styles.skeletonWrapper}>
+                <div className={styles.skeletonLabel}></div>
+                <div className={styles.skeletonAvatars}>
+                  <div className={styles.skeletonAvatar}></div>
+                  <div className={styles.skeletonAvatar}></div>
+                  <div className={styles.skeletonAvatar}></div>
+                </div>
+              </div>
+            ) : (
+              <McpMembersAvatarView
+                roleBindings={roleBindings}
+                project={projectName}
+                workspace={workspace.metadata.name}
+              />
+            )}
+          </div>
+
           <div className={styles.componentsSection}>
-            <Label className={styles.sectionLabel}>Installed Components</Label>
-            {installedComponents.length > 0 ? (
+            <Label className={styles.sectionLabel}>Installed Components ({installedComponents.length})</Label>
+            {isLoading ? (
+              <div className={styles.skeletonIcons}>
+                <div className={styles.skeletonIcon}></div>
+                <div className={styles.skeletonIcon}></div>
+                <div className={styles.skeletonIcon}></div>
+              </div>
+            ) : installedComponents.length > 0 ? (
               <div className={styles.componentIcons}>
                 {installedComponents.map((component) => (
                   <div key={component.name} className={styles.componentIcon} title={component.name}>
@@ -185,15 +214,6 @@ export const ControlPlaneCardV2 = ({
                 <span className={styles.emptyText}>No components detected</span>
               </div>
             )}
-          </div>
-
-          <div className={styles.membersSection}>
-            <McpMembersAvatarView
-              project={projectName}
-              workspace={workspace.metadata.name}
-              mcp={name}
-              compact
-            />
           </div>
 
           {markMcpV1asDeprecated && controlPlane.version !== 'v2' && (

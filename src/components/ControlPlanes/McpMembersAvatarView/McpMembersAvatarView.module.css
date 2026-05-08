@@ -1,5 +1,9 @@
 .membersTitle {
-  margin-left: 5px;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.75rem;
+  display: block;
 }

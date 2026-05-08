@@ -96,12 +96,19 @@ body {
 body {
   margin: 0;
   height: 100vh;
-  background-color: var(--sapBackgroundColor);
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 250, 1) 0%,
+    rgba(4, 159, 154, 0.02) 35%,
+    rgba(4, 159, 154, 0.04) 50%,
+    rgba(4, 159, 154, 0.02) 65%,
+    rgba(250, 250, 250, 1) 100%
+  );
 }
 
 #root {
   height: 100%;
-  background-color: var(--sapBackgroundColor);
+  background: transparent;
 }
 
 ui5-form-item {
@@ -121,4 +128,46 @@ ui5-toast {
 .infobox {
   margin: 1rem auto;
   max-width: 80%;
+}
+
+/* Panel background - white header, transparent content */
+ui5-panel::part(header) {
+  background: white !important;
+  border-radius: 0.5rem !important;
+}
+
+ui5-panel::part(content) {
+  background: transparent !important;
+  padding: 1rem !important;
+}
+
+/* ObjectPageContent background - teal gradient */
+ui5-object-page::part(content) {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 250, 1) 0%,
+    rgba(4, 159, 154, 0.02) 35%,
+    rgba(4, 159, 154, 0.04) 50%,
+    rgba(4, 159, 154, 0.02) 65%,
+    rgba(250, 250, 250, 1) 100%
+  ) !important;
+}
+
+/* Page background gradient */
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 250, 1) 0%,
+    rgba(4, 159, 154, 0.02) 35%,
+    rgba(4, 159, 154, 0.04) 50%,
+    rgba(4, 159, 154, 0.02) 65%,
+    rgba(250, 250, 250, 1) 100%
+  );
+}
+
+#root {
+  height: 100%;
+  background: transparent;
 }
