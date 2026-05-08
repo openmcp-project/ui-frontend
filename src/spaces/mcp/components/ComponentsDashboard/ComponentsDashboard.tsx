@@ -7,7 +7,9 @@ import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
-import { McpPageSectionId } from '../../pages/McpPage.tsx';
+import type { McpPageSectionId } from '../../pages/McpPage.tsx';
+import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
+import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
 
 import { useTranslation } from 'react-i18next';
 import styles from './ComponentsDashboard.module.css';
@@ -24,6 +26,8 @@ export function ComponentsDashboard({
   onNavigateToMcpSection,
 }: ComponentsDashboardProps) {
   const { t } = useTranslation();
+  const crossplaneKpi = useKpiCrossplane();
+  const fluxKpi = useKpiFlux();
 
   return (
     <Panel fixed>
@@ -34,9 +38,9 @@ export function ComponentsDashboard({
           logoImgSrc={LogoCrossplane}
           isInstalled={!!components?.crossplane}
           version={components?.crossplane?.version}
-          kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
           onInstallButtonClick={onInstallButtonClick}
+          {...crossplaneKpi}
         />
         <ComponentCard
           name="Flux"
@@ -44,9 +48,9 @@ export function ComponentsDashboard({
           logoImgSrc={LogoFlux}
           isInstalled={!!components?.flux}
           version={components?.flux?.version}
-          kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
           onInstallButtonClick={onInstallButtonClick}
+          {...fluxKpi}
         />
         {/* not yet available
         <ComponentCard

@@ -1,34 +1,38 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 
-import { Panel } from '@ui5/webcomponents-react';
+import { MessageStrip, Panel } from '@ui5/webcomponents-react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
-import { useMcp } from '../../../../lib/shared/McpContext.tsx';
-import { McpPageSectionId } from '../../pages/McpPage.tsx';
-import { useCrossplaneQuery } from '../Kpi/useCrossplaneQuery.ts';
-import { useEsoQuery } from '../Kpi/useEsoQuery.ts';
-import { useFluxQuery } from '../Kpi/useFluxQuery.ts';
-import { useLandscaperQuery } from '../Kpi/useLandscaperQuery.ts';
+import type { UseCrossplaneQueryResult } from '../Kpi/useCrossplaneQuery.ts';
+import type { UseEsoQueryResult } from '../Kpi/useEsoQuery.ts';
+import type { UseFluxQueryResult } from '../Kpi/useFluxQuery.ts';
+import type { UseLandscaperQueryResult } from '../Kpi/useLandscaperQuery.ts';
 
 import { useTranslation } from 'react-i18next';
+import type { McpPageSectionId } from '../../pages/McpPage.tsx';
 import styles from './ComponentsDashboard.module.css';
 
-export interface ComponentsDashboardProps {
+export interface ComponentsDashboardV2Props {
   onNavigateToMcpSection: (sectionId: McpPageSectionId) => void;
+  crossplaneData: UseCrossplaneQueryResult['crossplaneData'];
+  landscaperData: UseLandscaperQueryResult['landscaperData'];
+  fluxData: UseFluxQueryResult['fluxData'];
+  esoData: UseEsoQueryResult['esoData'];
+  hasQueryError?: boolean;
 }
 
-export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDashboardProps) {
+export function ComponentsDashboardV2({
+  onNavigateToMcpSection,
+  crossplaneData,
+  landscaperData,
+  fluxData,
+  esoData,
+  hasQueryError,
+}: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
-  const { name, project, workspace } = useMcp();
-  const namespace = project && workspace ? `project-${project}--ws-${workspace}` : undefined;
-  const { crossplaneData } = useCrossplaneQuery(name, namespace);
-  const { landscaperData } = useLandscaperQuery(name, namespace);
-  const { fluxData } = useFluxQuery(name, namespace);
-  const { esoData } = useEsoQuery(name, namespace);
 
-  // Use GraphQL query data if available, otherwise fall back to REST components spec
   const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
   const crossplaneVersion = crossplaneData?.version ?? '';
 
@@ -43,6 +47,11 @@ export function ComponentsDashboardV2({ onNavigateToMcpSection }: ComponentsDash
 
   return (
     <Panel fixed>
+      {hasQueryError && (
+        <MessageStrip design="Critical" hideCloseButton>
+          {t('Kpi.error')}
+        </MessageStrip>
+      )}
       <div className={styles['container-v2']}>
         <ComponentCard
           isV2

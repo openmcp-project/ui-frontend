@@ -46,6 +46,7 @@ import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboardV2 } from '../components/ComponentsDashboard/ComponentsDashboardV2.tsx';
 import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
+import { useEsoQuery } from '../components/Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
@@ -70,9 +71,11 @@ export default function McpPageV2() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
-  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
-  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
+  const { crossplaneData, error: crossplaneError } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData, error: fluxError } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData, error: landscaperError } = useLandscaperQuery(controlPlaneName, namespace);
+  const { esoData, error: esoError } = useEsoQuery(controlPlaneName, namespace);
+  const hasComponentQueryError = !!(crossplaneError || fluxError || landscaperError || esoError);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -198,9 +201,12 @@ export default function McpPageV2() {
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
                 <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
                   <ComponentsDashboardV2
-                    onNavigateToMcpSection={(sectionId) => {
-                      setTabFromSection(sectionId);
-                    }}
+                    crossplaneData={crossplaneData}
+                    fluxData={fluxData}
+                    landscaperData={landscaperData}
+                    esoData={esoData}
+                    hasQueryError={hasComponentQueryError}
+                    onNavigateToMcpSection={setTabFromSection}
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>

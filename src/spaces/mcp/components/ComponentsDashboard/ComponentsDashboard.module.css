@@ -9,7 +9,7 @@
   padding-inline: 0.5rem;
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: stretch;
   gap: 1rem;
 }
