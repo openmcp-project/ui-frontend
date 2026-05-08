@@ -1,5 +1,5 @@
 import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
-import { CopyButton } from '../Shared/CopyButton.tsx';
+import { CopyNamespaceButton } from '../Shared/CopyNamespaceButton.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
@@ -36,7 +36,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
           </VariantItem>
         ))}
       </VariantManagement>
-      <CopyButton text={`project-${currentProjectName}`} />
+      <CopyNamespaceButton namespace={`project-${currentProjectName}`} />
     </>
   );
 }
