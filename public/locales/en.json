@@ -570,6 +570,17 @@
     "kustomizationCreated": "Kustomization created successfully",
     "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
   },
+  "WorkspaceHealthIndicator": {
+    "title": "Workspace Health",
+    "ready": "Ready",
+    "notReady": "Not Ready",
+    "progressing": "Progressing",
+    "deleting": "Deleting",
+    "healthy": "healthy",
+    "unhealthy": "unhealthy",
+    "progressingLabel": "in progress",
+    "unknown": "unknown"
+  },
   "mcp": {
     "authorization": {
       "accessDenied": {

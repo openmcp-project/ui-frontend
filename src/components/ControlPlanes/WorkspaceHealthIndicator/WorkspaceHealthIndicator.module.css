@@ -1,0 +1,121 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--sapObjectHeader_Background);
+  border-radius: 0.5rem;
+  border: 1px solid var(--sapList_BorderColor);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--sapTextColor);
+}
+
+.healthBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.healthBadge.success {
+  background: var(--sapSuccessBackground);
+  color: var(--sapPositiveColor);
+}
+
+.healthBadge.warning {
+  background: var(--sapWarningBackground);
+  color: var(--sapCriticalColor);
+}
+
+.healthBadge.error {
+  background: var(--sapErrorBackground);
+  color: var(--sapNegativeColor);
+}
+
+.healthValue {
+  font-variant-numeric: tabular-nums;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--sapTile_Background);
+  border-radius: 0.375rem;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sapTextColor);
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--sapContent_LabelColor);
+  text-align: center;
+}
+
+.iconReady {
+  color: var(--sapPositiveColor);
+}
+
+.iconProgressing {
+  color: var(--sapCriticalColor);
+}
+
+.iconNotReady {
+  color: var(--sapNegativeColor);
+}
+
+.iconDeleting {
+  color: var(--sapContent_LabelColor);
+}
+
+.compactContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.healthBar {
+  width: 6rem;
+  height: 0.5rem;
+  background: var(--sapGroup_ContentBackground);
+  border-radius: 0.25rem;
+  overflow: hidden;
+  border: 1px solid var(--sapList_BorderColor);
+}
+
+.healthBarFill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+  border-radius: 0.25rem;
+}
+
+.healthText {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sapTextColor);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

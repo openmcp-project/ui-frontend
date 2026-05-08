@@ -20,9 +20,10 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
-import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
+import { ControlPlaneCardV2 } from '../ControlPlaneCard/ControlPlaneCardV2.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceHealthIndicator } from '../WorkspaceHealthIndicator/WorkspaceHealthIndicator.tsx';
 import styles from './WorkspacesList.module.css';
 
 interface Props {
@@ -116,11 +117,10 @@ export function ControlPlaneListWorkspaceGridTile({
             <div
               style={{
                 width: '100%',
-                display: 'grid',
-                gridTemplateColumns: 'auto 0.24fr auto',
+                display: 'flex',
+                alignItems: 'center',
                 gap: '1rem',
                 justifyContent: 'space-between',
-                alignItems: 'center',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -131,8 +131,14 @@ export function ControlPlaneListWorkspaceGridTile({
                 <CopyNamespaceButton namespace={workspace.status?.namespace || '-'} />
               </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
-              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                {managedControlPlanes && managedControlPlanes.length > 0 && (
+                  <WorkspaceHealthIndicator controlPlanes={managedControlPlanes} compact />
+                )}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
                 <YamlViewButton
                   variant="loader"
                   workspaceName={workspace.metadata.namespace}
@@ -145,7 +151,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   setInitialTemplateName={setInitialTemplateName}
                   setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 />
-              </FlexBox>
+              </div>
             </div>
           }
           noAnimation
@@ -193,7 +199,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.wrapper}>
               <div className={styles.grid}>
                 {managedControlPlanes?.map((mcp) => (
-                  <ControlPlaneCard
+                  <ControlPlaneCardV2
                     key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
                     controlPlane={mcp}
                     projectName={projectName}
