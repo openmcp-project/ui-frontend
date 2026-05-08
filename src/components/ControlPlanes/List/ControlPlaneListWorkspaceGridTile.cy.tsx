@@ -123,4 +123,128 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
   });
+
+  it('displays WorkspaceHealthIndicator with correct stats', () => {
+    const workspace: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
+      },
+      spec: {
+        members: [],
+      },
+    };
+
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="some-project"
+                  useMcpsQuery={fakeUseMCPsListQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Check health indicator displays correct stats (3/3 ready)
+    cy.contains('3/3').should('exist');
+    cy.contains('healthy').should('exist');
+  });
+
+  it('renders panel with transparent content background', () => {
+    const workspace: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
+      },
+      spec: {
+        members: [],
+      },
+    };
+
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="some-project"
+                  useMcpsQuery={fakeUseMCPsListQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Check panel styling - panel should have transparent background
+    cy.get('ui5-panel').should('have.css', 'background', 'rgba(0, 0, 0, 0)');
+  });
+
+  it('displays control plane cards with fade-in animation', () => {
+    const workspace: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
+      },
+      spec: {
+        members: [],
+      },
+    };
+
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="some-project"
+                  useMcpsQuery={fakeUseMCPsListQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Check that the wrapper div has animation CSS class
+    cy.get('[class*="wrapper"]').should('have.css', 'animation-duration', '0.25s');
+  });
 });
