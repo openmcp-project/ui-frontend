@@ -4,7 +4,9 @@
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
     "learnMoreLink": "Learn more about Control Planes",
     "signInButton": "Sign In",
-    "contributeLink": "Contribute on GitHub"
+    "contributeLink": "Contribute on GitHub",
+    "tagline": "Orchestrate reproducible, robust & compliant clouds - with ease and open-source.",
+    "hashtags": "#Public #Private #Sovereign"
   },
   "Entities": {
     "ManagedControlPlane": "ManagedControlPlane",
