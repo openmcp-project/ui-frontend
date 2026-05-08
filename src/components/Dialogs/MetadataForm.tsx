@@ -31,6 +31,7 @@ export interface MetadataFormProps {
   displayNameSuffix?: string;
   isEditMode?: boolean;
   isV2?: boolean;
+  hideHeader?: boolean;
 }
 
 interface SelectOption {
@@ -52,6 +53,7 @@ export function MetadataForm({
   nameSuffix: propNameSuffix = '',
   displayNameSuffix: propDisplayNameSuffix = '',
   isV2 = false,
+  hideHeader = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
 
@@ -109,7 +111,7 @@ export function MetadataForm({
 
   return (
     <Form>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')} columnSpan={12}>
+      <FormGroup headerText={hideHeader ? undefined : t('CreateProjectWorkspaceDialog.metadataHeader')} columnSpan={12}>
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
