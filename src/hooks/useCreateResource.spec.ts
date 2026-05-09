@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useCreateResource } from './useCreateResource';
 
 vi.mock('../lib/shared/McpContext', () => ({
-  useMcpContext: vi.fn(),
+  useMcp: vi.fn(),
 }));
 
 vi.mock('../lib/api/useApiResource', () => ({
@@ -20,10 +20,10 @@ describe('useCreateResource', () => {
 
   beforeEach(async () => {
     // ARRANGE
-    const { useMcpContext } = await import('../lib/shared/McpContext');
+    const { useMcp } = await import('../lib/shared/McpContext');
     const { useApiResource } = await import('../lib/api/useApiResource');
 
-    vi.mocked(useMcpContext).mockReturnValue(mockMcpContext);
+    vi.mocked(useMcp).mockReturnValue(mockMcpContext);
     vi.mocked(useApiResource).mockReturnValue({
       mutate: mockMutate,
     } as any);
@@ -165,8 +165,8 @@ metadata: {}`;
 
   it('should return error when no namespace can be determined', async () => {
     // ARRANGE
-    const { useMcpContext } = await import('../lib/shared/McpContext');
-    vi.mocked(useMcpContext).mockReturnValue(null);
+    const { useMcp } = await import('../lib/shared/McpContext');
+    vi.mocked(useMcp).mockReturnValue(null);
 
     const yamlContent = `apiVersion: v1
 kind: Pod

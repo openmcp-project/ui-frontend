@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMcpContext } from '../lib/shared/McpContext';
+import { useMcp } from '../lib/shared/McpContext';
 import { useApiResource } from '../lib/api/useApiResource';
 import { Resource } from '../lib/api/types/resource';
 
@@ -14,7 +14,7 @@ export interface CreateResourceResult {
  * Hook to create a Kubernetes resource in a control plane via YAML
  */
 export function useCreateResource() {
-  const mcpContext = useMcpContext();
+  const mcpContext = useMcp();
 
   const createResource = useCallback(
     async (yamlContent: string, namespace?: string): Promise<CreateResourceResult> => {
