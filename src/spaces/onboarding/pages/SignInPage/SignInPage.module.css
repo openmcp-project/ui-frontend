@@ -33,28 +33,28 @@
 
 .plane1 {
   left: 5%;
-  top: 15%;
+  top: 25%;
   width: 224px;
   animation-delay: 0s, 0s;
 }
 
 .plane2 {
   right: 8%;
-  top: 12%;
+  top: 22%;
   width: 240px;
   animation-delay: 0.15s, 0.15s;
 }
 
 .plane3 {
   left: 12%;
-  bottom: 15%;
+  bottom: 8%;
   width: 208px;
   animation-delay: 0.3s, 0.3s;
 }
 
 .plane4 {
   right: 10%;
-  bottom: 18%;
+  bottom: 10%;
   width: 232px;
   animation-delay: 0.45s, 0.45s;
 }
