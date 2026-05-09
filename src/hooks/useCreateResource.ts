@@ -3,6 +3,7 @@ import { useMcp } from '../lib/shared/McpContext';
 import { fetchApiServerJson } from '../lib/api/fetch';
 import { ApiConfigContext } from '../components/Shared/k8s';
 import { useResourcePluralNames } from './useResourcePluralNames';
+import { APIError } from '../lib/api/error';
 
 export interface CreateResourceResult {
   success: boolean;
@@ -98,7 +99,33 @@ export function useCreateResource() {
         console.error('Failed to create resource:', error);
 
         let errorMessage = 'Unknown error occurred';
-        if (error instanceof Error) {
+
+        if (error instanceof APIError) {
+          // Check if we have detailed Kubernetes error info
+          if (error.info && typeof error.info === 'object') {
+            const k8sError = error.info as any;
+            if (k8sError.message) {
+              errorMessage = k8sError.message;
+
+              // Add additional context if available
+              if (k8sError.reason) {
+                errorMessage += ` (${k8sError.reason})`;
+              }
+              if (k8sError.details) {
+                const details = [];
+                if (k8sError.details.name) details.push(`name: ${k8sError.details.name}`);
+                if (k8sError.details.kind) details.push(`kind: ${k8sError.details.kind}`);
+                if (details.length > 0) {
+                  errorMessage += ` - ${details.join(', ')}`;
+                }
+              }
+            } else {
+              errorMessage = error.message;
+            }
+          } else {
+            errorMessage = error.message;
+          }
+        } else if (error instanceof Error) {
           errorMessage = error.message;
         } else if (typeof error === 'string') {
           errorMessage = error;
