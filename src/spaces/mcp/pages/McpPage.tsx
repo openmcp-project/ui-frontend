@@ -39,7 +39,6 @@ import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.ts
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
-import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { DeprecatedLabel } from '../../../components/Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
@@ -206,12 +205,7 @@ export default function McpPage() {
               headerArea={
                 <ObjectPageHeader className={styles.compactHeader}>
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
-                    <McpHeader mcp={mcp} />
-                    <McpMembersAvatarView
-                      roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
-                    />
+                    <McpHeader mcp={mcp} project={projectName} workspace={workspaceName} />
                     {markMcpV1asDeprecated && (
                       <span className={styles.deprecatedWrapper}>
                         <DeprecatedLabel />

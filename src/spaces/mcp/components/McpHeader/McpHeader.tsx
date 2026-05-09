@@ -6,12 +6,15 @@ import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../../../utils/i18n/timeAgo.ts';
 import styles from './McpHeader.module.css';
 import { CopyButton } from '../../../../components/Shared/CopyButton.tsx';
+import { McpMembersAvatarView } from '../../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 
 export interface McpHeaderProps {
   mcp: ControlPlaneType | ManagedControlPlaneV2;
+  project?: string;
+  workspace?: string;
 }
 
-export function McpHeader({ mcp }: McpHeaderProps) {
+export function McpHeader({ mcp, project, workspace }: McpHeaderProps) {
   const { t } = useTranslation();
 
   const created = new Date(mcp.metadata.creationTimestamp).toLocaleDateString(undefined, {
@@ -29,6 +32,12 @@ export function McpHeader({ mcp }: McpHeaderProps) {
           <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
           <CopyButton text={mcp.metadata.name} />
         </div>
+
+        <McpMembersAvatarView
+          roleBindings={mcp.spec?.authorization?.roleBindings}
+          project={project}
+          workspace={workspace}
+        />
       </div>
 
       <div className={styles.rightSection}>
