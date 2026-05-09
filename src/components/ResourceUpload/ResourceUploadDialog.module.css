@@ -14,17 +14,23 @@
 .namespaceInfo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background-color: var(--sapList_Background);
-  border-radius: 0.25rem;
-  border: 1px solid var(--sapList_BorderColor);
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(240, 253, 250, 0.6) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(44, 224, 191, 0.2);
+  box-shadow: 0 2px 8px rgba(4, 159, 154, 0.05);
 }
 
 .namespace {
-  font-family: monospace;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
   font-weight: 600;
-  color: var(--sapContent_LabelColor);
+  font-size: 0.9375rem;
+  color: rgba(4, 159, 154, 0.9);
+  background: linear-gradient(90deg, rgba(4, 159, 154, 0.1) 0%, rgba(44, 224, 191, 0.1) 100%);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  letter-spacing: 0.02em;
 }
 
 .modeSelector {
@@ -50,38 +56,120 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
   min-height: 400px;
-  border: 2px dashed var(--sapField_BorderColor);
-  border-radius: 0.5rem;
-  background-color: var(--sapList_Background);
-  transition: all 0.2s ease;
+  border: 2px dashed rgba(44, 224, 191, 0.3);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 253, 250, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  padding: 2rem;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.uploadZone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(44, 224, 191, 0.05) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.uploadZone:hover::before {
+  opacity: 1;
+}
+
+.uploadZone:hover {
+  border-color: rgba(44, 224, 191, 0.6);
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(4, 159, 154, 0.1),
+    0 0 0 1px rgba(44, 224, 191, 0.1);
 }
 
 .uploadZone.dragging {
-  border-color: var(--sapButton_Emphasized_BorderColor);
-  background-color: var(--sapButton_Emphasized_Background);
-  opacity: 0.8;
+  border-color: rgba(44, 224, 191, 0.8);
+  background: linear-gradient(135deg, rgba(240, 253, 250, 0.95) 0%, rgba(194, 252, 238, 0.95) 100%);
+  transform: scale(0.98);
+  box-shadow:
+    0 20px 40px rgba(4, 159, 154, 0.2),
+    0 0 0 3px rgba(44, 224, 191, 0.3),
+    inset 0 0 60px rgba(44, 224, 191, 0.1);
+  animation: dragPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dragPulse {
+  0%, 100% {
+    box-shadow:
+      0 20px 40px rgba(4, 159, 154, 0.2),
+      0 0 0 3px rgba(44, 224, 191, 0.3),
+      inset 0 0 60px rgba(44, 224, 191, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 20px 40px rgba(4, 159, 154, 0.3),
+      0 0 0 3px rgba(44, 224, 191, 0.5),
+      inset 0 0 60px rgba(44, 224, 191, 0.2);
+  }
 }
 
 .uploadIcon {
-  font-size: 4rem;
-  color: var(--sapContent_NonInteractiveIconColor);
+  font-size: 5rem;
+  color: rgba(4, 159, 154, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 4px 12px rgba(4, 159, 154, 0.2));
+}
+
+.uploadZone:hover .uploadIcon {
+  color: rgba(4, 159, 154, 0.9);
+  transform: scale(1.1) translateY(-4px);
+  filter: drop-shadow(0 8px 20px rgba(4, 159, 154, 0.3));
+}
+
+.uploadZone.dragging .uploadIcon {
+  color: rgba(4, 159, 154, 1);
+  transform: scale(1.15) translateY(-8px);
+  filter: drop-shadow(0 12px 30px rgba(4, 159, 154, 0.4));
+  animation: iconBounce 0.6s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: scale(1.15) translateY(-8px);
+  }
+  50% {
+    transform: scale(1.2) translateY(-12px);
+  }
 }
 
 .uploadText {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: var(--sapContent_LabelColor);
+  color: rgba(4, 159, 154, 0.9);
   margin: 0;
+  transition: all 0.3s ease;
+}
+
+.uploadZone:hover .uploadText {
+  color: rgba(4, 159, 154, 1);
+  transform: translateY(-2px);
 }
 
 .uploadSubtext {
   font-size: 0.875rem;
-  color: var(--sapContent_LabelColor);
+  color: rgba(100, 116, 139, 0.7);
   margin: 0;
+  transition: all 0.3s ease;
+}
+
+.uploadZone:hover .uploadSubtext {
+  color: rgba(100, 116, 139, 0.9);
 }
 
 .fileInputLabel {
@@ -96,14 +184,16 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
-  background-color: var(--sapGroup_ContentBackground);
-  border-radius: 0.25rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, rgba(245, 247, 250, 0.8) 0%, rgba(255, 255, 255, 0.6) 100%);
+  border-radius: 0.75rem;
   margin-top: auto;
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .crdHint {
-  font-size: 0.875rem;
-  color: var(--sapContent_LabelColor);
+  font-size: 0.8125rem;
+  color: rgba(100, 116, 139, 0.7);
   font-style: italic;
+  line-height: 1.5;
 }
