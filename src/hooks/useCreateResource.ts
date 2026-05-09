@@ -78,7 +78,8 @@ export function useCreateResource() {
         }
         parsed.metadata.namespace = targetNamespace;
 
-        const basePath = `/apis/${apiVersion}`;
+        // Core resources (v1) use /api/v1, other resources use /apis/{group}/{version}
+        const basePath = apiVersion === 'v1' ? '/api/v1' : `/apis/${apiVersion}`;
         const path = `${basePath}/namespaces/${targetNamespace}/${pluralKind}`;
 
         console.log('[useCreateResource] Creating resource:', {
