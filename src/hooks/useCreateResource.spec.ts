@@ -166,7 +166,7 @@ metadata: {}`;
   it('should return error when no namespace can be determined', async () => {
     // ARRANGE
     const { useMcp } = await import('../lib/shared/McpContext');
-    vi.mocked(useMcp).mockReturnValue(null);
+    vi.mocked(useMcp).mockReturnValue({ name: '', workspace: '', project: '' });
 
     const yamlContent = `apiVersion: v1
 kind: Pod

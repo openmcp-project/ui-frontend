@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext, useEffect } from 'react';
 import {
   Dialog,
   Bar,
@@ -6,11 +6,12 @@ import {
   Label,
   Icon,
   MessageStrip,
-  SegmentedButton,
-  SegmentedButtonItem,
 } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { YamlEditor } from '../YamlEditor/YamlEditor';
+import { ApiConfigContext } from '../Shared/k8s';
+import { fetchApiServerJson } from '../../lib/api/fetch';
+import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import styles from './ResourceUploadDialog.module.css';
 
 export interface ResourceUploadDialogProps {
@@ -20,22 +21,83 @@ export interface ResourceUploadDialogProps {
   namespace?: string;
 }
 
-type EditorMode = 'editor' | 'upload';
+interface ValidationWarning {
+  type: 'duplicate' | 'yaml-error';
+  message: string;
+}
 
 export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: ResourceUploadDialogProps) {
   const { t } = useTranslation();
   const [yamlContent, setYamlContent] = useState<string>('');
-  const [mode, setMode] = useState<EditorMode>('editor');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [validationWarning, setValidationWarning] = useState<ValidationWarning | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const apiConfig = useContext(ApiConfigContext);
+  const { getPluralKind } = useResourcePluralNames();
+
+  // Validate YAML and check for duplicates
+  useEffect(() => {
+    const validateYaml = async () => {
+      if (!yamlContent.trim()) {
+        setValidationWarning(null);
+        return;
+      }
+
+      try {
+        const yaml = await import('yaml');
+        const parsed = yaml.parse(yamlContent);
+
+        // Check if it's valid k8s resource
+        if (!parsed?.kind || !parsed?.apiVersion || !parsed?.metadata?.name) {
+          setValidationWarning({
+            type: 'yaml-error',
+            message: t('resourceUpload.validation.missingRequired'),
+          });
+          return;
+        }
+
+        // Check for duplicate resource
+        const resourceName = parsed.metadata.name;
+        const kind = parsed.kind;
+        const apiVersion = parsed.apiVersion;
+        const targetNamespace = namespace || parsed.metadata?.namespace;
+
+        if (targetNamespace && kind && apiVersion) {
+          try {
+            const pluralKind = getPluralKind(kind);
+            const path = `/apis/${apiVersion}/namespaces/${targetNamespace}/${pluralKind}/${resourceName}`;
+
+            // Try to fetch the resource - if it exists, we'll get a response
+            await fetchApiServerJson(path, apiConfig);
+
+            // If we reach here, resource exists
+            setValidationWarning({
+              type: 'duplicate',
+              message: t('resourceUpload.validation.resourceExists', { name: resourceName, kind }),
+            });
+          } catch (err) {
+            // 404 means resource doesn't exist - that's good
+            setValidationWarning(null);
+          }
+        }
+      } catch (err) {
+        setValidationWarning({
+          type: 'yaml-error',
+          message: t('resourceUpload.validation.invalidYaml'),
+        });
+      }
+    };
+
+    const debounce = setTimeout(validateYaml, 500);
+    return () => clearTimeout(debounce);
+  }, [yamlContent, namespace, apiConfig, getPluralKind, t]);
 
   const handleFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setYamlContent(content);
-      setMode('editor');
       setFeedback(null);
     };
     reader.onerror = () => {
@@ -130,16 +192,25 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
 
   const handleClose = useCallback(() => {
     setYamlContent('');
-    setMode('editor');
     setFeedback(null);
+    setValidationWarning(null);
     setIsSubmitting(false);
     onClose();
   }, [onClose]);
 
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setYamlContent('');
+      setFeedback(null);
+      setValidationWarning(null);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog
       open={isOpen}
-      onAfterClose={handleClose}
       headerText={t('resourceUpload.title')}
       footer={
         <Bar
@@ -151,7 +222,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
               <Button
                 design="Emphasized"
                 onClick={handleSubmit}
-                disabled={isSubmitting || !yamlContent.trim()}
+                disabled={isSubmitting || !yamlContent.trim() || validationWarning?.type === 'yaml-error'}
               >
                 {isSubmitting ? t('buttons.submitting') : t('buttons.create')}
               </Button>
@@ -161,7 +232,12 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
       }
       className={styles.dialog}
     >
-      <div className={styles.container}>
+      <div
+        className={styles.container}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
         {namespace && (
           <div className={styles.namespaceInfo}>
             <Label>{t('resourceUpload.targetNamespace')}:</Label>
@@ -169,19 +245,22 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
           </div>
         )}
 
-        <div className={styles.modeSelector}>
-          <SegmentedButton
-            onSelectionChange={(e) => setMode(e.detail.selectedItem.dataset.mode as EditorMode)}
-          >
-            <SegmentedButtonItem data-mode="editor" pressed={mode === 'editor'}>
-              <Icon name="syntax" />
-              {t('resourceUpload.yamlEditor')}
-            </SegmentedButtonItem>
-            <SegmentedButtonItem data-mode="upload" pressed={mode === 'upload'}>
-              <Icon name="upload" />
-              {t('resourceUpload.uploadFile')}
-            </SegmentedButtonItem>
-          </SegmentedButton>
+        <div className={styles.uploadHint}>
+          <Icon name="upload" className={styles.uploadHintIcon} />
+          <span className={styles.uploadHintText}>
+            {t('resourceUpload.editorHint')}
+          </span>
+          <label className={styles.fileInputLabel}>
+            <input
+              type="file"
+              accept=".yaml,.yml,text/yaml,text/x-yaml,application/x-yaml,text/plain"
+              onChange={handleFileInputChange}
+              className={styles.fileInput}
+            />
+            <Button icon="browse-folder" design="Transparent">
+              {t('resourceUpload.browseFiles')}
+            </Button>
+          </label>
         </div>
 
         {feedback && (
@@ -194,45 +273,33 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
           </MessageStrip>
         )}
 
-        {mode === 'editor' ? (
-          <div className={styles.editorContainer}>
-            <YamlEditor
-              value={yamlContent}
-              onChange={(val) => setYamlContent(val)}
-              isEdit={true}
-              height="500px"
-            />
-          </div>
-        ) : (
-          <div
-            className={`${styles.uploadZone} ${isDragging ? styles.dragging : ''}`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+        {validationWarning && (
+          <MessageStrip
+            design={validationWarning.type === 'duplicate' ? 'Information' : 'Negative'}
+            hideCloseButton
+            className={styles.feedback}
           >
-            <Icon name="upload-to-cloud" className={styles.uploadIcon} />
-            <p className={styles.uploadText}>
-              {t('resourceUpload.dragDropText')}
-            </p>
-            <p className={styles.uploadSubtext}>
-              {t('resourceUpload.or')}
-            </p>
-            <label className={styles.fileInputLabel}>
-              <input
-                type="file"
-                accept=".yaml,.yml,text/yaml,text/x-yaml,application/x-yaml,text/plain"
-                onChange={handleFileInputChange}
-                className={styles.fileInput}
-              />
-              <Button icon="upload">
-                {t('resourceUpload.browseFiles')}
-              </Button>
-            </label>
-            <p className={styles.fileTypeHint}>
-              {t('resourceUpload.fileTypeHint')}
-            </p>
+            {validationWarning.message}
+          </MessageStrip>
+        )}
+
+        {isDragging && (
+          <div className={styles.dropOverlay}>
+            <Icon name="upload-to-cloud" className={styles.dropOverlayIcon} />
+            <div className={styles.dropOverlayText}>
+              {t('resourceUpload.dropToLoad')}
+            </div>
           </div>
         )}
+
+        <div className={styles.editorContainer}>
+          <YamlEditor
+            value={yamlContent}
+            onChange={(val) => setYamlContent(val || '')}
+            isEdit={true}
+            height="500px"
+          />
+        </div>
 
         <div className={styles.crdSection}>
           <Button

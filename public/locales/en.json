@@ -574,12 +574,9 @@
   "resourceUpload": {
     "title": "Add Resource",
     "targetNamespace": "Target Namespace",
-    "yamlEditor": "YAML Editor",
-    "uploadFile": "Upload File",
-    "dragDropText": "Drag and drop your YAML file here",
-    "or": "or",
-    "browseFiles": "Browse Files",
-    "fileTypeHint": "Supported file types: YAML (.yaml, .yml) and text files",
+    "editorHint": "Type or paste YAML, or drag and drop a file",
+    "browseFiles": "Browse",
+    "dropToLoad": "Drop file to load into editor",
     "createFromCRD": "Create from CRD",
     "crdComingSoon": "Coming soon: Create resources from Custom Resource Definitions",
     "crdHint": "This feature will be available in the next release",
@@ -588,7 +585,12 @@
     "emptyContent": "Please provide YAML content",
     "success": "Resource created successfully",
     "failed": "Failed to create resource",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "validation": {
+      "invalidYaml": "Invalid YAML syntax",
+      "missingRequired": "Resource must include kind, apiVersion, and metadata.name",
+      "resourceExists": "Warning: A {{kind}} named '{{name}}' already exists in this namespace"
+    }
   },
   "mcp": {
     "authorization": {

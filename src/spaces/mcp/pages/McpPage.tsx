@@ -264,7 +264,7 @@ export default function McpPage() {
               onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
-                <ObjectPageSubSection id="dashboard" className={styles.sectionNoTitle}>
+                <ObjectPageSubSection id="dashboard" titleText="" className={styles.sectionNoTitle}>
                   <ComponentsDashboard
                     components={mcp.spec?.components}
                     onInstallButtonClick={onEditComponents}
@@ -273,7 +273,7 @@ export default function McpPage() {
                     }}
                   />
                 </ObjectPageSubSection>
-                <ObjectPageSubSection id="graph" className={styles.sectionNoTitle}>
+                <ObjectPageSubSection id="graph" titleText="" className={styles.sectionNoTitle}>
                   <Graph />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
