@@ -53,6 +53,15 @@ export function useCreateResource() {
           };
         }
 
+        // Construct API path - get pluralKind with fallback
+        let pluralKind = getPluralKind(kind);
+
+        // Fallback: simple pluralization if mapping not available
+        if (!pluralKind) {
+          pluralKind = kind.toLowerCase() + 's';
+          console.warn(`[useCreateResource] No CRD mapping for kind "${kind}", using fallback: ${pluralKind}`);
+        }
+
         // Determine the namespace to use
         const targetNamespace = namespace || parsed.metadata?.namespace || mcpContext?.name;
 
@@ -69,10 +78,17 @@ export function useCreateResource() {
         }
         parsed.metadata.namespace = targetNamespace;
 
-        // Construct API path using the same pattern as useHandleResourcePatch
-        const pluralKind = getPluralKind(kind);
         const basePath = `/apis/${apiVersion}`;
         const path = `${basePath}/namespaces/${targetNamespace}/${pluralKind}`;
+
+        console.log('[useCreateResource] Creating resource:', {
+          kind,
+          pluralKind,
+          apiVersion,
+          targetNamespace,
+          resourceName,
+          path,
+        });
 
         // POST the resource via the onboarding API
         const result = await fetchApiServerJson(
