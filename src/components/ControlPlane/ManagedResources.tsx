@@ -99,13 +99,6 @@ export function ManagedResources({
   const navigateToTab = useNavigateToTab();
   const tableInstanceRef = useRef<any>(null);
 
-  // Expand all groups when table is loaded
-  useEffect(() => {
-    if (tableInstanceRef.current && !combinedLoading) {
-      tableInstanceRef.current.toggleAllRowsExpanded(true);
-    }
-  }, [combinedLoading]);
-
   const {
     data: managedResources,
     error,
@@ -341,6 +334,13 @@ export function ManagedResources({
 
   const combinedError = error || pluralNamesError;
   const combinedLoading = isLoading || isLoadingPluralNames;
+
+  // Expand all groups when table is loaded
+  useEffect(() => {
+    if (tableInstanceRef.current && !combinedLoading) {
+      tableInstanceRef.current.toggleAllRowsExpanded(true);
+    }
+  }, [combinedLoading]);
 
   return (
     <>
