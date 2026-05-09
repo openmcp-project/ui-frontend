@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { useMcp } from '../lib/shared/McpContext';
-import { useApiResource } from '../lib/api/useApiResource';
-import { Resource } from '../lib/api/types/resource';
+import { fetchApiServerJson } from '../lib/api/fetch';
+import { ApiConfigContext } from '../components/Shared/k8s';
+import { useResourcePluralNames } from './useResourcePluralNames';
 
 export interface CreateResourceResult {
   success: boolean;
@@ -15,6 +16,8 @@ export interface CreateResourceResult {
  */
 export function useCreateResource() {
   const mcpContext = useMcp();
+  const apiConfig = useContext(ApiConfigContext);
+  const { getPluralKind } = useResourcePluralNames();
 
   const createResource = useCallback(
     async (yamlContent: string, namespace?: string): Promise<CreateResourceResult> => {
@@ -57,26 +60,25 @@ export function useCreateResource() {
           };
         }
 
-        // Construct API path for generic resource creation
-        // Format: /api/v1/namespaces/{namespace}/{resourceType}
-        // or /apis/{group}/{version}/namespaces/{namespace}/{resourceType}
-        const [group, version] = apiVersion.includes('/')
-          ? apiVersion.split('/')
-          : ['', apiVersion];
+        // Ensure the namespace is set in the parsed object
+        if (!parsed.metadata) {
+          parsed.metadata = {};
+        }
+        parsed.metadata.namespace = targetNamespace;
 
-        const resourceType = kind.toLowerCase() + 's'; // Simple pluralization
-        const apiPrefix = group ? `/apis/${group}/${version}` : `/api/${version}`;
-        const path = `${apiPrefix}/namespaces/${targetNamespace}/${resourceType}`;
+        // Construct API path using the same pattern as useHandleResourcePatch
+        const pluralKind = getPluralKind(kind);
+        const basePath = `/apis/${apiVersion}`;
+        const path = `${basePath}/namespaces/${targetNamespace}/${pluralKind}`;
 
-        // Use the API resource system to POST
-        const resource: Resource<unknown> = {
+        // POST the resource via the onboarding API
+        const result = await fetchApiServerJson(
           path,
-          method: 'POST',
-          body: yamlContent,
-        };
-
-        const { mutate } = useApiResource(resource);
-        const result = await mutate();
+          apiConfig,
+          undefined,
+          'POST',
+          JSON.stringify(parsed),
+        );
 
         return {
           success: true,
@@ -101,7 +103,7 @@ export function useCreateResource() {
         };
       }
     },
-    [mcpContext],
+    [mcpContext, apiConfig, getPluralKind],
   );
 
   return { createResource };
