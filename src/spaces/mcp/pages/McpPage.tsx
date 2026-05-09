@@ -33,7 +33,7 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -72,6 +72,14 @@ export default function McpPage() {
     synced: 0,
     total: 0,
   });
+
+  const handleProvidersHealthStatsChange = useCallback((installed: number, healthy: number, total: number) => {
+    setProvidersHealthStats({ installed, healthy, total });
+  }, []);
+
+  const handleManagedResourcesHealthStatsChange = useCallback((ready: number, synced: number, total: number) => {
+    setManagedResourcesHealthStats({ ready, synced, total });
+  }, []);
 
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
@@ -259,9 +267,7 @@ export default function McpPage() {
                   >
                     <Providers
                       onCountChange={setProvidersCount}
-                      onHealthStatsChange={(installed, healthy, total) =>
-                        setProvidersHealthStats({ installed, healthy, total })
-                      }
+                      onHealthStatsChange={handleProvidersHealthStatsChange}
                     />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
@@ -289,9 +295,7 @@ export default function McpPage() {
                   >
                     <ManagedResources
                       onCountChange={setManagedResourcesCount}
-                      onHealthStatsChange={(ready, synced, total) =>
-                        setManagedResourcesHealthStats({ ready, synced, total })
-                      }
+                      onHealthStatsChange={handleManagedResourcesHealthStatsChange}
                     />
                   </ObjectPageSubSection>
                 </ObjectPageSection>
