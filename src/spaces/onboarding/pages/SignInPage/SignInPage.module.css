@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 50%, #f5f7fa 100%);
 }
 
