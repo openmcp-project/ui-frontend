@@ -16,7 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useMemo, useRef, useEffect } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
@@ -37,7 +37,11 @@ type Rows = {
   resource: ProviderConfigItem;
 };
 
-export function ProvidersConfig() {
+interface ProvidersConfigProps {
+  onCountChange?: (count: number) => void;
+}
+
+export function ProvidersConfig({ onCountChange }: ProvidersConfigProps = {}) {
   const { t } = useTranslation();
   const { openInAsideWithApiConfig } = useSplitter();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -62,6 +66,13 @@ export function ProvidersConfig() {
       });
     });
   }
+
+  // Notify parent of count changes
+  useEffect(() => {
+    if (onCountChange) {
+      onCountChange(rows.length);
+    }
+  }, [rows.length, onCountChange]);
 
   const openEditPanel = useCallback(
     (item: ProviderConfigItem) => {

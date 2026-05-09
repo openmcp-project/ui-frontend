@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AnalyticalTable,
@@ -37,7 +37,11 @@ type ProvidersRow = {
   item: unknown;
 };
 
-export function Providers() {
+interface ProvidersProps {
+  onCountChange?: (count: number) => void;
+}
+
+export function Providers({ onCountChange }: ProvidersProps = {}) {
   const { t } = useTranslation();
 
   const {
@@ -132,6 +136,13 @@ export function Providers() {
       }) ?? [],
     [providers?.items],
   );
+
+  // Notify parent of count changes
+  useEffect(() => {
+    if (onCountChange) {
+      onCountChange(rows.length);
+    }
+  }, [rows.length, onCountChange]);
 
   const tableOptions = useMemo(
     () => ({

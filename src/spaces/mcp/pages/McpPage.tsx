@@ -62,6 +62,10 @@ export default function McpPage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
+  const [providersCount, setProvidersCount] = useState(0);
+  const [providerConfigsCount, setProviderConfigsCount] = useState(0);
+  const [managedResourcesCount, setManagedResourcesCount] = useState(0);
+
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
@@ -232,24 +236,24 @@ export default function McpPage() {
                 <ObjectPageSection id="crossplane" titleText={t('McpPage.crossplaneTitle')}>
                   <ObjectPageSubSection
                     id="providers"
-                    titleText={t('McpPage.providersTitle')}
+                    titleText={`${t('McpPage.providersTitle')}${providersCount > 0 ? ` (${providersCount})` : ''}`}
                     className={styles.section}
                   >
-                    <Providers />
+                    <Providers onCountChange={setProvidersCount} />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
                     id="provider-configs"
-                    titleText={t('McpPage.providerConfigsTitle')}
+                    titleText={`${t('McpPage.providerConfigsTitle')}${providerConfigsCount > 0 ? ` (${providerConfigsCount})` : ''}`}
                     className={styles.section}
                   >
-                    <ProvidersConfig />
+                    <ProvidersConfig onCountChange={setProviderConfigsCount} />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
                     id="managed-resources"
-                    titleText={t('McpPage.managedResourcesTitle')}
+                    titleText={`${t('McpPage.managedResourcesTitle')}${managedResourcesCount > 0 ? ` (${managedResourcesCount})` : ''}`}
                     className={styles.section}
                   >
-                    <ManagedResources />
+                    <ManagedResources onCountChange={setManagedResourcesCount} />
                   </ObjectPageSubSection>
                 </ObjectPageSection>
               )}

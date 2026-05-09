@@ -1,12 +1,13 @@
 .healthBar {
   display: flex;
-  height: 6px;
+  height: 8px;
   width: 100%;
   background: var(--sapGroup_ContentBackground);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--sapList_BorderColor);
   margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .goodSegment {

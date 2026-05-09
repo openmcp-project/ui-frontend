@@ -83,12 +83,14 @@ export function ManagedResources({
   useApiResource = _useApiResource,
   useResourcePluralNames = _useResourcePluralNames,
   useHasMcpAdminRights = _useHasMcpAdminRights,
+  onCountChange,
 }: {
   useApiResourceMutation?: typeof _useApiResourceMutation;
   useHandleResourcePatch?: typeof _useHandleResourcePatch;
   useApiResource?: typeof _useApiResource;
   useResourcePluralNames?: typeof _useResourcePluralNames;
   useHasMcpAdminRights?: typeof _useHasMcpAdminRights;
+  onCountChange?: (count: number) => void;
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -306,6 +308,13 @@ export function ManagedResources({
           };
         }),
       ) ?? [];
+
+  // Notify parent of count changes
+  useEffect(() => {
+    if (onCountChange) {
+      onCountChange(rows.length);
+    }
+  }, [rows.length, onCountChange]);
 
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
