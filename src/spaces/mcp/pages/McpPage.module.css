@@ -24,3 +24,8 @@
   min-height: auto !important;
   padding-block: 1rem !important;
 }
+
+/* Hide the expand/collapse button in the anchor bar */
+:global([ui5-button][data-ui5-stable="collapse-header-button"]) {
+  display: none !important;
+}

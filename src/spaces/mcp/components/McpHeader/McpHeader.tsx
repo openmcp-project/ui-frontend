@@ -24,25 +24,29 @@ export function McpHeader({ mcp }: McpHeaderProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.metadataCard}>
-        <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
-        <CopyButton text={mcp.metadata.name} />
-      </div>
-
-      <div className={styles.metadataCard}>
-        <span className={styles.label}>{t('McpHeader.createdOnLabel')}</span>
-        <Text className={styles.value}>{created}</Text>
-        <Text className={styles.value} style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-          {formatDateAsTimeAgo(mcp.metadata.creationTimestamp)}
-        </Text>
-      </div>
-
-      {createdBy && (
+      <div className={styles.leftSection}>
         <div className={styles.metadataCard}>
-          <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-          <Text className={styles.value}>{createdBy}</Text>
+          <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
+          <CopyButton text={mcp.metadata.name} />
         </div>
-      )}
+      </div>
+
+      <div className={styles.rightSection}>
+        <div className={styles.metadataCard}>
+          <span className={styles.label}>{t('McpHeader.createdOnLabel')}</span>
+          <Text className={styles.value}>{created}</Text>
+          <Text className={styles.value} style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+            {formatDateAsTimeAgo(mcp.metadata.creationTimestamp)}
+          </Text>
+        </div>
+
+        {createdBy && (
+          <div className={styles.metadataCard}>
+            <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
+            <Text className={styles.value}>{createdBy}</Text>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
