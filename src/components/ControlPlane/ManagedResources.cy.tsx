@@ -107,8 +107,7 @@ describe('ManagedResources - Delete Resource', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
@@ -144,8 +143,7 @@ describe('ManagedResources - Delete Resource', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
@@ -192,8 +190,7 @@ describe('ManagedResources - Delete Resource', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
@@ -306,8 +303,7 @@ describe('ManagedResources - Edit Resource', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Edit
@@ -402,8 +398,7 @@ describe('ManagedResources - Without Admin Rights', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu
@@ -473,8 +468,7 @@ describe('ManagedResources', () => {
       </MemoryRouter>,
     );
 
-    // Expand resource group (same pattern as other tests)
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    // Resource should be visible automatically (auto-expanded)
     cy.contains('some-resource').should('be.visible');
 
     // Link with label value should be rendered (ui5-link)
@@ -482,5 +476,144 @@ describe('ManagedResources', () => {
 
     // Clicking the link should not throw and triggers navigation handler
     cy.contains('ui5-link', 'my-kustomization').click();
+  });
+});
+
+describe('ManagedResources - Auto-expand and Toggle', () => {
+  const fakeUseHasMcpAdminRights = () => {
+    return true;
+  };
+
+  const fakeUseResourcePluralNames: typeof useResourcePluralNames = (): any => {
+    return {
+      getPluralKind: (kind: string) => `${kind.toLowerCase()}s`,
+      isLoading: false,
+      error: undefined,
+    };
+  };
+
+  const mockManagedResources: ManagedResourceGroup[] = [
+    {
+      items: [
+        {
+          apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+          kind: 'Subaccount',
+          metadata: {
+            name: 'test-subaccount',
+            namespace: 'test-namespace',
+            creationTimestamp: '2024-01-01T00:00:00Z',
+            resourceVersion: '1',
+            labels: {},
+          },
+          spec: {},
+          status: {
+            conditions: [
+              {
+                type: 'Ready',
+                status: 'True',
+                lastTransitionTime: '2024-01-01T00:00:00Z',
+              },
+              {
+                type: 'Synced',
+                status: 'True',
+                lastTransitionTime: '2024-01-01T00:00:00Z',
+              },
+            ],
+          },
+        } as any,
+      ],
+    },
+  ];
+
+  const fakeUseApiResource: typeof useApiResource = (): any => {
+    return {
+      data: mockManagedResources,
+      error: undefined,
+      isLoading: false,
+      isValidating: false,
+      mutate: async () => undefined,
+    };
+  };
+
+  it('automatically expands all grouped rows on initial load', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    // Resources should be visible without manual expansion
+    cy.contains('test-subaccount').should('be.visible');
+  });
+
+  it('toggles collapse/expand all rows with button', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    // Resources should be visible initially (auto-expanded)
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Button should show "Collapse All" initially
+    cy.contains('ui5-button', 'Collapse All').should('exist');
+
+    // Click to collapse
+    cy.contains('ui5-button', 'Collapse All').click();
+
+    // Resources should be hidden
+    cy.contains('test-subaccount').should('not.be.visible');
+
+    // Button should now show "Expand All"
+    cy.contains('ui5-button', 'Expand All').should('exist');
+
+    // Click to expand again
+    cy.contains('ui5-button', 'Expand All').click();
+
+    // Resources should be visible again
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Button should show "Collapse All" again
+    cy.contains('ui5-button', 'Collapse All').should('exist');
+  });
+
+  it('updates button icon when toggling', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    // Initially should have collapse-all icon
+    cy.contains('ui5-button', 'Collapse All')
+      .find('ui5-icon[name="collapse-all"]')
+      .should('exist');
+
+    // Click to collapse
+    cy.contains('ui5-button', 'Collapse All').click();
+
+    // Should now have expand-all icon
+    cy.contains('ui5-button', 'Expand All')
+      .find('ui5-icon[name="expand-all"]')
+      .should('exist');
   });
 });
