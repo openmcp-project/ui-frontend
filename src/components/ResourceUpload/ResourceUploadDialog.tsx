@@ -3,20 +3,22 @@ import {
   Dialog,
   Bar,
   Button,
-  Icon,
   MessageStrip,
 } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
-import { YamlEditor } from '../YamlEditor/YamlEditor';
+import { Editor } from '@monaco-editor/react';
 import { ApiConfigContext } from '../Shared/k8s';
 import { fetchApiServerJson } from '../../lib/api/fetch';
 import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
+import { useTheme } from '../../hooks/useTheme';
+import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco';
 import styles from './ResourceUploadDialog.module.css';
 
 export interface ResourceUploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (yaml: string) => Promise<{ success: boolean; message?: string; error?: string }>;
+  initialYaml?: string;
 }
 
 interface ValidationWarning {
@@ -24,14 +26,22 @@ interface ValidationWarning {
   message: string;
 }
 
-export function ResourceUploadDialog({ isOpen, onClose, onSubmit }: ResourceUploadDialogProps) {
+export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }: ResourceUploadDialogProps) {
   const { t } = useTranslation();
+  const { isDarkTheme } = useTheme();
   const [yamlContent, setYamlContent] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [validationWarning, setValidationWarning] = useState<ValidationWarning | null>(null);
   const apiConfig = useContext(ApiConfigContext);
   const { getPluralKind } = useResourcePluralNames();
+
+  // Load initial YAML when provided
+  useEffect(() => {
+    if (initialYaml && isOpen) {
+      setYamlContent(initialYaml);
+    }
+  }, [initialYaml, isOpen]);
 
   // Validate YAML and check for duplicates
   useEffect(() => {
@@ -235,11 +245,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit }: ResourceUplo
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <div className={styles.uploadHint}>
-          <Icon name="upload" className={styles.uploadHintIcon} />
-          <span className={styles.uploadHintText}>
-            {t('resourceUpload.editorHint')}
-          </span>
+        <div className={styles.actionBar}>
           <label className={styles.fileInputLabel}>
             <input
               type="file"
@@ -247,10 +253,17 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit }: ResourceUplo
               onChange={handleFileInputChange}
               className={styles.fileInput}
             />
-            <Button icon="browse-folder" design="Transparent">
-              {t('resourceUpload.browseFiles')}
+            <Button icon="upload">
+              {t('resourceUpload.uploadFile')}
             </Button>
           </label>
+          <Button
+            icon="document"
+            disabled
+            tooltip={t('resourceUpload.crdComingSoon')}
+          >
+            {t('resourceUpload.createFromCRD')}
+          </Button>
         </div>
 
         {feedback && (
@@ -274,25 +287,22 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit }: ResourceUplo
         )}
 
         <div className={styles.editorContainer}>
-          <YamlEditor
+          <Editor
             value={yamlContent}
             onChange={(val) => setYamlContent(val || '')}
-            isEdit={true}
+            language="yaml"
+            theme={isDarkTheme ? GITHUB_DARK_DEFAULT : GITHUB_LIGHT_DEFAULT}
             height="500px"
+            options={{
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              tabSize: 2,
+              insertSpaces: true,
+              wordWrap: 'on',
+              fontSize: 13,
+              lineHeight: 20,
+            }}
           />
-        </div>
-
-        <div className={styles.crdSection}>
-          <Button
-            icon="document"
-            disabled
-            tooltip={t('resourceUpload.crdComingSoon')}
-          >
-            {t('resourceUpload.createFromCRD')}
-          </Button>
-          <span className={styles.crdHint}>
-            {t('resourceUpload.crdHint')}
-          </span>
         </div>
       </div>
     </Dialog>

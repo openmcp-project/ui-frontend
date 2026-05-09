@@ -1,6 +1,8 @@
 .dialog {
   --_ui5-dialog-width: 920px;
   --_ui5-dialog-height: 82vh;
+  min-width: 800px;
+  min-height: 600px;
 }
 
 .container {
@@ -16,38 +18,10 @@
   );
 }
 
-.uploadHint {
+.actionBar {
   display: flex;
+  gap: 0.5rem;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--sapInfobar_Background) 40%, transparent);
-  border-radius: 0.375rem;
-  font-size: 0.8125rem;
-  color: var(--sapContent_LabelColor);
-  border: 1px solid color-mix(in srgb, var(--sapInformativeColor) 12%, transparent);
-  backdrop-filter: blur(8px);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.uploadHint:hover {
-  background: color-mix(in srgb, var(--sapInfobar_Background) 50%, transparent);
-  border-color: color-mix(in srgb, var(--sapInformativeColor) 18%, transparent);
-}
-
-.uploadHintIcon {
-  font-size: 1.125rem;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.uploadHint:hover .uploadHintIcon {
-  opacity: 1;
-}
-
-.uploadHintText {
-  flex: 1;
-  font-weight: 450;
 }
 
 .feedback {
@@ -102,26 +76,4 @@
 
 .fileInput {
   display: none;
-}
-
-.crdSection {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1rem;
-  background: linear-gradient(to right,
-    color-mix(in srgb, var(--sapGroup_ContentBackground) 60%, transparent),
-    color-mix(in srgb, var(--sapGroup_ContentBackground) 40%, transparent)
-  );
-  border-radius: 0.375rem;
-  margin-top: auto;
-  border: 1px solid color-mix(in srgb, var(--sapNeutralBorderColor) 30%, transparent);
-}
-
-.crdHint {
-  font-size: 0.8125rem;
-  color: var(--sapContent_LabelColor);
-  font-style: italic;
-  opacity: 0.75;
-  font-weight: 450;
 }

@@ -67,6 +67,7 @@ export default function McpPage() {
   >(undefined);
   const [isResourceUploadDialogOpen, setIsResourceUploadDialogOpen] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [droppedYamlContent, setDroppedYamlContent] = useState<string | undefined>(undefined);
   const { createResource } = useCreateResource();
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
@@ -131,13 +132,14 @@ export default function McpPage() {
         reader.onload = (event) => {
           const content = event.target?.result as string;
           if (content) {
-            handleResourceUpload(content);
+            setDroppedYamlContent(content);
+            setIsResourceUploadDialogOpen(true);
           }
         };
         reader.readAsText(file);
       }
     },
-    [handleResourceUpload],
+    [],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -356,8 +358,12 @@ export default function McpPage() {
             </ObjectPage>
             <ResourceUploadDialog
               isOpen={isResourceUploadDialogOpen}
-              onClose={() => setIsResourceUploadDialogOpen(false)}
+              onClose={() => {
+                setIsResourceUploadDialogOpen(false);
+                setDroppedYamlContent(undefined);
+              }}
               onSubmit={handleResourceUpload}
+              initialYaml={droppedYamlContent}
             />
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>
