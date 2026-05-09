@@ -25,7 +25,7 @@
 .controlPlane {
   position: absolute;
   overflow: visible;
-  animation-duration: 1s, 8s;
+  animation-duration: 0.8s, 8s;
   animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275), ease-in-out;
   animation-fill-mode: forwards, none;
   animation-iteration-count: 1, infinite;
@@ -37,7 +37,7 @@
   width: 224px;
   transform: translateY(100vh);
   animation-name: flyInFromBottom1, float;
-  animation-delay: 0s, 1s;
+  animation-delay: 0s, 0.8s;
 }
 
 .plane2 {
@@ -46,7 +46,7 @@
   width: 240px;
   transform: translateY(100vh);
   animation-name: flyInFromBottom2, float;
-  animation-delay: 0.12s, 1.12s;
+  animation-delay: 0.1s, 0.9s;
 }
 
 .plane3 {
@@ -55,7 +55,7 @@
   width: 208px;
   transform: translateY(calc(100vh - 70%));
   animation-name: flyInFromBottom3, float;
-  animation-delay: 0.24s, 1.24s;
+  animation-delay: 0.2s, 1.0s;
 }
 
 .plane4 {
@@ -64,7 +64,7 @@
   width: 232px;
   transform: translateY(calc(100vh - 68%));
   animation-name: flyInFromBottom4, float;
-  animation-delay: 0.36s, 1.36s;
+  animation-delay: 0.3s, 1.1s;
 }
 
 @keyframes flyInFromBottom1 {
