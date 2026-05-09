@@ -12,3 +12,28 @@
 .deprecatedWrapper {
   margin-top: 4px;
 }
+
+.dragOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 102, 204, 0.1);
+  border: 3px dashed var(--sapButton_Emphasized_BorderColor);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dragOverlayText {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--sapButton_Emphasized_TextColor);
+  background-color: var(--sapButton_Emphasized_Background);
+  padding: 2rem 3rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}

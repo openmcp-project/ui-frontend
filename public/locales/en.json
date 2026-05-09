@@ -439,7 +439,8 @@
     "cancel": "Cancel",
     "update": "Update",
     "applyChanges": "Apply changes",
-    "edit": "Edit"
+    "edit": "Edit",
+    "submitting": "Submitting..."
   },
   "yaml": {
     "YAML": "File",
@@ -569,6 +570,24 @@
     "valuePlaceholder": "Value",
     "kustomizationCreated": "Kustomization created successfully",
     "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
+  },
+  "resourceUpload": {
+    "title": "Add Resource",
+    "targetNamespace": "Target Namespace",
+    "yamlEditor": "YAML Editor",
+    "uploadFile": "Upload File",
+    "dragDropText": "Drag and drop your YAML file here",
+    "or": "or",
+    "browseFiles": "Browse Files",
+    "createFromCRD": "Create from CRD",
+    "crdComingSoon": "Coming soon: Create resources from Custom Resource Definitions",
+    "crdHint": "This feature will be available in the next release",
+    "fileReadError": "Failed to read file",
+    "invalidFileType": "Please upload a YAML or text file",
+    "emptyContent": "Please provide YAML content",
+    "success": "Resource created successfully",
+    "failed": "Failed to create resource",
+    "unknownError": "An unknown error occurred"
   },
   "mcp": {
     "authorization": {
