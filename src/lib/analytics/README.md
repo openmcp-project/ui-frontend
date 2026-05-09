@@ -2,6 +2,8 @@
 
 Vendor-agnostic analytics implementation for tracking user behavior and interactions.
 
+> 📘 **Local Testing Guide**: See [ANALYTICS_LOCAL_TESTING.md](../../../docs/ANALYTICS_LOCAL_TESTING.md) for instructions on testing Plausible locally with Docker.
+
 ## Overview
 
 This analytics system provides a unified API for tracking user events, page views, and multi-step workflows across different analytics providers (Dynatrace, Plausible, etc.).
