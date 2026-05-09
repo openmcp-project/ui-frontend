@@ -180,6 +180,12 @@ export default function McpPage() {
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                   actionsBar={
                     <div className={styles.actionsBar}>
+                      <McpStatusSection
+                        mcpStatus={mcp?.status}
+                        projectName={projectName}
+                        workspaceName={workspaceName}
+                        mcpName={controlPlaneName}
+                      />
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
@@ -201,12 +207,6 @@ export default function McpPage() {
                 <ObjectPageHeader className={styles.compactHeader}>
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
-                    <McpStatusSection
-                      mcpStatus={mcp?.status}
-                      projectName={projectName}
-                      workspaceName={workspaceName}
-                      mcpName={controlPlaneName}
-                    />
                     <McpMembersAvatarView
                       roleBindings={mcp.spec?.authorization?.roleBindings}
                       project={projectName}
