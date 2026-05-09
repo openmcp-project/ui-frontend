@@ -27,6 +27,7 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
+import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 type Rows = {
   parent: string;
@@ -154,40 +155,30 @@ export function ProvidersConfig() {
   );
 
   return (
-    <Panel
-      fixed
-      header={
-        <Toolbar>
-          <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-          <ToolbarSpacer />
-        </Toolbar>
-      }
-    >
-      <>
-        <AnalyticalTable
-          columns={columns}
-          data={rows ?? []}
-          minRows={1}
-          groupBy={['parent']}
-          scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-          loading={isLoading}
-          filterable
-          // Prevent the table from resetting when the data changes
-          retainColumnWidth
-          reactTableOptions={{
-            autoResetHiddenColumns: false,
-            autoResetPage: false,
-            autoResetExpanded: false,
-            autoResetGroupBy: false,
-            autoResetSelectedRows: false,
-            autoResetSortBy: false,
-            autoResetFilters: false,
-            autoResetRowState: false,
-            autoResetResize: false,
-          }}
-        />
-        <ErrorDialog ref={errorDialogRef} />
-      </>
-    </Panel>
+    <>
+      <AnalyticalTable
+        columns={columns}
+        data={rows ?? []}
+        minRows={1}
+        groupBy={['parent']}
+        scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+        loading={isLoading}
+        filterable
+        // Prevent the table from resetting when the data changes
+        retainColumnWidth
+        reactTableOptions={{
+          autoResetHiddenColumns: false,
+          autoResetPage: false,
+          autoResetExpanded: false,
+          autoResetGroupBy: false,
+          autoResetSelectedRows: false,
+          autoResetSortBy: false,
+          autoResetFilters: false,
+          autoResetRowState: false,
+          autoResetResize: false,
+        }}
+      />
+      <ErrorDialog ref={errorDialogRef} />
+    </>
   );
 }

@@ -44,6 +44,7 @@ import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/u
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
+import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -339,47 +340,44 @@ export function ManagedResources({
       {combinedError && <IllustratedError details={combinedError.message} />}
 
       {!combinedError && (
-        <Panel
-          fixed
-          header={
-            <Toolbar>
-              <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-              <ToolbarSpacer />
-            </Toolbar>
-          }
-        >
-          <>
-            <AnalyticalTable
-              columns={columns}
-              data={rows}
-              minRows={1}
-              groupBy={['kind']}
-              scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
-              loading={combinedLoading}
-              filterable
-              retainColumnWidth
-              reactTableOptions={{
-                autoResetHiddenColumns: false,
-                autoResetPage: false,
-                autoResetExpanded: false,
-                autoResetGroupBy: false,
-                autoResetSelectedRows: false,
-                autoResetSortBy: false,
-                autoResetFilters: false,
-                autoResetRowState: false,
-                autoResetResize: false,
-              }}
-            />
+        <>
+          <ResourceHealthBar
+            resources={rows.map((r) => ({
+              ready: r.ready,
+              synced: r.synced,
+            }))}
+            type="ready-synced"
+          />
+          <AnalyticalTable
+            columns={columns}
+            data={rows}
+            minRows={1}
+            groupBy={['kind']}
+            scaleWidthMode={AnalyticalTableScaleWidthMode.Smart}
+            loading={combinedLoading}
+            filterable
+            retainColumnWidth
+            reactTableOptions={{
+              autoResetHiddenColumns: false,
+              autoResetPage: false,
+              autoResetExpanded: false,
+              autoResetGroupBy: false,
+              autoResetSelectedRows: false,
+              autoResetSortBy: false,
+              autoResetFilters: false,
+              autoResetRowState: false,
+              autoResetResize: false,
+            }}
+          />
 
-            <ManagedResourceDeleteDialog
-              open={!!pendingDeleteItem}
-              item={pendingDeleteItem}
-              onClose={() => setPendingDeleteItem(null)}
-              onDeletionConfirmed={handleDeletionConfirmed}
-            />
-            <ErrorDialog ref={errorDialogRef} />
-          </>
-        </Panel>
+          <ManagedResourceDeleteDialog
+            open={!!pendingDeleteItem}
+            item={pendingDeleteItem}
+            onClose={() => setPendingDeleteItem(null)}
+            onDeletionConfirmed={handleDeletionConfirmed}
+          />
+          <ErrorDialog ref={errorDialogRef} />
+        </>
       )}
     </>
   );
