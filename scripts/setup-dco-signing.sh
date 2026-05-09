@@ -11,6 +11,20 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Check if this is an OpenMCP repository
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [[ ! "$REMOTE_URL" =~ "openmcp-project" ]]; then
+    echo -e "${YELLOW}⚠${NC}  This repository is not part of openmcp-project organization"
+    echo "DCO/signing setup is only required for OpenMCP repositories"
+    echo ""
+    read -p "Do you want to continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 0
+    fi
+fi
+
 # Get user info
 USER_NAME=$(git config --global user.name)
 USER_EMAIL=$(git config --global user.email)
@@ -25,8 +39,8 @@ fi
 echo -e "${GREEN}✓${NC} Git user: $USER_NAME <$USER_EMAIL>"
 echo ""
 
-# Step 1: Configure SSH Commit Signing
-echo "📝 Step 1: Configuring SSH Commit Signing"
+# Step 1: Configure SSH Commit Signing (LOCAL ONLY)
+echo "📝 Step 1: Configuring SSH Commit Signing (Repo-Specific)"
 
 # Check for SSH keys
 SSH_KEY=""
@@ -42,13 +56,13 @@ fi
 
 echo -e "${GREEN}✓${NC} Found SSH key: $SSH_KEY"
 
-# Configure git for SSH signing
-git config --global gpg.format ssh
-git config --global user.signingkey "$SSH_KEY"
-git config --global commit.gpgsign true
-git config --global tag.gpgsign true
+# Configure git for SSH signing (LOCAL ONLY - not global)
+git config --local gpg.format ssh
+git config --local user.signingkey "$SSH_KEY"
+git config --local commit.gpgsign true
+git config --local tag.gpgsign true
 
-echo -e "${GREEN}✓${NC} Configured SSH signing globally"
+echo -e "${GREEN}✓${NC} Configured SSH signing for this repository only"
 
 # Setup allowed signers
 mkdir -p ~/.ssh
@@ -64,6 +78,7 @@ else
 fi
 
 git config --global gpg.ssh.allowedSignersFile "$SIGNERS_FILE"
+git config --local gpg.ssh.allowedSignersFile "$SIGNERS_FILE"
 
 # Step 2: Setup DCO Hook (Local)
 echo ""
@@ -94,7 +109,7 @@ echo -e "${GREEN}✓${NC} Created prepare-commit-msg hook for this repository"
 
 # Step 3: Setup DCO Hook (Global)
 echo ""
-echo "📝 Step 3: Setting up DCO Sign-off Hook (Global - All New Repos)"
+echo "📝 Step 3: Info about DCO Hook for Other OpenMCP Repos"
 
 mkdir -p ~/.git-templates/hooks
 cat > ~/.git-templates/hooks/prepare-commit-msg << 'HOOK_EOF'
@@ -102,6 +117,12 @@ cat > ~/.git-templates/hooks/prepare-commit-msg << 'HOOK_EOF'
 
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
+
+# Only apply to openmcp-project repositories
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [[ ! "$REMOTE_URL" =~ "openmcp-project" ]]; then
+    exit 0
+fi
 
 if [ -z "$COMMIT_SOURCE" ] || [ "$COMMIT_SOURCE" = "message" ]; then
     NAME=$(git config user.name)
@@ -115,9 +136,9 @@ fi
 HOOK_EOF
 
 chmod +x ~/.git-templates/hooks/prepare-commit-msg
-git config --global init.templateDir ~/.git-templates
 
-echo -e "${GREEN}✓${NC} Created global git template for future repositories"
+echo -e "${GREEN}✓${NC} Created conditional global git template (only for openmcp-project repos)"
+echo -e "${YELLOW}ℹ${NC}  Run 'git init' in other OpenMCP repos to apply the hook"
 
 # Step 4: Test
 echo ""
@@ -155,7 +176,7 @@ fi
 # Step 5: Instructions
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Setup Complete!${NC}"
+echo -e "${GREEN}✅ Setup Complete (OpenMCP Repo Only)${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo "📋 Next Steps:"
@@ -168,10 +189,17 @@ echo "   ${YELLOW}cat $SSH_KEY | pbcopy${NC}"
 echo ""
 echo "   Then click 'New SSH Key' and select 'Signing Key' as the type"
 echo ""
-echo "2. For existing commits on feat/observability branch:"
-echo "   ${YELLOW}git rebase --signoff --exec 'git commit --amend --no-edit -S' ecb5231${NC}"
+echo "2. For existing commits on current branch:"
+echo "   ${YELLOW}git rebase --signoff --exec 'git commit --amend --no-edit -S' main${NC}"
 echo ""
-echo "3. Verify your next commit shows 'Verified' badge on GitHub"
+echo "3. For other OpenMCP repositories:"
+echo "   ${YELLOW}cd /path/to/other/openmcp-repo && ./scripts/setup-dco-signing.sh${NC}"
+echo "   ${YELLOW}# Or copy this script there and run it${NC}"
+echo ""
+echo "4. Verify your next commit shows 'Verified' badge on GitHub"
 echo ""
 echo "📖 Full documentation: .github/DCO_SETUP.md"
+echo ""
+echo "⚠️  Note: This setup is LOCAL to this repository only."
+echo "   Other repos (non-OpenMCP) will not be affected."
 echo ""
