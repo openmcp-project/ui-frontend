@@ -443,6 +443,7 @@
   },
   "yaml": {
     "YAML": "File",
+    "showYAML": "Show YAML",
     "showOnlyImportant": "Show only important fields",
     "panelTitle": "YAML",
     "applySuccess2": "The Managed Control Plane will reconcile this resource shortly.",

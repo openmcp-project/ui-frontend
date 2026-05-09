@@ -41,7 +41,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({
       >
         <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
         {onYamlClick && (
-          <MenuItem key={'yaml'} text={t('yaml.YAML')} data-action="yaml" icon="document-text" />
+          <MenuItem key={'yaml'} text={t('yaml.showYAML')} data-action="yaml" icon="document-text" />
         )}
       </Menu>
     </>
