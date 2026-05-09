@@ -16,7 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useContext, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
@@ -43,10 +43,18 @@ export function ProvidersConfig() {
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const apiConfig = useContext(ApiConfigContext);
   const rows: Rows[] = [];
+  const tableInstanceRef = useRef<any>(null);
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
     refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
   });
+
+  // Expand all groups when table is loaded
+  useEffect(() => {
+    if (tableInstanceRef.current && !isLoading) {
+      tableInstanceRef.current.toggleAllRowsExpanded(true);
+    }
+  }, [isLoading]);
 
   if (providerConfigsList) {
     providerConfigsList.forEach((provider) => {
@@ -174,6 +182,9 @@ export function ProvidersConfig() {
           filterable
           // Prevent the table from resetting when the data changes
           retainColumnWidth
+          onTableInstanceRef={(instance) => {
+            tableInstanceRef.current = instance;
+          }}
           reactTableOptions={{
             autoResetHiddenColumns: false,
             autoResetPage: false,
@@ -184,9 +195,6 @@ export function ProvidersConfig() {
             autoResetFilters: false,
             autoResetRowState: false,
             autoResetResize: false,
-            initialState: {
-              expanded: true,
-            },
           }}
         />
         <ErrorDialog ref={errorDialogRef} />

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment, useMemo, useState, useRef, useCallback, useContext } from 'react';
+import { Fragment, useMemo, useState, useRef, useCallback, useContext, useEffect } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
@@ -97,6 +97,14 @@ export function ManagedResources({
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const navigateToTab = useNavigateToTab();
+  const tableInstanceRef = useRef<any>(null);
+
+  // Expand all groups when table is loaded
+  useEffect(() => {
+    if (tableInstanceRef.current && !combinedLoading) {
+      tableInstanceRef.current.toggleAllRowsExpanded(true);
+    }
+  }, [combinedLoading]);
 
   const {
     data: managedResources,
@@ -358,6 +366,9 @@ export function ManagedResources({
               loading={combinedLoading}
               filterable
               retainColumnWidth
+              onTableInstanceRef={(instance) => {
+                tableInstanceRef.current = instance;
+              }}
               reactTableOptions={{
                 autoResetHiddenColumns: false,
                 autoResetPage: false,
@@ -368,9 +379,6 @@ export function ManagedResources({
                 autoResetFilters: false,
                 autoResetRowState: false,
                 autoResetResize: false,
-                initialState: {
-                  expanded: true,
-                },
               }}
             />
 
