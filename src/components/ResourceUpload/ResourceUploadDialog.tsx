@@ -32,7 +32,6 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [validationWarning, setValidationWarning] = useState<ValidationWarning | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const apiConfig = useContext(ApiConfigContext);
   const { getPluralKind } = useResourcePluralNames();
 
@@ -119,7 +118,6 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
@@ -139,13 +137,11 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(false);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -240,7 +236,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
       >
         {namespace && (
           <div className={styles.namespaceInfo}>
-            <Label>{t('resourceUpload.targetNamespace')}:</Label>
+            <Label>{t('resourceUpload.controlPlaneNamespace')}:</Label>
             <span className={styles.namespace}>{namespace}</span>
           </div>
         )}
@@ -281,15 +277,6 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
           >
             {validationWarning.message}
           </MessageStrip>
-        )}
-
-        {isDragging && (
-          <div className={styles.dropOverlay}>
-            <Icon name="upload-to-cloud" className={styles.dropOverlayIcon} />
-            <div className={styles.dropOverlayText}>
-              {t('resourceUpload.dropToLoad')}
-            </div>
-          </div>
         )}
 
         <div className={styles.editorContainer}>

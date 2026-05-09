@@ -573,10 +573,9 @@
   },
   "resourceUpload": {
     "title": "Add Resource",
-    "targetNamespace": "Target Namespace",
+    "controlPlaneNamespace": "Control Plane Namespace",
     "editorHint": "Type or paste YAML, or drag and drop a file",
     "browseFiles": "Browse",
-    "dropToLoad": "Drop file to load into editor",
     "createFromCRD": "Create from CRD",
     "crdComingSoon": "Coming soon: Create resources from Custom Resource Definitions",
     "crdHint": "This feature will be available in the next release",
