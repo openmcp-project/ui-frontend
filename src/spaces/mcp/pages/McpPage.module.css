@@ -25,6 +25,8 @@
   bottom: 0;
   z-index: 9999;
   pointer-events: none;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
   animation: fadeIn 0.15s ease-out;
 }
 
@@ -37,7 +39,6 @@
   bottom: 1rem;
   border: 3px dashed var(--sapButton_Emphasized_BorderColor);
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
 }
 
 @keyframes fadeIn {
@@ -49,18 +50,25 @@
   }
 }
 
-.dragOverlayText {
+.dragOverlayContent {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--sapTextColor);
   text-align: center;
-  padding: 1.5rem 2rem;
-  background: var(--sapBackgroundColor);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1;
+}
+
+.dragOverlayTitle {
+  font-size: var(--sapFontHeader3Size);
+  font-family: var(--sapFontHeaderFamily);
+  font-weight: var(--sapFontHeaderWeight);
+  color: var(--sapTextColor);
+  margin-bottom: 0.5rem;
+}
+
+.dragOverlaySubtitle {
+  font-size: var(--sapFontSize);
+  font-family: var(--sapFontFamily);
+  color: var(--sapContent_LabelColor);
 }

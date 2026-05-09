@@ -189,8 +189,13 @@ export default function McpPage() {
           <ManagedControlPlaneAuthorization>
             {isDraggingFile && (
               <div className={styles.dragOverlay}>
-                <div className={styles.dragOverlayText}>
-                  {t('resourceUpload.dragDropOverlay')}
+                <div className={styles.dragOverlayContent}>
+                  <div className={styles.dragOverlayTitle}>
+                    {t('resourceUpload.dropFileHere')}
+                  </div>
+                  <div className={styles.dragOverlaySubtitle}>
+                    {t('resourceUpload.dropFileSubtitle')}
+                  </div>
                 </div>
               </div>
             )}
