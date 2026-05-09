@@ -575,6 +575,7 @@
     "title": "Add Resource",
     "editorHint": "Type or paste YAML, or drag and drop a file",
     "browseFiles": "Browse",
+    "dragDropOverlay": "Drop YAML files here to upload (.yaml, .yml)",
     "createFromCRD": "Create from CRD",
     "crdComingSoon": "Coming soon: Create resources from Custom Resource Definitions",
     "crdHint": "This feature will be available in the next release",

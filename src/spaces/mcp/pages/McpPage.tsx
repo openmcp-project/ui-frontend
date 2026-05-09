@@ -190,7 +190,7 @@ export default function McpPage() {
             {isDraggingFile && (
               <div className={styles.dragOverlay}>
                 <div className={styles.dragOverlayText}>
-                  {t('resourceUpload.dragDropText')}
+                  {t('resourceUpload.dragDropOverlay')}
                 </div>
               </div>
             )}
