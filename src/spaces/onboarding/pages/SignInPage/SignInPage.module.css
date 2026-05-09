@@ -46,7 +46,7 @@
   width: 240px;
   transform: translateY(100vh);
   animation-name: flyInFromBottom2, float;
-  animation-delay: 0.1s, 0.9s;
+  animation-delay: 0.15s, 0.95s;
 }
 
 .plane3 {
@@ -55,7 +55,7 @@
   width: 208px;
   transform: translateY(calc(100vh - 70%));
   animation-name: flyInFromBottom3, float;
-  animation-delay: 0.2s, 1.0s;
+  animation-delay: 0.3s, 1.1s;
 }
 
 .plane4 {
@@ -64,7 +64,7 @@
   width: 232px;
   transform: translateY(calc(100vh - 68%));
   animation-name: flyInFromBottom4, float;
-  animation-delay: 0.3s, 1.1s;
+  animation-delay: 0.45s, 1.25s;
 }
 
 @keyframes flyInFromBottom1 {
