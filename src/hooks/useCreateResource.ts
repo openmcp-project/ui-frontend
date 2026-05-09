@@ -58,25 +58,25 @@ export function useCreateResource() {
           pluralKind = kind.toLowerCase() + 's';
         }
 
-        // Determine the namespace to use
-        const targetNamespace = namespace || parsed.metadata?.namespace || mcpContext?.secretNamespace;
+        // Determine the namespace to use (only for namespaced resources)
+        const resourceNamespace = namespace || parsed.metadata?.namespace;
+        const targetNamespace = resourceNamespace || mcpContext?.secretNamespace;
 
-        if (!targetNamespace) {
-          return {
-            success: false,
-            error: 'No namespace specified. Please add metadata.namespace to your resource.',
-          };
+        // Ensure the namespace is set in the parsed object if specified
+        if (resourceNamespace) {
+          if (!parsed.metadata) {
+            parsed.metadata = {};
+          }
+          parsed.metadata.namespace = resourceNamespace;
         }
-
-        // Ensure the namespace is set in the parsed object
-        if (!parsed.metadata) {
-          parsed.metadata = {};
-        }
-        parsed.metadata.namespace = targetNamespace;
 
         // Core resources (v1) use /api/v1, other resources use /apis/{group}/{version}
         const basePath = apiVersion === 'v1' ? '/api/v1' : `/apis/${apiVersion}`;
-        const path = `${basePath}/namespaces/${targetNamespace}/${pluralKind}`;
+
+        // Build path - include namespace only if the resource specifies one
+        const path = resourceNamespace
+          ? `${basePath}/namespaces/${resourceNamespace}/${pluralKind}`
+          : `${basePath}/${pluralKind}`;
 
         // POST the resource via the onboarding API
         const result = await fetchApiServerJson(
@@ -89,7 +89,9 @@ export function useCreateResource() {
 
         return {
           success: true,
-          message: `Successfully created ${kind} "${resourceName}" in namespace "${targetNamespace}"`,
+          message: resourceNamespace
+            ? `Successfully created ${kind} "${resourceName}" in namespace "${resourceNamespace}"`
+            : `Successfully created ${kind} "${resourceName}"`,
           resource: result,
         };
       } catch (error) {
