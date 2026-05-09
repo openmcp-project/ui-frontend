@@ -24,3 +24,14 @@
   min-height: auto !important;
   padding-block: 1rem !important;
 }
+
+/* Force ObjectPage header to stay expanded and visible */
+:global(.ui5-object-page-header-title) {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+}
+
+:global(.ui5-object-page-section-base) {
+  padding-top: 0 !important;
+}
