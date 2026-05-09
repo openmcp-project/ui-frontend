@@ -19,9 +19,6 @@ export function useCreateResource() {
   const apiConfig = useContext(ApiConfigContext);
   const { getPluralKind } = useResourcePluralNames();
 
-  console.log('[useCreateResource] apiConfig:', apiConfig);
-  console.log('[useCreateResource] mcpContext:', mcpContext);
-
   const createResource = useCallback(
     async (yamlContent: string, namespace?: string): Promise<CreateResourceResult> => {
       try {
@@ -59,7 +56,6 @@ export function useCreateResource() {
         // Fallback: simple pluralization if mapping not available
         if (!pluralKind) {
           pluralKind = kind.toLowerCase() + 's';
-          console.warn(`[useCreateResource] No CRD mapping for kind "${kind}", using fallback: ${pluralKind}`);
         }
 
         // Determine the namespace to use
@@ -81,15 +77,6 @@ export function useCreateResource() {
         // Core resources (v1) use /api/v1, other resources use /apis/{group}/{version}
         const basePath = apiVersion === 'v1' ? '/api/v1' : `/apis/${apiVersion}`;
         const path = `${basePath}/namespaces/${targetNamespace}/${pluralKind}`;
-
-        console.log('[useCreateResource] Creating resource:', {
-          kind,
-          pluralKind,
-          apiVersion,
-          targetNamespace,
-          resourceName,
-          path,
-        });
 
         // POST the resource via the onboarding API
         const result = await fetchApiServerJson(

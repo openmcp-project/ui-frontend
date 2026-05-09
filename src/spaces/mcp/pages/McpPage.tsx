@@ -67,7 +67,6 @@ function ResourceUploadDialogWrapper({
   const { createResource } = useCreateResource();
 
   const handleResourceUpload = async (yamlContent: string) => {
-    console.log('[ResourceUploadDialogWrapper] Creating resource...');
     return await createResource(yamlContent);
   };
 
