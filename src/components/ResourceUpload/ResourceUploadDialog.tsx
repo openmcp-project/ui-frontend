@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Dialog,
   Bar,
@@ -7,9 +7,6 @@ import {
 } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
 import { Editor } from '@monaco-editor/react';
-import { ApiConfigContext } from '../Shared/k8s';
-import { fetchApiServerJson } from '../../lib/api/fetch';
-import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco';
 import styles from './ResourceUploadDialog.module.css';
@@ -22,7 +19,7 @@ export interface ResourceUploadDialogProps {
 }
 
 interface ValidationWarning {
-  type: 'duplicate' | 'yaml-error';
+  type: 'yaml-error';
   message: string;
 }
 
@@ -33,8 +30,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [validationWarning, setValidationWarning] = useState<ValidationWarning | null>(null);
-  const apiConfig = useContext(ApiConfigContext);
-  const { getPluralKind } = useResourcePluralNames();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load initial YAML when provided
   useEffect(() => {
@@ -43,7 +39,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
     }
   }, [initialYaml, isOpen]);
 
-  // Validate YAML and check for duplicates
+  // Validate YAML syntax only
   useEffect(() => {
     const validateYaml = async () => {
       if (!yamlContent.trim()) {
@@ -64,33 +60,8 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
           return;
         }
 
-        // Check for duplicate resource
-        const resourceName = parsed.metadata.name;
-        const kind = parsed.kind;
-        const apiVersion = parsed.apiVersion;
-        const targetNamespace = parsed.metadata?.namespace;
-
-        if (targetNamespace && kind && apiVersion) {
-          try {
-            const pluralKind = getPluralKind(kind);
-            const path = `/apis/${apiVersion}/namespaces/${targetNamespace}/${pluralKind}/${resourceName}`;
-
-            // Try to fetch the resource - if it exists, we'll get a response
-            await fetchApiServerJson(path, apiConfig);
-
-            // If we reach here, resource exists
-            setValidationWarning({
-              type: 'duplicate',
-              message: t('resourceUpload.validation.resourceExists', { name: resourceName, kind }),
-            });
-          } catch (err) {
-            // 404 means resource doesn't exist - that's good
-            setValidationWarning(null);
-          }
-        } else {
-          // No namespace in YAML - clear warning
-          setValidationWarning(null);
-        }
+        // Valid YAML with required fields
+        setValidationWarning(null);
       } catch (err) {
         setValidationWarning({
           type: 'yaml-error',
@@ -101,7 +72,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
 
     const debounce = setTimeout(validateYaml, 500);
     return () => clearTimeout(debounce);
-  }, [yamlContent, apiConfig, getPluralKind, t]);
+  }, [yamlContent, t]);
 
   const handleFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
@@ -229,7 +200,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
               <Button
                 design="Emphasized"
                 onClick={handleSubmit}
-                disabled={isSubmitting || !yamlContent.trim() || validationWarning?.type === 'yaml-error'}
+                disabled={isSubmitting || !yamlContent.trim() || !!validationWarning}
               >
                 {isSubmitting ? t('buttons.submitting') : t('buttons.create')}
               </Button>
@@ -246,17 +217,16 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
         onDragLeave={handleDragLeave}
       >
         <div className={styles.actionBar}>
-          <label className={styles.fileInputLabel}>
-            <input
-              type="file"
-              accept=".yaml,.yml,text/yaml,text/x-yaml,application/x-yaml,text/plain"
-              onChange={handleFileInputChange}
-              className={styles.fileInput}
-            />
-            <Button icon="upload">
-              {t('resourceUpload.uploadFile')}
-            </Button>
-          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".yaml,.yml,text/yaml,text/x-yaml,application/x-yaml,text/plain"
+            onChange={handleFileInputChange}
+            className={styles.fileInput}
+          />
+          <Button icon="upload" onClick={() => fileInputRef.current?.click()}>
+            {t('resourceUpload.uploadFile')}
+          </Button>
           <Button
             icon="document"
             disabled
@@ -278,7 +248,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, initialYaml }:
 
         {validationWarning && (
           <MessageStrip
-            design={validationWarning.type === 'duplicate' ? 'Information' : 'Negative'}
+            design="Negative"
             hideCloseButton
             className={styles.feedback}
           >
