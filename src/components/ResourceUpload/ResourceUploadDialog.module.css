@@ -49,64 +49,67 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.75rem;
   min-height: 400px;
-  border: 1px solid var(--sapField_BorderColor);
-  border-radius: 0.25rem;
-  background-color: var(--sapField_Background);
-  transition: all 0.15s ease;
+  border: 2px solid var(--sapField_BorderColor);
+  border-radius: 0.5rem;
+  background-color: var(--sapBackgroundColor);
+  transition: all 0.2s ease;
   cursor: pointer;
-  padding: 3rem;
+  padding: 2rem;
+  position: relative;
 }
 
 .uploadZone:hover {
-  background-color: var(--sapField_Hover_Background);
   border-color: var(--sapField_Hover_BorderColor);
+  background-color: var(--sapField_Hover_Background);
 }
 
 .uploadZone.dragging {
-  background-color: var(--sapHighlightColor);
   border-color: var(--sapButton_Emphasized_BorderColor);
+  background-color: var(--sapHighlightColor);
+  border-style: solid;
 }
 
 .uploadIcon {
-  font-size: 3rem;
+  font-size: 2rem;
   color: var(--sapContent_IconColor);
-  transition: color 0.15s ease;
+  transition: color 0.2s ease;
+  opacity: 0.5;
 }
 
 .uploadZone:hover .uploadIcon {
-  color: var(--sapContent_ContrastIconColor);
+  opacity: 0.8;
 }
 
 .uploadZone.dragging .uploadIcon {
   color: var(--sapButton_Emphasized_TextColor);
+  opacity: 1;
 }
 
 .uploadText {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--sapContent_LabelColor);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sapTextColor);
   margin: 0;
-  text-align: center;
+  line-height: 1.4;
 }
 
 .uploadSubtext {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--sapContent_LabelColor);
   margin: 0;
-  opacity: 0.7;
-  text-align: center;
+  line-height: 1.4;
 }
 
 .fileTypeHint {
   font-size: 0.75rem;
   color: var(--sapContent_LabelColor);
-  margin: 0.5rem 0 0 0;
+  margin: 0.25rem 0 0 0;
   opacity: 0.6;
-  text-align: center;
+  line-height: 1.4;
 }
 
 .fileInputLabel {
