@@ -1,7 +1,6 @@
 import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
-import styles from './ControlPlanePageMenu.module.css';
 
 type ControlPlanesListMenuProps = {
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
@@ -38,7 +37,13 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
         }}
       >
         <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
-        <MenuItem key={'addResource'} text={t('resourceUpload.title')} data-action="addResource" icon="add" className={styles.addResourceItem} />
+        <MenuItem
+          key={'addResource'}
+          text={t('resourceUpload.title')}
+          data-action="addResource"
+          icon="add"
+          style={{ '--sapList_TextColor': 'var(--sapPositiveColor)' } as any}
+        />
       </Menu>
     </>
   );

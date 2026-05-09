@@ -1,8 +1,0 @@
-.addResourceItem {
-  --_ui5_menu_item_icon_color: var(--sapPositiveColor);
-  color: var(--sapPositiveColor);
-}
-
-.addResourceItem::part(native-li) {
-  color: var(--sapPositiveColor);
-}
