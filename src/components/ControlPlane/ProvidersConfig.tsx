@@ -184,6 +184,9 @@ export function ProvidersConfig() {
             autoResetFilters: false,
             autoResetRowState: false,
             autoResetResize: false,
+            initialState: {
+              expanded: true,
+            },
           }}
         />
         <ErrorDialog ref={errorDialogRef} />

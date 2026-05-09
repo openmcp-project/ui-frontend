@@ -368,6 +368,9 @@ export function ManagedResources({
                 autoResetFilters: false,
                 autoResetRowState: false,
                 autoResetResize: false,
+                initialState: {
+                  expanded: true,
+                },
               }}
             />
 
