@@ -21,8 +21,8 @@
 }
 
 .betaBadge {
-  background: var(--sapInformationBackground);
-  color: var(--sapTextColor);
+  background: #d4edda;
+  color: #155724;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
