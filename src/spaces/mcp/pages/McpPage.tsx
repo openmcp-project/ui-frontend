@@ -171,6 +171,7 @@ export default function McpPage() {
               mode="IconTabBar"
               alwaysShowContentHeader
               showHideHeaderButton={false}
+              headerContentPinnable={false}
               titleArea={
                 <ObjectPageTitle
                   header={displayName ?? controlPlaneName}
