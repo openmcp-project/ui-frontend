@@ -19,15 +19,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border: 2px solid var(--sapField_BorderColor);
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  animation: overlayFadeIn 0.2s ease-out;
+  animation: overlayFadeIn 0.15s ease-out;
 }
 
 @keyframes overlayFadeIn {
@@ -41,11 +40,7 @@
 
 .dragOverlayText {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--sapContent_LabelColor);
-  background-color: var(--sapList_Background);
-  padding: 2rem 3rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--sapList_BorderColor);
-  box-shadow: var(--sapContent_Shadow1);
+  text-align: center;
 }

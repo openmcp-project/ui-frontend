@@ -228,6 +228,9 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
                 {t('resourceUpload.browseFiles')}
               </Button>
             </label>
+            <p className={styles.fileTypeHint}>
+              {t('resourceUpload.fileTypeHint')}
+            </p>
           </div>
         )}
 
