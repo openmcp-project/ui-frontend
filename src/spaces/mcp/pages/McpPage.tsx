@@ -54,6 +54,32 @@ import { ResourceUploadDialog } from '../../../components/ResourceUpload/Resourc
 import { useCreateResource } from '../../../hooks/useCreateResource.ts';
 import { Button } from '@ui5/webcomponents-react';
 
+// Wrapper component that has access to MCP context
+function ResourceUploadDialogWrapper({
+  isOpen,
+  onClose,
+  initialYaml,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialYaml?: string;
+}) {
+  const { createResource } = useCreateResource();
+
+  const handleResourceUpload = async (yamlContent: string) => {
+    return await createResource(yamlContent);
+  };
+
+  return (
+    <ResourceUploadDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      onSubmit={handleResourceUpload}
+      initialYaml={initialYaml}
+    />
+  );
+}
+
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
@@ -68,7 +94,6 @@ export default function McpPage() {
   const [isResourceUploadDialogOpen, setIsResourceUploadDialogOpen] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [droppedYamlContent, setDroppedYamlContent] = useState<string | undefined>(undefined);
-  const { createResource } = useCreateResource();
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
@@ -110,13 +135,6 @@ export default function McpPage() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
-
-  const handleResourceUpload = useCallback(
-    async (yamlContent: string) => {
-      return await createResource(yamlContent);
-    },
-    [createResource],
-  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -356,13 +374,12 @@ export default function McpPage() {
                 </ObjectPageSection>
               )}
             </ObjectPage>
-            <ResourceUploadDialog
+            <ResourceUploadDialogWrapper
               isOpen={isResourceUploadDialogOpen}
               onClose={() => {
                 setIsResourceUploadDialogOpen(false);
                 setDroppedYamlContent(undefined);
               }}
-              onSubmit={handleResourceUpload}
               initialYaml={droppedYamlContent}
             />
           </ManagedControlPlaneAuthorization>
