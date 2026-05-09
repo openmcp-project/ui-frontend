@@ -169,9 +169,9 @@ export default function McpPage() {
           <ManagedControlPlaneAuthorization>
             <ObjectPage
               mode="IconTabBar"
-              alwaysShowContentHeader
-              showHideHeaderButton={false}
-              headerContentPinnable={false}
+              headerPinned={true}
+              preserveHeaderStateOnClick={true}
+              hidePinButton={true}
               titleArea={
                 <ObjectPageTitle
                   header={displayName ?? controlPlaneName}
