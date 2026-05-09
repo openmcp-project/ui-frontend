@@ -1,0 +1,25 @@
+.healthBar {
+  display: flex;
+  height: 6px;
+  width: 100%;
+  background: var(--sapGroup_ContentBackground);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--sapList_BorderColor);
+  margin-bottom: 1rem;
+}
+
+.goodSegment {
+  background: var(--sapPositiveColor);
+  transition: width 0.3s ease;
+}
+
+.badSegment {
+  background: var(--sapNegativeColor);
+  transition: width 0.3s ease;
+}
+
+.unknownSegment {
+  background: var(--sapNeutralColor);
+  transition: width 0.3s ease;
+}

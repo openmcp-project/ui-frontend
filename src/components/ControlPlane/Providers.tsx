@@ -5,7 +5,6 @@ import {
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
   Panel,
-  Title,
   Toolbar,
   ToolbarSpacer,
 } from '@ui5/webcomponents-react';
@@ -23,6 +22,7 @@ import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 type ProvidersRow = {
   name: string;
@@ -153,15 +153,14 @@ export function Providers() {
       {error && <IllustratedError details={error.message} />}
 
       {!error && (
-        <Panel
-          fixed
-          header={
-            <Toolbar>
-              <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
-              <ToolbarSpacer />
-            </Toolbar>
-          }
-        >
+        <>
+          <ResourceHealthBar
+            resources={rows.map((r) => ({
+              installed: r.installed === 'true',
+              healthy: r.healthy === 'true',
+            }))}
+            type="installed-healthy"
+          />
           <AnalyticalTable
             columns={columns}
             data={rows}
@@ -172,7 +171,7 @@ export function Providers() {
             retainColumnWidth
             reactTableOptions={tableOptions}
           />
-        </Panel>
+        </>
       )}
     </>
   );
