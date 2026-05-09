@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "accessibility": {
+      "source": "UI5/webcomponents",
+      "sourceType": "github",
+      "skillPath": "skills/accessibility/SKILL.md",
+      "computedHash": "b1b6c8461f40d3debf598d5a365ad69b2fe092ff0a8aa8b0dcd53f423adcdb5b"
+    },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "skillPath": "skill/SKILL.md",
+      "computedHash": "8cdf2e788eaca3af7d02026ef9cec55b506100a00d130f938e3fb1ad669c0ad0"
+    },
+    "styling": {
+      "source": "UI5/webcomponents",
+      "sourceType": "github",
+      "skillPath": "skills/styling/SKILL.md",
+      "computedHash": "3c5d36299cbde09d4ee5817618a09abd69906a9103209e4205bb5337c26fbea1"
+    }
+  }
+}
