@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ResourceUploadDialog } from './ResourceUploadDialog';
 
 vi.mock('react-i18next', () => ({
@@ -51,10 +51,16 @@ describe('ResourceUploadDialog', () => {
   const mockOnSubmit = vi.fn();
 
   beforeEach(() => {
+    // ARRANGE
     vi.clearAllMocks();
   });
 
-  it('renders the dialog when open', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should render the dialog when open', () => {
+    // ACT
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -63,10 +69,12 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ASSERT
     expect(screen.getByText('Add Resource')).toBeInTheDocument();
   });
 
-  it('displays namespace info when namespace is provided', () => {
+  it('should display namespace info when namespace is provided', () => {
+    // ACT
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -76,11 +84,13 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ASSERT
     expect(screen.getByText('Target Namespace')).toBeInTheDocument();
     expect(screen.getByText('test-namespace')).toBeInTheDocument();
   });
 
-  it('switches between editor and upload modes', () => {
+  it('should switch between editor and upload modes', () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -89,13 +99,16 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const uploadButton = screen.getByText('Upload File');
     fireEvent.click(uploadButton);
 
+    // ASSERT
     expect(screen.getByText('Drag and drop your YAML file here')).toBeInTheDocument();
   });
 
-  it('allows YAML content to be edited', () => {
+  it('should allow YAML content to be edited', () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -104,13 +117,16 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const editor = screen.getByTestId('yaml-editor');
     fireEvent.change(editor, { target: { value: 'apiVersion: v1\nkind: Pod' } });
 
+    // ASSERT
     expect(editor).toHaveValue('apiVersion: v1\nkind: Pod');
   });
 
-  it('shows error when submitting empty content', async () => {
+  it('should show error when submitting empty content', async () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -119,17 +135,19 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const createButton = screen.getByText('Create');
     fireEvent.click(createButton);
 
+    // ASSERT
     await waitFor(() => {
       expect(screen.getByText('Please provide YAML content')).toBeInTheDocument();
     });
-
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
-  it('submits YAML content successfully', async () => {
+  it('should submit YAML content successfully', async () => {
+    // ARRANGE
     mockOnSubmit.mockResolvedValue({
       success: true,
       message: 'Resource created successfully',
@@ -143,12 +161,14 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const editor = screen.getByTestId('yaml-editor');
     fireEvent.change(editor, { target: { value: 'apiVersion: v1\nkind: Pod' } });
 
     const createButton = screen.getByText('Create');
     fireEvent.click(createButton);
 
+    // ASSERT
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
     });
@@ -158,7 +178,8 @@ describe('ResourceUploadDialog', () => {
     });
   });
 
-  it('displays error message on submission failure', async () => {
+  it('should display error message on submission failure', async () => {
+    // ARRANGE
     mockOnSubmit.mockResolvedValue({
       success: false,
       error: 'Invalid YAML format',
@@ -172,18 +193,21 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const editor = screen.getByTestId('yaml-editor');
     fireEvent.change(editor, { target: { value: 'invalid: yaml: content' } });
 
     const createButton = screen.getByText('Create');
     fireEvent.click(createButton);
 
+    // ASSERT
     await waitFor(() => {
       expect(screen.getByText('Invalid YAML format')).toBeInTheDocument();
     });
   });
 
-  it('handles file upload via input', async () => {
+  it('should handle file upload via input', async () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -201,19 +225,23 @@ describe('ResourceUploadDialog', () => {
     });
 
     const input = screen.getByLabelText('Browse Files').querySelector('input') as HTMLInputElement;
+
+    // ACT
     Object.defineProperty(input, 'files', {
       value: [file],
+      configurable: true,
     });
-
     fireEvent.change(input);
 
+    // ASSERT
     await waitFor(() => {
       const editor = screen.getByTestId('yaml-editor');
       expect(editor).toHaveValue('apiVersion: v1\nkind: ConfigMap');
     });
   });
 
-  it('handles drag and drop file upload', async () => {
+  it('should handle drag and drop file upload', async () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -231,6 +259,7 @@ describe('ResourceUploadDialog', () => {
       type: 'text/yaml',
     });
 
+    // ACT
     const dropEvent = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
@@ -238,16 +267,17 @@ describe('ResourceUploadDialog', () => {
         files: [file],
       },
     };
-
     fireEvent.drop(uploadZone!, dropEvent as any);
 
+    // ASSERT
     await waitFor(() => {
       const editor = screen.getByTestId('yaml-editor');
       expect(editor).toHaveValue('apiVersion: v1\nkind: Service');
     });
   });
 
-  it('rejects non-YAML files with error message', async () => {
+  it('should reject non-YAML files with error message', async () => {
+    // ARRANGE
     render(
       <ResourceUploadDialog
         isOpen={true}
@@ -263,6 +293,7 @@ describe('ResourceUploadDialog', () => {
     const uploadZone = screen.getByText('Drag and drop your YAML file here').parentElement;
     const file = new File(['some content'], 'test.pdf', { type: 'application/pdf' });
 
+    // ACT
     const dropEvent = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
@@ -270,15 +301,16 @@ describe('ResourceUploadDialog', () => {
         files: [file],
       },
     };
-
     fireEvent.drop(uploadZone!, dropEvent as any);
 
+    // ASSERT
     await waitFor(() => {
       expect(screen.getByText('Please upload a YAML or text file')).toBeInTheDocument();
     });
   });
 
-  it('disables create button when submitting', async () => {
+  it('should disable create button when submitting', async () => {
+    // ARRANGE
     mockOnSubmit.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100))
     );
@@ -291,18 +323,21 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const editor = screen.getByTestId('yaml-editor');
     fireEvent.change(editor, { target: { value: 'apiVersion: v1\nkind: Pod' } });
 
     const createButton = screen.getByText('Create');
     fireEvent.click(createButton);
 
+    // ASSERT
     await waitFor(() => {
       expect(screen.getByText('Submitting...')).toBeInTheDocument();
     });
   });
 
-  it('closes dialog after successful submission', async () => {
+  it('should close dialog after successful submission', async () => {
+    // ARRANGE
     mockOnSubmit.mockResolvedValue({
       success: true,
       message: 'Resource created successfully',
@@ -316,12 +351,14 @@ describe('ResourceUploadDialog', () => {
       />
     );
 
+    // ACT
     const editor = screen.getByTestId('yaml-editor');
     fireEvent.change(editor, { target: { value: 'apiVersion: v1\nkind: Pod' } });
 
     const createButton = screen.getByText('Create');
     fireEvent.click(createButton);
 
+    // ASSERT
     await waitFor(
       () => {
         expect(mockOnClose).toHaveBeenCalled();
