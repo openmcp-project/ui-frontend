@@ -232,13 +232,6 @@ export default function McpPage() {
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                   actionsBar={
                     <div className={styles.actionsBar}>
-                      <Button
-                        icon="add"
-                        onClick={() => setIsResourceUploadDialogOpen(true)}
-                        tooltip={t('resourceUpload.title')}
-                      >
-                        {t('resourceUpload.title')}
-                      </Button>
                       <YamlViewButton
                         variant="loader"
                         workspaceName={mcp?.status?.access?.namespace}
@@ -249,6 +242,7 @@ export default function McpPage() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        onAddResourceClick={() => setIsResourceUploadDialogOpen(true)}
                       />
                       <EditManagedControlPlaneWizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}

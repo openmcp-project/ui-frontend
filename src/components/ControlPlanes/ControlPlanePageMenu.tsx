@@ -4,9 +4,10 @@ import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
 type ControlPlanesListMenuProps = {
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  onAddResourceClick: () => void;
 };
 
-export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen }) => {
+export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen, onAddResourceClick }) => {
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -25,6 +26,8 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
             setIsEditManagedControlPlaneWizardOpen(true);
+          } else if (action === 'addResource') {
+            onAddResourceClick();
           }
 
           setMenuIsOpen(false);
@@ -33,6 +36,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           setMenuIsOpen(false);
         }}
       >
+        <MenuItem key={'addResource'} text={t('resourceUpload.title')} data-action="addResource" icon="add" design="Positive" />
         <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
       </Menu>
     </>
