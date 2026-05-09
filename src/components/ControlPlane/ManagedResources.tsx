@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Fragment, useMemo, useState, useRef, useCallback, useContext } from 'react';
+import { Fragment, useMemo, useState, useRef, useCallback, useContext, useEffect } from 'react';
 import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
