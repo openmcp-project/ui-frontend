@@ -17,7 +17,8 @@ describe('SignInPage', () => {
   it('renders the SignInPage', () => {
     cy.mount(<SignInPage useAuthOnboarding={fakeUseAuthOnboarding} />);
 
-    cy.get('ui5-title').should('exist');
+    cy.get('img[alt="Open Control Plane"]').should('exist');
+    cy.get('ui5-button').should('contain', 'Sign In');
   });
 
   it('calls the login function when the user clicks the "Sign In" button', () => {
