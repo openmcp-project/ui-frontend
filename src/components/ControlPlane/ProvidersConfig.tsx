@@ -16,7 +16,7 @@ import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
-import { Fragment, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { ProviderConfigItem } from '../../lib/shared/types.ts';
 import { ActionsMenu, type ActionItem } from './ActionsMenu';
@@ -44,6 +44,7 @@ export function ProvidersConfig() {
   const apiConfig = useContext(ApiConfigContext);
   const rows: Rows[] = [];
   const tableInstanceRef = useRef<any>(null);
+  const [areRowsExpanded, setAreRowsExpanded] = useState(true);
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
     refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
@@ -53,6 +54,7 @@ export function ProvidersConfig() {
   useEffect(() => {
     if (tableInstanceRef.current && !isLoading) {
       tableInstanceRef.current.toggleAllRowsExpanded(true);
+      setAreRowsExpanded(true);
     }
   }, [isLoading]);
 
@@ -168,6 +170,20 @@ export function ProvidersConfig() {
         <Toolbar>
           <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
           <ToolbarSpacer />
+          <Button
+            icon={areRowsExpanded ? 'collapse-all' : 'expand-all'}
+            design="Transparent"
+            onClick={() => {
+              const newState = !areRowsExpanded;
+              tableInstanceRef.current?.toggleAllRowsExpanded(newState);
+              setAreRowsExpanded(newState);
+            }}
+            disabled={!tableInstanceRef.current}
+          >
+            {areRowsExpanded
+              ? t('buttons.collapseAll', 'Collapse All')
+              : t('buttons.expandAll', 'Expand All')}
+          </Button>
         </Toolbar>
       }
     >

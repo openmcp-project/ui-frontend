@@ -98,6 +98,7 @@ export function ManagedResources({
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const navigateToTab = useNavigateToTab();
   const tableInstanceRef = useRef<any>(null);
+  const [areRowsExpanded, setAreRowsExpanded] = useState(true);
 
   const {
     data: managedResources,
@@ -339,6 +340,7 @@ export function ManagedResources({
   useEffect(() => {
     if (tableInstanceRef.current && !combinedLoading) {
       tableInstanceRef.current.toggleAllRowsExpanded(true);
+      setAreRowsExpanded(true);
     }
   }, [combinedLoading]);
 
@@ -353,6 +355,20 @@ export function ManagedResources({
             <Toolbar>
               <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
               <ToolbarSpacer />
+              <Button
+                icon={areRowsExpanded ? 'collapse-all' : 'expand-all'}
+                design="Transparent"
+                onClick={() => {
+                  const newState = !areRowsExpanded;
+                  tableInstanceRef.current?.toggleAllRowsExpanded(newState);
+                  setAreRowsExpanded(newState);
+                }}
+                disabled={!tableInstanceRef.current}
+              >
+                {areRowsExpanded
+                  ? t('buttons.collapseAll', 'Collapse All')
+                  : t('buttons.expandAll', 'Expand All')}
+              </Button>
             </Toolbar>
           }
         >
