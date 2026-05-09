@@ -182,9 +182,7 @@ export function ProvidersConfig() {
           filterable
           // Prevent the table from resetting when the data changes
           retainColumnWidth
-          onTableInstanceRef={(instance) => {
-            tableInstanceRef.current = instance;
-          }}
+          tableInstance={tableInstanceRef}
           reactTableOptions={{
             autoResetHiddenColumns: false,
             autoResetPage: false,

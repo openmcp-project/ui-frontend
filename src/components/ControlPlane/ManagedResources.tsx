@@ -366,9 +366,7 @@ export function ManagedResources({
               loading={combinedLoading}
               filterable
               retainColumnWidth
-              onTableInstanceRef={(instance) => {
-                tableInstanceRef.current = instance;
-              }}
+              tableInstance={tableInstanceRef}
               reactTableOptions={{
                 autoResetHiddenColumns: false,
                 autoResetPage: false,
