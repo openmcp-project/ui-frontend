@@ -115,7 +115,6 @@
   width: 100%;
   height: auto;
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.08));
-  transition: all 0.3s ease;
 }
 
 /* Cloud Projection SVG Animation - positioned ABOVE control plane */
