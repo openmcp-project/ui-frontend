@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Sentry from '@sentry/react';
 
@@ -27,6 +27,7 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
   const { login } = useAuthOnboarding();
   const { documentationHomepage } = useLink();
   const { t } = useTranslation();
+  const [showClouds, setShowClouds] = useState(false);
 
   useEffect(() => {
     Sentry.addBreadcrumb({
@@ -37,12 +38,14 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
   }, []);
 
   useEffect(() => {
-    const controlPlanes = document.querySelectorAll(`.${styles.controlPlane}`);
     const clouds = document.querySelectorAll(`.${styles.cloudProjection}`);
 
-    controlPlanes.forEach((cp) => cp.classList.add(styles.visible));
-    clouds.forEach((cloud) => cloud.classList.add(styles.visible));
-  }, []);
+    if (showClouds) {
+      clouds.forEach((cloud) => cloud.classList.add(styles.visible));
+    } else {
+      clouds.forEach((cloud) => cloud.classList.remove(styles.visible));
+    }
+  }, [showClouds]);
 
   return (
     <div className={styles.container}>
@@ -60,7 +63,13 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
           <p className={styles.hashtags}>{t('SignInPage.hashtags')}</p>
 
           <div className={styles.actionContainer}>
-            <Button className={styles.signInButton} design={ButtonDesign.Emphasized} onClick={() => void login()}>
+            <Button
+              className={styles.signInButton}
+              design={ButtonDesign.Emphasized}
+              onClick={() => void login()}
+              onMouseEnter={() => setShowClouds(true)}
+              onMouseLeave={() => setShowClouds(false)}
+            >
               {t('SignInPage.signInButton')}
             </Button>
           </div>

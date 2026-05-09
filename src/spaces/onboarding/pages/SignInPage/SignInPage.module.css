@@ -24,36 +24,48 @@
 
 .controlPlane {
   position: absolute;
-  animation: float 8s ease-in-out infinite;
   overflow: visible;
+  animation: flyInFromBottom 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             float 8s ease-in-out infinite 1.2s;
 }
 
 .plane1 {
   left: 5%;
   top: 15%;
   width: 224px;
-  animation-delay: 0s;
+  animation-delay: 0s, 0s;
 }
 
 .plane2 {
   right: 8%;
   top: 12%;
   width: 240px;
-  animation-delay: 2s;
+  animation-delay: 0.15s, 0.15s;
 }
 
 .plane3 {
   left: 12%;
   bottom: 15%;
   width: 208px;
-  animation-delay: 4s;
+  animation-delay: 0.3s, 0.3s;
 }
 
 .plane4 {
   right: 10%;
   bottom: 18%;
   width: 232px;
-  animation-delay: 6s;
+  animation-delay: 0.45s, 0.45s;
+}
+
+@keyframes flyInFromBottom {
+  0% {
+    transform: translateY(100vh) translateX(0px) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes float {
@@ -80,16 +92,18 @@
   position: absolute;
   top: -150px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(0.7);
   width: 300px;
   height: 200px;
   opacity: 0;
-  transition: opacity 0.6s ease-in-out;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: visible;
+  pointer-events: none;
 }
 
 .cloudProjection.visible {
   opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .cloudShape {
@@ -244,6 +258,11 @@
   padding: 1rem 3rem;
   min-height: 3.5rem;
   line-height: 1.5;
+  transition: transform 0.2s ease;
+}
+
+.signInButton:hover {
+  transform: scale(1.05);
 }
 
 .docsLink {
