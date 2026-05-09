@@ -48,6 +48,9 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
 
   const enrichedContext: Mcp = {
     ...context,
+    secretNamespace,
+    secretName,
+    secretKey,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };

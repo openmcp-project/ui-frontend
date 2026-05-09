@@ -59,7 +59,7 @@ export function useCreateResource() {
         }
 
         // Determine the namespace to use
-        const targetNamespace = namespace || parsed.metadata?.namespace || mcpContext?.name;
+        const targetNamespace = namespace || parsed.metadata?.namespace || mcpContext?.secretNamespace;
 
         if (!targetNamespace) {
           return {
