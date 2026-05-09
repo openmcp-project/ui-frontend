@@ -19,21 +19,124 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 102, 204, 0.1);
-  border: 3px dashed var(--sapButton_Emphasized_BorderColor);
+  background: linear-gradient(
+    135deg,
+    rgba(240, 253, 250, 0.95) 0%,
+    rgba(194, 252, 238, 0.95) 50%,
+    rgba(240, 253, 250, 0.95) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 4px dashed rgba(44, 224, 191, 0.6);
   z-index: 9999;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  animation: overlayFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dragOverlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(4, 159, 154, 0.1) 0%,
+    rgba(44, 224, 191, 0.05) 40%,
+    transparent 70%
+  );
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 .dragOverlayText {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--sapButton_Emphasized_TextColor);
-  background-color: var(--sapButton_Emphasized_Background);
-  padding: 2rem 3rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(4, 159, 154, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 253, 250, 0.98) 100%
+  );
+  padding: 2.5rem 4rem;
+  border-radius: 1.5rem;
+  box-shadow:
+    0 20px 60px rgba(4, 159, 154, 0.25),
+    0 0 0 1px rgba(44, 224, 191, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(44, 224, 191, 0.4);
+  animation: floatText 3s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+@keyframes floatText {
+  0%, 100% {
+    transform: translateY(0px);
+    box-shadow:
+      0 20px 60px rgba(4, 159, 154, 0.25),
+      0 0 0 1px rgba(44, 224, 191, 0.3),
+      inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    transform: translateY(-10px);
+    box-shadow:
+      0 30px 80px rgba(4, 159, 154, 0.35),
+      0 0 0 1px rgba(44, 224, 191, 0.5),
+      inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  }
+}
+
+.dragOverlayText::before {
+  content: '📦';
+  font-size: 3.5rem;
+  filter: drop-shadow(0 8px 20px rgba(4, 159, 154, 0.3));
+  animation: iconSpin 4s linear infinite;
+}
+
+@keyframes iconSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(0deg) scale(1);
+  }
+  75% {
+    transform: rotate(10deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
 }
