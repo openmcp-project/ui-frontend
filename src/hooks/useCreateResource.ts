@@ -19,6 +19,9 @@ export function useCreateResource() {
   const apiConfig = useContext(ApiConfigContext);
   const { getPluralKind } = useResourcePluralNames();
 
+  console.log('[useCreateResource] apiConfig:', apiConfig);
+  console.log('[useCreateResource] mcpContext:', mcpContext);
+
   const createResource = useCallback(
     async (yamlContent: string, namespace?: string): Promise<CreateResourceResult> => {
       try {
