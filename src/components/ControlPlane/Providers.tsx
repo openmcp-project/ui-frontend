@@ -134,17 +134,21 @@ export function Providers({ onCountChange, onHealthStatsChange }: ProvidersProps
     [providers?.items],
   );
 
+  const healthStats = useMemo(() => {
+    const installedCount = rows.filter((r) => r.installed === 'true').length;
+    const healthyCount = rows.filter((r) => r.healthy === 'true').length;
+    return { installedCount, healthyCount, total: rows.length };
+  }, [rows]);
+
   // Notify parent of count changes
   useEffect(() => {
     if (onCountChange) {
-      onCountChange(rows.length);
+      onCountChange(healthStats.total);
     }
     if (onHealthStatsChange) {
-      const installedCount = rows.filter((r) => r.installed === 'true').length;
-      const healthyCount = rows.filter((r) => r.healthy === 'true').length;
-      onHealthStatsChange(installedCount, healthyCount, rows.length);
+      onHealthStatsChange(healthStats.installedCount, healthStats.healthyCount, healthStats.total);
     }
-  }, [rows.length, onCountChange, onHealthStatsChange, rows]);
+  }, [healthStats.total, healthStats.installedCount, healthStats.healthyCount, onCountChange, onHealthStatsChange]);
 
   const tableOptions = useMemo(
     () => ({

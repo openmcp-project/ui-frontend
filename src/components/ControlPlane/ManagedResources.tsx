@@ -306,17 +306,21 @@ export function ManagedResources({
         }),
       ) ?? [];
 
+  const healthStats = useMemo(() => {
+    const readyCount = rows.filter((r) => r.ready).length;
+    const syncedCount = rows.filter((r) => r.synced).length;
+    return { readyCount, syncedCount, total: rows.length };
+  }, [rows.length, managedResources]);
+
   // Notify parent of count changes
   useEffect(() => {
     if (onCountChange) {
-      onCountChange(rows.length);
+      onCountChange(healthStats.total);
     }
     if (onHealthStatsChange) {
-      const readyCount = rows.filter((r) => r.ready).length;
-      const syncedCount = rows.filter((r) => r.synced).length;
-      onHealthStatsChange(readyCount, syncedCount, rows.length);
+      onHealthStatsChange(healthStats.readyCount, healthStats.syncedCount, healthStats.total);
     }
-  }, [rows.length, onCountChange, onHealthStatsChange, rows]);
+  }, [healthStats.total, healthStats.readyCount, healthStats.syncedCount, onCountChange, onHealthStatsChange]);
 
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
