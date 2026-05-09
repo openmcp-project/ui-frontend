@@ -29,11 +29,10 @@ import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
-import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useContext } from 'react';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -50,6 +49,10 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
+import { useSplitter } from '../../../components/Splitter/SplitterContext.tsx';
+import { YamlSidePanelWithLoader } from '../../../components/Yaml/YamlSidePanelWithLoader.tsx';
+import { ApiConfigContext } from '../../../components/Shared/k8s';
+import { ResourceHealthBar } from '../../../components/ControlPlane/ResourceHealthBar/ResourceHealthBar.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -58,10 +61,21 @@ export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { openInAside } = useSplitter();
+  const apiConfig = useContext(ApiConfigContext);
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
+  const [providersCount, setProvidersCount] = useState(0);
+  const [providerConfigsCount, setProviderConfigsCount] = useState(0);
+  const [managedResourcesCount, setManagedResourcesCount] = useState(0);
+  const [providersHealthStats, setProvidersHealthStats] = useState({ installed: 0, healthy: 0, total: 0 });
+  const [managedResourcesHealthStats, setManagedResourcesHealthStats] = useState({
+    ready: 0,
+    synced: 0,
+    total: 0,
+  });
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
@@ -103,6 +117,21 @@ export default function McpPage() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
+
+  const handleYamlClick = useCallback(() => {
+    if (!mcp || !controlPlaneName) return;
+
+    const content = (
+      <YamlSidePanelWithLoader
+        isEdit={false}
+        workspaceName={mcp?.status?.access?.namespace}
+        resourceType={'managedcontrolplanes'}
+        resourceName={controlPlaneName}
+      />
+    );
+    openInAside(content);
+  }, [mcp, controlPlaneName, openInAside]);
+
   if (isLoading) {
     return (
       <Center>
@@ -140,24 +169,20 @@ export default function McpPage() {
           <ManagedControlPlaneAuthorization>
             <ObjectPage
               mode="IconTabBar"
+              alwaysShowContentHeader
+              showHideHeaderButton={false}
               titleArea={
                 <ObjectPageTitle
                   header={displayName ?? controlPlaneName}
-                  subHeader={t('Entities.ManagedControlPlane')}
+                  subHeader={<span className={styles.resourceKind}>{t('Entities.ManagedControlPlane')}</span>}
                   breadcrumbs={showBreadcrumbs ? <BreadcrumbFeedbackHeader /> : undefined}
                   //TODO: actionBar should use Toolbar and ToolbarButton for consistent design
                   actionsBar={
                     <div className={styles.actionsBar}>
-                      <YamlViewButton
-                        variant="loader"
-                        workspaceName={mcp?.status?.access?.namespace}
-                        resourceType={'managedcontrolplanes'}
-                        resourceName={controlPlaneName}
-                        withoutApiConfig
-                      />
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        onYamlClick={handleYamlClick}
                       />
                       <EditManagedControlPlaneWizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}

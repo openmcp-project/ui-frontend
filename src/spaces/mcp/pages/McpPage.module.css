@@ -12,3 +12,10 @@
 .deprecatedWrapper {
   margin-top: 4px;
 }
+
+.resourceKind {
+  font-family: var(--sapFontMonospaceFamily, 'Courier New', Courier, monospace);
+  font-size: 0.875rem;
+  color: var(--sapContent_LabelColor);
+  letter-spacing: -0.01em;
+}

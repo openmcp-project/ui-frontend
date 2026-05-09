@@ -23,22 +23,27 @@ export function McpHeader({ mcp }: McpHeaderProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.grid}>
+      <div className={styles.metadataCard}>
         <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
-        <Text>{mcp.metadata.name}</Text>
-
-        <span className={styles.label}>{t('McpHeader.createdOnLabel')}</span>
-        <Text>
-          {created} ({formatDateAsTimeAgo(mcp.metadata.creationTimestamp)})
+        <Text className={styles.value}>
+          <span className={styles.resourceName}>{mcp.metadata.name}</span>
         </Text>
-
-        {createdBy ? (
-          <>
-            <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-            <Text>{createdBy}</Text>
-          </>
-        ) : null}
       </div>
+
+      <div className={styles.metadataCard}>
+        <span className={styles.label}>{t('McpHeader.createdOnLabel')}</span>
+        <Text className={styles.value}>{created}</Text>
+        <Text className={styles.value} style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+          {formatDateAsTimeAgo(mcp.metadata.creationTimestamp)}
+        </Text>
+      </div>
+
+      {createdBy && (
+        <div className={styles.metadataCard}>
+          <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
+          <Text className={styles.value}>{createdBy}</Text>
+        </div>
+      )}
     </div>
   );
 }

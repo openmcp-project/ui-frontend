@@ -4,9 +4,13 @@ import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 
 type ControlPlanesListMenuProps = {
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  onYamlClick?: () => void;
 };
 
-export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen }) => {
+export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({
+  setIsEditManagedControlPlaneWizardOpen,
+  onYamlClick,
+}) => {
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -25,6 +29,8 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
             setIsEditManagedControlPlaneWizardOpen(true);
+          } else if (action === 'yaml' && onYamlClick) {
+            onYamlClick();
           }
 
           setMenuIsOpen(false);
@@ -34,6 +40,9 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
         }}
       >
         <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
+        {onYamlClick && (
+          <MenuItem key={'yaml'} text={t('yaml.YAML')} data-action="yaml" icon="document-text" />
+        )}
       </Menu>
     </>
   );
