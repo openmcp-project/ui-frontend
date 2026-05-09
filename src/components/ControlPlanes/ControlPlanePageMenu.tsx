@@ -21,7 +21,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({
 
   return (
     <>
-      <Button id={openerId} icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button design="Transparent" id={openerId} icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
         open={menuIsOpen}
         opener={openerId}
@@ -40,7 +40,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({
         }}
       >
         <MenuItem key={'edit'} text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
-        {onYamlClick && <MenuItem key={'yaml'} text={t('yaml.showYAML')} data-action="yaml" />}
+        {onYamlClick && <MenuItem key={'yaml'} text={t('yaml.showYAML')} data-action="yaml" icon="document-text" />}
       </Menu>
     </>
   );

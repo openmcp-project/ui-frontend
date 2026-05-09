@@ -19,6 +19,7 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   return (
     <>
       <Button
+        design="Transparent"
         id={openerId}
         icon="overflow"
         icon-end

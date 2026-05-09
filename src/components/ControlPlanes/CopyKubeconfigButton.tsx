@@ -25,7 +25,7 @@ export default function CopyKubeconfigButton() {
 
   return (
     <>
-      <Button icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>
+      <Button design="Emphasized" icon="slim-arrow-down" icon-end onClick={handleOpenerClick}>
         {t('CopyKubeconfigButton.kubeconfigButton')}
       </Button>
       <Menu
