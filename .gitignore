@@ -38,3 +38,4 @@ public/frontend-config.json
 
 # OCM build artifacts
 .ctf/
+.github/DCO_STATUS.md
