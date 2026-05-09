@@ -5,6 +5,7 @@ import { ManagedControlPlaneV2 } from '../../../onboarding/types/ControlPlane.ts
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../../../utils/i18n/timeAgo.ts';
 import styles from './McpHeader.module.css';
+import { CopyButton } from '../../../../components/Shared/CopyButton.tsx';
 
 export interface McpHeaderProps {
   mcp: ControlPlaneType | ManagedControlPlaneV2;
@@ -25,9 +26,12 @@ export function McpHeader({ mcp }: McpHeaderProps) {
     <div className={styles.container}>
       <div className={styles.metadataCard}>
         <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
-        <Text className={styles.value}>
-          <span className={styles.resourceName}>{mcp.metadata.name}</span>
-        </Text>
+        <div className={styles.nameContainer}>
+          <Text className={styles.value}>
+            <span className={styles.resourceName}>{mcp.metadata.name}</span>
+          </Text>
+          <CopyButton text={mcp.metadata.name} />
+        </div>
       </div>
 
       <div className={styles.metadataCard}>

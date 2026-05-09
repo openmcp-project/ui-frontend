@@ -253,7 +253,7 @@
     "secretTypeHeader": "Type"
   },
   "McpHeader": {
-    "nameLabel": "Name",
+    "nameLabel": "K8s name",
     "createdByLabel": "Created By",
     "createdOnLabel": "Created On"
   },
