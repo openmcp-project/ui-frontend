@@ -19,3 +19,8 @@
   color: var(--sapContent_LabelColor);
   letter-spacing: -0.01em;
 }
+
+.compactHeader {
+  min-height: auto !important;
+  padding-block: 1rem !important;
+}

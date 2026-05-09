@@ -198,7 +198,7 @@ export default function McpPage() {
               }
               selectedSectionId={selectedSectionId}
               headerArea={
-                <ObjectPageHeader>
+                <ObjectPageHeader className={styles.compactHeader}>
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection

@@ -255,7 +255,7 @@
   "McpHeader": {
     "nameLabel": "K8s name",
     "createdByLabel": "Created By",
-    "createdOnLabel": "Created On"
+    "createdOnLabel": "Created At"
   },
   "ToastContext": {
     "errorMessage": "useToast must be used within a ToastProvider"

@@ -45,7 +45,7 @@ export function McpHeader({ mcp }: McpHeaderProps) {
       {createdBy && (
         <div className={styles.metadataCard}>
           <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-          <Text className={styles.value}>{createdBy}</Text>
+          <CopyButton text={createdBy} />
         </div>
       )}
     </div>
