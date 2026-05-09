@@ -573,7 +573,6 @@
   },
   "resourceUpload": {
     "title": "Add Resource",
-    "controlPlaneNamespace": "Control Plane Namespace",
     "editorHint": "Type or paste YAML, or drag and drop a file",
     "browseFiles": "Browse",
     "createFromCRD": "Create from CRD",

@@ -112,10 +112,9 @@ export default function McpPage() {
 
   const handleResourceUpload = useCallback(
     async (yamlContent: string) => {
-      const namespace = mcp?.status?.access?.namespace;
-      return await createResource(yamlContent, namespace);
+      return await createResource(yamlContent);
     },
-    [createResource, mcp?.status?.access?.namespace],
+    [createResource],
   );
 
   const handleDrop = useCallback(
@@ -354,7 +353,6 @@ export default function McpPage() {
               isOpen={isResourceUploadDialogOpen}
               onClose={() => setIsResourceUploadDialogOpen(false)}
               onSubmit={handleResourceUpload}
-              namespace={mcp?.status?.access?.namespace}
             />
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>

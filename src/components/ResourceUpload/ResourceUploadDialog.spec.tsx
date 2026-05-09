@@ -9,10 +9,8 @@ vi.mock('react-i18next', () => ({
     t: (key: string, params?: Record<string, string>) => {
       const translations: Record<string, string> = {
         'resourceUpload.title': 'Add Resource',
-        'resourceUpload.targetNamespace': 'Target Namespace',
         'resourceUpload.editorHint': 'Type or paste YAML, or drag and drop a file',
         'resourceUpload.browseFiles': 'Browse',
-        'resourceUpload.dropToLoad': 'Drop file to load into editor',
         'resourceUpload.createFromCRD': 'Create from CRD',
         'resourceUpload.crdComingSoon': 'Coming soon',
         'resourceUpload.crdHint': 'Available in next release',
@@ -84,20 +82,6 @@ describe('ResourceUploadDialog', () => {
 
     expect(screen.getByText('Add Resource')).toBeDefined();
     expect(screen.getByTestId('yaml-editor')).toBeDefined();
-  });
-
-  it('should display namespace info when namespace is provided', () => {
-    render(
-      <ResourceUploadDialog
-        isOpen={true}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
-        namespace="test-namespace"
-      />
-    );
-
-    expect(screen.getByText('Target Namespace')).toBeDefined();
-    expect(screen.getByText('test-namespace')).toBeDefined();
   });
 
   it('should show editor hint', () => {

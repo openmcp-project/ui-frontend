@@ -3,7 +3,6 @@ import {
   Dialog,
   Bar,
   Button,
-  Label,
   Icon,
   MessageStrip,
 } from '@ui5/webcomponents-react';
@@ -18,7 +17,6 @@ export interface ResourceUploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (yaml: string) => Promise<{ success: boolean; message?: string; error?: string }>;
-  namespace?: string;
 }
 
 interface ValidationWarning {
@@ -26,7 +24,7 @@ interface ValidationWarning {
   message: string;
 }
 
-export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: ResourceUploadDialogProps) {
+export function ResourceUploadDialog({ isOpen, onClose, onSubmit }: ResourceUploadDialogProps) {
   const { t } = useTranslation();
   const [yamlContent, setYamlContent] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +58,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
         const resourceName = parsed.metadata.name;
         const kind = parsed.kind;
         const apiVersion = parsed.apiVersion;
-        const targetNamespace = namespace || parsed.metadata?.namespace;
+        const targetNamespace = parsed.metadata?.namespace;
 
         if (targetNamespace && kind && apiVersion) {
           try {
@@ -79,6 +77,9 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
             // 404 means resource doesn't exist - that's good
             setValidationWarning(null);
           }
+        } else {
+          // No namespace in YAML - clear warning
+          setValidationWarning(null);
         }
       } catch (err) {
         setValidationWarning({
@@ -90,7 +91,7 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
 
     const debounce = setTimeout(validateYaml, 500);
     return () => clearTimeout(debounce);
-  }, [yamlContent, namespace, apiConfig, getPluralKind, t]);
+  }, [yamlContent, apiConfig, getPluralKind, t]);
 
   const handleFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
@@ -234,13 +235,6 @@ export function ResourceUploadDialog({ isOpen, onClose, onSubmit, namespace }: R
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        {namespace && (
-          <div className={styles.namespaceInfo}>
-            <Label>{t('resourceUpload.controlPlaneNamespace')}:</Label>
-            <span className={styles.namespace}>{namespace}</span>
-          </div>
-        )}
-
         <div className={styles.uploadHint}>
           <Icon name="upload" className={styles.uploadHintIcon} />
           <span className={styles.uploadHintText}>
