@@ -26,12 +26,7 @@ export function McpHeader({ mcp }: McpHeaderProps) {
     <div className={styles.container}>
       <div className={styles.metadataCard}>
         <span className={styles.label}>{t('McpHeader.nameLabel')}</span>
-        <div className={styles.nameContainer}>
-          <Text className={styles.value}>
-            <span className={styles.resourceName}>{mcp.metadata.name}</span>
-          </Text>
-          <CopyButton text={mcp.metadata.name} />
-        </div>
+        <CopyButton text={mcp.metadata.name} />
       </div>
 
       <div className={styles.metadataCard}>
@@ -45,7 +40,7 @@ export function McpHeader({ mcp }: McpHeaderProps) {
       {createdBy && (
         <div className={styles.metadataCard}>
           <span className={styles.label}>{t('McpHeader.createdByLabel')}</span>
-          <CopyButton text={createdBy} />
+          <Text className={styles.value}>{createdBy}</Text>
         </div>
       )}
     </div>
