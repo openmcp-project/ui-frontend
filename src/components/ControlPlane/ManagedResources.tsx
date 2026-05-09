@@ -5,10 +5,6 @@ import {
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
   Button,
-  Panel,
-  Title,
-  Toolbar,
-  ToolbarSpacer,
   Link,
 } from '@ui5/webcomponents-react';
 import {
@@ -44,7 +40,6 @@ import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/u
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
-import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -84,6 +79,7 @@ export function ManagedResources({
   useResourcePluralNames = _useResourcePluralNames,
   useHasMcpAdminRights = _useHasMcpAdminRights,
   onCountChange,
+  onHealthStatsChange,
 }: {
   useApiResourceMutation?: typeof _useApiResourceMutation;
   useHandleResourcePatch?: typeof _useHandleResourcePatch;
@@ -91,6 +87,7 @@ export function ManagedResources({
   useResourcePluralNames?: typeof _useResourcePluralNames;
   useHasMcpAdminRights?: typeof _useHasMcpAdminRights;
   onCountChange?: (count: number) => void;
+  onHealthStatsChange?: (ready: number, synced: number, total: number) => void;
 } = {}) {
   const { t } = useTranslation();
   const toast = useToast();
@@ -314,7 +311,12 @@ export function ManagedResources({
     if (onCountChange) {
       onCountChange(rows.length);
     }
-  }, [rows.length, onCountChange]);
+    if (onHealthStatsChange) {
+      const readyCount = rows.filter((r) => r.ready).length;
+      const syncedCount = rows.filter((r) => r.synced).length;
+      onHealthStatsChange(readyCount, syncedCount, rows.length);
+    }
+  }, [rows.length, onCountChange, onHealthStatsChange, rows]);
 
   const handleDeletionConfirmed = async (item: ManagedResourceItem, force: boolean) => {
     toast.show(t('ManagedResources.deleteStarted', { resourceName: item.metadata.name }));
@@ -350,13 +352,6 @@ export function ManagedResources({
 
       {!combinedError && (
         <>
-          <ResourceHealthBar
-            resources={rows.map((r) => ({
-              ready: r.ready,
-              synced: r.synced,
-            }))}
-            type="ready-synced"
-          />
           <AnalyticalTable
             columns={columns}
             data={rows}

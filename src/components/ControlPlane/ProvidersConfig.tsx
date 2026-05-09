@@ -4,10 +4,6 @@ import {
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
   Button,
-  Panel,
-  Title,
-  Toolbar,
-  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
@@ -27,7 +23,6 @@ import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
-import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 type Rows = {
   parent: string;

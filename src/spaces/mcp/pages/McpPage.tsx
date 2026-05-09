@@ -39,6 +39,7 @@ import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
 import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
+import { ResourceHealthBar } from '../../../components/ControlPlane/ResourceHealthBar/ResourceHealthBar.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
@@ -65,6 +66,12 @@ export default function McpPage() {
   const [providersCount, setProvidersCount] = useState(0);
   const [providerConfigsCount, setProviderConfigsCount] = useState(0);
   const [managedResourcesCount, setManagedResourcesCount] = useState(0);
+  const [providersHealthStats, setProvidersHealthStats] = useState({ installed: 0, healthy: 0, total: 0 });
+  const [managedResourcesHealthStats, setManagedResourcesHealthStats] = useState({
+    ready: 0,
+    synced: 0,
+    total: 0,
+  });
 
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
@@ -238,8 +245,24 @@ export default function McpPage() {
                     id="providers"
                     titleText={`${t('McpPage.providersTitle')}${providersCount > 0 ? ` (${providersCount})` : ''}`}
                     className={styles.section}
+                    actions={
+                      providersHealthStats.total > 0 ? (
+                        <ResourceHealthBar
+                          resources={Array.from({ length: providersHealthStats.total }, (_, i) => ({
+                            installed: i < providersHealthStats.installed,
+                            healthy: i < providersHealthStats.healthy,
+                          }))}
+                          type="installed-healthy"
+                        />
+                      ) : undefined
+                    }
                   >
-                    <Providers onCountChange={setProvidersCount} />
+                    <Providers
+                      onCountChange={setProvidersCount}
+                      onHealthStatsChange={(installed, healthy, total) =>
+                        setProvidersHealthStats({ installed, healthy, total })
+                      }
+                    />
                   </ObjectPageSubSection>
                   <ObjectPageSubSection
                     id="provider-configs"
@@ -252,8 +275,24 @@ export default function McpPage() {
                     id="managed-resources"
                     titleText={`${t('McpPage.managedResourcesTitle')}${managedResourcesCount > 0 ? ` (${managedResourcesCount})` : ''}`}
                     className={styles.section}
+                    actions={
+                      managedResourcesHealthStats.total > 0 ? (
+                        <ResourceHealthBar
+                          resources={Array.from({ length: managedResourcesHealthStats.total }, (_, i) => ({
+                            ready: i < managedResourcesHealthStats.ready,
+                            synced: i < managedResourcesHealthStats.synced,
+                          }))}
+                          type="ready-synced"
+                        />
+                      ) : undefined
+                    }
                   >
-                    <ManagedResources onCountChange={setManagedResourcesCount} />
+                    <ManagedResources
+                      onCountChange={setManagedResourcesCount}
+                      onHealthStatsChange={(ready, synced, total) =>
+                        setManagedResourcesHealthStats({ ready, synced, total })
+                      }
+                    />
                   </ObjectPageSubSection>
                 </ObjectPageSection>
               )}

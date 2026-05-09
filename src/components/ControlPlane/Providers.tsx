@@ -4,9 +4,6 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
-  Panel,
-  Toolbar,
-  ToolbarSpacer,
 } from '@ui5/webcomponents-react';
 
 import { useApiResource } from '../../lib/api/useApiResource';
@@ -22,7 +19,6 @@ import '@ui5/webcomponents-icons/dist/sys-cancel-2';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
-import { ResourceHealthBar } from './ResourceHealthBar/ResourceHealthBar.tsx';
 
 type ProvidersRow = {
   name: string;
@@ -39,9 +35,10 @@ type ProvidersRow = {
 
 interface ProvidersProps {
   onCountChange?: (count: number) => void;
+  onHealthStatsChange?: (installed: number, healthy: number, total: number) => void;
 }
 
-export function Providers({ onCountChange }: ProvidersProps = {}) {
+export function Providers({ onCountChange, onHealthStatsChange }: ProvidersProps = {}) {
   const { t } = useTranslation();
 
   const {
@@ -142,7 +139,12 @@ export function Providers({ onCountChange }: ProvidersProps = {}) {
     if (onCountChange) {
       onCountChange(rows.length);
     }
-  }, [rows.length, onCountChange]);
+    if (onHealthStatsChange) {
+      const installedCount = rows.filter((r) => r.installed === 'true').length;
+      const healthyCount = rows.filter((r) => r.healthy === 'true').length;
+      onHealthStatsChange(installedCount, healthyCount, rows.length);
+    }
+  }, [rows.length, onCountChange, onHealthStatsChange, rows]);
 
   const tableOptions = useMemo(
     () => ({
@@ -165,13 +167,6 @@ export function Providers({ onCountChange }: ProvidersProps = {}) {
 
       {!error && (
         <>
-          <ResourceHealthBar
-            resources={rows.map((r) => ({
-              installed: r.installed === 'true',
-              healthy: r.healthy === 'true',
-            }))}
-            type="installed-healthy"
-          />
           <AnalyticalTable
             columns={columns}
             data={rows}
