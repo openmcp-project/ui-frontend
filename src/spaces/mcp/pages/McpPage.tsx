@@ -52,7 +52,6 @@ import { ComponentsDashboard } from '../components/ComponentsDashboard/Component
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { ResourceUploadDialog } from '../../../components/ResourceUpload/ResourceUploadDialog.tsx';
 import { useCreateResource } from '../../../hooks/useCreateResource.ts';
-import { Button } from '@ui5/webcomponents-react';
 
 // Wrapper component that has access to MCP context
 function ResourceUploadDialogWrapper({
@@ -71,12 +70,7 @@ function ResourceUploadDialogWrapper({
   };
 
   return (
-    <ResourceUploadDialog
-      isOpen={isOpen}
-      onClose={onClose}
-      onSubmit={handleResourceUpload}
-      initialYaml={initialYaml}
-    />
+    <ResourceUploadDialog isOpen={isOpen} initialYaml={initialYaml} onClose={onClose} onSubmit={handleResourceUpload} />
   );
 }
 
@@ -136,29 +130,32 @@ export default function McpPage() {
     setTabFromSection(newSectionId);
   };
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDraggingFile(false);
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
 
-      const file = e.dataTransfer.files?.[0];
-      if (file && (file.type === 'text/yaml' || file.type === 'text/x-yaml' ||
-          file.type === 'application/x-yaml' || file.name.endsWith('.yaml') ||
-          file.name.endsWith('.yml') || file.type === 'text/plain')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target?.result as string;
-          if (content) {
-            setDroppedYamlContent(content);
-            setIsResourceUploadDialogOpen(true);
-          }
-        };
-        reader.readAsText(file);
-      }
-    },
-    [],
-  );
+    const file = e.dataTransfer.files?.[0];
+    if (
+      file &&
+      (file.type === 'text/yaml' ||
+        file.type === 'text/x-yaml' ||
+        file.type === 'application/x-yaml' ||
+        file.name.endsWith('.yaml') ||
+        file.name.endsWith('.yml') ||
+        file.type === 'text/plain')
+    ) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (content) {
+          setDroppedYamlContent(content);
+          setIsResourceUploadDialogOpen(true);
+        }
+      };
+      reader.readAsText(file);
+    }
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -210,20 +207,13 @@ export default function McpPage() {
             {isDraggingFile && (
               <div className={styles.dragOverlay}>
                 <div className={styles.dragOverlayContent}>
-                  <div className={styles.dragOverlayTitle}>
-                    {t('resourceUpload.dropFileHere')}
-                  </div>
-                  <div className={styles.dragOverlaySubtitle}>
-                    {t('resourceUpload.dropFileSubtitle')}
-                  </div>
+                  <div className={styles.dragOverlayTitle}>{t('resourceUpload.dropFileHere')}</div>
+                  <div className={styles.dragOverlaySubtitle}>{t('resourceUpload.dropFileSubtitle')}</div>
                 </div>
               </div>
             )}
             <ObjectPage
               mode="IconTabBar"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
               titleArea={
                 <ObjectPageTitle
                   header={displayName ?? controlPlaneName}
@@ -279,6 +269,9 @@ export default function McpPage() {
                   </FlexBox>
                 </ObjectPageHeader>
               }
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
               onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
@@ -370,11 +363,11 @@ export default function McpPage() {
             </ObjectPage>
             <ResourceUploadDialogWrapper
               isOpen={isResourceUploadDialogOpen}
+              initialYaml={droppedYamlContent}
               onClose={() => {
                 setIsResourceUploadDialogOpen(false);
                 setDroppedYamlContent(undefined);
               }}
-              initialYaml={droppedYamlContent}
             />
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>

@@ -45,9 +45,11 @@ export const YamlEditor = (props: YamlEditorProps) => {
     if (isEdit && value !== undefined) {
       const newValue = value.toString();
       if (newValue !== editorContent) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setEditorContent(newValue);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, isEdit]); // Don't include editorContent in deps to avoid loop
 
   useEffect(() => {

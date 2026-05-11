@@ -80,13 +80,7 @@ export function useCreateResource() {
           : `${basePath}/${pluralKind}`;
 
         // POST the resource via the onboarding API
-        const result = await fetchApiServerJson(
-          path,
-          apiConfig,
-          undefined,
-          'POST',
-          JSON.stringify(parsed),
-        );
+        const result = await fetchApiServerJson(path, apiConfig, undefined, 'POST', JSON.stringify(parsed));
 
         return {
           success: true,
@@ -103,7 +97,7 @@ export function useCreateResource() {
         if (error instanceof APIError) {
           // Check if we have detailed Kubernetes error info
           if (error.info && typeof error.info === 'object') {
-            const k8sError = error.info as any;
+            const k8sError = error.info as { message?: string; code?: number; reason?: string; details?: unknown };
             if (k8sError.message) {
               errorMessage = k8sError.message;
 
@@ -111,10 +105,11 @@ export function useCreateResource() {
               if (k8sError.reason) {
                 errorMessage += ` (${k8sError.reason})`;
               }
-              if (k8sError.details) {
+              if (k8sError.details && typeof k8sError.details === 'object') {
                 const details = [];
-                if (k8sError.details.name) details.push(`name: ${k8sError.details.name}`);
-                if (k8sError.details.kind) details.push(`kind: ${k8sError.details.kind}`);
+                const detailsObj = k8sError.details as Record<string, unknown>;
+                if (detailsObj.name) details.push(`name: ${detailsObj.name}`);
+                if (detailsObj.kind) details.push(`kind: ${detailsObj.kind}`);
                 if (details.length > 0) {
                   errorMessage += ` - ${details.join(', ')}`;
                 }

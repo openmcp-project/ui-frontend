@@ -7,7 +7,10 @@ type ControlPlanesListMenuProps = {
   onAddResourceClick: () => void;
 };
 
-export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEditManagedControlPlaneWizardOpen, onAddResourceClick }) => {
+export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({
+  setIsEditManagedControlPlaneWizardOpen,
+  onAddResourceClick,
+}) => {
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
@@ -42,7 +45,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
           text={t('resourceUpload.title')}
           data-action="addResource"
           icon="add"
-          style={{ '--sapList_TextColor': 'var(--sapPositiveColor)' } as any}
+          style={{ '--sapList_TextColor': 'var(--sapPositiveColor)' } as React.CSSProperties}
         />
       </Menu>
     </>

@@ -194,7 +194,7 @@ data:
     const renderHookResult = renderHook(() => useCreateResource());
     const { createResource } = renderHookResult.result.current;
 
-    let result;
+    let result: { success: boolean; message?: string; error?: string } | undefined;
     await act(async () => {
       result = await createResource(yamlContent);
     });
@@ -232,7 +232,7 @@ spec:
     const renderHookResult = renderHook(() => useCreateResource());
     const { createResource } = renderHookResult.result.current;
 
-    let result;
+    let result: { success: boolean; message?: string; error?: string } | undefined;
     await act(async () => {
       result = await createResource(yamlContent);
     });
