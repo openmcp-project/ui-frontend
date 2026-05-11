@@ -52,6 +52,9 @@ describe('CopyNamespaceButton', () => {
     cy.wait(350);
     button.click();
 
+    // Wait for async copy operation
+    cy.wait(100);
+
     // Should show positive design and success message
     cy.get('ui5-button[design="Positive"]').should('exist');
     cy.get('ui5-button').should('contain.text', 'common.copyToClipboardSuccessToast');
