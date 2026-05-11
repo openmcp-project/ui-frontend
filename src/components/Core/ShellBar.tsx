@@ -9,7 +9,7 @@ import {
   Ui5CustomEvent,
   TextAreaDomRef,
 } from '@ui5/webcomponents-react';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
@@ -23,7 +23,11 @@ import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import { useToast } from '../../context/ToastContext.tsx';
 import * as Sentry from '@sentry/react';
 
-export function ShellBarComponent() {
+export function ShellBarComponent({
+  useAuthOnboarding = _useAuthOnboarding,
+}: {
+  useAuthOnboarding?: typeof _useAuthOnboarding;
+} = {}) {
   const auth = useAuthOnboarding();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
@@ -62,7 +66,12 @@ export function ShellBarComponent() {
         <BetaButton />
       </ShellBar>
 
-      <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
+      <ProfilePopover
+        open={profilePopoverOpen}
+        setOpen={setProfilePopoverOpen}
+        popoverRef={profilePopoverRef}
+        useAuthOnboarding={useAuthOnboarding}
+      />
     </>
   );
 }
@@ -71,10 +80,12 @@ const ProfilePopover = ({
   open,
   setOpen,
   popoverRef,
+  useAuthOnboarding = _useAuthOnboarding,
 }: {
   open: boolean;
   setOpen: (arg0: boolean) => void;
   popoverRef: RefObject<PopoverDomRef | null>;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 }) => {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();

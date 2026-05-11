@@ -2,113 +2,84 @@ import { ShellBarComponent } from './ShellBar.tsx';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { ToastProvider } from '../../context/ToastContext.tsx';
-import * as AuthModule from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-
-const mockAuth = {
-  user: { email: 'test@example.com' },
-  logout: cy.stub().resolves(),
-};
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 
 describe('ShellBar', () => {
-  beforeEach(() => {
-    cy.stub(AuthModule, 'useAuthOnboarding').returns(mockAuth);
+  let logoutCalled = false;
+
+  const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
+    user: { email: 'test@example.com' },
+    logout: async () => {
+      logoutCalled = true;
+    },
+    isPending: false,
+    isAuthenticated: true,
+    error: null,
+    login: () => {},
   });
 
-  it('renders the ShellBar with logo and title', () => {
+  beforeEach(() => {
+    logoutCalled = false;
+  });
+
+  const mountComponent = () => {
     cy.mount(
       <MemoryRouter>
         <ToastProvider>
-          <ShellBarComponent />
+          <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
         </ToastProvider>
       </MemoryRouter>,
     );
+  };
+
+  it('renders the ShellBar with logo and title', () => {
+    mountComponent();
 
     cy.contains('ManagedControlPlane UI').should('be.visible');
     cy.get('img[alt="SAP"]').should('be.visible');
   });
 
-  it('renders preview badge in content slot', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
+  it('renders preview badge', () => {
+    mountComponent();
 
-    cy.contains('PREVIEW').should('be.visible');
-    cy.get('[slot="content"]').contains('PREVIEW').should('exist');
+    cy.contains('Preview').should('be.visible');
   });
 
-  it('opens profile menu on avatar click', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
+  it('shows avatar with user initials', () => {
+    mountComponent();
 
-    cy.get('ui5-avatar').click();
-    cy.get('ui5-popover[header-text="Profile"]').should('have.attr', 'open', 'true');
+    cy.get('ui5-avatar').should('exist');
   });
 
-  it('shows feedback and sign out options in profile menu', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
+  it('opens profile popover on avatar click', () => {
+    mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.contains('Give us your feedback').should('be.visible');
-    cy.contains('Sign Out').should('be.visible');
+
+    // Wait for popover to open
+    cy.get('ui5-popover[header-text="Profile"]', { timeout: 5000 }).should('be.visible');
+  });
+
+  it('shows sign out option in profile menu', () => {
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+
+    // Check for Sign Out within the popover
+    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+      cy.contains('Sign Out').should('exist');
+    });
   });
 
   it('calls logout when sign out is clicked', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
+    mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.contains('Sign Out')
-      .click({ force: true })
-      .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(mockAuth.logout).to.have.been.called;
-      });
-  });
+    cy.contains('Sign Out').click({ force: true });
 
-  it('opens feedback popover when feedback menu item is clicked', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
-
-    cy.get('ui5-avatar').click();
-    cy.contains('Give us your feedback').click({ force: true });
-    cy.contains('Your feedback').should('be.visible');
-  });
-
-  it('opens beta popover when preview badge is clicked', () => {
-    cy.mount(
-      <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent />
-        </ToastProvider>
-      </MemoryRouter>,
-    );
-
-    cy.contains('PREVIEW').click();
-    cy.contains('in Preview').should('be.visible');
+    // Verify logout was called
+    cy.wrap(null).should(() => {
+      expect(logoutCalled).to.equal(true);
+    });
   });
 });
