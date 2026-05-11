@@ -8,6 +8,7 @@ import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPl
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
+import { AnalyticsProvider } from '../../../lib/analytics';
 
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
@@ -15,10 +16,18 @@ const mockFrontendConfig = {
   featureToggles: {
     markMcpV1asDeprecated: false,
   },
+  analytics: {
+    provider: 'noop' as const,
+    enabled: false,
+    debug: false,
+    autoTrack: { clicks: true, pageViews: true, errors: true },
+  },
 };
 
 describe('ControlPlaneCard', () => {
   let deleteManagedControlPlaneCalled = false;
+  let analyticsTrackEventSpy: Cypress.Agent<sinon.SinonSpy> | null = null;
+
   const fakeUseDeleteManagedControlPlane: typeof useDeleteManagedControlPlane = () => ({
     deleteManagedControlPlane: async (): Promise<void> => {
       deleteManagedControlPlaneCalled = true;
@@ -31,6 +40,7 @@ describe('ControlPlaneCard', () => {
 
   beforeEach(() => {
     deleteManagedControlPlaneCalled = false;
+    analyticsTrackEventSpy = null;
   });
 
   it('deletes the workspace', () => {
@@ -58,17 +68,19 @@ describe('ControlPlaneCard', () => {
     cy.mount(
       <MemoryRouter>
         <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
-          <SplitterProvider>
-            <FeatureToggleProvider>
-              <ControlPlaneCard
-                controlPlane={managedControlPlane}
-                workspace={workspace}
-                projectName="projectName"
-                useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
-                useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-              />
-            </FeatureToggleProvider>
-          </SplitterProvider>
+          <AnalyticsProvider config={mockFrontendConfig.analytics}>
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneCard
+                  controlPlane={managedControlPlane}
+                  workspace={workspace}
+                  projectName="projectName"
+                  useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                  useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </AnalyticsProvider>
         </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
@@ -79,5 +91,62 @@ describe('ControlPlaneCard', () => {
     cy.then(() => cy.wrap(deleteManagedControlPlaneCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteManagedControlPlaneCalled).should('equal', true));
+  });
+
+  it('tracks analytics when delete button is clicked', () => {
+    const managedControlPlane: ControlPlaneListItem = {
+      version: 'v1',
+      metadata: {
+        name: 'mcp-name',
+        namespace: 'test-namespace',
+        creationTimestamp: '2024-01-01T00:00:00Z',
+        annotations: {},
+      },
+      status: null,
+    };
+
+    const workspace: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'test-namespace',
+        annotations: {},
+      },
+      spec: { members: [] },
+      status: null,
+    };
+
+    // Use analytics config with tracking enabled
+    const analyticsConfig = {
+      ...mockFrontendConfig.analytics,
+      enabled: true,
+      debug: true,
+    };
+
+    cy.mount(
+      <MemoryRouter>
+        <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+          <AnalyticsProvider config={analyticsConfig}>
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneCard
+                  controlPlane={managedControlPlane}
+                  workspace={workspace}
+                  projectName="projectName"
+                  useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                  useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </AnalyticsProvider>
+        </FrontendConfigContext.Provider>
+      </MemoryRouter>,
+    );
+
+    // Open menu and click delete - should log analytics event
+    cy.get("[data-testid='ControlPlaneCardMenu-opener']").click();
+    cy.contains('Delete ManagedControlPlane').click({ force: true });
+
+    // Close the dialog without completing deletion
+    cy.get('ui5-dialog[open]').find('ui5-button').contains('Cancel').click();
   });
 });
