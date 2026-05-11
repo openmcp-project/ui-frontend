@@ -3,11 +3,10 @@ import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
-import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
-import { ControlPlaneCardV2 } from './ControlPlaneCardV2.tsx';
 
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
