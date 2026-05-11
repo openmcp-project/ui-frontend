@@ -17,8 +17,8 @@ describe('CopyNamespaceButton', () => {
     // Get the button
     const button = cy.get('ui5-button[icon="copy"]');
 
-    // Hover over the button container
-    cy.get('div').first().trigger('mouseenter');
+    // Hover over the button itself
+    button.trigger('mouseenter', { force: true });
 
     // Wait for animation and verify text is visible
     cy.wait(350); // Wait for animation to complete
@@ -28,25 +28,29 @@ describe('CopyNamespaceButton', () => {
   it('collapses when mouse leaves', () => {
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
 
+    const button = cy.get('ui5-button[icon="copy"]');
+
     // Hover to expand
-    cy.get('div').first().trigger('mouseenter');
+    button.trigger('mouseenter', { force: true });
     cy.wait(350);
 
     // Leave hover
-    cy.get('div').first().trigger('mouseleave');
+    button.trigger('mouseleave', { force: true });
     cy.wait(350);
 
     // Text should be hidden (opacity 0 via CSS)
-    cy.get('ui5-button[icon="copy"]').should('exist');
+    button.should('exist');
   });
 
   it('shows success state when clicked', () => {
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
 
+    const button = cy.get('ui5-button[icon="copy"]');
+
     // Hover and click
-    cy.get('div').first().trigger('mouseenter');
+    button.trigger('mouseenter', { force: true });
     cy.wait(350);
-    cy.get('ui5-button[icon="copy"]').click();
+    button.click();
 
     // Should show positive design and success message
     cy.get('ui5-button[design="Positive"]').should('exist');
@@ -63,11 +67,13 @@ describe('CopyNamespaceButton', () => {
     const longNamespace = 'project-very-long-project-name--ws-very-long-workspace-name';
     cy.mount(<CopyNamespaceButton namespace={longNamespace} />);
 
+    const button = cy.get('ui5-button[icon="copy"]');
+
     // Hover to expand
-    cy.get('div').first().trigger('mouseenter');
+    button.trigger('mouseenter', { force: true });
     cy.wait(350);
 
     // Should display full namespace
-    cy.get('ui5-button').should('contain.text', longNamespace);
+    button.should('contain.text', longNamespace);
   });
 });
