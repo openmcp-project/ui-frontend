@@ -41,7 +41,7 @@ export class PlausibleAdapter implements AnalyticsAdapter {
     this.debug = debug;
   }
 
-  async initialize(config?: Record<string, any>): Promise<void> {
+  async initialize(_config?: Record<string, unknown>): Promise<void> {
     // Wait for plausible to be available
     // Usually loaded via script tag in HTML
     const maxAttempts = 50;

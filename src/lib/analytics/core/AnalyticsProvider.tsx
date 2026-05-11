@@ -63,10 +63,12 @@ export function AnalyticsProvider({ config, children }: AnalyticsProviderProps) 
             loadedAdapter = new NoopAdapter();
             break;
           }
-          default:
+          default: {
             console.error(`[Analytics] Unknown provider: ${config.provider}`);
             const { NoopAdapter: FallbackNoopAdapter } = await import('../adapters/NoopAdapter');
             loadedAdapter = new FallbackNoopAdapter();
+            break;
+          }
         }
 
         if (mounted) {
@@ -100,7 +102,7 @@ export function AnalyticsProvider({ config, children }: AnalyticsProviderProps) 
         adapter.cleanup();
       }
     };
-  }, [config.provider, config.enabled, config.debug]);
+  }, [config.provider, config.enabled, config.debug, adapter, config.config]);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo<AnalyticsContextValue | null>(() => {

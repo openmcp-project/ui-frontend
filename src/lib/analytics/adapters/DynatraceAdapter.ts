@@ -5,26 +5,15 @@ import type { ActionId, AnalyticsAdapter, AnalyticsProperties } from '../core/ty
  * https://docs.dynatrace.com/docs/platform-modules/digital-experience/web-applications/additional-configuration/rum-javascript-api
  */
 interface DynatraceRUM {
-  enterAction(
-    name: string,
-    type?: string,
-    startTime?: number,
-    sourceUrl?: string,
-  ): number;
+  enterAction(name: string, type?: string, startTime?: number, sourceUrl?: string): number;
   leaveAction(actionId: number, stopTime?: number, startTime?: number): void;
   addActionProperties(
     actionId: number,
     properties: Record<string, string | number | boolean>,
     startTime?: number,
   ): void;
-  reportCustomEvent(
-    name: string,
-    properties?: Record<string, string | number | boolean>,
-  ): void;
-  reportError(
-    error: Error | string,
-    parentActionId?: number,
-  ): void;
+  reportCustomEvent(name: string, properties?: Record<string, string | number | boolean>): void;
+  reportError(error: Error | string, parentActionId?: number): void;
   endSession(): void;
   identifyUser(userId: string): void;
 }
@@ -211,9 +200,7 @@ export class DynatraceAdapter implements AnalyticsAdapter {
    * Convert analytics properties to Dynatrace-compatible format
    * Filters out undefined values and ensures correct types
    */
-  private convertProperties(
-    properties?: AnalyticsProperties,
-  ): Record<string, string | number | boolean> {
+  private convertProperties(properties?: AnalyticsProperties): Record<string, string | number | boolean> {
     if (!properties) {
       return {};
     }

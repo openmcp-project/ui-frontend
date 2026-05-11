@@ -24,10 +24,7 @@ function RoutesWithTracking() {
           path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
           element={<McpPageV2 />}
         />
-        <Route
-          path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
-          element={<McpPage />}
-        />
+        <Route path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName" element={<McpPage />} />
       </Route>
       <Route path="/" element={<Navigate to="/mcp/projects" />} />
       <Route path="*" element={<Navigate to="/" />} />

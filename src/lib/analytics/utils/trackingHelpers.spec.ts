@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  extractTrackingData,
-  extractDtName,
-  trackingProps,
-  dtNameProp,
-  fullTrackingProps,
-} from './trackingHelpers';
+import { extractTrackingData, extractDtName, trackingProps, dtNameProp, fullTrackingProps } from './trackingHelpers';
 
 describe('trackingHelpers', () => {
   describe('extractTrackingData', () => {

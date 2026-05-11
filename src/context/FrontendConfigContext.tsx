@@ -72,8 +72,8 @@ const FrontendConfigSchema = z.object({
           errors: z.boolean().optional().default(true),
         })
         .optional()
-        .default({}),
-      config: z.record(z.any()).optional(),
+        .default({ clicks: true, pageViews: true, errors: true }),
+      config: z.record(z.string(), z.unknown()).optional(),
     })
     .optional()
     .default({

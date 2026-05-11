@@ -257,10 +257,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   const handleCreateManagedControlPlane = useCallback(
     async ({ name, displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
-      const actionId = analytics?.startAction(
-        isEditMode ? 'Edit MCP Wizard' : 'Create MCP Wizard',
-        'wizard',
-      );
+      const actionId = analytics?.startAction(isEditMode ? 'Edit MCP Wizard' : 'Create MCP Wizard', 'wizard');
 
       try {
         const { finalName, finalDisplayName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
@@ -288,7 +285,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             controlPlane: initialData?.metadata?.name ?? '',
             workspace: workspaceName,
             project: projectName,
-            componentsCount: componentsList.length,
+            componentsCount: componentsList?.length ?? 0,
             membersCount: members.length,
           });
         } else {
@@ -312,7 +309,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             workspace: workspaceName,
             project: projectName,
             template: initialTemplateName || 'custom',
-            componentsCount: componentsList.length,
+            componentsCount: componentsList?.length ?? 0,
             membersCount: members.length,
           });
         }

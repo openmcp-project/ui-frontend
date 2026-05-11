@@ -114,14 +114,6 @@ export function ControlPlaneListWorkspaceGridTile({
           headerLevel="H2"
           style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
           collapsed={shouldCollapsePanel}
-          onToggle={(event) => {
-            const isExpanded = !event.detail.collapsed;
-            analytics?.trackEvent('Workspace Panel Toggled', {
-              workspace: workspaceName,
-              project: projectName,
-              action: isExpanded ? 'expanded' : 'collapsed',
-            });
-          }}
           header={
             <div
               style={{
@@ -158,6 +150,14 @@ export function ControlPlaneListWorkspaceGridTile({
             </div>
           }
           noAnimation
+          onToggle={(event: CustomEvent & { detail: { collapsed: boolean } }) => {
+            const isExpanded = !event.detail.collapsed;
+            analytics?.trackEvent('Workspace Panel Toggled', {
+              workspace: workspaceName,
+              project: projectName,
+              action: isExpanded ? 'expanded' : 'collapsed',
+            });
+          }}
         >
           {errorView ? (
             errorView

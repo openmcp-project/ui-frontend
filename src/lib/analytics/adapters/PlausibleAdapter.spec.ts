@@ -29,7 +29,7 @@ describe('PlausibleAdapter', () => {
       adapter = new PlausibleAdapter(true);
 
       // Wait only 200ms instead of full 5 seconds
-      const initPromise = adapter.initialize();
+      void adapter.initialize();
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       expect(adapter.isReady()).toBe(false);

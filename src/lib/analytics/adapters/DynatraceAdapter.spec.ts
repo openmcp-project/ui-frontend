@@ -8,7 +8,7 @@ describe('DynatraceAdapter', () => {
   beforeEach(() => {
     // Mock window.dtrum
     mockDtrum = {
-      enterAction: vi.fn((name: string) => 123),
+      enterAction: vi.fn((_name: string) => 123),
       leaveAction: vi.fn(),
       addActionProperties: vi.fn(),
       reportCustomEvent: vi.fn(),
@@ -37,7 +37,7 @@ describe('DynatraceAdapter', () => {
 
       // Should timeout quickly since dtrum is not available
       // Use a shorter timeout for the test
-      const initPromise = adapter.initialize();
+      void adapter.initialize();
 
       // Wait only 200ms instead of full 5 seconds
       await new Promise((resolve) => setTimeout(resolve, 200));
@@ -114,9 +114,7 @@ describe('DynatraceAdapter', () => {
     });
 
     it('should handle multiple concurrent actions', () => {
-      mockDtrum.enterAction = vi.fn()
-        .mockReturnValueOnce(100)
-        .mockReturnValueOnce(200);
+      mockDtrum.enterAction = vi.fn().mockReturnValueOnce(100).mockReturnValueOnce(200);
 
       const action1 = adapter.startAction('Action 1');
       const action2 = adapter.startAction('Action 2');
@@ -146,12 +144,10 @@ describe('DynatraceAdapter', () => {
     });
 
     it('should add properties to all pending actions', () => {
-      mockDtrum.enterAction = vi.fn()
-        .mockReturnValueOnce(100)
-        .mockReturnValueOnce(200);
+      mockDtrum.enterAction = vi.fn().mockReturnValueOnce(100).mockReturnValueOnce(200);
 
-      const action1 = adapter.startAction('Action 1');
-      const action2 = adapter.startAction('Action 2');
+      adapter.startAction('Action 1');
+      adapter.startAction('Action 2');
 
       adapter.addProperties({ project: 'test-project', workspace: 'dev' });
 

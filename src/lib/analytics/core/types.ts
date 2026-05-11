@@ -25,7 +25,7 @@ export interface AnalyticsConfig {
     pageViews?: boolean;
     errors?: boolean;
   };
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 /**
@@ -37,7 +37,7 @@ export interface AnalyticsAdapter {
    * Initialize the adapter
    * Called once when the provider is loaded
    */
-  initialize(config?: Record<string, any>): void | Promise<void>;
+  initialize(config?: Record<string, unknown>): void | Promise<void>;
 
   /**
    * Track a discrete user event
