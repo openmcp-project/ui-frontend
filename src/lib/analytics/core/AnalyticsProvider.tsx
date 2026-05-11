@@ -97,12 +97,18 @@ export function AnalyticsProvider({ config, children }: AnalyticsProviderProps) 
 
     return () => {
       mounted = false;
-      // Cleanup adapter if it has cleanup method
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.provider, config.enabled, config.debug]);
+
+  // Cleanup adapter on unmount
+  useEffect(() => {
+    return () => {
       if (adapter?.cleanup) {
         adapter.cleanup();
       }
     };
-  }, [config.provider, config.enabled, config.debug, adapter, config.config]);
+  }, [adapter]);
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo<AnalyticsContextValue | null>(() => {
