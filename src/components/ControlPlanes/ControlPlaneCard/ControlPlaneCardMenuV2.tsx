@@ -22,6 +22,7 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         id={openerId}
         icon="overflow"
         icon-end
+        design="Transparent"
         data-testid="ControlPlaneCardMenuV2-opener"
         onClick={() => setMenuIsOpen(true)}
       />
