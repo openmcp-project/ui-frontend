@@ -1,12 +1,12 @@
 {
   "SignInPage": {
-    "welcomeMessage": "Welcome to ManagedControlPlane UI",
+    "welcomeMessage": "Welcome to Control Plane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
-    "learnMoreLink": "Learn about ManagedControlPlanes",
+    "learnMoreLink": "Learn about Control Planes",
     "signInButton": "Sign In"
   },
   "Entities": {
-    "ManagedControlPlane": "ManagedControlPlane",
+    "ManagedControlPlane": "Control Plane",
     "Project": "Project",
     "Workspace": "Workspace",
     "Users": "Users",
@@ -86,8 +86,8 @@
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
-    "createNewManagedControlPlane": "Create new Managed Control Plane",
-    "createNewManagedControlPlaneV2": "Create new Managed Control Plane V2",
+    "createNewManagedControlPlane": "Create new Control Plane",
+    "createNewManagedControlPlaneV2": "Create new Control Plane V2",
     "V2": "V2"
   },
   "ControlPlaneListWorkspaceGridTile": {
@@ -97,10 +97,10 @@
     "loadingErrorMessage": "Failed to list mcps in workspace"
   },
   "ControlPlaneCard": {
-    "deleteConfirmationDialog": "MCP deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit ManagedControlPlane",
-    "duplicateMCP": "Duplicate ManagedControlPlane",
-    "deleteMCP": "Delete ManagedControlPlane"
+    "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
+    "editMCP": "Edit Control Plane",
+    "duplicateMCP": "Duplicate Control Plane",
+    "deleteMCP": "Delete Control Plane"
 
   },
   "ControlPlaneListAllWorkspaces": {
@@ -134,8 +134,8 @@
     "chooseVersion": "Please select version"
   },
   "IllustratedBanner": {
-    "titleMessage": "No Managed Control Planes found",
-    "subtitleMessage": "Get started by creating your first Managed Control Plane.",
+    "titleMessage": "No Control Planes found",
+    "subtitleMessage": "Get started by creating your first Control Plane.",
     "helpButton": "Help"
   },
   "NotFoundBanner": {
@@ -224,7 +224,7 @@
   },
 
   "ProjectsPage": {
-    "header": "Your instances of <span>ManagedControlPlane</span>",
+    "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:"
   },
   "ProjectsListView": {
@@ -235,7 +235,7 @@
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {
-    "accessError": "Managed Control Plane does not have access information yet",
+    "accessError": "Control Plane does not have access information yet",
     "overviewTitle": "Overview",
     "dashboardTitle": "Dashboard",
     "graphTitle": "Graph",
@@ -284,16 +284,16 @@
     "mainCommandDescription": "Run this command to delete the project:"
   },
   "KubectlDeleteMcpDialog": {
-    "title": "Delete a Managed Control Plane",
-    "introSection1": "The below will help you delete the Managed Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
+    "title": "Delete a Control Plane",
+    "introSection1": "The below will help you delete the Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
     "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
-    "deleteCommand": "Run this command to delete the Managed Control Plane:",
-    "verificationCommandDescription": "To verify the MCP has been deleted, run:"
+    "deleteCommand": "Run this command to delete the Control Plane:",
+    "verificationCommandDescription": "To verify the control plane has been deleted, run:"
   },
   "KubectlCreateProjectDialog": {
     "title": "Create a Project",
-    "introSection": "A Project is the starting point to our ManagedControlPlane offering. Projects are usually created for each Organization/Team or similar root setups.",
+    "introSection": "A Project is the starting point to our Control Plane offering. Projects are usually created for each Organization/Team or similar root setups.",
     "formFields": {
       "projectName": {
         "label": "Project Name",
@@ -316,7 +316,7 @@
   },
   "KubectlCreateWorkspaceDialog": {
     "title": "Create a Workspace",
-    "introSection": "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive ManagedControlPlanes.",
+    "introSection": "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive control planes.",
     "formFields": {
       "workspaceName": {
         "label": "Workspace Name",
@@ -418,7 +418,7 @@
     "readMore": "Read more"
   },
   "deprecated": {
-    "deprecatedPopoverMessage": "There is a new version of Managed Control Plane available."
+    "deprecatedPopoverMessage": "There is a new version of control plane available."
   },
   "errors": {
     "installError": "Install error",
@@ -445,7 +445,7 @@
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
     "panelTitle": "YAML",
-    "applySuccess2": "The Managed Control Plane will reconcile this resource shortly.",
+    "applySuccess2": "The control plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",
     "diffConfirmMessage": "Are you sure that you want to apply these changes?",
@@ -455,24 +455,24 @@
     "fluxManaged": "This resource is managed by Flux and cannot be edited here"
   },
   "createMCP": {
-    "dialogTitle": "Create Managed Control Plane",
-    "dialogTitleV2": "Create Managed Control Plane V2",
-    "titleText": "Managed Control Plane Created Successfully!",
-    "subtitleText": "Your Managed Control Plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
+    "dialogTitle": "Create Control Plane",
+    "dialogTitleV2": "Create Control Plane V2",
+    "titleText": "Control Plane Created Successfully!",
+    "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
     "copySuffix": "-copy"
   },
   "editMCP": {
-    "dialogTitle": "Edit Managed Control Plane",
-    "titleText": "Managed Control Plane Updated Successfully!",
-    "subtitleText": "Your Managed Control Plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
+    "dialogTitle": "Edit Control Plane",
+    "titleText": "Control Plane Updated Successfully!",
+    "subtitleText": "Your control plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
     "editComponents": "Edit components",
-    "duplicatingMCPInfo1": "Duplicating a <span>ManagedControlPlane</span> will only create a <span>ManagedControlPlane</span> with the same configuration. ",
+    "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
     "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",
     "selectedComponents": "Selected Components",
-    "pleaseSelectComponents": "Choose the components you want to add to your Managed Control Plane.",
+    "pleaseSelectComponents": "Choose the components you want to add to your control plane.",
     "cannotLoad": "Cannot load components list",
     "noComponentsFound": "No components found matching your search."
   },
@@ -574,7 +574,7 @@
     "authorization": {
       "accessDenied": {
         "title": "Access Denied",
-        "details": "You are not authorized to see this Managed Control Plane."
+        "details": "You are not authorized to see this control plane."
       },
       "backToWorkspaces": "Back to Workspaces"
     }
