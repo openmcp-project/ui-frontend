@@ -44,6 +44,7 @@ import { useHandleResourcePatch as _useHandleResourcePatch } from '../../hooks/u
 import { ApiConfigContext } from '../Shared/k8s';
 import { useHasMcpAdminRights as _useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights.ts';
 import { useNavigateToTab } from '../../hooks/useNavigateToTab.ts';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 interface StatusFilterColumn {
   filterValue?: string;
@@ -97,6 +98,7 @@ export function ManagedResources({
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const navigateToTab = useNavigateToTab();
+  const analytics = useAnalyticsOptional();
 
   const {
     data: managedResources,
@@ -121,12 +123,25 @@ export function ManagedResources({
     PatchResourceForForceDeletion(apiVersion, pluralKind, resourceName, namespace),
   );
 
-  const openDeleteDialog = useCallback((item: ManagedResourceItem) => {
-    setPendingDeleteItem(item);
-  }, []);
+  const openDeleteDialog = useCallback(
+    (item: ManagedResourceItem) => {
+      analytics?.trackEvent('Managed Resource Delete Initiated', {
+        resourceKind: item.kind,
+        resourceApiVersion: item.apiVersion,
+        isFluxManaged: isResourceFluxManaged(item),
+      });
+      setPendingDeleteItem(item);
+    },
+    [analytics],
+  );
 
   const openEditPanel = useCallback(
     (item: ManagedResourceItem) => {
+      analytics?.trackEvent('Managed Resource Edit Opened', {
+        resourceKind: item.kind,
+        resourceApiVersion: item.apiVersion,
+        isFluxManaged: isResourceFluxManaged(item),
+      });
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
       openInAsideWithApiConfig(
         <Fragment key={identityKey}>
@@ -140,7 +155,7 @@ export function ManagedResources({
         apiConfig,
       );
     },
-    [openInAsideWithApiConfig, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig, analytics],
   );
   const hasMCPAdminRights = useHasMcpAdminRights();
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
