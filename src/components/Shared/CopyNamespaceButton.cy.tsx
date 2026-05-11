@@ -82,14 +82,14 @@ describe('CopyNamespaceButton', () => {
   });
 
   it('displays namespace as tooltip', () => {
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     cy.get('ui5-button[icon="copy"]').should('have.attr', 'tooltip', testNamespace);
   });
 
   it('handles long namespace strings', () => {
     const longNamespace = 'project-very-long-project-name--ws-very-long-workspace-name';
-    cy.mount(<CopyNamespaceButton namespace={longNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={longNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
 
