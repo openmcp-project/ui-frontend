@@ -117,10 +117,10 @@ export function ControlPlaneListWorkspaceGridTile({
             <div
               style={{
                 width: '100%',
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto 1fr',
                 alignItems: 'center',
                 gap: '1rem',
-                justifyContent: 'space-between',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -131,13 +131,13 @@ export function ControlPlaneListWorkspaceGridTile({
                 <CopyNamespaceButton namespace={workspace.status?.namespace || '-'} />
               </div>
 
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
                 {managedControlPlanes && managedControlPlanes.length > 0 && (
                   <WorkspaceHealthIndicator controlPlanes={managedControlPlanes} compact />
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-end' }}>
                 <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
                 <YamlViewButton
                   variant="loader"
