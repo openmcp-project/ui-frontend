@@ -22,6 +22,7 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './YamlSidePanel.module.css';
 import { IllustratedBanner } from '../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { YamlDiff } from '../Wizards/CreateManagedControlPlane/YamlDiff.tsx';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export const SHOW_DOWNLOAD_BUTTON = false; // Download button is hidden now due to stakeholder request
 
@@ -41,6 +42,7 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
 
   const { closeAside } = useSplitter();
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   const originalYaml = useMemo(
     () =>
@@ -54,6 +56,13 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleDownloadClick = () => {
+    analytics?.trackEvent('YAML Downloaded', {
+      resourceKind: resource.kind,
+      resourceApiVersion: resource.apiVersion,
+      isEdit,
+      filename,
+    });
+
     const blob = new Blob([yamlStringToCopy], { type: 'text/yaml' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -65,22 +74,46 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
     window.URL.revokeObjectURL(url);
   };
 
-  const handleApplyFromEditor = useCallback(async (parsed: unknown, yaml: string) => {
-    setParsedObject(parsed);
-    setEditedYaml(yaml);
-    setMode('review');
-  }, []);
+  const handleApplyFromEditor = useCallback(
+    async (parsed: unknown, yaml: string) => {
+      analytics?.trackEvent('YAML Editor Apply Clicked', {
+        resourceKind: resource.kind,
+        resourceApiVersion: resource.apiVersion,
+        hasChanges: yaml !== originalYaml,
+      });
+
+      setParsedObject(parsed);
+      setEditedYaml(yaml);
+      setMode('review');
+    },
+    [analytics, resource.kind, resource.apiVersion, originalYaml],
+  );
 
   const handleConfirmPatch = useCallback(async () => {
     if (!onApply || !editedYaml) return;
 
+    analytics?.trackEvent('YAML Patch Confirmed', {
+      resourceKind: resource.kind,
+      resourceApiVersion: resource.apiVersion,
+    });
+
     const result = await onApply(parsedObject, editedYaml);
     if (result === true) {
       setMode('success');
+      analytics?.trackEvent('YAML Patch Applied Successfully', {
+        resourceKind: resource.kind,
+        resourceApiVersion: resource.apiVersion,
+      });
     }
-  }, [onApply, editedYaml, parsedObject]);
+  }, [onApply, editedYaml, parsedObject, analytics, resource.kind, resource.apiVersion]);
 
-  const handleGoBack = () => setMode('edit');
+  const handleGoBack = () => {
+    analytics?.trackEvent('YAML Patch Cancelled', {
+      resourceKind: resource.kind,
+      resourceApiVersion: resource.apiVersion,
+    });
+    setMode('edit');
+  };
 
   const { apiGroupName, apiVersion, kind } = parseResourceApiInfo(resource);
 
@@ -97,7 +130,14 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               <CheckBox
                 text={t('yaml.showOnlyImportant')}
                 checked={showOnlyImportantData}
-                onChange={() => setShowOnlyImportantData(!showOnlyImportantData)}
+                onChange={() => {
+                  const newValue = !showOnlyImportantData;
+                  analytics?.trackEvent('YAML Filter Toggled', {
+                    resourceKind: resource.kind,
+                    showOnlyImportant: newValue,
+                  });
+                  setShowOnlyImportantData(newValue);
+                }}
               />
             )}
           </FlexBox>
@@ -105,7 +145,15 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
             design="Transparent"
             icon="copy"
             text={t('buttons.copy')}
-            onClick={() => copyToClipboard(yamlStringToDisplay)}
+            onClick={() => {
+              analytics?.trackEvent('YAML Copied', {
+                resourceKind: resource.kind,
+                resourceApiVersion: resource.apiVersion,
+                isEdit,
+                showOnlyImportantData,
+              });
+              copyToClipboard(yamlStringToDisplay);
+            }}
           />
           {SHOW_DOWNLOAD_BUTTON ? (
             <ToolbarButton
@@ -121,7 +169,14 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
             design="Transparent"
             icon="sap-icon://navigation-right-arrow"
             data-testid="yaml-close-button"
-            onClick={closeAside}
+            onClick={() => {
+              analytics?.trackEvent('YAML Panel Closed', {
+                resourceKind: resource.kind,
+                mode,
+                isEdit,
+              });
+              closeAside();
+            }}
           />
         </Toolbar>
       }
@@ -134,7 +189,16 @@ export function YamlSidePanel({ resource, filename, onApply, isEdit, toolbarCont
               title={t('yaml.applySuccess')}
               subtitle={t('yaml.applySuccess2')}
             />
-            <Button design="Emphasized" data-testid="yaml-success-close-button" onClick={closeAside}>
+            <Button
+              design="Emphasized"
+              data-testid="yaml-success-close-button"
+              onClick={() => {
+                analytics?.trackEvent('YAML Success Panel Closed', {
+                  resourceKind: resource.kind,
+                });
+                closeAside();
+              }}
+            >
               {t('common.close')}
             </Button>
           </FlexBox>

@@ -21,6 +21,7 @@ import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
 import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
 import { AnalyticsProvider } from './lib/analytics';
+import { AnalyticsDebugPanel } from './lib/analytics/debug/AnalyticsDebugPanel.tsx';
 
 configureMonaco();
 
@@ -57,7 +58,12 @@ const ErrorFallback = ({ error, componentStack }: SentryErrorFallbackProps) => {
 function AnalyticsWrapper({ children }: { children: React.ReactNode }) {
   const config = useFrontendConfig();
 
-  return <AnalyticsProvider config={config.analytics}>{children}</AnalyticsProvider>;
+  return (
+    <AnalyticsProvider config={config.analytics}>
+      {children}
+      <AnalyticsDebugPanel enabled={config.analytics.debug} />
+    </AnalyticsProvider>
+  );
 }
 
 export function createApp() {

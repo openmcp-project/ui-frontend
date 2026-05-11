@@ -21,6 +21,7 @@ import { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 type UI5RatingIndicatorElement = HTMLElement & { value: number };
 
@@ -32,8 +33,10 @@ export function FeedbackButton() {
   const [rating, setRating] = useState(0);
   const toast = useToast();
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   const onFeedbackClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    analytics?.trackEvent('Feedback Button Clicked', {});
     feedbackPopoverRef.current!.opener = e.target;
     setFeedbackPopoverOpen(!feedbackPopoverOpen);
   };
@@ -48,6 +51,13 @@ export function FeedbackButton() {
       message: feedbackMessage,
       rating: rating.toString(),
     };
+
+    analytics?.trackEvent('Feedback Submitted', {
+      rating,
+      hasMessage: !!feedbackMessage,
+      messageLength: feedbackMessage.length,
+    });
+
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
@@ -59,16 +69,27 @@ export function FeedbackButton() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
+        analytics?.trackEvent('Feedback Submission Failed', {
+          rating,
+          error: data?.message ?? data?.error ?? 'Unknown error',
+        });
         toast.show(data?.message ?? data?.error ?? t('ShellBar.feedbackError'));
         return;
       }
 
+      analytics?.trackEvent('Feedback Submission Successful', {
+        rating,
+      });
       setFeedbackSent(true);
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
           context: 'FeedbackButton',
         },
+      });
+      analytics?.trackEvent('Feedback Submission Failed', {
+        rating,
+        error: err instanceof Error ? err.message : 'Unknown error',
       });
       toast.show(t('ShellBar.feedbackError'));
     }

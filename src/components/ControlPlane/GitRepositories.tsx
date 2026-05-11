@@ -31,6 +31,7 @@ import { useHasMcpAdminRights } from '../../spaces/mcp/auth/useHasMcpAdminRights
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { CreateGitRepositoryDialog } from '../Dialogs/CreateGitRepositoryDialog.tsx';
 import styles from './GitRepositories.module.css';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export type GitRepoItem = GitReposResponse['items'][0] & {
   apiVersion?: string;
@@ -44,6 +45,7 @@ export function GitRepositories() {
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const analytics = useAnalyticsOptional();
 
   type FluxRow = {
     name: string;
@@ -58,6 +60,9 @@ export function GitRepositories() {
   const hasMCPAdminRights = useHasMcpAdminRights();
   const openEditPanel = useCallback(
     (item: GitRepoItem) => {
+      analytics?.trackEvent('GitRepository Edit Opened', {
+        resourceName: item.metadata.name,
+      });
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
       openInAsideWithApiConfig(
         <Fragment key={identityKey}>
@@ -71,7 +76,7 @@ export function GitRepositories() {
         apiConfig,
       );
     },
-    [openInAsideWithApiConfig, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig, analytics],
   );
 
   const columns = useMemo<AnalyticalTableColumnDefinition[]>(
@@ -215,7 +220,16 @@ export function GitRepositories() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <ToolbarSpacer />
-            <Button icon="add" className={styles.createButton} onClick={() => setIsCreateDialogOpen(true)}>
+            <Button
+              icon="add"
+              className={styles.createButton}
+              onClick={() => {
+                analytics?.trackEvent('GitRepository Create Clicked', {
+                  location: 'git_repositories_list',
+                });
+                setIsCreateDialogOpen(true);
+              }}
+            >
               {t('buttons.create')}
             </Button>
           </Toolbar>

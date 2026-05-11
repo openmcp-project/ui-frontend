@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to start dev server with specific analytics provider
 # Usage: ./scripts/dev-with-analytics.sh [provider]
-# provider: dynatrace, plausible, or noop (default: noop)
+# provider: dynatrace or noop (default: noop)
 
 PROVIDER=${1:-noop}
 CONFIG_FILE="frontend-config.json"
@@ -10,9 +10,9 @@ BACKUP_FILE="frontend-config.json.backup"
 PUBLIC_BACKUP_FILE="public/frontend-config.json.backup"
 
 # Validate provider
-if [[ ! "$PROVIDER" =~ ^(dynatrace|plausible|noop)$ ]]; then
+if [[ ! "$PROVIDER" =~ ^(dynatrace|noop)$ ]]; then
   echo "Error: Invalid provider '$PROVIDER'"
-  echo "Usage: $0 [dynatrace|plausible|noop]"
+  echo "Usage: $0 [dynatrace|noop]"
   exit 1
 fi
 

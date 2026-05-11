@@ -53,11 +53,6 @@ export function AnalyticsProvider({ config, children }: AnalyticsProviderProps) 
             loadedAdapter = new DynatraceAdapter(config.debug);
             break;
           }
-          case 'plausible': {
-            const { PlausibleAdapter } = await import('../adapters/PlausibleAdapter');
-            loadedAdapter = new PlausibleAdapter(config.debug);
-            break;
-          }
           case 'noop': {
             const { NoopAdapter } = await import('../adapters/NoopAdapter');
             loadedAdapter = new NoopAdapter();

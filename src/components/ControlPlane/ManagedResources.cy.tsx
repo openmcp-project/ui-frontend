@@ -483,4 +483,84 @@ describe('ManagedResources', () => {
     // Clicking the link should not throw and triggers navigation handler
     cy.contains('ui5-link', 'my-kustomization').click();
   });
+
+  it('tracks analytics when delete is initiated', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <ManagedResources
+            useApiResourceMutation={fakeUseApiResourceMutation}
+            useApiResource={fakeUseApiResource}
+            useResourcePluralNames={fakeUseResourcePluralNames}
+            useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+          />
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.window().then((win) => {
+      cy.spy(win.console, 'log').as('consoleLog');
+    });
+
+    // Expand resource group
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Delete
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.contains('Delete').click({ force: true });
+
+    // Verify analytics event was tracked
+    cy.get('@consoleLog').should(
+      'be.calledWith',
+      '[NoopAdapter] trackEvent:',
+      'Managed Resource Delete Initiated',
+      Cypress.sinon.match({
+        resourceKind: 'Subaccount',
+        resourceApiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+        isFluxManaged: false,
+      }),
+    );
+  });
+
+  it('tracks analytics when edit is opened', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useApiResourceMutation={fakeUseApiResourceMutation}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.window().then((win) => {
+      cy.spy(win.console, 'log').as('consoleLog');
+    });
+
+    // Expand resource group
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.contains('test-subaccount').should('be.visible');
+
+    // Open actions menu and click Edit
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.contains('Edit').click({ force: true });
+
+    // Verify analytics event was tracked
+    cy.get('@consoleLog').should(
+      'be.calledWith',
+      '[NoopAdapter] trackEvent:',
+      'Managed Resource Edit Opened',
+      Cypress.sinon.match({
+        resourceKind: 'Subaccount',
+        resourceApiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+        isFluxManaged: false,
+      }),
+    );
+  });
 });

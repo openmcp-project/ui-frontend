@@ -9,6 +9,7 @@ import { DeleteConfirmationDialog } from '../Dialogs/DeleteConfirmationDialog.ts
 
 import { useDeleteProject as _useDeleteProject } from '../../spaces/onboarding/hooks/useDeleteProject.ts';
 import { KubectlDeleteProjectDialog } from '../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 type ProjectsListItemMenuProps = {
   projectName: string;
@@ -23,6 +24,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
   const [open, setOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   const { deleteProject } = useDeleteProject(projectName);
 
@@ -46,6 +48,9 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
           event.stopPropagation();
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'deleteProject') {
+            analytics?.trackEvent('Project Delete Initiated', {
+              projectName,
+            });
             setDialogDeleteProjectIsOpen(true);
           }
 

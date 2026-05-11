@@ -17,7 +17,7 @@ export type ActionId = string | number;
  * Configuration for analytics provider
  */
 export interface AnalyticsConfig {
-  provider: 'dynatrace' | 'plausible' | 'noop';
+  provider: 'dynatrace' | 'noop';
   enabled: boolean;
   debug?: boolean;
   autoTrack?: {

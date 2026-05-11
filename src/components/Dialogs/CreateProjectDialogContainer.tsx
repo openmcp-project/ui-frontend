@@ -10,6 +10,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export function CreateProjectDialogContainer({
   isOpen,
@@ -44,6 +45,7 @@ export function CreateProjectDialogContainer({
   });
   const members = useWatch({ control, name: 'members' });
   const { user } = useAuthOnboarding();
+  const analytics = useAnalyticsOptional();
 
   const username = user?.email;
   const { createProject } = useCreateProject();
@@ -72,6 +74,12 @@ export function CreateProjectDialogContainer({
     chargingTargetType,
     members,
   }: OnCreatePayload): Promise<boolean> => {
+    analytics?.trackEvent('Project Create Started', {
+      hasDisplayName: !!displayName,
+      chargingTargetType,
+      memberCount: members?.length ?? 0,
+    });
+
     try {
       await createProject({
         name,
@@ -80,10 +88,18 @@ export function CreateProjectDialogContainer({
         chargingTargetType,
         members,
       });
+      analytics?.trackEvent('Project Created Successfully', {
+        projectName: name,
+        chargingTargetType,
+        memberCount: members?.length ?? 0,
+      });
       setIsOpen(false);
       return true;
     } catch (e) {
       console.error(e);
+      analytics?.trackEvent('Project Create Failed', {
+        error: e instanceof Error ? e.message : 'Unknown error',
+      });
       const message =
         e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);

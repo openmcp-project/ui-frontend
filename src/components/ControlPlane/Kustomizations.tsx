@@ -32,6 +32,7 @@ import styles from './Kustomizations.module.css';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export type KustomizationItem = KustomizationsResponse['items'][0] & {
   apiVersion?: string;
@@ -47,6 +48,7 @@ export function Kustomizations() {
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const location = useLocation();
+  const analytics = useAnalyticsOptional();
 
   type FluxRow = {
     name: string;
@@ -60,6 +62,9 @@ export function Kustomizations() {
 
   const openEditPanel = useCallback(
     (item: KustomizationItem) => {
+      analytics?.trackEvent('Kustomization Edit Opened', {
+        resourceName: item.metadata.name,
+      });
       const identityKey = `${item.kind}:${item.metadata.namespace ?? ''}:${item.metadata.name}`;
       openInAsideWithApiConfig(
         <Fragment key={identityKey}>
@@ -73,7 +78,7 @@ export function Kustomizations() {
         apiConfig,
       );
     },
-    [openInAsideWithApiConfig, handlePatch, apiConfig],
+    [openInAsideWithApiConfig, handlePatch, apiConfig, analytics],
   );
   const hasMCPAdminRights = useHasMcpAdminRights();
 
@@ -231,7 +236,16 @@ export function Kustomizations() {
             <Title>{t('common.resourcesCount', { count: rows.length })}</Title>
             <YamlViewButton variant="resource" resource={data as unknown as Resource} />
             <ToolbarSpacer />
-            <Button icon="add" className={styles.createButton} onClick={() => setIsCreateDialogOpen(true)}>
+            <Button
+              icon="add"
+              className={styles.createButton}
+              onClick={() => {
+                analytics?.trackEvent('Kustomization Create Clicked', {
+                  location: 'kustomizations_list',
+                });
+                setIsCreateDialogOpen(true);
+              }}
+            >
               {t('buttons.create')}
             </Button>
           </Toolbar>
