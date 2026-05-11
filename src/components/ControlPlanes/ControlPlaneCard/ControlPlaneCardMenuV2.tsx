@@ -2,6 +2,7 @@ import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/delete';
 import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 type ControlPlaneCardMenuV2Props = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -15,6 +16,7 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   return (
     <>
@@ -30,6 +32,9 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         opener={openerId}
         onItemClick={(event) => {
           if ((event.detail.item as HTMLElement).dataset.action === 'deleteMcp') {
+            analytics?.trackEvent('MCP V2 Delete Button Clicked', {
+              source: 'control_plane_card_v2',
+            });
             setDialogDeleteMcpIsOpen(true);
           }
           setMenuIsOpen(false);

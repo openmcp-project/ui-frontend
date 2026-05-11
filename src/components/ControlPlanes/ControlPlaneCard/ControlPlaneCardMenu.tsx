@@ -5,6 +5,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 
 import { useTranslation } from 'react-i18next';
+import { useAnalyticsOptional } from '../../../lib/analytics';
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -20,6 +21,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   const handleOpenerClick = () => {
     setMenuIsOpen(true);
@@ -40,12 +42,21 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
           if (action === 'editMcp') {
+            analytics?.trackEvent('MCP Edit Button Clicked', {
+              source: 'control_plane_card',
+            });
             setIsEditManagedControlPlaneWizardOpen(true, 'edit');
           }
           if (action === 'duplicateMcp') {
+            analytics?.trackEvent('MCP Duplicate Button Clicked', {
+              source: 'control_plane_card',
+            });
             setIsEditManagedControlPlaneWizardOpen(true, 'duplicate');
           }
           if (action === 'deleteMcp') {
+            analytics?.trackEvent('MCP Delete Button Clicked', {
+              source: 'control_plane_card',
+            });
             setDialogDeleteMcpIsOpen(true);
           }
 
