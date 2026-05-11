@@ -113,17 +113,19 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
-    // Type confirmation text
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    // Type confirmation text and verify it was accepted
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', 'test-subaccount');
 
     // Verify delete not called yet
-    cy.then(() => cy.wrap(deleteCalled).should('equal', false));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
 
-    // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    // Wait for delete button to become enabled, then click
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify delete was called
-    cy.then(() => cy.wrap(deleteCalled).should('equal', true));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
   });
 
   it('force deletes a managed resource', () => {
@@ -148,25 +150,30 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Delete').click({ force: true });
 
-    // Expand Advanced section
+    // Wait for dialog open animation to complete (onOpen fires resetForm which clears state)
+    cy.get('ui5-dialog[open]').should('be.visible');
+    cy.wait(500);
+
+    // Expand Advanced section and enable force deletion checkbox
     cy.contains('Advanced').click();
+    cy.get('ui5-dialog[open]').find('ui5-checkbox').toggleUi5Checkbox();
+    cy.get('ui5-dialog[open]').find('ui5-checkbox').should('have.attr', 'checked');
 
-    // Enable force deletion checkbox
-    cy.contains('Force deletion').click({ force: true });
-
-    // Type confirmation text
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    // Type confirmation text and verify it was accepted
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', 'test-subaccount');
 
     // Verify neither delete nor patch called yet
-    cy.then(() => cy.wrap(deleteCalled).should('equal', false));
-    cy.then(() => cy.wrap(patchCalled).should('equal', false));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(false));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(false));
 
-    // Click delete button
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    // Wait for delete button to become enabled, then click
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').should('not.have.attr', 'disabled');
+    cy.get('ui5-dialog[open]').find('ui5-button[design="Negative"]').click();
 
     // Verify both delete and patch were called
-    cy.then(() => cy.wrap(deleteCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
+    cy.wrap(null).should(() => expect(deleteCalled).to.equal(true));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
   });
 
   it('keeps delete button disabled until confirmation text is entered', () => {
@@ -195,14 +202,14 @@ describe('ManagedResources - Delete Resource', () => {
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
     // Type wrong text
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('wrong-text');
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('wrong-text');
 
     // Delete button should still be disabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
 
     // Clear input and type correct text
     cy.get('ui5-dialog[open]').find('ui5-input').clearUi5Input();
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-subaccount');
+    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
 
     // Delete button should now be enabled
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('not.have.attr', 'disabled');
@@ -305,11 +312,12 @@ describe('ManagedResources - Edit Resource', () => {
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
     cy.contains('Edit').click({ force: true });
 
-    // Verify YAML panel opened
+    // Wait for YAML panel and Monaco editor to fully load (schema loader async re-renders)
     cy.contains('YAML').should('be.visible');
+    cy.get('.monaco-editor', { timeout: 10000 }).should('exist');
 
-    // Click Apply button
-    cy.get('[data-testid="yaml-apply-button"]').should('be.visible').click();
+    // Click Apply button — use force to avoid detached-DOM race from SWR revalidation re-renders
+    cy.get('[data-testid="yaml-apply-button"]').click({ force: true });
 
     // Confirm in dialog
     cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').click({ force: true });
@@ -318,8 +326,8 @@ describe('ManagedResources - Edit Resource', () => {
     cy.contains('Update submitted', { timeout: 10000 }).should('be.visible');
 
     // Verify patch was called
-    cy.then(() => cy.wrap(patchCalled).should('equal', true));
-    cy.then(() => cy.wrap(patchedItem).should('not.be.null'));
+    cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
+    cy.wrap(null).should(() => expect(patchedItem).to.not.be.null);
   });
 });
 

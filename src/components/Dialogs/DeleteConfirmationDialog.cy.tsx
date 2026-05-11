@@ -145,10 +145,10 @@ describe('DeleteConfirmationDialog', () => {
       );
 
       cy.get('ui5-dialog[open]').should('have.length', 1);
-      cy.get('ui5-dialog[open]').contains('Delete a Managed Control Plane').should('not.exist');
+      cy.get('ui5-dialog[open]').contains('Delete a Control Plane').should('not.exist');
       cy.get('ui5-button').contains('Learn how to do this in code').should('be.visible').click();
       cy.get('ui5-dialog[open]').should('have.length', 2);
-      cy.get('ui5-dialog[open]').contains('Delete a Managed Control Plane').should('be.visible');
+      cy.get('ui5-dialog[open]').contains('Delete a Control Plane').should('be.visible');
     });
 
     it('opens Delete Project kubectl dialog only after clicking Learn button', () => {
