@@ -33,7 +33,7 @@ export const CopyNamespaceButton = ({ namespace, style = {}, ...buttonProps }: C
   const showFullText = isHovered || isCopied;
 
   return (
-    <div className={styles.container} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    <div className={styles.container}>
       <Button
         icon="copy"
         design={isCopied ? 'Positive' : 'Transparent'}
@@ -41,6 +41,8 @@ export const CopyNamespaceButton = ({ namespace, style = {}, ...buttonProps }: C
         style={{ ...defaultStyle, ...style }}
         className={`${styles.button} ${showFullText ? styles.expanded : styles.collapsed}`}
         onClick={handleCopy}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         {...buttonProps}
       >
         <span className={styles.text}>{buttonText}</span>
