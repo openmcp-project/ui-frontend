@@ -232,7 +232,7 @@ export const ControlPlaneCardV2 = ({
         </div>
 
         <div className={styles.cardFooter}>
-          <FlexBox direction="Row" gap={8} className={styles.footerLeft}>
+          <div className={styles.footerLeft}>
             {controlPlane.version !== 'v2' && (
               <ControlPlaneCardMenu
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
@@ -246,14 +246,13 @@ export const ControlPlaneCardV2 = ({
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
               />
             )}
-
             <YamlViewButton
               variant="loader"
               workspaceName={controlPlane.metadata.namespace}
               resourceName={controlPlane.metadata.name}
               resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
             />
-          </FlexBox>
+          </div>
 
           <div className={styles.footerRight}>
             {controlPlane.version === 'v2' ? (
