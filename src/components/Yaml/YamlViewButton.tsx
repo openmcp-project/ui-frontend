@@ -11,6 +11,7 @@ import { JSX, useContext } from 'react';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -31,10 +32,17 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
   const { openInAsideWithApiConfig, openInAside } = useSplitter();
   const apiConfig = useContext(ApiConfigContext);
+  const analytics = useAnalyticsOptional();
+
   const openSplitterSidePanel = () => {
     switch (variant) {
       case 'resource': {
         const { resource, toolbarContent, withoutApiConfig } = props as YamlViewButtonResourceProps;
+        analytics?.trackEvent('YAML Viewer Opened', {
+          source: 'resource_view',
+          resourceKind: resource?.kind,
+          resourceName: resource?.metadata?.name,
+        });
         const content = (
           <YamlSidePanel
             isEdit={false}
@@ -53,6 +61,12 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
 
       case 'loader': {
         const { workspaceName, resourceType, resourceName, withoutApiConfig } = props as YamlViewButtonLoaderProps;
+        analytics?.trackEvent('YAML Viewer Opened', {
+          source: 'loader_view',
+          resourceType,
+          resourceName,
+          workspaceName,
+        });
         const content = (
           <YamlSidePanelWithLoader
             isEdit={false}

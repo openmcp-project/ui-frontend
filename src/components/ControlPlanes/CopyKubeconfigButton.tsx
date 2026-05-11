@@ -5,12 +5,14 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useTranslation } from 'react-i18next';
+import { useAnalyticsOptional } from '../../lib/analytics';
 
 export default function CopyKubeconfigButton() {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
   const { copyToClipboard } = useCopyToClipboard();
   const { t } = useTranslation();
+  const analytics = useAnalyticsOptional();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
@@ -33,10 +35,18 @@ export default function CopyKubeconfigButton() {
         open={open}
         onItemClick={(event) => {
           if (event.detail.item.dataset.action === 'download') {
+            analytics?.trackEvent('Kubeconfig Downloaded', {
+              source: 'mcp_page',
+              mcpName: mcp.name,
+            });
             DownloadKubeconfig(mcp.kubeconfig, mcp.name);
             return;
           }
           if (event.detail.item.dataset.action === 'copy') {
+            analytics?.trackEvent('Kubeconfig Copied', {
+              source: 'mcp_page',
+              mcpName: mcp.name,
+            });
             void copyToClipboard(mcp.kubeconfig ?? '');
           }
 
