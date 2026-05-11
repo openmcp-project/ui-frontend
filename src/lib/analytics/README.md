@@ -2,11 +2,11 @@
 
 Vendor-agnostic analytics implementation for tracking user behavior and interactions.
 
-> 📘 **Local Testing Guide**: See [ANALYTICS_LOCAL_TESTING.md](../../../docs/ANALYTICS_LOCAL_TESTING.md) for instructions on testing Plausible locally with Docker.
+> 📘 **Local Testing**: Use the built-in debug panel (bottom-right corner) to see all analytics events in real-time when `debug: true` is enabled.
 
 ## Overview
 
-This analytics system provides a unified API for tracking user events, page views, and multi-step workflows across different analytics providers (Dynatrace, Plausible, etc.).
+This analytics system provides a unified API for tracking user events, page views, and multi-step workflows across different analytics providers (Dynatrace, etc.).
 
 **Key Features:**
 - ✅ Vendor-agnostic - easy to switch or support multiple providers
@@ -27,8 +27,10 @@ src/lib/analytics/
 │   └── useAnalytics.ts         # React hooks
 ├── adapters/
 │   ├── DynatraceAdapter.ts     # Dynatrace RUM implementation
-│   ├── PlausibleAdapter.ts     # Privacy-focused analytics
 │   └── NoopAdapter.ts          # Development/testing adapter
+├── debug/
+│   ├── AnalyticsDebugPanel.tsx # Real-time event viewer
+│   └── AnalyticsDebugPanel.module.css
 └── utils/
     ├── autoTracking.ts         # Auto page view tracking
     └── trackingHelpers.ts      # Helper functions & decorators
@@ -41,7 +43,7 @@ src/lib/analytics/
 ```json
 {
   "analytics": {
-    "provider": "dynatrace",  // "dynatrace" | "plausible" | "noop"
+    "provider": "dynatrace",  // "dynatrace" | "noop"
     "enabled": true,
     "debug": false,
     "autoTrack": {
@@ -256,7 +258,7 @@ case 'my-provider': {
 3. Update TypeScript types in `types.ts`:
 
 ```typescript
-provider: 'dynatrace' | 'plausible' | 'my-provider' | 'noop';
+provider: 'dynatrace' | 'my-provider' | 'noop';
 ```
 
 ## Best Practices

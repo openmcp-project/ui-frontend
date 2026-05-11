@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Button, Panel, Title } from '@ui5/webcomponents-react';
 import styles from './AnalyticsDebugPanel.module.css';
 
+/* eslint-disable i18next/no-literal-string */
+// Debug panel intentionally uses literal strings - not for translation
+
 interface AnalyticsEvent {
   timestamp: Date;
   type: 'event' | 'pageView' | 'error' | 'action';
@@ -90,9 +93,7 @@ export function AnalyticsDebugPanel({ enabled }: { enabled: boolean }) {
         headerLevel="H4"
         header={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Title level="H4">
-              🔍 Analytics Debug ({events.length} events)
-            </Title>
+            <Title level="H4">🔍 Analytics Debug ({events.length} events)</Title>
             <Button
               design="Transparent"
               icon="delete"

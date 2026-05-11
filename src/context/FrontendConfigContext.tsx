@@ -62,7 +62,7 @@ const FrontendConfigSchema = z.object({
     .default({ markMcpV1asDeprecated: false, enableMcpV2: false }),
   analytics: z
     .object({
-      provider: z.enum(['dynatrace', 'plausible', 'noop']).default('noop'),
+      provider: z.enum(['dynatrace', 'noop']).default('noop'),
       enabled: z.boolean().default(false),
       debug: z.boolean().optional().default(false),
       autoTrack: z
