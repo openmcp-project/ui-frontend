@@ -89,7 +89,7 @@ describe('CopyNamespaceButton', () => {
 
   it('handles long namespace strings', () => {
     const longNamespace = 'project-very-long-project-name--ws-very-long-workspace-name';
-    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={longNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
 
