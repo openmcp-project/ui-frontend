@@ -2,6 +2,42 @@
 
 This guide explains how to test analytics integrations locally.
 
+## Quick Start with npm Scripts
+
+We provide convenience scripts that automatically configure analytics for local testing:
+
+### Test with Plausible
+```bash
+npm run dev:plausible
+```
+
+This automatically:
+- Starts Plausible in Docker
+- Updates `frontend-config.json` to use Plausible
+- Starts the dev server
+- Restores original config when you exit (Ctrl+C)
+
+### Test with Dynatrace
+```bash
+npm run dev:dynatrace
+```
+
+This automatically:
+- Updates `frontend-config.json` to use Dynatrace
+- Starts the dev server
+- Restores original config when you exit (Ctrl+C)
+
+**Note:** For Dynatrace, you need `DYNATRACE_SCRIPT_URL` set in `.env`
+
+### Test without Analytics (Default)
+```bash
+npm run dev
+```
+
+Uses the `noop` provider (no external service).
+
+---
+
 ## Plausible Analytics
 
 Plausible is a privacy-focused, self-hosted analytics platform. For local development, we provide a Docker Compose setup.
@@ -12,6 +48,15 @@ Plausible is a privacy-focused, self-hosted analytics platform. For local develo
 - Port 8000 available
 
 ### Quick Start
+
+**Option 1: Use the npm script (Recommended)**
+```bash
+npm run dev:plausible
+```
+
+This automatically starts Plausible, configures analytics, and restores your config when you exit.
+
+**Option 2: Manual setup**
 
 1. **Start Plausible**:
    ```bash
@@ -119,6 +164,15 @@ For Plausible adapter, you can pass additional config:
   ```
 
 ## Dynatrace
+
+**Option 1: Use the npm script (Recommended)**
+```bash
+npm run dev:dynatrace
+```
+
+This automatically configures Dynatrace analytics and restores your config when you exit.
+
+**Option 2: Manual setup**
 
 For local Dynatrace testing, you need access to a Dynatrace environment. The `window.dtrum` object is injected by the Dynatrace RUM script.
 

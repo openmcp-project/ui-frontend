@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "tsx ./server.ts --local-dev",
+    "dev:plausible": "npm run analytics:plausible:start && ./scripts/dev-with-analytics.sh plausible",
+    "dev:dynatrace": "./scripts/dev-with-analytics.sh dynatrace",
     "start": "node dist/server.js",
     "build": "npm run build:server && npm run build:client",
     "build:client": "vite build",
