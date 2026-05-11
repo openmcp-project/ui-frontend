@@ -45,13 +45,16 @@ describe('CopyNamespaceButton', () => {
   it('shows success state when clicked', () => {
     // Stub clipboard before mounting
     cy.window().then((win) => {
-      if (!win.navigator.clipboard) {
-        win.navigator.clipboard = {
-          writeText: cy.stub().resolves(),
-        } as unknown as Clipboard;
-      } else {
-        cy.stub(win.navigator.clipboard, 'writeText').resolves();
-      }
+      const clipboardStub = {
+        writeText: cy.stub().resolves(),
+        readText: cy.stub().resolves(''),
+      };
+
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: clipboardStub,
+        writable: true,
+        configurable: true,
+      });
     });
 
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
