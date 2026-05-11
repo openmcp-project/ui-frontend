@@ -340,12 +340,16 @@ export function ManagedResources({
 
   // Expand all groups when table is loaded
   useEffect(() => {
-    if (tableInstanceRef.current && !combinedLoading) {
-      tableInstanceRef.current.toggleAllRowsExpanded(true);
-      setAreRowsExpanded(true);
-      setIsTableReady(true);
+    if (tableInstanceRef.current && !combinedLoading && rows.length > 0) {
+      // Use setTimeout to ensure table has rendered
+      const timer = setTimeout(() => {
+        tableInstanceRef.current?.toggleAllRowsExpanded(true);
+        setAreRowsExpanded(true);
+        setIsTableReady(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [combinedLoading]);
+  }, [combinedLoading, rows.length]);
 
   return (
     <>
