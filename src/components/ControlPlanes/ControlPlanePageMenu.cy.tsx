@@ -5,9 +5,7 @@ describe('ControlPlanePageMenu', () => {
   it('renders overflow button with transparent design', () => {
     const setIsEditManagedControlPlaneWizardOpen = cy.stub();
 
-    cy.mount(
-      <ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />,
-    );
+    cy.mount(<ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />);
 
     cy.get('ui5-button[icon="overflow"]').should('have.attr', 'design', 'Transparent');
   });
@@ -15,9 +13,7 @@ describe('ControlPlanePageMenu', () => {
   it('shows edit menu item', () => {
     const setIsEditManagedControlPlaneWizardOpen = cy.stub();
 
-    cy.mount(
-      <ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />,
-    );
+    cy.mount(<ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />);
 
     cy.get('ui5-button[icon="overflow"]').click();
     cy.contains('Edit').should('be.visible');
@@ -26,9 +22,7 @@ describe('ControlPlanePageMenu', () => {
   it('calls edit handler when edit is clicked', () => {
     const setIsEditManagedControlPlaneWizardOpen = cy.stub();
 
-    cy.mount(
-      <ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />,
-    );
+    cy.mount(<ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />);
 
     cy.get('ui5-button[icon="overflow"]').click();
     cy.contains('Edit').click({ force: true });
@@ -66,19 +60,18 @@ describe('ControlPlanePageMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
-    cy.contains('Show YAML').click({ force: true });
-
-    cy.then(() => {
-      expect(onYamlClick).to.have.been.called;
-    });
+    cy.contains('Show YAML')
+      .click({ force: true })
+      .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        expect(onYamlClick).to.have.been.called;
+      });
   });
 
   it('does not show YAML menu item when onYamlClick is not provided', () => {
     const setIsEditManagedControlPlaneWizardOpen = cy.stub();
 
-    cy.mount(
-      <ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />,
-    );
+    cy.mount(<ControlPlanePageMenu setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen} />);
 
     cy.get('ui5-button[icon="overflow"]').click();
     cy.contains('Show YAML').should('not.exist');

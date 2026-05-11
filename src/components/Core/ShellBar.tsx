@@ -137,10 +137,7 @@ const ProfilePopover = ({
         onClose={() => setOpen(false)}
       >
         <List>
-          <ListItemStandard
-            icon="feedback"
-            onClick={handleFeedbackClick}
-          >
+          <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
             {t('ShellBar.feedbackButtonInfo')}
           </ListItemStandard>
           <ListItemStandard

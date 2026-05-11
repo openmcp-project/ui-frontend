@@ -20,7 +20,20 @@ export function BetaButton() {
 
   return (
     <>
-      <span ref={betaButtonRef} className={styles.betaBadge} onClick={onBetaClick} slot="content">
+      <span
+        ref={betaButtonRef}
+        className={styles.betaBadge}
+        slot="content"
+        role="button"
+        tabIndex={0}
+        onClick={onBetaClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onBetaClick();
+          }
+        }}
+      >
         {t('ShellBar.betaButton')}
       </span>
       <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />

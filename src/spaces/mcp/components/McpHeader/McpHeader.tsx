@@ -34,7 +34,11 @@ export function McpHeader({ mcp, project, workspace }: McpHeaderProps) {
         </div>
 
         <McpMembersAvatarView
-          roleBindings={(mcp.spec as any)?.authorization?.roleBindings}
+          roleBindings={
+            mcp.spec && 'authorization' in mcp.spec && mcp.spec.authorization
+              ? mcp.spec.authorization.roleBindings
+              : undefined
+          }
           project={project}
           workspace={workspace}
         />

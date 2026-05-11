@@ -2,6 +2,7 @@ import { ShellBarComponent } from './ShellBar.tsx';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { ToastProvider } from '../../context/ToastContext.tsx';
+import * as AuthModule from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 
 const mockAuth = {
   user: { email: 'test@example.com' },
@@ -10,7 +11,7 @@ const mockAuth = {
 
 describe('ShellBar', () => {
   beforeEach(() => {
-    cy.stub(require('../../spaces/onboarding/auth/AuthContextOnboarding.tsx'), 'useAuthOnboarding').returns(mockAuth);
+    cy.stub(AuthModule, 'useAuthOnboarding').returns(mockAuth);
   });
 
   it('renders the ShellBar with logo and title', () => {
@@ -76,11 +77,12 @@ describe('ShellBar', () => {
     );
 
     cy.get('ui5-avatar').click();
-    cy.contains('Sign Out').click({ force: true });
-
-    cy.then(() => {
-      expect(mockAuth.logout).to.have.been.called;
-    });
+    cy.contains('Sign Out')
+      .click({ force: true })
+      .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        expect(mockAuth.logout).to.have.been.called;
+      });
   });
 
   it('opens feedback popover when feedback menu item is clicked', () => {
