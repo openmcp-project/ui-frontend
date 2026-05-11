@@ -439,7 +439,9 @@
     "cancel": "Cancel",
     "update": "Update",
     "applyChanges": "Apply changes",
-    "edit": "Edit"
+    "edit": "Edit",
+    "collapseAll": "Collapse All",
+    "expandAll": "Expand All"
   },
   "yaml": {
     "YAML": "File",

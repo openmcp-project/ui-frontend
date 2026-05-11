@@ -604,16 +604,12 @@ describe('ManagedResources - Auto-expand and Toggle', () => {
     );
 
     // Initially should have collapse-all icon
-    cy.contains('ui5-button', 'Collapse All')
-      .find('ui5-icon[name="collapse-all"]')
-      .should('exist');
+    cy.contains('ui5-button', 'Collapse All').find('ui5-icon[name="collapse-all"]').should('exist');
 
     // Click to collapse
     cy.contains('ui5-button', 'Collapse All').click();
 
     // Should now have expand-all icon
-    cy.contains('ui5-button', 'Expand All')
-      .find('ui5-icon[name="expand-all"]')
-      .should('exist');
+    cy.contains('ui5-button', 'Expand All').find('ui5-icon[name="expand-all"]').should('exist');
   });
 });

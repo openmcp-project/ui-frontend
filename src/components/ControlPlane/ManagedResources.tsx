@@ -97,8 +97,10 @@ export function ManagedResources({
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const navigateToTab = useNavigateToTab();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tableInstanceRef = useRef<any>(null);
   const [areRowsExpanded, setAreRowsExpanded] = useState(true);
+  const [isTableReady, setIsTableReady] = useState(false);
 
   const {
     data: managedResources,
@@ -341,6 +343,7 @@ export function ManagedResources({
     if (tableInstanceRef.current && !combinedLoading) {
       tableInstanceRef.current.toggleAllRowsExpanded(true);
       setAreRowsExpanded(true);
+      setIsTableReady(true);
     }
   }, [combinedLoading]);
 
@@ -358,16 +361,14 @@ export function ManagedResources({
               <Button
                 icon={areRowsExpanded ? 'collapse-all' : 'expand-all'}
                 design="Transparent"
+                disabled={!isTableReady}
                 onClick={() => {
                   const newState = !areRowsExpanded;
                   tableInstanceRef.current?.toggleAllRowsExpanded(newState);
                   setAreRowsExpanded(newState);
                 }}
-                disabled={!tableInstanceRef.current}
               >
-                {areRowsExpanded
-                  ? t('buttons.collapseAll', 'Collapse All')
-                  : t('buttons.expandAll', 'Expand All')}
+                {areRowsExpanded ? t('buttons.collapseAll', 'Collapse All') : t('buttons.expandAll', 'Expand All')}
               </Button>
             </Toolbar>
           }

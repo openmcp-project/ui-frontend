@@ -43,8 +43,10 @@ export function ProvidersConfig() {
   const handlePatch = useHandleResourcePatch(errorDialogRef);
   const apiConfig = useContext(ApiConfigContext);
   const rows: Rows[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tableInstanceRef = useRef<any>(null);
   const [areRowsExpanded, setAreRowsExpanded] = useState(true);
+  const [isTableReady, setIsTableReady] = useState(false);
 
   const { data: providerConfigsList, isLoading } = useProvidersConfigResource({
     refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
@@ -55,6 +57,7 @@ export function ProvidersConfig() {
     if (tableInstanceRef.current && !isLoading) {
       tableInstanceRef.current.toggleAllRowsExpanded(true);
       setAreRowsExpanded(true);
+      setIsTableReady(true);
     }
   }, [isLoading]);
 
@@ -173,16 +176,14 @@ export function ProvidersConfig() {
           <Button
             icon={areRowsExpanded ? 'collapse-all' : 'expand-all'}
             design="Transparent"
+            disabled={!isTableReady}
             onClick={() => {
               const newState = !areRowsExpanded;
               tableInstanceRef.current?.toggleAllRowsExpanded(newState);
               setAreRowsExpanded(newState);
             }}
-            disabled={!tableInstanceRef.current}
           >
-            {areRowsExpanded
-              ? t('buttons.collapseAll', 'Collapse All')
-              : t('buttons.expandAll', 'Expand All')}
+            {areRowsExpanded ? t('buttons.collapseAll', 'Collapse All') : t('buttons.expandAll', 'Expand All')}
           </Button>
         </Toolbar>
       }
