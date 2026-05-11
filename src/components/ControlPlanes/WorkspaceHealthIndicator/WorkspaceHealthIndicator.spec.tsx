@@ -165,7 +165,12 @@ describe('WorkspaceHealthIndicator utilities', () => {
         {
           version: 'v1',
           metadata: { name: 'mcp-1', namespace: 'ns-1', creationTimestamp: '2024-01-01', annotations: {} },
-          status: { phase: ReadyStatus.Ready, conditions: [], access: undefined },
+          status: {
+            status: ReadyStatus.Ready,
+            phase: ReadyStatus.Ready,
+            conditions: [],
+            access: undefined,
+          },
         },
       ];
 

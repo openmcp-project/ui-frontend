@@ -5,6 +5,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCardV2.module.css';
@@ -80,16 +81,18 @@ export const ControlPlaneCardV2 = ({
     controlPlane.metadata.name,
   );
 
+  const { t } = useTranslation();
+
   const name = controlPlane.metadata.name;
   const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
   const namespace = controlPlane.metadata.namespace;
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
-  const { components: mcpComponents, roleBindings, isLoading } = useMcpComponents(
-    projectName,
-    workspace.metadata.name,
-    name,
-  );
+  const {
+    components: mcpComponents,
+    roleBindings,
+    isLoading,
+  } = useMcpComponents(projectName, workspace.metadata.name, name);
 
   const components = useMemo<ComponentInfo[]>(() => {
     return [
@@ -176,11 +179,11 @@ export const ControlPlaneCardV2 = ({
           <div className={styles.membersSection}>
             {isLoading ? (
               <div className={styles.skeletonWrapper}>
-                <div className={styles.skeletonLabel}></div>
+                <div className={styles.skeletonLabel} />
                 <div className={styles.skeletonAvatars}>
-                  <div className={styles.skeletonAvatar}></div>
-                  <div className={styles.skeletonAvatar}></div>
-                  <div className={styles.skeletonAvatar}></div>
+                  <div className={styles.skeletonAvatar} />
+                  <div className={styles.skeletonAvatar} />
+                  <div className={styles.skeletonAvatar} />
                 </div>
               </div>
             ) : (
@@ -193,12 +196,17 @@ export const ControlPlaneCardV2 = ({
           </div>
 
           <div className={styles.componentsSection}>
-            <Label className={styles.sectionLabel}>Installed Components ({installedComponents.length})</Label>
+            <Label className={styles.sectionLabel}>
+              {t('ControlPlaneCard.installedComponents', {
+                count: installedComponents.length,
+                defaultValue: 'Installed Components ({{count}})',
+              })}
+            </Label>
             {isLoading ? (
               <div className={styles.skeletonIcons}>
-                <div className={styles.skeletonIcon}></div>
-                <div className={styles.skeletonIcon}></div>
-                <div className={styles.skeletonIcon}></div>
+                <div className={styles.skeletonIcon} />
+                <div className={styles.skeletonIcon} />
+                <div className={styles.skeletonIcon} />
               </div>
             ) : installedComponents.length > 0 ? (
               <div className={styles.componentIcons}>
@@ -211,7 +219,7 @@ export const ControlPlaneCardV2 = ({
             ) : (
               <div className={styles.emptyComponents}>
                 <Icon name="sap-icon://question-mark" className={styles.emptyIcon} />
-                <span className={styles.emptyText}>No components detected</span>
+                <span className={styles.emptyText}>{t('ControlPlaneCard.noComponents', 'No components detected')}</span>
               </div>
             )}
           </div>

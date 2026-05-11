@@ -20,9 +20,7 @@ interface RoleBinding {
 }
 
 export function useMcpComponents(projectName: string, workspaceName: string, controlPlaneName: string) {
-  const { data: mcp, isLoading } = useApiResource(
-    ControlPlaneResource(projectName, workspaceName, controlPlaneName),
-  );
+  const { data: mcp, isLoading } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
 
   const components = useMemo<McpComponents | null>(() => {
     if (!mcp?.spec?.components) return null;

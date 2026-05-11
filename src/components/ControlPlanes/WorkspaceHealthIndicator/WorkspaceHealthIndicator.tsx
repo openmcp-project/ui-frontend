@@ -1,4 +1,4 @@
-import { FlexBox, Icon, Label } from '@ui5/webcomponents-react';
+import { Icon, Label } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane';

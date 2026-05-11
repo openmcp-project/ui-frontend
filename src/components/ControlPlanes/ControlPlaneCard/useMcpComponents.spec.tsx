@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useMcpComponents } from './useMcpComponents';
 import * as useApiResourceModule from '../../../lib/api/useApiResource';
@@ -18,11 +18,7 @@ describe('useMcpComponents', () => {
       data: undefined,
       isLoading: true,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: true,
-      isSuccess: false,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -47,11 +43,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -86,11 +78,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -120,11 +108,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -146,11 +130,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -170,11 +150,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -200,11 +176,7 @@ describe('useMcpComponents', () => {
       data: mockMcp,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -239,11 +211,7 @@ describe('useMcpComponents', () => {
       data: mockMcp1,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     const { result, rerender } = renderHook(() => useMcpComponents('project-1', 'workspace-1', 'mcp-1'));
@@ -256,11 +224,7 @@ describe('useMcpComponents', () => {
       data: mockMcp2,
       isLoading: false,
       error: undefined,
-      refetch: vi.fn(),
-      isFetching: false,
-      isPending: false,
-      isSuccess: true,
-      isError: false,
+      isValidating: false,
     });
 
     rerender();
