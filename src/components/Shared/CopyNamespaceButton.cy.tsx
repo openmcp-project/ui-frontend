@@ -53,7 +53,9 @@ describe('CopyNamespaceButton', () => {
   });
 
   it('shows success state when clicked', () => {
-    // Stub clipboard before mounting
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
+
+    // Stub clipboard after mounting
     cy.window().then((win) => {
       const clipboardStub = {
         writeText: cy.stub().resolves(),
@@ -67,8 +69,6 @@ describe('CopyNamespaceButton', () => {
       });
     });
 
-    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
-
     const button = cy.get('ui5-button[icon="copy"]');
 
     // Hover and click
@@ -78,7 +78,7 @@ describe('CopyNamespaceButton', () => {
 
     // Should show positive design and success message (wait for state change)
     cy.get('ui5-button[design="Positive"]', { timeout: 5000 }).should('exist');
-    cy.get('ui5-button').should('contain.text', 'common.copyToClipboardSuccessToast');
+    cy.get('ui5-button[design="Positive"]').should('contain.text', 'common.copyToClipboardSuccessToast');
   });
 
   it('displays namespace as tooltip', () => {
