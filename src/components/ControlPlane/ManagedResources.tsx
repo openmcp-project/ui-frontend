@@ -283,34 +283,37 @@ export function ManagedResources({
     [t, openEditPanel, openDeleteDialog, hasMCPAdminRights, navigateToTab],
   );
 
-  const rows: ResourceRow[] =
-    managedResources
-      ?.filter((managedResource) => managedResource.items)
-      .flatMap((managedResource) =>
-        managedResource.items?.map((item) => {
-          const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
-          const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
+  const rows: ResourceRow[] = useMemo(
+    () =>
+      managedResources
+        ?.filter((managedResource) => managedResource.items)
+        .flatMap((managedResource) =>
+          managedResource.items?.map((item) => {
+            const conditionSynced = item.status?.conditions?.find((condition) => condition.type === 'Synced');
+            const conditionReady = item.status?.conditions?.find((condition) => condition.type === 'Ready');
 
-          return {
-            kind: item.kind,
-            name: item.metadata.name,
-            created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
-            synced: conditionSynced?.status === 'True',
-            syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
-            ready: conditionReady?.status === 'True',
-            readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
-            item: item,
-            conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
-            conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
-          };
-        }),
-      ) ?? [];
+            return {
+              kind: item.kind,
+              name: item.metadata.name,
+              created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
+              synced: conditionSynced?.status === 'True',
+              syncedTransitionTime: conditionSynced?.lastTransitionTime ?? '',
+              ready: conditionReady?.status === 'True',
+              readyTransitionTime: conditionReady?.lastTransitionTime ?? '',
+              item: item,
+              conditionSyncedMessage: conditionSynced?.message ?? conditionSynced?.reason ?? '',
+              conditionReadyMessage: conditionReady?.message ?? conditionReady?.reason ?? '',
+            };
+          }),
+        ) ?? [],
+    [managedResources],
+  );
 
   const healthStats = useMemo(() => {
     const readyCount = rows.filter((r) => r.ready).length;
     const syncedCount = rows.filter((r) => r.synced).length;
     return { readyCount, syncedCount, total: rows.length };
-  }, [rows.length, managedResources]);
+  }, [rows]);
 
   // Notify parent of count changes
   useEffect(() => {
