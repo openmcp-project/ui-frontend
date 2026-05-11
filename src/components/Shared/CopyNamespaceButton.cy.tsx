@@ -4,13 +4,6 @@ import '@ui5/webcomponents-cypress-commands';
 describe('CopyNamespaceButton', () => {
   const testNamespace = 'project-test--ws-workspace';
 
-  beforeEach(() => {
-    // Stub clipboard API for tests
-    cy.window().then((win) => {
-      cy.stub(win.navigator.clipboard, 'writeText').resolves();
-    });
-  });
-
   it('renders with copy icon only when not hovered', () => {
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
 
@@ -50,6 +43,17 @@ describe('CopyNamespaceButton', () => {
   });
 
   it('shows success state when clicked', () => {
+    // Stub clipboard before mounting
+    cy.window().then((win) => {
+      if (!win.navigator.clipboard) {
+        win.navigator.clipboard = {
+          writeText: cy.stub().resolves(),
+        } as unknown as Clipboard;
+      } else {
+        cy.stub(win.navigator.clipboard, 'writeText').resolves();
+      }
+    });
+
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
