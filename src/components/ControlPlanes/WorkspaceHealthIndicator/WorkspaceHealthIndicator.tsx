@@ -45,41 +45,63 @@ export function WorkspaceHealthIndicator({ controlPlanes, compact = false }: Pro
     );
   }, [controlPlanes]);
 
-  const healthPercentage = useMemo(() => {
-    if (healthStats.total === 0) return 0;
-    return Math.round((healthStats.ready / healthStats.total) * 100);
+  const healthPercentages = useMemo(() => {
+    if (healthStats.total === 0) return { ready: 0, notReady: 0, progressing: 0 };
+    return {
+      ready: Math.round((healthStats.ready / healthStats.total) * 100),
+      notReady: Math.round((healthStats.notReady / healthStats.total) * 100),
+      progressing: Math.round((healthStats.progressing / healthStats.total) * 100),
+    };
   }, [healthStats]);
 
   const getHealthColor = () => {
-    if (healthPercentage === 100) return 'var(--sapPositiveColor)';
-    if (healthStats.progressing > 0 && healthStats.notReady === 0) return 'var(--sapInformativeColor)';
-    if (healthStats.notReady > 0) return 'var(--sapNegativeColor)';
+    const { ready, notReady, progressing } = healthPercentages;
+    if (ready === 100) return 'var(--sapPositiveColor)';
+    if (progressing > 0 && notReady === 0) return 'var(--sapInformativeColor)';
+    if (notReady > 0) return 'var(--sapNegativeColor)';
     return 'var(--sapNeutralColor)';
   };
 
-  const getHealthLabel = () => {
-    if (healthPercentage === 100) return t('WorkspaceHealthIndicator.healthy');
-    if (healthStats.progressing > 0 && healthStats.notReady === 0)
-      return t('WorkspaceHealthIndicator.progressingLabel');
-    if (healthStats.notReady > 0) return t('WorkspaceHealthIndicator.unhealthy');
-    return t('WorkspaceHealthIndicator.unknown');
+  const getHealthSummary = () => {
+    if (healthStats.ready === healthStats.total) {
+      return `${healthStats.ready}/${healthStats.total} ${t('WorkspaceHealthIndicator.healthy')}`;
+    }
+    return `${healthStats.ready}/${healthStats.total} ${t('WorkspaceHealthIndicator.healthy')}`;
   };
 
   if (compact) {
     return (
       <div className={styles.compactContainer}>
         <div className={styles.healthBar}>
-          <div
-            className={styles.healthBarFill}
-            style={{
-              width: `${healthPercentage}%`,
-              background: getHealthColor(),
-            }}
-          />
+          {healthPercentages.ready > 0 && (
+            <div
+              className={styles.healthBarSegment}
+              style={{
+                width: `${healthPercentages.ready}%`,
+                background: 'var(--sapPositiveColor)',
+              }}
+            />
+          )}
+          {healthPercentages.notReady > 0 && (
+            <div
+              className={styles.healthBarSegment}
+              style={{
+                width: `${healthPercentages.notReady}%`,
+                background: 'var(--sapNegativeColor)',
+              }}
+            />
+          )}
+          {healthPercentages.progressing > 0 && (
+            <div
+              className={styles.healthBarSegment}
+              style={{
+                width: `${healthPercentages.progressing}%`,
+                background: 'var(--sapNeutralColor)',
+              }}
+            />
+          )}
         </div>
-        <span className={styles.healthText}>
-          {healthStats.ready}/{healthStats.total} {getHealthLabel()}
-        </span>
+        <span className={styles.healthText}>{getHealthSummary()}</span>
       </div>
     );
   }
@@ -89,7 +111,7 @@ export function WorkspaceHealthIndicator({ controlPlanes, compact = false }: Pro
       <div className={styles.header}>
         <Label className={styles.title}>{t('WorkspaceHealthIndicator.title')}</Label>
         <div className={`${styles.healthBadge} ${styles[getHealthColor()]}`}>
-          <span className={styles.healthValue}>{healthPercentage}%</span>
+          <span className={styles.healthValue}>{healthPercentages.ready}%</span>
         </div>
       </div>
 
