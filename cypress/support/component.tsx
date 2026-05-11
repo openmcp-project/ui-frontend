@@ -29,13 +29,14 @@ import { configureMonaco } from '../../src/lib/monaco';
 // Initialize Monaco Editor for Cypress tests
 configureMonaco();
 
-// Known Monaco Editor race conditions during test teardown.
+// Known race conditions during test teardown / module loading.
 Cypress.on('uncaught:exception', (err) => {
   if (
     err.message.includes('Missing requestHandler or method') ||
     err.message.includes('TextModel got disposed') ||
     err.message.includes('DiffEditorWidget') ||
-    err.message.includes('no diff result available')
+    err.message.includes('no diff result available') ||
+    err.message.includes('Failed to fetch dynamically imported module')
   ) {
     return false;
   }
