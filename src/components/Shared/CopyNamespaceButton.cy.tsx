@@ -4,6 +4,13 @@ import '@ui5/webcomponents-cypress-commands';
 describe('CopyNamespaceButton', () => {
   const testNamespace = 'project-test--ws-workspace';
 
+  beforeEach(() => {
+    // Stub clipboard API for tests
+    cy.window().then((win) => {
+      cy.stub(win.navigator.clipboard, 'writeText').resolves();
+    });
+  });
+
   it('renders with copy icon only when not hovered', () => {
     cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
 
@@ -52,11 +59,8 @@ describe('CopyNamespaceButton', () => {
     cy.wait(350);
     button.click();
 
-    // Wait for async copy operation
-    cy.wait(100);
-
-    // Should show positive design and success message
-    cy.get('ui5-button[design="Positive"]').should('exist');
+    // Should show positive design and success message (wait for state change)
+    cy.get('ui5-button[design="Positive"]', { timeout: 5000 }).should('exist');
     cy.get('ui5-button').should('contain.text', 'common.copyToClipboardSuccessToast');
   });
 
