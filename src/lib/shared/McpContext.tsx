@@ -14,6 +14,7 @@ interface Mcp {
   secretKey?: string;
   kubeconfig?: string;
   roleBindings?: RoleBinding[];
+  isV2?: boolean;
 }
 
 interface Props {
@@ -48,6 +49,7 @@ export const McpContextProvider = ({ children, context, isV2 = false }: Props) =
 
   const enrichedContext: Mcp = {
     ...context,
+    isV2,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };
@@ -65,6 +67,7 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
             projectName: mcp.project,
             workspaceName: mcp.workspace,
             controlPlaneName: mcp.name,
+            isV2: mcp.isV2,
           },
         }}
       >
