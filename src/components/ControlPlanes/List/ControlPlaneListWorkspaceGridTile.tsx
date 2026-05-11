@@ -176,6 +176,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   <Button
                     className={styles.createButton}
                     icon={'add'}
+                    design={'Emphasized'}
                     onClick={() => {
                       analytics?.trackEvent('Create MCP Button Clicked', {
                         location: 'workspace_empty_state',
@@ -193,7 +194,6 @@ export function ControlPlaneListWorkspaceGridTile({
                     <Button
                       className={styles.createButton}
                       icon={'add'}
-                      design={'Emphasized'}
                       onClick={() => {
                         analytics?.trackEvent('Create MCP Button Clicked', {
                           location: 'workspace_empty_state',
