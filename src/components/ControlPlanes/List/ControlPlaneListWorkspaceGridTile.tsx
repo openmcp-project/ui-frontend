@@ -173,6 +173,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   <Button
                     className={styles.createButton}
                     icon={'add'}
+                    design={'Emphasized'}
                     onClick={() => {
                       setIsCreateManagedControlPlaneWizardOpen(true);
                     }}
@@ -184,7 +185,6 @@ export function ControlPlaneListWorkspaceGridTile({
                     <Button
                       className={styles.createButton}
                       icon={'add'}
-                      design={'Emphasized'}
                       onClick={() => {
                         setIsCreateManagedControlPlaneWizardOpenV2(true);
                       }}
