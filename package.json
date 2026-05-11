@@ -82,7 +82,7 @@
     "react-i18next": "17.0.4",
     "react-router-dom": "7.14.2",
     "react-time-ago": "7.4.4",
-    "rolldown": "^1.0.0-rc.17",
+    "rolldown": "1.0.0-rc.17",
     "swr": "2.4.1",
     "yaml": "2.8.3",
     "zod": "4.3.6"
