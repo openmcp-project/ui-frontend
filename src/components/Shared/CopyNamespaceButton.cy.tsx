@@ -1,18 +1,28 @@
 import { CopyNamespaceButton } from './CopyNamespaceButton.tsx';
 import '@ui5/webcomponents-cypress-commands';
+import { CopyButtonProvider } from '../../context/CopyButtonContext.tsx';
+import { ToastProvider } from '../../context/ToastContext.tsx';
 
 describe('CopyNamespaceButton', () => {
   const testNamespace = 'project-test--ws-workspace';
 
+  const mountWithProviders = (component: React.ReactElement) => {
+    return cy.mount(
+      <ToastProvider>
+        <CopyButtonProvider>{component}</CopyButtonProvider>
+      </ToastProvider>,
+    );
+  };
+
   it('renders with copy icon only when not hovered', () => {
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     // Button should be visible
     cy.get('ui5-button[icon="copy"]').should('exist');
   });
 
   it('expands to show namespace text on hover', () => {
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     // Get the button
     const button = cy.get('ui5-button[icon="copy"]');
@@ -26,7 +36,7 @@ describe('CopyNamespaceButton', () => {
   });
 
   it('collapses when mouse leaves', () => {
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
 
@@ -57,7 +67,7 @@ describe('CopyNamespaceButton', () => {
       });
     });
 
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
 
@@ -72,14 +82,14 @@ describe('CopyNamespaceButton', () => {
   });
 
   it('displays namespace as tooltip', () => {
-    cy.mount(<CopyNamespaceButton namespace={testNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     cy.get('ui5-button[icon="copy"]').should('have.attr', 'tooltip', testNamespace);
   });
 
   it('handles long namespace strings', () => {
     const longNamespace = 'project-very-long-project-name--ws-very-long-workspace-name';
-    cy.mount(<CopyNamespaceButton namespace={longNamespace} />);
+    mountWithProviders(<CopyNamespaceButton namespace={testNamespace} />);
 
     const button = cy.get('ui5-button[icon="copy"]');
 
