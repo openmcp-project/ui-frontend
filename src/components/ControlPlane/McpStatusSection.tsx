@@ -1,5 +1,4 @@
 import { FlexBox } from '@ui5/webcomponents-react';
-import { useTranslation } from 'react-i18next';
 import MCPHealthPopoverButton from './MCPHealthPopoverButton.tsx';
 import { ControlPlaneCondition } from '../../spaces/onboarding/types/ControlPlane.ts';
 
@@ -18,8 +17,6 @@ interface McpStatusSectionProps {
 }
 
 export function McpStatusSection({ mcpStatus, projectName, workspaceName, mcpName }: McpStatusSectionProps) {
-  const { t } = useTranslation();
-
   return (
     <FlexBox direction={'Column'}>
       <MCPHealthPopoverButton

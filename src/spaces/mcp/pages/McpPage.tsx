@@ -32,7 +32,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState, useCallback, useContext } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -50,8 +50,6 @@ import { ComponentsDashboard } from '../components/ComponentsDashboard/Component
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 import { useSplitter } from '../../../components/Splitter/SplitterContext.tsx';
 import { YamlSidePanelWithLoader } from '../../../components/Yaml/YamlSidePanelWithLoader.tsx';
-import { ApiConfigContext } from '../../../components/Shared/k8s';
-import { ResourceHealthBar } from '../../../components/ControlPlane/ResourceHealthBar/ResourceHealthBar.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -61,20 +59,10 @@ export default function McpPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { openInAside } = useSplitter();
-  const apiConfig = useContext(ApiConfigContext);
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
-  const [providersCount, setProvidersCount] = useState(0);
-  const [providerConfigsCount, setProviderConfigsCount] = useState(0);
-  const [managedResourcesCount, setManagedResourcesCount] = useState(0);
-  const [providersHealthStats, setProvidersHealthStats] = useState({ installed: 0, healthy: 0, total: 0 });
-  const [managedResourcesHealthStats, setManagedResourcesHealthStats] = useState({
-    ready: 0,
-    synced: 0,
-    total: 0,
-  });
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
