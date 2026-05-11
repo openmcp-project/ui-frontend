@@ -14,7 +14,7 @@ import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
-import { CopyNamespaceButton } from '../../Shared/CopyNamespaceButton.tsx';
+import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
@@ -117,19 +117,18 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: 'auto 0.24fr auto',
+                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
                 gap: '1rem',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Title level="H3">
-                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-                </Title>
-                <CopyNamespaceButton namespace={workspace.status?.namespace || '-'} />
-              </div>
+              <Title level="H3">
+                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+              </Title>
+
+              <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
 
               <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
