@@ -54,11 +54,12 @@ describe('CopyNamespaceButton', () => {
 
   it('shows success state when clicked', () => {
     cy.window().then((win) => {
-      // Stub clipboard with actual Promise functions
+      // Stub clipboard BEFORE mounting
+      const writeTextStub = cy.stub().resolves();
       Object.defineProperty(win.navigator, 'clipboard', {
         value: {
-          writeText: () => Promise.resolve(),
-          readText: () => Promise.resolve(''),
+          writeText: writeTextStub,
+          readText: cy.stub().resolves(''),
         },
         writable: true,
         configurable: true,
@@ -74,9 +75,12 @@ describe('CopyNamespaceButton', () => {
     cy.wait(350);
     button.click();
 
-    // Should show positive design and success message
-    cy.get('ui5-button[design="Positive"]', { timeout: 10000 }).should('exist');
-    cy.get('ui5-button[design="Positive"]').should('contain.text', 'common.copyToClipboardSuccessToast');
+    // Wait for the async operation and state update
+    cy.wait(500);
+
+    // Check if design changed to Positive
+    button.should('have.attr', 'design', 'Positive');
+    button.should('contain.text', 'Copied to clipboard');
   });
 
   it('displays namespace as tooltip', () => {
