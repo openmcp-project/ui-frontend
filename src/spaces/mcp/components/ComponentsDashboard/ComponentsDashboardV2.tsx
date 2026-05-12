@@ -1,6 +1,8 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 
 import { MessageStrip, Panel } from '@ui5/webcomponents-react';
+import { useState } from 'react';
+import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
@@ -21,6 +23,8 @@ export interface ComponentsDashboardV2Props {
   fluxData: UseFluxQueryResult['fluxData'];
   esoData: UseEsoQueryResult['esoData'];
   hasQueryError?: boolean;
+  mcpName: string;
+  mcpNamespace: string;
 }
 
 export function ComponentsDashboardV2({
@@ -30,8 +34,11 @@ export function ComponentsDashboardV2({
   fluxData,
   esoData,
   hasQueryError,
+  mcpName,
+  mcpNamespace,
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
+  const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
 
   const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
   const crossplaneVersion = crossplaneData?.version ?? '';
@@ -62,6 +69,7 @@ export function ComponentsDashboardV2({
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
+          onInstallButtonClick={!isCrossplaneInstalled ? () => setIsCrossplaneDialogOpen(true) : undefined}
         />
         <ComponentCard
           isV2
@@ -94,6 +102,12 @@ export function ComponentsDashboardV2({
           onNavigateToComponentSection={undefined}
         />
       </div>
+      <CrossplaneInstallDialog
+        open={isCrossplaneDialogOpen}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        onClose={() => setIsCrossplaneDialogOpen(false)}
+      />
     </Panel>
   );
 }

@@ -206,6 +206,8 @@ export default function McpPageV2() {
                     landscaperData={landscaperData}
                     esoData={esoData}
                     hasQueryError={hasComponentQueryError}
+                    mcpName={controlPlaneName ?? ''}
+                    mcpNamespace={namespace ?? ''}
                     onNavigateToMcpSection={setTabFromSection}
                   />
                 </ObjectPageSubSection>

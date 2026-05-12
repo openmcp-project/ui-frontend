@@ -133,6 +133,11 @@
   "ComponentsSelection": {
     "chooseVersion": "Please select version"
   },
+  "CrossplaneInstallDialog": {
+    "title": "Install Crossplane",
+    "crossplaneVersion": "Crossplane Version",
+    "providers": "Providers"
+  },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
     "subtitleMessage": "Get started by creating your first Control Plane.",

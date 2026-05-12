@@ -47,11 +47,17 @@ export function ComponentCard({
       onClick={canNavigateToComponentDetails ? onNavigateToComponentSection : undefined}
     >
       <div className={styles.cardContent}>
-        {isV2 && isInstalled && (
+        {isV2 && (
           <FlexBox justifyContent="Start" alignItems="End">
-            <ObjectStatus className={styles.status} state="Positive" showDefaultIcon>
-              {t('Kpi.installed')}
-            </ObjectStatus>
+            {isInstalled ? (
+              <ObjectStatus className={styles.status} state="Positive" showDefaultIcon>
+                {t('Kpi.installed')}
+              </ObjectStatus>
+            ) : onInstallButtonClick ? (
+              <Button className={styles.status} icon="sap-icon://add-product" onClick={onInstallButtonClick}>
+                {t('ComponentCard.installButton', { component: name })}
+              </Button>
+            ) : null}
           </FlexBox>
         )}
 

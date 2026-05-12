@@ -1,0 +1,40 @@
+.content {
+  min-width: 480px;
+  padding: 1rem;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitle + .sectionTitle {
+  margin-top: 1.5rem;
+}
+
+.versionSelect {
+  width: 100%;
+}
+
+.providerList {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+}
+
+.providerRow {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.providerRow:last-child {
+  border-bottom: none;
+}
+
+.providerRow:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.providerVersionSelect {
+  min-width: 160px;
+}
