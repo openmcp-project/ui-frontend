@@ -32,16 +32,16 @@ export function ComponentsDashboardV2({
   const { t } = useTranslation();
 
   const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
-  const crossplaneVersion = crossplaneData?.version ?? '';
+  const crossplaneVersion = crossplaneData?.version;
 
   const isLandscaperInstalled = !!landscaperData?.isInstalled;
-  const landscaperVersion = landscaperData?.version ?? '';
+  const landscaperVersion = landscaperData?.version;
 
   const isFluxInstalled = !!fluxData?.isInstalled;
-  const fluxVersion = fluxData?.version ?? '';
+  const fluxVersion = fluxData?.version;
 
   const isEsoInstalled = !!esoData?.isInstalled;
-  const esoVersion = esoData?.version ?? '';
+  const esoVersion = esoData?.version;
 
   return (
     <Panel fixed>
