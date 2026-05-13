@@ -80,6 +80,12 @@ npm run dev                                           # http://localhost:5173
 
 Safari on `localhost` has a cookie/CSP quirk — see README.md ("Safari Support") for the manual `secure: false` + helmet workaround. Do not commit those edits.
 
+### Claude Code hooks + nvm
+
+Hooks are invoked as `node .claude/hooks/*.mjs` (cross-platform). But `/bin/sh` and `cmd` don't inherit nvm/fnm PATH, so `node` must be reachable without an interactive shell.
+
+**Fix:** macOS/Linux: `ln -sf "$(nvm which default)" /usr/local/bin/node` · Windows: add nvm's Node directory to the **system** PATH (not just user profile).
+
 ## Compliance
 
 - SAP OSS project, Apache-2.0. `REUSE.toml` sets a repo-wide default (`SPDX-FileCopyrightText: 2025 SAP SE … contributors`, `SPDX-License-Identifier: Apache-2.0`) with `precedence = "closest"`, so most new files inherit headers automatically. If you add a file in a directory with explicit per-file headers (check neighbors), match that style. Third-party files go under `LICENSES/`.
