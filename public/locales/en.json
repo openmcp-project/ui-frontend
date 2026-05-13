@@ -136,7 +136,10 @@
   "CrossplaneInstallDialog": {
     "title": "Install Crossplane",
     "crossplaneVersion": "Crossplane Version",
-    "providers": "Providers"
+    "providers": "Providers",
+    "successTitle": "Crossplane Installed",
+    "successSubtitle": "Crossplane has been successfully installed on your control plane.",
+    "errorMessage": "Failed to install Crossplane. Please try again."
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",

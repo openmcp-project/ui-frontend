@@ -1,12 +1,12 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 
-import { MessageStrip, Panel } from '@ui5/webcomponents-react';
+import { Panel } from '@ui5/webcomponents-react';
 import { useState } from 'react';
-import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
+import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 import type { UseCrossplaneQueryResult } from '../Kpi/useCrossplaneQuery.ts';
 import type { UseEsoQueryResult } from '../Kpi/useEsoQuery.ts';
 import type { UseFluxQueryResult } from '../Kpi/useFluxQuery.ts';
@@ -54,11 +54,6 @@ export function ComponentsDashboardV2({
 
   return (
     <Panel fixed>
-      {hasQueryError && (
-        <MessageStrip design="Critical" hideCloseButton>
-          {t('Kpi.error')}
-        </MessageStrip>
-      )}
       <div className={styles['container-v2']}>
         <ComponentCard
           isV2
