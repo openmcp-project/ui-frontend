@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
 import styles from './ComponentCard.module.css';
 
+const prefixVersion = (version: string) => (version.includes('v') ? version : `v${version}`);
+
 export type ComponentCardProps = KpiProps & {
   name: string;
   description: string;
@@ -30,7 +32,7 @@ export function ComponentCard({
   const { t } = useTranslation();
 
   const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection;
-  const prefixedVersion = version ? `v${version}` : undefined;
+  const prefixedVersion = version ? prefixVersion(version) : undefined;
 
   return (
     <Card
