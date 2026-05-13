@@ -2,6 +2,9 @@
   cursor: pointer;
 }
 
+.cardNoninteractive {
+}
+
 .avatar {
   border-radius: 0;
 }

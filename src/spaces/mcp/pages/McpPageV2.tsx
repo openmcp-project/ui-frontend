@@ -205,7 +205,6 @@ export default function McpPageV2() {
                     fluxData={fluxData}
                     landscaperData={landscaperData}
                     esoData={esoData}
-                    hasQueryError={hasComponentQueryError}
                     onNavigateToMcpSection={setTabFromSection}
                   />
                 </ObjectPageSubSection>

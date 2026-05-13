@@ -4,12 +4,3 @@
   grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
   gap: 1.5rem;
 }
-
-.container-v2 {
-  padding-inline: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 1rem;
-}
