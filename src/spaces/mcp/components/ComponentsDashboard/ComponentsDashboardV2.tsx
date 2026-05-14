@@ -7,10 +7,6 @@ import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
-import type { UseCrossplaneQueryResult } from '../Kpi/useCrossplaneQuery.ts';
-import type { UseEsoQueryResult } from '../Kpi/useEsoQuery.ts';
-import type { UseFluxQueryResult } from '../Kpi/useFluxQuery.ts';
-import type { UseLandscaperQueryResult } from '../Kpi/useLandscaperQuery.ts';
 
 import { useTranslation } from 'react-i18next';
 import type { McpPageSectionId } from '../../pages/McpPage.tsx';
@@ -26,6 +22,8 @@ export interface ComponentsDashboardV2Props {
   landscaperData: LandscaperData | null;
   fluxData: FluxData | null;
   esoData: EsoData | null;
+  mcpName: string;
+  mcpNamespace: string;
 }
 
 export function ComponentsDashboardV2({
@@ -33,8 +31,7 @@ export function ComponentsDashboardV2({
   crossplaneData,
   landscaperData,
   fluxData,
-  esoData,
-  hasQueryError,
+
   mcpName,
   mcpNamespace,
 }: ComponentsDashboardV2Props) {

@@ -2,8 +2,7 @@ import { Button, Card, CardHeader, FlexBox } from '@ui5/webcomponents-react';
 import { ObjectStatus } from '@ui5/webcomponents-react/wrappers';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
-import { clsx } from 'clsx';
-import { useTranslation } from 'react-i18next';
+
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
 import styles from './ComponentCard.module.css';
 
