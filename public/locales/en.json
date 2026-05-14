@@ -391,6 +391,8 @@
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
+    "cancel": "Cancel",
+    "applyChanges": "Apply Changes",
     "created": "Created",
     "cannotLoadData": "Cannot load data",
     "file": "File",

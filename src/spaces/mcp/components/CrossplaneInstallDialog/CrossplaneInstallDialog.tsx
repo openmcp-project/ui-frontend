@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client/react';
+import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
 import IllustrationMessageDesign from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageDesign.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
-import '@ui5/webcomponents-fiori/dist/illustrations/AllIllustrations.js';
 import {
   Bar,
   Button,

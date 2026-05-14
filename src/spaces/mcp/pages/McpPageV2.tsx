@@ -204,15 +204,8 @@ export default function McpPageV2() {
                     fluxData={fluxData}
                     landscaperData={landscaperData}
                     esoData={esoData}
-                    hasQueryError={hasComponentQueryError}
                     mcpName={controlPlaneName ?? ''}
                     mcpNamespace={namespace ?? ''}
-                    onNavigateToMcpSection={setTabFromSection}/>
-                  <ComponentsDashboardV2
-                    crossplaneData={crossplaneData}
-                    fluxData={fluxData}
-                    landscaperData={landscaperData}
-                    esoData={esoData}
                     onNavigateToMcpSection={setTabFromSection}
                   />
                 </ObjectPageSubSection>

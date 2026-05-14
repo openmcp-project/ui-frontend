@@ -31,7 +31,7 @@ export function ComponentsDashboardV2({
   crossplaneData,
   landscaperData,
   fluxData,
-
+  esoData,
   mcpName,
   mcpNamespace,
 }: ComponentsDashboardV2Props) {
