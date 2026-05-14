@@ -122,6 +122,21 @@ describe('useCrossplaneQuery', () => {
     expect(result.current.isLoading).toBe(true);
   });
 
+  it('returns null crossplaneData and warns when Crossplane data fails schema validation', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // metadata is required by CrossplaneSchema — omitting it triggers a validation failure
+    useQueryMock.mockReturnValue(makeQueryResult({ kind: 'Crossplane', spec: { version: '1.14.0' } }));
+
+    const { result } = renderHook(() => useCrossplaneQuery('my-cp', 'project-foo--ws-bar'));
+
+    expect(result.current.crossplaneData).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[useCrossplaneQuery] Validation failed:',
+      expect.anything(),
+    );
+    warnSpy.mockRestore();
+  });
+
   it('forwards the Apollo error from the query result', () => {
     const apolloError = new Error('Network error');
     useQueryMock.mockReturnValue({
