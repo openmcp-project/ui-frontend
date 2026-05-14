@@ -14,17 +14,18 @@ import type { UseLandscaperQueryResult } from '../Kpi/useLandscaperQuery.ts';
 
 import { useTranslation } from 'react-i18next';
 import type { McpPageSectionId } from '../../pages/McpPage.tsx';
+import type { CrossplaneData } from '../../types/Crossplane.ts';
+import type { EsoData } from '../../types/Eso.ts';
+import type { FluxData } from '../../types/Flux.ts';
+import type { LandscaperData } from '../../types/Landscaper.ts';
 import styles from './ComponentsDashboard.module.css';
 
 export interface ComponentsDashboardV2Props {
   onNavigateToMcpSection: (sectionId: McpPageSectionId) => void;
-  crossplaneData: UseCrossplaneQueryResult['crossplaneData'];
-  landscaperData: UseLandscaperQueryResult['landscaperData'];
-  fluxData: UseFluxQueryResult['fluxData'];
-  esoData: UseEsoQueryResult['esoData'];
-  hasQueryError?: boolean;
-  mcpName: string;
-  mcpNamespace: string;
+  crossplaneData: CrossplaneData | null;
+  landscaperData: LandscaperData | null;
+  fluxData: FluxData | null;
+  esoData: EsoData | null;
 }
 
 export function ComponentsDashboardV2({
@@ -40,21 +41,21 @@ export function ComponentsDashboardV2({
   const { t } = useTranslation();
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
 
-  const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
-  const crossplaneVersion = crossplaneData?.version ?? '';
+  const isCrossplaneInstalled = !!crossplaneData?.version;
+  const crossplaneVersion = crossplaneData?.version ?? undefined;
 
-  const isLandscaperInstalled = !!landscaperData?.isInstalled;
-  const landscaperVersion = landscaperData?.version ?? '';
+  const isLandscaperInstalled = !!landscaperData?.version;
+  const landscaperVersion = landscaperData?.version ?? undefined;
 
-  const isFluxInstalled = !!fluxData?.isInstalled;
-  const fluxVersion = fluxData?.version ?? '';
+  const isFluxInstalled = !!fluxData?.version;
+  const fluxVersion = fluxData?.version ?? undefined;
 
-  const isEsoInstalled = !!esoData?.isInstalled;
-  const esoVersion = esoData?.version ?? '';
+  const isEsoInstalled = !!esoData?.version;
+  const esoVersion = esoData?.version ?? undefined;
 
   return (
     <Panel fixed>
-      <div className={styles['container-v2']}>
+      <div className={styles['container']}>
         <ComponentCard
           isV2
           name="Crossplane"

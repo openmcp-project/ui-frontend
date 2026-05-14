@@ -1,6 +1,9 @@
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
+import { z } from 'zod';
+
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+import { EsoData, EsoSchema } from '../../types/Eso.ts';
 
 const GET_ESO_QUERY = graphql(`
   query GetExternalSecretsOperator($name: String!, $namespace: String) {
@@ -28,16 +31,7 @@ const GET_ESO_QUERY = graphql(`
   }
 `);
 
-export interface UseEsoQueryResult {
-  esoData: {
-    isInstalled: boolean;
-    version: string | null;
-  } | null;
-  isLoading: boolean;
-  error: unknown | null;
-}
-
-export function useEsoQuery(name?: string, namespace?: string): UseEsoQueryResult {
+export function useEsoQuery(name?: string, namespace?: string) {
   const queryResult = useQuery(GET_ESO_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -46,19 +40,23 @@ export function useEsoQuery(name?: string, namespace?: string): UseEsoQueryResul
 
   const rawEso = queryResult.data?.external_secrets_services_openmcp_cloud?.v1alpha1?.ExternalSecretsOperator;
 
-  const data = useMemo(() => {
-    if (!rawEso) {
+  const esoData = useMemo<EsoData | null>(() => {
+    if (!rawEso) return null;
+    const result = EsoSchema.safeParse(rawEso);
+    if (!result.success) {
+      console.warn('[useEsoQuery] Validation failed:', z.treeifyError(result.error));
       return null;
     }
-
+    const { spec } = result.data;
+    const version = spec?.version ?? null;
     return {
-      isInstalled: true,
-      version: rawEso.spec?.version ?? null,
+      isInstalled: !!version,
+      version,
     };
   }, [rawEso]);
 
   return {
-    esoData: data,
+    esoData,
     isLoading: queryResult.loading,
     error: queryResult.error,
   };
