@@ -130,10 +130,7 @@ describe('useCrossplaneQuery', () => {
     const { result } = renderHook(() => useCrossplaneQuery('my-cp', 'project-foo--ws-bar'));
 
     expect(result.current.crossplaneData).toBeNull();
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[useCrossplaneQuery] Validation failed:',
-      expect.anything(),
-    );
+    expect(warnSpy).toHaveBeenCalledWith('[useCrossplaneQuery] Validation failed:', expect.anything());
     warnSpy.mockRestore();
   });
 

@@ -45,7 +45,6 @@ export function ComponentCard({
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}
       onClick={canNavigateToComponentDetails ? onNavigateToComponentSection : undefined}
     >
-            </ObjectStatus>
       <div
         className={clsx(
           styles.content,

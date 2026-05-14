@@ -71,11 +71,10 @@ export default function McpPageV2() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData, error: crossplaneError } = useCrossplaneQuery(controlPlaneName, namespace);
-  const { fluxData, error: fluxError } = useFluxQuery(controlPlaneName, namespace);
-  const { landscaperData, error: landscaperError } = useLandscaperQuery(controlPlaneName, namespace);
-  const { esoData, error: esoError } = useEsoQuery(controlPlaneName, namespace);
-  const hasComponentQueryError = !!(crossplaneError || fluxError || landscaperError || esoError);
+  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
+  const { esoData } = useEsoQuery(controlPlaneName, namespace);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
