@@ -31,16 +31,16 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
 
-  const isCrossplaneInstalled = !!crossplaneData?.isInstalled;
+  const isCrossplaneInstalled = !!crossplaneData?.version;
   const crossplaneVersion = crossplaneData?.version;
 
-  const isLandscaperInstalled = !!landscaperData?.isInstalled;
+  const isLandscaperInstalled = !!landscaperData?.version;
   const landscaperVersion = landscaperData?.version;
 
-  const isFluxInstalled = !!fluxData?.isInstalled;
+  const isFluxInstalled = !!fluxData?.version;
   const fluxVersion = fluxData?.version;
 
-  const isEsoInstalled = !!esoData?.isInstalled;
+  const isEsoInstalled = !!esoData?.version;
   const esoVersion = esoData?.version;
 
   return (

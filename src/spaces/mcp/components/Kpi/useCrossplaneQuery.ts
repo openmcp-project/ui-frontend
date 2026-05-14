@@ -53,9 +53,10 @@ export function useCrossplaneQuery(name?: string, namespace?: string) {
       return null;
     }
     const { spec } = result.data;
+    const version = spec?.version ?? null;
     return {
-      isInstalled: true,
-      version: spec?.version ?? null,
+      isInstalled: !!version,
+      version,
       providers: (spec?.providers ?? []).flatMap((p) =>
         p ? [{ name: p.name ?? null, version: p.version ?? null }] : [],
       ),

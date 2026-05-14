@@ -1,6 +1,9 @@
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
+import { z } from 'zod';
+
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+import { LandscaperData, LandscaperSchema } from '../../types/Landscaper.ts';
 
 const GET_LANDSCAPER_QUERY = graphql(`
   query GetLandscaper($name: String!, $namespace: String) {
@@ -29,16 +32,7 @@ const GET_LANDSCAPER_QUERY = graphql(`
   }
 `);
 
-export interface UseLandscaperQueryResult {
-  landscaperData: {
-    isInstalled: boolean;
-    version: string | null;
-  } | null;
-  isLoading: boolean;
-  error: unknown | null;
-}
-
-export function useLandscaperQuery(name?: string, namespace?: string): UseLandscaperQueryResult {
+export function useLandscaperQuery(name?: string, namespace?: string) {
   const queryResult = useQuery(GET_LANDSCAPER_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -47,19 +41,23 @@ export function useLandscaperQuery(name?: string, namespace?: string): UseLandsc
 
   const rawLandscaper = queryResult.data?.landscaper_services_openmcp_cloud?.v1alpha2?.Landscaper;
 
-  const data = useMemo(() => {
-    if (!rawLandscaper) {
+  const landscaperData = useMemo<LandscaperData | null>(() => {
+    if (!rawLandscaper) return null;
+    const result = LandscaperSchema.safeParse(rawLandscaper);
+    if (!result.success) {
+      console.warn('[useLandscaperQuery] Validation failed:', z.treeifyError(result.error));
       return null;
     }
-
+    const { spec } = result.data;
+    const version = spec?.version ?? null;
     return {
-      isInstalled: true,
-      version: rawLandscaper.spec?.version ?? null,
+      isInstalled: !!version,
+      version,
     };
   }, [rawLandscaper]);
 
   return {
-    landscaperData: data,
+    landscaperData,
     isLoading: queryResult.loading,
     error: queryResult.error,
   };
