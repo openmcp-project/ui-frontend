@@ -16,6 +16,7 @@ export type ComponentCardProps = KpiProps & {
   version?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
+  onEditButtonClick?: () => void;
 };
 
 export function ComponentCard({
@@ -23,10 +24,10 @@ export function ComponentCard({
   description,
   logoImgSrc,
   isInstalled,
-  isV2 = false,
   version,
   onNavigateToComponentSection,
   onInstallButtonClick,
+  onEditButtonClick,
   ...props
 }: ComponentCardProps) {
   const { t } = useTranslation();
@@ -58,6 +59,18 @@ export function ComponentCard({
           {isInstalled ? (
             <div data-cy="kpi-container" className={styles.kpiContainer}>
               <Kpi {...props} />
+              {onEditButtonClick && (
+                <Button
+                  data-cy="edit-button"
+                  icon="sap-icon://edit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditButtonClick();
+                  }}
+                >
+                  {t('ComponentCard.editButton')}
+                </Button>
+              )}
             </div>
           ) : (
             <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>

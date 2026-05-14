@@ -37,6 +37,7 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
+  const [crossplaneDialogMode, setCrossplaneDialogMode] = useState<'install' | 'edit'>('install');
 
   const isCrossplaneInstalled = !!crossplaneData?.version;
   const crossplaneVersion = crossplaneData?.version ?? undefined;
@@ -62,7 +63,22 @@ export function ComponentsDashboardV2({
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
-          onInstallButtonClick={!isCrossplaneInstalled ? () => setIsCrossplaneDialogOpen(true) : undefined}
+          onInstallButtonClick={
+            !isCrossplaneInstalled
+              ? () => {
+                  setCrossplaneDialogMode('install');
+                  setIsCrossplaneDialogOpen(true);
+                }
+              : undefined
+          }
+          onEditButtonClick={
+            isCrossplaneInstalled
+              ? () => {
+                  setCrossplaneDialogMode('edit');
+                  setIsCrossplaneDialogOpen(true);
+                }
+              : undefined
+          }
         />
         <ComponentCard
           isV2
@@ -99,6 +115,8 @@ export function ComponentsDashboardV2({
         open={isCrossplaneDialogOpen}
         mcpName={mcpName}
         mcpNamespace={mcpNamespace}
+        mode={crossplaneDialogMode}
+        initialData={crossplaneData ?? undefined}
         onClose={() => setIsCrossplaneDialogOpen(false)}
       />
     </Panel>
