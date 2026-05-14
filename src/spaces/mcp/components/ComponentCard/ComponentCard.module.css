@@ -10,6 +10,7 @@
 }
 
 .content {
+  height: 2.5rem;
   padding: 1.5rem;
   display: flex;
 }
@@ -25,14 +26,4 @@
   width: 100%;
   display: flex;
   align-items: center;
-}
-
-.status {
-  margin-left: 1.5rem;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-}
-
-.cardContent {
-  min-height: 28px;
 }
