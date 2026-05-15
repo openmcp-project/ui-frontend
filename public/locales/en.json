@@ -144,7 +144,8 @@
     "errorMessage": "Failed to install Crossplane. Please try again.",
     "successTitleEdit": "Crossplane Updated",
     "successSubtitleEdit": "Crossplane has been successfully updated on your control plane.",
-    "errorMessageEdit": "Failed to update Crossplane. Please try again."
+    "errorMessageEdit": "Failed to update Crossplane. Please try again.",
+    "yamlPreview": "YAML Preview"
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",

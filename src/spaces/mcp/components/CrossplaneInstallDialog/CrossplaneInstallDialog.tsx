@@ -21,6 +21,8 @@ import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
+import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import { useManagedServicesQuery } from '../Kpi/useManagedServicesQuery.ts';
@@ -53,7 +55,8 @@ export function CrossplaneInstallDialog({
   const [updateCrossplane] = useMutation(UpdateCrossplaneMutation);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const crossplaneVersions = useMemo(() => services.find((s) => s.name === 'crossplane')?.versions ?? [], [services]);
+  const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
+  const crossplaneVersions = useMemo(() => crossplaneService?.versions ?? [], [crossplaneService]);
 
   const schema = useMemo(() => createCrossplaneInstallSchema(t), [t]);
   const {
@@ -172,6 +175,23 @@ export function CrossplaneInstallDialog({
 
   const isEditMode = mode === 'edit';
 
+  const yamlPreview = useMemo(() => {
+    const selectedProviders = providerStates
+      .filter((p) => p.isSelected)
+      .map(({ name, selectedVersion }) => ({ name, version: selectedVersion || '<provider-version>' }));
+
+    const resource: Record<string, unknown> = {
+      apiVersion: crossplaneService?.apiVersion ?? 'crossplane.services.openmcp.cloud/v1alpha1',
+      kind: crossplaneService?.kind ?? 'Crossplane',
+      metadata: { name: mcpName, namespace: mcpNamespace },
+      spec: {
+        version: crossplaneVersion || '<crossplane-version>',
+        ...(selectedProviders.length > 0 && { providers: selectedProviders }),
+      },
+    };
+    return stringify(resource);
+  }, [crossplaneService, crossplaneVersion, providerStates, mcpName, mcpNamespace]);
+
   return (
     <Dialog
       stretch={false}
@@ -216,74 +236,84 @@ export function CrossplaneInstallDialog({
         </div>
       ) : (
         <div className={styles.content}>
-          <Title level="H5" className={styles.sectionTitle}>
-            {t('CrossplaneInstallDialog.crossplaneVersion')}
-          </Title>
-          <Select
-            className={styles.versionSelect}
-            valueState={errors.crossplaneVersion ? 'Negative' : 'None'}
-            valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
-            onChange={handleVersionChange}
-          >
-            {!crossplaneVersion && (
-              <Option data-version="" selected>
-                {t('ComponentsSelection.chooseVersion')}
-              </Option>
-            )}
-            {crossplaneVersions.map(({ version }) => (
-              <Option key={version} data-version={version} selected={crossplaneVersion === version}>
-                {version}
-              </Option>
-            ))}
-          </Select>
+          <div className={styles.formColumn}>
+            <Title level="H5" className={styles.sectionTitle}>
+              {t('CrossplaneInstallDialog.crossplaneVersion')}
+            </Title>
+            <Select
+              className={styles.versionSelect}
+              valueState={errors.crossplaneVersion ? 'Negative' : 'None'}
+              valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
+              onChange={handleVersionChange}
+            >
+              {!crossplaneVersion && (
+                <Option data-version="" selected>
+                  {t('ComponentsSelection.chooseVersion')}
+                </Option>
+              )}
+              {crossplaneVersions.map(({ version }) => (
+                <Option key={version} data-version={version} selected={crossplaneVersion === version}>
+                  {version}
+                </Option>
+              ))}
+            </Select>
 
-          <Title level="H5" className={styles.sectionTitle}>
-            {t('CrossplaneInstallDialog.providers')}
-          </Title>
-          <div className={styles.providerList}>
-            {providerStates.map((provider, index) => {
-              const providerVersions = crossplaneProviders.find((p) => p.name === provider.name)?.versions ?? [];
-              const versionError = errors.providerStates?.[index]?.selectedVersion;
-              return (
-                <FlexBox
-                  key={provider.name}
-                  justifyContent="SpaceBetween"
-                  alignItems="Center"
-                  className={styles.providerRow}
-                >
-                  <CheckBox
-                    id={provider.name}
-                    text={provider.name}
-                    checked={provider.isSelected}
-                    disabled={!crossplaneVersion}
-                    onChange={handleProviderToggle}
-                  />
-                  <Select
-                    className={styles.providerVersionSelect}
-                    disabled={!provider.isSelected}
-                    valueState={versionError ? 'Negative' : 'None'}
-                    valueStateMessage={versionError ? <span>{versionError.message}</span> : undefined}
-                    onChange={handleProviderVersionChange}
+            <Title level="H5" className={styles.sectionTitle}>
+              {t('CrossplaneInstallDialog.providers')}
+            </Title>
+            <div className={styles.providerList}>
+              {providerStates.map((provider, index) => {
+                const providerVersions = crossplaneProviders.find((p) => p.name === provider.name)?.versions ?? [];
+                const versionError = errors.providerStates?.[index]?.selectedVersion;
+                return (
+                  <FlexBox
+                    key={provider.name}
+                    justifyContent="SpaceBetween"
+                    alignItems="Center"
+                    className={styles.providerRow}
                   >
-                    {!provider.selectedVersion && (
-                      <Option data-name={provider.name} data-version="" selected>
-                        {t('ComponentsSelection.chooseVersion')}
-                      </Option>
-                    )}
-                    {providerVersions.map(({ version }) => (
-                      <Option
-                        key={version}
-                        data-name={provider.name}
-                        data-version={version}
-                        selected={provider.selectedVersion === version}
-                      >
-                        {version}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
-              );
-            })}
+                    <CheckBox
+                      id={provider.name}
+                      text={provider.name}
+                      checked={provider.isSelected}
+                      disabled={!crossplaneVersion}
+                      onChange={handleProviderToggle}
+                    />
+                    <Select
+                      className={styles.providerVersionSelect}
+                      disabled={!provider.isSelected}
+                      valueState={versionError ? 'Negative' : 'None'}
+                      valueStateMessage={versionError ? <span>{versionError.message}</span> : undefined}
+                      onChange={handleProviderVersionChange}
+                    >
+                      {!provider.selectedVersion && (
+                        <Option data-name={provider.name} data-version="" selected>
+                          {t('ComponentsSelection.chooseVersion')}
+                        </Option>
+                      )}
+                      {providerVersions.map(({ version }) => (
+                        <Option
+                          key={version}
+                          data-name={provider.name}
+                          data-version={version}
+                          selected={provider.selectedVersion === version}
+                        >
+                          {version}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FlexBox>
+                );
+              })}
+            </div>
+          </div>
+          <div className={styles.yamlColumn}>
+            <Title level="H5" className={styles.sectionTitle}>
+              {t('CrossplaneInstallDialog.yamlPreview')}
+            </Title>
+            <div className={styles.yamlViewer}>
+              <YamlViewer yamlString={yamlPreview} filename={mcpName} />
+            </div>
           </div>
         </div>
       )}
