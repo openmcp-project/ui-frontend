@@ -247,7 +247,7 @@
     "fluxTitle": "Flux",
     "gitRepositoriesTitle": "GitRepositories",
     "kustomizationsTitle": "Kustomizations",
-    "landscapersTitle": "Landscapers",
+    "landscapersTitle": "Landscaper",
     "configMapsTitle": "ConfigMaps",
     "secretsTitle": "Secrets",
     "secretTypeHeader": "Type"
