@@ -70,7 +70,7 @@ export function ComponentsDashboard({
           isInstalled={!!components?.landscaper}
           version={undefined} // Landscaper does not have a version
           kpiType="enabled"
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
+          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
           onInstallButtonClick={undefined}
         />
         <ComponentCard
