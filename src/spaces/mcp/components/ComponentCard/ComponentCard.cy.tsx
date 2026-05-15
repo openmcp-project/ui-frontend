@@ -1,4 +1,4 @@
-import { ComponentCard, ComponentCardProps } from './ComponentCard';
+import { ComponentCard, ComponentCardProps } from './ComponentCardV2';
 
 describe('ComponentCard', () => {
   const mount = (props: ComponentCardProps) => {

@@ -1,4 +1,4 @@
-import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
+import { ComponentCardV2 } from '../ComponentCard/ComponentCardV2.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
 import { useState } from 'react';
@@ -53,8 +53,8 @@ export function ComponentsDashboardV2({
 
   return (
     <Panel fixed>
-      <div className={styles['container']}>
-        <ComponentCard
+      <div className={styles['container-v2']}>
+        <ComponentCardV2
           isV2
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
@@ -80,7 +80,7 @@ export function ComponentsDashboardV2({
               : undefined
           }
         />
-        <ComponentCard
+        <ComponentCardV2
           isV2
           name="Flux"
           description={t('componentCardFlux.description')}
@@ -90,7 +90,7 @@ export function ComponentsDashboardV2({
           version={fluxVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
         />
-        <ComponentCard
+        <ComponentCardV2
           isV2
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
@@ -100,7 +100,7 @@ export function ComponentsDashboardV2({
           kpiType="enabled"
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
         />
-        <ComponentCard
+        <ComponentCardV2
           isV2
           name="External Secrets Operator"
           description={t('componentCardEso.description')}

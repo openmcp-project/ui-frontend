@@ -7,9 +7,8 @@
 
 .container-v2 {
   padding-inline: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   align-items: stretch;
   gap: 1rem;
 }

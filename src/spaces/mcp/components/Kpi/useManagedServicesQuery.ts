@@ -39,7 +39,7 @@ export interface UseManagedServicesQueryResult {
   isLoading: boolean;
   error: unknown | null;
 }
-
+// TODO: This mock data should be replaced with Custom Resource Definition (CRD) data fetched from the backend
 const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
   apiVersion: 'sap.openmcp.io/v1',
   kind: 'ManagedService',
