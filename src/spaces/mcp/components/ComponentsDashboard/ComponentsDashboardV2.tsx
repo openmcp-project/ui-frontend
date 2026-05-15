@@ -71,7 +71,7 @@ export function ComponentsDashboardV2({
           isInstalled={isLandscaperInstalled}
           version={landscaperVersion}
           kpiType="enabled"
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscapers')}
+          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
         />
         <ComponentCard
           name="External Secrets Operator"
