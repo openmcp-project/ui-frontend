@@ -274,11 +274,7 @@ export default function McpPage() {
               )}
 
               {isComponentInstalledLandscaper && (
-                <ObjectPageSection
-                  id="landscapers"
-                  titleText={t('McpPage.landscaperTitle')}
-                  className={styles.section}
-                >
+                <ObjectPageSection id="landscapers" titleText={t('McpPage.landscaperTitle')} className={styles.section}>
                   <Landscapers />
                 </ObjectPageSection>
               )}
