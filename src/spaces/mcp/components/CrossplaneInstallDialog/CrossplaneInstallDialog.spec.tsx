@@ -1,9 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { useMutation } from '@apollo/client/react';
-import { CrossplaneInstallDialog } from './CrossplaneInstallDialog.tsx';
-import { useManagedServicesQuery } from '../Kpi/useManagedServicesQuery.ts';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { MouseEventHandler, ReactNode } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
+import type { UseManagedServicesQueryResult } from '../Kpi/useManagedServicesQuery.ts';
+import { useManagedServicesQuery } from '../Kpi/useManagedServicesQuery.ts';
+import { CrossplaneInstallDialog } from './CrossplaneInstallDialog.tsx';
 import { CreateCrossplaneMutation } from './useCreateCrossplaneMutation.ts';
 import { UpdateCrossplaneMutation } from './useUpdateCrossplaneMutation.ts';
 
@@ -19,19 +21,35 @@ vi.mock('@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js', () => 
 vi.mock('@ui5/webcomponents/dist/types/ButtonDesign.js', () => ({ default: {} }));
 
 vi.mock('@ui5/webcomponents-react', () => ({
-  Dialog: ({ children, footer, open }: any) =>
+  Dialog: ({ children, footer, open }: { children?: ReactNode; footer?: ReactNode; open?: boolean }) =>
     open ? (
       <div data-testid="dialog">
         {children}
         {footer}
       </div>
     ) : null,
-  Bar: ({ endContent }: any) => <div>{endContent}</div>,
-  Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
-  FlexBox: ({ children }: any) => <div>{children}</div>,
-  Title: ({ children }: any) => <span>{children}</span>,
-  IllustratedMessage: ({ titleText }: any) => <div data-testid="illustrated-message">{titleText}</div>,
-  CheckBox: ({ id, text, checked, onChange, disabled }: any) => (
+  Bar: ({ endContent }: { endContent?: ReactNode }) => <div>{endContent}</div>,
+  Button: ({ children, onClick }: { children?: ReactNode; onClick?: MouseEventHandler }) => (
+    <button onClick={onClick}>{children}</button>
+  ),
+  FlexBox: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
+  Title: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
+  IllustratedMessage: ({ titleText }: { titleText?: string }) => (
+    <div data-testid="illustrated-message">{titleText}</div>
+  ),
+  CheckBox: ({
+    id,
+    text,
+    checked,
+    onChange,
+    disabled,
+  }: {
+    id?: string;
+    text?: string;
+    checked?: boolean;
+    onChange?: (e: { target: { id: string | undefined } }) => void;
+    disabled?: boolean;
+  }) => (
     <input
       type="checkbox"
       id={id}
@@ -41,7 +59,19 @@ vi.mock('@ui5/webcomponents-react', () => ({
       onChange={() => onChange?.({ target: { id } })}
     />
   ),
-  Select: ({ children, onChange, disabled, valueState, valueStateMessage, className }: any) => (
+  Select: ({
+    children,
+    onChange,
+    disabled,
+    className,
+  }: {
+    children?: ReactNode;
+    onChange?: (e: { detail: { selectedOption: HTMLOptionElement } }) => void;
+    disabled?: boolean;
+    valueState?: string;
+    valueStateMessage?: ReactNode;
+    className?: string;
+  }) => (
     <select
       disabled={!!disabled}
       className={className}
@@ -53,7 +83,15 @@ vi.mock('@ui5/webcomponents-react', () => ({
       {children}
     </select>
   ),
-  Option: ({ children, 'data-version': dataVersion, 'data-name': dataName }: any) => (
+  Option: ({
+    children,
+    'data-version': dataVersion,
+    'data-name': dataName,
+  }: {
+    children?: ReactNode;
+    'data-version'?: string;
+    'data-name'?: string;
+  }) => (
     <option value={dataVersion ?? ''} data-version={dataVersion} data-name={dataName}>
       {children}
     </option>
@@ -94,13 +132,14 @@ describe('CrossplaneInstallDialog', () => {
     createCrossplane = vi.fn().mockResolvedValue({});
     updateCrossplane = vi.fn().mockResolvedValue({});
 
-    vi.mocked(useMutation).mockImplementation((doc: any) => {
-      if (doc === CreateCrossplaneMutation) return [createCrossplane, {} as any];
-      if (doc === UpdateCrossplaneMutation) return [updateCrossplane, {} as any];
-      return [vi.fn(), {} as any];
-    });
+    vi.mocked(useMutation).mockImplementation(((doc: unknown) => {
+      const result = {} as useMutation.Result<unknown>;
+      if (doc === CreateCrossplaneMutation) return [createCrossplane, result];
+      if (doc === UpdateCrossplaneMutation) return [updateCrossplane, result];
+      return [vi.fn(), result];
+    }) as unknown as typeof useMutation);
 
-    vi.mocked(useManagedServicesQuery).mockReturnValue(MOCK_SERVICES as any);
+    vi.mocked(useManagedServicesQuery).mockReturnValue(MOCK_SERVICES as UseManagedServicesQueryResult);
   });
 
   const DEFAULT_PROPS = {
