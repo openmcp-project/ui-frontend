@@ -51,7 +51,7 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
@@ -274,11 +274,7 @@ export default function McpPage() {
               )}
 
               {isComponentInstalledLandscaper && (
-                <ObjectPageSection
-                  id="landscapers"
-                  titleText={t('McpPage.landscapersTitle')}
-                  className={styles.section}
-                >
+                <ObjectPageSection id="landscaper" titleText={t('McpPage.landscaperTitle')} className={styles.section}>
                   <Landscapers />
                 </ObjectPageSection>
               )}
