@@ -1,8 +1,10 @@
 import { Button, Card, CardHeader } from '@ui5/webcomponents-react';
+import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
 import styles from './ComponentCard.module.css';
-import { useTranslation } from 'react-i18next';
-import { clsx } from 'clsx';
+
+const prefixVersion = (version: string) => (version.includes('v') ? version : `v${version}`);
 
 export type ComponentCardProps = KpiProps & {
   name: string;
@@ -27,7 +29,7 @@ export function ComponentCard({
   const { t } = useTranslation();
 
   const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection;
-  const prefixedVersion = version ? `v${version}` : undefined;
+  const prefixedVersion = version ? prefixVersion(version) : undefined;
 
   return (
     <Card
