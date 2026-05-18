@@ -107,7 +107,7 @@ function HeadlampSection() {
   );
 }
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers', 'headlamp'] as const;
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper', 'headlamp'] as const;
 type McpPageSectionIdAll = (typeof MCP_PAGE_SECTIONS)[number];
 // Headlamp is excluded from the exported type — external navigation to it is not supported.
 export type McpPageSectionId = Exclude<McpPageSectionIdAll, 'headlamp'>;
