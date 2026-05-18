@@ -103,6 +103,7 @@ export function CreateProjectDialogContainer({
       errors={errors}
       setValue={setValue}
       type={'project'}
+      // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleProjectCreate)}
     />
   );
