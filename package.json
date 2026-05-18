@@ -63,7 +63,7 @@
     "@xyflow/react": "12.10.2",
     "clsx": "2.1.1",
     "dagre": "0.8.5",
-    "diff": "8.0.4",
+    "diff": "9.0.0",
     "dotenv": "17.4.2",
     "fastify": "5.8.5",
     "fastify-plugin": "5.1.0",
