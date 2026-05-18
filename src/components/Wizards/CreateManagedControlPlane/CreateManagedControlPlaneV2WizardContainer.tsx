@@ -111,6 +111,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   useEffect(() => {
     const exists = templates.some((t) => t.metadata.name === selectedTemplateValue);
     if (!exists && selectedTemplateValue !== noTemplateValue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTemplateValue(noTemplateValue);
     }
   }, [templates, selectedTemplateValue]);
@@ -118,6 +119,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   useEffect(() => {
     if (!isOpen) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTemplateValue(initialTemplateName ?? noTemplateValue);
   }, [isOpen, initialTemplateName]);
 
@@ -160,6 +162,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       });
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 

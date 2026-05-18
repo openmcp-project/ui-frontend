@@ -148,6 +148,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   useEffect(() => {
     const exists = templates.some((t) => t.metadata.name === selectedTemplateValue);
     if (!exists && selectedTemplateValue !== noTemplateValue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTemplateValue(noTemplateValue);
     }
   }, [templates, selectedTemplateValue]);
@@ -155,6 +156,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   useEffect(() => {
     if (!isOpen) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTemplateValue(initialTemplateName ?? noTemplateValue);
   }, [isOpen, initialTemplateName]);
 
@@ -197,6 +199,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       });
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 
@@ -452,6 +455,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     };
     reset(data);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode, isDuplicateMode]);

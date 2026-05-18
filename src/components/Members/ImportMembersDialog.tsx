@@ -108,6 +108,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedRowIds({});
   }, [isOpen]);
 
