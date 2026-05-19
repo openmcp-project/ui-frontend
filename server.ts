@@ -62,6 +62,9 @@ if (
 
 const fastify = Fastify({
   logger: true,
+  trustProxy: 1,
+  connectionTimeout: 30_000,
+  requestTimeout: 30_000,
 });
 
 Sentry.setupFastifyErrorHandler(fastify);
