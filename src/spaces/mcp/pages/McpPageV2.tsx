@@ -204,6 +204,8 @@ export default function McpPageV2() {
                     fluxData={fluxData}
                     landscaperData={landscaperData}
                     esoData={esoData}
+                    mcpName={controlPlaneName ?? ''}
+                    mcpNamespace={namespace ?? ''}
                     onNavigateToMcpSection={setTabFromSection}
                   />
                 </ObjectPageSubSection>
