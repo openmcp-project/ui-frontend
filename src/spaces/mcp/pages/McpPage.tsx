@@ -66,16 +66,17 @@ function HeadlampSection() {
 
   useEffect(() => {
     if (!mcp.kubeconfig) return;
-    let cancelled = false;
-    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias)
+    const controller = new AbortController();
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
-        if (!cancelled) setIframeSrc(`/api/headlamp/c/${encodeURIComponent(clusterAlias)}`);
+        if (!controller.signal.aborted) setIframeSrc(`/api/headlamp/c/${encodeURIComponent(clusterAlias)}`);
       })
-      .catch(() => {
-        if (!cancelled) setError(true);
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(true);
+        else if (err instanceof Error && err.name !== 'AbortError') setError(true);
       });
     return () => {
-      cancelled = true;
+      controller.abort();
       // Reset immediately on cleanup so the iframe never shows while the BFF session holds a different cluster's kubeconfig.
       setIframeSrc(null);
       setError(false);

@@ -33,22 +33,27 @@ function toBase64(str: string): string {
   return btoa(new TextEncoder().encode(str).reduce((s, b) => s + String.fromCharCode(b), ''));
 }
 
-export async function registerKubeconfigWithBff(rawKubeconfig: string, clusterAlias: string): Promise<string> {
+export async function registerKubeconfigWithBff(
+  rawKubeconfig: string,
+  clusterAlias: string,
+  signal?: AbortSignal,
+): Promise<string> {
   const base64 = toBase64(prepareKubeconfigForHeadlamp(rawKubeconfig, clusterAlias));
   const json = (body: unknown) => ({
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal,
   });
 
   // Remove all dynamic clusters from headlamp-server so stale aliases don't fire requests on iframe boot.
-  const configRes = await fetch('/api/headlamp/config');
+  const configRes = await fetch('/api/headlamp/config', { signal });
   if (configRes.ok) {
     const { clusters } = (await configRes.json()) as { clusters: { name: string }[] | null };
     await Promise.all(
       (clusters ?? [])
         .filter((c) => c.name !== clusterAlias)
-        .map((c) => fetch(`/api/headlamp/cluster/${encodeURIComponent(c.name)}`, { method: 'DELETE' })),
+        .map((c) => fetch(`/api/headlamp/cluster/${encodeURIComponent(c.name)}`, { method: 'DELETE', signal })),
     );
   }
 

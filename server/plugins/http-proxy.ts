@@ -73,6 +73,7 @@ function proxyPlugin(fastify) {
           return reply.badRequest('Missing kubeconfig');
         }
         const mcpToken = req.encryptedSession.get('mcp_accessToken');
+        const userInfo = req.encryptedSession.get('onboarding_userInfo');
         let finalKubeconfig = kubeconfig;
         if (mcpToken) {
           try {
@@ -80,18 +81,25 @@ function proxyPlugin(fastify) {
             const patched = raw.replace(/((?:^|\n)\s*token:\s*)bff-managed(\s|$)/m, (_m, pre, post) => `${pre}${mcpToken}${post}`);
             finalKubeconfig = Buffer.from(patched).toString('base64');
           } catch {
-            // keep original if patching fails
+            fastify.log.warn('Failed to patch bff-managed token in kubeconfig');
           }
         }
         await req.encryptedSession.set('headlamp_kubeconfig', finalKubeconfig);
-        // Register with headlamp server-to-server so the patched kubeconfig (containing the real token) never leaves the BFF.
-        const parseRes = await fetch(`${HEADLAMP_UPSTREAM_URL}/api/headlamp/parseKubeConfig`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kubeconfigs: [finalKubeconfig] }),
-        });
-        if (!parseRes.ok) {
-          return reply.internalServerError(`Headlamp parseKubeConfig failed: ${parseRes.status}`);
+        // Register with headlamp server-to-server so the patched kubeconfig.
+        // X-HEADLAMP-USER-ID scopes the cluster registration to this user.
+        const parseHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (userInfo?.email) parseHeaders['x-headlamp-user-id'] = userInfo.email;
+        try {
+          const parseRes = await fetch(`${HEADLAMP_UPSTREAM_URL}/api/headlamp/parseKubeConfig`, {
+            method: 'POST',
+            headers: parseHeaders,
+            body: JSON.stringify({ kubeconfigs: [finalKubeconfig] }),
+          });
+          if (!parseRes.ok) {
+            return reply.internalServerError(`Headlamp parseKubeConfig failed: ${parseRes.status}`);
+          }
+        } catch (err) {
+          return reply.internalServerError(`Headlamp parseKubeConfig request failed: ${err}`);
         }
         return reply.send({ ok: true });
       });
@@ -106,9 +114,11 @@ function proxyPlugin(fastify) {
           rewriteRequestHeaders: (req: any, headers: any) => {
             const token = req.encryptedSession.get('mcp_accessToken');
             const kubeconfig = req.encryptedSession.get('headlamp_kubeconfig');
+            const userInfo = req.encryptedSession.get('onboarding_userInfo');
             const base = { ...stripEncoding(headers) };
             if (token) base.authorization = `Bearer ${token}`;
             if (kubeconfig) base['kubeconfig'] = kubeconfig;
+            if (userInfo?.email) base['x-headlamp-user-id'] = userInfo.email;
             return base;
           },
           // @ts-ignore

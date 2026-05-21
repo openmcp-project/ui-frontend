@@ -116,9 +116,6 @@ if (DYNATRACE_SCRIPT_URL) {
 }
 
 fastify.register(helmet, {
-  frameguard: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false,
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
