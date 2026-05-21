@@ -51,7 +51,7 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscapers'] as const;
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
@@ -197,7 +197,7 @@ export default function McpPage() {
               onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
-                <ObjectPageSubSection id="dashboard" titleText={t('McpPage.dashboardTitle')} className={styles.section}>
+                <ObjectPageSubSection id="dashboard" titleText="" className={styles.sectionNoTitle}>
                   <ComponentsDashboard
                     components={mcp.spec?.components}
                     onInstallButtonClick={onEditComponents}
@@ -206,7 +206,7 @@ export default function McpPage() {
                     }}
                   />
                 </ObjectPageSubSection>
-                <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
+                <ObjectPageSubSection id="graph" titleText="" className={styles.sectionNoTitle}>
                   <Graph />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
@@ -274,11 +274,7 @@ export default function McpPage() {
               )}
 
               {isComponentInstalledLandscaper && (
-                <ObjectPageSection
-                  id="landscapers"
-                  titleText={t('McpPage.landscapersTitle')}
-                  className={styles.section}
-                >
+                <ObjectPageSection id="landscaper" titleText={t('McpPage.landscaperTitle')} className={styles.section}>
                   <Landscapers />
                 </ObjectPageSection>
               )}
