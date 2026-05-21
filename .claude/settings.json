@@ -1,0 +1,36 @@
+{
+  "_securityHooks_note": "Project security hooks -- generated 2026-05-12 -- shared with the SAP team. Mirrors the user-level baseline (secret files, dangerous bash/PowerShell, git protections, post-write secret scan) plus two project-specific rules: (1) reads/edits of public/frontend-config.json are blocked because it is gitignored and contains the backend URL -- use ./frontend-config.json at the repo root instead; (2) npm run generate-graphql-types is blocked when a literal token is passed as a positional argument -- pass via env var ($GRAPHQL_TOKEN / $env:GRAPHQL_TOKEN) so the secret stays out of shell history and Claude transcripts. Hook scripts live in .claude/hooks/*.mjs (committed) and run on Node 20+, which every team member already has via the project's engines requirement. Escape hatches: (1) ask Claude in-turn to allow a specific operation; (2) run the command in a separate terminal outside Claude Code; (3) add a narrower allow rule in your local .claude/settings.local.json (gitignored).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Glob|Grep",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/block-secret-files.mjs", "timeout": 10 },
+          { "type": "command", "command": "node .claude/hooks/block-frontend-config.mjs", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/block-dangerous-bash.mjs", "timeout": 10 },
+          { "type": "command", "command": "node .claude/hooks/block-graphql-token-plaintext.mjs", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/block-dangerous-powershell.mjs", "timeout": 10 },
+          { "type": "command", "command": "node .claude/hooks/block-graphql-token-plaintext.mjs", "timeout": 10 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/scan-for-secrets.mjs", "timeout": 15 }
+        ]
+      }
+    ]
+  }
+}
