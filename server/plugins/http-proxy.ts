@@ -129,9 +129,9 @@ function proxyPlugin(fastify) {
             delete out['cross-origin-opener-policy'];
             delete out['cross-origin-resource-policy'];
             delete out['cross-origin-embedder-policy'];
-            // Prevent browsers from caching Headlamp plugin JS files so updates
-            // (e.g. kiosk-plugin ConfigMap changes) take effect on next reload.
-            if (out['content-type']?.includes('javascript')) {
+            // Prevent browsers from caching Headlamp assets so that redeployments
+            // (e.g. new build hash, kiosk-plugin ConfigMap changes) take effect on next reload.
+            if (out['content-type']?.includes('javascript') || out['content-type']?.includes('text/html')) {
               out['cache-control'] = 'no-store';
               delete out['last-modified'];
               delete out['etag'];
