@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
-import styles from './ComponentCard.module.css';
+import styles from './ComponentCardV2.module.css';
 
 const prefixVersion = (version: string) => (version.includes('v') ? version : `v${version}`);
 
@@ -19,11 +19,12 @@ export type ComponentCardProps = KpiProps & {
   onEditButtonClick?: () => void;
 };
 
-export function ComponentCard({
+export function ComponentCardV2({
   name,
   description,
   logoImgSrc,
   isInstalled,
+  isV2: _isV2,
   version,
   onNavigateToComponentSection,
   onInstallButtonClick,
@@ -63,13 +64,12 @@ export function ComponentCard({
                 <Button
                   data-cy="edit-button"
                   icon="sap-icon://edit"
+                  aria-label={t('ComponentCard.editButton')}
                   onClick={(e) => {
                     e.stopPropagation();
                     onEditButtonClick();
                   }}
-                >
-                  {t('ComponentCard.editButton')}
-                </Button>
+                />
               )}
             </div>
           ) : (

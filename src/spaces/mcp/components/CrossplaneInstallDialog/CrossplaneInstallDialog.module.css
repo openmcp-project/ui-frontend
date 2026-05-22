@@ -1,0 +1,65 @@
+.content {
+  display: flex;
+  gap: 1.5rem;
+  min-width: 900px;
+  padding: 1rem;
+}
+
+.formColumn {
+  flex: 0 0 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.yamlColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.yamlViewer {
+  flex: 1;
+  height: 380px;
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+  overflow: hidden;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitle + .sectionTitle {
+  margin-top: 1.5rem;
+}
+
+.versionSelect {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.providerList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+}
+
+.providerRow {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.providerRow:last-child {
+  border-bottom: none;
+}
+
+.providerRow:hover {
+  background: var(--sapList_Hover_Background);
+}
+
+.providerVersionSelect {
+  min-width: 160px;
+}
