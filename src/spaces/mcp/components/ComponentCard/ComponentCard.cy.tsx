@@ -70,4 +70,47 @@ describe('ComponentCard', () => {
     cy.get('@onNavigate').should('not.have.been.called');
     cy.get('@onInstall').should('have.been.called');
   });
+
+  it('renders an edit button in the header showing the version when installed and onEditButtonClick is provided', () => {
+    const props: ComponentCardProps = {
+      name: 'COMPONENT NAME',
+      description: 'COMPONENT DESCRIPTION',
+      logoImgSrc: '/logo.png',
+      isInstalled: true,
+      version: '1.2.3',
+      onNavigateToComponentSection: cy.stub().as('onNavigate'),
+      onInstallButtonClick: cy.stub().as('onInstall'),
+      onEditButtonClick: cy.stub().as('onEdit'),
+      kpiType: 'enabled',
+    };
+
+    mount(props);
+
+    cy.get('[data-cy="edit-button"]').should('be.visible').and('contain.text', 'v1.2.3');
+
+    // Version is shown only in the edit button, not duplicated in the card header's additionalText
+    cy.get('ui5-card-header').should('not.have.attr', 'additional-text', 'v1.2.3');
+
+    cy.get('[data-cy="edit-button"]').click();
+    cy.get('@onEdit').should('have.been.calledOnce');
+    cy.get('@onNavigate').should('not.have.been.called');
+  });
+
+  it('does not render an edit button when onEditButtonClick is not provided', () => {
+    const props: ComponentCardProps = {
+      name: 'COMPONENT NAME',
+      description: 'COMPONENT DESCRIPTION',
+      logoImgSrc: '/logo.png',
+      isInstalled: true,
+      version: '1.2.3',
+      onNavigateToComponentSection: cy.stub().as('onNavigate'),
+      onInstallButtonClick: cy.stub().as('onInstall'),
+      kpiType: 'enabled',
+    };
+
+    mount(props);
+
+    cy.get('[data-cy="edit-button"]').should('not.exist');
+    cy.contains('v1.2.3').should('be.visible');
+  });
 });

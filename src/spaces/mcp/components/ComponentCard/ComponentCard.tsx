@@ -12,7 +12,6 @@ export type ComponentCardProps = KpiProps & {
   description: string;
   logoImgSrc: string;
   isInstalled: boolean;
-  isV2?: boolean;
   version?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
@@ -34,6 +33,13 @@ export function ComponentCard({
 
   const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection;
   const prefixedVersion = version ? prefixVersion(version) : undefined;
+  const hasEditButton = isInstalled && !!onEditButtonClick;
+
+  const getAdditionalText = () => {
+    if (!isInstalled) return t('ComponentCard.notInstalledLabel');
+    if (hasEditButton) return undefined;
+    return prefixedVersion;
+  };
 
   return (
     <Card
@@ -43,7 +49,21 @@ export function ComponentCard({
           avatar={<img alt="" className={styles.avatar} src={logoImgSrc} />}
           subtitleText={description}
           interactive={canNavigateToComponentDetails}
-          additionalText={isInstalled ? prefixedVersion : t('ComponentCard.notInstalledLabel')}
+          additionalText={getAdditionalText()}
+          action={
+            hasEditButton ? (
+              <Button
+                data-cy="edit-button"
+                icon="sap-icon://edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditButtonClick();
+                }}
+              >
+                {prefixedVersion}
+              </Button>
+            ) : undefined
+          }
         />
       }
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}
@@ -59,18 +79,6 @@ export function ComponentCard({
           {isInstalled ? (
             <div data-cy="kpi-container" className={styles.kpiContainer}>
               <Kpi {...props} />
-              {onEditButtonClick && (
-                <Button
-                  data-cy="edit-button"
-                  icon="sap-icon://edit"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditButtonClick();
-                  }}
-                >
-                  {t('ComponentCard.editButton')}
-                </Button>
-              )}
             </div>
           ) : (
             <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>
