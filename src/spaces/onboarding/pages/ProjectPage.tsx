@@ -1,7 +1,6 @@
 import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
@@ -12,25 +11,11 @@ import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
-import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
-import { Routes } from '../../../Routes.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
-
-  useEffect(() => {
-    if (!projectName) return;
-    setMcpActions(undefined, undefined, undefined, projectName, undefined, `project-${projectName}`, undefined, () =>
-      navigate(Routes.Home),
-    );
-    return () => {
-      clearMcpActions();
-    };
-  }, [projectName, navigate, setMcpActions, clearMcpActions]);
 
   if (isPending) {
     return <Loading />;

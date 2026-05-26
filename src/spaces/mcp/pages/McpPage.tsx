@@ -60,7 +60,10 @@ import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { Routes } from '../../../Routes.ts';
 
-function AdvancedModeHeadlamp({
+// Open-source (Headlamp) mode — full-viewport iframe with ShellBar integration.
+// Only rendered when mode === 'open-source'. The legacy ObjectPage is rendered otherwise,
+// unchanged from main — no ShellBar context pollution.
+function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
@@ -82,9 +85,9 @@ function AdvancedModeHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
 
   const backPath = generatePath(Routes.Project, { projectName });
-
   const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
 
+  // Register ShellBar actions only in open-source mode
   useEffect(() => {
     setMcpActions(mcp.kubeconfig, mcp.name, mcp.roleBindings, projectName, workspaceName, undefined, undefined, () =>
       navigate(backPath),
@@ -104,6 +107,7 @@ function AdvancedModeHeadlamp({
     clearMcpActions,
   ]);
 
+  // Register and load the kubeconfig, then set the iframe src
   useEffect(() => {
     if (!mcp.kubeconfig) return;
     const controller = new AbortController();
@@ -125,6 +129,7 @@ function AdvancedModeHeadlamp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcp.kubeconfig, clusterAlias]);
 
+  // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param
   useEffect(() => {
     if (!iframeSrc) return;
     const intervalId = setInterval(() => {
@@ -183,31 +188,28 @@ function AdvancedModeHeadlamp({
   );
 }
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper', 'headlamp'] as const;
-type McpPageSectionIdAll = (typeof MCP_PAGE_SECTIONS)[number];
-// Headlamp is excluded from the exported type — external navigation to it is not supported.
-export type McpPageSectionId = Exclude<McpPageSectionIdAll, 'headlamp'>;
+// MCP_PAGE_SECTIONS for legacy view (no headlamp tab — that's handled via mode switch)
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
+export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { mode } = useViewMode();
-  const navigate = useNavigate();
-  const { setMcpActions: setShellBarMcpActions, clearMcpActions: clearShellBarMcpActions } = useShellBarMcpActions();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
-    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionIdAll)) {
-      return tab as McpPageSectionIdAll;
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
+      return tab as McpPageSectionId;
     }
-    return 'overview' as McpPageSectionIdAll;
+    return 'overview' as McpPageSectionId;
   }, [searchParams]);
 
-  const setTabFromSection = (sectionId: McpPageSectionIdAll) => {
+  const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set('tab', sectionId);
@@ -237,40 +239,10 @@ export default function McpPage() {
   };
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
-    const newSectionId = e.detail.selectedSectionId as McpPageSectionIdAll;
+    const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
 
-  const namespace = mcp?.status?.access?.namespace;
-  const backPath = projectName ? generatePath(Routes.Project, { projectName }) : Routes.Home;
-
-  useEffect(() => {
-    if (mode === 'open-source') return; // handled by AdvancedModeHeadlamp
-    setShellBarMcpActions(
-      undefined,
-      controlPlaneName,
-      mcp?.spec?.authorization?.roleBindings,
-      projectName,
-      workspaceName,
-      namespace,
-      () => setIsEditManagedControlPlaneWizardOpen(true),
-      () => navigate(backPath),
-    );
-    return () => {
-      clearShellBarMcpActions();
-    };
-  }, [
-    mode,
-    controlPlaneName,
-    mcp?.spec?.authorization?.roleBindings,
-    projectName,
-    workspaceName,
-    namespace,
-    backPath,
-    navigate,
-    setShellBarMcpActions,
-    clearShellBarMcpActions,
-  ]);
   if (isLoading) {
     return (
       <Center>
@@ -295,6 +267,7 @@ export default function McpPage() {
   const isComponentInstalledFlux = !!mcp?.spec?.components?.flux;
   const isComponentInstalledLandscaper = !!mcp?.spec?.components?.landscaper;
 
+  // Open-source mode: full-screen Headlamp iframe. ShellBar gets back/kubeconfig/members/switch.
   if (mode === 'open-source') {
     return (
       <McpContextProvider
@@ -307,7 +280,7 @@ export default function McpPage() {
         <AuthProviderMcp>
           <WithinManagedControlPlane>
             <ManagedControlPlaneAuthorization>
-              <AdvancedModeHeadlamp
+              <OpenSourceHeadlamp
                 key={`${projectName}/${workspaceName}/${controlPlaneName}`}
                 projectName={projectName}
                 workspaceName={workspaceName}
@@ -320,6 +293,7 @@ export default function McpPage() {
     );
   }
 
+  // Legacy (beginner) mode: ObjectPage unchanged from main. ShellBar stays plain.
   return (
     <McpContextProvider
       context={{
