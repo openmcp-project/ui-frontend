@@ -1,0 +1,38 @@
+.cardInteractive {
+  cursor: pointer;
+}
+
+.cardNoninteractive {
+}
+
+.avatar {
+  border-radius: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+.cardContent {
+  padding: 0.75rem 1rem 1.25rem;
+}
+
+.content {
+  min-height: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.kpiContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.uninstalledContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}

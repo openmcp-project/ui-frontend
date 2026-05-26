@@ -1,17 +1,18 @@
 .content {
-  display: grid;
-  grid-template-columns: 30rem 1fr;
+  display: flex;
   gap: 1.5rem;
-  min-width: 62.5rem;
+  min-width: 900px;
   padding: 1rem;
 }
 
 .formColumn {
+  flex: 0 0 380px;
   display: flex;
   flex-direction: column;
 }
 
 .yamlColumn {
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -19,13 +20,10 @@
 
 .yamlViewer {
   flex: 1;
+  height: 380px;
   border: 1px solid var(--sapList_BorderColor);
   border-radius: var(--sapElement_BorderCornerRadius);
   overflow: hidden;
-}
-
-.yamlViewer > div {
-  height: 100%;
 }
 
 .sectionTitle {
@@ -42,6 +40,9 @@
 }
 
 .providerList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   border: 1px solid var(--sapList_BorderColor);
   border-radius: var(--sapElement_BorderCornerRadius);
 }
@@ -60,6 +61,5 @@
 }
 
 .providerVersionSelect {
-  width: 11.25rem;
-  flex-shrink: 0;
+  min-width: 160px;
 }
