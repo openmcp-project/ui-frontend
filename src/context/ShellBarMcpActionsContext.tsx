@@ -9,6 +9,7 @@ export interface ShellBarMcpActionsContextType {
   project: string | undefined;
   workspace: string | undefined;
   onEditMcp: (() => void) | undefined;
+  onOpenYaml: (() => void) | undefined;
   navigateBack: (() => void) | undefined;
   setMcpActions: (
     kubeconfig: string | undefined,
@@ -19,6 +20,7 @@ export interface ShellBarMcpActionsContextType {
     namespace?: string,
     onEditMcp?: () => void,
     navigateBack?: () => void,
+    onOpenYaml?: () => void,
   ) => void;
   clearMcpActions: () => void;
 }
@@ -33,6 +35,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
   const [project, setProject] = useState<string | undefined>(undefined);
   const [workspace, setWorkspace] = useState<string | undefined>(undefined);
   const [onEditMcp, setOnEditMcp] = useState<(() => void) | undefined>(undefined);
+  const [onOpenYaml, setOnOpenYaml] = useState<(() => void) | undefined>(undefined);
   const [navigateBack, setNavigateBack] = useState<(() => void) | undefined>(undefined);
 
   const setMcpActions = useCallback(
@@ -45,6 +48,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
       ns?: string,
       editFn?: () => void,
       backFn?: () => void,
+      yamlFn?: () => void,
     ) => {
       setKubeconfig(kc);
       setMcpName(name);
@@ -52,9 +56,9 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
       setProject(proj);
       setWorkspace(ws);
       setNamespace(ns);
-      // useState setter with a function arg is treated as an updater, so wrap in arrow
       setOnEditMcp(editFn ? () => editFn : undefined);
       setNavigateBack(backFn ? () => backFn : undefined);
+      setOnOpenYaml(yamlFn ? () => yamlFn : undefined);
     },
     [],
   );
@@ -67,6 +71,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setWorkspace(undefined);
     setNamespace(undefined);
     setOnEditMcp(undefined);
+    setOnOpenYaml(undefined);
     setNavigateBack(undefined);
   }, []);
 
@@ -80,6 +85,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
         project,
         workspace,
         onEditMcp,
+        onOpenYaml,
         navigateBack,
         setMcpActions,
         clearMcpActions,
