@@ -127,8 +127,8 @@
     "detailsLabel": "Details:"
   },
   "CopyKubeconfigButton": {
-    "kubeconfigButton": "Kubeconfig",
-    "menuDownload": "Download",
+    "kubeconfigButton": "Connect Tools",
+    "menuDownload": "Download kubeconfig",
     "menuCopy": "Copy to clipboard"
   },
   "ComponentsSelection": {
@@ -181,10 +181,13 @@
     "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!",
     "feedbackError": "Failed to send feedback. Please try again later.",
-    "modeOpenSource": "Open Source View",
+    "modeOpenSource": "Headlamp",
     "modeStandard": "Standard",
     "backButton": "Back",
-    "copyNamespace": "Copy namespace"
+    "copyNamespace": "Copy namespace",
+    "overflowEditMcp": "Edit Control Plane",
+    "overflowViewYaml": "View YAML",
+    "overflowConnectGitRepo": "Connect git repo"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
