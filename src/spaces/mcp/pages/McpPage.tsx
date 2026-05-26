@@ -31,6 +31,7 @@ import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
+import { YamlSidePanelWithLoader } from '../../../components/Yaml/YamlSidePanelWithLoader.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
@@ -82,6 +83,9 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isYamlOpen, setIsYamlOpen] = useState(false);
+
   // Sanitise any stale full-BFF path that may have been persisted in the URL param
   const rawInitialPath = searchParams.get('headlampPath') ?? '';
   const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
@@ -96,8 +100,16 @@ function OpenSourceHeadlamp({
 
   // Register ShellBar actions only in open-source mode
   useEffect(() => {
-    setMcpActions(mcp.kubeconfig, mcp.name, mcp.roleBindings, projectName, workspaceName, undefined, undefined, () =>
-      navigate(backPath),
+    setMcpActions(
+      mcp.kubeconfig,
+      mcp.name,
+      mcp.roleBindings,
+      projectName,
+      workspaceName,
+      undefined,
+      () => setIsWizardOpen(true),
+      () => navigate(backPath),
+      () => setIsYamlOpen(true),
     );
     return () => {
       clearMcpActions();
@@ -187,22 +199,50 @@ function OpenSourceHeadlamp({
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
-      {isUnsupportedPath && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
-          <MessageStrip design="Information" hideCloseButton>
-            {t('McpPage.headlampUnsupportedPlugin')}
-          </MessageStrip>
-        </div>
+    <>
+      {isWizardOpen && (
+        <EditManagedControlPlaneWizardDataLoader
+          isOpen={isWizardOpen}
+          setIsOpen={setIsWizardOpen}
+          workspaceName={mcp.secretNamespace}
+          resourceName={mcp.name}
+        />
       )}
-      <iframe
-        ref={iframeRef}
-        key={iframeSrc}
-        src={iframeSrc}
-        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-        title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
-      />
-    </div>
+      <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)', display: 'flex' }}>
+        {isUnsupportedPath && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
+            <MessageStrip design="Information" hideCloseButton>
+              {t('McpPage.headlampUnsupportedPlugin')}
+            </MessageStrip>
+          </div>
+        )}
+        <iframe
+          ref={iframeRef}
+          key={iframeSrc}
+          src={iframeSrc}
+          style={{ flex: 1, border: 'none', display: 'block', minWidth: 0 }}
+          title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
+        />
+        {isYamlOpen && (
+          <div style={{
+            width: '40%',
+            minWidth: 360,
+            borderLeft: '1px solid var(--sapGroup_TitleBorderColor)',
+            display: 'flex',
+            flexDirection: 'column',
+            animation: 'slideInFromRight 0.2s ease-out',
+          }}>
+            <style>{`@keyframes slideInFromRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
+            <YamlSidePanelWithLoader
+              isEdit={false}
+              resourceType="managedcontrolplanes"
+              resourceName={controlPlaneName}
+              workspaceName={mcp.secretNamespace}
+            />
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
