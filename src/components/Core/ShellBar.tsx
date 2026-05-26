@@ -29,6 +29,8 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
+import '@ui5/webcomponents-icons/dist/overflow';
+import '@ui5/webcomponents-icons/dist/source-code';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
@@ -84,6 +86,7 @@ export function ShellBarComponent() {
             </div>
           )}
           <KubeconfigShellBarButton />
+          {mode === 'open-source' && <OverflowMenuButton />}
           {mcpName && (
             <div className={styles.switchWrapper}>
               <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
@@ -157,6 +160,46 @@ function KubeconfigShellBarButton() {
         {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
         {namespace && <MenuItem text={t('ShellBar.copyNamespace')} data-action="copy-namespace" icon="copy" />}
         {onEditMcp && <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="edit" icon="edit" />}
+      </Menu>
+    </>
+  );
+}
+
+function OverflowMenuButton() {
+  const { onEditMcp, onOpenYaml } = useShellBarMcpActions();
+  const { t } = useTranslation();
+  const menuRef = useRef<MenuDomRef | null>(null);
+  const buttonRef = useRef<ButtonDomRef | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  if (!onEditMcp && !onOpenYaml) return null;
+
+  return (
+    <>
+      <Button
+        ref={buttonRef}
+        design="Transparent"
+        icon="overflow"
+        onClick={() => {
+          if (menuRef.current && buttonRef.current) {
+            menuRef.current.opener = buttonRef.current;
+            setMenuOpen((prev) => !prev);
+          }
+        }}
+      />
+      <Menu
+        ref={menuRef}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onItemClick={(event) => {
+          const action = event.detail.item.dataset.action;
+          if (action === 'edit') onEditMcp?.();
+          else if (action === 'yaml') onOpenYaml?.();
+          setMenuOpen(false);
+        }}
+      >
+        {onEditMcp && <MenuItem text={t('ShellBar.overflowEditMcp')} data-action="edit" icon="edit" />}
+        {onOpenYaml && <MenuItem text={t('ShellBar.overflowViewYaml')} data-action="yaml" icon="source-code" />}
       </Menu>
     </>
   );
