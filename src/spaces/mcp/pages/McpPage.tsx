@@ -82,11 +82,17 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
-  // Sanitise any stale full-BFF path that may have been persisted in the URL param
+  // Sanitise any stale full-BFF path that may have been persisted in the URL param.
+  // Also strip a spurious leading "/api" segment that older versions of the path-sync
+  // polling code accidentally saved (e.g. "/api/flux/overview" → "/flux/overview").
   const rawInitialPath = searchParams.get('headlampPath') ?? '';
-  const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
+  const strippedPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
+  const sanitisedInitialPath =
+    strippedPath.startsWith('/api/') && !strippedPath.startsWith('/api/headlamp')
+      ? strippedPath.slice(4) // "/api/flux/overview" → "/flux/overview"
+      : strippedPath;
 
   const backPath = generatePath(Routes.Project, { projectName });
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
@@ -122,7 +128,7 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+          setIframeSrc(`${baseSrc}${sanitisedInitialPath || '/flux/overview'}`);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -147,6 +153,10 @@ function OpenSourceHeadlamp({
         const internalPath = fullPathname.startsWith(baseSrcPrefix)
           ? fullPathname.slice(baseSrcPrefix.length) || '/'
           : fullPathname;
+        // Don't persist the root path — that's the Headlamp home page before the
+        // kiosk plugin has had a chance to redirect to /flux/overview. Writing '/'
+        // into headlampPath would cause the next mount to load the wrong page.
+        if (internalPath === '/' || !internalPath) return;
         if (internalPath !== headlampPath) {
           setHeadlampPath(internalPath);
           setSearchParams(
