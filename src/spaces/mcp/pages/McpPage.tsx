@@ -200,6 +200,19 @@ function OpenSourceHeadlamp({
   );
 }
 
+// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
+// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
+function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  useEffect(() => {
+    setMcpActions(undefined, controlPlaneName);
+    return () => {
+      clearMcpActions();
+    };
+  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  return null;
+}
+
 // MCP_PAGE_SECTIONS for legacy view (no headlamp tab — that's handled via mode switch)
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -317,6 +330,7 @@ export default function McpPage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
+            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={
