@@ -18,7 +18,8 @@
   },
   "ComponentCard": {
     "notInstalledLabel": "not installed",
-    "installButton": "Install {{component}}"
+    "installButton": "Install {{component}}",
+    "editButton": "Edit"
   },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",
@@ -133,6 +134,19 @@
   "ComponentsSelection": {
     "chooseVersion": "Please select version"
   },
+  "CrossplaneInstallDialog": {
+    "title": "Install Crossplane",
+    "titleEdit": "Edit Crossplane",
+    "crossplaneVersion": "Crossplane Version",
+    "providers": "Providers",
+    "successTitle": "Crossplane Installed",
+    "successSubtitle": "Crossplane has been successfully installed on your control plane.",
+    "errorMessage": "Failed to install Crossplane. Please try again.",
+    "successTitleEdit": "Crossplane Updated",
+    "successSubtitleEdit": "Crossplane has been successfully updated on your control plane.",
+    "errorMessageEdit": "Failed to update Crossplane. Please try again.",
+    "yamlPreview": "YAML Preview"
+  },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
     "subtitleMessage": "Get started by creating your first Control Plane.",
@@ -166,7 +180,11 @@
     "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
     "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!",
-    "feedbackError": "Failed to send feedback. Please try again later."
+    "feedbackError": "Failed to send feedback. Please try again later.",
+    "modeOpenSource": "Open Source View",
+    "modeStandard": "Standard",
+    "backButton": "Back",
+    "copyNamespace": "Copy namespace"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -250,7 +268,12 @@
     "landscaperTitle": "Landscaper",
     "configMapsTitle": "ConfigMaps",
     "secretsTitle": "Secrets",
-    "secretTypeHeader": "Type"
+    "secretTypeHeader": "Type",
+    "headlampTitle": "Headlamp",
+    "headlampUnavailableTitle": "Headlamp unavailable",
+    "headlampUnavailableSubtitle": "The Headlamp service could not be reached. Please check that it is deployed and healthy.",
+    "headlampGetSupport": "Get support",
+    "headlampUnsupportedPlugin": "This Headlamp section is not available in the managed context."
   },
   "McpHeader": {
     "nameLabel": "Name",
@@ -383,6 +406,8 @@
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
+    "cancel": "Cancel",
+    "applyChanges": "Apply Changes",
     "created": "Created",
     "cannotLoadData": "Cannot load data",
     "file": "File",

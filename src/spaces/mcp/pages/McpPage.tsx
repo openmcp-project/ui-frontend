@@ -3,13 +3,14 @@ import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import {
   BusyIndicator,
   FlexBox,
+  MessageStrip,
   ObjectPage,
   ObjectPageHeader,
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
 } from '@ui5/webcomponents-react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './McpPage.module.css';
 // thorws error sometimes if not imported
@@ -22,7 +23,7 @@ import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfi
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
@@ -33,7 +34,8 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -51,6 +53,167 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useViewMode } from '../../../context/ViewModeContext.tsx';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
+import { Routes } from '../../../Routes.ts';
+
+// Open-source (Headlamp) mode — full-viewport iframe with ShellBar integration.
+// Only rendered when mode === 'open-source'. The legacy ObjectPage is rendered otherwise,
+// unchanged from main — no ShellBar context pollution.
+function OpenSourceHeadlamp({
+  projectName,
+  workspaceName,
+  controlPlaneName,
+}: {
+  projectName: string;
+  workspaceName: string;
+  controlPlaneName: string;
+}) {
+  const mcp = useMcp();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { documentationBaseUrl } = useFrontendConfig();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+  const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+
+  // Sanitise any stale full-BFF path that may have been persisted in the URL param
+  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
+    ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
+    : rawInitialPath;
+
+  const backPath = generatePath(Routes.Project, { projectName });
+  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
+  const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
+
+  // Register ShellBar actions only in open-source mode
+  useEffect(() => {
+    setMcpActions(mcp.kubeconfig, mcp.name, mcp.roleBindings, projectName, workspaceName, undefined, undefined, () =>
+      navigate(backPath),
+    );
+    return () => {
+      clearMcpActions();
+    };
+  }, [
+    mcp.kubeconfig,
+    mcp.name,
+    mcp.roleBindings,
+    projectName,
+    workspaceName,
+    backPath,
+    navigate,
+    setMcpActions,
+    clearMcpActions,
+  ]);
+
+  // Register and load the kubeconfig, then set the iframe src
+  useEffect(() => {
+    if (!mcp.kubeconfig) return;
+    const controller = new AbortController();
+    const baseSrc = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
+      .then(() => {
+        if (!controller.signal.aborted)
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(true);
+        else if (err instanceof Error && err.name !== 'AbortError') setError(true);
+      });
+    return () => {
+      controller.abort();
+      setIframeSrc(null);
+      setError(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mcp.kubeconfig, clusterAlias]);
+
+  // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param.
+  // Strip the baseSrc prefix so only the Headlamp-internal path (e.g. /flux/...) is stored.
+  useEffect(() => {
+    if (!iframeSrc) return;
+    const intervalId = setInterval(() => {
+      try {
+        const fullPathname = iframeRef.current?.contentWindow?.location?.pathname ?? '';
+        if (!fullPathname) return;
+        const internalPath = fullPathname.startsWith(baseSrcPrefix)
+          ? fullPathname.slice(baseSrcPrefix.length) || '/'
+          : fullPathname;
+        if (internalPath !== headlampPath) {
+          setHeadlampPath(internalPath);
+          setSearchParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              next.set('headlampPath', internalPath);
+              return next;
+            },
+            { replace: true },
+          );
+        }
+      } catch {
+        // cross-origin access blocked — ignore
+      }
+    }, 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
+
+  if (error) {
+    return (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={t('McpPage.headlampUnavailableSubtitle')}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+      />
+    );
+  }
+
+  if (!iframeSrc) return null;
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
+      {isUnsupportedPath && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
+          <MessageStrip design="Information" hideCloseButton>
+            {t('McpPage.headlampUnsupportedPlugin')}
+          </MessageStrip>
+        </div>
+      )}
+      <iframe
+        ref={iframeRef}
+        key={iframeSrc}
+        src={iframeSrc}
+        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+        title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
+      />
+    </div>
+  );
+}
+
+// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
+// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
+function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  useEffect(() => {
+    setMcpActions(undefined, controlPlaneName);
+    return () => {
+      clearMcpActions();
+    };
+  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  return null;
+}
+
+// MCP_PAGE_SECTIONS for legacy view (no headlamp tab — that's handled via mode switch)
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
@@ -58,6 +221,7 @@ export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { mode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -103,6 +267,7 @@ export default function McpPage() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
+
   if (isLoading) {
     return (
       <Center>
@@ -127,6 +292,33 @@ export default function McpPage() {
   const isComponentInstalledFlux = !!mcp?.spec?.components?.flux;
   const isComponentInstalledLandscaper = !!mcp?.spec?.components?.landscaper;
 
+  // Open-source mode: full-screen Headlamp iframe. ShellBar gets back/kubeconfig/members/switch.
+  if (mode === 'open-source') {
+    return (
+      <McpContextProvider
+        context={{
+          project: projectName,
+          workspace: workspaceName,
+          name: controlPlaneName,
+        }}
+      >
+        <AuthProviderMcp>
+          <WithinManagedControlPlane>
+            <ManagedControlPlaneAuthorization>
+              <OpenSourceHeadlamp
+                key={`${projectName}/${workspaceName}/${controlPlaneName}`}
+                projectName={projectName}
+                workspaceName={workspaceName}
+                controlPlaneName={controlPlaneName}
+              />
+            </ManagedControlPlaneAuthorization>
+          </WithinManagedControlPlane>
+        </AuthProviderMcp>
+      </McpContextProvider>
+    );
+  }
+
+  // Legacy (beginner) mode: ObjectPage unchanged from main. ShellBar stays plain.
   return (
     <McpContextProvider
       context={{
@@ -138,6 +330,7 @@ export default function McpPage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
+            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={

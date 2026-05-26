@@ -73,17 +73,19 @@ export const ResourceStatusCell = ({
       )}
 
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
-        <ConditionMessageItem
-          condition={
-            {
-              type: isOk ? positiveText : negativeText,
-              status: isOk ? 'True' : 'False',
-              reason: '',
-              message: message || '',
-              lastTransitionTime: transitionTime,
-            } as ControlPlaneStatusCondition
-          }
-        />
+        {open && (
+          <ConditionMessageItem
+            condition={
+              {
+                type: isOk ? positiveText : negativeText,
+                status: isOk ? 'True' : 'False',
+                reason: '',
+                message: message || '',
+                lastTransitionTime: transitionTime,
+              } as ControlPlaneStatusCondition
+            }
+          />
+        )}
       </ResponsivePopover>
     </span>
   );

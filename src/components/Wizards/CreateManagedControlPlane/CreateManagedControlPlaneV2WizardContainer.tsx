@@ -118,6 +118,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
 
   useEffect(() => {
     if (!isOpen) return;
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTemplateValue(initialTemplateName ?? noTemplateValue);
   }, [isOpen, initialTemplateName]);
