@@ -81,6 +81,21 @@ tasks:
       - mkdir -p {{.LOCALBIN}}
     internal: true
 
+  headlamp:build-plugins:
+    desc: 'Build crossplane + opencontrolplane Headlamp plugins and regenerate their ConfigMap YAMLs. Usage: task headlamp:build-plugins'
+    cmds:
+      - bash {{.ROOT_DIR}}/scripts/build-headlamp-plugins.sh
+
+  headlamp:deploy-plugins:
+    desc: 'Build local plugins and sync them live into the running headlamp-dev pod (no restart needed). Usage: task headlamp:deploy-plugins'
+    cmds:
+      - bash {{.ROOT_DIR}}/scripts/deploy-headlamp-plugins.sh
+
+  headlamp:setup:
+    desc: 'Bootstrap a local Headlamp kind cluster and port-forward to http://localhost:8090. Usage: task headlamp:setup'
+    cmds:
+      - bash {{.ROOT_DIR}}/scripts/setup-headlamp-dev.sh
+
   install:ocm:
     desc: '  Ensure that the ocm CLI is installed.'
     run: once
