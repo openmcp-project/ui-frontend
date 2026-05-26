@@ -29,8 +29,6 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/nav-back';
-import '@ui5/webcomponents-icons/dist/source-code';
-import '@ui5/webcomponents-icons/dist/add-document';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
@@ -104,22 +102,18 @@ export function ShellBarComponent() {
 }
 
 function KubeconfigShellBarButton() {
-  const { kubeconfig, mcpName, namespace, onEditMcp, onOpenYaml } = useShellBarMcpActions();
+  const { kubeconfig, mcpName, namespace, onEditMcp } = useShellBarMcpActions();
   const { mode } = useViewMode();
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
   const kubeconfigMenuRef = useRef<MenuDomRef | null>(null);
   const buttonRef = useRef<ButtonDomRef | null>(null);
-  const overflowMenuRef = useRef<MenuDomRef | null>(null);
-  const overflowButtonRef = useRef<ButtonDomRef | null>(null);
   const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
-  const [overflowMenuOpen, setOverflowMenuOpen] = useState(false);
 
   const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
   const hasActions = hasKubeconfig || !!onEditMcp || !!namespace;
-  const hasOverflow = !!onEditMcp || !!onOpenYaml;
 
-  if (!hasActions && !hasOverflow) return null;
+  if (!hasActions) return null;
 
   const handleButtonClick = () => {
     if (kubeconfigMenuRef.current && buttonRef.current) {
@@ -128,79 +122,42 @@ function KubeconfigShellBarButton() {
     }
   };
 
-  const handleOverflowClick = () => {
-    if (overflowMenuRef.current && overflowButtonRef.current) {
-      overflowMenuRef.current.opener = overflowButtonRef.current;
-      setOverflowMenuOpen((prev) => !prev);
-    }
-  };
-
   return (
     <>
-      {hasActions && (
-        <>
-          <Button
-            ref={buttonRef}
-            className={styles.kubeconfigButton}
-            design="Emphasized"
-            icon="slim-arrow-down"
-            icon-end
-            onClick={handleButtonClick}
-          >
-            {t('CopyKubeconfigButton.kubeconfigButton')}
-          </Button>
-          <Menu
-            ref={kubeconfigMenuRef}
-            open={kubeconfigMenuOpen}
-            onClose={() => setKubeconfigMenuOpen(false)}
-            onItemClick={(event) => {
-              const action = event.detail.item.dataset.action;
-              if (action === 'download' && kubeconfig && mcpName) {
-                DownloadKubeconfig(kubeconfig, mcpName);
-              } else if (action === 'copy' && kubeconfig) {
-                void copyToClipboard(kubeconfig);
-              } else if (action === 'copy-namespace' && namespace) {
-                void copyToClipboard(namespace);
-              }
-              setKubeconfigMenuOpen(false);
-            }}
-          >
-            {hasKubeconfig && (
-              <MenuItem text={t('CopyKubeconfigButton.menuDownload')} data-action="download" icon="download" />
-            )}
-            {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
-            {namespace && <MenuItem text={t('ShellBar.copyNamespace')} data-action="copy-namespace" icon="copy" />}
-          </Menu>
-        </>
-      )}
-      {hasOverflow && (
-        <>
-          <Button
-            ref={overflowButtonRef}
-            design="Transparent"
-            icon="overflow"
-            onClick={handleOverflowClick}
-          />
-          <Menu
-            ref={overflowMenuRef}
-            open={overflowMenuOpen}
-            onClose={() => setOverflowMenuOpen(false)}
-            onItemClick={(event) => {
-              const action = event.detail.item.dataset.action;
-              if (action === 'edit') {
-                onEditMcp?.();
-              } else if (action === 'yaml') {
-                onOpenYaml?.();
-              }
-              setOverflowMenuOpen(false);
-            }}
-          >
-            {onEditMcp && <MenuItem text={t('ShellBar.overflowEditMcp')} data-action="edit" icon="edit" />}
-            {onOpenYaml && <MenuItem text={t('ShellBar.overflowViewYaml')} data-action="yaml" icon="source-code" />}
-            <MenuItem text={t('ShellBar.overflowConnectGitRepo')} data-action="connect-git" icon="add-document" disabled />
-          </Menu>
-        </>
-      )}
+      <Button
+        ref={buttonRef}
+        className={styles.kubeconfigButton}
+        icon="slim-arrow-down"
+        icon-end
+        onClick={handleButtonClick}
+      >
+        {t('CopyKubeconfigButton.kubeconfigButton')}
+      </Button>
+      <Menu
+        ref={kubeconfigMenuRef}
+        open={kubeconfigMenuOpen}
+        onClose={() => setKubeconfigMenuOpen(false)}
+        onItemClick={(event) => {
+          const action = event.detail.item.dataset.action;
+          if (action === 'download' && kubeconfig && mcpName) {
+            DownloadKubeconfig(kubeconfig, mcpName);
+          } else if (action === 'copy' && kubeconfig) {
+            void copyToClipboard(kubeconfig);
+          } else if (action === 'copy-namespace' && namespace) {
+            void copyToClipboard(namespace);
+          } else if (action === 'edit') {
+            onEditMcp?.();
+          }
+          setKubeconfigMenuOpen(false);
+        }}
+      >
+        {hasKubeconfig && (
+          <MenuItem text={t('CopyKubeconfigButton.menuDownload')} data-action="download" icon="download" />
+        )}
+        {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
+        {namespace && <MenuItem text={t('ShellBar.copyNamespace')} data-action="copy-namespace" icon="copy" />}
+        {onEditMcp && <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="edit" icon="edit" />}
+      </Menu>
     </>
   );
 }

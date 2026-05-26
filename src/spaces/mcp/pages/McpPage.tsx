@@ -31,8 +31,6 @@ import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
-import { YamlSidePanelWithLoader } from '../../../components/Yaml/YamlSidePanelWithLoader.tsx';
-import { useSplitter } from '../../../components/Splitter/SplitterContext.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
@@ -84,20 +82,11 @@ function OpenSourceHeadlamp({
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
   const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
 
-  // Sanitise any stale full-BFF path that may have been persisted in the URL param.
-  // Also strip a spurious leading "/api" segment that older versions of the path-sync
-  // polling code accidentally saved (e.g. "/api/flux/overview" → "/flux/overview").
+  // Sanitise any stale full-BFF path that may have been persisted in the URL param
   const rawInitialPath = searchParams.get('headlampPath') ?? '';
-  const strippedPath = rawInitialPath.startsWith(baseSrcPrefix)
+  const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
     ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
     : rawInitialPath;
-  const sanitisedInitialPath = (() => {
-    // Strip full BFF prefix: "/api/headlamp/crossplane/..." → "/crossplane/..."
-    if (strippedPath.startsWith('/api/headlamp/')) return strippedPath.slice('/api/headlamp'.length);
-    // Strip spurious "/api" segment from older path-sync: "/api/flux/..." → "/flux/..."
-    if (strippedPath.startsWith('/api/')) return strippedPath.slice(4);
-    return strippedPath;
-  })();
 
   const backPath = generatePath(Routes.Project, { projectName });
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
@@ -133,11 +122,11 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(`${baseSrc}${sanitisedInitialPath || '/flux/overview'}`);
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
       })
       .catch((err) => {
+        if (err instanceof Error && err.name === 'AbortError') return;
         if (!controller.signal.aborted) setError(true);
-        else if (err instanceof Error && err.name !== 'AbortError') setError(true);
       });
     return () => {
       controller.abort();
@@ -155,16 +144,9 @@ function OpenSourceHeadlamp({
       try {
         const fullPathname = iframeRef.current?.contentWindow?.location?.pathname ?? '';
         if (!fullPathname) return;
-        const internalPath = (() => {
-          if (fullPathname.startsWith(baseSrcPrefix)) return fullPathname.slice(baseSrcPrefix.length) || '/';
-          if (fullPathname.startsWith('/api/headlamp/')) return fullPathname.slice('/api/headlamp'.length);
-          if (fullPathname.startsWith('/api/')) return fullPathname.slice(4);
-          return fullPathname;
-        })();
-        // Don't persist the root path — that's the Headlamp home page before the
-        // kiosk plugin has had a chance to redirect to /flux/overview. Writing '/'
-        // into headlampPath would cause the next mount to load the wrong page.
-        if (internalPath === '/' || !internalPath) return;
+        const internalPath = fullPathname.startsWith(baseSrcPrefix)
+          ? fullPathname.slice(baseSrcPrefix.length) || '/'
+          : fullPathname;
         if (internalPath !== headlampPath) {
           setHeadlampPath(internalPath);
           setSearchParams(
@@ -196,7 +178,13 @@ function OpenSourceHeadlamp({
     );
   }
 
-  if (!iframeSrc) return null;
+  if (!iframeSrc) {
+    return (
+      <Center>
+        <BusyIndicator active />
+      </Center>
+    );
+  }
 
   return (
     <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
@@ -218,23 +206,16 @@ function OpenSourceHeadlamp({
   );
 }
 
-// Registers mcpName + optional callbacks in ShellBarMcpActionsContext for legacy mode.
-function LegacyModeShellBarSync({
-  controlPlaneName,
-  onEditMcp,
-  onOpenYaml,
-}: {
-  controlPlaneName: string;
-  onEditMcp: () => void;
-  onOpenYaml: () => void;
-}) {
+// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
+// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
+function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
   useEffect(() => {
-    setMcpActions(undefined, controlPlaneName, undefined, undefined, undefined, undefined, onEditMcp, undefined, onOpenYaml);
+    setMcpActions(undefined, controlPlaneName);
     return () => {
       clearMcpActions();
     };
-  }, [controlPlaneName, onEditMcp, onOpenYaml, setMcpActions, clearMcpActions]);
+  }, [controlPlaneName, setMcpActions, clearMcpActions]);
   return null;
 }
 
@@ -247,7 +228,6 @@ export default function McpPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { mode } = useViewMode();
-  const { openInAside } = useSplitter();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -287,21 +267,6 @@ export default function McpPage() {
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
     setEditManagedControlPlaneWizardSection(undefined);
-  };
-
-  const handleShellBarEditMcp = () => {
-    setIsEditManagedControlPlaneWizardOpen(true);
-  };
-
-  const handleShellBarOpenYaml = () => {
-    openInAside(
-      <YamlSidePanelWithLoader
-        isEdit={false}
-        resourceType="managedcontrolplanes"
-        resourceName={controlPlaneName ?? ''}
-        workspaceName={mcp?.status?.access?.namespace}
-      />,
-    );
   };
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
@@ -345,14 +310,12 @@ export default function McpPage() {
       >
         <AuthProviderMcp>
           <WithinManagedControlPlane>
-            <ManagedControlPlaneAuthorization>
-              <OpenSourceHeadlamp
-                key={`${projectName}/${workspaceName}/${controlPlaneName}`}
-                projectName={projectName}
-                workspaceName={workspaceName}
-                controlPlaneName={controlPlaneName}
-              />
-            </ManagedControlPlaneAuthorization>
+            <OpenSourceHeadlamp
+              key={`${projectName}/${workspaceName}/${controlPlaneName}`}
+              projectName={projectName}
+              workspaceName={workspaceName}
+              controlPlaneName={controlPlaneName}
+            />
           </WithinManagedControlPlane>
         </AuthProviderMcp>
       </McpContextProvider>
@@ -371,11 +334,7 @@ export default function McpPage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
-            <LegacyModeShellBarSync
-              controlPlaneName={controlPlaneName}
-              onEditMcp={handleShellBarEditMcp}
-              onOpenYaml={handleShellBarOpenYaml}
-            />
+            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={
