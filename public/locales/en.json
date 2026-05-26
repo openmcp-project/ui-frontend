@@ -180,7 +180,11 @@
     "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
     "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!",
-    "feedbackError": "Failed to send feedback. Please try again later."
+    "feedbackError": "Failed to send feedback. Please try again later.",
+    "modeOpenSource": "Open Source View",
+    "modeStandard": "Standard",
+    "backButton": "Back",
+    "copyNamespace": "Copy namespace"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
@@ -268,7 +272,8 @@
     "headlampTitle": "Headlamp",
     "headlampUnavailableTitle": "Headlamp unavailable",
     "headlampUnavailableSubtitle": "The Headlamp service could not be reached. Please check that it is deployed and healthy.",
-    "headlampGetSupport": "Get support"
+    "headlampGetSupport": "Get support",
+    "headlampUnsupportedPlugin": "This Headlamp section is not available in the managed context."
   },
   "McpHeader": {
     "nameLabel": "Name",
