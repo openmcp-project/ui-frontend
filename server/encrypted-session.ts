@@ -58,6 +58,8 @@ async function encryptedSession(fastify) {
     secret: SESSION_SECRET,
     cookieName: SESSION_COOKIE_NAME,
     cookie: cookieOptions,
+    rolling: false,
+    saveUninitialized: false,
   });
 
   await fastify.decorateRequest(REQUEST_DECORATOR, {
