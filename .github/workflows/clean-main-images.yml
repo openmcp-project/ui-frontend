@@ -23,7 +23,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@34a2b6c814b9c6bcb92f78cba3e56a7ab9ca7a86 # v1
+      - uses: dataaxiom/ghcr-cleanup-action@f092b48ba3b604b2a83690dc4b2bbb3392e1045f # v1
         with:
           dry-run: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true' }}
           packages: ${{ env.IMAGE_NAME }}
