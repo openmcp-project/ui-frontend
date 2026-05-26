@@ -78,13 +78,20 @@ function OpenSourceHeadlamp({
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
-  const [error, setError] = useState(false);
-  const [headlampPath, setHeadlampPath] = useState<string>(() => searchParams.get('headlampPath') ?? '');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+  const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+
+  // Sanitise any stale full-BFF path that may have been persisted in the URL param
+  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
+    ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
+    : rawInitialPath;
 
   const backPath = generatePath(Routes.Project, { projectName });
+  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
   const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
 
   // Register ShellBar actions only in open-source mode
@@ -111,11 +118,11 @@ function OpenSourceHeadlamp({
   useEffect(() => {
     if (!mcp.kubeconfig) return;
     const controller = new AbortController();
-    const initialPath = searchParams.get('headlampPath') ?? '';
     const baseSrc = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
-        if (!controller.signal.aborted) setIframeSrc(initialPath ? `${baseSrc}${initialPath}` : baseSrc);
+        if (!controller.signal.aborted)
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -129,18 +136,23 @@ function OpenSourceHeadlamp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcp.kubeconfig, clusterAlias]);
 
-  // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param
+  // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param.
+  // Strip the baseSrc prefix so only the Headlamp-internal path (e.g. /flux/...) is stored.
   useEffect(() => {
     if (!iframeSrc) return;
     const intervalId = setInterval(() => {
       try {
-        const pathname = iframeRef.current?.contentWindow?.location?.pathname ?? '';
-        if (pathname && pathname !== headlampPath) {
-          setHeadlampPath(pathname);
+        const fullPathname = iframeRef.current?.contentWindow?.location?.pathname ?? '';
+        if (!fullPathname) return;
+        const internalPath = fullPathname.startsWith(baseSrcPrefix)
+          ? fullPathname.slice(baseSrcPrefix.length) || '/'
+          : fullPathname;
+        if (internalPath !== headlampPath) {
+          setHeadlampPath(internalPath);
           setSearchParams(
             (prev) => {
               const next = new URLSearchParams(prev);
-              next.set('headlampPath', pathname);
+              next.set('headlampPath', internalPath);
               return next;
             },
             { replace: true },
@@ -153,7 +165,7 @@ function OpenSourceHeadlamp({
     return () => {
       clearInterval(intervalId);
     };
-  }, [iframeSrc, headlampPath, setSearchParams]);
+  }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
 
   if (error) {
     return (
