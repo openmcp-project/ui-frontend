@@ -17,9 +17,9 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
-    "notInstalledLabel": "not installed",
+    "editButton": "Edit",
     "installButton": "Install {{component}}",
-    "editButton": "Edit"
+    "notInstalledLabel": "not installed"
   },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",
@@ -139,11 +139,10 @@
     "titleEdit": "Edit Crossplane",
     "crossplaneVersion": "Crossplane Version",
     "providers": "Providers",
-    "successTitle": "Crossplane Installed",
-    "successSubtitle": "Crossplane has been successfully installed on your control plane.",
+    "providerVersionLabel": "{{provider}} version",
+    "successMessage": "Crossplane has been successfully installed.",
     "errorMessage": "Failed to install Crossplane. Please try again.",
-    "successTitleEdit": "Crossplane Updated",
-    "successSubtitleEdit": "Crossplane has been successfully updated on your control plane.",
+    "successMessageEdit": "Crossplane has been successfully updated.",
     "errorMessageEdit": "Failed to update Crossplane. Please try again.",
     "yamlPreview": "YAML Preview"
   },
