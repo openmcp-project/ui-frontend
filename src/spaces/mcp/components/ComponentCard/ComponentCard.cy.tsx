@@ -71,7 +71,7 @@ describe('ComponentCard', () => {
     cy.get('@onInstall').should('have.been.called');
   });
 
-  it('renders an edit button in the header showing the version when installed and onEditButtonClick is provided', () => {
+  it('renders an edit button in the kpi container when installed and onEditButtonClick is provided', () => {
     const props: ComponentCardProps = {
       name: 'COMPONENT NAME',
       description: 'COMPONENT DESCRIPTION',
@@ -86,10 +86,8 @@ describe('ComponentCard', () => {
 
     mount(props);
 
-    cy.get('[data-cy="edit-button"]').should('be.visible').and('contain.text', 'v1.2.3');
-
-    // Version is shown only in the edit button, not duplicated in the card header's additionalText
-    cy.get('ui5-card-header').should('not.have.attr', 'additional-text', 'v1.2.3');
+    cy.get('[data-cy="kpi-container"] [data-cy="edit-button"]').should('be.visible');
+    cy.contains('v1.2.3').should('be.visible');
 
     cy.get('[data-cy="edit-button"]').click();
     cy.get('@onEdit').should('have.been.calledOnce');

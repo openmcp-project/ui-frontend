@@ -38,7 +38,7 @@ export function Kpi(props: KpiProps) {
       return props.error ? (
         <Text role="status">{t('Kpi.error')}</Text>
       ) : (
-        <BusyIndicator active={props.isLoading} data-cy="busy-indicator">
+        <BusyIndicator active={props.isLoading} className={styles.busyIndicator} data-cy="busy-indicator">
           <div className={styles.progressContainer}>
             <Text>{props.progressLabel}</Text>
             <ProgressIndicator

@@ -33,13 +33,6 @@ export function ComponentCard({
 
   const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection;
   const prefixedVersion = version ? prefixVersion(version) : undefined;
-  const hasEditButton = isInstalled && !!onEditButtonClick;
-
-  const getAdditionalText = () => {
-    if (!isInstalled) return t('ComponentCard.notInstalledLabel');
-    if (hasEditButton) return undefined;
-    return prefixedVersion;
-  };
 
   return (
     <Card
@@ -49,21 +42,7 @@ export function ComponentCard({
           avatar={<img alt="" className={styles.avatar} src={logoImgSrc} />}
           subtitleText={description}
           interactive={canNavigateToComponentDetails}
-          additionalText={getAdditionalText()}
-          action={
-            hasEditButton ? (
-              <Button
-                data-cy="edit-button"
-                icon="sap-icon://edit"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEditButtonClick();
-                }}
-              >
-                {prefixedVersion}
-              </Button>
-            ) : undefined
-          }
+          additionalText={isInstalled ? prefixedVersion : t('ComponentCard.notInstalledLabel')}
         />
       }
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}
@@ -78,7 +57,21 @@ export function ComponentCard({
         >
           {isInstalled ? (
             <div data-cy="kpi-container" className={styles.kpiContainer}>
-              <Kpi {...props} />
+              <div className={styles.kpiContent}>
+                <Kpi {...props} />
+              </div>
+              <div className={styles.actions}>
+                {onEditButtonClick && (
+                  <Button
+                    data-cy="edit-button"
+                    icon="sap-icon://edit"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditButtonClick();
+                    }}
+                  />
+                )}
+              </div>
             </div>
           ) : (
             <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>
