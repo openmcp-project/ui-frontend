@@ -17,8 +17,9 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
-    "notInstalledLabel": "not installed",
-    "installButton": "Install {{component}}"
+    "editButton": "Edit",
+    "installButton": "Install {{component}}",
+    "notInstalledLabel": "not installed"
   },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",

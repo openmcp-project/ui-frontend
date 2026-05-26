@@ -63,6 +63,7 @@ export function ComponentCard({
               <div className={styles.actions}>
                 {onEditButtonClick && (
                   <Button
+                    accessibleName={t('ComponentCard.editButton')}
                     data-cy="edit-button"
                     icon="sap-icon://edit"
                     onClick={(e) => {
