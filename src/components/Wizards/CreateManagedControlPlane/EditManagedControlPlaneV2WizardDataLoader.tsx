@@ -1,5 +1,6 @@
-import { BusyIndicator } from '@ui5/webcomponents-react';
+import { BusyIndicator, Button } from '@ui5/webcomponents-react';
 import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useMcpV2Query } from '../../../spaces/onboarding/hooks/useMcpV2Query.ts';
 import {
@@ -35,6 +36,7 @@ export const EditManagedControlPlaneV2WizardDataLoader: FC<EditManagedControlPla
   setIsOpen,
   initialSection,
 }) => {
+  const { t } = useTranslation();
   const { isPending, data, error } = useMcpV2Query(isOpen ? resourceName : undefined, isOpen ? namespace : undefined);
 
   if (!isOpen) {
@@ -42,7 +44,12 @@ export const EditManagedControlPlaneV2WizardDataLoader: FC<EditManagedControlPla
   }
 
   if (error) {
-    return null;
+    return (
+      <div className={styles.absolute} role="alert" aria-live="assertive">
+        <p>{t('common.cannotLoadData')}</p>
+        <Button onClick={() => setIsOpen(false)}>{t('buttons.close')}</Button>
+      </div>
+    );
   }
 
   if (isPending || !data) {

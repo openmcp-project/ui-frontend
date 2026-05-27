@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/edit';
 
 type ControlPlanesListMenuProps = {
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;

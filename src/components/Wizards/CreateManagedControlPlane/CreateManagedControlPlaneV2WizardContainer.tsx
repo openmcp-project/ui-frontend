@@ -27,7 +27,6 @@ import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/membe
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
-import { OnCreatePayload } from '../../Dialogs/CreateProjectWorkspaceDialog.tsx';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
@@ -236,36 +235,29 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     };
   }, [name, displayName, templateAffixes, projectName, workspaceName, members]);
 
-  const handleCreateManagedControlPlane = useCallback(
-    async (_: OnCreatePayload): Promise<boolean> => {
-      try {
-        if (isEditMode) {
-          await updateMcp({
-            name: initialData?.metadata?.name ?? '',
-            namespace: initialData?.metadata?.namespace ?? '',
-            roleBindings: rawInput.roleBindings,
-          });
-        } else {
-          await createMcp(rawInput);
-        }
-        setSelectedStep('success');
-        return true;
-      } catch (e) {
-        const message =
-          e instanceof APIError
-            ? `${e.message}: ${JSON.stringify(e.info)}`
-            : e instanceof Error
-              ? e.message
-              : String(e);
-        if (errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(message);
-        }
-        console.error(e);
-        return false;
+  const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
+    try {
+      if (isEditMode) {
+        await updateMcp({
+          name: initialData?.metadata?.name ?? '',
+          namespace: initialData?.metadata?.namespace ?? '',
+          roleBindings: rawInput.roleBindings,
+        });
+      } else {
+        await createMcp(rawInput);
       }
-    },
-    [isEditMode, updateMcp, initialData, createMcp, rawInput],
-  );
+      setSelectedStep('success');
+      return true;
+    } catch (e) {
+      const message =
+        e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
+      if (errorDialogRef.current) {
+        errorDialogRef.current.showErrorDialog(message);
+      }
+      console.error(e);
+      return false;
+    }
+  }, [isEditMode, updateMcp, initialData, createMcp, rawInput]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
     const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
@@ -284,7 +276,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
         if (isSubmitting) {
           return;
         }
-        void handleCreateManagedControlPlane(getValues());
+        void handleCreateManagedControlPlane();
         break;
       case 'success':
         resetFormAndClose();
@@ -292,15 +284,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       default:
         break;
     }
-  }, [
-    selectedStep,
-    handleSubmit,
-    setSelectedStep,
-    handleCreateManagedControlPlane,
-    getValues,
-    resetFormAndClose,
-    isSubmitting,
-  ]);
+  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, resetFormAndClose, isSubmitting]);
 
   const normalizeMemberRole = useCallback((_roleInput?: string | null): string => {
     return MCP_V2_DEFAULT_ROLE;
