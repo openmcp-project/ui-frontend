@@ -3,7 +3,11 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const UpdateLandscaperMutation = gql`
-  mutation UpdateLandscaper($namespace: String, $name: String!, $object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput!) {
+  mutation UpdateLandscaper(
+    $namespace: String
+    $name: String!
+    $object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput!
+  ) {
     landscaper_services_openmcp_cloud {
       v1alpha2 {
         updateLandscaper(namespace: $namespace, name: $name, object: $object) {
