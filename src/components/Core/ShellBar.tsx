@@ -105,7 +105,7 @@ export function ShellBarComponent() {
 }
 
 function KubeconfigShellBarButton() {
-  const { kubeconfig, mcpName, namespace, onEditMcp } = useShellBarMcpActions();
+  const { kubeconfig, mcpName, namespace } = useShellBarMcpActions();
   const { mode } = useViewMode();
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
@@ -114,7 +114,7 @@ function KubeconfigShellBarButton() {
   const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
 
   const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
-  const hasActions = hasKubeconfig || !!onEditMcp || !!namespace;
+  const hasActions = hasKubeconfig || !!namespace;
 
   if (!hasActions) return null;
 
@@ -130,6 +130,7 @@ function KubeconfigShellBarButton() {
       <Button
         ref={buttonRef}
         className={styles.kubeconfigButton}
+        design="Emphasized"
         icon="slim-arrow-down"
         icon-end
         onClick={handleButtonClick}
@@ -148,8 +149,6 @@ function KubeconfigShellBarButton() {
             void copyToClipboard(kubeconfig);
           } else if (action === 'copy-namespace' && namespace) {
             void copyToClipboard(namespace);
-          } else if (action === 'edit') {
-            onEditMcp?.();
           }
           setKubeconfigMenuOpen(false);
         }}
@@ -159,7 +158,6 @@ function KubeconfigShellBarButton() {
         )}
         {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
         {namespace && <MenuItem text={t('ShellBar.copyNamespace')} data-action="copy-namespace" icon="copy" />}
-        {onEditMcp && <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="edit" icon="edit" />}
       </Menu>
     </>
   );
