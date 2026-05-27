@@ -40,10 +40,22 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [applyAttempted, setApplyAttempted] = useState(false);
 
+  // Sync editorContent when value prop changes from parent (for isEdit mode)
+  useEffect(() => {
+    if (isEdit && value !== undefined) {
+      const newValue = value.toString();
+      if (newValue !== editorContent) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setEditorContent(newValue);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, isEdit]); // Don't include editorContent in deps to avoid loop
+
   useEffect(() => {
     const { dispose } = configureMonacoYaml(monaco, {
       isKubernetes: true,
-      enableSchemaRequest: true,
+      enableSchemaRequest: false,
       hover: true,
       completion: true,
       validate: true,
@@ -127,7 +139,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
 
   return (
     <div className={styles.container}>
-      {isEdit && (
+      {isEdit && onApply && (
         <Toolbar design="Solid">
           <Button
             className={styles.applyButton}

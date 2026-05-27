@@ -33,7 +33,7 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -50,6 +50,29 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
+import { ResourceUploadDialog } from '../../../components/ResourceUpload/ResourceUploadDialog.tsx';
+import { useCreateResource } from '../../../hooks/useCreateResource.ts';
+
+// Wrapper component that has access to MCP context
+function ResourceUploadDialogWrapper({
+  isOpen,
+  onClose,
+  initialYaml,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialYaml?: string;
+}) {
+  const { createResource } = useCreateResource();
+
+  const handleResourceUpload = async (yamlContent: string) => {
+    return await createResource(yamlContent);
+  };
+
+  return (
+    <ResourceUploadDialog isOpen={isOpen} initialYaml={initialYaml} onClose={onClose} onSubmit={handleResourceUpload} />
+  );
+}
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -62,6 +85,9 @@ export default function McpPage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
+  const [isResourceUploadDialogOpen, setIsResourceUploadDialogOpen] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [droppedYamlContent, setDroppedYamlContent] = useState<string | undefined>(undefined);
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
@@ -103,6 +129,46 @@ export default function McpPage() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (
+      file &&
+      (file.type === 'text/yaml' ||
+        file.type === 'text/x-yaml' ||
+        file.type === 'application/x-yaml' ||
+        file.name.endsWith('.yaml') ||
+        file.name.endsWith('.yml') ||
+        file.type === 'text/plain')
+    ) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (content) {
+          setDroppedYamlContent(content);
+          setIsResourceUploadDialogOpen(true);
+        }
+      };
+      reader.readAsText(file);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+  }, []);
+
   if (isLoading) {
     return (
       <Center>
@@ -138,6 +204,14 @@ export default function McpPage() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
+            {isDraggingFile && (
+              <div className={styles.dragOverlay}>
+                <div className={styles.dragOverlayContent}>
+                  <div className={styles.dragOverlayTitle}>{t('resourceUpload.dropFileHere')}</div>
+                  <div className={styles.dragOverlaySubtitle}>{t('resourceUpload.dropFileSubtitle')}</div>
+                </div>
+              </div>
+            )}
             <ObjectPage
               mode="IconTabBar"
               titleArea={
@@ -158,6 +232,7 @@ export default function McpPage() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        onAddResourceClick={() => setIsResourceUploadDialogOpen(true)}
                       />
                       <EditManagedControlPlaneWizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
@@ -194,6 +269,9 @@ export default function McpPage() {
                   </FlexBox>
                 </ObjectPageHeader>
               }
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
               onSelectedSectionChange={handleSectionChange}
             >
               <ObjectPageSection id="overview" titleText={t('McpPage.overviewTitle')}>
@@ -279,6 +357,14 @@ export default function McpPage() {
                 </ObjectPageSection>
               )}
             </ObjectPage>
+            <ResourceUploadDialogWrapper
+              isOpen={isResourceUploadDialogOpen}
+              initialYaml={droppedYamlContent}
+              onClose={() => {
+                setIsResourceUploadDialogOpen(false);
+                setDroppedYamlContent(undefined);
+              }}
+            />
           </ManagedControlPlaneAuthorization>
         </WithinManagedControlPlane>
       </AuthProviderMcp>

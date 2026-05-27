@@ -454,7 +454,8 @@
     "cancel": "Cancel",
     "update": "Update",
     "applyChanges": "Apply changes",
-    "edit": "Edit"
+    "edit": "Edit",
+    "submitting": "Submitting..."
   },
   "yaml": {
     "YAML": "File",
@@ -584,6 +585,25 @@
     "valuePlaceholder": "Value",
     "kustomizationCreated": "Kustomization created successfully",
     "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
+  },
+  "resourceUpload": {
+    "title": "Add Resource",
+    "uploadFile": "Upload File",
+    "dropFileHere": "Drop file here",
+    "dropFileSubtitle": "YAML files (.yaml, .yml)",
+    "createFromCRD": "Create from CRD",
+    "crdComingSoon": "Coming soon: Create resources from Custom Resource Definitions",
+    "fileReadError": "Failed to read file",
+    "invalidFileType": "Please upload a YAML or text file",
+    "emptyContent": "Please provide YAML content",
+    "success": "Resource created successfully",
+    "failed": "Failed to create resource",
+    "unknownError": "An unknown error occurred",
+    "validation": {
+      "invalidYaml": "Invalid YAML syntax",
+      "missingRequired": "Resource must include kind, apiVersion, and metadata.name",
+      "resourceExists": "Warning: A {{kind}} named '{{name}}' already exists in this namespace"
+    }
   },
   "mcp": {
     "authorization": {
