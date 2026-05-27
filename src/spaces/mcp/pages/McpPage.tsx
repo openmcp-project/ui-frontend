@@ -154,6 +154,28 @@ function OpenSourceHeadlamp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcp.kubeconfig, clusterAlias]);
 
+  // Re-register kubeconfig if Headlamp loses the context (e.g. pod restart clears in-memory state).
+  // Polls /api/headlamp/config every 30s; if the cluster alias is gone, re-registers and reloads the iframe.
+  useEffect(() => {
+    if (!iframeSrc || !mcp.kubeconfig) return;
+    const baseSrc = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await fetch('/api/headlamp/config');
+        if (!res.ok) return;
+        const { clusters } = (await res.json()) as { clusters: { name: string }[] | null };
+        const isRegistered = (clusters ?? []).some((c) => c.name === clusterAlias);
+        if (!isRegistered) {
+          await registerKubeconfigWithBff(mcp.kubeconfig!, clusterAlias);
+          setIframeSrc(`${baseSrc}${headlampPath}`);
+        }
+      } catch {
+        // network blip — will retry next interval
+      }
+    }, 30_000);
+    return () => clearInterval(intervalId);
+  }, [iframeSrc, mcp.kubeconfig, clusterAlias, headlampPath]);
+
   // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param.
   // Strip the baseSrc prefix so only the Headlamp-internal path (e.g. /flux/...) is stored.
   useEffect(() => {
@@ -252,6 +274,59 @@ function OpenSourceHeadlamp({
   );
 }
 
+// Wraps McpContextProvider + AuthProviderMcp + OpenSourceHeadlamp for open-source mode.
+// Captures errors from McpContextProvider (kubeconfig fetch failures, missing access info)
+// via the onState callback so they surface as an error banner instead of an infinite spinner.
+function OpenSourceWithMcpContext({
+  projectName,
+  workspaceName,
+  controlPlaneName,
+  displayName,
+  namespace,
+}: {
+  projectName: string;
+  workspaceName: string;
+  controlPlaneName: string;
+  displayName: string | undefined;
+  namespace: string | undefined;
+}) {
+  const { t } = useTranslation();
+  const { documentationBaseUrl } = useFrontendConfig();
+  const [mcpContextError, setMcpContextError] = useState<Error | string | null>(null);
+
+  if (mcpContextError) {
+    const message = mcpContextError instanceof Error ? mcpContextError.message : String(mcpContextError);
+    return (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={message}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+      />
+    );
+  }
+
+  return (
+    <McpContextProvider
+      context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }}
+      onState={({ error }) => { if (error) setMcpContextError(error); }}
+    >
+      <AuthProviderMcp>
+        <WithinManagedControlPlane>
+          <OpenSourceHeadlamp
+            key={`${projectName}/${workspaceName}/${controlPlaneName}`}
+            projectName={projectName}
+            workspaceName={workspaceName}
+            controlPlaneName={controlPlaneName}
+            displayName={displayName}
+            namespace={namespace}
+          />
+        </WithinManagedControlPlane>
+      </AuthProviderMcp>
+    </McpContextProvider>
+  );
+}
+
 // Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
 // No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
 function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
@@ -347,26 +422,13 @@ export default function McpPage() {
   // Open-source mode: full-screen Headlamp iframe. ShellBar gets back/kubeconfig/members/switch.
   if (mode === 'open-source') {
     return (
-      <McpContextProvider
-        context={{
-          project: projectName,
-          workspace: workspaceName,
-          name: controlPlaneName,
-        }}
-      >
-        <AuthProviderMcp>
-          <WithinManagedControlPlane>
-            <OpenSourceHeadlamp
-              key={`${projectName}/${workspaceName}/${controlPlaneName}`}
-              projectName={projectName}
-              workspaceName={workspaceName}
-              controlPlaneName={controlPlaneName}
-              displayName={displayName}
-              namespace={mcp?.status?.access?.namespace}
-            />
-          </WithinManagedControlPlane>
-        </AuthProviderMcp>
-      </McpContextProvider>
+      <OpenSourceWithMcpContext
+        projectName={projectName}
+        workspaceName={workspaceName}
+        controlPlaneName={controlPlaneName}
+        displayName={displayName}
+        namespace={mcp?.status?.access?.namespace}
+      />
     );
   }
 
