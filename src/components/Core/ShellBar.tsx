@@ -76,6 +76,7 @@ export function ShellBarComponent() {
                   design="Transparent"
                   icon="copy"
                   tooltip={t('ShellBar.copyNamespace')}
+                  className={styles.copyNamespaceButton}
                   onClick={() => void copyToClipboard(namespace)}
                 />
               )}

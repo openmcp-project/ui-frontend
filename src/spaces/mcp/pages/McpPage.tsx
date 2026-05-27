@@ -69,11 +69,13 @@ function OpenSourceHeadlamp({
   workspaceName,
   controlPlaneName,
   displayName,
+  namespace,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
   displayName: string | undefined;
+  namespace: string | undefined;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -109,7 +111,7 @@ function OpenSourceHeadlamp({
       mcp.roleBindings,
       projectName,
       workspaceName,
-      undefined,
+      namespace,
       () => setIsWizardOpen(true),
       () => navigate(backPath),
       () => setIsYamlOpen(true),
@@ -121,6 +123,7 @@ function OpenSourceHeadlamp({
     mcp.kubeconfig,
     mcp.name,
     mcp.roleBindings,
+    namespace,
     projectName,
     workspaceName,
     backPath,
@@ -359,6 +362,7 @@ export default function McpPage() {
               workspaceName={workspaceName}
               controlPlaneName={controlPlaneName}
               displayName={displayName}
+              namespace={mcp?.status?.access?.namespace}
             />
           </WithinManagedControlPlane>
         </AuthProviderMcp>
