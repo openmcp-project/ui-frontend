@@ -2,7 +2,7 @@ import { Grid, List, ListItemStandard, Title } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/helpers/mcpV2GraphQLInput.ts';
 import { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';

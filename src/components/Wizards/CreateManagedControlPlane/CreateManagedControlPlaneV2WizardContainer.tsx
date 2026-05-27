@@ -22,12 +22,7 @@ import {
 
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
-import { CreateManagedControlPlane } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames.ts';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
@@ -37,14 +32,14 @@ import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
-import { ManagedControlPlaneInterface, MCPSubject } from '../../../lib/api/types/mcpResource.ts';
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
+import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
-import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { useCreateManagedControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { useUpdateManagedControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
@@ -58,9 +53,10 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   isEditMode?: boolean;
   isDuplicateMode?: boolean;
   initialTemplateName?: string;
-  initialData?: ManagedControlPlaneInterface;
+  initialData?: ManagedControlPlaneV2;
   initialSection?: WizardStepType;
-  useUpdateManagedControlPlane?: typeof _useUpdateManagedControlPlane;
+  useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
+  useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
   useAuthOnboarding?: typeof _useAuthOnboarding;
 };
 
@@ -78,7 +74,8 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   initialTemplateName,
   initialData,
   initialSection,
-  useUpdateManagedControlPlane = _useUpdateManagedControlPlane,
+  useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
+  useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
   useAuthOnboarding = _useAuthOnboarding,
 }) => {
   const { t } = useTranslation();
@@ -190,21 +187,17 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   }, [resetField]);
 
   useEffect(() => {
-    if (user?.email && isOpen) {
+    if (!isEditMode && user?.email && isOpen) {
       setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
     }
     if (!isOpen) {
       clearFormFields();
     }
-  }, [user?.email, isOpen, setValue, clearFormFields]);
+  }, [user?.email, isOpen, isEditMode, setValue, clearFormFields]);
 
-  const { createMcp } = useCreateManagedControlPlaneV2GraphQL();
-  const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
-    projectName,
-    workspaceName,
-    initialData?.metadata?.name ?? '',
-  );
-  const componentsList = useWatch({ control, name: 'componentsList' });
+  const { createMcp, loading: isCreatingMcp } = useCreateManagedControlPlaneV2GraphQL();
+  const { updateMcp, loading: isUpdatingMcp } = useUpdateManagedControlPlaneV2GraphQL();
+  const isSubmitting = isEditMode ? isUpdatingMcp : isCreatingMcp;
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
@@ -244,48 +237,34 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   }, [name, displayName, templateAffixes, projectName, workspaceName, members]);
 
   const handleCreateManagedControlPlane = useCallback(
-    async ({ displayName, chargingTarget, members, chargingTargetType }: OnCreatePayload): Promise<boolean> => {
+    async (_: OnCreatePayload): Promise<boolean> => {
       try {
         if (isEditMode) {
-          await updateManagedControlPlane(
-            CreateManagedControlPlane(
-              initialData?.metadata?.name ?? '',
-              `${projectName}--ws-${workspaceName}`,
-              {
-                displayName,
-                chargingTarget,
-                chargingTargetType,
-                members,
-                componentsList,
-              },
-              idpPrefix,
-              initialData,
-            ),
-          );
+          await updateMcp({
+            name: initialData?.metadata?.name ?? '',
+            namespace: initialData?.metadata?.namespace ?? '',
+            roleBindings: rawInput.roleBindings,
+          });
         } else {
           await createMcp(rawInput);
         }
         setSelectedStep('success');
         return true;
       } catch (e) {
-        if (e instanceof APIError && errorDialogRef.current) {
-          errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        } else {
-          console.error(e);
+        const message =
+          e instanceof APIError
+            ? `${e.message}: ${JSON.stringify(e.info)}`
+            : e instanceof Error
+              ? e.message
+              : String(e);
+        if (errorDialogRef.current) {
+          errorDialogRef.current.showErrorDialog(message);
         }
+        console.error(e);
         return false;
       }
     },
-    [
-      projectName,
-      workspaceName,
-      componentsList,
-      isEditMode,
-      updateManagedControlPlane,
-      initialData,
-      createMcp,
-      rawInput,
-    ],
+    [isEditMode, updateMcp, initialData, createMcp, rawInput],
   );
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
@@ -302,7 +281,10 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(getValues());
+        if (isSubmitting) {
+          return;
+        }
+        void handleCreateManagedControlPlane(getValues());
         break;
       case 'success':
         resetFormAndClose();
@@ -310,7 +292,15 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       default:
         break;
     }
-  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, getValues, resetFormAndClose]);
+  }, [
+    selectedStep,
+    handleSubmit,
+    setSelectedStep,
+    handleCreateManagedControlPlane,
+    getValues,
+    resetFormAndClose,
+    isSubmitting,
+  ]);
 
   const normalizeMemberRole = useCallback((_roleInput?: string | null): string => {
     return MCP_V2_DEFAULT_ROLE;
@@ -351,29 +341,35 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !initialData) return;
-    const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
-    const members: Member[] = roleBindings.flatMap((rb) =>
-      (rb.subjects ?? []).map((s: MCPSubject) => ({
-        kind: s.kind,
-        name: s.kind === 'User' && s.name?.includes(':') ? s.name.split(':').slice(1).join(':') : s.name,
-        roles: [normalizeMemberRole(rb.role)],
-        namespace: s.namespace,
-      })),
-    );
-    const name = initialData?.metadata?.name ?? '';
-    const labels = (initialData?.metadata?.labels as unknown as Record<string, string>) ?? {};
-    const annotations = (initialData?.metadata?.annotations as unknown as Record<string, string>) ?? {};
-    const data = {
-      name: isDuplicateMode && !!name ? `${name}${t('createMCP.copySuffix')}` : name,
-      displayName: annotations?.[DISPLAY_NAME_ANNOTATION] ?? '',
-      chargingTarget: labels?.[CHARGING_TARGET_LABEL] ?? '',
-      chargingTargetType: labels?.[CHARGING_TARGET_TYPE_LABEL]?.toLowerCase() ?? '',
+    const roleBindings = initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings ?? [];
+    const members: Member[] = roleBindings
+      .filter(Boolean)
+      .flatMap((rb) => {
+        const roleName = rb?.roleRefs?.filter(Boolean)?.[0]?.name ?? MCP_V2_DEFAULT_ROLE;
+        return (rb?.subjects ?? []).filter(Boolean).map((s) => {
+          const kind = (s?.kind ?? 'User') as 'User' | 'Group' | 'ServiceAccount';
+          const rawName = s?.name ?? '';
+          return {
+            kind,
+            name: kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName,
+            roles: [roleName],
+            ...(s?.namespace ? { namespace: s.namespace } : {}),
+          };
+        });
+      })
+      .filter((m) => !!m.name);
+    const name = initialData.metadata.name;
+    const annotations = initialData.metadata.annotations;
+    reset({
+      name,
+      displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
+      chargingTarget: '',
+      chargingTargetType: '',
       members,
-      componentsList: componentsList ?? [],
-    };
-    reset(data);
+      componentsList: [],
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode, isDuplicateMode]);
+  }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
@@ -446,15 +442,21 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
-                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
+                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                    {t('buttons.close')}
+                  </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
+                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                      {t('buttons.close')}
+                    </Button>
                   ) : (
-                    <Button onClick={onBackClick}>{t('buttons.back')}</Button>
+                    <Button disabled={isSubmitting} onClick={onBackClick}>
+                      {t('buttons.back')}
+                    </Button>
                   ))}
-                <Button design="Emphasized" onClick={onNextClick}>
+                <Button design="Emphasized" disabled={isSubmitting} onClick={onNextClick}>
                   {nextButtonText[selectedStep]}
                 </Button>
               </div>
