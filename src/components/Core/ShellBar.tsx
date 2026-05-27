@@ -159,8 +159,6 @@ function KubeconfigShellBarButton() {
             DownloadKubeconfig(kubeconfig, mcpName);
           } else if (action === 'copy' && kubeconfig) {
             void copyToClipboard(kubeconfig);
-          } else if (action === 'copy-namespace' && namespace) {
-            void copyToClipboard(namespace);
           }
           setKubeconfigMenuOpen(false);
         }}
@@ -169,7 +167,6 @@ function KubeconfigShellBarButton() {
           <MenuItem text={t('CopyKubeconfigButton.menuDownload')} data-action="download" icon="download" />
         )}
         {hasKubeconfig && <MenuItem text={t('CopyKubeconfigButton.menuCopy')} data-action="copy" icon="copy" />}
-        {namespace && <MenuItem text={t('ShellBar.copyNamespace')} data-action="copy-namespace" icon="copy" />}
       </Menu>
     </>
   );
