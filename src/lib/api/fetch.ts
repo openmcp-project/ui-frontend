@@ -9,6 +9,7 @@ const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
+const mcpVersionHeader = 'X-mcp-version';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
@@ -72,6 +73,9 @@ export const fetchApiServer = async (
     headers[projectNameHeader] = config.mcpConfig.projectName;
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
     headers[mcpNameHeader] = config.mcpConfig.controlPlaneName;
+    if (config.mcpConfig.isV2) {
+      headers[mcpVersionHeader] = 'v2';
+    }
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
