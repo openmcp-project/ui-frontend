@@ -187,7 +187,8 @@
     "copyNamespace": "Copy namespace",
     "overflowEditMcp": "Edit Control Plane",
     "overflowViewYaml": "View YAML",
-    "overflowConnectGitRepo": "Connect git repo"
+    "overflowConnectGitRepo": "Connect git repo",
+    "membersLabel": "Members"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."

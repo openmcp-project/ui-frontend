@@ -41,7 +41,8 @@ export function ShellBarComponent() {
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode } = useViewMode();
   const { t } = useTranslation();
-  const { roleBindings, project, workspace, navigateBack, mcpName } = useShellBarMcpActions();
+  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } = useShellBarMcpActions();
+  const { copyToClipboard } = useCopyToClipboard();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     profilePopoverRef.current!.opener = e.detail.targetRef;
@@ -67,8 +68,17 @@ export function ShellBarComponent() {
             )}
             <div className={styles.logoWrapper}>
               <img src={SapLogo} alt="SAP" className={styles.logo} />
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.logoText}>ManagedControlPlane UI</span>
+              <span className={styles.logoText}>
+                {mcpDisplayName ?? mcpName ?? 'ManagedControlPlane UI'}
+              </span>
+              {namespace && (
+                <Button
+                  design="Transparent"
+                  icon="copy"
+                  tooltip={t('ShellBar.copyNamespace')}
+                  onClick={() => void copyToClipboard(namespace)}
+                />
+              )}
             </div>
           </div>
         }
@@ -77,6 +87,7 @@ export function ShellBarComponent() {
         <div className={styles.shellBarContent}>
           {roleBindings && (
             <div className={styles.membersSlot}>
+              <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
               <MembersAvatarView
                 members={convertRoleBindingsToMembers(roleBindings)}
                 project={project}

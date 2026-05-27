@@ -68,10 +68,12 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  displayName,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  displayName: string | undefined;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -103,6 +105,7 @@ function OpenSourceHeadlamp({
     setMcpActions(
       mcp.kubeconfig,
       mcp.name,
+      displayName,
       mcp.roleBindings,
       projectName,
       workspaceName,
@@ -355,6 +358,7 @@ export default function McpPage() {
               projectName={projectName}
               workspaceName={workspaceName}
               controlPlaneName={controlPlaneName}
+              displayName={displayName}
             />
           </WithinManagedControlPlane>
         </AuthProviderMcp>
