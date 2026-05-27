@@ -18,7 +18,9 @@ const UpdateCrossplaneMutation = gql`
 `;
 
 export function useUpdateCrossplane() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateCrossplaneMutation);
+  const [updateMutation, { loading, error }] = useMutation(UpdateCrossplaneMutation, {
+    refetchQueries: ['GetCrossplane'],
+  });
 
   const update = useCallback(
     // TODO: replace `object: unknown` with the generated `CrossplaneInput` type once GraphQL codegen is restored.

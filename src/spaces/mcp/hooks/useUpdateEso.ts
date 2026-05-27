@@ -18,7 +18,9 @@ const UpdateEsoMutation = gql`
 `;
 
 export function useUpdateEso() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateEsoMutation);
+  const [updateMutation, { loading, error }] = useMutation(UpdateEsoMutation, {
+    refetchQueries: ['GetExternalSecretsOperator'],
+  });
 
   const update = useCallback(
     // TODO: replace `object: unknown` with the generated `ExternalSecretsOperatorInput` type once GraphQL codegen is restored.

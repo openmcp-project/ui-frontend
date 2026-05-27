@@ -18,7 +18,9 @@ const CreateFluxMutation = gql`
 `;
 
 export function useCreateFlux() {
-  const [createMutation, { loading, error }] = useMutation(CreateFluxMutation);
+  const [createMutation, { loading, error }] = useMutation(CreateFluxMutation, {
+    refetchQueries: ['GetFlux'],
+  });
 
   const create = useCallback(
     // TODO: replace `object: unknown` with the generated `FluxInput` type once GraphQL codegen is restored.

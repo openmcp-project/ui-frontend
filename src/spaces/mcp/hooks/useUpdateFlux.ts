@@ -18,7 +18,9 @@ const UpdateFluxMutation = gql`
 `;
 
 export function useUpdateFlux() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateFluxMutation);
+  const [updateMutation, { loading, error }] = useMutation(UpdateFluxMutation, {
+    refetchQueries: ['GetFlux'],
+  });
 
   const update = useCallback(
     // TODO: replace `object: unknown` with the generated `FluxInput` type once GraphQL codegen is restored.

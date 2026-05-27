@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const CreateLandscaperMutation = gql`
-  mutation CreateLandscaper($namespace: String, $object: LandscaperInput!) {
+  mutation CreateLandscaper($namespace: String, $object: LandscaperServicesOpenmcpCloudV1alpha2LandscaperInput!) {
     landscaper_services_openmcp_cloud {
       v1alpha2 {
         createLandscaper(namespace: $namespace, object: $object) {
@@ -18,7 +18,9 @@ const CreateLandscaperMutation = gql`
 `;
 
 export function useCreateLandscaper() {
-  const [createMutation, { loading, error }] = useMutation(CreateLandscaperMutation);
+  const [createMutation, { loading, error }] = useMutation(CreateLandscaperMutation, {
+    refetchQueries: ['GetLandscaper'],
+  });
 
   const create = useCallback(
     // TODO: replace `object: unknown` with the generated `LandscaperInput` type once GraphQL codegen is restored.
