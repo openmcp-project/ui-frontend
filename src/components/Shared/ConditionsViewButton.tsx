@@ -49,8 +49,8 @@ export const ConditionsViewButton = ({ isOk, conditions }: ConditionsViewButtonP
       </Button>
 
       <ResponsivePopover ref={popoverRef} open={open} placement={PopoverPlacement.Top} onClose={() => setOpen(false)}>
-        {conditions.length > 1 && <ConditionsMessageListView conditions={conditions} />}
-        {conditions.length === 1 && <ConditionMessageItem condition={conditions[0]} />}
+        {open && conditions.length > 1 && <ConditionsMessageListView conditions={conditions} />}
+        {open && conditions.length === 1 && <ConditionMessageItem condition={conditions[0]} />}
       </ResponsivePopover>
     </span>
   );

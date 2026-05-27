@@ -121,7 +121,7 @@ const MCPHealthPopoverButton = ({
         open={open}
         onClose={() => setOpen(false)}
       >
-        <ConditionsMessageListView conditions={mcpStatus?.conditions ?? undefined} />
+        {open && <ConditionsMessageListView conditions={mcpStatus?.conditions ?? undefined} />}
       </ResponsivePopover>
     </div>
   );

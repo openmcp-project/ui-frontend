@@ -1,10 +1,12 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
+import { useState } from 'react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
+import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 
 import { useTranslation } from 'react-i18next';
 import type { McpPageSectionId } from '../../pages/McpPage.tsx';
@@ -20,6 +22,8 @@ export interface ComponentsDashboardV2Props {
   landscaperData: LandscaperData | null;
   fluxData: FluxData | null;
   esoData: EsoData | null;
+  mcpName: string;
+  mcpNamespace: string;
 }
 
 export function ComponentsDashboardV2({
@@ -28,8 +32,12 @@ export function ComponentsDashboardV2({
   landscaperData,
   fluxData,
   esoData,
+  mcpName,
+  mcpNamespace,
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
+  const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
+  const [crossplaneDialogMode, setCrossplaneDialogMode] = useState<'install' | 'edit'>('install');
 
   const isCrossplaneInstalled = !!crossplaneData?.version;
   const crossplaneVersion = crossplaneData?.version ?? undefined;
@@ -54,6 +62,22 @@ export function ComponentsDashboardV2({
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
+          onInstallButtonClick={
+            !isCrossplaneInstalled
+              ? () => {
+                  setCrossplaneDialogMode('install');
+                  setIsCrossplaneDialogOpen(true);
+                }
+              : undefined
+          }
+          onEditButtonClick={
+            isCrossplaneInstalled
+              ? () => {
+                  setCrossplaneDialogMode('edit');
+                  setIsCrossplaneDialogOpen(true);
+                }
+              : undefined
+          }
         />
         <ComponentCard
           name="Flux"
@@ -83,6 +107,14 @@ export function ComponentsDashboardV2({
           onNavigateToComponentSection={undefined}
         />
       </div>
+      <CrossplaneInstallDialog
+        open={isCrossplaneDialogOpen}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        mode={crossplaneDialogMode}
+        initialData={crossplaneData ?? undefined}
+        onClose={() => setIsCrossplaneDialogOpen(false)}
+      />
     </Panel>
   );
 }

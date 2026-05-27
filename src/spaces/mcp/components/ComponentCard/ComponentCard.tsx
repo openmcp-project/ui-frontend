@@ -1,6 +1,7 @@
 import { Button, Card, CardHeader } from '@ui5/webcomponents-react';
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
+
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
 import styles from './ComponentCard.module.css';
 
@@ -14,6 +15,7 @@ export type ComponentCardProps = KpiProps & {
   version?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
+  onEditButtonClick?: () => void;
 };
 
 export function ComponentCard({
@@ -24,6 +26,7 @@ export function ComponentCard({
   version,
   onNavigateToComponentSection,
   onInstallButtonClick,
+  onEditButtonClick,
   ...props
 }: ComponentCardProps) {
   const { t } = useTranslation();
@@ -45,25 +48,42 @@ export function ComponentCard({
       className={canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive}
       onClick={canNavigateToComponentDetails ? onNavigateToComponentSection : undefined}
     >
-      <div
-        className={clsx(
-          styles.content,
-          canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive,
-        )}
-      >
-        {isInstalled ? (
-          <div data-cy="kpi-container" className={styles.kpiContainer}>
-            <Kpi {...props} />
-          </div>
-        ) : (
-          <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>
-            {onInstallButtonClick && (
-              <Button data-cy="install-button" icon="sap-icon://add-product" onClick={onInstallButtonClick}>
-                {t('ComponentCard.installButton', { component: name })}
-              </Button>
-            )}
-          </div>
-        )}
+      <div className={styles.cardContent}>
+        <div
+          className={clsx(
+            styles.content,
+            canNavigateToComponentDetails ? styles.cardInteractive : styles.cardNoninteractive,
+          )}
+        >
+          {isInstalled ? (
+            <div data-cy="kpi-container" className={styles.kpiContainer}>
+              <div className={styles.kpiContent}>
+                <Kpi {...props} />
+              </div>
+              <div className={styles.actions}>
+                {onEditButtonClick && (
+                  <Button
+                    accessibleName={t('ComponentCard.editButton')}
+                    data-cy="edit-button"
+                    icon="sap-icon://edit"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditButtonClick();
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>
+              {onInstallButtonClick && (
+                <Button data-cy="install-button" icon="sap-icon://add-product" onClick={onInstallButtonClick}>
+                  {t('ComponentCard.installButton', { component: name })}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

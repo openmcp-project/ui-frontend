@@ -38,3 +38,5 @@ public/frontend-config.json
 
 # OCM build artifacts
 .ctf/
+
+.claude/settings.local.json
