@@ -4,6 +4,7 @@ import { RoleBinding } from '../lib/api/types/crate/controlPlanes.ts';
 export interface ShellBarMcpActionsContextType {
   kubeconfig: string | undefined;
   mcpName: string | undefined;
+  mcpDisplayName: string | undefined;
   namespace: string | undefined;
   roleBindings: RoleBinding[] | undefined;
   project: string | undefined;
@@ -14,6 +15,7 @@ export interface ShellBarMcpActionsContextType {
   setMcpActions: (
     kubeconfig: string | undefined,
     mcpName: string | undefined,
+    mcpDisplayName?: string,
     roleBindings?: RoleBinding[],
     project?: string,
     workspace?: string,
@@ -30,6 +32,7 @@ const ShellBarMcpActionsContext = createContext<ShellBarMcpActionsContextType | 
 export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }) {
   const [kubeconfig, setKubeconfig] = useState<string | undefined>(undefined);
   const [mcpName, setMcpName] = useState<string | undefined>(undefined);
+  const [mcpDisplayName, setMcpDisplayName] = useState<string | undefined>(undefined);
   const [namespace, setNamespace] = useState<string | undefined>(undefined);
   const [roleBindings, setRoleBindings] = useState<RoleBinding[] | undefined>(undefined);
   const [project, setProject] = useState<string | undefined>(undefined);
@@ -42,6 +45,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     (
       kc: string | undefined,
       name: string | undefined,
+      displayName?: string,
       rb?: RoleBinding[],
       proj?: string,
       ws?: string,
@@ -52,6 +56,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     ) => {
       setKubeconfig(kc);
       setMcpName(name);
+      setMcpDisplayName(displayName);
       setRoleBindings(rb);
       setProject(proj);
       setWorkspace(ws);
@@ -70,6 +75,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
     setProject(undefined);
     setWorkspace(undefined);
     setNamespace(undefined);
+    setMcpDisplayName(undefined);
     setOnEditMcp(undefined);
     setOnOpenYaml(undefined);
     setNavigateBack(undefined);
@@ -80,6 +86,7 @@ export function ShellBarMcpActionsProvider({ children }: { children: ReactNode }
       value={{
         kubeconfig,
         mcpName,
+        mcpDisplayName,
         namespace,
         roleBindings,
         project,
