@@ -39,7 +39,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
 
   return (
     <>
-      <Button icon="overflow" icon-end data-testid="ControlPlanesListMenu-opener" onClick={handleOpenerClick} />
+      <Button design="Transparent" icon="overflow" icon-end data-testid="ControlPlanesListMenu-opener" onClick={handleOpenerClick} />
       <Menu
         ref={popoverRef}
         open={open}
