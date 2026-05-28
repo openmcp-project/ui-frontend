@@ -1,11 +1,315 @@
 .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.02),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8) 20%,
+    rgba(255, 255, 255, 0.8) 80%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.card:hover {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.03);
+  transform: translateY(-3px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 1rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(250, 251, 252, 0.4) 100%);
+  backdrop-filter: blur(8px);
+}
+
+.titleSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.statusIndicator {
+  width: 0.25rem;
+  height: 2.75rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  opacity: 1;
+}
+
+.statusIndicator.success {
+  background: var(--sapPositiveColor);
+}
+
+.statusIndicator.error {
+  background: var(--sapNegativeColor);
+}
+
+.statusIndicator.warning {
+  background: var(--sapCriticalColor);
+}
+
+.statusIndicator.neutral {
+  background: var(--sapNeutralColor);
+}
+
+.titleContent {
+  flex: 1;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--sapTextColor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.container {
-  padding: 1.25rem;
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.row {
-  padding-top: 1.25rem;
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--sapContent_LabelColor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerActions {
+  flex-shrink: 0;
+}
+
+.cardBody {
+  padding: 0.625rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.deprecatedSection {
+  margin-top: 0.25rem;
+}
+
+.rowLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(0, 0, 0, 0.5);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.componentsRow {
+  min-height: 2.5rem;
+}
+
+.componentIcons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.375rem;
+  min-height: 2rem;
+}
+
+.componentIcon {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.375rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: help;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.componentIcon:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.componentLogo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.emptyComponents {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.6) 0%, rgba(241, 243, 245, 0.4) 100%);
+  border-radius: 0.625rem;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.emptyIcon {
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 1rem;
+}
+
+.emptyText {
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.5);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.metaInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.membersSection {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+  border-radius: 0.625rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.deprecatedSection {
+  margin-top: 0.5rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metaIcon {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 0.875rem;
+}
+
+.metaText {
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.55);
+  font-weight: 500;
+}
+
+.cardFooter {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg, rgba(250, 251, 252, 0.8) 0%, rgba(245, 247, 249, 0.6) 100%);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.footerRight {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* Skeleton loading styles */
+.skeletonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonLabel {
+  width: 80px;
+  height: 10px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeletonAvatars {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeletonAvatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonIcons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeletonIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

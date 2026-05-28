@@ -1,12 +1,11 @@
-import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
+import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
-
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState } from 'react';
-
+import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import styles from './ControlPlaneCard.module.css';
@@ -15,7 +14,6 @@ import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/ty
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
-
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
@@ -25,6 +23,15 @@ import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
+import { useMcpComponents } from './useMcpComponents.ts';
+import ReactTimeAgo from 'react-time-ago';
+import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
+
+import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
+import LogoFlux from '../../../assets/images/logo-flux.svg';
+import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
+import LogoKyverno from '../../../assets/images/logo-kyverno.png';
+import LogoEso from '../../../assets/images/logo-eso.svg';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -38,6 +45,14 @@ type MCPWizardState = {
   isOpen: boolean;
   mode?: 'edit' | 'duplicate';
 };
+
+interface ComponentInfo {
+  name: string;
+  logo: string;
+  installed: boolean;
+  version?: string;
+}
+
 export const ControlPlaneCard = ({
   controlPlane,
   workspace,
@@ -55,85 +70,177 @@ export const ControlPlaneCard = ({
   const handleIsManagedControlPlaneWizardOpen = (isOpen: boolean, mode?: 'edit' | 'duplicate') => {
     setManagedControlPlaneWizardState({ isOpen, mode });
   };
+
   const { deleteManagedControlPlane } = useDeleteManagedControlPlane(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
+
   const { deleteManagedControlPlaneV2 } = useDeleteManagedControlPlaneV2GraphQL(
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
 
   const name = controlPlane.metadata.name;
+  const { t } = useTranslation();
   const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
-
   const namespace = controlPlane.metadata.namespace;
-
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
+
+  const { components: mcpComponents, roleBindings } = useMcpComponents(projectName, workspace.metadata.name, name);
+
+  const components = useMemo<ComponentInfo[]>(() => {
+    return [
+      {
+        name: 'Crossplane',
+        logo: LogoCrossplane,
+        installed: !!mcpComponents?.crossplane,
+        version: mcpComponents?.crossplane?.version,
+      },
+      {
+        name: 'Flux',
+        logo: LogoFlux,
+        installed: !!mcpComponents?.flux,
+        version: mcpComponents?.flux?.version,
+      },
+      {
+        name: 'Landscaper',
+        logo: LogoLandscaper,
+        installed: !!mcpComponents?.landscaper,
+      },
+      {
+        name: 'Kyverno',
+        logo: LogoKyverno,
+        installed: !!mcpComponents?.kyverno,
+        version: mcpComponents?.kyverno?.version,
+      },
+      {
+        name: 'External Secrets Operator',
+        logo: LogoEso,
+        installed: !!mcpComponents?.externalSecretsOperator,
+        version: mcpComponents?.externalSecretsOperator?.version,
+      },
+    ];
+  }, [mcpComponents]);
+
+  const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
+
+  const getStatusColor = () => {
+    const status = controlPlane.status?.status ?? controlPlane.status?.phase;
+    switch (status) {
+      case ReadyStatus.Ready:
+        return 'success';
+      case ReadyStatus.NotReady:
+        return 'error';
+      case ReadyStatus.Progressing:
+        return 'warning';
+      case ReadyStatus.InDeletion:
+        return 'neutral';
+      default:
+        return 'neutral';
+    }
+  };
 
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
-        <div className={styles.container}>
-          <FlexBox direction="Column">
-            <FlexBox direction="Row" justifyContent="SpaceBetween">
-              <FlexBox direction="Column">
-                <Title level={TitleLevel.H5}>{displayName ? displayName : name}</Title>
-                <Label>{workspace.metadata.name} </Label>
-              </FlexBox>
-              <div>
-                <MCPHealthPopoverButton
-                  mcpStatus={controlPlane.status}
-                  projectName={projectName}
-                  workspaceName={workspace.metadata.name ?? ''}
-                  mcpName={controlPlane.metadata.name}
-                />
+        <div className={styles.cardHeader}>
+          <div className={styles.titleSection}>
+            <div className={`${styles.statusIndicator} ${styles[getStatusColor()]}`} />
+            <FlexBox direction="Column" className={styles.titleContent}>
+              <Title level={TitleLevel.H5} className={styles.title}>
+                {displayName ? displayName : name}
+              </Title>
+              <div className={styles.metaRow}>
+                <Icon name="sap-icon://time-entry-request" className={styles.metaIcon} />
+                <span className={styles.metaText}>
+                  <ReactTimeAgo date={new Date(controlPlane.metadata.creationTimestamp)} />
+                </span>
               </div>
             </FlexBox>
-            <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" className={styles.row}>
-              {controlPlane.version !== 'v2' && (
-                <ControlPlaneCardMenu
-                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                  setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
-                />
-              )}
-              {controlPlane.version === 'v2' && (
-                <ControlPlaneCardMenuV2
-                  setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                  isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
-                />
-              )}
-              {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
-              <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center" gap={10}>
-                <YamlViewButton
-                  variant="loader"
-                  workspaceName={controlPlane.metadata.namespace}
-                  resourceName={controlPlane.metadata.name}
-                  resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
-                />
-                {controlPlane.version === 'v2' ? (
-                  <ConnectButtonV2
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
-                  />
-                ) : (
-                  <ConnectButton
-                    disabled={!isConnectButtonEnabled}
-                    controlPlaneName={name}
-                    projectName={projectName}
-                    workspaceName={workspace.metadata.name ?? ''}
-                    namespace={controlPlane.status?.access?.namespace ?? ''}
-                    secretName={controlPlane.status?.access?.name ?? ''}
-                    secretKey={controlPlane.status?.access?.key ?? ''}
-                  />
-                )}
-              </FlexBox>
-            </FlexBox>
-          </FlexBox>
+          </div>
+
+          <div className={styles.headerActions}>
+            <MCPHealthPopoverButton
+              mcpStatus={controlPlane.status}
+              projectName={projectName}
+              workspaceName={workspace.metadata.name ?? ''}
+              mcpName={controlPlane.metadata.name}
+            />
+          </div>
+        </div>
+
+        <div className={styles.cardBody}>
+          <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspace.metadata.name} />
+
+          <div className={styles.componentsRow}>
+            <span className={styles.rowLabel}>
+              {t('ControlPlaneCard.installedComponents', {
+                count: installedComponents.length,
+                defaultValue: 'Installed Components ({{count}})',
+              })}
+            </span>
+            <div className={styles.componentIcons}>
+              {installedComponents.map((component) => (
+                <div key={component.name} className={styles.componentIcon} title={component.name}>
+                  <img src={component.logo} alt={component.name} className={styles.componentLogo} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {markMcpV1asDeprecated && controlPlane.version !== 'v2' && (
+            <div className={styles.deprecatedSection}>
+              <DeprecatedLabel />
+            </div>
+          )}
+        </div>
+
+        <div className={styles.cardFooter}>
+          <div className={styles.footerLeft}>
+            {controlPlane.version !== 'v2' && (
+              <ControlPlaneCardMenu
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+              />
+            )}
+            {controlPlane.version === 'v2' && (
+              <ControlPlaneCardMenuV2
+                setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
+                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+              />
+            )}
+            <YamlViewButton
+              variant="loader"
+              workspaceName={controlPlane.metadata.namespace}
+              resourceName={controlPlane.metadata.name}
+              resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
+            />
+          </div>
+
+          <div className={styles.footerRight}>
+            {controlPlane.version === 'v2' ? (
+              <ConnectButtonV2
+                controlPlaneName={name}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+              />
+            ) : (
+              <ConnectButton
+                disabled={!isConnectButtonEnabled}
+                controlPlaneName={name}
+                projectName={projectName}
+                workspaceName={workspace.metadata.name ?? ''}
+                namespace={controlPlane.status?.access?.namespace ?? ''}
+                secretName={controlPlane.status?.access?.name ?? ''}
+                secretKey={controlPlane.status?.access?.key ?? ''}
+              />
+            )}
+          </div>
         </div>
       </Card>
+
       {controlPlane.version !== 'v2' && (
         <DeleteConfirmationDialog
           resourceName={controlPlane.metadata.name}
