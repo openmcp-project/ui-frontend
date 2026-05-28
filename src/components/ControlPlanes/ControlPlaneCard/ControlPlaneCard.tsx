@@ -154,7 +154,9 @@ export const ControlPlaneCard = ({
               <div className={styles.metaRow}>
                 <Icon name="sap-icon://time-entry-request" className={styles.metaIcon} />
                 <span className={styles.metaText}>
-                  <ReactTimeAgo date={new Date(controlPlane.metadata.creationTimestamp)} />
+                  {controlPlane.metadata.creationTimestamp && (
+                    <ReactTimeAgo date={new Date(controlPlane.metadata.creationTimestamp)} />
+                  )}
                 </span>
               </div>
             </FlexBox>
