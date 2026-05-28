@@ -1,4 +1,4 @@
-import { ButtonDomRef, Button, Icon, PopoverDomRef, Popover, Text } from '@ui5/webcomponents-react';
+import { ButtonDomRef, PopoverDomRef, Popover, Text } from '@ui5/webcomponents-react';
 import { useState, useRef, RefObject } from 'react';
 import styles from './ShellBar.module.css';
 import { useTranslation } from 'react-i18next';
@@ -20,13 +20,23 @@ export function BetaButton() {
 
   return (
     <>
-      <Button ref={betaButtonRef} className={styles.betaButton} onClick={onBetaClick}>
-        <span className={styles.betaContent}>
-          <Icon name="information" className={styles.betaIcon} />
-          <span className={styles.betaText}>{t('ShellBar.betaButton')}</span>
-        </span>
-        <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
-      </Button>
+      <span
+        ref={betaButtonRef}
+        className={styles.betaBadge}
+        slot="content"
+        role="button"
+        tabIndex={0}
+        onClick={onBetaClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onBetaClick();
+          }
+        }}
+      >
+        {t('ShellBar.betaButton')}
+      </span>
+      <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
     </>
   );
 }
