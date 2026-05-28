@@ -33,7 +33,7 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
       <AvatarGroup id={openerId} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleOnClick}>
         {avatars}
       </AvatarGroup>

@@ -1,0 +1,32 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.button .text {
+  display: inline-block;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsed .text {
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+}
+
+.expanded .text {
+  max-width: 500px;
+  opacity: 1;
+  margin-left: 0.5rem;
+}
+
+.button:hover {
+  background-color: var(--sapButton_Hover_Background);
+}

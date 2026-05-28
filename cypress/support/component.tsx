@@ -25,9 +25,14 @@ import { FrontendConfigContext } from '../../src/context/FrontendConfigContext';
 import { mockedFrontendConfig } from '../../src/utils/testing';
 import { ToastProvider } from '../../src/context/ToastContext.tsx';
 import { configureMonaco } from '../../src/lib/monaco';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 
 // Initialize Monaco Editor for Cypress tests
 configureMonaco();
+
+// Register time-ago locale for tests
+TimeAgo.addDefaultLocale(en);
 
 // Known race conditions during test teardown / module loading.
 Cypress.on('uncaught:exception', (err) => {

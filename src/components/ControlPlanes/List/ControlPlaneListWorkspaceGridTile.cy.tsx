@@ -1,5 +1,4 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
@@ -122,5 +121,138 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
+  });
+
+  it('displays WorkspaceHealthIndicator with correct stats for all healthy', () => {
+    const workspace: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground--ws-workspaceName',
+        annotations: {},
+      },
+      spec: {
+        members: [],
+      },
+    };
+
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="some-project"
+                  useMcpsQuery={fakeUseMCPsListQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Check health indicator displays "3/3 healthy" when all are ready
+    cy.contains('3/3 healthy').should('be.visible');
+  });
+
+  it('displays WorkspaceHealthIndicator with correct stats for unhealthy workspace', () => {
+    const mixedHealthControlPlanes: ControlPlaneListItem[] = [
+      {
+        version: 'v1',
+        metadata: {
+          name: 'mcp-ready',
+          namespace: 'project-test--ws-test',
+          creationTimestamp: '2024-05-28T10:00:00Z',
+          annotations: {},
+        },
+        status: {
+          status: ReadyStatus.Ready,
+          conditions: [],
+          access: undefined,
+        },
+      },
+      {
+        version: 'v1',
+        metadata: {
+          name: 'mcp-notready-1',
+          namespace: 'project-test--ws-test',
+          creationTimestamp: '2024-05-28T10:00:00Z',
+          annotations: {},
+        },
+        status: {
+          status: ReadyStatus.NotReady,
+          conditions: [],
+          access: undefined,
+        },
+      },
+      {
+        version: 'v1',
+        metadata: {
+          name: 'mcp-notready-2',
+          namespace: 'project-test--ws-test',
+          creationTimestamp: '2024-05-28T10:00:00Z',
+          annotations: {},
+        },
+        status: {
+          status: ReadyStatus.NotReady,
+          conditions: [],
+          access: undefined,
+        },
+      },
+    ];
+
+    const fakeUseMCPsListQueryMixed: typeof useMcpsQuery = () => ({
+      data: mixedHealthControlPlanes,
+      error: undefined,
+      isPending: false,
+    });
+
+    const workspace: Workspace = {
+      metadata: {
+        name: 'test',
+        namespace: 'project-test--ws-test',
+        annotations: {},
+      },
+      spec: {
+        members: [],
+      },
+    };
+
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="test"
+                  useMcpsQuery={fakeUseMCPsListQueryMixed}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Check health indicator shows "1/3 healthy" when only 1 is ready
+    cy.contains('1/3 healthy').should('be.visible');
   });
 });

@@ -2,7 +2,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import { Button, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
@@ -14,15 +14,16 @@ import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
-import { CopyButton } from '../../Shared/CopyButton.tsx';
+import { CopyNamespaceButton } from '../../Shared/CopyNamespaceButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
-import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
+import { ControlPlaneCardV2 } from '../ControlPlaneCard/ControlPlaneCardV2.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { WorkspaceHealthIndicator } from '../WorkspaceHealthIndicator/WorkspaceHealthIndicator.tsx';
 import styles from './WorkspacesList.module.css';
 
 interface Props {
@@ -110,28 +111,34 @@ export function ControlPlaneListWorkspaceGridTile({
       >
         <Panel
           headerLevel="H2"
-          style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
+          style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%', background: 'transparent' }}
           collapsed={shouldCollapsePanel}
           header={
             <div
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
-                gap: '1rem',
-                justifyContent: 'space-between',
+                gridTemplateColumns: '1fr auto 1fr',
                 alignItems: 'center',
+                gap: '1rem',
               }}
             >
-              <Title level="H3">
-                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-              </Title>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Title level="H3">
+                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                </Title>
+                <CopyNamespaceButton namespace={workspace.status?.namespace || '-'} />
+              </div>
 
-              <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                {managedControlPlanes && managedControlPlanes.length > 0 && (
+                  <WorkspaceHealthIndicator controlPlanes={managedControlPlanes} compact />
+                )}
+              </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
-              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-end' }}>
+                <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
                 <YamlViewButton
                   variant="loader"
                   workspaceName={workspace.metadata.namespace}
@@ -144,7 +151,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   setInitialTemplateName={setInitialTemplateName}
                   setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 />
-              </FlexBox>
+              </div>
             </div>
           }
           noAnimation
@@ -192,7 +199,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.wrapper}>
               <div className={styles.grid}>
                 {managedControlPlanes?.map((mcp) => (
-                  <ControlPlaneCard
+                  <ControlPlaneCardV2
                     key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
                     controlPlane={mcp}
                     projectName={projectName}
