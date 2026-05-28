@@ -122,14 +122,3 @@ ui5-toast {
   margin: 1rem auto;
   max-width: 80%;
 }
-
-/* Panel background - white header, transparent content */
-ui5-panel::part(header) {
-  background: white !important;
-  border-radius: 0.5rem !important;
-}
-
-ui5-panel::part(content) {
-  background: transparent !important;
-  padding: 1rem !important;
-}
