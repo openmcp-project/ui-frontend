@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as opentelemetry from '@opentelemetry/api';
-import { Resource } from '@opentelemetry/resources';
+import { resourceFromAttributes, emptyResource, defaultResource, type Resource } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -41,7 +41,7 @@ function getDynatraceHostname(endpoint: string): string {
  * This ensures proper topology correlation in Dynatrace
  */
 function loadDynatraceMetadata(): Resource {
-  let dtMetadata = Resource.empty();
+  let dtMetadata = emptyResource();
 
   const metadataFiles = [
     'dt_metadata_e617c525669e072eebe3d0f08212e8f2.json',
@@ -58,7 +58,7 @@ function loadDynatraceMetadata(): Resource {
       }
 
       const metadata = JSON.parse(readFileSync(actualPath, 'utf-8'));
-      dtMetadata = dtMetadata.merge(new Resource(metadata));
+      dtMetadata = dtMetadata.merge(resourceFromAttributes(metadata));
       console.log(`[OpenTelemetry] Loaded Dynatrace metadata from: ${actualPath}`);
       break;
     } catch (error) {}
@@ -99,9 +99,9 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
   const dtMetadata = loadDynatraceMetadata();
 
   // Create resource with service information and Dynatrace metadata
-  const resource = Resource.default()
+  const resource = defaultResource()
     .merge(
-      new Resource({
+      resourceFromAttributes({
         [ATTR_SERVICE_NAME]: config.serviceName || 'ui-frontend-bff',
         [ATTR_SERVICE_VERSION]: config.serviceVersion || '1.0.0',
         'deployment.environment': config.environment || 'production',
@@ -122,9 +122,9 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
 
   tracerProvider = new NodeTracerProvider({
     resource: resource,
+    spanProcessors: [spanProcessor],
   });
 
-  tracerProvider.addSpanProcessor(spanProcessor);
   tracerProvider.register();
 
   console.log('[OpenTelemetry] Trace provider initialized and registered.');

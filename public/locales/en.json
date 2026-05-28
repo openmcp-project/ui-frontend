@@ -17,8 +17,9 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
-    "notInstalledLabel": "not installed",
-    "installButton": "Install {{component}}"
+    "editButton": "Edit",
+    "installButton": "Install {{component}}",
+    "notInstalledLabel": "not installed"
   },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",
@@ -134,6 +135,18 @@
   "ComponentsSelection": {
     "chooseVersion": "Please select version"
   },
+  "CrossplaneInstallDialog": {
+    "title": "Install Crossplane",
+    "titleEdit": "Edit Crossplane",
+    "crossplaneVersion": "Crossplane Version",
+    "providers": "Providers",
+    "providerVersionLabel": "{{provider}} version",
+    "successMessage": "Crossplane has been successfully installed.",
+    "errorMessage": "Failed to install Crossplane. Please try again.",
+    "successMessageEdit": "Crossplane has been successfully updated.",
+    "errorMessageEdit": "Failed to update Crossplane. Please try again.",
+    "yamlPreview": "YAML Preview"
+  },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
     "subtitleMessage": "Get started by creating your first Control Plane.",
@@ -248,7 +261,7 @@
     "fluxTitle": "Flux",
     "gitRepositoriesTitle": "GitRepositories",
     "kustomizationsTitle": "Kustomizations",
-    "landscapersTitle": "Landscapers",
+    "landscaperTitle": "Landscaper",
     "configMapsTitle": "ConfigMaps",
     "secretsTitle": "Secrets",
     "secretTypeHeader": "Type"
@@ -384,6 +397,8 @@
     "status": "Status",
     "documentation": "Documentation",
     "close": "Close",
+    "cancel": "Cancel",
+    "applyChanges": "Apply Changes",
     "created": "Created",
     "cannotLoadData": "Cannot load data",
     "file": "File",
