@@ -39,10 +39,10 @@ describe('ShellBar', () => {
     cy.get('img[alt="SAP"]').should('be.visible');
   });
 
-  it('renders preview badge', () => {
+  it('renders beta badge', () => {
     mountComponent();
 
-    cy.contains('Preview').should('be.visible');
+    cy.contains('Beta').should('be.visible');
   });
 
   it('shows avatar with user initials', () => {
