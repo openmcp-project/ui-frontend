@@ -107,7 +107,7 @@
     "editMCP": "Edit Control Plane",
     "duplicateMCP": "Duplicate Control Plane",
     "deleteMCP": "Delete Control Plane",
-    "installedComponents_one": "Installed Components ({{count}})",
+    "installedComponents_one": "Installed Component ({{count}})",
     "installedComponents_other": "Installed Components ({{count}})"
   },
   "ControlPlaneListAllWorkspaces": {
