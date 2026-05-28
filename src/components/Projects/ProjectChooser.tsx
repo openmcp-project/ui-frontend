@@ -4,7 +4,6 @@ import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { useApiResource } from '../../lib/api/useApiResource';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { projectnameToNamespace } from '../../utils';
 
 interface Props {
   currentProjectName: string;
@@ -37,7 +36,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
           </VariantItem>
         ))}
       </VariantManagement>
-      <CopyButton collapsible text={projectnameToNamespace(currentProjectName)} />
+      <CopyButton text={`project-${currentProjectName}`} />
     </>
   );
 }
