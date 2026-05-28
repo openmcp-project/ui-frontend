@@ -111,7 +111,7 @@ const AccessV2Schema = z.preprocess(
 const StatusV2Schema = z.object({
   phase: z.string().nullish(),
   conditions: ConditionsSchema,
-  access: AccessV2Schema,
+  access: AccessV2Schema.nullish(),
 });
 
 const SpecV2Schema = z.object({
