@@ -117,18 +117,19 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
+                gridTemplateColumns: '1fr 0.24fr auto',
                 gap: '1rem',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
-              <Title level="H3">
-                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-              </Title>
-
-              <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 0 }}>
+                <Title level="H3">
+                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                </Title>
+                <CopyButton collapsible text={workspace.status?.namespace || '-'} />
+              </div>
 
               <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
