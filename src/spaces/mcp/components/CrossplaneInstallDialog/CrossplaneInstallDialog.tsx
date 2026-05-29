@@ -52,8 +52,8 @@ export function CrossplaneInstallDialog({
   const { t } = useTranslation();
   const toast = useToast();
   const { services, crossplaneProviders } = useManagedServicesQuery();
-  const { createCrossplane, loading: createLoading } = useCreateCrossplane();
-  const { updateCrossplane, loading: updateLoading } = useUpdateCrossplane();
+  const { create, loading: createLoading } = useCreateCrossplane();
+  const { update, loading: updateLoading } = useUpdateCrossplane();
   const isLoading = createLoading || updateLoading;
 
   const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
@@ -105,7 +105,7 @@ export function CrossplaneInstallDialog({
 
   const handleVersionChange = useCallback(
     (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
-      setValue('crossplaneVersion', (e.detail.selectedOption as HTMLElement).dataset.version ?? '', {
+      setValue('crossplaneVersion', (e.detail.selectedOption as HTMLElement).getAttribute('value') ?? '', {
         shouldValidate: isSubmitted,
       });
     },
@@ -126,9 +126,9 @@ export function CrossplaneInstallDialog({
 
   const handleProviderVersionChange = useCallback(
     (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
-      const option = e.detail.selectedOption as HTMLElement;
-      const name = option.dataset.name ?? '';
-      const version = option.dataset.version ?? '';
+      const select = e.target as HTMLElement;
+      const name = select.dataset.name ?? '';
+      const version = (e.detail.selectedOption as HTMLElement).getAttribute('value') ?? '';
       setValue(
         'providerStates',
         providerStates.map((p) => (p.name === name ? { ...p, selectedVersion: version } : p)),
@@ -153,35 +153,26 @@ export function CrossplaneInstallDialog({
       };
       try {
         if (mode === 'edit') {
-          await updateCrossplane({ namespace: mcpNamespace, name: mcpName, object });
+          await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await createCrossplane({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, object });
         }
         toast.show(
           mode === 'edit'
-            ? t('CrossplaneInstallDialog.successMessageEdit')
-            : t('CrossplaneInstallDialog.successMessage'),
+            ? t('ComponentInstallDialog.successMessageEdit', { component: 'Crossplane' })
+            : t('ComponentInstallDialog.successMessage', { component: 'Crossplane' }),
         );
         handleClose();
       } catch (error) {
         console.error('Crossplane mutation failed', error);
         toast.show(
-          mode === 'edit' ? t('CrossplaneInstallDialog.errorMessageEdit') : t('CrossplaneInstallDialog.errorMessage'),
+          mode === 'edit'
+            ? t('ComponentInstallDialog.errorMessageEdit', { component: 'Crossplane' })
+            : t('ComponentInstallDialog.errorMessage', { component: 'Crossplane' }),
         );
       }
     },
-    [
-      createCrossplane,
-      updateCrossplane,
-      mode,
-      mcpName,
-      mcpNamespace,
-      t,
-      toast,
-      handleClose,
-      crossplaneApiVersion,
-      crossplaneKind,
-    ],
+    [create, update, mode, mcpName, mcpNamespace, t, toast, handleClose, crossplaneApiVersion, crossplaneKind],
   );
 
   const handleApply = useCallback(() => {
@@ -208,7 +199,11 @@ export function CrossplaneInstallDialog({
   return (
     <Dialog
       stretch={false}
-      headerText={mode === 'edit' ? t('CrossplaneInstallDialog.titleEdit') : t('CrossplaneInstallDialog.title')}
+      headerText={
+        mode === 'edit'
+          ? t('ComponentInstallDialog.titleEdit', { component: 'Crossplane' })
+          : t('ComponentInstallDialog.title', { component: 'Crossplane' })
+      }
       open={open}
       footer={
         <Bar
@@ -230,30 +225,27 @@ export function CrossplaneInstallDialog({
       <div className={styles.content}>
         <div className={styles.formColumn}>
           <Title level="H5" className={styles.sectionTitle}>
-            {t('CrossplaneInstallDialog.crossplaneVersion')}
+            {t('ComponentInstallDialog.versionLabel', { component: 'Crossplane' })}
           </Title>
           <Select
             data-cy="crossplane-version-select"
             className={styles.versionSelect}
-            accessibleName={t('CrossplaneInstallDialog.crossplaneVersion')}
+            accessibleName={t('ComponentInstallDialog.versionLabel', { component: 'Crossplane' })}
+            value={crossplaneVersion}
             valueState={errors.crossplaneVersion ? 'Negative' : 'None'}
             valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            {!crossplaneVersion && (
-              <Option data-version="" selected>
-                {t('ComponentsSelection.chooseVersion')}
-              </Option>
-            )}
+            <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
             {crossplaneVersions.map(({ version }) => (
-              <Option key={version} data-version={version} selected={crossplaneVersion === version}>
+              <Option key={version} value={version}>
                 {version}
               </Option>
             ))}
           </Select>
 
           <Title level="H5" className={styles.sectionTitle}>
-            {t('CrossplaneInstallDialog.providers')}
+            {t('ComponentInstallDialog.providers')}
           </Title>
           <div className={styles.providerList}>
             {providerStates.map((provider, index) => {
@@ -275,25 +267,18 @@ export function CrossplaneInstallDialog({
                   />
                   <Select
                     data-cy={`provider-version-select-${provider.name}`}
+                    data-name={provider.name}
                     className={styles.providerVersionSelect}
-                    accessibleName={t('CrossplaneInstallDialog.providerVersionLabel', { provider: provider.name })}
+                    accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.name })}
                     disabled={!provider.isSelected}
+                    value={provider.selectedVersion}
                     valueState={versionError ? 'Negative' : 'None'}
                     valueStateMessage={versionError ? <span>{versionError.message}</span> : undefined}
                     onChange={handleProviderVersionChange}
                   >
-                    {!provider.selectedVersion && (
-                      <Option data-name={provider.name} data-version="" selected>
-                        {t('ComponentsSelection.chooseVersion')}
-                      </Option>
-                    )}
+                    <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
                     {providerVersions.map(({ version }) => (
-                      <Option
-                        key={version}
-                        data-name={provider.name}
-                        data-version={version}
-                        selected={provider.selectedVersion === version}
-                      >
+                      <Option key={version} value={version}>
                         {version}
                       </Option>
                     ))}
@@ -305,7 +290,7 @@ export function CrossplaneInstallDialog({
         </div>
         <div className={styles.yamlColumn}>
           <Title level="H5" className={styles.sectionTitle}>
-            {t('CrossplaneInstallDialog.yamlPreview')}
+            {t('ComponentInstallDialog.yamlPreview')}
           </Title>
           <div className={styles.yamlViewer}>
             <YamlViewer yamlString={yamlPreview} filename={mcpName} />

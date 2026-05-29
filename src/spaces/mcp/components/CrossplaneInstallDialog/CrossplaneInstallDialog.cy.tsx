@@ -12,18 +12,18 @@ describe('CrossplaneInstallDialog', () => {
   let updatePayload: UpdateVariables | null = null;
 
   const fakeUseCreateCrossplane: typeof useCreateCrossplane = () => ({
-    createCrossplane: async (variables: CreateVariables) => {
+    create: async (variables: CreateVariables) => {
       createPayload = variables;
-      return {} as Awaited<ReturnType<ReturnType<typeof useCreateCrossplane>['createCrossplane']>>;
+      return {} as Awaited<ReturnType<ReturnType<typeof useCreateCrossplane>['create']>>;
     },
     loading: false,
     error: undefined,
   });
 
   const fakeUseUpdateCrossplane: typeof useUpdateCrossplane = () => ({
-    updateCrossplane: async (variables: UpdateVariables) => {
+    update: async (variables: UpdateVariables) => {
       updatePayload = variables;
-      return {} as Awaited<ReturnType<ReturnType<typeof useUpdateCrossplane>['updateCrossplane']>>;
+      return {} as Awaited<ReturnType<ReturnType<typeof useUpdateCrossplane>['update']>>;
     },
     loading: false,
     error: undefined,
@@ -352,7 +352,7 @@ describe('CrossplaneInstallDialog', () => {
   it('shows an error toast and keeps the dialog open when the mutation fails', () => {
     const onClose = cy.stub();
     const fakeUseFailingCreate: typeof useCreateCrossplane = () => ({
-      createCrossplane: async () => {
+      create: async () => {
         throw new Error('boom');
       },
       loading: false,
@@ -390,7 +390,7 @@ describe('CrossplaneInstallDialog', () => {
     };
     const onClose = cy.stub();
     const fakeUseFailingUpdate: typeof useUpdateCrossplane = () => ({
-      updateCrossplane: async () => {
+      update: async () => {
         throw new Error('boom');
       },
       loading: false,
