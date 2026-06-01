@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 const PROJECTS_REFRESH_INTERVAL_MS = 30_000;
 
 const CreateSelfSubjectRulesReview = graphql(`
-  mutation CreateSelfSubjectRulesReview($object: SelfSubjectRulesReviewInput!) {
+  mutation CreateSelfSubjectRulesReview($object: AuthorizationK8sIoV1SelfSubjectRulesReview_Input!) {
     authorization_k8s_io {
       v1 {
         createSelfSubjectRulesReview(object: $object) {

@@ -162,6 +162,7 @@ fastify.get('/', function (req, reply) {
   return reply.html();
 });
 
+
 await fastify.vite.ready();
 fastify.listen(
   {
