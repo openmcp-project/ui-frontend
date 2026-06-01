@@ -616,7 +616,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             disabled={isStepDisabled('members')}
           >
             <Form>
-              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+              <FormGroup>
                 <EditMembers
                   members={watchedMembers}
                   isValidationError={!!errors.members}
