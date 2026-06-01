@@ -616,7 +616,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             disabled={isStepDisabled('members')}
           >
             <Form>
-              <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+              <FormGroup>
                 <EditMembers
                   members={watchedMembers}
                   isValidationError={!!errors.members}
@@ -679,7 +679,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             />
           </WizardStep>
           <WizardStep
-            icon="activities"
+            icon="accept"
             titleText={t('common.success')}
             disabled={isStepDisabled('success')}
             selected={selectedStep === 'success'}

@@ -109,7 +109,7 @@ export function MetadataForm({
 
   return (
     <Form>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')} columnSpan={12}>
+      <FormGroup columnSpan={12}>
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>

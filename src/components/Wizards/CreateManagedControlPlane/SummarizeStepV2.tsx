@@ -1,4 +1,4 @@
-import { Grid, List, ListItemStandard, Title } from '@ui5/webcomponents-react';
+import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
@@ -26,7 +26,6 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
 
   return (
     <div className={styles.wrapper}>
-      <Title>{t('common.summarize')}</Title>
       <Grid defaultSpan="XL6 L6 M6 S6">
         <div>
           <List headerText={t('common.metadata')}>
