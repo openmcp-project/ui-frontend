@@ -13,6 +13,8 @@ import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
 
+TimeAgo.addDefaultLocale(en);
+
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
   githubBaseUrl: 'https://github.com',

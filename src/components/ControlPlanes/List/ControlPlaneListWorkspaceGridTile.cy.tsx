@@ -14,6 +14,8 @@ import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
+TimeAgo.addDefaultLocale(en);
+
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;
   const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
