@@ -107,6 +107,11 @@ export function MetadataForm({
 
   const affixWidth = (val?: string) => (val && val.length ? `${val.length + 1}ch` : 'auto');
 
+  const onChargingTargetInput = (e: Ui5CustomEvent<InputDomRef, { value: string }>) => {
+    const value = typeof e.detail?.value === 'string' ? e.detail.value : (e.target.value ?? '');
+    setValue('chargingTarget', value, { shouldValidate: true, shouldDirty: true });
+  };
+
   return (
     <Form>
       <FormGroup columnSpan={12}>
@@ -148,15 +153,19 @@ export function MetadataForm({
             ) : null}
           </div>
         ) : (
-          <Input
-            className={styles.input}
-            id="name"
-            {...register('name')}
-            valueState={errors.name ? 'Negative' : 'None'}
-            valueStateMessage={<span>{errors.name?.message}</span>}
-            required
-            disabled={isEditMode}
-          />
+          <>
+            <input type="hidden" {...register('name')} value={currentName} readOnly />
+            <Input
+              className={styles.input}
+              id="name"
+              value={currentName}
+              valueState={errors.name ? 'Negative' : 'None'}
+              valueStateMessage={<span>{errors.name?.message}</span>}
+              required
+              disabled={isEditMode}
+              onInput={onNameCoreInput}
+            />
+          </>
         )}
         {!isV2 && (
           <FlexBox direction={'Column'}>
@@ -221,13 +230,15 @@ export function MetadataForm({
               <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
                 {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
               </Label>
+              <input type="hidden" {...register('chargingTarget')} value={watch?.('chargingTarget') ?? ''} readOnly />
               <Input
                 id="chargingTarget"
-                {...register('chargingTarget')}
+                value={watch?.('chargingTarget') ?? ''}
                 className={styles.input}
                 valueState={errors.chargingTarget ? 'Negative' : 'None'}
                 valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
                 disabled={disableChargingFields || !watch?.('chargingTargetType')}
+                onInput={onChargingTargetInput}
               />
             </div>
           </FlexBox>
