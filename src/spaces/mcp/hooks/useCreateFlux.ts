@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const CreateFluxMutation = gql`
-  mutation CreateFlux($namespace: String, $object: FluxInput!) {
+  mutation CreateFlux($namespace: String, $object: FluxServicesOpenmcpCloudV1alpha1Flux_Input!) {
     flux_services_openmcp_cloud {
       v1alpha1 {
         createFlux(namespace: $namespace, object: $object) {

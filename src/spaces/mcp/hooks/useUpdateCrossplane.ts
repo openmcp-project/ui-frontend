@@ -3,7 +3,11 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const UpdateCrossplaneMutation = gql`
-  mutation UpdateCrossplane($namespace: String, $name: String!, $object: CrossplaneInput!) {
+  mutation UpdateCrossplane(
+    $namespace: String
+    $name: String!
+    $object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input!
+  ) {
     crossplane_services_openmcp_cloud {
       v1alpha1 {
         updateCrossplane(namespace: $namespace, name: $name, object: $object) {
