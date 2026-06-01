@@ -15,6 +15,10 @@ import { useTranslation } from 'react-i18next';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
+import { YamlViewer } from '../Yaml/YamlViewer.tsx';
+import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
+import { projectnameToNamespace } from '../../utils/index.ts';
+import styles from './CreateProjectWorkspaceDialog.module.css';
 
 export type OnCreatePayload = {
   name: string;
@@ -62,6 +66,10 @@ export function CreateProjectWorkspaceDialog({
     setValue('members', members);
   };
 
+  const projectNamespace = projectName ? projectnameToNamespace(projectName) : undefined;
+  const yamlString = useYamlPreview(watch, type === 'mcp' ? 'project' : type, projectNamespace);
+  const resourceName = watch('name') || 'new';
+
   return (
     <>
       <Dialog
@@ -85,14 +93,16 @@ export function CreateProjectWorkspaceDialog({
         }
         onClose={() => setIsOpen(false)}
       >
-        <MetadataForm
-          watch={watch}
-          register={register}
-          errors={errors}
-          setValue={setValue}
-          requireChargingTarget={type === 'project'}
-          sideFormContent={
-            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
+        <div className={styles.layout}>
+          <div className={styles.formPane}>
+            <MetadataForm
+              watch={watch}
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              requireChargingTarget={type === 'project'}
+            />
+            <FormGroup>
               <EditMembers
                 type={type}
                 members={members}
@@ -101,8 +111,12 @@ export function CreateProjectWorkspaceDialog({
                 onMemberChanged={setMembers}
               />
             </FormGroup>
-          }
-        />
+          </div>
+
+          <div className={styles.previewPane}>
+            <YamlViewer yamlString={yamlString} filename={`${type}-${resourceName}`} isEdit={false} />
+          </div>
+        </div>
       </Dialog>
       <KubectlCreateWorkspaceDialog
         project={projectName}
