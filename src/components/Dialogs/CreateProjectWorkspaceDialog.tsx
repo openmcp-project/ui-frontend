@@ -13,7 +13,7 @@ import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, Suspense, lazy, useState } from 'react';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
 
@@ -22,9 +22,10 @@ import { useTranslation } from 'react-i18next';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
-import { YamlViewer } from '../Yaml/YamlViewer.tsx';
 import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
+
+const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
 export type OnCreatePayload = {
   name: string;
@@ -160,7 +161,9 @@ export function CreateProjectWorkspaceDialog({
           </SplitterElement>
 
           <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
-            <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
+            <Suspense fallback={null}>
+              <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
+            </Suspense>
           </SplitterElement>
         </SplitterLayout>
       </Dialog>
