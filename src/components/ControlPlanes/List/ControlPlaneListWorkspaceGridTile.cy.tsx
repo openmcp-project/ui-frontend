@@ -1,5 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 import '@ui5/webcomponents-cypress-commands';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
@@ -9,6 +11,8 @@ import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/ty
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
+
+TimeAgo.addDefaultLocale(en);
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
   let deleteWorkspaceCalled = false;

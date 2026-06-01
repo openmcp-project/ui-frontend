@@ -1,4 +1,6 @@
 import '@ui5/webcomponents-cypress-commands';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
@@ -8,6 +10,8 @@ import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPl
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
+
+TimeAgo.addDefaultLocale(en);
 
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
