@@ -3,7 +3,11 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const UpdateEsoMutation = gql`
-  mutation UpdateExternalSecretsOperator($namespace: String, $name: String!, $object: ExternalSecretsOperatorInput!) {
+  mutation UpdateExternalSecretsOperator(
+    $namespace: String
+    $name: String!
+    $object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input!
+  ) {
     external_secrets_services_openmcp_cloud {
       v1alpha1 {
         updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {
