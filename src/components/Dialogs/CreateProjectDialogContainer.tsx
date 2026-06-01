@@ -34,6 +34,7 @@ export function CreateProjectDialogContainer({
     formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       displayName: '',

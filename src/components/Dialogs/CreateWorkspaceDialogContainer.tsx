@@ -45,6 +45,7 @@ export function CreateWorkspaceDialogContainer({
     control,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       displayName: '',
