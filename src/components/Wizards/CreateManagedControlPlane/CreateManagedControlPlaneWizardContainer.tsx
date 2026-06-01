@@ -679,7 +679,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             />
           </WizardStep>
           <WizardStep
-            icon="activities"
+            icon="accept"
             titleText={t('common.success')}
             disabled={isStepDisabled('success')}
             selected={selectedStep === 'success'}
