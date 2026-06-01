@@ -1,21 +1,30 @@
-import { Bar, Button, Dialog, FormGroup } from '@ui5/webcomponents-react';
+import {
+  Bar,
+  Button,
+  Dialog,
+  FormGroup,
+  SplitterElement,
+  SplitterLayout,
+  Wizard,
+  WizardStep,
+} from '@ui5/webcomponents-react';
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
 
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
 import { YamlViewer } from '../Yaml/YamlViewer.tsx';
 import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
-import styles from './CreateProjectWorkspaceDialog.module.css';
 
 export type OnCreatePayload = {
   name: string;
@@ -35,10 +44,14 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
+  handleSubmit: UseFormHandleSubmit<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project' | 'mcp';
   watch: UseFormWatch<CreateDialogProps>;
+  isMetadataValid: boolean;
 }
+
+type Step = 'metadata' | 'members';
 
 export function CreateProjectWorkspaceDialog({
   isOpen,
@@ -50,23 +63,36 @@ export function CreateProjectWorkspaceDialog({
   register,
   errors,
   setValue,
+  handleSubmit,
   projectName,
   type,
   watch,
+  isMetadataValid,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
-  const setMembers = (members: Member[]) => {
-    setValue('members', members);
-  };
+  const [step, setStep] = useState<Step>('metadata');
+
+  const setMembers = (members: Member[]) => setValue('members', members);
 
   const projectNamespace = projectName ? projectnameToNamespace(projectName) : undefined;
   const yamlString = useYamlPreview(watch, type === 'mcp' ? 'project' : type, projectNamespace);
   const resourceName = watch('name') || 'new';
 
+  const handleStepChange = (e: { detail: WizardStepChangeEventDetail }) => {
+    setStep((e.detail.step.dataset.step ?? 'metadata') as Step);
+  };
+
+  const onClose = () => {
+    setStep('metadata');
+    setIsOpen(false);
+  };
+
+  const goToMembers = () => handleSubmit(() => setStep('members'))();
+
   return (
     <>
       <Dialog
-        stretch={true}
+        stretch
         headerText={titleText}
         open={isOpen}
         initialFocus="project-name-input"
@@ -75,40 +101,68 @@ export function CreateProjectWorkspaceDialog({
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Button onClick={() => setIsOpen(false)}>{t('CreateProjectWorkspaceDialog.cancelButton')}</Button>
-                <Button design="Emphasized" onClick={() => onCreate()}>
-                  {t('CreateProjectWorkspaceDialog.createButton')}
+                <Button design="Transparent" onClick={onClose}>
+                  {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
+                {step === 'metadata' ? (
+                  <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
+                    {t('buttons.next')}
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={() => setStep('metadata')}>{t('buttons.back')}</Button>
+                    <Button design="Emphasized" onClick={() => onCreate()}>
+                      {t('CreateProjectWorkspaceDialog.createButton')}
+                    </Button>
+                  </>
+                )}
               </div>
             }
           />
         }
-        onClose={() => setIsOpen(false)}
+        onClose={onClose}
       >
-        <div className={styles.layout}>
-          <div className={styles.formPane}>
-            <MetadataForm
-              watch={watch}
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              requireChargingTarget={type === 'project'}
-            />
-            <FormGroup>
-              <EditMembers
-                type={type}
-                members={members}
-                isValidationError={!!errors.members}
-                projectName={projectName}
-                onMemberChanged={setMembers}
-              />
-            </FormGroup>
-          </div>
+        <SplitterLayout style={{ height: '100%' }}>
+          <SplitterElement size="50%">
+            <Wizard contentLayout="SingleStep" style={{ height: '100%' }} onStepChange={handleStepChange}>
+              <WizardStep
+                data-step="metadata"
+                icon="create-form"
+                selected={step === 'metadata'}
+                titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+              >
+                <MetadataForm
+                  errors={errors}
+                  register={register}
+                  requireChargingTarget={type === 'project'}
+                  setValue={setValue}
+                  watch={watch}
+                />
+              </WizardStep>
+              <WizardStep
+                data-step="members"
+                disabled={!isMetadataValid}
+                icon="user-edit"
+                selected={step === 'members'}
+                titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
+              >
+                <FormGroup>
+                  <EditMembers
+                    isValidationError={!!errors.members}
+                    members={members}
+                    projectName={projectName}
+                    type={type}
+                    onMemberChanged={setMembers}
+                  />
+                </FormGroup>
+              </WizardStep>
+            </Wizard>
+          </SplitterElement>
 
-          <div className={styles.previewPane}>
-            <YamlViewer yamlString={yamlString} filename={`${type}-${resourceName}`} isEdit={false} />
-          </div>
-        </div>
+          <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
+            <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
+          </SplitterElement>
+        </SplitterLayout>
       </Dialog>
       <ErrorDialog ref={errorDialogRef} />
     </>

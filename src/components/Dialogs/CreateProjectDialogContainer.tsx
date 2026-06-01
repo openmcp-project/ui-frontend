@@ -31,7 +31,7 @@ export function CreateProjectDialogContainer({
     handleSubmit,
     resetField,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
     defaultValues: {
@@ -102,6 +102,8 @@ export function CreateProjectDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      handleSubmit={handleSubmit}
+      isMetadataValid={isValid}
       type={'project'}
       // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleProjectCreate)}

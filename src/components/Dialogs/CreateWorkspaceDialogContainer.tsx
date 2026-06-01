@@ -40,7 +40,7 @@ export function CreateWorkspaceDialogContainer({
     handleSubmit,
     resetField,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     control,
   } = useForm<CreateDialogProps>({
@@ -114,6 +114,8 @@ export function CreateWorkspaceDialogContainer({
       register={register}
       errors={errors}
       setValue={setValue}
+      handleSubmit={handleSubmit}
+      isMetadataValid={isValid}
       type={'workspace'}
       projectName={project}
       // eslint-disable-next-line react-hooks/refs
