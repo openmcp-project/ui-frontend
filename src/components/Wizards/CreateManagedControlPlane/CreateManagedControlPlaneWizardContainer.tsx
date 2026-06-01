@@ -155,6 +155,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
 
   useEffect(() => {
     if (!isOpen) return;
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedTemplateValue(initialTemplateName ?? noTemplateValue);
   }, [isOpen, initialTemplateName]);
@@ -453,6 +454,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       componentsList: componentsList ?? [],
     };
     reset(data);
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
