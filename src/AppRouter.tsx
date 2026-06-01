@@ -5,6 +5,7 @@ import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleEx
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
 import { SentryRoutes } from './mount.ts';
+import HeadlampPage from './spaces/mcp/pages/HeadlampPage.tsx';
 import McpPage from './spaces/mcp/pages/McpPage.tsx';
 import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
@@ -33,6 +34,10 @@ function AppRouter() {
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
                   element={<McpPageV2 />}
+                />
+                <Route
+                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName/headlamp"
+                  element={<HeadlampPage />}
                 />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
