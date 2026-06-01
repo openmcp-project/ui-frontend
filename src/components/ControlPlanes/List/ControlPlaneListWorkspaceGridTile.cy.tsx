@@ -5,6 +5,8 @@ import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+
+TimeAgo.addDefaultLocale(en);
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
