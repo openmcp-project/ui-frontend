@@ -3,10 +3,7 @@ import { Bar, Button, Dialog, FormGroup } from '@ui5/webcomponents-react';
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { FormEvent, useState } from 'react';
-import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
-import { KubectlCreateWorkspaceDialog } from './KubectlCommandInfo/KubectlCreateWorkspaceDialog.tsx';
-import { KubectlCreateProjectDialog } from './KubectlCommandInfo/KubectlCreateProjectDialog.tsx';
+import { FormEvent } from 'react';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
 
@@ -58,10 +55,6 @@ export function CreateProjectWorkspaceDialog({
   watch,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
-  const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
-
-  const openKubectlDialog = () => setIsKubectlDialogOpen(true);
-  const closeKubectlDialog = () => setIsKubectlDialogOpen(false);
   const setMembers = (members: Member[]) => {
     setValue('members', members);
   };
@@ -82,7 +75,6 @@ export function CreateProjectWorkspaceDialog({
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <KubectlInfoButton onClick={openKubectlDialog} />
                 <Button onClick={() => setIsOpen(false)}>{t('CreateProjectWorkspaceDialog.cancelButton')}</Button>
                 <Button design="Emphasized" onClick={() => onCreate()}>
                   {t('CreateProjectWorkspaceDialog.createButton')}
@@ -118,12 +110,6 @@ export function CreateProjectWorkspaceDialog({
           </div>
         </div>
       </Dialog>
-      <KubectlCreateWorkspaceDialog
-        project={projectName}
-        isOpen={isKubectlDialogOpen && !!projectName}
-        onClose={closeKubectlDialog}
-      />
-      <KubectlCreateProjectDialog isOpen={isKubectlDialogOpen && !projectName} onClose={closeKubectlDialog} />
       <ErrorDialog ref={errorDialogRef} />
     </>
   );
