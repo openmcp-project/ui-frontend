@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/react';
+import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import {
   Avatar,
   List,
@@ -6,22 +8,20 @@ import {
   PopoverDomRef,
   ShellBar,
   ShellBarDomRef,
-  Ui5CustomEvent,
   TextAreaDomRef,
+  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { RefObject, useRef, useState } from 'react';
-import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
+import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import SapLogo from '../../assets/images/sap-logo.svg';
-import styles from './ShellBar.module.css';
+import { useToast } from '../../context/ToastContext.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { BetaButton } from './BetaButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
-import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
-import { useToast } from '../../context/ToastContext.tsx';
-import * as Sentry from '@sentry/react';
+import styles from './ShellBar.module.css';
 
 export function ShellBarComponent({
   useAuthOnboarding = _useAuthOnboarding,
@@ -125,9 +125,10 @@ const ProfilePopover = ({
   }
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
-    if (!feedbackPopoverRef.current) return;
+    if (!feedbackPopoverRef.current || !popoverRef.current) return;
+    e.stopPropagation();
     setOpen(false);
-    feedbackPopoverRef.current.opener = e.target as HTMLElement;
+    feedbackPopoverRef.current.opener = popoverRef.current.opener;
     setFeedbackMessage('');
     setRating(0);
     setFeedbackSent(false);
