@@ -10,7 +10,7 @@ import {
   TextAreaDomRef,
 } from '@ui5/webcomponents-react';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useRef, useState } from 'react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
@@ -33,18 +33,10 @@ export function ShellBarComponent({
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
-    profilePopoverRef.current!.opener = e.detail.targetRef;
+    if (!profilePopoverRef.current) return;
+    profilePopoverRef.current.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
   };
-
-  useEffect(() => {
-    const shellbar = document.querySelector('ui5-shellbar');
-    const el = shellbar?.shadowRoot?.querySelector('.ui5-shellbar-overflow-container-left');
-
-    if (el) {
-      (el as HTMLElement).style.backgroundColor = 'red';
-    }
-  }, []);
 
   return (
     <>
@@ -133,8 +125,12 @@ const ProfilePopover = ({
   }
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
+    if (!feedbackPopoverRef.current) return;
     setOpen(false);
-    feedbackPopoverRef.current!.opener = e.target as HTMLElement;
+    feedbackPopoverRef.current.opener = e.target as HTMLElement;
+    setFeedbackMessage('');
+    setRating(0);
+    setFeedbackSent(false);
     setFeedbackPopoverOpen(true);
   };
 

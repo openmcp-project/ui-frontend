@@ -25,7 +25,9 @@
   color: #155724;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
+  border: 0;
   font-size: 0.75rem;
+  font-family: inherit;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;

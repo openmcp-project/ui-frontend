@@ -1,4 +1,4 @@
-import { ButtonDomRef, PopoverDomRef, Popover, Text } from '@ui5/webcomponents-react';
+import { PopoverDomRef, Popover, Text } from '@ui5/webcomponents-react';
 import { useState, useRef, RefObject } from 'react';
 import styles from './ShellBar.module.css';
 import { useTranslation } from 'react-i18next';
@@ -7,35 +7,29 @@ import { ThemingParameters } from '@ui5/webcomponents-react-base';
 
 export function BetaButton() {
   const [betaPopoverOpen, setBetaPopoverOpen] = useState(false);
-  const betaButtonRef = useRef<ButtonDomRef>(null);
+  const betaButtonRef = useRef<HTMLButtonElement>(null);
   const betaPopoverRef = useRef<PopoverDomRef>(null);
   const { t } = useTranslation();
 
   const onBetaClick = () => {
-    if (betaButtonRef.current) {
-      betaPopoverRef.current!.opener = betaButtonRef.current;
-      setBetaPopoverOpen(!betaPopoverOpen);
-    }
+    if (!betaButtonRef.current || !betaPopoverRef.current) return;
+    betaPopoverRef.current.opener = betaButtonRef.current;
+    setBetaPopoverOpen(!betaPopoverOpen);
   };
 
   return (
     <>
-      <span
+      <button
         ref={betaButtonRef}
         className={styles.betaBadge}
         slot="content"
-        role="button"
-        tabIndex={0}
+        aria-label={t('ShellBar.betaButtonAriaLabel')}
+        aria-haspopup="dialog"
+        aria-expanded={betaPopoverOpen}
         onClick={onBetaClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onBetaClick();
-          }
-        }}
       >
         {t('ShellBar.betaButton')}
-      </span>
+      </button>
       <BetaPopover open={betaPopoverOpen} setOpen={setBetaPopoverOpen} popoverRef={betaPopoverRef} />
     </>
   );
