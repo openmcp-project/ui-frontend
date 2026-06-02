@@ -11,6 +11,7 @@ export function ControlPlaneListToolbar({ projectName }: { projectName: string }
     <>
       <Toolbar>
         <ToolbarButton
+          design="Emphasized"
           icon="add"
           text={t('ControlPlaneListToolbar.buttonText')}
           onClick={() => setDialogIsOpen(true)}
