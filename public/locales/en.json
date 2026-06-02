@@ -264,7 +264,11 @@
     "landscaperTitle": "Landscaper",
     "configMapsTitle": "ConfigMaps",
     "secretsTitle": "Secrets",
-    "secretTypeHeader": "Type"
+    "secretTypeHeader": "Type",
+    "headlampTitle": "Headlamp",
+    "headlampUnavailableTitle": "Headlamp unavailable",
+    "headlampUnavailableSubtitle": "The Headlamp service could not be reached. Please check that it is deployed and healthy.",
+    "headlampGetSupport": "Get support"
   },
   "McpHeader": {
     "nameLabel": "Name",

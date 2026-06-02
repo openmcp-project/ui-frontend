@@ -81,6 +81,11 @@ tasks:
       - mkdir -p {{.LOCALBIN}}
     internal: true
 
+  headlamp:setup:
+    desc: 'Bootstrap a local Headlamp kind cluster and port-forward to http://localhost:8090. Usage: task headlamp:setup'
+    cmds:
+      - bash {{.ROOT_DIR}}/scripts/setup-headlamp-dev.sh
+
   install:ocm:
     desc: '  Ensure that the ocm CLI is installed.'
     run: once

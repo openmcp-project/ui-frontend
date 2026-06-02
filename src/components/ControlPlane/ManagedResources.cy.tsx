@@ -12,16 +12,15 @@ import { useResourcePluralNames } from '../../hooks/useResourcePluralNames';
 describe('ManagedResources - Delete Resource', () => {
   let deleteCalled = false;
   let patchCalled = false;
-  let triggerCallCount = 0;
 
-  const fakeUseApiResourceMutation: typeof useApiResourceMutation = (): any => {
+  const fakeUseApiResourceMutation: typeof useApiResourceMutation = (resource: any): any => {
+    const isDelete = resource?.method === 'DELETE';
     return {
       data: undefined,
       error: undefined,
       reset: () => {},
       trigger: async (): Promise<any> => {
-        const currentTriggerCall = triggerCallCount++;
-        if (currentTriggerCall === 0) {
+        if (isDelete) {
           deleteCalled = true;
         } else {
           patchCalled = true;
@@ -90,7 +89,6 @@ describe('ManagedResources - Delete Resource', () => {
   beforeEach(() => {
     deleteCalled = false;
     patchCalled = false;
-    triggerCallCount = 0;
   });
 
   it('deletes a managed resource', () => {
