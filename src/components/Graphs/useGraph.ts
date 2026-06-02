@@ -51,7 +51,7 @@ function buildGraph(
 
   const edgeList: Edge[] = [];
   treeData.forEach((n) => {
-    if (n.parentId) {
+    if (n.parentId && nodeMap.has(n.parentId)) {
       dagreGraph.setEdge(n.parentId, n.id);
       edgeList.push({
         id: `e-${n.parentId}-${n.id}`,
