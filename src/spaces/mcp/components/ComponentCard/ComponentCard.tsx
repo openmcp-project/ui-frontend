@@ -16,6 +16,7 @@ export type ComponentCardProps = KpiProps & {
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
   onEditButtonClick?: () => void;
+  onDeleteButtonClick?: () => void;
 };
 
 export function ComponentCard({
@@ -27,6 +28,7 @@ export function ComponentCard({
   onNavigateToComponentSection,
   onInstallButtonClick,
   onEditButtonClick,
+  onDeleteButtonClick,
   ...props
 }: ComponentCardProps) {
   const { t } = useTranslation();
@@ -69,6 +71,17 @@ export function ComponentCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditButtonClick();
+                    }}
+                  />
+                )}
+                {onDeleteButtonClick && (
+                  <Button
+                    accessibleName={t('ComponentCard.deleteButton')}
+                    data-cy="delete-button"
+                    icon="sap-icon://delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteButtonClick();
                     }}
                   />
                 )}
