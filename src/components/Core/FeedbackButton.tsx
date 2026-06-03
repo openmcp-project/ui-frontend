@@ -92,7 +92,7 @@ export function FeedbackButton() {
   );
 }
 
-const FeedbackPopover = ({
+export const FeedbackPopover = ({
   open,
   setOpen,
   popoverRef,
