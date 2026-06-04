@@ -129,7 +129,7 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '1fr 0.24fr auto',
+                gridTemplateColumns: '1fr auto auto',
                 gap: '1rem',
                 justifyContent: 'space-between',
                 alignItems: 'center',
