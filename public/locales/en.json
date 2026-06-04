@@ -3,8 +3,7 @@
     "welcomeMessage": "Welcome to Control Plane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
     "signInButton": "Sign In",
-    "becomeContributorLink": "Become a Contributor",
-    "contributeLink": "Contribute on GitHub"
+    "becomeContributorLink": "Become a Contributor"
   },
   "Entities": {
     "ManagedControlPlane": "Control Plane",
