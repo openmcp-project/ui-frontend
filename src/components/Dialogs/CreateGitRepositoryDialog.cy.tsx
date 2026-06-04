@@ -34,10 +34,9 @@ describe('CreateGitRepositoryDialog', () => {
 
     // Fill in the form
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
-    cy.get('[name="interval"]').find('input').clear().type('5m0s');
-
+    cy.get('[name="interval"]').clearUi5Input().typeIntoUi5Input('5m0s');
     cy.get('[name="url"]').typeIntoUi5Input('https://github.com/test/repo');
-    cy.get('[name="refValue"]').find('input').clear().type('develop');
+    cy.get('[name="refValue"]').clearUi5Input().typeIntoUi5Input('develop');
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
@@ -71,7 +70,7 @@ describe('CreateGitRepositoryDialog', () => {
     cy.get('[name="url"]').typeIntoUi5Input('https://github.com/test/repo');
     cy.get('[data-testid="git-ref-type"]').openDropDownByClick();
     cy.get('[data-testid="git-ref-type"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>('Tag');
-    cy.get('[name="refValue"]').find('input').clear().type('v1.2.3');
+    cy.get('[name="refValue"]').clearUi5Input().typeIntoUi5Input('v1.2.3');
     cy.get('[name="secretRef"]').typeIntoUi5Input('my-git-secret');
 
     // Submit the form
@@ -110,23 +109,23 @@ describe('CreateGitRepositoryDialog', () => {
     );
 
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
-    cy.get('[name="interval"]').find('input').clear().type('1m0s');
-    cy.get('[name="refValue"]').find('input').clear().type('main');
+    cy.get('[name="interval"]').clearUi5Input().typeIntoUi5Input('1m0s');
+    cy.get('[name="refValue"]').clearUi5Input().typeIntoUi5Input('main');
 
     // Test 1: Invalid string
-    cy.get('[name="url"]').find('input').clear().type('not-a-valid-url');
+    cy.get('[name="url"]').clearUi5Input().typeIntoUi5Input('not-a-valid-url');
     cy.get('ui5-button').contains('Create').click();
     cy.get('[name="url"]').should('have.attr', 'value-state', 'Negative');
     cy.contains('Must be a valid HTTPS URL').should('exist');
 
     // Test 2: HTTP protocol (should fail if we require HTTPS)
-    cy.get('[name="url"]').find('input').clear().type('http://github.com/test/repo');
+    cy.get('[name="url"]').clearUi5Input().typeIntoUi5Input('http://github.com/test/repo');
     cy.get('ui5-button').contains('Create').click();
     cy.get('[name="url"]').should('have.attr', 'value-state', 'Negative');
     cy.contains('Must be a valid HTTPS URL').should('exist');
 
     // Test 3: Valid HTTPS URL (should pass)
-    cy.get('[name="url"]').find('input').clear().type('https://github.com/test/repo');
+    cy.get('[name="url"]').clearUi5Input().typeIntoUi5Input('https://github.com/test/repo');
     cy.get('ui5-button').contains('Create').click();
 
     // Dialog should close on success
@@ -158,8 +157,8 @@ describe('CreateGitRepositoryDialog', () => {
     );
 
     // Check default values
-    cy.get('[name="interval"]').find('input').should('have.value', '1m0s');
-    cy.get('[name="refValue"]').find('input').should('have.value', 'main');
+    cy.get('[name="interval"]').invoke('prop', 'value').should('equal', '1m0s');
+    cy.get('[name="refValue"]').invoke('prop', 'value').should('equal', 'main');
   });
 
   it('should not close dialog when creation fails', () => {
@@ -182,9 +181,9 @@ describe('CreateGitRepositoryDialog', () => {
 
     // Fill in the form
     cy.get('[name="name"]').typeIntoUi5Input('test-repo');
-    cy.get('[name="interval"]').find('input').clear().type('1m0s');
-    cy.get('[name="url"]').find('input').type('https://github.com/test/repo');
-    cy.get('[name="refValue"]').find('input').clear().type('main');
+    cy.get('[name="interval"]').clearUi5Input().typeIntoUi5Input('1m0s');
+    cy.get('[name="url"]').typeIntoUi5Input('https://github.com/test/repo');
+    cy.get('[name="refValue"]').clearUi5Input().typeIntoUi5Input('main');
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
