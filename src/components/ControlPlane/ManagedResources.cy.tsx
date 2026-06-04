@@ -313,7 +313,7 @@ describe('ManagedResources - Edit Resource', () => {
     cy.contains('Edit').click({ force: true });
 
     // Wait for YAML panel and Monaco editor to fully load (schema loader async re-renders)
-    cy.contains('YAML').should('be.visible');
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
     cy.get('.monaco-editor', { timeout: 10000 }).should('exist');
 
     // Click Apply button — use force to avoid detached-DOM race from SWR revalidation re-renders
@@ -328,6 +328,80 @@ describe('ManagedResources - Edit Resource', () => {
     // Verify patch was called
     cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
     cy.wrap(null).should(() => expect(patchedItem).to.not.be.null);
+  });
+
+  it('does not show a "YAML" heading in the panel toolbar', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.contains('Edit').click({ force: true });
+
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
+    // The standalone "YAML" title label must not appear in the panel header
+    cy.get('ui5-panel').contains('YAML').should('not.exist');
+  });
+
+  it('shows copy and download buttons in the panel', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.contains('Edit').click({ force: true });
+
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
+    cy.get('[data-testid="yaml-copy-button"]').should('exist');
+    cy.get('[data-testid="yaml-download-button"]').should('exist');
+  });
+
+  it('closes the panel when the close button is clicked', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.contains('Edit').click({ force: true });
+
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible').click({ force: true });
+    cy.get('[data-testid="yaml-close-button"]').should('not.exist');
   });
 });
 
