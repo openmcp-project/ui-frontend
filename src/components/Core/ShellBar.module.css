@@ -20,32 +20,22 @@
   color: var(--sapTextColor);
 }
 
-.betaButton {
-  background-color: #FFF3CD;
-  color: #856404;
-  padding: 4px 10px;
-  border-radius: 12px;
-  border: 1px solid #FFEB99;
-  font-weight: bold;
+.betaBadge {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 0;
   font-size: 0.75rem;
-  height: 1.75rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  opacity: 0.85;
 }
 
-.betaContent {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.betaIcon {
-  font-size: 1rem;
-  color: #0A6ED1;
-}
-
-.betaText {
-  font-size: 0.875rem;
+.betaBadge:hover {
+  opacity: 1;
 }

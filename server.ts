@@ -140,7 +140,8 @@ fastify.register(helmet, {
         : ["'self'", sentryHost, dynatraceOrigin],
       'frame-src': ["'self'"],
       // @ts-ignore
-      'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
+      // 'self' is required so the app can embed Headlamp via same-origin iframe (/api/headlamp/*)
+      'frame-ancestors': ["'self'", ...fastify.config.FRAME_ANCESTORS.split(',')],
     },
   },
   // Needed for https enforcement
