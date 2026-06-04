@@ -3,7 +3,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
@@ -30,6 +30,7 @@ interface Props {
   workspace: Workspace;
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
+  onForbidden?: () => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -39,6 +40,7 @@ export function ControlPlaneListWorkspaceGridTile({
   workspace,
   isExpanded,
   onToggleExpanded,
+  onForbidden,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -64,6 +66,10 @@ export function ControlPlaneListWorkspaceGridTile({
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
   const shouldCollapsePanel = !isExpanded;
+
+  useEffect(() => {
+    if (isForbiddenError(cpsError)) onForbidden?.();
+  }, [cpsError, onForbidden]);
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;

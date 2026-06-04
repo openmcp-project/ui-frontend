@@ -26,10 +26,19 @@ export default function ControlPlaneListAllWorkspaces({
 }: Props) {
   const { workspaceCreationGuide } = useLink();
   const { t } = useTranslation();
-  // null = initial (auto-expand first workspace); undefined = user explicitly collapsed all; string = user picked one
+  // null = initial (auto-expand first accessible workspace); undefined = user explicitly collapsed all; string = user picked one
   const [expandedWorkspace, setExpandedWorkspace] = useState<string | null | undefined>(null);
+  const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
 
-  const resolvedExpanded = expandedWorkspace === null ? (workspaces[0]?.metadata.name ?? null) : expandedWorkspace;
+  const firstAccessible = workspaces.find((ws) => !forbiddenWorkspaces.has(ws.metadata.name))?.metadata.name ?? null;
+  const resolvedExpanded = expandedWorkspace === null ? firstAccessible : expandedWorkspace;
+
+  function handleForbidden(workspaceName: string) {
+    setForbiddenWorkspaces((prev) => {
+      if (prev.has(workspaceName)) return prev;
+      return new Set(prev).add(workspaceName);
+    });
+  }
 
   return (
     <>
@@ -63,6 +72,7 @@ export default function ControlPlaneListAllWorkspaces({
               const isCurrentlyExpanded = resolvedExpanded === workspace.metadata.name;
               setExpandedWorkspace(isCurrentlyExpanded ? undefined : workspace.metadata.name);
             }}
+            onForbidden={() => handleForbidden(workspace.metadata.name)}
           />
         ))
       )}

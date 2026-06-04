@@ -22,6 +22,21 @@ const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   isPending: false,
 });
 
+const fakeForbiddenMcpsQuery: typeof useMcpsQuery = () => ({
+  data: [],
+  error: Object.assign(new Error('is forbidden'), { graphQLErrors: [], networkError: null, clientErrors: [], cause: undefined, extraInfo: undefined, protocolErrors: [] }),
+  isPending: false,
+});
+
+const fakeUseMcpsQueryForWorkspace = (forbiddenWorkspace: string): typeof useMcpsQuery =>
+  (workspaceNamespace) => ({
+    data: [],
+    error: workspaceNamespace?.includes(forbiddenWorkspace)
+      ? Object.assign(new Error('is forbidden'), { graphQLErrors: [], networkError: null, clientErrors: [], cause: undefined, extraInfo: undefined, protocolErrors: [] })
+      : undefined,
+    isPending: false,
+  });
+
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
   deleteWorkspace: async () => undefined,
 });
@@ -34,7 +49,7 @@ const makeWorkspace = (name: string): Workspace => ({
 
 const workspaces = [makeWorkspace('alpha'), makeWorkspace('beta'), makeWorkspace('gamma')];
 
-function mountAllWorkspaces(ws: Workspace[]) {
+function mountAllWorkspaces(ws: Workspace[], useMcpsQueryOverride: typeof useMcpsQuery = fakeUseMcpsQuery) {
   cy.mount(
     <FrontendConfigContext.Provider value={frontendConfig}>
       <MockedProvider mocks={[]}>
@@ -44,7 +59,7 @@ function mountAllWorkspaces(ws: Workspace[]) {
               <ControlPlaneListAllWorkspaces
                 projectName="test"
                 workspaces={ws}
-                useMcpsQuery={fakeUseMcpsQuery}
+                useMcpsQuery={useMcpsQueryOverride}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
               />
             </SplitterProvider>
@@ -69,6 +84,22 @@ describe('ControlPlaneListAllWorkspaces — mutually exclusive expansion', () =>
 
     panel('alpha').invoke('prop', 'collapsed').should('equal', false);
     panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+  });
+
+  it('skips forbidden workspaces when auto-expanding', () => {
+    mountAllWorkspaces(workspaces, fakeForbiddenMcpsQuery);
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+  });
+
+  it('auto-expands second workspace when first is forbidden', () => {
+    mountAllWorkspaces(workspaces, fakeUseMcpsQueryForWorkspace('alpha'));
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
