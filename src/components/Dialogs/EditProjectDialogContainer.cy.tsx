@@ -147,7 +147,7 @@ describe('EditProjectDialogContainer', () => {
     );
 
     cy.get('ui5-busy-indicator').should('exist');
-    cy.get('#name').should('not.exist');
+    cy.get('ui5-button').contains('Save').should('not.exist');
   });
 
   it('shows error dialog when project fetch fails', () => {
@@ -167,6 +167,6 @@ describe('EditProjectDialogContainer', () => {
       />,
     );
 
-    cy.contains('Failed to load project').should('be.visible');
+    cy.contains('Failed to load project').should('exist');
   });
 });

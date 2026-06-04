@@ -67,9 +67,7 @@ export function EditProjectDialogContainer({
 
   useEffect(() => {
     if (fetchError) {
-      errorDialogRef.current?.showErrorDialog(
-        fetchError instanceof Error ? fetchError.message : String(fetchError),
-      );
+      errorDialogRef.current?.showErrorDialog(fetchError instanceof Error ? fetchError.message : String(fetchError));
     }
   }, [fetchError]);
 
@@ -99,7 +97,7 @@ export function EditProjectDialogContainer({
 
   return (
     <>
-      <Dialog open={isOpen && isLoading} headerText={t('EditProjectDialog.title')}>
+      <Dialog open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
         <div
           style={{
             display: 'flex',
