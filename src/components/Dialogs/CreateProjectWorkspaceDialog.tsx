@@ -37,6 +37,7 @@ export interface CreateProjectWorkspaceDialogProps {
   projectName?: string;
   type: 'workspace' | 'project' | 'mcp';
   watch: UseFormWatch<CreateDialogProps>;
+  isEditMode?: boolean;
 }
 
 export function CreateProjectWorkspaceDialog({
@@ -52,6 +53,7 @@ export function CreateProjectWorkspaceDialog({
   projectName,
   type,
   watch,
+  isEditMode = false,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
@@ -77,7 +79,9 @@ export function CreateProjectWorkspaceDialog({
                 <KubectlInfoButton onClick={openKubectlDialog} />
                 <Button onClick={() => setIsOpen(false)}>{t('CreateProjectWorkspaceDialog.cancelButton')}</Button>
                 <Button design="Emphasized" onClick={() => onCreate()}>
-                  {t('CreateProjectWorkspaceDialog.createButton')}
+                  {isEditMode
+                    ? t('CreateProjectWorkspaceDialog.saveButton')
+                    : t('CreateProjectWorkspaceDialog.createButton')}
                 </Button>
               </div>
             }
@@ -91,6 +95,7 @@ export function CreateProjectWorkspaceDialog({
           errors={errors}
           setValue={setValue}
           requireChargingTarget={type === 'project'}
+          isEditMode={isEditMode}
           sideFormContent={
             <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
               <EditMembers

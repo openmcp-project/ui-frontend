@@ -1,0 +1,80 @@
+import { useCallback } from 'react';
+import { gql } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
+import { useToast } from '../../../context/ToastContext';
+import { Member } from '../../../lib/api/types/shared/members';
+import { useTranslation } from 'react-i18next';
+import {
+  CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
+  DISPLAY_NAME_ANNOTATION,
+} from '../../../lib/api/types/shared/keyNames';
+import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
+import { CreateProjectParams } from './useCreateProject';
+
+const UpdateProjectMutation = gql`
+  mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
+    core_openmcp_cloud {
+      v1alpha1 {
+        updateProject(name: $name, object: $object, dryRun: $dryRun) {
+          metadata {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
+function buildUpdateProjectInput(params: CreateProjectParams): ProjectInput {
+  return {
+    apiVersion: 'core.openmcp.cloud/v1alpha1',
+    kind: 'Project',
+    metadata: {
+      name: params.name,
+      annotations: {
+        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
+      },
+      labels: {
+        [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
+        [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',
+      },
+    },
+    spec: {
+      members: params.members.map((member: Member) => ({
+        kind: member.kind,
+        name: member.name,
+        namespace: member.kind === 'ServiceAccount' ? (member.namespace ?? 'default') : undefined,
+        roles: member.roles,
+      })),
+    },
+  };
+}
+
+export function useUpdateProject() {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [updateProjectMutation] = useMutation(UpdateProjectMutation);
+
+  const updateProject = useCallback(
+    async (params: CreateProjectParams): Promise<void> => {
+      try {
+        const object = buildUpdateProjectInput(params);
+        await updateProjectMutation({
+          variables: {
+            name: params.name,
+            object,
+          },
+        });
+        toast.show(t('EditProjectDialog.toastMessage'));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        toast.show(message);
+        throw error;
+      }
+    },
+    [updateProjectMutation, toast, t],
+  );
+
+  return { updateProject };
+}

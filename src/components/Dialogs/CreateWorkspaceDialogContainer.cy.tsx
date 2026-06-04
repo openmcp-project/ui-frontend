@@ -58,7 +58,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.contains('BTP').click();
 
     // Fill charging target
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc', { force: true });
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
@@ -114,7 +114,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.contains('BTP').click();
 
     // Invalid format
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format');
+    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format', { force: true });
     cy.get('ui5-button').contains('Create').click();
 
     // Should show validation error - check for value-state="Negative" attribute
@@ -148,7 +148,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc', { force: true });
 
     // Submit the form
     cy.get('ui5-button').contains('Create').click();
