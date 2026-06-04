@@ -18,9 +18,10 @@ export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias
 
   kc.users = [{ name: clusterAlias, user: { token: 'bff-managed' } }];
 
-  const firstCtx = Array.isArray(kc.contexts) && kc.contexts.length > 0
-    ? (kc.contexts[0] as { context?: Record<string, unknown> })
-    : undefined;
+  const firstCtx =
+    Array.isArray(kc.contexts) && kc.contexts.length > 0
+      ? (kc.contexts[0] as { context?: Record<string, unknown> })
+      : undefined;
   kc.contexts = [
     { name: clusterAlias, context: { ...(firstCtx?.context ?? {}), cluster: clusterAlias, user: clusterAlias } },
   ];
