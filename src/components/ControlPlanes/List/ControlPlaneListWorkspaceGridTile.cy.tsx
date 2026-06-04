@@ -149,7 +149,11 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       <MockedProvider mocks={[]}>
         <MemoryRouter>
           <FrontendConfigContext.Provider
-            value={{ documentationBaseUrl: '', githubBaseUrl: '', featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false } }}
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+            }}
           >
             <SplitterProvider>
               <FeatureToggleProvider>

@@ -134,13 +134,12 @@ export function ControlPlaneListWorkspaceGridTile({
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {isExpanded && (
-                  membersLoading ? (
+                {isExpanded &&
+                  (membersLoading ? (
                     <BusyIndicator active data-testid="members-loading-indicator" delay={0} size="S" />
                   ) : (
                     <MembersAvatarView members={workspaceMembers} project={projectName} workspace={workspaceName} />
-                  )
-                )}
+                  ))}
               </div>
               <FlexBox justifyContent={'End'} gap={10}>
                 <YamlViewButton
