@@ -152,6 +152,16 @@ fastify.register(helmet, {
   },
 });
 
+// The Headlamp iframe is served via BFF proxy at /api/headlamp/*. Helmet's CSP (script-src 'self')
+// blocks Headlamp's inline scripts. Strip the BFF CSP for those responses — Headlamp's own CSP
+// is already removed by rewriteHeaders in http-proxy.ts, so no CSP header is sent for iframe content.
+fastify.addHook('onSend', (_req, reply, payload) => {
+  if (_req.url?.startsWith('/api/headlamp')) {
+    reply.removeHeader('content-security-policy');
+  }
+  return payload;
+});
+
 fastify.register(proxy, {
   prefix: '/api',
 });
