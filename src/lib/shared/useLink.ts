@@ -17,5 +17,7 @@ export function useLink() {
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
     ),
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
+    contributeLink: githubBaseUrl,
+    headlampLink: 'https://github.com/headlamp-k8s/headlamp',
   };
 }
