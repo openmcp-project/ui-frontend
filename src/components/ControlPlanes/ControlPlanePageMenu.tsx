@@ -17,7 +17,7 @@ export const ControlPlanePageMenu: FC<ControlPlanesListMenuProps> = ({ setIsEdit
 
   return (
     <>
-      <Button id={openerId} icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button id={openerId} design="Transparent" icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
         open={menuIsOpen}
         opener={openerId}
