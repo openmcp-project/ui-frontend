@@ -18,12 +18,12 @@ export function prepareKubeconfigForHeadlamp(rawKubeconfig: string, clusterAlias
 
   kc.users = [{ name: clusterAlias, user: { token: 'bff-managed' } }];
 
-  if (Array.isArray(kc.contexts) && kc.contexts.length > 0) {
-    const firstCtx = kc.contexts[0] as { context?: Record<string, unknown> };
-    kc.contexts = [
-      { name: clusterAlias, context: { ...(firstCtx.context ?? {}), cluster: clusterAlias, user: clusterAlias } },
-    ];
-  }
+  const firstCtx = Array.isArray(kc.contexts) && kc.contexts.length > 0
+    ? (kc.contexts[0] as { context?: Record<string, unknown> })
+    : undefined;
+  kc.contexts = [
+    { name: clusterAlias, context: { ...(firstCtx?.context ?? {}), cluster: clusterAlias, user: clusterAlias } },
+  ];
 
   kc['current-context'] = clusterAlias;
   return stringifyYaml(kc);
