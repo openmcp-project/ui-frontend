@@ -172,13 +172,13 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     mountTile(false, fakeUseMembersLoaded);
 
     cy.get('ui5-avatar-group').should('not.exist');
-    cy.get('ui5-busy-indicator').should('not.exist');
+    cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
   });
 
   it('shows busy indicator while members are loading when expanded', () => {
     mountTile(true, fakeUseMembersLoading);
 
-    cy.get('ui5-busy-indicator').should('exist');
+    cy.get('[data-testid="members-loading-indicator"]').should('exist');
     cy.get('ui5-avatar-group').should('not.exist');
   });
 
@@ -187,6 +187,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
     cy.get('ui5-avatar-group').should('exist');
     cy.get('ui5-avatar').should('have.length', 2);
-    cy.get('ui5-busy-indicator').should('not.exist');
+    cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
   });
 });

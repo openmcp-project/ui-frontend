@@ -136,7 +136,7 @@ export function ControlPlaneListWorkspaceGridTile({
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {isExpanded && (
                   membersLoading ? (
-                    <BusyIndicator active delay={0} size="S" />
+                    <BusyIndicator active data-testid="members-loading-indicator" delay={0} size="S" />
                   ) : (
                     <MembersAvatarView members={workspaceMembers} project={projectName} workspace={workspaceName} />
                   )
