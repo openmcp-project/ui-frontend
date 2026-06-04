@@ -18,6 +18,5 @@ export function useLink() {
     ),
     githubIssuesSupportTicket: createGithubLink('/support/issues/new'),
     contributeLink: githubBaseUrl,
-    headlampLink: 'https://github.com/headlamp-k8s/headlamp',
   };
 }
