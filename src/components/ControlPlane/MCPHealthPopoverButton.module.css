@@ -23,6 +23,10 @@
   color: var(--sapNegativeColor);
 }
 
+.iconProgressing {
+  color: var(--sapInformativeColor);
+}
+
 .iconInDeletion {
   color: var(--sapCriticalColor);
 }
