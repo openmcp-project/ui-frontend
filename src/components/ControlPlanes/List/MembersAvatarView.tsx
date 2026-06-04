@@ -22,10 +22,10 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
     setPopoverIsOpen(true);
   };
 
-  for (const member of members) {
+  for (const [index, member] of members.entries()) {
     avatars.push(
       <Avatar
-        key={`project-${project}-ws-${workspace}-${member.name}`}
+        key={`project-${project}-ws-${workspace}-${member.name}-${index}`}
         initials={generateInitialsForEmail(member.name)}
         size="XS"
       />,
