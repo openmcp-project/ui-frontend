@@ -246,6 +246,8 @@
     "title": "Projects",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
+    "membersHeader": "Members",
+    "createdHeader": "Created",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {
