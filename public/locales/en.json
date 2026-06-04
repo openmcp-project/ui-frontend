@@ -102,7 +102,12 @@
     "editMCP": "Edit Control Plane",
     "duplicateMCP": "Duplicate Control Plane",
     "deleteMCP": "Delete Control Plane"
-
+  },
+  "WorkspaceHealthIndicator": {
+    "ready": "Ready",
+    "notReady": "Not Ready",
+    "progressing": "Progressing",
+    "deleting": "Deleting"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
