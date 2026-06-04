@@ -3,20 +3,33 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
-import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
-import { useLink } from '../../../lib/shared/useLink.ts';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
+import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useLink } from '../../../lib/shared/useLink.ts';
+import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
 interface Props {
   projectName: string;
   workspaces: Workspace[];
+  useMcpsQuery?: typeof _useMcpsQuery;
+  useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
 
-export default function ControlPlaneListAllWorkspaces({ projectName, workspaces }: Props) {
+export default function ControlPlaneListAllWorkspaces({
+  projectName,
+  workspaces,
+  useMcpsQuery = _useMcpsQuery,
+  useDeleteWorkspace = _useDeleteWorkspace,
+}: Props) {
   const { workspaceCreationGuide } = useLink();
-
   const { t } = useTranslation();
+  // null = initial (auto-expand first workspace); undefined = user explicitly collapsed all; string = user picked one
+  const [expandedWorkspace, setExpandedWorkspace] = useState<string | null | undefined>(null);
+
+  const resolvedExpanded = expandedWorkspace === null ? (workspaces[0]?.metadata.name ?? null) : expandedWorkspace;
 
   return (
     <>
@@ -43,6 +56,13 @@ export default function ControlPlaneListAllWorkspaces({ projectName, workspaces 
             key={`${projectName}-${workspace.metadata.name}`}
             projectName={projectName}
             workspace={workspace}
+            isExpanded={resolvedExpanded === workspace.metadata.name}
+            useMcpsQuery={useMcpsQuery}
+            useDeleteWorkspace={useDeleteWorkspace}
+            onToggleExpanded={() => {
+              const isCurrentlyExpanded = resolvedExpanded === workspace.metadata.name;
+              setExpandedWorkspace(isCurrentlyExpanded ? undefined : workspace.metadata.name);
+            }}
           />
         ))
       )}

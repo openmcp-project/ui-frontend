@@ -28,6 +28,8 @@ import styles from './WorkspacesList.module.css';
 interface Props {
   projectName: string;
   workspace: Workspace;
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -35,6 +37,8 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  isExpanded,
+  onToggleExpanded,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -59,7 +63,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
-  const shouldCollapsePanel = !!errorView;
+  const shouldCollapsePanel = !isExpanded;
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
@@ -112,6 +116,7 @@ export function ControlPlaneListWorkspaceGridTile({
           headerLevel="H2"
           style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
           collapsed={shouldCollapsePanel}
+          noAnimation
           header={
             <div
               style={{
@@ -148,7 +153,7 @@ export function ControlPlaneListWorkspaceGridTile({
               </FlexBox>
             </div>
           }
-          noAnimation
+          onToggle={onToggleExpanded}
         >
           {errorView ? (
             errorView
