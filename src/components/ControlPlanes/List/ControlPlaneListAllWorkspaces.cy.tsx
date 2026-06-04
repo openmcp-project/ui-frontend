@@ -24,15 +24,30 @@ const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
 
 const fakeForbiddenMcpsQuery: typeof useMcpsQuery = () => ({
   data: [],
-  error: Object.assign(new Error('is forbidden'), { graphQLErrors: [], networkError: null, clientErrors: [], cause: undefined, extraInfo: undefined, protocolErrors: [] }),
+  error: Object.assign(new Error('is forbidden'), {
+    graphQLErrors: [],
+    networkError: null,
+    clientErrors: [],
+    cause: undefined,
+    extraInfo: undefined,
+    protocolErrors: [],
+  }),
   isPending: false,
 });
 
-const fakeUseMcpsQueryForWorkspace = (forbiddenWorkspace: string): typeof useMcpsQuery =>
+const fakeUseMcpsQueryForWorkspace =
+  (forbiddenWorkspace: string): typeof useMcpsQuery =>
   (workspaceNamespace) => ({
     data: [],
     error: workspaceNamespace?.includes(forbiddenWorkspace)
-      ? Object.assign(new Error('is forbidden'), { graphQLErrors: [], networkError: null, clientErrors: [], cause: undefined, extraInfo: undefined, protocolErrors: [] })
+      ? Object.assign(new Error('is forbidden'), {
+          graphQLErrors: [],
+          networkError: null,
+          clientErrors: [],
+          cause: undefined,
+          extraInfo: undefined,
+          protocolErrors: [],
+        })
       : undefined,
     isPending: false,
   });
