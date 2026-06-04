@@ -151,6 +151,16 @@ fastify.register(helmet, {
   },
 });
 
+// Helmet's script-src 'self' blocks Headlamp's inline scripts when its HTML is served via
+// /api/headlamp/*. Strip the BFF CSP for those responses — Headlamp's own CSP is already
+// removed by rewriteHeaders in http-proxy.ts, so no conflicting policy reaches the browser.
+fastify.addHook('onSend', (_req, reply, payload) => {
+  if (_req.url?.startsWith('/api/headlamp')) {
+    reply.removeHeader('content-security-policy');
+  }
+  return payload;
+});
+
 fastify.register(proxy, {
   prefix: '/api',
 });
