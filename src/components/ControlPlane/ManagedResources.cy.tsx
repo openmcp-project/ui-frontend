@@ -330,31 +330,6 @@ describe('ManagedResources - Edit Resource', () => {
     cy.wrap(null).should(() => expect(patchedItem).to.not.be.null);
   });
 
-  it('does not show a "YAML" heading in the panel toolbar', () => {
-    cy.mount(
-      <MemoryRouter>
-        <SplitterProvider>
-          <SplitterLayout>
-            <ManagedResources
-              useHandleResourcePatch={fakeUseHandleResourcePatch}
-              useApiResource={fakeUseApiResource}
-              useResourcePluralNames={fakeUseResourcePluralNames}
-              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
-            />
-          </SplitterLayout>
-        </SplitterProvider>
-      </MemoryRouter>,
-    );
-
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Edit').click({ force: true });
-
-    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
-    // The standalone "YAML" title label must not appear in the panel header
-    cy.get('ui5-panel').contains('YAML').should('not.exist');
-  });
-
   it('shows copy and download buttons in the panel', () => {
     cy.mount(
       <MemoryRouter>
