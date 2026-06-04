@@ -52,27 +52,27 @@ describe('useDeleteProject', () => {
     });
   });
 
-  it('should show toast on API failure without throwing', async () => {
+  it('should show toast on API failure and rethrow', async () => {
     mutateMock.mockRejectedValue(new Error('API Error'));
 
     const renderHookResult = renderHook(() => useDeleteProject('test-project'));
     const { deleteProject } = renderHookResult.result.current;
 
     await act(async () => {
-      await expect(deleteProject()).resolves.toBeUndefined();
+      await expect(deleteProject()).rejects.toThrow('API Error');
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('API Error');
   });
 
-  it('should show toast on network failure without throwing', async () => {
+  it('should show toast on network failure and rethrow', async () => {
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
     const renderHookResult = renderHook(() => useDeleteProject('test-project'));
     const { deleteProject } = renderHookResult.result.current;
 
     await act(async () => {
-      await expect(deleteProject()).resolves.toBeUndefined();
+      await expect(deleteProject()).rejects.toThrow('Network error');
     });
 
     expect(toastShowMock).toHaveBeenCalledWith('Network error');

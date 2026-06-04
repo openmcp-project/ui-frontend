@@ -1,14 +1,14 @@
 import { Editor } from '@monaco-editor/react';
-import type { ComponentProps } from 'react';
 import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
-import { parseDocument } from 'yaml';
+import * as monaco from 'monaco-editor';
+import type { JSONSchema } from 'monaco-yaml';
+import { configureMonacoYaml } from 'monaco-yaml';
+import type { ComponentProps } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { parseDocument } from 'yaml';
 import { useTheme } from '../../hooks/useTheme';
 import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
-import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor';
-import { configureMonacoYaml } from 'monaco-yaml';
-import type { JSONSchema } from 'monaco-yaml';
 import styles from './YamlEditor.module.css';
 
 import type { JSONSchema4 } from 'json-schema';
@@ -47,7 +47,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       hover: true,
       completion: true,
       validate: true,
-      format: true,
+      format: { enable: true },
       schemas: [
         {
           schema: schema as JSONSchema,
@@ -82,6 +82,7 @@ export const YamlEditor = (props: YamlEditorProps) => {
       formatOnType: true,
       fontSize: 13,
       lineHeight: 20,
+      contextmenu: false,
     }),
     [options, isEdit],
   );

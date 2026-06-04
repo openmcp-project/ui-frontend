@@ -12,7 +12,7 @@ interface DeleteConfirmationDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   resourceName: string;
   kubectlDialog?: (props: { isOpen: boolean; onClose: () => void }) => ReactNode;
-  onDeletionConfirmed?: () => void;
+  onDeletionConfirmed?: () => Promise<void> | void;
   onCanceled?: () => void;
 }
 
@@ -59,10 +59,14 @@ export function DeleteConfirmationDialog({
                 <Button
                   design={ButtonDesign.Negative}
                   disabled={!isConfirmed}
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsKubectlDialogOpen(false);
-                    onDeletionConfirmed && onDeletionConfirmed();
+                  onClick={async () => {
+                    try {
+                      await onDeletionConfirmed?.();
+                      setIsOpen(false);
+                      setIsKubectlDialogOpen(false);
+                    } catch {
+                      // toast already shown by the hook; keep dialog open
+                    }
                   }}
                 >
                   {t('DeleteConfirmationDialog.deleteButton')}
