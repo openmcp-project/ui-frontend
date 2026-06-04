@@ -116,6 +116,7 @@ export function ControlPlaneListWorkspaceGridTile({
           headerLevel="H2"
           style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
           collapsed={shouldCollapsePanel}
+          data-testid={`workspace-panel-${workspaceName}`}
           noAnimation
           header={
             <div

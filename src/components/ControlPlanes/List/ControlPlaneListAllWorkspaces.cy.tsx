@@ -27,11 +27,7 @@ const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
 });
 
 const makeWorkspace = (name: string): Workspace => ({
-  metadata: {
-    name,
-    namespace: `project-test--ws-${name}`,
-    annotations: {},
-  },
+  metadata: { name, namespace: `project-test--ws-${name}`, annotations: {} },
   spec: { members: [] },
   status: { namespace: `project-test--ws-${name}` },
 });
@@ -59,39 +55,47 @@ function mountAllWorkspaces(ws: Workspace[]) {
   );
 }
 
+function panel(name: string) {
+  return cy.get(`[data-testid="workspace-panel-${name}"]`);
+}
+
+function togglePanel(name: string) {
+  panel(name).then(($el: JQuery<HTMLElement>) => $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true })));
+}
+
 describe('ControlPlaneListAllWorkspaces — mutually exclusive expansion', () => {
   it('expands only the first workspace by default', () => {
     mountAllWorkspaces(workspaces);
 
-    cy.get('ui5-panel').eq(0).invoke('prop', 'collapsed').should('equal', false);
-    cy.get('ui5-panel').eq(1).invoke('prop', 'collapsed').should('equal', true);
-    cy.get('ui5-panel').eq(2).invoke('prop', 'collapsed').should('equal', true);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
+    panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
   it('expanding a second workspace collapses the first', () => {
     mountAllWorkspaces(workspaces);
 
-    cy.get('ui5-panel').eq(1).shadow().find('ui5-button.ui5-panel-header-button').click({ force: true });
+    togglePanel('beta');
 
-    cy.get('ui5-panel').eq(0).invoke('prop', 'collapsed').should('equal', true);
-    cy.get('ui5-panel').eq(1).invoke('prop', 'collapsed').should('equal', false);
-    cy.get('ui5-panel').eq(2).invoke('prop', 'collapsed').should('equal', true);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
   it('collapsing the expanded workspace leaves all panels collapsed', () => {
     mountAllWorkspaces(workspaces);
 
-    cy.get('ui5-panel').eq(0).shadow().find('ui5-button.ui5-panel-header-button').click({ force: true });
+    togglePanel('alpha');
 
-    cy.get('ui5-panel').eq(0).invoke('prop', 'collapsed').should('equal', true);
-    cy.get('ui5-panel').eq(1).invoke('prop', 'collapsed').should('equal', true);
-    cy.get('ui5-panel').eq(2).invoke('prop', 'collapsed').should('equal', true);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
   it('renders empty state when there are no workspaces', () => {
     mountAllWorkspaces([]);
 
-    cy.get('ui5-panel').should('not.exist');
+    cy.get('[data-testid^="workspace-panel-"]').should('not.exist');
     cy.get('ui5-illustrated-message').should('exist');
   });
 });
