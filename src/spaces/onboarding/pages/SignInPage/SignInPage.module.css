@@ -1,21 +1,124 @@
+/* Container */
 .container {
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 50%, #f5f7fa 100%);
 }
 
-.cardContent {
-  padding: 2rem 3rem;
+/* Content */
+.content {
+  position: relative;
+  z-index: 10;
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  padding-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.heading {
-  margin-bottom: 0.75rem;
+.heroSection {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  background: #ffffff;
+  padding: 3rem 2.5rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  width: 100%;
 }
 
-.description {
-  font-size: 1.25em;
+/* Hero control plane image */
+.heroImage {
+  width: 180px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.10));
 }
 
-.logo {
-  width: 240px;
-  height: 290px;
-  margin: 3rem;
+.welcomeMessage {
+  font-size: 1.25rem;
+  color: #1e293b;
+  margin: 0;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.actionContainer {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.signInButton {
+  min-width: 160px;
+}
+
+.contributorLink {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.contributorLink:hover {
+  color: #334155;
+  text-decoration: underline;
+}
+
+/* Disclaimer */
+.disclaimer {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.disclaimerImage {
+  height: 100px;
+  width: auto;
+  opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .heroSection {
+    padding: 2rem 1.5rem;
+  }
+
+  .heroImage {
+    width: 130px;
+  }
+
+  .disclaimerImage {
+    height: 65px;
+  }
+
+  .disclaimer {
+    bottom: 1rem;
+  }
 }
