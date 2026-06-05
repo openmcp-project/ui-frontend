@@ -2,8 +2,8 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import { useMemo, useEffect, useState } from 'react';
+import { Button, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
@@ -22,6 +22,7 @@ import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateMa
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
+import { WorkspaceHealthIndicator } from '../WorkspaceHealthIndicator/WorkspaceHealthIndicator.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import styles from './WorkspacesList.module.css';
 
@@ -129,9 +130,8 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '1fr 0.24fr auto',
+                gridTemplateColumns: '1fr auto 1fr',
                 gap: '1rem',
-                justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
@@ -143,8 +143,13 @@ export function ControlPlaneListWorkspaceGridTile({
                 <CopyButton collapsible text={workspace.status?.namespace || '-'} />
               </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
-              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              <div style={{ display: 'flex', justifyContent: 'center' }} />
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
+                {managedControlPlanes && managedControlPlanes.length > 0 && (
+                  <WorkspaceHealthIndicator controlPlanes={managedControlPlanes} />
+                )}
                 <YamlViewButton
                   variant="loader"
                   workspaceName={workspace.metadata.namespace}
@@ -157,7 +162,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   setInitialTemplateName={setInitialTemplateName}
                   setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
                 />
-              </FlexBox>
+              </div>
             </div>
           }
           onToggle={onToggleExpanded}
