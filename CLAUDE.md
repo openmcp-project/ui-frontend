@@ -198,21 +198,9 @@ Hooks that show a toast on error **must also rethrow** so callers (dialogs) can 
 - Mutations in hooks: catch, show toast, rethrow. The dialog/caller decides whether to close.
 - Use `<ErrorDialog ref={…} />` with `errorDialogRef.current?.showErrorDialog(message)` for errors that need a blocking dialog (not just a toast). See `CreateProjectDialogContainer.tsx`.
 
-### Monaco / YamlViewer in dialogs
-
-Lazy-load `YamlViewer` to prevent Monaco's synchronous initialisation from blocking dialog open and crashing Cypress tests during teardown:
-
-```tsx
-const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
-// …
-<Suspense fallback={null}>
-  <YamlViewer … />
-</Suspense>
-```
-
 ### `javascript-time-ago` setup
 
-`TimeAgo.addDefaultLocale(en)` must be called before any component using `ReactTimeAgo` mounts, and it must appear **after all imports** in the file (ESLint `import/first` rule). Place it as the first non-import line.
+`TimeAgo.addDefaultLocale(en)` is initialised once in `src/utils/i18n/timeAgo.ts` — import that module before any component using `ReactTimeAgo` mounts. The call must appear **after all imports** in any file that hosts it (ESLint `import/first` rule).
 
 ### CSS modules and theming
 
