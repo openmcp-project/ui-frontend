@@ -17,6 +17,7 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
+    "actionsMenu": "Actions",
     "deleteButton": "Delete",
     "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
