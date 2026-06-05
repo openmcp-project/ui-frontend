@@ -2,6 +2,11 @@ import { EditProjectDialogContainer } from './EditProjectDialogContainer';
 import { useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject';
 import { useGetProject, ProjectData } from '../../spaces/onboarding/hooks/useGetProject';
 import { MemberRoles } from '../../lib/api/types/shared/members';
+import {
+  CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
+  DISPLAY_NAME_ANNOTATION,
+} from '../../lib/api/types/shared/keyNames';
 
 const projectData: ProjectData = {
   name: 'existing-project',
@@ -9,6 +14,14 @@ const projectData: ProjectData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  existingMetadata: {
+    name: 'existing-project',
+    annotations: { [DISPLAY_NAME_ANNOTATION]: 'Existing Display Name' },
+    labels: {
+      [CHARGING_TARGET_LABEL]: '12345678-1234-1234-1234-123456789abc',
+      [CHARGING_TARGET_TYPE_LABEL]: 'btp',
+    },
+  },
 };
 
 const fakeUseGetProject: typeof useGetProject = () => ({
@@ -83,7 +96,57 @@ describe('EditProjectDialogContainer', () => {
         chargingTarget: '12345678-1234-1234-1234-123456789abc',
         chargingTargetType: 'btp',
         members: [{ name: 'admin@example.com', kind: 'User', roles: ['admin'] }],
+        existingMetadata: projectData.existingMetadata,
       });
+    });
+  });
+
+  it('preserves full server metadata (annotations, labels, finalizers) on save', () => {
+    const existingMetadata = {
+      name: 'existing-project',
+      finalizers: ['core.openmcp.cloud/protection'],
+      resourceVersion: '42',
+      annotations: {
+        [DISPLAY_NAME_ANNOTATION]: 'Existing Display Name',
+        'custom.external.tool/last-synced': '2024-01-01T00:00:00Z',
+      },
+      labels: {
+        [CHARGING_TARGET_LABEL]: '12345678-1234-1234-1234-123456789abc',
+        [CHARGING_TARGET_TYPE_LABEL]: 'btp',
+        team: 'platform-engineering',
+      },
+    };
+
+    const projectDataWithExtraFields: ProjectData = {
+      name: 'existing-project',
+      displayName: 'Existing Display Name',
+      chargingTarget: '12345678-1234-1234-1234-123456789abc',
+      chargingTargetType: 'btp',
+      members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+      existingMetadata,
+    };
+
+    let capturedParams: Parameters<ReturnType<typeof useUpdateProject>['updateProject']>[0] | null = null;
+
+    cy.mount(
+      <EditProjectDialogContainer
+        isOpen={true}
+        setIsOpen={cy.stub()}
+        projectName="existing-project"
+        useGetProject={() => ({ projectData: projectDataWithExtraFields, isLoading: false, error: undefined })}
+        useUpdateProject={() => ({
+          updateProject: async (params) => {
+            capturedParams = params;
+          },
+        })}
+      />,
+    );
+
+    cy.get('ui5-button').contains('Save').click();
+
+    cy.then(() => {
+      cy.wrap(capturedParams).should('not.be.null');
+      cy.wrap(capturedParams).its('existingMetadata').should('deep.equal', existingMetadata);
     });
   });
 

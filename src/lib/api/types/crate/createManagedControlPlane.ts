@@ -58,6 +58,7 @@ export interface CreateManagedControlPlaneType {
     namespace: string;
     annotations: Annotations;
     labels: Labels;
+    finalizers?: string[];
   };
   spec: Spec;
 }
@@ -131,12 +132,15 @@ export const CreateManagedControlPlane = (
     apiVersion: 'core.openmcp.cloud/v1alpha1',
     kind: 'ManagedControlPlane',
     metadata: {
+      ...initialData?.metadata,
       name: name,
       namespace: namespace,
       annotations: {
+        ...(initialData?.metadata?.annotations as Record<string, string> | undefined),
         [DISPLAY_NAME_ANNOTATION]: optional?.displayName ?? '',
       },
       labels: {
+        ...(initialData?.metadata?.labels as Record<string, string> | undefined),
         [CHARGING_TARGET_TYPE_LABEL]: optional?.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: optional?.chargingTarget ?? '',
       },

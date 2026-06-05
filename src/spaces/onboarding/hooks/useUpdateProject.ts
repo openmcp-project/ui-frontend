@@ -9,7 +9,10 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
-import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
+import {
+  CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput,
+  Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input as ObjectMetaInput,
+} from '../../../types/__generated__/graphql/graphql';
 import { CreateProjectParams } from './useCreateProject';
 
 const UpdateProjectMutation = gql`
@@ -26,16 +29,28 @@ const UpdateProjectMutation = gql`
   }
 `;
 
-function buildUpdateProjectInput(params: CreateProjectParams): ProjectInput {
+export interface UpdateProjectParams extends CreateProjectParams {
+  /**
+   * Full metadata object as returned by the server. Spread into the update payload
+   * so that fields the form doesn't own (finalizers, ownerReferences, resourceVersion,
+   * extra annotations/labels set by external tools) are preserved rather than silently dropped.
+   */
+  existingMetadata?: ObjectMetaInput;
+}
+
+function buildUpdateProjectInput(params: UpdateProjectParams): ProjectInput {
   return {
     apiVersion: 'core.openmcp.cloud/v1alpha1',
     kind: 'Project',
     metadata: {
+      ...params.existingMetadata,
       name: params.name,
       annotations: {
+        ...(params.existingMetadata?.annotations as Record<string, string> | null | undefined),
         [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
       },
       labels: {
+        ...(params.existingMetadata?.labels as Record<string, string> | null | undefined),
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',
       },
@@ -57,7 +72,7 @@ export function useUpdateProject() {
   const [updateProjectMutation] = useMutation(UpdateProjectMutation);
 
   const updateProject = useCallback(
-    async (params: CreateProjectParams): Promise<void> => {
+    async (params: UpdateProjectParams): Promise<void> => {
       try {
         const object = buildUpdateProjectInput(params);
         await updateProjectMutation({

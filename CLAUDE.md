@@ -1,3 +1,4 @@
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -124,6 +125,27 @@ Hooks are invoked as `node .claude/hooks/*.mjs` (cross-platform). But `/bin/sh` 
   If the user explicitly asks you to run it and provides the token via
   env var (`$env:GRAPHQL_TOKEN` on PowerShell, `$GRAPHQL_TOKEN` on bash),
   that is acceptable. Never echo the token value back, even partially.
+
+### Preserving full server metadata on form-based updates
+
+When a form-based edit (Project dialog, ManagedControlPlane wizard) reconstructs the Kubernetes object from form fields, it must **spread the full existing `metadata` object first, then overwrite only the fields the form owns** — otherwise any field set outside the UI (`finalizers`, `ownerReferences`, `resourceVersion`, extra annotations/labels set by `kubectl` or controllers) is silently dropped on save:
+
+```ts
+metadata: {
+  ...existingMetadata,               // preserve everything from the server
+  name: params.name,                 // overwrite fields the form owns
+  annotations: {
+    ...existingMetadata?.annotations,
+    [DISPLAY_NAME_ANNOTATION]: ...,
+  },
+  labels: {
+    ...existingMetadata?.labels,
+    [CHARGING_TARGET_LABEL]: ...,
+  },
+},
+```
+
+Fetch the full metadata from the server before opening the edit dialog (including `finalizers`, `resourceVersion`, `ownerReferences`), pass it through to the mutation, and include a test that verifies round-trip preservation of unknown annotations, labels, and finalizers. See `useUpdateProject.ts` and `createManagedControlPlane.ts` for the canonical pattern.
 
 ## Commands cheatsheet
 
