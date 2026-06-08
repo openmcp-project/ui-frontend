@@ -4,7 +4,7 @@ export const UpdateManagedControlPlaneV2Mutation = graphql(`
   mutation UpdateManagedControlPlaneV2(
     $name: String!
     $namespace: String
-    $object: ManagedControlPlaneV2Input!
+    $object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input!
     $dryRun: Boolean
   ) {
     core_openmcp_cloud {

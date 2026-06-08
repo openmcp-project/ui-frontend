@@ -34445,6 +34445,32 @@ export type UpdateLandscaperMutation = {
   } | null;
 };
 
+export type UpdateManagedControlPlaneV2MutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input;
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+export type UpdateManagedControlPlaneV2Mutation = {
+  __typename?: 'Mutation';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudMutation';
+    v2alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV2alpha1Mutation';
+      updateManagedControlPlaneV2?: {
+        __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2';
+        metadata?: {
+          __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+          name?: string | null;
+          namespace?: string | null;
+        } | null;
+        status?: { __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status'; phase?: string | null } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
 export type CreateProjectMutationVariables = Exact<{
   object: CoreOpenmcpCloudV1alpha1Project_Input;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
@@ -36107,6 +36133,117 @@ export const UpdateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLandscaperMutation, UpdateLandscaperMutationVariables>;
+export const UpdateManagedControlPlaneV2Document = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateManagedControlPlaneV2' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v2alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateManagedControlPlaneV2' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'dryRun' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateManagedControlPlaneV2Mutation, UpdateManagedControlPlaneV2MutationVariables>;
 export const CreateProjectDocument = {
   kind: 'Document',
   definitions: [
