@@ -1,4 +1,14 @@
-import { Input, InputDomRef, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import {
+  Form,
+  FormItem,
+  Input,
+  InputDomRef,
+  Label,
+  Option,
+  Select,
+  SelectDomRef,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
 import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
@@ -96,11 +106,8 @@ export function MetadataForm({
 
   return (
     <div className={styles.formLayout}>
-      <div className={styles.column}>
-        <div className={styles.fieldGroup}>
-          <Label for="name" required>
-            {t('CreateProjectWorkspaceDialog.nameLabel')}
-          </Label>
+      <Form labelSpan="S12 M12 L12 XL12" layout="S1 M1 L1 XL1" className={styles.column}>
+        <FormItem labelContent={<Label required>{t('CreateProjectWorkspaceDialog.nameLabel')}</Label>}>
           {resolvedNamePrefix || resolvedNameSuffix ? (
             <div className={styles.affixRow}>
               {resolvedNamePrefix ? (
@@ -134,10 +141,10 @@ export function MetadataForm({
               ) : null}
             </div>
           ) : isEditMode ? (
-            <>
+            <div>
               <input type="hidden" {...register('name')} />
               <Input className={styles.input} id="name" value={currentName} required disabled />
-            </>
+            </div>
           ) : (
             <Input
               className={styles.input}
@@ -148,12 +155,11 @@ export function MetadataForm({
               required
             />
           )}
-        </div>
+        </FormItem>
 
         {!isV2 && (
           <>
-            <div className={styles.fieldGroup}>
-              <Label for="displayName">{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>
+            <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>}>
               {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (
                 <div className={styles.affixRow}>
                   {resolvedDisplayNamePrefix ? (
@@ -185,10 +191,9 @@ export function MetadataForm({
               ) : (
                 <Input id="displayName" {...register('displayName')} className={styles.input} />
               )}
-            </div>
+            </FormItem>
 
-            <div className={styles.fieldGroup}>
-              <Label for="chargingTargetType">{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>
+            <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.chargingTargetTypeLabel')}</Label>}>
               <Select
                 value={watch?.('chargingTargetType') ?? ''}
                 id="chargingTargetType"
@@ -202,12 +207,15 @@ export function MetadataForm({
                   </Option>
                 ))}
               </Select>
-            </div>
+            </FormItem>
 
-            <div className={styles.fieldGroup}>
-              <Label for="chargingTarget" required={!!watch?.('chargingTargetType')}>
-                {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
-              </Label>
+            <FormItem
+              labelContent={
+                <Label required={!!watch?.('chargingTargetType')}>
+                  {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
+                </Label>
+              }
+            >
               <Input
                 id="chargingTarget"
                 {...register('chargingTarget')}
@@ -216,10 +224,10 @@ export function MetadataForm({
                 valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
                 disabled={disableChargingFields || !watch?.('chargingTargetType')}
               />
-            </div>
+            </FormItem>
           </>
         )}
-      </div>
+      </Form>
 
       {sideFormContent && <div className={styles.column}>{sideFormContent}</div>}
     </div>
