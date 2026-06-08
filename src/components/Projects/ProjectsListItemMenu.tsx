@@ -37,7 +37,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
 
   return (
     <div>
-      <Button icon="overflow" icon-end onClick={handleOpenerClick} />
+      <Button design="Transparent" icon="overflow" icon-end onClick={handleOpenerClick} />
       <Menu
         ref={popoverRef}
         open={open}

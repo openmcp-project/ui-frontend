@@ -168,6 +168,7 @@
   },
   "ShellBar": {
     "betaButton": "Beta",
+    "betaButtonAriaLabel": "Beta – open information about this app's beta status",
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "signOutButton": "Sign Out",
     "feedbackMessageLabel": "Message",
@@ -263,7 +264,11 @@
     "landscaperTitle": "Landscaper",
     "configMapsTitle": "ConfigMaps",
     "secretsTitle": "Secrets",
-    "secretTypeHeader": "Type"
+    "secretTypeHeader": "Type",
+    "headlampTitle": "Headlamp",
+    "headlampUnavailableTitle": "Headlamp unavailable",
+    "headlampUnavailableSubtitle": "The Headlamp service could not be reached. Please check that it is deployed and healthy.",
+    "headlampGetSupport": "Get support"
   },
   "McpHeader": {
     "nameLabel": "Name",

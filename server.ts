@@ -125,12 +125,23 @@ fastify.register(helmet, {
       // styleSrc: unsafe-inline is needed for our styling
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:'],
-      'connect-src': ["'self'", 'sdk.openui5.org', sentryHost, dynatraceOrigin],
+      'connect-src': [
+        "'self'",
+        'sdk.openui5.org',
+        // Headlamp uses iconify for icons — these CDNs are fetched by the iframe (same-origin via BFF proxy)
+        'api.iconify.design',
+        'api.simplesvg.com',
+        'api.unisvg.com',
+        sentryHost,
+        dynatraceOrigin,
+      ],
       'script-src': isLocalDev
         ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
         : ["'self'", sentryHost, dynatraceOrigin],
+      'frame-src': ["'self'"],
       // @ts-ignore
-      'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
+      // 'self' is required so the app can embed Headlamp via same-origin iframe (/api/headlamp/*)
+      'frame-ancestors': ["'self'", ...fastify.config.FRAME_ANCESTORS.split(',')],
     },
   },
   // Needed for https enforcement
@@ -139,6 +150,16 @@ fastify.register(helmet, {
     includeSubDomains: true,
     preload: true,
   },
+});
+
+// Strip BFF CSP for Headlamp proxy responses — Helmet's script-src 'self' blocks inline scripts.
+// Headlamp's own CSP is already removed by rewriteHeaders in http-proxy.ts.
+fastify.addHook('onSend', async (req, reply, payload) => {
+  const pathname = req.url.split('?')[0];
+  if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
+    reply.removeHeader('content-security-policy');
+  }
+  return payload;
 });
 
 fastify.register(proxy, {
