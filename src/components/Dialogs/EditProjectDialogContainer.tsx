@@ -111,7 +111,7 @@ export function EditProjectDialogContainer({
         </div>
       </Dialog>
       <ErrorDialog ref={errorDialogRef} />
-      {isOpen && !isLoading && (
+      {isOpen && !isLoading && !fetchError && (
         <CreateProjectWorkspaceDialog
           watch={watch}
           isOpen={isOpen}
