@@ -85,7 +85,6 @@ export function EditProjectDialogContainer({
         chargingTarget,
         chargingTargetType,
         members,
-        existingMetadata: projectData?.existingMetadata,
       });
       setIsOpen(false);
       return true;

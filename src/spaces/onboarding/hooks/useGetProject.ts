@@ -6,7 +6,6 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
-import { Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input as ObjectMetaInput } from '../../../types/__generated__/graphql/graphql';
 
 const GetProjectQuery = gql`
   query GetProject($name: String!) {
@@ -17,18 +16,6 @@ const GetProjectQuery = gql`
             name
             annotations
             labels
-            finalizers
-            resourceVersion
-            generation
-            creationTimestamp
-            ownerReferences {
-              apiVersion
-              kind
-              name
-              uid
-              blockOwnerDeletion
-              controller
-            }
           }
           spec {
             members {
@@ -50,8 +37,6 @@ export interface ProjectData {
   chargingTarget: string;
   chargingTargetType: string;
   members: Member[];
-  /** Full server metadata — spread into update payload to avoid dropping any fields the form doesn't own. */
-  existingMetadata: ObjectMetaInput;
 }
 
 export function useGetProject(projectName: string | undefined) {
@@ -72,7 +57,6 @@ export function useGetProject(projectName: string | undefined) {
         displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
         chargingTarget: labels[CHARGING_TARGET_LABEL] ?? '',
         chargingTargetType: labels[CHARGING_TARGET_TYPE_LABEL] ?? '',
-        existingMetadata: project.metadata as ObjectMetaInput,
         members: (project.spec?.members ?? []).flatMap(
           (m: { kind?: string; name?: string; namespace?: string; roles?: string[] } | null) => {
             if (!m?.name || !m?.kind) return [];

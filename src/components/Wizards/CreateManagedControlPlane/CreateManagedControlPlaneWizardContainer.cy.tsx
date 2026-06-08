@@ -507,14 +507,11 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
         name: 'existing-mcp',
         namespace: '--ws-',
         annotations: {
-          'openmcp.cloud/created-by': 'name@domain.com',
           'openmcp.cloud/display-name': 'displayName',
         },
         labels: {
-          'openmcp.cloud.sap/charging-target': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
           'openmcp.cloud.sap/charging-target-type': 'btp',
-          'openmcp.cloud/mcp-project': 'existing-project',
-          'openmcp.cloud/mcp-workspace': 'existing-workspace',
+          'openmcp.cloud.sap/charging-target': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         },
       },
       spec: {
@@ -627,14 +624,11 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
         name: 'existing-mcp',
         namespace: '--ws-',
         annotations: {
-          'openmcp.cloud/created-by': 'name@domain.com',
           'openmcp.cloud/display-name': 'displayName',
         },
         labels: {
-          'openmcp.cloud.sap/charging-target': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
           'openmcp.cloud.sap/charging-target-type': 'btp',
-          'openmcp.cloud/mcp-project': 'existing-project',
-          'openmcp.cloud/mcp-workspace': 'existing-workspace',
+          'openmcp.cloud.sap/charging-target': 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         },
       },
       spec: {
@@ -715,69 +709,5 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.get('ui5-button').contains('Next').click(); // navigate to Summarize
     cy.get('ui5-button').contains('Update').click();
     cy.then(() => cy.wrap(updateMutationPayload).deepEqualJson(expMutationPayload));
-  });
-
-  it('preserves unknown metadata fields (finalizers, extra annotations/labels) set outside the UI on edit', () => {
-    const existingMcp: ManagedControlPlaneInterface = {
-      apiVersion: 'core.openmcp.cloud/v1alpha1',
-      kind: 'ManagedControlPlane',
-      metadata: {
-        name: 'existing-mcp',
-        namespace: 'project-existing-project--ws-existing-workspace',
-        finalizers: ['core.openmcp.cloud/protection'],
-        annotations: {
-          'openmcp.cloud/display-name': 'My MCP',
-          'kubectl.kubernetes.io/last-applied-configuration': '{"some":"config"}',
-          'custom.tool/synced-at': '2024-01-01T00:00:00Z',
-        },
-        labels: {
-          'openmcp.cloud.sap/charging-target': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-          'openmcp.cloud.sap/charging-target-type': 'BTP',
-          'openmcp.cloud/mcp-project': 'existing-project',
-          'openmcp.cloud/mcp-workspace': 'existing-workspace',
-          team: 'platform',
-        },
-      },
-      spec: {
-        authentication: { enableSystemIdentityProvider: true },
-        authorization: { roleBindings: [] },
-        components: { apiServer: { type: 'GardenerDedicated' } },
-      },
-    };
-
-    cy.mount(
-      <CreateManagedControlPlaneWizardContainer
-        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
-        useAuthOnboarding={fakeUseAuthOnboarding}
-        useComponentsQuery={fakeUseComponentsQuery}
-        initialData={existingMcp}
-        isEditMode={true}
-        isOpen={true}
-        setIsOpen={() => {}}
-      />,
-    );
-
-    cy.get('ui5-button').contains('Next').click();
-    cy.get('ui5-button').contains('Next').click();
-    cy.get('ui5-button').contains('Next').click();
-    cy.get('ui5-button').contains('Update').click();
-
-    cy.then(() => {
-      const payload = updateMutationPayload;
-      cy.wrap(payload).should('not.be.null');
-      // All original annotations preserved, including unknown ones
-      cy.wrap(payload).its('metadata.annotations').should('include', {
-        'kubectl.kubernetes.io/last-applied-configuration': '{"some":"config"}',
-        'custom.tool/synced-at': '2024-01-01T00:00:00Z',
-      });
-      // All original labels preserved, including unknown ones
-      cy.wrap(payload).its('metadata.labels').should('include', {
-        'openmcp.cloud/mcp-project': 'existing-project',
-        'openmcp.cloud/mcp-workspace': 'existing-workspace',
-        team: 'platform',
-      });
-      // Finalizers preserved
-      cy.wrap(payload).its('metadata.finalizers').should('deep.equal', ['core.openmcp.cloud/protection']);
-    });
   });
 });
