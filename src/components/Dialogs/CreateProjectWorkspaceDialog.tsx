@@ -1,5 +1,6 @@
 import {
   Bar,
+  BusyIndicator,
   Button,
   Dialog,
   FormGroup,
@@ -47,9 +48,10 @@ export interface CreateProjectWorkspaceDialogProps {
   setValue: UseFormSetValue<CreateDialogProps>;
   handleSubmit: UseFormHandleSubmit<CreateDialogProps>;
   projectName?: string;
-  type: 'workspace' | 'project' | 'mcp';
+  type: 'workspace' | 'project';
   watch: UseFormWatch<CreateDialogProps>;
   isMetadataValid: boolean;
+  isLoading?: boolean;
 }
 
 type Step = 'metadata' | 'members';
@@ -69,6 +71,7 @@ export function CreateProjectWorkspaceDialog({
   type,
   watch,
   isMetadataValid,
+  isLoading = false,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>('metadata');
@@ -76,8 +79,16 @@ export function CreateProjectWorkspaceDialog({
   const setMembers = (members: Member[]) => setValue('members', members);
 
   const projectNamespace = projectName ? projectnameToNamespace(projectName) : undefined;
-  const yamlString = useYamlPreview(watch, type === 'mcp' ? 'project' : type, projectNamespace);
-  const resourceName = watch('name') || 'new';
+  const name = watch('name') ?? '';
+  const displayName = watch('displayName') ?? '';
+  const chargingTarget = watch('chargingTarget') ?? '';
+  const chargingTargetType = watch('chargingTargetType') ?? '';
+  const yamlString = useYamlPreview(
+    { name, displayName, chargingTarget, chargingTargetType, members },
+    type,
+    projectNamespace,
+  );
+  const resourceName = name || 'new';
 
   const handleStepChange = (e: { detail: WizardStepChangeEventDetail }) => {
     setStep((e.detail.step.dataset.step ?? 'metadata') as Step);
@@ -96,7 +107,7 @@ export function CreateProjectWorkspaceDialog({
         stretch
         headerText={titleText}
         open={isOpen}
-        initialFocus="project-name-input"
+        initialFocus="name"
         footer={
           <Bar
             design="Footer"
@@ -112,7 +123,7 @@ export function CreateProjectWorkspaceDialog({
                 ) : (
                   <>
                     <Button onClick={() => setStep('metadata')}>{t('buttons.back')}</Button>
-                    <Button design="Emphasized" onClick={() => onCreate()}>
+                    <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
                       {t('CreateProjectWorkspaceDialog.createButton')}
                     </Button>
                   </>
@@ -161,7 +172,7 @@ export function CreateProjectWorkspaceDialog({
           </SplitterElement>
 
           <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
-            <Suspense fallback={null}>
+            <Suspense fallback={<BusyIndicator active size="M" style={{ margin: 'auto' }} />}>
               <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
             </Suspense>
           </SplitterElement>

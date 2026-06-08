@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 import { stringify } from 'yaml';
-import { UseFormWatch } from 'react-hook-form';
-import { CreateDialogProps } from '../components/Dialogs/CreateWorkspaceDialogContainer.tsx';
 import {
   DISPLAY_NAME_ANNOTATION,
   CHARGING_TARGET_LABEL,
@@ -10,6 +8,14 @@ import {
 import { Member } from '../lib/api/types/shared/members.ts';
 
 type ResourceType = 'project' | 'workspace';
+
+export interface YamlPreviewFields {
+  name: string;
+  displayName?: string;
+  chargingTarget?: string;
+  chargingTargetType?: string;
+  members: Member[];
+}
 
 const buildMembers = (members: Member[]) =>
   members
@@ -21,15 +27,11 @@ const buildMembers = (members: Member[]) =>
       ...(kind === 'ServiceAccount' ? { namespace: namespace ?? 'default' } : {}),
     }));
 
-export function useYamlPreview(watch: UseFormWatch<CreateDialogProps>, type: ResourceType, projectNamespace?: string) {
-  const name = watch('name') ?? '';
-  const displayName = watch('displayName') ?? '';
-  const chargingTarget = watch('chargingTarget') ?? '';
-  const chargingTargetType = watch('chargingTargetType') ?? '';
-  const watchedMembers = watch('members');
+export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, projectNamespace?: string) {
+  const { name, displayName, chargingTarget, chargingTargetType, members } = fields;
 
   return useMemo(() => {
-    const members: Member[] = watchedMembers ?? [];
+    const resolvedMembers: Member[] = members ?? [];
     const annotations: Record<string, string> = {};
     const labels: Record<string, string> = {};
 
@@ -47,10 +49,10 @@ export function useYamlPreview(watch: UseFormWatch<CreateDialogProps>, type: Res
         ...(Object.keys(labels).length ? { labels } : {}),
       },
       spec: {
-        members: buildMembers(members),
+        members: buildMembers(resolvedMembers),
       },
     };
 
     return stringify(resource);
-  }, [name, displayName, chargingTarget, chargingTargetType, watchedMembers, type, projectNamespace]);
+  }, [name, displayName, chargingTarget, chargingTargetType, members, type, projectNamespace]);
 }

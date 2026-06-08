@@ -14,14 +14,12 @@ import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'rea
 import { useTranslation } from 'react-i18next';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
-import React from 'react';
 import styles from './MetadataForm.module.css';
 
 export interface MetadataFormProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
   watch: UseFormWatch<CreateDialogProps>;
   disableChargingFields?: boolean;
@@ -43,7 +41,6 @@ export function MetadataForm({
   register,
   errors,
   setValue,
-  sideFormContent,
   requireChargingTarget = false,
   isEditMode = false,
   disableChargingFields = false,
@@ -244,8 +241,6 @@ export function MetadataForm({
           </FlexBox>
         )}
       </FormGroup>
-
-      {sideFormContent ? sideFormContent : null}
     </Form>
   );
 }

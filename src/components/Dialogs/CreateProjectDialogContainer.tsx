@@ -47,7 +47,7 @@ export function CreateProjectDialogContainer({
   const { user } = useAuthOnboarding();
 
   const username = user?.email;
-  const { createProject } = useCreateProject();
+  const { createProject, isLoading } = useCreateProject();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {
@@ -55,6 +55,7 @@ export function CreateProjectDialogContainer({
     resetField('chargingTarget');
     resetField('displayName');
     resetField('chargingTargetType');
+    resetField('members');
   }, [resetField]);
 
   useEffect(() => {
@@ -98,13 +99,14 @@ export function CreateProjectDialogContainer({
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
-      titleText="Create Project"
+      titleText={t('CreateProjectWorkspaceDialog.createProjectTitle')}
       members={members}
       register={register}
       errors={errors}
       setValue={setValue}
       handleSubmit={handleSubmit}
       isMetadataValid={isValid}
+      isLoading={isLoading}
       type={'project'}
       // eslint-disable-next-line react-hooks/refs
       onCreate={handleSubmit(handleProjectCreate)}

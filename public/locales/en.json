@@ -215,6 +215,8 @@
   "CreateProjectWorkspaceDialog": {
     "createButton": "Create",
     "cancelButton": "Cancel",
+    "createWorkspaceTitle": "Create Workspace",
+    "createProjectTitle": "Create Project",
     "chargingTargetLabel": "Charging Target",
     "chargingTargetTypeLabel": "Charging Target Type",
     "displayNameLabel": "Display Name",
