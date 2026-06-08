@@ -101,8 +101,9 @@
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit Control Plane",
     "duplicateMCP": "Duplicate Control Plane",
-    "deleteMCP": "Delete Control Plane"
-
+    "deleteMCP": "Delete Control Plane",
+    "installedComponents_one": "Installed Component ({{count}})",
+    "installedComponents_other": "Installed Components ({{count}})"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
