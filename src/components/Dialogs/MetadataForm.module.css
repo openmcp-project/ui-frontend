@@ -1,11 +1,13 @@
 .formLayout {
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   padding: 1rem 0;
 }
 
 .column {
   flex: 1;
+  min-width: 16rem;
 }
 
 .affixRow {
