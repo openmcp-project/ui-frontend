@@ -3,7 +3,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
@@ -28,6 +28,9 @@ import styles from './WorkspacesList.module.css';
 interface Props {
   projectName: string;
   workspace: Workspace;
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
+  onForbidden?: () => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -35,6 +38,9 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  isExpanded,
+  onToggleExpanded,
+  onForbidden,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -59,7 +65,11 @@ export function ControlPlaneListWorkspaceGridTile({
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
-  const shouldCollapsePanel = !!errorView;
+  const shouldCollapsePanel = !isExpanded;
+
+  useEffect(() => {
+    if (isForbiddenError(cpsError)) onForbidden?.();
+  }, [cpsError, onForbidden]);
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
@@ -112,23 +122,26 @@ export function ControlPlaneListWorkspaceGridTile({
           headerLevel="H2"
           style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
           collapsed={shouldCollapsePanel}
+          data-testid={`workspace-panel-${workspaceName}`}
+          noAnimation
           header={
             <div
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '0.3fr 0.3fr 0.24fr auto',
+                gridTemplateColumns: '1fr 0.24fr auto',
                 gap: '1rem',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
-              <Title level="H3">
-                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-              </Title>
-
-              <CopyButton text={workspace.status?.namespace || '-'} style={{ justifyContent: 'start' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 0 }}>
+                <Title level="H3">
+                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                </Title>
+                <CopyButton collapsible text={workspace.status?.namespace || '-'} />
+              </div>
 
               <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
@@ -147,7 +160,7 @@ export function ControlPlaneListWorkspaceGridTile({
               </FlexBox>
             </div>
           }
-          noAnimation
+          onToggle={onToggleExpanded}
         >
           {errorView ? (
             errorView

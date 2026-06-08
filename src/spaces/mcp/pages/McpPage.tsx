@@ -22,7 +22,7 @@ import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfi
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 
@@ -33,7 +33,8 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
 import { McpConfigMaps } from '../../../components/ControlPlane/McpConfigMaps.tsx';
@@ -51,8 +52,66 @@ import { ManagedControlPlaneAuthorization } from '../authorization/ManagedContro
 import { ComponentsDashboard } from '../components/ComponentsDashboard/ComponentsDashboard.tsx';
 import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
 
-const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
-export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+
+function HeadlampSection() {
+  const mcp = useMcp();
+  const { t } = useTranslation();
+  const { documentationBaseUrl } = useFrontendConfig();
+  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+
+  useEffect(() => {
+    if (!mcp.kubeconfig) return;
+    const controller = new AbortController();
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
+      .then(() => {
+        if (!controller.signal.aborted) setIframeSrc(`/api/headlamp/c/${encodeURIComponent(clusterAlias)}`);
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(true);
+        else if (err instanceof Error && err.name !== 'AbortError') setError(true);
+      });
+    return () => {
+      controller.abort();
+      // Reset immediately on cleanup so the iframe never shows while the BFF session holds a different cluster's kubeconfig.
+      setIframeSrc(null);
+      setError(false);
+    };
+  }, [mcp.kubeconfig, clusterAlias]);
+
+  if (error) {
+    return (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={t('McpPage.headlampUnavailableSubtitle')}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+      />
+    );
+  }
+
+  if (!iframeSrc) return null;
+
+  return (
+    <div style={{ width: '100%', height: 'calc(100vh - 200px)' }}>
+      <iframe
+        key={iframeSrc}
+        src={iframeSrc}
+        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+        title={`${t('McpPage.headlampTitle')} — ${mcp.name}`}
+      />
+    </div>
+  );
+}
+
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper', 'headlamp'] as const;
+type McpPageSectionIdAll = (typeof MCP_PAGE_SECTIONS)[number];
+// Headlamp is excluded from the exported type — external navigation to it is not supported.
+export type McpPageSectionId = Exclude<McpPageSectionIdAll, 'headlamp'>;
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -62,23 +121,25 @@ export default function McpPage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
+  const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
+  const headlampEnabled = searchParams.get('headlamp') === 'true';
+
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
-    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
-      return tab as McpPageSectionId;
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionIdAll)) {
+      if (tab === 'headlamp' && !headlampEnabled) return 'overview' as McpPageSectionIdAll;
+      return tab as McpPageSectionIdAll;
     }
-    return 'overview' as McpPageSectionId;
-  }, [searchParams]);
+    return 'overview' as McpPageSectionIdAll;
+  }, [searchParams, headlampEnabled]);
 
-  const setTabFromSection = (sectionId: McpPageSectionId) => {
+  const setTabFromSection = (sectionId: McpPageSectionIdAll) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set('tab', sectionId);
       return newParams;
     });
   };
-
-  const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
   const {
     data: mcp,
@@ -100,7 +161,7 @@ export default function McpPage() {
   };
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
-    const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
+    const newSectionId = e.detail.selectedSectionId as McpPageSectionIdAll;
     setTabFromSection(newSectionId);
   };
   if (isLoading) {
@@ -276,6 +337,15 @@ export default function McpPage() {
               {isComponentInstalledLandscaper && (
                 <ObjectPageSection id="landscaper" titleText={t('McpPage.landscaperTitle')} className={styles.section}>
                   <Landscapers />
+                </ObjectPageSection>
+              )}
+
+              {headlampEnabled && (
+                <ObjectPageSection id="headlamp" titleText={t('McpPage.headlampTitle')}>
+                  {/* Only mount while active — prevents stale BFF session state when switching between MCPs */}
+                  {selectedSectionId === 'headlamp' && (
+                    <HeadlampSection key={`${projectName}/${workspaceName}/${controlPlaneName}`} />
+                  )}
                 </ObjectPageSection>
               )}
             </ObjectPage>

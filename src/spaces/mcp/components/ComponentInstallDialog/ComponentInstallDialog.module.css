@@ -1,0 +1,38 @@
+.content {
+  display: grid;
+  grid-template-columns: 20rem 1fr;
+  gap: 1.5rem;
+  min-width: 50rem;
+  padding: 1rem;
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.yamlColumn {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.yamlViewer {
+  flex: 1;
+  min-height: 24rem;
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+  overflow: hidden;
+}
+
+.yamlViewer > div {
+  height: 100%;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+}
+
+.versionSelect {
+  width: 100%;
+}

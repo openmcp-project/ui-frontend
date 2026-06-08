@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const CreateCrossplaneMutation = gql`
-  mutation CreateCrossplane($namespace: String, $object: CrossplaneInput!) {
+  mutation CreateCrossplane($namespace: String, $object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input!) {
     crossplane_services_openmcp_cloud {
       v1alpha1 {
         createCrossplane(namespace: $namespace, object: $object) {
@@ -18,9 +18,11 @@ const CreateCrossplaneMutation = gql`
 `;
 
 export function useCreateCrossplane() {
-  const [createMutation, { loading, error }] = useMutation(CreateCrossplaneMutation);
+  const [createMutation, { loading, error }] = useMutation(CreateCrossplaneMutation, {
+    refetchQueries: ['GetCrossplane'],
+  });
 
-  const createCrossplane = useCallback(
+  const create = useCallback(
     // TODO: replace `object: unknown` with the generated `CrossplaneInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; object: unknown }) => {
       return createMutation({ variables });
@@ -28,5 +30,5 @@ export function useCreateCrossplane() {
     [createMutation],
   );
 
-  return { createCrossplane, loading, error };
+  return { create, loading, error };
 }

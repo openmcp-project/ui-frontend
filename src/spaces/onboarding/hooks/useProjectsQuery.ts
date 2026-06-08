@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
-import { Io_K8s_Api_Authorization_V1_ResourceRulestatusresourceRules as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
+import { Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
 import { useTranslation } from 'react-i18next';
 
 const PROJECTS_REFRESH_INTERVAL_MS = 30_000;
 
 const CreateSelfSubjectRulesReview = graphql(`
-  mutation CreateSelfSubjectRulesReview($object: SelfSubjectRulesReviewInput!) {
+  mutation CreateSelfSubjectRulesReview($object: AuthorizationK8sIoV1SelfSubjectRulesReview_Input!) {
     authorization_k8s_io {
       v1 {
         createSelfSubjectRulesReview(object: $object) {

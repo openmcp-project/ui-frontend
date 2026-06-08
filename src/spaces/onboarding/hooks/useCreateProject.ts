@@ -8,7 +8,7 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
-import { ProjectInput } from '../../../types/__generated__/graphql/graphql';
+import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
 
 export interface CreateProjectParams {
@@ -45,7 +45,7 @@ function buildProjectInput(params: CreateProjectParams): ProjectInput {
 }
 
 const CreateProjectMutation = graphql(`
-  mutation CreateProject($object: ProjectInput!, $dryRun: Boolean) {
+  mutation CreateProject($object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
         createProject(object: $object, dryRun: $dryRun) {

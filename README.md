@@ -111,11 +111,6 @@ Copyright OpenControlPlane contributors. Please see our [LICENSE](LICENSE) for c
 
 ---
 
-**Happy contributing! 🚀**
-
-
----
-
 <p align="center">
   <a href="https://apeirora.eu/content/projects/">
     <img alt="BMWK-EU funding logo" src="https://apeirora.eu/assets/img/BMWK-EU.png" width="300"/>
