@@ -152,18 +152,19 @@ fastify.register(helmet, {
   },
 });
 
+fastify.register(proxy, {
+  prefix: '/api',
+});
+
 // Strip BFF CSP for Headlamp proxy responses — Helmet's script-src 'self' blocks inline scripts.
+// Must be registered after proxy (and helmet) so this hook runs last and wins.
 // Headlamp's own CSP is already removed by rewriteHeaders in http-proxy.ts.
-fastify.addHook('onSend', (req, reply, payload) => {
+fastify.addHook('onSend', async (req, reply, payload) => {
   const pathname = req.url.split('?')[0];
   if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
     reply.removeHeader('content-security-policy');
   }
   return payload;
-});
-
-fastify.register(proxy, {
-  prefix: '/api',
 });
 
 await fastify.register(FastifyVite, {
