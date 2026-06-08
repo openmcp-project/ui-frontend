@@ -131,9 +131,8 @@ fastify.register(helmet, {
   },
 });
 
-// Apply CSP to all routes except /api/headlamp/* (Headlamp iframe responses).
-// Helmet's contentSecurityPolicy is disabled above; we set it here so we can skip it
-// for headlamp paths without relying on hook ordering.
+// Strip BFF CSP for Headlamp proxy responses — Helmet's script-src 'self' blocks inline scripts.
+// Headlamp's own CSP is already removed by rewriteHeaders in http-proxy.ts.
 fastify.addHook('onSend', async (req, reply, payload) => {
   const pathname = req.url.split('?')[0];
   if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
