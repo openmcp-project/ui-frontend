@@ -58,20 +58,14 @@ export function useUpdateProject() {
 
   const updateProject = useCallback(
     async (params: CreateProjectParams): Promise<void> => {
-      try {
-        const object = buildUpdateProjectInput(params);
-        await updateProjectMutation({
-          variables: {
-            name: params.name,
-            object,
-          },
-        });
-        toast.show(t('EditProjectDialog.toastMessage'));
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        toast.show(message);
-        throw error;
-      }
+      const object = buildUpdateProjectInput(params);
+      await updateProjectMutation({
+        variables: {
+          name: params.name,
+          object,
+        },
+      });
+      toast.show(t('EditProjectDialog.toastMessage'));
     },
     [updateProjectMutation, toast, t],
   );
