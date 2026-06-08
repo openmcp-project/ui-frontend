@@ -60,7 +60,7 @@ export function EditProjectDialogContainer({
       name: projectData.name,
       displayName: projectData.displayName,
       chargingTarget: projectData.chargingTarget,
-      chargingTargetType: projectData.chargingTargetType || 'btp',
+      chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
       members: projectData.members,
     });
   }, [isOpen, projectData, reset]);
