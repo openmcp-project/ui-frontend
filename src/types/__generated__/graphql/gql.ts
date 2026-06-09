@@ -23,6 +23,10 @@ type Documents = {
   '\n  mutation CreateFlux($namespace: String, $object: FluxServicesOpenmcpCloudV1alpha1Flux_Input!) {\n    flux_services_openmcp_cloud {\n      v1alpha1 {\n        createFlux(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateFluxDocument;
   '\n  mutation CreateLandscaper($namespace: String, $object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input!) {\n    landscaper_services_openmcp_cloud {\n      v1alpha2 {\n        createLandscaper(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateLandscaperDocument;
   '\n  mutation CreateManagedControlPlaneV2(\n    $namespace: String\n    $object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input!\n    $dryRun: Boolean\n  ) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        createManagedControlPlaneV2(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n          status {\n            phase\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateManagedControlPlaneV2Document;
+  '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteCrossplaneDocument;
+  '\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_openmcp_cloud {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteExternalSecretsOperatorDocument;
+  '\n  mutation DeleteFlux($name: String!, $namespace: String) {\n    flux_services_openmcp_cloud {\n      v1alpha1 {\n        deleteFlux(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteFluxDocument;
+  '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_openmcp_cloud {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteLandscaperDocument;
   '\n  mutation DeleteManagedControlPlaneV2($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        deleteManagedControlPlaneV2(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n': typeof types.DeleteManagedControlPlaneV2Document;
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateCrossplaneDocument;
   '\n  mutation UpdateExternalSecretsOperator(\n    $namespace: String\n    $name: String!\n    $object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_openmcp_cloud {\n      v1alpha1 {\n        updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateExternalSecretsOperatorDocument;
@@ -58,6 +62,14 @@ const documents: Documents = {
     types.CreateLandscaperDocument,
   '\n  mutation CreateManagedControlPlaneV2(\n    $namespace: String\n    $object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input!\n    $dryRun: Boolean\n  ) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        createManagedControlPlaneV2(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n          status {\n            phase\n          }\n        }\n      }\n    }\n  }\n':
     types.CreateManagedControlPlaneV2Document,
+  '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.DeleteCrossplaneDocument,
+  '\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_openmcp_cloud {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.DeleteExternalSecretsOperatorDocument,
+  '\n  mutation DeleteFlux($name: String!, $namespace: String) {\n    flux_services_openmcp_cloud {\n      v1alpha1 {\n        deleteFlux(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.DeleteFluxDocument,
+  '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_openmcp_cloud {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.DeleteLandscaperDocument,
   '\n  mutation DeleteManagedControlPlaneV2($name: String!, $namespace: String, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        deleteManagedControlPlaneV2(name: $name, namespace: $namespace, dryRun: $dryRun)\n      }\n    }\n  }\n':
     types.DeleteManagedControlPlaneV2Document,
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
@@ -158,6 +170,30 @@ export function graphql(
 export function graphql(
   source: '\n  mutation CreateManagedControlPlaneV2(\n    $namespace: String\n    $object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input!\n    $dryRun: Boolean\n  ) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        createManagedControlPlaneV2(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n          status {\n            phase\n          }\n        }\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation CreateManagedControlPlaneV2(\n    $namespace: String\n    $object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input!\n    $dryRun: Boolean\n  ) {\n    core_openmcp_cloud {\n      v2alpha1 {\n        createManagedControlPlaneV2(namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n          status {\n            phase\n          }\n        }\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_openmcp_cloud {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_openmcp_cloud {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_openmcp_cloud {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation DeleteFlux($name: String!, $namespace: String) {\n    flux_services_openmcp_cloud {\n      v1alpha1 {\n        deleteFlux(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation DeleteFlux($name: String!, $namespace: String) {\n    flux_services_openmcp_cloud {\n      v1alpha1 {\n        deleteFlux(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_openmcp_cloud {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_openmcp_cloud {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

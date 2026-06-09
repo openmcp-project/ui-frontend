@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
-const DeleteCrossplaneMutation = gql`
+const DeleteCrossplaneMutation = graphql(`
   mutation DeleteCrossplane($name: String!, $namespace: String) {
     crossplane_services_openmcp_cloud {
       v1alpha1 {
@@ -10,7 +10,7 @@ const DeleteCrossplaneMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useDeleteCrossplane() {
   const [deleteMutation, { loading, error }] = useMutation(DeleteCrossplaneMutation, {

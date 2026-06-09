@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
-const DeleteEsoMutation = gql`
+const DeleteEsoMutation = graphql(`
   mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {
     external_secrets_services_openmcp_cloud {
       v1alpha1 {
@@ -10,7 +10,7 @@ const DeleteEsoMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useDeleteEso() {
   const [deleteMutation, { loading, error }] = useMutation(DeleteEsoMutation, {

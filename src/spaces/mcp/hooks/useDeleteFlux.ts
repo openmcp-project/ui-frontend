@@ -1,8 +1,8 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
-const DeleteFluxMutation = gql`
+const DeleteFluxMutation = graphql(`
   mutation DeleteFlux($name: String!, $namespace: String) {
     flux_services_openmcp_cloud {
       v1alpha1 {
@@ -10,7 +10,7 @@ const DeleteFluxMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useDeleteFlux() {
   const [deleteMutation, { loading, error }] = useMutation(DeleteFluxMutation, {
