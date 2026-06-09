@@ -22,145 +22,89 @@ describe('CreateWorkspaceDialogContainer', () => {
     createWorkspacePayload = null;
   });
 
-  it('creates a workspace with valid data', () => {
-    const setIsOpen = cy.stub();
-
+  const mountWorkspace = (setIsOpen: ReturnType<typeof cy.stub>, useCreateWorkspace = fakeUseCreateWorkspace) => {
     cy.mount(
       <CreateWorkspaceDialogContainer
-        useCreateWorkspace={fakeUseCreateWorkspace}
+        useCreateWorkspace={useCreateWorkspace}
         useAuthOnboarding={fakeUseAuthOnboarding}
         isOpen={true}
         setIsOpen={setIsOpen}
         project="test-project"
       />,
     );
+  };
+
+  const goToMembers = () => cy.get('ui5-button').contains('Next').click();
+
+  it('creates a workspace with valid data', () => {
+    const setIsOpen = cy.stub();
+    mountWorkspace(setIsOpen);
 
     const expectedPayload = {
       name: 'test-workspace',
       displayName: 'Test Workspace Display Name',
       chargingTarget: '12345678-1234-1234-1234-123456789abc',
       chargingTargetType: 'btp',
-      members: [
-        {
-          name: 'name@domain.com',
-          roles: ['admin'],
-          kind: 'User',
-        },
-      ],
+      members: [{ name: 'name@domain.com', roles: ['admin'], kind: 'User' }],
     };
 
-    // Fill in the form (using Shadow DOM selectors)
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#displayName').find('input[id*="inner"]').type('Test Workspace Display Name');
-
-    // Select charging target type
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
+    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
 
-    // Fill charging target
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc', { force: true });
-
-    // Submit the form
+    goToMembers();
     cy.get('ui5-button').contains('Create').click();
 
-    // Verify the hook was called with correct data
     cy.then(() => cy.wrap(createWorkspacePayload).deepEqualJson(expectedPayload));
-
-    // Dialog should close on success
     cy.wrap(setIsOpen).should('have.been.calledWith', false);
   });
 
-  it('validates required fields', () => {
+  it('validates required fields on metadata step', () => {
     const setIsOpen = cy.stub();
+    mountWorkspace(setIsOpen);
 
-    cy.mount(
-      <CreateWorkspaceDialogContainer
-        useCreateWorkspace={fakeUseCreateWorkspace}
-        useAuthOnboarding={fakeUseAuthOnboarding}
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        project="test-project"
-      />,
-    );
-
-    // Try to submit without filling required fields
-    cy.get('ui5-button').contains('Create').click();
-
-    // Should show validation errors - check for value-state="Negative" attribute
-    cy.get('#name').should('have.attr', 'value-state', 'Negative');
-
-    // Or check if error message exists in DOM (even if hidden by CSS)
-    cy.contains('This field is required').should('exist');
-
-    // Dialog should not close
+    // Next is disabled until metadata is valid
+    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
     cy.wrap(setIsOpen).should('not.have.been.called');
   });
 
   it('validates charging target format for BTP', () => {
     const setIsOpen = cy.stub();
-
-    cy.mount(
-      <CreateWorkspaceDialogContainer
-        useCreateWorkspace={fakeUseCreateWorkspace}
-        useAuthOnboarding={fakeUseAuthOnboarding}
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        project="test-project"
-      />,
-    );
+    mountWorkspace(setIsOpen);
 
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
 
-    // Invalid format
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format', { force: true });
-    cy.get('ui5-button').contains('Create').click();
-
-    // Should show validation error - check for value-state="Negative" attribute
+    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format');
+    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
     cy.get('#chargingTarget').should('have.attr', 'value-state', 'Negative');
-
-    // Dialog should not close
     cy.wrap(setIsOpen).should('not.have.been.called');
   });
 
   it('should not close dialog when creation fails', () => {
     const failingUseCreateWorkspace: typeof useCreateWorkspace = () => ({
       createWorkspace: async (): Promise<void> => {
-        throw new Error('Creation failed'); // Simulate failure by throwing error
+        throw new Error('Creation failed');
       },
       isLoading: false,
     });
 
     const setIsOpen = cy.stub();
+    mountWorkspace(setIsOpen, failingUseCreateWorkspace);
 
-    cy.mount(
-      <CreateWorkspaceDialogContainer
-        useCreateWorkspace={failingUseCreateWorkspace}
-        useAuthOnboarding={fakeUseAuthOnboarding}
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        project="test-project"
-      />,
-    );
-
-    // Fill in the form
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
     cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc', { force: true });
 
-    // Submit the form
+    goToMembers();
     cy.get('ui5-button').contains('Create').click();
 
-    // Dialog should NOT close on failure
     cy.wrap(setIsOpen).should('not.have.been.called');
-
-    // Error dialog should be shown
     cy.contains('Error').should('be.visible');
     cy.contains('Creation failed').should('be.visible');
-
-    // Create dialog stays mounted (may be covered by block layer)
-    cy.get('#name').find('input[id*="inner"]').should('have.value', 'test-workspace');
   });
 });
