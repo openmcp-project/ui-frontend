@@ -53,6 +53,32 @@ async function encryptedSession(fastify) {
       return createStore(this);
     },
   });
+
+  // When a server restarts it generates a new COOKIE_SECRET, making existing browser cookies
+  // undecryptable. Detect this early and clear stale cookies so the browser gets a fresh session
+  // on the very next request — otherwise OIDC state set during login is lost by callback time.
+  fastify.addHook('onRequest', async (req, reply) => {
+    const encryptedStore = req.session?.get?.('encryptedStore');
+    if (!encryptedStore) return;
+
+    const userEncryptionKey = req[ENCRYPTED_COOKIE_REQUEST_DECORATOR]?.get?.(ENCRYPTED_COOKIE_KEY_ENCRYPTION_KEY);
+    if (!userEncryptionKey) return;
+
+    try {
+      const key = Buffer.from(userEncryptionKey, 'base64');
+      const { cipherText, iv, tag } = encryptedStore;
+      decryptSymetric(cipherText, iv, tag, key);
+    } catch {
+      req.log.warn(
+        { plugin: 'encrypted-session' },
+        'Stale session cookies detected (undecryptable after server restart) — clearing',
+      );
+      await new Promise<void>((resolve) => req.session.destroy(() => resolve()));
+      req[ENCRYPTED_COOKIE_REQUEST_DECORATOR].delete();
+      reply.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
+      reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, COOKIE_OPTIONS);
+    }
+  });
 }
 
 export default fp(encryptedSession);
