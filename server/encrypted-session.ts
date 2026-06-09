@@ -98,7 +98,7 @@ function createStore(request) {
 
   const loadedEncryptionKey = Buffer.from(userEncryptionKey, 'base64');
   let currentEncryptionKey = loadedEncryptionKey;
-  const encryptedStore = request.session.get('encryptedStore');
+  const encryptedStore = request.session?.get('encryptedStore');
   if (encryptedStore) {
     try {
       const { cipherText, iv, tag } = encryptedStore;
@@ -115,6 +115,7 @@ function createStore(request) {
   }
 
   async function save() {
+    if (!request.session) return; // session was destroyed (e.g. stale cookie cleanup)
     const stringifiedData = JSON.stringify(unencryptedStore);
     const { cipherText, iv, tag } = encryptSymetric(stringifiedData, currentEncryptionKey);
 
