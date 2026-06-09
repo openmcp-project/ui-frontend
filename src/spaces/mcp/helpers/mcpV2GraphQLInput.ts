@@ -1,4 +1,4 @@
-import { ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
+import { CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
 import { McpV2Input } from '../schemas/mcpV2Input.schema.ts';
 
 export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
@@ -18,9 +18,7 @@ export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2
               subjects: rb.subjects.map((s) => ({
                 kind: s.kind,
                 name: s.name.trim(),
-                ...(s.kind === 'ServiceAccount'
-                  ? { namespace: s.namespace }
-                  : { apiGroup: 'rbac.authorization.k8s.io' }),
+                apiGroup: 'rbac.authorization.k8s.io',
               })),
             })),
           },

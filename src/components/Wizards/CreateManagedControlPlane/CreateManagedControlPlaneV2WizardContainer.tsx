@@ -23,7 +23,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
+import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
@@ -62,6 +62,14 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
 const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'summarize', 'success'];
+
+const normalizeMcpV2Role = (roleInput?: string | null): string => {
+  const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
+  if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
+    return MCP_V2_VIEWER_ROLE;
+  }
+  return MCP_V2_DEFAULT_ROLE;
+};
 
 export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
@@ -203,26 +211,21 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   const members = useWatch({ control, name: 'members' });
   const rawInput = useMemo(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
-    const normalizeKind = (kind: string): 'User' | 'Group' | 'ServiceAccount' => {
+    const normalizeKind = (kind: string): 'User' | 'Group' => {
       const lower = kind.trim().toLowerCase();
       if (lower === 'group') return 'Group';
-      if (lower === 'serviceaccount') return 'ServiceAccount';
       return 'User';
     };
-    const roleMap = new Map<
-      string,
-      { kind: 'User' | 'Group' | 'ServiceAccount'; name: string; namespace?: string }[]
-    >();
+    const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
     (members ?? [])
       .filter((m) => !!m.name)
       .forEach((m) => {
         const kind = normalizeKind(m.kind);
-        const roleName = m.roles?.[0] ?? MCP_V2_DEFAULT_ROLE;
+        const roleName = normalizeMcpV2Role(m.roles?.[0]);
         if (!roleMap.has(roleName)) roleMap.set(roleName, []);
         roleMap.get(roleName)!.push({
           kind,
           name: m.name,
-          ...(kind === 'ServiceAccount' ? { namespace: m.namespace } : {}),
         });
       });
     const roleBindings = Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
@@ -287,9 +290,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     }
   }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, resetFormAndClose, isSubmitting]);
 
-  const normalizeMemberRole = useCallback((_roleInput?: string | null): string => {
-    return MCP_V2_DEFAULT_ROLE;
-  }, []);
+  const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
 
   const setMembers = useCallback(
     (members: Member[]) => {
@@ -327,18 +328,21 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   useEffect(() => {
     if (!isOpen || !initialData) return;
     const roleBindings = initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings ?? [];
+    const normalizeMemberKind = (kindInput?: string | null): 'User' | 'Group' => {
+      const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
+      return normalizedKind === 'group' ? 'Group' : 'User';
+    };
     const members: Member[] = roleBindings
       .filter(Boolean)
       .flatMap((rb) => {
-        const roleName = rb?.roleRefs?.filter(Boolean)?.[0]?.name ?? MCP_V2_DEFAULT_ROLE;
+        const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
         return (rb?.subjects ?? []).filter(Boolean).map((s) => {
-          const kind = (s?.kind ?? 'User') as 'User' | 'Group' | 'ServiceAccount';
+          const kind = normalizeMemberKind(s?.kind);
           const rawName = s?.name ?? '';
           return {
             kind,
             name: kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName,
             roles: [roleName],
-            ...(s?.namespace ? { namespace: s.namespace } : {}),
           };
         });
       })
@@ -357,7 +361,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
-    return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
+    return normalizedKind === 'group' ? 'Group' : 'User';
   }, []);
 
   const appliedTemplateMembersRef = useRef(false);
