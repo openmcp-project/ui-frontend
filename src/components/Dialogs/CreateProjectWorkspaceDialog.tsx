@@ -142,16 +142,29 @@ export function CreateProjectWorkspaceDialog({
       >
         <SplitterLayout style={{ height: '100%' }}>
           <SplitterElement size="50%">
-            {isEditMode ? (
-              <>
+            <Wizard contentLayout="SingleStep" style={{ height: '100%' }} onStepChange={handleStepChange}>
+              <WizardStep
+                data-step="metadata"
+                icon="create-form"
+                selected={step === 'metadata'}
+                titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+              >
                 <MetadataForm
                   errors={errors}
                   register={register}
                   requireChargingTarget={type === 'project'}
                   setValue={setValue}
                   watch={watch}
-                  isEditMode
+                  isEditMode={isEditMode}
                 />
+              </WizardStep>
+              <WizardStep
+                data-step="members"
+                disabled={!isEditMode && !isMetadataValid}
+                icon="user-edit"
+                selected={step === 'members'}
+                titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
+              >
                 <FormGroup>
                   <EditMembers
                     isValidationError={!!errors.members}
@@ -161,47 +174,13 @@ export function CreateProjectWorkspaceDialog({
                     onMemberChanged={setMembers}
                   />
                 </FormGroup>
-              </>
-            ) : (
-              <Wizard contentLayout="SingleStep" style={{ height: '100%' }} onStepChange={handleStepChange}>
-                <WizardStep
-                  data-step="metadata"
-                  icon="create-form"
-                  selected={step === 'metadata'}
-                  titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
-                >
-                  <MetadataForm
-                    errors={errors}
-                    register={register}
-                    requireChargingTarget={type === 'project'}
-                    setValue={setValue}
-                    watch={watch}
-                  />
-                </WizardStep>
-                <WizardStep
-                  data-step="members"
-                  disabled={!isMetadataValid}
-                  icon="user-edit"
-                  selected={step === 'members'}
-                  titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
-                >
-                  <FormGroup>
-                    <EditMembers
-                      isValidationError={!!errors.members}
-                      members={members}
-                      projectName={projectName}
-                      type={type}
-                      onMemberChanged={setMembers}
-                    />
-                  </FormGroup>
-                </WizardStep>
-              </Wizard>
-            )}
+              </WizardStep>
+            </Wizard>
           </SplitterElement>
 
           <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
             <Suspense fallback={<BusyIndicator active size="M" style={{ margin: 'auto' }} />}>
-              <YamlViewer filename={`${type}-${resourceName}`} isEdit={isEditMode} yamlString={yamlString} />
+              <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
             </Suspense>
           </SplitterElement>
         </SplitterLayout>
