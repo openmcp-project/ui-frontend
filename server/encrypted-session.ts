@@ -54,9 +54,7 @@ async function encryptedSession(fastify) {
     },
   });
 
-  // When a server restarts it generates a new COOKIE_SECRET, making existing browser cookies
-  // undecryptable. Detect this early and clear stale cookies so the browser gets a fresh session
-  // on the very next request — otherwise OIDC state set during login is lost by callback time.
+  // Clear undecryptable cookies on server restart so OIDC state survives the next login attempt.
   fastify.addHook('onRequest', async (req, reply) => {
     const encryptedStore = req.session?.get?.('encryptedStore');
     if (!encryptedStore) return;
@@ -110,12 +108,12 @@ function createStore(request) {
       request.log.error({ plugin: 'encrypted-session' }, 'Failed to parse encrypted session store', error);
     }
   } else {
-    // we could not parse the encrypted store, so we create a new one and it would overwrite the previously stored store.
+    // No encrypted store yet — new session.
     request.log.info({ plugin: 'encrypted-session' }, 'No encrypted store found, creating new empty store');
   }
 
   async function save() {
-    if (!request.session) return; // session was destroyed (e.g. stale cookie cleanup)
+    if (!request.session) return; // destroyed by stale-cookie cleanup
     const stringifiedData = JSON.stringify(unencryptedStore);
     const { cipherText, iv, tag } = encryptSymetric(stringifiedData, currentEncryptionKey);
 
