@@ -61,7 +61,7 @@ const CreateProjectMutation = graphql(`
 export function useCreateProject() {
   const { t } = useTranslation();
   const toast = useToast();
-  const [createProjectMutation] = useMutation(CreateProjectMutation);
+  const [createProjectMutation, { loading }] = useMutation(CreateProjectMutation);
 
   const createProject = useCallback(
     async (params: CreateProjectParams): Promise<void> => {
@@ -79,5 +79,6 @@ export function useCreateProject() {
 
   return {
     createProject,
+    isLoading: loading,
   };
 }

@@ -1,20 +1,32 @@
-import { Bar, Button, Dialog, FormGroup } from '@ui5/webcomponents-react';
+import {
+  Bar,
+  BusyIndicator,
+  Button,
+  Dialog,
+  FormGroup,
+  SplitterElement,
+  SplitterLayout,
+  Wizard,
+  WizardStep,
+} from '@ui5/webcomponents-react';
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
 
-import { FormEvent, useState } from 'react';
-import { KubectlInfoButton } from './KubectlCommandInfo/KubectlInfoButton.tsx';
-import { KubectlCreateWorkspaceDialog } from './KubectlCommandInfo/KubectlCreateWorkspaceDialog.tsx';
-import { KubectlCreateProjectDialog } from './KubectlCommandInfo/KubectlCreateProjectDialog.tsx';
+import { FormEvent, Suspense, lazy, useState } from 'react';
 
 import { EditMembers } from '../Members/EditMembers.tsx';
 
 import { useTranslation } from 'react-i18next';
 
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form';
 import { MetadataForm } from './MetadataForm.tsx';
+import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
+import { projectnameToNamespace } from '../../utils/index.ts';
+
+const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
 export type OnCreatePayload = {
   name: string;
@@ -34,10 +46,15 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
+  handleSubmit: UseFormHandleSubmit<CreateDialogProps>;
   projectName?: string;
-  type: 'workspace' | 'project' | 'mcp';
+  type: 'workspace' | 'project';
   watch: UseFormWatch<CreateDialogProps>;
+  isMetadataValid: boolean;
+  isLoading?: boolean;
 }
+
+type Step = 'metadata' | 'members';
 
 export function CreateProjectWorkspaceDialog({
   isOpen,
@@ -49,67 +66,118 @@ export function CreateProjectWorkspaceDialog({
   register,
   errors,
   setValue,
+  handleSubmit,
   projectName,
   type,
   watch,
+  isMetadataValid,
+  isLoading = false,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
-  const [isKubectlDialogOpen, setIsKubectlDialogOpen] = useState(false);
+  const [step, setStep] = useState<Step>('metadata');
 
-  const openKubectlDialog = () => setIsKubectlDialogOpen(true);
-  const closeKubectlDialog = () => setIsKubectlDialogOpen(false);
-  const setMembers = (members: Member[]) => {
-    setValue('members', members);
+  const setMembers = (members: Member[]) => setValue('members', members);
+
+  const projectNamespace = projectName ? projectnameToNamespace(projectName) : undefined;
+  const name = watch('name') ?? '';
+  const displayName = watch('displayName') ?? '';
+  const chargingTarget = watch('chargingTarget') ?? '';
+  const chargingTargetType = watch('chargingTargetType') ?? '';
+  const yamlString = useYamlPreview(
+    { name, displayName, chargingTarget, chargingTargetType, members },
+    type,
+    projectNamespace,
+  );
+  const resourceName = name || 'new';
+
+  const handleStepChange = (e: { detail: WizardStepChangeEventDetail }) => {
+    setStep((e.detail.step.dataset.step ?? 'metadata') as Step);
   };
+
+  const onClose = () => {
+    setStep('metadata');
+    setIsOpen(false);
+  };
+
+  const goToMembers = () => handleSubmit(() => setStep('members'))();
 
   return (
     <>
       <Dialog
-        stretch={true}
+        stretch
         headerText={titleText}
         open={isOpen}
-        initialFocus="project-name-input"
+        initialFocus="name"
         footer={
           <Bar
             design="Footer"
             endContent={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <KubectlInfoButton onClick={openKubectlDialog} />
-                <Button onClick={() => setIsOpen(false)}>{t('CreateProjectWorkspaceDialog.cancelButton')}</Button>
-                <Button design="Emphasized" onClick={() => onCreate()}>
-                  {t('CreateProjectWorkspaceDialog.createButton')}
+                <Button design="Transparent" onClick={onClose}>
+                  {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
+                {step === 'metadata' ? (
+                  <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
+                    {t('buttons.next')}
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={() => setStep('metadata')}>{t('buttons.back')}</Button>
+                    <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                      {t('CreateProjectWorkspaceDialog.createButton')}
+                    </Button>
+                  </>
+                )}
               </div>
             }
           />
         }
-        onClose={() => setIsOpen(false)}
+        onClose={onClose}
       >
-        <MetadataForm
-          watch={watch}
-          register={register}
-          errors={errors}
-          setValue={setValue}
-          requireChargingTarget={type === 'project'}
-          sideFormContent={
-            <FormGroup headerText={t('CreateProjectWorkspaceDialog.membersHeader')}>
-              <EditMembers
-                type={type}
-                members={members}
-                isValidationError={!!errors.members}
-                projectName={projectName}
-                onMemberChanged={setMembers}
-              />
-            </FormGroup>
-          }
-        />
+        <SplitterLayout style={{ height: '100%' }}>
+          <SplitterElement size="50%">
+            <Wizard contentLayout="SingleStep" style={{ height: '100%' }} onStepChange={handleStepChange}>
+              <WizardStep
+                data-step="metadata"
+                icon="create-form"
+                selected={step === 'metadata'}
+                titleText={t('CreateProjectWorkspaceDialog.metadataHeader')}
+              >
+                <MetadataForm
+                  errors={errors}
+                  register={register}
+                  requireChargingTarget={type === 'project'}
+                  setValue={setValue}
+                  watch={watch}
+                />
+              </WizardStep>
+              <WizardStep
+                data-step="members"
+                disabled={!isMetadataValid}
+                icon="user-edit"
+                selected={step === 'members'}
+                titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
+              >
+                <FormGroup>
+                  <EditMembers
+                    isValidationError={!!errors.members}
+                    members={members}
+                    projectName={projectName}
+                    type={type}
+                    onMemberChanged={setMembers}
+                  />
+                </FormGroup>
+              </WizardStep>
+            </Wizard>
+          </SplitterElement>
+
+          <SplitterElement size="50%" style={{ overflow: 'hidden' }}>
+            <Suspense fallback={<BusyIndicator active size="M" style={{ margin: 'auto' }} />}>
+              <YamlViewer filename={`${type}-${resourceName}`} isEdit={false} yamlString={yamlString} />
+            </Suspense>
+          </SplitterElement>
+        </SplitterLayout>
       </Dialog>
-      <KubectlCreateWorkspaceDialog
-        project={projectName}
-        isOpen={isKubectlDialogOpen && !!projectName}
-        onClose={closeKubectlDialog}
-      />
-      <KubectlCreateProjectDialog isOpen={isKubectlDialogOpen && !projectName} onClose={closeKubectlDialog} />
       <ErrorDialog ref={errorDialogRef} />
     </>
   );

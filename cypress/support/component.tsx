@@ -36,7 +36,11 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('TextModel got disposed') ||
     err.message.includes('DiffEditorWidget') ||
     err.message.includes('no diff result available') ||
-    err.message.includes('Failed to fetch dynamically imported module')
+    err.message.includes('Failed to fetch dynamically imported module') ||
+    err.message.includes('Canceled') ||
+    err.name === 'Canceled' ||
+    (err.stack ?? '').includes('Delayer.cancel') ||
+    (err.stack ?? '').includes('WordHighlighter')
   ) {
     return false;
   }

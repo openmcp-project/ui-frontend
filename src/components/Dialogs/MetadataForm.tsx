@@ -14,14 +14,12 @@ import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'rea
 import { useTranslation } from 'react-i18next';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 
-import React from 'react';
 import styles from './MetadataForm.module.css';
 
 export interface MetadataFormProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  sideFormContent?: React.ReactNode;
   requireChargingTarget?: boolean;
   watch: UseFormWatch<CreateDialogProps>;
   disableChargingFields?: boolean;
@@ -43,7 +41,6 @@ export function MetadataForm({
   register,
   errors,
   setValue,
-  sideFormContent,
   requireChargingTarget = false,
   isEditMode = false,
   disableChargingFields = false,
@@ -107,9 +104,14 @@ export function MetadataForm({
 
   const affixWidth = (val?: string) => (val && val.length ? `${val.length + 1}ch` : 'auto');
 
+  const onChargingTargetInput = (e: Ui5CustomEvent<InputDomRef, { value: string }>) => {
+    const value = typeof e.detail?.value === 'string' ? e.detail.value : (e.target.value ?? '');
+    setValue('chargingTarget', value, { shouldValidate: true, shouldDirty: true });
+  };
+
   return (
     <Form>
-      <FormGroup headerText={t('CreateProjectWorkspaceDialog.metadataHeader')} columnSpan={12}>
+      <FormGroup columnSpan={12}>
         <Label for="name" required>
           {t('CreateProjectWorkspaceDialog.nameLabel')}
         </Label>
@@ -148,15 +150,19 @@ export function MetadataForm({
             ) : null}
           </div>
         ) : (
-          <Input
-            className={styles.input}
-            id="name"
-            {...register('name')}
-            valueState={errors.name ? 'Negative' : 'None'}
-            valueStateMessage={<span>{errors.name?.message}</span>}
-            required
-            disabled={isEditMode}
-          />
+          <>
+            <input type="hidden" {...register('name')} value={currentName} readOnly />
+            <Input
+              className={styles.input}
+              id="name"
+              value={currentName}
+              valueState={errors.name ? 'Negative' : 'None'}
+              valueStateMessage={<span>{errors.name?.message}</span>}
+              required
+              disabled={isEditMode}
+              onInput={onNameCoreInput}
+            />
+          </>
         )}
         {!isV2 && (
           <FlexBox direction={'Column'}>
@@ -221,20 +227,20 @@ export function MetadataForm({
               <Label for={'chargingTarget'} required={!!watch?.('chargingTargetType')}>
                 {t('CreateProjectWorkspaceDialog.chargingTargetLabel')}
               </Label>
+              <input type="hidden" {...register('chargingTarget')} value={watch?.('chargingTarget') ?? ''} readOnly />
               <Input
                 id="chargingTarget"
-                {...register('chargingTarget')}
+                value={watch?.('chargingTarget') ?? ''}
                 className={styles.input}
                 valueState={errors.chargingTarget ? 'Negative' : 'None'}
                 valueStateMessage={<span>{errors.chargingTarget?.message}</span>}
                 disabled={disableChargingFields || !watch?.('chargingTargetType')}
+                onInput={onChargingTargetInput}
               />
             </div>
           </FlexBox>
         )}
       </FormGroup>
-
-      {sideFormContent ? sideFormContent : null}
     </Form>
   );
 }
