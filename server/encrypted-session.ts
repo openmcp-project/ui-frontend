@@ -54,8 +54,11 @@ async function encryptedSession(fastify) {
     },
   });
 
-  // Clear undecryptable cookies on server restart so OIDC state survives the next login attempt.
+  // On server restart COOKIE_SECRET changes, making existing cookies undecryptable.
+  // Redirect to /api/clear-session which clears them and sends the browser back with a fresh session.
   fastify.addHook('onRequest', async (req, reply) => {
+    if (req.url.startsWith('/api/clear-session')) return; // avoid redirect loop
+
     const encryptedStore = req.session?.get?.('encryptedStore');
     if (!encryptedStore) return;
 
@@ -67,15 +70,20 @@ async function encryptedSession(fastify) {
       const { cipherText, iv, tag } = encryptedStore;
       decryptSymetric(cipherText, iv, tag, key);
     } catch {
-      req.log.warn(
-        { plugin: 'encrypted-session' },
-        'Stale session cookies detected (undecryptable after server restart) — clearing',
-      );
-      await new Promise<void>((resolve) => req.session.destroy(() => resolve()));
-      req[ENCRYPTED_COOKIE_REQUEST_DECORATOR].delete();
-      reply.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
-      reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, COOKIE_OPTIONS);
+      req.log.warn({ plugin: 'encrypted-session' }, 'Stale session cookies detected — redirecting to clear');
+      reply.redirect(`/api/clear-session?redirectTo=${encodeURIComponent(req.url)}`);
     }
+  });
+
+  // @ts-ignore
+  fastify.get('/clear-session', async (req, reply) => {
+    const { redirectTo } = req.query as { redirectTo?: string };
+    await new Promise<void>((resolve) => req.session.destroy(() => resolve()));
+    req[ENCRYPTED_COOKIE_REQUEST_DECORATOR].delete();
+    reply.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
+    reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, COOKIE_OPTIONS);
+    const target = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/';
+    return reply.redirect(target);
   });
 }
 
@@ -96,7 +104,7 @@ function createStore(request) {
 
   const loadedEncryptionKey = Buffer.from(userEncryptionKey, 'base64');
   let currentEncryptionKey = loadedEncryptionKey;
-  const encryptedStore = request.session?.get('encryptedStore');
+  const encryptedStore = request.session.get('encryptedStore');
   if (encryptedStore) {
     try {
       const { cipherText, iv, tag } = encryptedStore;
@@ -113,7 +121,6 @@ function createStore(request) {
   }
 
   async function save() {
-    if (!request.session) return; // destroyed by stale-cookie cleanup
     const stringifiedData = JSON.stringify(unencryptedStore);
     const { cipherText, iv, tag } = encryptSymetric(stringifiedData, currentEncryptionKey);
 
