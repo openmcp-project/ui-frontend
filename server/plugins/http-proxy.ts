@@ -109,6 +109,20 @@ function proxyPlugin(fastify) {
         upstream: HEADLAMP_UPSTREAM_URL,
         rewritePrefix: '/api/headlamp',
         websocket: true,
+        wsClientOptions: {
+          // @ts-ignore
+          rewriteRequestHeaders: (_headers: any, req: any) => {
+            const token = req.encryptedSession?.get('mcp_accessToken');
+            const kubeconfig = req.encryptedSession?.get('headlamp_kubeconfig');
+            const userInfo = req.encryptedSession?.get('onboarding_userInfo');
+            const base: Record<string, string> = {};
+            if (req.headers?.cookie) base['cookie'] = req.headers.cookie;
+            if (token) base['authorization'] = `Bearer ${token}`;
+            if (kubeconfig) base['kubeconfig'] = kubeconfig;
+            if (userInfo?.email) base['x-headlamp-user-id'] = userInfo.email;
+            return base;
+          },
+        },
         replyOptions: {
           // @ts-ignore
           rewriteRequestHeaders: (req: any, headers: any) => {
