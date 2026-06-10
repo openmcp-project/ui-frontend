@@ -8,6 +8,7 @@ import {
   PopoverDomRef,
   ShellBar,
   ShellBarDomRef,
+  ShellBarItem,
   TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
@@ -16,6 +17,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
+import { useLink } from '../../lib/shared/useLink.ts';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
@@ -29,6 +31,8 @@ export function ShellBarComponent({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 } = {}) {
   const auth = useAuthOnboarding();
+  const { contributeLink } = useLink();
+  const { t } = useTranslation();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
 
@@ -49,12 +53,17 @@ export function ShellBarComponent({
             <div className={styles.logoWrapper}>
               <img src={SapLogo} alt="SAP" className={styles.logo} />
               {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.logoText}>ManagedControlPlane UI</span>
+              <span className={styles.logoText}>Control Plane UI</span>
             </div>
           </div>
         }
         onProfileClick={onProfileClick}
       >
+        <ShellBarItem
+          icon="contribute"
+          text={t('ShellBar.contributeButton')}
+          onClick={() => window.open(contributeLink, '_blank')}
+        />
         <BetaButton />
       </ShellBar>
 

@@ -2,8 +2,8 @@
   "SignInPage": {
     "welcomeMessage": "Welcome to Control Plane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
-    "learnMoreLink": "Learn about Control Planes",
-    "signInButton": "Sign In"
+    "signInButton": "Sign In",
+    "becomeContributorLink": "Become a Contributor"
   },
   "Entities": {
     "ManagedControlPlane": "Control Plane",
@@ -103,7 +103,6 @@
     "editMCP": "Edit Control Plane",
     "duplicateMCP": "Duplicate Control Plane",
     "deleteMCP": "Delete Control Plane"
-
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -171,6 +170,7 @@
     "betaButton": "Beta",
     "betaButtonAriaLabel": "Beta – open information about this app's beta status",
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
+    "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
@@ -242,7 +242,6 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
-
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:"
@@ -548,8 +547,7 @@
       "errorLoadingResources": "Error loading resources",
       "activate": "Activate"
     }
-  }
-  ,
+  },
   "ImportMembersDialog": {
     "dialogTitle": "Reuse Members",
     "reuseFromLabel": "Reuse from",
