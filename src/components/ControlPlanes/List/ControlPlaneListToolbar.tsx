@@ -51,6 +51,7 @@ export function ControlPlaneListToolbar({
         <Button
           id={menuButtonId}
           data-testid="project-overflow-menu"
+          design="Transparent"
           icon="overflow"
           onClick={() => setMenuOpen((prev) => !prev)}
         />
