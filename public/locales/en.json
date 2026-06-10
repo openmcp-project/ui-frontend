@@ -10,6 +10,7 @@
     "Project": "Project",
     "Workspace": "Workspace",
     "Users": "Users",
+    "Groups": "Groups",
     "ServiceAccounts": "ServiceAccounts"
   },
   "ComponentList": {
@@ -226,8 +227,11 @@
   },
   "EditMembers": {
     "addButton": "Add User or ServiceAccount",
+    "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
+    "editHeaderUserGroup": "Edit User or Group",
     "addHeader": "Add User or ServiceAccount",
+    "addHeaderUserGroup": "Add User or Group",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",

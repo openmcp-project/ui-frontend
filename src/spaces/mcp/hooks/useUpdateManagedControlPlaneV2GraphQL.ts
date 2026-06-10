@@ -3,12 +3,12 @@ import { useCallback } from 'react';
 import { z } from 'zod';
 import { buildMcpV2GraphQLInput } from '../helpers/mcpV2GraphQLInput.ts';
 import { McpV2Input, McpV2InputSchema } from '../schemas/mcpV2Input.schema.ts';
-import { CreateManagedControlPlaneV2Mutation } from './useCreateManagedControlPlaneV2Mutation.ts';
+import { UpdateManagedControlPlaneV2Mutation } from './useUpdateManagedControlPlaneV2Mutation.ts';
 
-export function useCreateManagedControlPlaneV2GraphQL() {
-  const [createMutation, { loading, error }] = useMutation(CreateManagedControlPlaneV2Mutation);
+export function useUpdateManagedControlPlaneV2GraphQL() {
+  const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation);
 
-  const createMcp = useCallback(
+  const updateMcp = useCallback(
     async (rawInput: McpV2Input) => {
       const parsed = McpV2InputSchema.safeParse(rawInput);
       if (!parsed.success) {
@@ -18,17 +18,23 @@ export function useCreateManagedControlPlaneV2GraphQL() {
 
       const object = buildMcpV2GraphQLInput(parsed.data);
 
-      const result = await createMutation({
+      const result = await updateMutation({
         variables: {
+          name: parsed.data.name,
           namespace: parsed.data.namespace,
           object,
         },
       });
 
-      return result.data?.core_openmcp_cloud?.v2alpha1?.createManagedControlPlaneV2;
+      const updated = result.data?.core_openmcp_cloud?.v2alpha1?.updateManagedControlPlaneV2;
+      if (!updated) {
+        throw new Error('ManagedControlPlaneV2 update returned no data');
+      }
+
+      return updated;
     },
-    [createMutation],
+    [updateMutation],
   );
 
-  return { createMcp, loading, error };
+  return { updateMcp, loading, error };
 }

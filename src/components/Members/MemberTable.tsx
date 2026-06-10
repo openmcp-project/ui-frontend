@@ -1,5 +1,5 @@
 import { AnalyticalTable, Button, FlexBox, Icon } from '@ui5/webcomponents-react';
-import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
@@ -105,7 +105,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   const data: MemberTableRow[] = members.map((m) => {
     return {
       email: m.name,
-      role: MemberRolesDetailed[m.roles?.[0] as MemberRoles]?.displayValue ?? m.roles?.toString(),
+      role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.toString(),
       kind: m.kind,
       namespace: m.namespace ?? '',
       _member: m,
