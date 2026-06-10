@@ -32,7 +32,7 @@ async function encryptedSession(fastify) {
 
   await fastify.register(fastifyCookie);
 
-  const cookieOptions = { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 24 }; // 24 hours
+  const cookieOptions = { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 24 * 1000 }; // 24 hours in ms
 
   fastify.register(secureSession, {
     secret: Buffer.from(COOKIE_SECRET, 'hex'),
