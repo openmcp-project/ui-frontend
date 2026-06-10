@@ -5,6 +5,7 @@ import { ManagedResourceItem } from '../lib/shared/types';
  * Returns > 0 if `a` is higher priority than `b`.
  *
  * Priority: v2 > v1, stable > beta > alpha, beta2 > beta1.
+ * https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#version-priority
  */
 function compareApiVersions(a: string | undefined, b: string | undefined): number {
   const parse = (v: string | undefined) => {
