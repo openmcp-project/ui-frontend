@@ -8,7 +8,7 @@
   justify-items: center;
   overflow-x: hidden;
   overflow-y: auto;
-
+  scrollbar-gutter: stable;
   background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 50%, #f5f7fa 100%);
 }
 
