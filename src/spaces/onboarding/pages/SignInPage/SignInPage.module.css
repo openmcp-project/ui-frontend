@@ -1,27 +1,15 @@
 /* Container */
 .container {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 640px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 50%, #f5f7fa 100%);
-}
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  justify-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
 
-/* Content */
-.content {
-  position: relative;
-  z-index: 10;
-  max-width: 520px;
-  width: 100%;
-  padding: 2rem;
-  padding-bottom: 6rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 50%, #f5f7fa 100%);
 }
 
 .heroSection {
@@ -35,14 +23,13 @@
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
-  width: 100%;
+  width: 50ch;
 }
 
-/* Hero control plane image */
 .heroImage {
   width: 180px;
   height: auto;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.10));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
 }
 
 .welcomeMessage {
@@ -87,15 +74,15 @@
 
 /* Disclaimer */
 .disclaimer {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
+  grid-row: 3;
+  align-self: center;
+  justify-self: center;
   z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  padding: 1rem;
 }
 
 .disclaimerImage {
@@ -116,9 +103,5 @@
 
   .disclaimerImage {
     height: 65px;
-  }
-
-  .disclaimer {
-    bottom: 1rem;
   }
 }

@@ -1,12 +1,12 @@
+import * as Sentry from '@sentry/react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as Sentry from '@sentry/react';
 
 import { Button } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
-import { useAuthOnboarding as _useAuthOnboarding } from '../../auth/AuthContextOnboarding';
 import { useLink as _useLink } from '../../../../lib/shared/useLink';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../auth/AuthContextOnboarding';
 
 import ocpLogo from '../../../../assets/images/co-logo-orchestrating.png';
 import bmwkEu from '../../../../assets/images/splash/BMWK-EU.png';
@@ -33,21 +33,20 @@ export function SignInPage({ useAuthOnboarding = _useAuthOnboarding, useLink = _
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.heroSection}>
-          <img src={ocpLogo} alt="Open Control Plane" className={styles.heroImage} />
+      <div> </div>
+      <div className={styles.heroSection}>
+        <img src={ocpLogo} alt="Open Control Plane" className={styles.heroImage} />
 
-          <p className={styles.welcomeMessage}>{t('SignInPage.welcomeMessage')}</p>
-          <p className={styles.subtitle}>{t('SignInPage.subtitle')}</p>
+        <p className={styles.welcomeMessage}>{t('SignInPage.welcomeMessage')}</p>
+        <p className={styles.subtitle}>{t('SignInPage.subtitle')}</p>
 
-          <div className={styles.actionContainer}>
-            <Button className={styles.signInButton} design={ButtonDesign.Emphasized} onClick={() => void login()}>
-              {t('SignInPage.signInButton')}
-            </Button>
-            <a href={contributeLink} target="_blank" rel="noreferrer" className={styles.contributorLink}>
-              {t('SignInPage.becomeContributorLink')}
-            </a>
-          </div>
+        <div className={styles.actionContainer}>
+          <Button className={styles.signInButton} design={ButtonDesign.Emphasized} onClick={() => void login()}>
+            {t('SignInPage.signInButton')}
+          </Button>
+          <a href={contributeLink} target="_blank" rel="noreferrer" className={styles.contributorLink}>
+            {t('SignInPage.becomeContributorLink')}
+          </a>
         </div>
       </div>
 
