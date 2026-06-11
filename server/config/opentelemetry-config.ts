@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import * as opentelemetry from '@opentelemetry/api';
-import { resourceFromAttributes, defaultResource, emptyResource, type IResource } from '@opentelemetry/resources';
+import { resourceFromAttributes, emptyResource, defaultResource, type Resource } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
@@ -40,7 +40,7 @@ function getDynatraceHostname(endpoint: string): string {
  * Load Dynatrace metadata from OneAgent enrichment files
  * This ensures proper topology correlation in Dynatrace
  */
-function loadDynatraceMetadata(): IResource {
+function loadDynatraceMetadata(): Resource {
   let dtMetadata = emptyResource();
 
   const metadataFiles = [
@@ -118,9 +118,11 @@ export function initializeOpenTelemetry(config: OpenTelemetryConfig): boolean {
     },
   });
 
+  const spanProcessor = new BatchSpanProcessor(traceExporter);
+
   tracerProvider = new NodeTracerProvider({
     resource: resource,
-    spanProcessors: [new BatchSpanProcessor(traceExporter)],
+    spanProcessors: [spanProcessor],
   });
 
   tracerProvider.register();
