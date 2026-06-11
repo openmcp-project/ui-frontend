@@ -40,17 +40,16 @@ fi
 
 kubectl config use-context "kind-${CLUSTER_NAME}"
 
-# ── Namespace + plugin ConfigMaps first (pod needs them to mount) ─────────────
+# ── Namespace + opencontrolplane ConfigMap (pod needs it to mount) ────────────
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
 echo "→ applying plugin ConfigMaps..."
-kubectl apply -f "${SCRIPT_DIR}/configmap-kiosk-plugin.yaml"
-kubectl apply -f "${SCRIPT_DIR}/configmap-crossplane-plugin.yaml"
+kubectl apply -f "${SCRIPT_DIR}/configmap-opencontrolplane-plugin.yaml"
 
 # ── Headlamp via Helm ─────────────────────────────────────────────────────────
 helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/ --force-update &>/dev/null
 
-echo "→ deploying Headlamp ${HEADLAMP_VERSION} with Flux + kiosk + crossplane plugins..."
+echo "→ deploying Headlamp ${HEADLAMP_VERSION} with flux + kiosk + crossplane (ArtifactHub) + opencontrolplane plugins..."
 helm upgrade --install headlamp headlamp/headlamp \
   --version "$HEADLAMP_VERSION" \
   --namespace "$NAMESPACE" \
@@ -60,40 +59,42 @@ replicaCount: 1
 config:
   baseURL: /api/headlamp
   pluginsDir: /headlamp/plugins
-  watchPlugins: false
   extraArgs:
     - -enable-dynamic-clusters
     - -session-ttl=86400
     - -in-cluster-context-name=main
+    - -user-plugins-dir=/headlamp/user-plugins
+    - -watch-plugins-changes=true
 initContainers:
-  - name: flux-plugin
-    image: ghcr.io/headlamp-k8s/headlamp-plugin-flux:latest
-    imagePullPolicy: Always
+  - name: copy-opencontrolplane-plugin
+    image: busybox
     command:
       - /bin/sh
       - -c
-      - mkdir -p /headlamp/plugins && cp -r /plugins/* /headlamp/plugins/
+      - |
+        mkdir -p /headlamp/plugins/opencontrolplane-plugin
+        cp /configmaps/opencontrolplane/main.js /headlamp/plugins/opencontrolplane-plugin/main.js
+        cp /configmaps/opencontrolplane/package.json /headlamp/plugins/opencontrolplane-plugin/package.json
     volumeMounts:
-      - name: headlamp-plugins
+      - name: plugins-dir
         mountPath: /headlamp/plugins
-volumeMounts:
-  - name: headlamp-plugins
-    mountPath: /headlamp/plugins
-  - name: kiosk-plugin
-    mountPath: /headlamp/plugins/kiosk-plugin
-    readOnly: true
-  - name: crossplane-plugin
-    mountPath: /headlamp/plugins/crossplane-plugin
-    readOnly: true
+      - name: opencontrolplane-plugin-cm
+        mountPath: /configmaps/opencontrolplane
 volumes:
-  - name: headlamp-plugins
-    emptyDir: {}
-  - name: kiosk-plugin
+  - name: opencontrolplane-plugin-cm
     configMap:
-      name: kiosk-plugin
-  - name: crossplane-plugin
-    configMap:
-      name: crossplane-plugin
+      name: opencontrolplane-plugin
+pluginsManager:
+  enabled: true
+  baseImage: node:lts-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
+  configContent: |
+    plugins:
+      - name: headlamp-flux
+        source: https://artifacthub.io/packages/headlamp/headlamp-plugins/headlamp_flux
+      - name: headlamp-kiosk
+        source: https://artifacthub.io/packages/headlamp/kiosk-headlamp-plugin/headlamp_kiosk
+      - name: headlamp-crossplane
+        source: https://artifacthub.io/packages/headlamp/crossplane-headlamp-plugin/headlamp_crossplane
 EOF
 
 # ── Port-forward ──────────────────────────────────────────────────────────────

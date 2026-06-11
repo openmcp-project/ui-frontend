@@ -81,6 +81,11 @@ tasks:
       - mkdir -p {{.LOCALBIN}}
     internal: true
 
+  headlamp:deploy-plugins:
+    desc: 'Build local plugins and sync them live into the running headlamp-dev pod (no restart needed). Usage: task headlamp:deploy-plugins'
+    cmds:
+      - bash {{.ROOT_DIR}}/scripts/deploy-headlamp-plugins.sh
+
   headlamp:setup:
     desc: 'Bootstrap a local Headlamp kind cluster and port-forward to http://localhost:8090. Usage: task headlamp:setup'
     cmds:
