@@ -161,7 +161,7 @@ export default function McpPageV2() {
                       <YamlViewButton
                         variant="loader"
                         workspaceName={mcp?.metadata?.namespace}
-                        resourceType={'managedcontrolplanev2s'}
+                        resourceType={'controlplanes'}
                         resourceName={controlPlaneName}
                         withoutApiConfig
                       />

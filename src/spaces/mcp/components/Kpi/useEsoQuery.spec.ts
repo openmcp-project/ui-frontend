@@ -21,7 +21,7 @@ function makeQueryResult(raw: unknown) {
   return {
     ...baseQueryResult,
     data: {
-      external_secrets_services_openmcp_cloud: {
+      external_secrets_services_open_control_plane_io: {
         v1alpha1: {
           ExternalSecretsOperator: raw,
         },

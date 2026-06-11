@@ -12,36 +12,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
     core_openmcp_cloud {
       v1alpha1 {
-        v1mcps: ManagedControlPlanes(namespace: $workspaceNamespace) {
-          items {
-            metadata {
-              name
-              namespace
-              creationTimestamp
-              annotations
-            }
-            status {
-              status
-              conditions {
-                type
-                status
-                reason
-                message
-                lastTransitionTime
-              }
-              components {
-                authentication {
-                  access {
-                    key
-                    name
-                    namespace
-                  }
-                }
-              }
-            }
-          }
-        }
-        v2mcps: ManagedControlPlanes(namespace: $workspaceNamespace) {
+        ManagedControlPlanes(namespace: $workspaceNamespace) {
           items {
             metadata {
               name
@@ -72,15 +43,40 @@ const GET_MCPS_LIST_QUERY = graphql(`
         }
       }
     }
+    core_open_control_plane_io {
+      v2alpha1 {
+        ControlPlanes(namespace: $workspaceNamespace) {
+          items {
+            metadata {
+              name
+              namespace
+              creationTimestamp
+              annotations
+            }
+            status {
+              phase
+              conditions {
+                type
+                status
+                reason
+                message
+                lastTransitionTime
+              }
+              access
+            }
+          }
+        }
+      }
+    }
   }
 `);
 
 type V1Item = NonNullable<
   NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']
->['v1mcps']['items'][number];
+>['ManagedControlPlanes']['items'][number];
 type V2Item = NonNullable<
-  NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']
->['v2mcps']['items'][number];
+  NonNullable<GetMcPsListQuery['core_open_control_plane_io']>['v2alpha1']
+>['ControlPlanes']['items'][number];
 
 function toV1Input(item: V1Item) {
   return {
@@ -96,6 +92,16 @@ function toV1Input(item: V1Item) {
   };
 }
 
+/** Parses the v2 access field which may arrive as a JSON string or an object. */
+function parseAccess(accessData: unknown): Record<string, unknown> | undefined {
+  if (!accessData) return undefined;
+  try {
+    const parsed = typeof accessData === 'string' ? JSON.parse(accessData) : accessData;
+    return parsed as Record<string, unknown>;
+  } catch {
+    return undefined;
+  }
+}
 
 function toV2Input(item: V2Item) {
   return {
@@ -103,9 +109,9 @@ function toV2Input(item: V2Item) {
     metadata: item.metadata,
     status: item.status
       ? {
-          status: item.status.status,
+          status: item.status.phase,
           conditions: item.status.conditions,
-          access: item.status.components?.authentication?.access,
+          access: parseAccess(item.status.access),
         }
       : null,
   };
@@ -121,8 +127,8 @@ export function useMcpsQuery(workspaceNamespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.v1mcps?.items;
-  const v2Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.v2mcps?.items;
+  const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;
+  const v2Items = queryResult.data?.core_open_control_plane_io?.v2alpha1?.ControlPlanes?.items;
 
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);

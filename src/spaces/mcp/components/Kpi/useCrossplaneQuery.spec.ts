@@ -21,7 +21,7 @@ function makeQueryResult(raw: unknown) {
   return {
     ...baseQueryResult,
     data: {
-      crossplane_services_openmcp_cloud: {
+      crossplane_services_open_control_plane_io: {
         v1alpha1: {
           Crossplane: raw,
         },
