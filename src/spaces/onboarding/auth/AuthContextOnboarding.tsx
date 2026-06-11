@@ -4,6 +4,7 @@ import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.
 import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { registerRefreshFn, refreshToken } from './tokenRefresh';
+import { useTelemetry } from '../../../lib/telemetry/telemetry';
 
 interface AuthContextOnboardingType {
   isPending: boolean;
@@ -24,6 +25,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
+  const telemetry = useTelemetry();
 
   const refreshAuthStatus = useCallback(async (isBackground: boolean) => {
     // Only show loading spinner for user-initiated auth checks, not background token refreshes
@@ -60,12 +62,6 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
       const validTokenExpiry = apiTokenExpiresAt && apiTokenExpiresAt > Date.now() ? apiTokenExpiresAt : null;
       setTokenExpiry(validTokenExpiry);
-
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Authenticated user ' + apiUser?.email,
-        level: 'info',
-      });
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -88,6 +84,10 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
+
+  useEffect(() => {
+    telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
+  }, [user, telemetry]);
 
   const ensureFreshToken = useCallback(async () => {
     if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {

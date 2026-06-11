@@ -3,9 +3,10 @@ import { useId, useState } from 'react';
 import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
-import { useConnectOptions } from './useConnectOptions.ts';
+import { useConnectOptions, type ConnectOption } from './useConnectOptions.ts';
 import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -17,6 +18,7 @@ interface ConnectButtonProps {
   disabled?: boolean;
   useApiResource?: typeof _useApiResource;
   useNavigate?: typeof _useNavigate;
+  useTelemetry?: typeof _useTelemetry;
 }
 
 export default function ConnectButton({
@@ -29,11 +31,13 @@ export default function ConnectButton({
   disabled,
   useApiResource = _useApiResource,
   useNavigate = _useNavigate,
+  useTelemetry = _useTelemetry,
 }: ConnectButtonProps) {
   const navigate = useNavigate();
   const buttonId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   const {
     data: kubeconfigResource,
@@ -42,6 +46,11 @@ export default function ConnectButton({
   } = useApiResource(GetKubeconfig(secretKey, secretName, namespace));
 
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
+
+  const connectTo = (target: ConnectOption) => {
+    telemetry.track({ name: 'mcp.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    navigate(target.url);
+  };
 
   const handleMenuAction = (event: CustomEvent) => {
     const { action, target } = event.detail.item.dataset;
@@ -53,7 +62,9 @@ export default function ConnectButton({
     }
 
     if (target) {
-      navigate(target);
+      const selected = connectionTargets.find((option) => option.url === target);
+      if (!selected) return;
+      connectTo(selected);
       setIsMenuOpen(false);
       return;
     }
@@ -70,7 +81,7 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => navigate(directTarget.url)}>
+      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => connectTo(directTarget)}>
         {t('ConnectButton.buttonText')}
       </Button>
     );
