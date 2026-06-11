@@ -10,8 +10,8 @@ import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../types/Con
 const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
     core_openmcp_cloud {
-      v2alpha1 {
-        ManagedControlPlaneV2(name: $name, namespace: $namespace) {
+      v1alpha1 {
+        ManagedControlPlane(name: $name, namespace: $namespace) {
           kind
           metadata {
             name
@@ -19,60 +19,8 @@ const GET_MCP_V2_QUERY = graphql(`
             annotations
             creationTimestamp
           }
-          spec {
-            iam {
-              oidc {
-                defaultProvider {
-                  roleBindings {
-                    roleRefs {
-                      kind
-                      name
-                      namespace
-                    }
-                    subjects {
-                      apiGroup
-                      kind
-                      name
-                      namespace
-                    }
-                  }
-                }
-                extraProviders {
-                  roleBindings {
-                    roleRefs {
-                      kind
-                      name
-                      namespace
-                    }
-                    subjects {
-                      apiGroup
-                      kind
-                      name
-                      namespace
-                    }
-                  }
-                }
-              }
-              tokens {
-                name
-                permissions {
-                  rules {
-                    apiGroups
-                    resources
-                    verbs
-                  }
-                }
-                roleRefs {
-                  kind
-                  name
-                  namespace
-                }
-              }
-            }
-          }
           status {
-            phase
-            access
+            status
             observedGeneration
             conditions {
               type
@@ -96,7 +44,7 @@ export function useMcpV2Query(name?: string, namespace?: string) {
   });
 
   const isPending = queryResult.networkStatus === NetworkStatus.loading;
-  const rawItem = queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2;
+  const rawItem = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlane;
 
   const data = useMemo<ManagedControlPlaneV2 | undefined>(() => {
     if (!rawItem) return undefined;

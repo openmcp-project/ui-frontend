@@ -1,14 +1,14 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { z } from 'zod';
-import { CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
+import { CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
 import { McpV2Input, McpV2InputSchema } from '../schemas/mcpV2Input.schema.ts';
 import { CreateManagedControlPlaneV2Mutation } from './useCreateManagedControlPlaneV2Mutation.ts';
 
 export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
   return {
-    apiVersion: 'core.openmcp.cloud/v2alpha1',
-    kind: 'ManagedControlPlaneV2',
+    apiVersion: 'core.openmcp.cloud/v1alpha1',
+    kind: 'ManagedControlPlane',
     metadata: {
       name: input.name,
       namespace: input.namespace,
@@ -54,7 +54,7 @@ export function useCreateManagedControlPlaneV2GraphQL() {
         },
       });
 
-      return result.data?.core_openmcp_cloud?.v2alpha1?.createManagedControlPlaneV2;
+      return result.data?.core_openmcp_cloud?.v1alpha1?.createManagedControlPlane;
     },
     [createMutation],
   );

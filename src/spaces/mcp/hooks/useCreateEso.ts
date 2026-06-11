@@ -5,9 +5,9 @@ import { useCallback } from 'react';
 const CreateEsoMutation = gql`
   mutation CreateExternalSecretsOperator(
     $namespace: String
-    $object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input!
+    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!
   ) {
-    external_secrets_services_openmcp_cloud {
+    external_secrets_services_open_control_plane_io {
       v1alpha1 {
         createExternalSecretsOperator(namespace: $namespace, object: $object) {
           metadata {
