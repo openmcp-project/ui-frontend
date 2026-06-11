@@ -26,7 +26,7 @@ export function useUpdateManagedControlPlaneV2GraphQL() {
         },
       });
 
-      const updated = result.data?.core_openmcp_cloud?.v2alpha1?.updateManagedControlPlaneV2;
+      const updated = result.data?.core_open_control_plane_io?.v2alpha1?.updateControlPlane;
       if (!updated) {
         throw new Error('ManagedControlPlaneV2 update returned no data');
       }

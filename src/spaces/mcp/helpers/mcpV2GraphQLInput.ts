@@ -1,10 +1,10 @@
-import { CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
+import { CoreOpenControlPlaneIoV2alpha1ControlPlane_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
 import { McpV2Input } from '../schemas/mcpV2Input.schema.ts';
 
 export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
   return {
-    apiVersion: 'core.openmcp.cloud/v2alpha1',
-    kind: 'ManagedControlPlaneV2',
+    apiVersion: 'core.open-control-plane.io/v2alpha1',
+    kind: 'ControlPlane',
     metadata: {
       name: input.name,
       namespace: input.namespace,

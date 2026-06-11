@@ -18,7 +18,7 @@ const baseQueryResult = {
 } as ReturnType<typeof useQuery>;
 
 const validMcpItem = {
-  kind: 'ManagedControlPlaneV2',
+  kind: 'ControlPlane',
   metadata: {
     name: 'my-mcp',
     namespace: 'project-foo--ws-bar',
@@ -61,9 +61,9 @@ function makeQueryResult(item: unknown) {
   return {
     ...baseQueryResult,
     data: {
-      core_openmcp_cloud: {
+      core_open_control_plane_io: {
         v2alpha1: {
-          ManagedControlPlaneV2: item,
+          ControlPlane: item,
         },
       },
     },

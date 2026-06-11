@@ -32,7 +32,7 @@ describe('ComponentInstallDialog', () => {
       {
         name: 'flux',
         kind: 'Flux',
-        apiVersion: 'flux.services.openmcp.cloud/v1alpha1',
+        apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
         versions: [{ version: 'v2.18.2' }, { version: 'v2.17.0' }],
       },
     ],
@@ -40,7 +40,7 @@ describe('ComponentInstallDialog', () => {
   })) as () => UseManagedServicesQueryResult;
 
   const baseObject = {
-    apiVersion: 'flux.services.openmcp.cloud/v1alpha1',
+    apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
     kind: 'Flux',
     metadata: { name: 'test-mcp', namespace: 'test-namespace' },
   };
