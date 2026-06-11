@@ -12,7 +12,6 @@ export type ComponentCardProps = KpiProps & {
   description: string;
   logoImgSrc: string;
   isInstalled: boolean;
-  isV2?: boolean;
   version?: string;
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
