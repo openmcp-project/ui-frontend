@@ -76,16 +76,11 @@ initContainers:
         cp /configmaps/opencontrolplane/main.js /headlamp/plugins/opencontrolplane-plugin/main.js
         cp /configmaps/opencontrolplane/package.json /headlamp/plugins/opencontrolplane-plugin/package.json
     volumeMounts:
-      - name: headlamp-plugins
+      - name: plugins-dir
         mountPath: /headlamp/plugins
       - name: opencontrolplane-plugin-cm
         mountPath: /configmaps/opencontrolplane
-volumeMounts:
-  - name: headlamp-plugins
-    mountPath: /headlamp/plugins
 volumes:
-  - name: headlamp-plugins
-    emptyDir: {}
   - name: opencontrolplane-plugin-cm
     configMap:
       name: opencontrolplane-plugin

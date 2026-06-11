@@ -161,28 +161,6 @@ function OpenSourceHeadlamp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcp.kubeconfig, clusterAlias]);
 
-  // Re-register kubeconfig if Headlamp loses the context (e.g. pod restart clears in-memory state).
-  // Polls /api/headlamp/config every 30s; if the cluster alias is gone, re-registers and reloads the iframe.
-  useEffect(() => {
-    if (!iframeSrc || !mcp.kubeconfig) return;
-    const baseSrc = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
-    const intervalId = setInterval(async () => {
-      try {
-        const res = await fetch('/api/headlamp/config');
-        if (!res.ok) return;
-        const { clusters } = (await res.json()) as { clusters: { name: string }[] | null };
-        const isRegistered = (clusters ?? []).some((c) => c.name === clusterAlias);
-        if (!isRegistered) {
-          await registerKubeconfigWithBff(mcp.kubeconfig!, clusterAlias);
-          setIframeSrc(`${baseSrc}${headlampPath}`);
-        }
-      } catch {
-        // network blip — will retry next interval
-      }
-    }, 30_000);
-    return () => clearInterval(intervalId);
-  }, [iframeSrc, mcp.kubeconfig, clusterAlias, headlampPath]);
-
   // Poll iframe pathname (same-origin via BFF proxy) and sync to URL search param.
   // Strip the baseSrc prefix so only the Headlamp-internal path (e.g. /flux/...) is stored.
   useEffect(() => {
