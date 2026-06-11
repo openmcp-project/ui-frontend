@@ -81,11 +81,6 @@ tasks:
       - mkdir -p {{.LOCALBIN}}
     internal: true
 
-  headlamp:build-plugins:
-    desc: 'Build crossplane + opencontrolplane Headlamp plugins and regenerate their ConfigMap YAMLs. Usage: task headlamp:build-plugins'
-    cmds:
-      - bash {{.ROOT_DIR}}/scripts/build-headlamp-plugins.sh
-
   headlamp:deploy-plugins:
     desc: 'Build local plugins and sync them live into the running headlamp-dev pod (no restart needed). Usage: task headlamp:deploy-plugins'
     cmds:
