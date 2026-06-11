@@ -275,6 +275,74 @@ function OpenSourceHeadlamp({
 }
 
 // Wraps McpContextProvider + AuthProviderMcp + OpenSourceHeadlamp for open-source mode.
+// Captures errors from McpContextProvider (kubeconfig fetch failures, missing access info)
+// via the onState callback so they surface as an error banner instead of an infinite spinner.
+function OpenSourceWithMcpContext({
+  projectName,
+  workspaceName,
+  controlPlaneName,
+  displayName,
+  namespace,
+}: {
+  projectName: string;
+  workspaceName: string;
+  controlPlaneName: string;
+  displayName: string | undefined;
+  namespace: string | undefined;
+}) {
+  const { t } = useTranslation();
+  const { documentationBaseUrl } = useFrontendConfig();
+  const [mcpContextError, setMcpContextError] = useState<Error | string | null>(null);
+
+  if (mcpContextError) {
+    const message = mcpContextError instanceof Error ? mcpContextError.message : String(mcpContextError);
+    return (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={message}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+      />
+    );
+  }
+
+  return (
+    <McpContextProvider
+      context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }}
+      onState={({ error }) => { if (error) setMcpContextError(error); }}
+    >
+      <AuthProviderMcp>
+        <WithinManagedControlPlane>
+          <OpenSourceHeadlamp
+            key={`${projectName}/${workspaceName}/${controlPlaneName}`}
+            projectName={projectName}
+            workspaceName={workspaceName}
+            controlPlaneName={controlPlaneName}
+            displayName={displayName}
+            namespace={namespace}
+          />
+        </WithinManagedControlPlane>
+      </AuthProviderMcp>
+    </McpContextProvider>
+  );
+}
+
+// Registers only mcpName in ShellBarMcpActionsContext so the mode toggle appears in legacy mode.
+// No kubeconfig, roleBindings, or navigateBack — those extras are open-source only.
+function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  useEffect(() => {
+    setMcpActions(undefined, controlPlaneName);
+    return () => {
+      clearMcpActions();
+    };
+  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  return null;
+}
+
+// MCP_PAGE_SECTIONS for legacy view (no headlamp tab — that's handled via mode switch)
+const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
+export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
 export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
@@ -285,25 +353,23 @@ export default function McpPage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
-  const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
-  const headlampEnabled = searchParams.get('headlamp') === 'true';
-
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
-    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionIdAll)) {
-      if (tab === 'headlamp' && !headlampEnabled) return 'overview' as McpPageSectionIdAll;
-      return tab as McpPageSectionIdAll;
+    if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
+      return tab as McpPageSectionId;
     }
-    return 'overview' as McpPageSectionIdAll;
-  }, [searchParams, headlampEnabled]);
+    return 'overview' as McpPageSectionId;
+  }, [searchParams]);
 
-  const setTabFromSection = (sectionId: McpPageSectionIdAll) => {
+  const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set('tab', sectionId);
       return newParams;
     });
   };
+
+  const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
   const {
     data: mcp,
@@ -325,7 +391,7 @@ export default function McpPage() {
   };
 
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
-    const newSectionId = e.detail.selectedSectionId as McpPageSectionIdAll;
+    const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
 
@@ -517,15 +583,6 @@ export default function McpPage() {
               {isComponentInstalledLandscaper && (
                 <ObjectPageSection id="landscaper" titleText={t('McpPage.landscaperTitle')} className={styles.section}>
                   <Landscapers />
-                </ObjectPageSection>
-              )}
-
-              {headlampEnabled && (
-                <ObjectPageSection id="headlamp" titleText={t('McpPage.headlampTitle')}>
-                  {/* Only mount while active — prevents stale BFF session state when switching between MCPs */}
-                  {selectedSectionId === 'headlamp' && (
-                    <HeadlampSection key={`${projectName}/${workspaceName}/${controlPlaneName}`} />
-                  )}
                 </ObjectPageSection>
               )}
             </ObjectPage>
