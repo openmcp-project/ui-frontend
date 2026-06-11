@@ -17,11 +17,9 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
-import { useLink } from '../../lib/shared/useLink.ts';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
-import { BetaButton } from './BetaButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 
@@ -31,7 +29,6 @@ export function ShellBarComponent({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 } = {}) {
   const auth = useAuthOnboarding();
-  const { contributeLink } = useLink();
   const { t } = useTranslation();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
