@@ -39,5 +39,4 @@ build_plugin() {
   echo "✓ wrote ${configmap_file}"
 }
 
-build_plugin "crossplane"       "${ROOT_DIR}/../crossplane-headlamp-plugin"       "crossplane-plugin"
 build_plugin "opencontrolplane" "${ROOT_DIR}/../opencontrolplane-headlamp-plugin" "opencontrolplane-plugin"
