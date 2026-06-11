@@ -40,11 +40,12 @@ export function CreateWorkspaceDialogContainer({
     handleSubmit,
     resetField,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     control,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       displayName: '',
@@ -59,7 +60,7 @@ export function CreateWorkspaceDialogContainer({
   const username = user?.email;
   const namespace = projectnameToNamespace(project);
 
-  const { createWorkspace } = useCreateWorkspace(namespace);
+  const { createWorkspace, isLoading } = useCreateWorkspace(namespace);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {
@@ -67,11 +68,12 @@ export function CreateWorkspaceDialogContainer({
     resetField('chargingTarget');
     resetField('displayName');
     resetField('chargingTargetType');
+    resetField('members');
   }, [resetField]);
 
   useEffect(() => {
     if (username) {
-      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }]);
+      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }], { shouldValidate: true });
     }
     if (!isOpen) {
       clearForm();
@@ -109,11 +111,14 @@ export function CreateWorkspaceDialogContainer({
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
-      titleText="Create Workspace"
+      titleText={t('CreateProjectWorkspaceDialog.createWorkspaceTitle')}
       members={members}
       register={register}
       errors={errors}
       setValue={setValue}
+      handleSubmit={handleSubmit}
+      isMetadataValid={isValid}
+      isLoading={isLoading}
       type={'workspace'}
       projectName={project}
       // eslint-disable-next-line react-hooks/refs

@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/react';
+import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import {
   Avatar,
   Button,
@@ -12,15 +14,20 @@ import {
   ShellBar,
   ShellBarDomRef,
   Switch,
+  TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { RefObject, useRef, useState } from 'react';
-import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
+import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import SapLogo from '../../assets/images/sap-logo.svg';
+import { useLink } from '../../lib/shared/useLink.ts';
+import { useToast } from '../../context/ToastContext.tsx';
+import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { BetaButton } from './BetaButton.tsx';
+import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
@@ -35,17 +42,23 @@ import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 
-export function ShellBarComponent() {
+export function ShellBarComponent({
+  useAuthOnboarding = _useAuthOnboarding,
+}: {
+  useAuthOnboarding?: typeof _useAuthOnboarding;
+} = {}) {
   const auth = useAuthOnboarding();
+  const { contributeLink } = useLink();
+  const { t } = useTranslation();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode } = useViewMode();
-  const { t } = useTranslation();
   const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } = useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
-    profilePopoverRef.current!.opener = e.detail.targetRef;
+    if (!profilePopoverRef.current) return;
+    profilePopoverRef.current.opener = e.detail.targetRef;
     setProfilePopoverOpen(!profilePopoverOpen);
   };
 
@@ -111,7 +124,12 @@ export function ShellBarComponent() {
         </div>
       </ShellBar>
 
-      <ProfilePopover open={profilePopoverOpen} setOpen={setProfilePopoverOpen} popoverRef={profilePopoverRef} />
+      <ProfilePopover
+        open={profilePopoverOpen}
+        setOpen={setProfilePopoverOpen}
+        popoverRef={profilePopoverRef}
+        useAuthOnboarding={useAuthOnboarding}
+      />
     </>
   );
 }
@@ -216,33 +234,104 @@ const ProfilePopover = ({
   open,
   setOpen,
   popoverRef,
+  useAuthOnboarding = _useAuthOnboarding,
 }: {
   open: boolean;
   setOpen: (arg0: boolean) => void;
   popoverRef: RefObject<PopoverDomRef | null>;
+  useAuthOnboarding?: typeof _useAuthOnboarding;
 }) => {
   const auth = useAuthOnboarding();
   const { t } = useTranslation();
+  const feedbackPopoverRef = useRef<PopoverDomRef>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const toast = useToast();
+
+  const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
+    const newValue = event.target.value;
+    setFeedbackMessage(newValue);
+  };
+
+  async function onFeedbackSent() {
+    const payload = {
+      message: feedbackMessage,
+      rating: rating.toString(),
+    };
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        toast.show(data?.message ?? data?.error ?? t('ShellBar.feedbackError'));
+        return;
+      }
+
+      setFeedbackSent(true);
+    } catch (err) {
+      Sentry.captureException(err, {
+        extra: {
+          context: 'FeedbackButton',
+        },
+      });
+      toast.show(t('ShellBar.feedbackError'));
+    }
+  }
+
+  const handleFeedbackClick = (e: React.MouseEvent) => {
+    if (!feedbackPopoverRef.current || !popoverRef.current) return;
+    e.stopPropagation();
+    setOpen(false);
+    feedbackPopoverRef.current.opener = popoverRef.current.opener;
+    setFeedbackMessage('');
+    setRating(0);
+    setFeedbackSent(false);
+    setFeedbackPopoverOpen(true);
+  };
 
   return (
-    <Popover
-      ref={popoverRef}
-      placement={PopoverPlacement.Bottom}
-      open={open}
-      headerText="Profile"
-      onClose={() => setOpen(false)}
-    >
-      <List>
-        <ListItemStandard
-          icon="log"
-          onClick={() => {
-            setOpen(false);
-            void auth.logout();
-          }}
-        >
-          {t('ShellBar.signOutButton')}
-        </ListItemStandard>
-      </List>
-    </Popover>
+    <>
+      <Popover
+        ref={popoverRef}
+        placement={PopoverPlacement.Bottom}
+        open={open}
+        headerText="Profile"
+        onClose={() => setOpen(false)}
+      >
+        <List>
+          <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
+            {t('ShellBar.feedbackButtonInfo')}
+          </ListItemStandard>
+          <ListItemStandard
+            icon="log"
+            onClick={() => {
+              setOpen(false);
+              void auth.logout();
+            }}
+          >
+            {t('ShellBar.signOutButton')}
+          </ListItemStandard>
+        </List>
+      </Popover>
+      <FeedbackPopover
+        open={feedbackPopoverOpen}
+        setOpen={setFeedbackPopoverOpen}
+        popoverRef={feedbackPopoverRef}
+        setRating={setRating}
+        rating={rating}
+        feedbackMessage={feedbackMessage}
+        feedbackSent={feedbackSent}
+        onFeedbackSent={onFeedbackSent}
+        onFeedbackMessageChange={onFeedbackMessageChange}
+      />
+    </>
   );
 };

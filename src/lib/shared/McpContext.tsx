@@ -1,5 +1,5 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
@@ -15,6 +15,7 @@ interface Mcp {
   secretKey?: string;
   kubeconfig?: string;
   roleBindings?: RoleBinding[];
+  isV2?: boolean;
 }
 
 interface McpContextProviderResult {
@@ -66,6 +67,7 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
 
   const enrichedContext: Mcp = {
     ...context,
+    isV2,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };
@@ -76,19 +78,21 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
 function RequireDownstreamLogin(props: { children?: ReactNode }) {
   const mcp = useContext(McpContext);
 
+  const apiConfig = useMemo(
+    () => ({
+      mcpConfig: {
+        projectName: mcp.project,
+        workspaceName: mcp.workspace,
+        controlPlaneName: mcp.name,
+        isV2: mcp.isV2,
+      },
+    }),
+    [mcp.project, mcp.workspace, mcp.name, mcp.isV2],
+  );
+
   return (
     <>
-      <ApiConfigProvider
-        apiConfig={{
-          mcpConfig: {
-            projectName: mcp.project,
-            workspaceName: mcp.workspace,
-            controlPlaneName: mcp.name,
-          },
-        }}
-      >
-        {props.children}
-      </ApiConfigProvider>
+      <ApiConfigProvider apiConfig={apiConfig}>{props.children}</ApiConfigProvider>
     </>
   );
 }

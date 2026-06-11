@@ -8,7 +8,7 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
-import { WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
+import { CoreOpenmcpCloudV1alpha1Workspace_Input as WorkspaceInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
 
 export interface CreateWorkspaceParams {
@@ -46,7 +46,7 @@ function buildWorkspaceInput(namespace: string, params: CreateWorkspaceParams): 
 }
 
 const CreateWorkspaceMutation = graphql(`
-  mutation CreateWorkspace($namespace: String!, $object: WorkspaceInput!, $dryRun: Boolean) {
+  mutation CreateWorkspace($namespace: String!, $object: CoreOpenmcpCloudV1alpha1Workspace_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
         createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {
@@ -63,7 +63,7 @@ const CreateWorkspaceMutation = graphql(`
 export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [createWorkspaceMutation] = useMutation(CreateWorkspaceMutation);
+  const [createWorkspaceMutation, { loading }] = useMutation(CreateWorkspaceMutation);
 
   const createWorkspace = useCallback(
     async (params: CreateWorkspaceParams): Promise<void> => {
@@ -82,5 +82,6 @@ export function useCreateWorkspace(namespace: string) {
 
   return {
     createWorkspace,
+    isLoading: loading,
   };
 }

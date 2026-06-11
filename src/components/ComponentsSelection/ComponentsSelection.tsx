@@ -14,7 +14,6 @@ import {
   Select,
   SelectDomRef,
   Text,
-  Title,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import styles from './ComponentsSelection.module.css';
@@ -89,8 +88,6 @@ export const ComponentsSelection: React.FC<ComponentsSelectionProps> = ({
 
   return (
     <div>
-      <Title>{t('componentsSelection.selectComponents')}</Title>
-
       <Input
         placeholder={t('common.search')}
         id="search"

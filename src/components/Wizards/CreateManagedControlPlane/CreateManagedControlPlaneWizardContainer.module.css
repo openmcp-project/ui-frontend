@@ -5,11 +5,13 @@
 }
 
 .metadataForm {
-  width: 50%;
+  width: 100%;
+  max-width: 480px;
 }
 
 .infoboxContainer {
-  width: 50%;
-  padding-right: 1rem;
-  padding-top: 2rem;
+  flex: 1;
+  padding-left: 2rem;
+  padding-top: 0.5rem;
+  max-width: 400px;
 }

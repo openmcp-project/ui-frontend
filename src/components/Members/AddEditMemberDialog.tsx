@@ -16,6 +16,7 @@ interface AddEditMemberDialogProps {
   onSave: (member: Member, isEdit: boolean) => void;
   existingMembers: Member[];
   memberToEdit?: Member;
+  accountTypeOptions?: RadioButtonsSelectOption[];
   roleOptions?: RadioButtonsSelectOption[];
   defaultRole?: string;
 }
@@ -33,9 +34,19 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   onSave,
   existingMembers,
   memberToEdit,
+  accountTypeOptions,
   roleOptions,
   defaultRole,
 }) => {
+  const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
+  const allowedAccountTypes = useMemo(
+    () => effectiveAccountTypeOptions.map((option) => option.value) as AccountType[],
+    [effectiveAccountTypeOptions],
+  );
+  const usesUserGroupAccountTypes = useMemo(
+    () => allowedAccountTypes.includes('Group') && !allowedAccountTypes.includes('ServiceAccount'),
+    [allowedAccountTypes],
+  );
   const effectiveRoleOptions = roleOptions ?? memberRolesOptions;
   const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
   const { t } = useTranslation();
@@ -45,12 +56,20 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     () =>
       z
         .object({
-          accountType: z.enum(['User', 'ServiceAccount']),
+          accountType: z.enum(['User', 'Group', 'ServiceAccount']),
           name: z.string(),
           role: z.string(),
           namespace: z.string().optional(),
         })
         .superRefine((data, ctx) => {
+          if (!allowedAccountTypes.includes(data.accountType)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['accountType'],
+              message: t('validationErrors.required'),
+            });
+          }
+
           const trimmed = data.name.trim();
           if (!trimmed) {
             ctx.addIssue({
@@ -67,7 +86,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             });
           }
         }),
-    [t, existingMembers, memberToEdit],
+    [t, existingMembers, memberToEdit, allowedAccountTypes],
   );
 
   const {
@@ -81,7 +100,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     resolver: zodResolver(memberFormSchema),
     mode: 'onChange',
     defaultValues: {
-      accountType: 'User',
+      accountType: allowedAccountTypes[0] ?? 'User',
       name: '',
       role: effectiveDefaultRole,
       namespace: '',
@@ -94,22 +113,25 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   useEffect(() => {
     if (open) {
       if (memberToEdit) {
+        const memberKind: AccountType =
+          memberToEdit.kind === 'ServiceAccount' ? 'ServiceAccount' : memberToEdit.kind === 'Group' ? 'Group' : 'User';
+        const accountType = allowedAccountTypes.includes(memberKind) ? memberKind : (allowedAccountTypes[0] ?? 'User');
         reset({
           name: memberToEdit.name,
           role: memberToEdit.roles?.[0] || effectiveDefaultRole,
-          accountType: memberToEdit.kind === 'User' ? 'User' : 'ServiceAccount',
-          namespace: memberToEdit?.namespace || '',
+          accountType,
+          namespace: accountType === 'ServiceAccount' ? (memberToEdit?.namespace ?? '') : '',
         });
       } else {
         reset({
-          accountType: 'User',
+          accountType: allowedAccountTypes[0] ?? 'User',
           name: '',
           role: effectiveDefaultRole,
           namespace: '',
         });
       }
     }
-  }, [open, memberToEdit, reset, effectiveDefaultRole]);
+  }, [open, memberToEdit, reset, effectiveDefaultRole, allowedAccountTypes]);
 
   const onFormSubmit = (data: MemberFormData) => {
     const trimmedName = data.name.trim();
@@ -125,7 +147,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     onClose();
   };
 
-  const dialogHeader = memberToEdit ? t('EditMembers.editHeader') : t('EditMembers.addHeader') || 'Add member';
+  const dialogHeader = memberToEdit
+    ? t(usesUserGroupAccountTypes ? 'EditMembers.editHeaderUserGroup' : 'EditMembers.editHeader')
+    : t(usesUserGroupAccountTypes ? 'EditMembers.addHeaderUserGroup' : 'EditMembers.addHeader');
 
   return (
     <Dialog open={open} headerText={dialogHeader} onClose={onClose}>
@@ -135,7 +159,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             <RadioButtonsSelect
               label={'Account type:'}
               selectedValue={accountType}
-              options={ACCOUNT_TYPES}
+              options={effectiveAccountTypeOptions}
               handleOnClick={(value) => setValue('accountType', value as AccountType, { shouldValidate: true })}
             />
           </FlexBox>
@@ -207,7 +231,9 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               handleSubmit(onFormSubmit)();
             }}
           >
-            {memberToEdit ? t('EditMembers.saveButton') : t('EditMembers.addButton')}
+            {memberToEdit
+              ? t('EditMembers.saveButton')
+              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
           </Button>
           <Button className={styles.wrapper} onClick={onClose}>
             {t('buttons.cancel')}

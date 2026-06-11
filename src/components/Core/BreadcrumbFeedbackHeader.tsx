@@ -1,8 +1,6 @@
 import { Button, FlexBox, FlexBoxAlignItems, Menu, MenuItem } from '@ui5/webcomponents-react';
 
 import { useTranslation } from 'react-i18next';
-import { FeedbackButton } from './FeedbackButton.tsx';
-import { BetaButton } from './BetaButton.tsx';
 import { useId, useState } from 'react';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { SearchParamToggleVisibility } from '../Helper/FeatureToggleExistance.tsx';
@@ -12,8 +10,6 @@ export function BreadcrumbFeedbackHeader() {
   return (
     <FlexBox alignItems={FlexBoxAlignItems.Center}>
       <PathAwareBreadcrumbs />
-      <BetaButton />
-      <FeedbackButton />
       <SearchParamToggleVisibility
         shouldBeVisible={(params) => {
           if (params === undefined) return false;

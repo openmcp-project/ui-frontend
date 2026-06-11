@@ -58,19 +58,22 @@ export function ComponentCard({
         >
           {isInstalled ? (
             <div data-cy="kpi-container" className={styles.kpiContainer}>
-              <Kpi {...props} />
-              {onEditButtonClick && (
-                <Button
-                  data-cy="edit-button"
-                  icon="sap-icon://edit"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEditButtonClick();
-                  }}
-                >
-                  {t('ComponentCard.editButton')}
-                </Button>
-              )}
+              <div className={styles.kpiContent}>
+                <Kpi {...props} />
+              </div>
+              <div className={styles.actions}>
+                {onEditButtonClick && (
+                  <Button
+                    accessibleName={t('ComponentCard.editButton')}
+                    data-cy="edit-button"
+                    icon="sap-icon://edit"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditButtonClick();
+                    }}
+                  />
+                )}
+              </div>
             </div>
           ) : (
             <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>

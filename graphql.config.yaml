@@ -6,6 +6,9 @@ documents: './src/**/*.{ts,tsx}'
 ignoreNoDocuments: true
 extensions:
   codegen:
+    hooks:
+      afterAllFileWrite:
+        - prettier --write
     generates:
       ./src/types/__generated__/graphql/:
         preset: client

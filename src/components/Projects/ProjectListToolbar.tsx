@@ -7,7 +7,7 @@ export function ProjectListToolbar() {
   return (
     <>
       <Toolbar>
-        <ToolbarButton icon="add" text="Project" onClick={() => setDialogIsOpen(true)} />
+        <ToolbarButton design="Emphasized" icon="add" text="Project" onClick={() => setDialogIsOpen(true)} />
       </Toolbar>
       <CreateProjectDialogContainer isOpen={dialogCreateProjectIsOpen} setIsOpen={setDialogIsOpen} />
     </>

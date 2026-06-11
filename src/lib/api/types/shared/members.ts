@@ -12,20 +12,28 @@ export const memberRolesOptions: RadioButtonsSelectOption[] = [
 ];
 
 export const MCP_V2_DEFAULT_ROLE = 'cluster-admin';
+export const MCP_V2_VIEWER_ROLE = 'viewer';
 
 export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
   { value: 'cluster-admin', label: 'Cluster Admin', icon: 'key-user-settings' },
-  // future roles can be added here, e.g.:
-  // { value: 'opencontrolplane-admin', label: 'OCP Admin', icon: 'manager' },
+  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'employee' },
 ];
 
-export const MemberRolesDetailed = {
+export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {
   [MemberRoles.view]: { value: MemberRoles.view, displayValue: 'Viewer' },
   [MemberRoles.admin]: {
     value: MemberRoles.admin,
     displayValue: 'Administrator',
   },
-} as const;
+  [MCP_V2_DEFAULT_ROLE]: {
+    value: MCP_V2_DEFAULT_ROLE,
+    displayValue: 'Cluster Admin',
+  },
+  [MCP_V2_VIEWER_ROLE]: {
+    value: MCP_V2_VIEWER_ROLE,
+    displayValue: 'Viewer',
+  },
+};
 
 export enum MemberKind {
   User = 'User',

@@ -1,5 +1,11 @@
 import fp from 'fastify-plugin';
 import { AuthenticationError } from '../plugins/auth-utils.js';
+import {
+  COOKIE_OPTIONS,
+  ENCRYPTED_COOKIE_REQUEST_DECORATOR,
+  ENCRYPTION_KEY_COOKIE_NAME,
+  SESSION_COOKIE_NAME,
+} from '../encrypted-session.js';
 
 const stateSessionKey = 'oauthStateOnboarding';
 
@@ -11,8 +17,17 @@ async function authPlugin(fastify) {
   const issuerConfiguration = await fastify.discoverIssuerConfiguration(OIDC_ISSUER);
   fastify.decorate('issuerConfiguration', issuerConfiguration);
 
+  const authRateLimit = {
+    rateLimit: {
+      max: 20,
+      timeWindow: '1 minute',
+      // @ts-ignore
+      keyGenerator: (req) => req.encryptedSession?.get('onboarding_accessToken') ?? req.ip,
+    },
+  };
+
   // @ts-ignore
-  fastify.get('/auth/onboarding/login', async function (req, reply) {
+  fastify.get('/auth/onboarding/login', { config: authRateLimit }, async function (req, reply) {
     const redirectUri = await fastify.prepareOidcLoginRedirect(
       req,
       {
@@ -28,7 +43,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-ignore
-  fastify.get('/auth/onboarding/callback', async function (req, reply) {
+  fastify.get('/auth/onboarding/callback', { config: authRateLimit }, async function (req, reply) {
     try {
       const callbackResult = await fastify.handleOidcCallback(
         req,
@@ -39,6 +54,9 @@ async function authPlugin(fastify) {
         issuerConfiguration.tokenEndpoint,
         stateSessionKey,
       );
+
+      // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
+      await req.encryptedSession.regenerate();
 
       await req.encryptedSession.set('onboarding_accessToken', callbackResult.accessToken);
       await req.encryptedSession.set('onboarding_refreshToken', callbackResult.refreshToken);
@@ -62,7 +80,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.get('/auth/onboarding/me', async function (req, reply) {
+  fastify.get('/auth/onboarding/me', { config: authRateLimit }, async function (req, reply) {
     const accessToken = req.encryptedSession.get('onboarding_accessToken');
     const userInfo = req.encryptedSession.get('onboarding_userInfo');
     const tokenExpiresAt = req.encryptedSession.get('onboarding_tokenExpiresAt');
@@ -73,7 +91,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.post('/auth/onboarding/refresh', async function (req, reply) {
+  fastify.post('/auth/onboarding/refresh', { config: authRateLimit }, async function (req, reply) {
     const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
     if (!refreshToken) {
       req.log.error('Missing refresh token; deleting encryptedSession.');
@@ -129,9 +147,22 @@ async function authPlugin(fastify) {
   });
 
   // @ts-ignore
-  fastify.post('/auth/logout', async function (req, reply) {
+  fastify.post('/auth/logout', { config: authRateLimit }, async function (req, reply) {
     // TODO: Idp sign out flow
+
+    // Clear encrypted session data
     await req.encryptedSession.clear();
+
+    // Destroy the server-side session
+    await req.session.destroy();
+
+    // Delete the secure-session (encryption key) cookie
+    req[ENCRYPTED_COOKIE_REQUEST_DECORATOR].delete();
+
+    // Explicitly clear cookies from browser
+    reply.clearCookie(SESSION_COOKIE_NAME, COOKIE_OPTIONS);
+    reply.clearCookie(ENCRYPTION_KEY_COOKIE_NAME, COOKIE_OPTIONS);
+
     return reply.send({ message: 'Logged out' });
   });
 }
