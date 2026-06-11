@@ -61,7 +61,11 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
   }
 
   if (!secretKey) {
-    onState?.({ loading: false, error: new Error('Control plane has no kubeconfig access information yet'), ready: false });
+    onState?.({
+      loading: false,
+      error: new Error('Control plane has no kubeconfig access information yet'),
+      ready: false,
+    });
     return <></>;
   }
 
