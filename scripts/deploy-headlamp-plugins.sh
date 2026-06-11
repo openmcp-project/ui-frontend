@@ -14,21 +14,12 @@ if [[ -z "$POD" ]]; then
   exit 1
 fi
 
-deploy_plugin() {
-  local name="$1"
-  local dir="$2"
-  local plugin_dir="/headlamp/plugins/${name}-plugin"
+echo "→ building opencontrolplane plugin..."
+(cd "${ROOT_DIR}/../opencontrolplane-headlamp-plugin" && npm run build 2>&1 | tail -3)
 
-  echo "→ building ${name} plugin..."
-  (cd "$dir" && npm run build 2>&1 | tail -3)
-
-  echo "→ syncing to pod ${POD}:${plugin_dir}/main.js ..."
-  kubectl --context "$CONTEXT" cp "${dir}/dist/main.js" "${NAMESPACE}/${POD}:${plugin_dir}/main.js"
-  echo "✓ ${name} plugin deployed"
-}
-
-deploy_plugin "crossplane"       "${ROOT_DIR}/../crossplane-headlamp-plugin"
-deploy_plugin "opencontrolplane" "${ROOT_DIR}/../opencontrolplane-headlamp-plugin"
+echo "→ syncing to pod ${POD}:/headlamp/plugins/opencontrolplane-plugin/main.js ..."
+kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin/dist/main.js" "${NAMESPACE}/${POD}:/headlamp/plugins/opencontrolplane-plugin/main.js"
+echo "✓ opencontrolplane plugin deployed"
 
 echo ""
-echo "✓ All plugins synced. Hard-refresh the browser to pick up changes."
+echo "✓ Plugin synced. Hard-refresh the browser to pick up changes."
