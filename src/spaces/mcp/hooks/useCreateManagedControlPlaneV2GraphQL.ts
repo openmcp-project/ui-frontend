@@ -25,7 +25,7 @@ export function useCreateManagedControlPlaneV2GraphQL() {
         },
       });
 
-      return result.data?.core_openmcp_cloud?.v2alpha1?.createManagedControlPlaneV2;
+      return result.data?.core_open_control_plane_io?.v2alpha1?.createControlPlane;
     },
     [createMutation],
   );

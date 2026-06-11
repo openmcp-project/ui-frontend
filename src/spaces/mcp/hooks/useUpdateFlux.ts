@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 
 const UpdateFluxMutation = gql`
-  mutation UpdateFlux($namespace: String, $name: String!, $object: FluxServicesOpenmcpCloudV1alpha1Flux_Input!) {
-    flux_services_openmcp_cloud {
+  mutation UpdateFlux($namespace: String, $name: String!, $object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input!) {
+    flux_services_open_control_plane_io {
       v1alpha1 {
         updateFlux(namespace: $namespace, name: $name, object: $object) {
           metadata {

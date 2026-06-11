@@ -6,9 +6,9 @@ const UpdateEsoMutation = gql`
   mutation UpdateExternalSecretsOperator(
     $namespace: String
     $name: String!
-    $object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input!
+    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!
   ) {
-    external_secrets_services_openmcp_cloud {
+    external_secrets_services_open_control_plane_io {
       v1alpha1 {
         updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {
           metadata {

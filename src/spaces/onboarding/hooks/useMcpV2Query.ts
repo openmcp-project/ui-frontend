@@ -9,9 +9,9 @@ import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../types/Con
 
 const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
-    core_openmcp_cloud {
+    core_open_control_plane_io {
       v2alpha1 {
-        ManagedControlPlaneV2(name: $name, namespace: $namespace) {
+        ControlPlane(name: $name, namespace: $namespace) {
           kind
           metadata {
             name
@@ -96,7 +96,7 @@ export function useMcpV2Query(name?: string, namespace?: string) {
   });
 
   const isPending = queryResult.networkStatus === NetworkStatus.loading;
-  const rawItem = queryResult.data?.core_openmcp_cloud?.v2alpha1?.ManagedControlPlaneV2;
+  const rawItem = queryResult.data?.core_open_control_plane_io?.v2alpha1?.ControlPlane;
 
   const data = useMemo<ManagedControlPlaneV2 | undefined>(() => {
     if (!rawItem) return undefined;

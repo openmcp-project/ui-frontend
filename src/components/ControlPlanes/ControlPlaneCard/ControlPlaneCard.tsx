@@ -113,7 +113,7 @@ export const ControlPlaneCard = ({
                   variant="loader"
                   workspaceName={controlPlane.metadata.namespace}
                   resourceName={controlPlane.metadata.name}
-                  resourceType={controlPlane.version === 'v2' ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}
+                  resourceType={controlPlane.version === 'v2' ? 'controlplanes' : 'managedcontrolplanes'}
                 />
                 {controlPlane.version === 'v2' ? (
                   <ConnectButtonV2

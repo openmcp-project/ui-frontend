@@ -37,7 +37,7 @@ describe('CrossplaneInstallDialog', () => {
       {
         name: 'crossplane',
         kind: 'Crossplane',
-        apiVersion: 'crossplane.services.openmcp.cloud/v1alpha1',
+        apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
         versions: [{ version: 'v2.0.2-1' }, { version: 'v1.20.1-1' }],
       },
     ],
@@ -48,7 +48,7 @@ describe('CrossplaneInstallDialog', () => {
   })) as () => UseManagedServicesQueryResult;
 
   const baseObject = {
-    apiVersion: 'crossplane.services.openmcp.cloud/v1alpha1',
+    apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
     kind: 'Crossplane',
     metadata: { name: 'test-mcp', namespace: 'test-namespace' },
   };
