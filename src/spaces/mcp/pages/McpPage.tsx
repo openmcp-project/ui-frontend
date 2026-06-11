@@ -79,6 +79,7 @@ function OpenSourceHeadlamp({
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  const { setMode, setHeadlampAvailable } = useViewMode();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
@@ -123,6 +124,7 @@ function OpenSourceHeadlamp({
     mcp.kubeconfig,
     mcp.name,
     mcp.roleBindings,
+    displayName,
     namespace,
     projectName,
     workspaceName,
@@ -144,12 +146,17 @@ function OpenSourceHeadlamp({
       })
       .catch((err) => {
         if (err instanceof Error && err.name === 'AbortError') return;
-        if (!controller.signal.aborted) setError(true);
+        if (!controller.signal.aborted) {
+          setError(true);
+          setMode('beginner');
+          setHeadlampAvailable(false);
+        }
       });
     return () => {
       controller.abort();
       setIframeSrc(null);
       setError(false);
+      setHeadlampAvailable(true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mcp.kubeconfig, clusterAlias]);
@@ -252,14 +259,16 @@ function OpenSourceHeadlamp({
           title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
         />
         {isYamlOpen && (
-          <div style={{
-            width: '40%',
-            minWidth: 360,
-            borderLeft: '1px solid var(--sapGroup_TitleBorderColor)',
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'slideInFromRight 0.2s ease-out',
-          }}>
+          <div
+            style={{
+              width: '40%',
+              minWidth: 360,
+              borderLeft: '1px solid var(--sapGroup_TitleBorderColor)',
+              display: 'flex',
+              flexDirection: 'column',
+              animation: 'slideInFromRight 0.2s ease-out',
+            }}
+          >
             <style>{`@keyframes slideInFromRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
             <YamlSidePanelWithLoader
               isEdit={false}
@@ -292,6 +301,7 @@ function OpenSourceWithMcpContext({
 }) {
   const { t } = useTranslation();
   const { documentationBaseUrl } = useFrontendConfig();
+  const { setMode, setHeadlampAvailable } = useViewMode();
   const [mcpContextError, setMcpContextError] = useState<Error | string | null>(null);
 
   if (mcpContextError) {
@@ -309,7 +319,13 @@ function OpenSourceWithMcpContext({
   return (
     <McpContextProvider
       context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }}
-      onState={({ error }) => { if (error) setMcpContextError(error); }}
+      onState={({ error }) => {
+        if (error) {
+          setMcpContextError(error);
+          setMode('beginner');
+          setHeadlampAvailable(false);
+        }
+      }}
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>

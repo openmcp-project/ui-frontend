@@ -49,8 +49,9 @@ export function ShellBarComponent({
   const { t } = useTranslation();
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
-  const { mode, setMode } = useViewMode();
-  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } = useShellBarMcpActions();
+  const { mode, setMode, headlampAvailable } = useViewMode();
+  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } =
+    useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
@@ -78,9 +79,7 @@ export function ShellBarComponent({
             )}
             <div className={styles.logoWrapper}>
               <img src={SapLogo} alt="SAP" className={styles.logo} />
-              <span className={styles.logoText}>
-                {mcpDisplayName ?? mcpName ?? 'ManagedControlPlane UI'}
-              </span>
+              <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'ManagedControlPlane UI'}</span>
               {namespace && (
                 <Button
                   design="Transparent"
@@ -114,6 +113,7 @@ export function ShellBarComponent({
               <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
               <Switch
                 checked={mode === 'open-source'}
+                disabled={!headlampAvailable}
                 onChange={(e) => setMode(e.target.checked ? 'open-source' : 'beginner')}
               />
             </div>

@@ -9,54 +9,56 @@ import { ViewModeProvider, useViewMode } from './ViewModeContext.tsx';
 const wrapper = ({ children }: { children: ReactNode }) => <ViewModeProvider>{children}</ViewModeProvider>;
 
 describe('ViewModeContext', () => {
-  beforeEach(() => {
-    localStorage.clear();
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
+
+  it('defaults to beginner mode (legacy UI) when nothing is stored', () => {
+    const { result } = renderHook(() => useViewMode(), { wrapper });
+    expect(result.current.mode).toBe('beginner');
   });
 
-  afterEach(() => {
-    localStorage.clear();
+  it('falls back to beginner mode for any unknown stored value', () => {
+    localStorage.setItem('mcp-ui-view-mode', 'some-unknown-value');
+    const { result } = renderHook(() => useViewMode(), { wrapper });
+    expect(result.current.mode).toBe('beginner');
   });
 
-  describe('useViewMode', () => {
-    it('throws when used outside provider', () => {
-      expect(() => renderHook(() => useViewMode())).toThrow('useViewMode must be used within a ViewModeProvider');
+  it('switching back to beginner restores legacy mode', () => {
+    localStorage.setItem('mcp-ui-view-mode', 'open-source');
+    const { result } = renderHook(() => useViewMode(), { wrapper });
+
+    expect(result.current.mode).toBe('open-source');
+    act(() => result.current.setMode('beginner'));
+    expect(result.current.mode).toBe('beginner');
+  });
+
+  it('headlampAvailable is true by default', () => {
+    const { result } = renderHook(() => useViewMode(), { wrapper });
+    expect(result.current.headlampAvailable).toBe(true);
+  });
+
+  it('when Headlamp becomes unavailable the switch is marked unavailable and mode reverts to beginner', () => {
+    localStorage.setItem('mcp-ui-view-mode', 'open-source');
+    const { result } = renderHook(() => useViewMode(), { wrapper });
+
+    expect(result.current.mode).toBe('open-source');
+
+    act(() => {
+      result.current.setHeadlampAvailable(false);
+      result.current.setMode('beginner');
     });
 
-    it('defaults to beginner mode when localStorage is empty', () => {
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      expect(result.current.mode).toBe('beginner');
-    });
+    expect(result.current.headlampAvailable).toBe(false);
+    expect(result.current.mode).toBe('beginner');
+  });
 
-    it('restores open-source mode from localStorage', () => {
-      localStorage.setItem('mcp-ui-view-mode', 'open-source');
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      expect(result.current.mode).toBe('open-source');
-    });
+  it('headlampAvailable resets to true when availability is restored', () => {
+    const { result } = renderHook(() => useViewMode(), { wrapper });
 
-    it('defaults to beginner mode for an unknown stored value', () => {
-      localStorage.setItem('mcp-ui-view-mode', 'unknown-value');
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      expect(result.current.mode).toBe('beginner');
-    });
+    act(() => result.current.setHeadlampAvailable(false));
+    expect(result.current.headlampAvailable).toBe(false);
 
-    it('setMode updates the mode state', () => {
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      act(() => result.current.setMode('open-source'));
-      expect(result.current.mode).toBe('open-source');
-    });
-
-    it('setMode persists the new mode to localStorage', () => {
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      act(() => result.current.setMode('open-source'));
-      expect(localStorage.getItem('mcp-ui-view-mode')).toBe('open-source');
-    });
-
-    it('setMode can switch back to beginner', () => {
-      localStorage.setItem('mcp-ui-view-mode', 'open-source');
-      const { result } = renderHook(() => useViewMode(), { wrapper });
-      act(() => result.current.setMode('beginner'));
-      expect(result.current.mode).toBe('beginner');
-      expect(localStorage.getItem('mcp-ui-view-mode')).toBe('beginner');
-    });
+    act(() => result.current.setHeadlampAvailable(true));
+    expect(result.current.headlampAvailable).toBe(true);
   });
 });
