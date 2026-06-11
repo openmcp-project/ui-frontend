@@ -16,10 +16,10 @@
 
 .floatingActions {
   position: absolute;
-  top: 3rem;
+  bottom: 1.75rem;
   right: 1.75rem; /* offset from scrollbar */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.25rem;
   opacity: 0;
   pointer-events: none;
