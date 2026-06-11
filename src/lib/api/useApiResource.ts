@@ -282,7 +282,7 @@ export function useMultipleApiResources<T>(
     };
 
     fetchData();
-  }, [namespaces, getResource, apiConfig]);
+  }, [namespaces, getResource, apiConfig, telemetry]);
 
   return { data, isLoading, error };
 }
