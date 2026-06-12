@@ -58,7 +58,7 @@ export function CrossplaneInstallDialog({
 
   const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
   const crossplaneVersions = useMemo(() => crossplaneService?.versions ?? [], [crossplaneService]);
-  const crossplaneApiVersion = crossplaneService?.apiVersion ?? 'crossplane.services.openmcp.cloud/v1alpha1';
+  const crossplaneApiVersion = crossplaneService?.apiVersion ?? 'crossplane.services.open-control-plane.io/v1alpha1';
   const crossplaneKind = crossplaneService?.kind ?? 'Crossplane';
 
   const schema = useMemo(() => createCrossplaneInstallSchema(t), [t]);

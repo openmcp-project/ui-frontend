@@ -2597,16 +2597,747 @@ export type CoordinationK8sIoV1QueryLeasesArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CoreOpenControlPlaneIoMutation = {
+  __typename?: 'CoreOpenControlPlaneIoMutation';
+  v2alpha1?: Maybe<CoreOpenControlPlaneIoV2alpha1Mutation>;
+};
+
+export type CoreOpenControlPlaneIoQuery = {
+  __typename?: 'CoreOpenControlPlaneIoQuery';
+  v2alpha1?: Maybe<CoreOpenControlPlaneIoV2alpha1Query>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlane = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlane';
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: Maybe<Scalars['String']['output']>;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
+  spec?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec>;
+  status?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneEvent = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneEvent';
+  object?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlane>;
+  type: WatchEventType;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneList = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneList';
+  continue?: Maybe<Scalars['String']['output']>;
+  items: Array<CoreOpenControlPlaneIoV2alpha1ControlPlane>;
+  remainingItemCount?: Maybe<Scalars['Int']['output']>;
+  resourceVersion?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec';
+  /** IAM contains the access management configuration for the ControlPlane. */
+  iam?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam>;
+};
+
+/** IAM contains the access management configuration for the ControlPlane. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam';
+  /** OIDC is the OIDC-based access configuration. */
+  oidc?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc>;
+  /** Tokens is a list of token-based access configurations. */
+  tokens?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens>>>;
+};
+
+/** OIDC is the OIDC-based access configuration. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc';
+  /** DefaultProvider is the standard OIDC provider that is enabled for all ControlPlane resources. */
+  defaultProvider?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider>;
+  /**
+   * ExtraProviders is a list of OIDC providers that should be configured for the ControlPlane.
+   * They are independent of the standard OIDC provider and in addition to it, unless it has been disabled by not specifying any role bindings.
+   */
+  extraProviders?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders>>>;
+};
+
+/** DefaultProvider is the standard OIDC provider that is enabled for all ControlPlane resources. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider';
+  /**
+   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
+   * These bindings refer to the standard OIDC provider. If empty, the standard OIDC provider is disabled.
+   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
+   */
+  roleBindings?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings>>>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings';
+  /**
+   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
+   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
+   */
+  roleRefs?: Maybe<
+    Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs>>
+  >;
+  /**
+   * Subjects is a list of subjects that should be bound to the specified roles.
+   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
+   */
+  subjects?: Maybe<
+    Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects>>
+  >;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs';
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs_Input = {
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
+ * or a value for non-objects such as user and group names.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects';
+  /**
+   * APIGroup holds the API group of the referenced subject.
+   * Defaults to "" for ServiceAccount subjects.
+   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+   */
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  /**
+   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+   */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Name of the object being referenced. */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * the Authorizer should report an error.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+/**
+ * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
+ * or a value for non-objects such as user and group names.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects_Input = {
+  /**
+   * APIGroup holds the API group of the referenced subject.
+   * Defaults to "" for ServiceAccount subjects.
+   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+   */
+  apiGroup?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+   */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Name of the object being referenced. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * the Authorizer should report an error.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings_Input = {
+  /**
+   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
+   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
+   */
+  roleRefs?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs_Input>>
+  >;
+  /**
+   * Subjects is a list of subjects that should be bound to the specified roles.
+   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
+   */
+  subjects?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects_Input>>
+  >;
+};
+
+/** DefaultProvider is the standard OIDC provider that is enabled for all ControlPlane resources. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider_Input = {
+  /**
+   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
+   * These bindings refer to the standard OIDC provider. If empty, the standard OIDC provider is disabled.
+   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
+   */
+  roleBindings?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings_Input>>
+  >;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders';
+  /** ClientID is the client ID to use for the OIDC provider. */
+  clientID?: Maybe<Scalars['String']['output']>;
+  /** ExtraScopes is a list of extra scopes that should be requested from the OIDC provider. */
+  extraScopes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /**
+   * GroupsClaim is the claim in the OIDC token that contains the groups.
+   * If empty, the default claim "groups" will be used.
+   */
+  groupsClaim?: Maybe<Scalars['String']['output']>;
+  /**
+   * Issuer is the issuer URL of the OIDC provider.
+   * Must be a valid URL.
+   */
+  issuer?: Maybe<Scalars['String']['output']>;
+  /**
+   * Name is the name of the OIDC provider.
+   * May be used in k8s resources, therefore has to be a valid k8s name.
+   * It is also used (with a ':' suffix) as prefix in k8s resources referencing users or groups from this OIDC provider.
+   * E.g. if the name is 'example', the username 'alice' from this provider will be referenced as 'example:alice' in k8s resources.
+   * Must be unique among all OIDC providers configured in the same environment.
+   */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
+   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
+   */
+  roleBindings?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings>>>;
+  /**
+   * UsernameClaim is the claim in the OIDC token that contains the username.
+   * If empty, the default claim "sub" will be used.
+   */
+  usernameClaim?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings';
+  /**
+   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
+   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
+   */
+  roleRefs?: Maybe<
+    Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs>>
+  >;
+  /**
+   * Subjects is a list of subjects that should be bound to the specified roles.
+   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
+   */
+  subjects?: Maybe<
+    Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects>>
+  >;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs';
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs_Input = {
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
+ * or a value for non-objects such as user and group names.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects';
+  /**
+   * APIGroup holds the API group of the referenced subject.
+   * Defaults to "" for ServiceAccount subjects.
+   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+   */
+  apiGroup?: Maybe<Scalars['String']['output']>;
+  /**
+   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+   */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Name of the object being referenced. */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * the Authorizer should report an error.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+/**
+ * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
+ * or a value for non-objects such as user and group names.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects_Input = {
+  /**
+   * APIGroup holds the API group of the referenced subject.
+   * Defaults to "" for ServiceAccount subjects.
+   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
+   */
+  apiGroup?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
+   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
+   */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Name of the object being referenced. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
+   * the Authorizer should report an error.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings_Input = {
+  /**
+   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
+   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
+   */
+  roleRefs?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs_Input>>
+  >;
+  /**
+   * Subjects is a list of subjects that should be bound to the specified roles.
+   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
+   */
+  subjects?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects_Input>>
+  >;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders_Input = {
+  /** ClientID is the client ID to use for the OIDC provider. */
+  clientID?: InputMaybe<Scalars['String']['input']>;
+  /** ExtraScopes is a list of extra scopes that should be requested from the OIDC provider. */
+  extraScopes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /**
+   * GroupsClaim is the claim in the OIDC token that contains the groups.
+   * If empty, the default claim "groups" will be used.
+   */
+  groupsClaim?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Issuer is the issuer URL of the OIDC provider.
+   * Must be a valid URL.
+   */
+  issuer?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Name is the name of the OIDC provider.
+   * May be used in k8s resources, therefore has to be a valid k8s name.
+   * It is also used (with a ':' suffix) as prefix in k8s resources referencing users or groups from this OIDC provider.
+   * E.g. if the name is 'example', the username 'alice' from this provider will be referenced as 'example:alice' in k8s resources.
+   * Must be unique among all OIDC providers configured in the same environment.
+   */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
+   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
+   */
+  roleBindings?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings_Input>>
+  >;
+  /**
+   * UsernameClaim is the claim in the OIDC token that contains the username.
+   * If empty, the default claim "sub" will be used.
+   */
+  usernameClaim?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** OIDC is the OIDC-based access configuration. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc_Input = {
+  /** DefaultProvider is the standard OIDC provider that is enabled for all ControlPlane resources. */
+  defaultProvider?: InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider_Input>;
+  /**
+   * ExtraProviders is a list of OIDC providers that should be configured for the ControlPlane.
+   * They are independent of the standard OIDC provider and in addition to it, unless it has been disabled by not specifying any role bindings.
+   */
+  extraProviders?: InputMaybe<
+    Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders_Input>>
+  >;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens';
+  /**
+   * Name is the name of this token configuration.
+   * It is used to generate a secret name and must be unique among all token configurations in the same ControlPlane.
+   */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Permissions are the requested permissions.
+   * If not empty, corresponding Roles and ClusterRoles will be created in the target cluster.
+   * The created serviceaccount will be bound to the created Roles and ClusterRoles.
+   */
+  permissions?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions>>>;
+  /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
+  roleRefs?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs>>>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions';
+  /**
+   * Name is an optional name for the (Cluster)Role that will be created for the requested permissions.
+   * If not set, a randomized name that is unique in the cluster will be generated.
+   * Note that the AccessRequest will not be granted if the to-be-created (Cluster)Role already exists, but is not managed by the AccessRequest, so choose this name carefully.
+   */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace is the namespace for which the permissions are requested.
+   * If empty, this will result in a ClusterRole, otherwise in a Role in the respective namespace.
+   * Note that for a Role, the namespace needs to either exist or a permission to create it must be included in the requested permissions (it will be created automatically then), otherwise the request will be rejected.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+  /** Rules are the requested RBAC rules. */
+  rules?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules>>>;
+};
+
+/**
+ * PolicyRule holds information that describes a policy rule, but does not contain information
+ * about who the rule applies to or which namespace the rule applies to.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules';
+  /**
+   * APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+   * the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+   */
+  apiGroups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /**
+   * NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+   * Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+   * Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+   */
+  nonResourceURLs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+  resourceNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Resources is a list of resources this rule applies to. '*' represents all resources. */
+  resources?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+  verbs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+};
+
+/**
+ * PolicyRule holds information that describes a policy rule, but does not contain information
+ * about who the rule applies to or which namespace the rule applies to.
+ */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules_Input = {
+  /**
+   * APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+   * the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+   */
+  apiGroups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /**
+   * NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+   * Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+   * Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+   */
+  nonResourceURLs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+  resourceNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Resources is a list of resources this rule applies to. '*' represents all resources. */
+  resources?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+  verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions_Input = {
+  /**
+   * Name is an optional name for the (Cluster)Role that will be created for the requested permissions.
+   * If not set, a randomized name that is unique in the cluster will be generated.
+   * Note that the AccessRequest will not be granted if the to-be-created (Cluster)Role already exists, but is not managed by the AccessRequest, so choose this name carefully.
+   */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace is the namespace for which the permissions are requested.
+   * If empty, this will result in a ClusterRole, otherwise in a Role in the respective namespace.
+   * Note that for a Role, the namespace needs to either exist or a permission to create it must be included in the requested permissions (it will be created automatically then), otherwise the request will be rejected.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  /** Rules are the requested RBAC rules. */
+  rules?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules_Input>>>;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs';
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: Maybe<Scalars['String']['output']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: Maybe<Scalars['String']['output']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: Maybe<Scalars['String']['output']>;
+};
+
+/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input = {
+  /**
+   * Kind is the kind of the role to bind to the subjects.
+   * It must be 'Role' or 'ClusterRole'.
+   */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Name is the name of the role or cluster role to bind to the subjects. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Namespace is the namespace of the role to bind to the subjects.
+   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
+   */
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens_Input = {
+  /**
+   * Name is the name of this token configuration.
+   * It is used to generate a secret name and must be unique among all token configurations in the same ControlPlane.
+   */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * Permissions are the requested permissions.
+   * If not empty, corresponding Roles and ClusterRoles will be created in the target cluster.
+   * The created serviceaccount will be bound to the created Roles and ClusterRoles.
+   */
+  permissions?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions_Input>>>;
+  /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
+  roleRefs?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input>>>;
+};
+
+/** IAM contains the access management configuration for the ControlPlane. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam_Input = {
+  /** OIDC is the OIDC-based access configuration. */
+  oidc?: InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc_Input>;
+  /** Tokens is a list of token-based access configurations. */
+  tokens?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens_Input>>>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec_Input = {
+  /** IAM contains the access management configuration for the ControlPlane. */
+  iam?: InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam_Input>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus';
+  /**
+   * Access is a mapping from OIDC provider names to secret references.
+   * Each referenced secret is expected to contain a 'kubeconfig' key with the kubeconfig that was generated for the respective OIDC provider for the ControlPlane.
+   * The default OIDC provider, if configured, uses the name "default" in this mapping.
+   * The "default" key is also used if the ClusterProvider does not support OIDC-based access and created a serviceaccount with a token instead.
+   */
+  access?: Maybe<Scalars['JSONString']['output']>;
+  /** Conditions contains the conditions. */
+  conditions?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions>>>;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  /** Phase is the current phase of the resource. */
+  phase?: Maybe<Scalars['String']['output']>;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions';
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: Maybe<Scalars['String']['output']>;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: Maybe<Scalars['String']['output']>;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: Maybe<Scalars['Int']['output']>;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: Maybe<Scalars['String']['output']>;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: Maybe<Scalars['String']['output']>;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: Maybe<Scalars['String']['output']>;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input = {
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: InputMaybe<Scalars['String']['input']>;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input = {
+  /**
+   * Access is a mapping from OIDC provider names to secret references.
+   * Each referenced secret is expected to contain a 'kubeconfig' key with the kubeconfig that was generated for the respective OIDC provider for the ControlPlane.
+   * The default OIDC provider, if configured, uses the name "default" in this mapping.
+   * The "default" key is also used if the ClusterProvider does not support OIDC-based access and created a serviceaccount with a token instead.
+   */
+  access?: InputMaybe<Scalars['JSONString']['input']>;
+  /** Conditions contains the conditions. */
+  conditions?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input>>>;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
+  /** Phase is the current phase of the resource. */
+  phase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlane_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: InputMaybe<Scalars['String']['input']>;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: InputMaybe<Scalars['String']['input']>;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
+  spec?: InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec_Input>;
+  status?: InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1Mutation = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1Mutation';
+  createControlPlane?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlane>;
+  deleteControlPlane?: Maybe<Scalars['Boolean']['output']>;
+  updateControlPlane?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlane>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1MutationCreateControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1MutationDeleteControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1MutationUpdateControlPlaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1Query = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1Query';
+  ControlPlane: CoreOpenControlPlaneIoV2alpha1ControlPlane;
+  ControlPlaneYaml: Scalars['String']['output'];
+  ControlPlanes: CoreOpenControlPlaneIoV2alpha1ControlPlaneList;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1QueryControlPlaneArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1QueryControlPlaneYamlArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1QueryControlPlanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CoreOpenmcpCloudMutation = {
   __typename?: 'CoreOpenmcpCloudMutation';
   v1alpha1?: Maybe<CoreOpenmcpCloudV1alpha1Mutation>;
-  v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Mutation>;
 };
 
 export type CoreOpenmcpCloudQuery = {
   __typename?: 'CoreOpenmcpCloudQuery';
   v1alpha1?: Maybe<CoreOpenmcpCloudV1alpha1Query>;
-  v2alpha1?: Maybe<CoreOpenmcpCloudV2alpha1Query>;
 };
 
 export type CoreOpenmcpCloudV1alpha1ApiServer = {
@@ -6387,588 +7118,83 @@ export type CoreOpenmcpCloudV1alpha1Workspace_Input = {
   status?: InputMaybe<CoreOpenmcpCloudV1alpha1WorkspaceStatus_Input>;
 };
 
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2 = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2';
+export type CrossplaneServicesOpenControlPlaneIoMutation = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation>;
+};
+
+export type CrossplaneServicesOpenControlPlaneIoQuery = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1Query>;
+};
+
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
   kind?: Maybe<Scalars['String']['output']>;
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
-  spec?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec>;
-  status?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status>;
+  /** spec defines the desired state of Crossplane */
+  spec?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec>;
+  /** status defines the observed state of Crossplane */
+  status?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus>;
 };
 
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Event = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Event';
-  object?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2>;
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneEvent = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneEvent';
+  object?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane>;
   type: WatchEventType;
 };
 
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2List = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2List';
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneList = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2>;
+  items: Array<CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec';
-  /** IAM contains the access management configuration for the ManagedControlPlaneV2. */
-  iam?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam>;
+/** spec defines the desired state of Crossplane */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec';
+  /** List of Crossplane providers to be installed. */
+  providers?: Maybe<Array<Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders>>>;
+  /** The Version of Crossplane to install. */
+  version?: Maybe<Scalars['String']['output']>;
 };
 
-/** IAM contains the access management configuration for the ManagedControlPlaneV2. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam';
-  /** OIDC is the OIDC-based access configuration. */
-  oidc?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc>;
-  /** Tokens is a list of token-based access configurations. */
-  tokens?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens>>>;
-};
-
-/** OIDC is the OIDC-based access configuration. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc';
-  /** DefaultProvider is the standard OIDC provider that is enabled for all ManagedControlPlaneV2 resources. */
-  defaultProvider?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider>;
-  /**
-   * ExtraProviders is a list of OIDC providers that should be configured for the ManagedControlPlaneV2.
-   * They are independent of the standard OIDC provider and in addition to it, unless it has been disabled by not specifying any role bindings.
-   */
-  extraProviders?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders>>>;
-};
-
-/** DefaultProvider is the standard OIDC provider that is enabled for all ManagedControlPlaneV2 resources. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider';
-  /**
-   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
-   * These bindings refer to the standard OIDC provider. If empty, the standard OIDC provider is disabled.
-   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
-   */
-  roleBindings?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings>>
-  >;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings';
-  /**
-   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
-   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
-   */
-  roleRefs?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs>>
-  >;
-  /**
-   * Subjects is a list of subjects that should be bound to the specified roles.
-   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
-   */
-  subjects?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects>>
-  >;
-};
-
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs';
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
+/** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders';
+  /** Name of the provider. */
   name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
+  /** Version of the provider to install. */
+  version?: Maybe<Scalars['String']['output']>;
 };
 
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs_Input = {
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
+/** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input = {
+  /** Name of the provider. */
   name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
+  /** Version of the provider to install. */
+  version?: InputMaybe<Scalars['String']['input']>;
 };
 
-/**
- * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
- * or a value for non-objects such as user and group names.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects';
-  /**
-   * APIGroup holds the API group of the referenced subject.
-   * Defaults to "" for ServiceAccount subjects.
-   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-   */
-  apiGroup?: Maybe<Scalars['String']['output']>;
-  /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
-   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-   */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Name of the object being referenced. */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
-   * the Authorizer should report an error.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
+/** spec defines the desired state of Crossplane */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec_Input = {
+  /** List of Crossplane providers to be installed. */
+  providers?: InputMaybe<Array<InputMaybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input>>>;
+  /** The Version of Crossplane to install. */
+  version?: InputMaybe<Scalars['String']['input']>;
 };
 
-/**
- * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
- * or a value for non-objects such as user and group names.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects_Input = {
-  /**
-   * APIGroup holds the API group of the referenced subject.
-   * Defaults to "" for ServiceAccount subjects.
-   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-   */
-  apiGroup?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
-   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-   */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Name of the object being referenced. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
-   * the Authorizer should report an error.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings_Input = {
-  /**
-   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
-   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
-   */
-  roleRefs?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs_Input>>
-  >;
-  /**
-   * Subjects is a list of subjects that should be bound to the specified roles.
-   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
-   */
-  subjects?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects_Input>>
-  >;
-};
-
-/** DefaultProvider is the standard OIDC provider that is enabled for all ManagedControlPlaneV2 resources. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider_Input = {
-  /**
-   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
-   * These bindings refer to the standard OIDC provider. If empty, the standard OIDC provider is disabled.
-   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
-   */
-  roleBindings?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings_Input>>
-  >;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders';
-  /** ClientID is the client ID to use for the OIDC provider. */
-  clientID?: Maybe<Scalars['String']['output']>;
-  /** ExtraScopes is a list of extra scopes that should be requested from the OIDC provider. */
-  extraScopes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /**
-   * GroupsClaim is the claim in the OIDC token that contains the groups.
-   * If empty, the default claim "groups" will be used.
-   */
-  groupsClaim?: Maybe<Scalars['String']['output']>;
-  /**
-   * Issuer is the issuer URL of the OIDC provider.
-   * Must be a valid URL.
-   */
-  issuer?: Maybe<Scalars['String']['output']>;
-  /**
-   * Name is the name of the OIDC provider.
-   * May be used in k8s resources, therefore has to be a valid k8s name.
-   * It is also used (with a ':' suffix) as prefix in k8s resources referencing users or groups from this OIDC provider.
-   * E.g. if the name is 'example', the username 'alice' from this provider will be referenced as 'example:alice' in k8s resources.
-   * Must be unique among all OIDC providers configured in the same environment.
-   */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
-   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
-   */
-  roleBindings?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings>>
-  >;
-  /**
-   * UsernameClaim is the claim in the OIDC token that contains the username.
-   * If empty, the default claim "sub" will be used.
-   */
-  usernameClaim?: Maybe<Scalars['String']['output']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings';
-  /**
-   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
-   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
-   */
-  roleRefs?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs>>
-  >;
-  /**
-   * Subjects is a list of subjects that should be bound to the specified roles.
-   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
-   */
-  subjects?: Maybe<
-    Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects>>
-  >;
-};
-
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs';
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs_Input = {
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-/**
- * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
- * or a value for non-objects such as user and group names.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects';
-  /**
-   * APIGroup holds the API group of the referenced subject.
-   * Defaults to "" for ServiceAccount subjects.
-   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-   */
-  apiGroup?: Maybe<Scalars['String']['output']>;
-  /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
-   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-   */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Name of the object being referenced. */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
-   * the Authorizer should report an error.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-/**
- * Subject contains a reference to the object or user identities a role binding applies to.  This can either hold a direct API object reference,
- * or a value for non-objects such as user and group names.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects_Input = {
-  /**
-   * APIGroup holds the API group of the referenced subject.
-   * Defaults to "" for ServiceAccount subjects.
-   * Defaults to "rbac.authorization.k8s.io" for User and Group subjects.
-   */
-  apiGroup?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Kind of object being referenced. Values defined by this API group are "User", "Group", and "ServiceAccount".
-   * If the Authorizer does not recognized the kind value, the Authorizer should report an error.
-   */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Name of the object being referenced. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace of the referenced object.  If the object kind is non-namespace, such as "User" or "Group", and this value is not empty
-   * the Authorizer should report an error.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings_Input = {
-  /**
-   * RoleRefs is a list of (cluster) role references that the subjects should be bound to.
-   * Note that existence of the roles is not checked and missing (cluster) roles will result in ineffective (cluster) role bindings.
-   */
-  roleRefs?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs_Input>>
-  >;
-  /**
-   * Subjects is a list of subjects that should be bound to the specified roles.
-   * The subjects' names will be prefixed with the username prefix of the OIDC provider.
-   */
-  subjects?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects_Input>>
-  >;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders_Input = {
-  /** ClientID is the client ID to use for the OIDC provider. */
-  clientID?: InputMaybe<Scalars['String']['input']>;
-  /** ExtraScopes is a list of extra scopes that should be requested from the OIDC provider. */
-  extraScopes?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /**
-   * GroupsClaim is the claim in the OIDC token that contains the groups.
-   * If empty, the default claim "groups" will be used.
-   */
-  groupsClaim?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Issuer is the issuer URL of the OIDC provider.
-   * Must be a valid URL.
-   */
-  issuer?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Name is the name of the OIDC provider.
-   * May be used in k8s resources, therefore has to be a valid k8s name.
-   * It is also used (with a ':' suffix) as prefix in k8s resources referencing users or groups from this OIDC provider.
-   * E.g. if the name is 'example', the username 'alice' from this provider will be referenced as 'example:alice' in k8s resources.
-   * Must be unique among all OIDC providers configured in the same environment.
-   */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * RoleBindings is a list of subjects with (cluster) role bindings that should be created for them.
-   * Note that the username prefix is added automatically to the subjects' names, it must not be explicitly specified here.
-   */
-  roleBindings?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings_Input>>
-  >;
-  /**
-   * UsernameClaim is the claim in the OIDC token that contains the username.
-   * If empty, the default claim "sub" will be used.
-   */
-  usernameClaim?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** OIDC is the OIDC-based access configuration. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc_Input = {
-  /** DefaultProvider is the standard OIDC provider that is enabled for all ManagedControlPlaneV2 resources. */
-  defaultProvider?: InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider_Input>;
-  /**
-   * ExtraProviders is a list of OIDC providers that should be configured for the ManagedControlPlaneV2.
-   * They are independent of the standard OIDC provider and in addition to it, unless it has been disabled by not specifying any role bindings.
-   */
-  extraProviders?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders_Input>>
-  >;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens';
-  /**
-   * Name is the name of this token configuration.
-   * It is used to generate a secret name and must be unique among all token configurations in the same ManagedControlPlaneV2.
-   */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Permissions are the requested permissions.
-   * If not empty, corresponding Roles and ClusterRoles will be created in the target cluster.
-   * The created serviceaccount will be bound to the created Roles and ClusterRoles.
-   */
-  permissions?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions>>>;
-  /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
-  roleRefs?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs>>>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions';
-  /**
-   * Name is an optional name for the (Cluster)Role that will be created for the requested permissions.
-   * If not set, a randomized name that is unique in the cluster will be generated.
-   * Note that the AccessRequest will not be granted if the to-be-created (Cluster)Role already exists, but is not managed by the AccessRequest, so choose this name carefully.
-   */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace is the namespace for which the permissions are requested.
-   * If empty, this will result in a ClusterRole, otherwise in a Role in the respective namespace.
-   * Note that for a Role, the namespace needs to either exist or a permission to create it must be included in the requested permissions (it will be created automatically then), otherwise the request will be rejected.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
-  /** Rules are the requested RBAC rules. */
-  rules?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules>>>;
-};
-
-/**
- * PolicyRule holds information that describes a policy rule, but does not contain information
- * about who the rule applies to or which namespace the rule applies to.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules';
-  /**
-   * APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
-   * the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-   */
-  apiGroups?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /**
-   * NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
-   * Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
-   * Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-   */
-  nonResourceURLs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
-  resourceNames?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** Resources is a list of resources this rule applies to. '*' represents all resources. */
-  resources?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
-  verbs?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-};
-
-/**
- * PolicyRule holds information that describes a policy rule, but does not contain information
- * about who the rule applies to or which namespace the rule applies to.
- */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules_Input = {
-  /**
-   * APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
-   * the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
-   */
-  apiGroups?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /**
-   * NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
-   * Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
-   * Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
-   */
-  nonResourceURLs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
-  resourceNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Resources is a list of resources this rule applies to. '*' represents all resources. */
-  resources?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  /** Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
-  verbs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions_Input = {
-  /**
-   * Name is an optional name for the (Cluster)Role that will be created for the requested permissions.
-   * If not set, a randomized name that is unique in the cluster will be generated.
-   * Note that the AccessRequest will not be granted if the to-be-created (Cluster)Role already exists, but is not managed by the AccessRequest, so choose this name carefully.
-   */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace is the namespace for which the permissions are requested.
-   * If empty, this will result in a ClusterRole, otherwise in a Role in the respective namespace.
-   * Note that for a Role, the namespace needs to either exist or a permission to create it must be included in the requested permissions (it will be created automatically then), otherwise the request will be rejected.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  /** Rules are the requested RBAC rules. */
-  rules?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules_Input>>
-  >;
-};
-
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs';
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
-  name?: Maybe<Scalars['String']['output']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: Maybe<Scalars['String']['output']>;
-};
-
-/** RoleRef defines a reference to a (cluster) role that should be bound to the subjects. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs_Input = {
-  /**
-   * Kind is the kind of the role to bind to the subjects.
-   * It must be 'Role' or 'ClusterRole'.
-   */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Name is the name of the role or cluster role to bind to the subjects. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Namespace is the namespace of the role to bind to the subjects.
-   * It must be set if the kind is 'Role' and may not be set if the kind is 'ClusterRole'.
-   */
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens_Input = {
-  /**
-   * Name is the name of this token configuration.
-   * It is used to generate a secret name and must be unique among all token configurations in the same ManagedControlPlaneV2.
-   */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Permissions are the requested permissions.
-   * If not empty, corresponding Roles and ClusterRoles will be created in the target cluster.
-   * The created serviceaccount will be bound to the created Roles and ClusterRoles.
-   */
-  permissions?: InputMaybe<
-    Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions_Input>>
-  >;
-  /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
-  roleRefs?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs_Input>>>;
-};
-
-/** IAM contains the access management configuration for the ManagedControlPlaneV2. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam_Input = {
-  /** OIDC is the OIDC-based access configuration. */
-  oidc?: InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc_Input>;
-  /** Tokens is a list of token-based access configurations. */
-  tokens?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens_Input>>>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec_Input = {
-  /** IAM contains the access management configuration for the ManagedControlPlaneV2. */
-  iam?: InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam_Input>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status';
-  /**
-   * Access is a mapping from OIDC provider names to secret references.
-   * Each referenced secret is expected to contain a 'kubeconfig' key with the kubeconfig that was generated for the respective OIDC provider for the ManagedControlPlaneV2.
-   * The default OIDC provider, if configured, uses the name "default" in this mapping.
-   * The "default" key is also used if the ClusterProvider does not support OIDC-based access and created a serviceaccount with a token instead.
-   */
-  access?: Maybe<Scalars['JSONString']['output']>;
+/** status defines the observed state of Crossplane */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus';
   /** Conditions contains the conditions. */
-  conditions?: Maybe<Array<Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions>>>;
+  conditions?: Maybe<Array<Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
@@ -6976,8 +7202,8 @@ export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions';
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -7009,233 +7235,7 @@ export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions_Input = {
-  /**
-   * lastTransitionTime is the last time the condition transitioned from one status to another.
-   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-   */
-  lastTransitionTime?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * message is a human readable message indicating details about the transition.
-   * This may be an empty string.
-   */
-  message?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * observedGeneration represents the .metadata.generation that the condition was set based upon.
-   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-   * with respect to the current state of the instance.
-   */
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
-  /**
-   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-   * Producers of specific condition types may define expected values and meanings for this field,
-   * and whether the values are considered a guaranteed API.
-   * The value should be a CamelCase string.
-   * This field may not be empty.
-   */
-  reason?: InputMaybe<Scalars['String']['input']>;
-  /** status of the condition, one of True, False, Unknown. */
-  status?: InputMaybe<Scalars['String']['input']>;
-  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
-  type?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status_Input = {
-  /**
-   * Access is a mapping from OIDC provider names to secret references.
-   * Each referenced secret is expected to contain a 'kubeconfig' key with the kubeconfig that was generated for the respective OIDC provider for the ManagedControlPlaneV2.
-   * The default OIDC provider, if configured, uses the name "default" in this mapping.
-   * The "default" key is also used if the ClusterProvider does not support OIDC-based access and created a serviceaccount with a token instead.
-   */
-  access?: InputMaybe<Scalars['JSONString']['input']>;
-  /** Conditions contains the conditions. */
-  conditions?: InputMaybe<Array<InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions_Input>>>;
-  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
-  observedGeneration?: InputMaybe<Scalars['Int']['input']>;
-  /** Phase is the current phase of the resource. */
-  phase?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input = {
-  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
-  apiVersion?: InputMaybe<Scalars['String']['input']>;
-  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
-  kind?: InputMaybe<Scalars['String']['input']>;
-  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
-  metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
-  spec?: InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec_Input>;
-  status?: InputMaybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status_Input>;
-};
-
-export type CoreOpenmcpCloudV2alpha1Mutation = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1Mutation';
-  createManagedControlPlaneV2?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2>;
-  deleteManagedControlPlaneV2?: Maybe<Scalars['Boolean']['output']>;
-  updateManagedControlPlaneV2?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2>;
-};
-
-export type CoreOpenmcpCloudV2alpha1MutationCreateManagedControlPlaneV2Args = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input;
-};
-
-export type CoreOpenmcpCloudV2alpha1MutationDeleteManagedControlPlaneV2Args = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1MutationUpdateManagedControlPlaneV2Args = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input;
-};
-
-export type CoreOpenmcpCloudV2alpha1Query = {
-  __typename?: 'CoreOpenmcpCloudV2alpha1Query';
-  ManagedControlPlaneV2: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2;
-  ManagedControlPlaneV2Yaml: Scalars['String']['output'];
-  ManagedControlPlaneV2s: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2List;
-};
-
-export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2Args = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2YamlArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoreOpenmcpCloudV2alpha1QueryManagedControlPlaneV2sArgs = {
-  continue?: InputMaybe<Scalars['String']['input']>;
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CrossplaneServicesOpenmcpCloudMutation = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Mutation>;
-};
-
-export type CrossplaneServicesOpenmcpCloudQuery = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Query>;
-};
-
-export type CrossplaneServicesOpenmcpCloudV1alpha1Crossplane = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane';
-  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
-  apiVersion?: Maybe<Scalars['String']['output']>;
-  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
-  kind?: Maybe<Scalars['String']['output']>;
-  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
-  metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
-  /** spec defines the desired state of Crossplane */
-  spec?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec>;
-  /** status defines the observed state of Crossplane */
-  status?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus>;
-};
-
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneEvent = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneEvent';
-  object?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Crossplane>;
-  type: WatchEventType;
-};
-
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneList = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneList';
-  continue?: Maybe<Scalars['String']['output']>;
-  items: Array<CrossplaneServicesOpenmcpCloudV1alpha1Crossplane>;
-  remainingItemCount?: Maybe<Scalars['Int']['output']>;
-  resourceVersion?: Maybe<Scalars['String']['output']>;
-};
-
-/** spec defines the desired state of Crossplane */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec';
-  /** List of Crossplane providers to be installed. */
-  providers?: Maybe<Array<Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders>>>;
-  /** The Version of Crossplane to install. */
-  version?: Maybe<Scalars['String']['output']>;
-};
-
-/** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders';
-  /** Name of the provider. */
-  name?: Maybe<Scalars['String']['output']>;
-  /** Version of the provider to install. */
-  version?: Maybe<Scalars['String']['output']>;
-};
-
-/** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders_Input = {
-  /** Name of the provider. */
-  name?: InputMaybe<Scalars['String']['input']>;
-  /** Version of the provider to install. */
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** spec defines the desired state of Crossplane */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec_Input = {
-  /** List of Crossplane providers to be installed. */
-  providers?: InputMaybe<Array<InputMaybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders_Input>>>;
-  /** The Version of Crossplane to install. */
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** status defines the observed state of Crossplane */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus';
-  /** Conditions contains the conditions. */
-  conditions?: Maybe<Array<Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions>>>;
-  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
-  /** Phase is the current phase of the resource. */
-  phase?: Maybe<Scalars['String']['output']>;
-};
-
-/** Condition contains details for one aspect of the current state of this API Resource. */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions';
-  /**
-   * lastTransitionTime is the last time the condition transitioned from one status to another.
-   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-   */
-  lastTransitionTime?: Maybe<Scalars['String']['output']>;
-  /**
-   * message is a human readable message indicating details about the transition.
-   * This may be an empty string.
-   */
-  message?: Maybe<Scalars['String']['output']>;
-  /**
-   * observedGeneration represents the .metadata.generation that the condition was set based upon.
-   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-   * with respect to the current state of the instance.
-   */
-  observedGeneration?: Maybe<Scalars['Int']['output']>;
-  /**
-   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
-   * Producers of specific condition types may define expected values and meanings for this field,
-   * and whether the values are considered a guaranteed API.
-   * The value should be a CamelCase string.
-   * This field may not be empty.
-   */
-  reason?: Maybe<Scalars['String']['output']>;
-  /** status of the condition, one of True, False, Unknown. */
-  status?: Maybe<Scalars['String']['output']>;
-  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-/** Condition contains details for one aspect of the current state of this API Resource. */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions_Input = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -7267,16 +7267,18 @@ export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions_Inp
 };
 
 /** status defines the observed state of Crossplane */
-export type CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus_Input = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus_Input = {
   /** Conditions contains the conditions. */
-  conditions?: InputMaybe<Array<InputMaybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions_Input>>>;
+  conditions?: InputMaybe<
+    Array<InputMaybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions_Input>>
+  >;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
   phase?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -7284,55 +7286,55 @@ export type CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of Crossplane */
-  spec?: InputMaybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec_Input>;
+  spec?: InputMaybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec_Input>;
   /** status defines the observed state of Crossplane */
-  status?: InputMaybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus_Input>;
+  status?: InputMaybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus_Input>;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Mutation';
-  createCrossplane?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Crossplane>;
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation';
+  createCrossplane?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane>;
   deleteCrossplane?: Maybe<Scalars['Boolean']['output']>;
-  updateCrossplane?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1Crossplane>;
+  updateCrossplane?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane>;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1MutationCreateCrossplaneArgs = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1MutationCreateCrossplaneArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input;
+  object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1MutationDeleteCrossplaneArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CrossplaneServicesOpenmcpCloudV1alpha1MutationUpdateCrossplaneArgs = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1MutationDeleteCrossplaneArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Query';
-  Crossplane: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane;
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1MutationUpdateCrossplaneArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input;
+};
+
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Query';
+  Crossplane: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane;
   CrossplaneYaml: Scalars['String']['output'];
-  Crossplanes: CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneList;
+  Crossplanes: CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneList;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplaneArgs = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1QueryCrossplaneArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplaneYamlArgs = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1QueryCrossplaneYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CrossplaneServicesOpenmcpCloudV1alpha1QueryCrossplanesArgs = {
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1QueryCrossplanesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8044,18 +8046,18 @@ export type EventsK8sIoV1QueryEventsArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudMutation = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation>;
+export type ExternalSecretsServicesOpenControlPlaneIoMutation = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudQuery = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1Query>;
+export type ExternalSecretsServicesOpenControlPlaneIoQuery = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1Query>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -8063,54 +8065,58 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator =
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** spec defines the desired state of ExternalSecretsOperator */
-  spec?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec>;
+  spec?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec>;
   /** status defines the observed state of ExternalSecretsOperator */
-  status?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus>;
+  status?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorEvent = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorEvent';
-  object?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator>;
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorEvent = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorEvent';
+  object?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator>;
   type: WatchEventType;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorList = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorList';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorList = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator>;
+  items: Array<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of ExternalSecretsOperator */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec';
   /** Version is the external-secrets Helm chart version to install. */
   version?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of ExternalSecretsOperator */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec_Input = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec_Input = {
   /** Version is the external-secrets Helm chart version to install. */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** status defines the observed state of ExternalSecretsOperator */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus';
   /** Conditions contains the conditions. */
-  conditions?: Maybe<Array<Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions>>>;
+  conditions?: Maybe<
+    Array<Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions>>
+  >;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
   phase?: Maybe<Scalars['String']['output']>;
   /** Resources managed by this External Secrets Operator instance */
-  resources?: Maybe<Array<Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusResources>>>;
+  resources?: Maybe<
+    Array<Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusResources>>
+  >;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -8142,7 +8148,7 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSt
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions_Input = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -8174,8 +8180,8 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSt
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusResources = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusResources';
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusResources = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusResources';
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -8200,7 +8206,7 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSt
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusResources_Input = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusResources_Input = {
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -8225,10 +8231,10 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSt
 };
 
 /** status defines the observed state of ExternalSecretsOperator */
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus_Input = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus_Input = {
   /** Conditions contains the conditions. */
   conditions?: InputMaybe<
-    Array<InputMaybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions_Input>>
+    Array<InputMaybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions_Input>>
   >;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
@@ -8236,11 +8242,11 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSt
   phase?: InputMaybe<Scalars['String']['input']>;
   /** Resources managed by this External Secrets Operator instance */
   resources?: InputMaybe<
-    Array<InputMaybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusResources_Input>>
+    Array<InputMaybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusResources_Input>>
   >;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -8248,55 +8254,55 @@ export type ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_I
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of ExternalSecretsOperator */
-  spec?: InputMaybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec_Input>;
+  spec?: InputMaybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec_Input>;
   /** status defines the observed state of ExternalSecretsOperator */
-  status?: InputMaybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus_Input>;
+  status?: InputMaybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus_Input>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation';
-  createExternalSecretsOperator?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator>;
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation';
+  createExternalSecretsOperator?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator>;
   deleteExternalSecretsOperator?: Maybe<Scalars['Boolean']['output']>;
-  updateExternalSecretsOperator?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator>;
+  updateExternalSecretsOperator?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1MutationCreateExternalSecretsOperatorArgs = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1MutationCreateExternalSecretsOperatorArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input;
+  object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1MutationDeleteExternalSecretsOperatorArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1MutationUpdateExternalSecretsOperatorArgs = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1MutationDeleteExternalSecretsOperatorArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Query';
-  ExternalSecretsOperator: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator;
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1MutationUpdateExternalSecretsOperatorArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input;
+};
+
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Query';
+  ExternalSecretsOperator: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator;
   ExternalSecretsOperatorYaml: Scalars['String']['output'];
-  ExternalSecretsOperators: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorList;
+  ExternalSecretsOperators: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorList;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1QueryExternalSecretsOperatorArgs = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1QueryExternalSecretsOperatorArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1QueryExternalSecretsOperatorYamlArgs = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1QueryExternalSecretsOperatorYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type ExternalSecretsServicesOpenmcpCloudV1alpha1QueryExternalSecretsOperatorsArgs = {
+export type ExternalSecretsServicesOpenControlPlaneIoV1alpha1QueryExternalSecretsOperatorsArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8656,18 +8662,18 @@ export type FlowcontrolApiserverK8sIoV1QueryPriorityLevelConfigurationsArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type FluxServicesOpenmcpCloudMutation = {
-  __typename?: 'FluxServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<FluxServicesOpenmcpCloudV1alpha1Mutation>;
+export type FluxServicesOpenControlPlaneIoMutation = {
+  __typename?: 'FluxServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1Mutation>;
 };
 
-export type FluxServicesOpenmcpCloudQuery = {
-  __typename?: 'FluxServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<FluxServicesOpenmcpCloudV1alpha1Query>;
+export type FluxServicesOpenControlPlaneIoQuery = {
+  __typename?: 'FluxServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1Query>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1Flux = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1Flux';
+export type FluxServicesOpenControlPlaneIoV1alpha1Flux = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Flux';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -8675,41 +8681,41 @@ export type FluxServicesOpenmcpCloudV1alpha1Flux = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** spec defines the desired state of Flux */
-  spec?: Maybe<FluxServicesOpenmcpCloudV1alpha1FluxSpec>;
+  spec?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxSpec>;
   /** status defines the observed state of Flux */
-  status?: Maybe<FluxServicesOpenmcpCloudV1alpha1FluxStatus>;
+  status?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatus>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1FluxEvent = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxEvent';
-  object?: Maybe<FluxServicesOpenmcpCloudV1alpha1Flux>;
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxEvent = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxEvent';
+  object?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1Flux>;
   type: WatchEventType;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1FluxList = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxList';
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxList = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<FluxServicesOpenmcpCloudV1alpha1Flux>;
+  items: Array<FluxServicesOpenControlPlaneIoV1alpha1Flux>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of Flux */
-export type FluxServicesOpenmcpCloudV1alpha1FluxSpec = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxSpec';
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxSpec = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxSpec';
   /** Version is the Flux version to install. */
   version?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of Flux */
-export type FluxServicesOpenmcpCloudV1alpha1FluxSpec_Input = {
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxSpec_Input = {
   /** Version is the Flux version to install. */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** status defines the observed state of Flux */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatus = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxStatus';
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxStatus';
   /**
    * conditions represent the current state of the Flux resource.
    * Each condition has a unique type and reflects the status of a specific aspect of the resource.
@@ -8721,18 +8727,18 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatus = {
    *
    * The status of each condition is one of True, False, or Unknown.
    */
-  conditions?: Maybe<Array<Maybe<FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions>>>;
+  conditions?: Maybe<Array<Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
   phase?: Maybe<Scalars['String']['output']>;
   /** Resources managed by this Flux instance */
-  resources?: Maybe<Array<Maybe<FluxServicesOpenmcpCloudV1alpha1FluxStatusResources>>>;
+  resources?: Maybe<Array<Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources>>>;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions';
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -8764,7 +8770,7 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions_Input = {
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -8796,8 +8802,8 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions_Input = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatusResources = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxStatusResources';
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources';
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -8822,7 +8828,7 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatusResources = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatusResources_Input = {
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input = {
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -8847,7 +8853,7 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatusResources_Input = {
 };
 
 /** status defines the observed state of Flux */
-export type FluxServicesOpenmcpCloudV1alpha1FluxStatus_Input = {
+export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input = {
   /**
    * conditions represent the current state of the Flux resource.
    * Each condition has a unique type and reflects the status of a specific aspect of the resource.
@@ -8859,16 +8865,16 @@ export type FluxServicesOpenmcpCloudV1alpha1FluxStatus_Input = {
    *
    * The status of each condition is one of True, False, or Unknown.
    */
-  conditions?: InputMaybe<Array<InputMaybe<FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions_Input>>>;
+  conditions?: InputMaybe<Array<InputMaybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
   phase?: InputMaybe<Scalars['String']['input']>;
   /** Resources managed by this Flux instance */
-  resources?: InputMaybe<Array<InputMaybe<FluxServicesOpenmcpCloudV1alpha1FluxStatusResources_Input>>>;
+  resources?: InputMaybe<Array<InputMaybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input>>>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1Flux_Input = {
+export type FluxServicesOpenControlPlaneIoV1alpha1Flux_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -8876,55 +8882,55 @@ export type FluxServicesOpenmcpCloudV1alpha1Flux_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of Flux */
-  spec?: InputMaybe<FluxServicesOpenmcpCloudV1alpha1FluxSpec_Input>;
+  spec?: InputMaybe<FluxServicesOpenControlPlaneIoV1alpha1FluxSpec_Input>;
   /** status defines the observed state of Flux */
-  status?: InputMaybe<FluxServicesOpenmcpCloudV1alpha1FluxStatus_Input>;
+  status?: InputMaybe<FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1Mutation';
-  createFlux?: Maybe<FluxServicesOpenmcpCloudV1alpha1Flux>;
+export type FluxServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Mutation';
+  createFlux?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1Flux>;
   deleteFlux?: Maybe<Scalars['Boolean']['output']>;
-  updateFlux?: Maybe<FluxServicesOpenmcpCloudV1alpha1Flux>;
+  updateFlux?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1Flux>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1MutationCreateFluxArgs = {
+export type FluxServicesOpenControlPlaneIoV1alpha1MutationCreateFluxArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: FluxServicesOpenmcpCloudV1alpha1Flux_Input;
+  object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1MutationDeleteFluxArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type FluxServicesOpenmcpCloudV1alpha1MutationUpdateFluxArgs = {
+export type FluxServicesOpenControlPlaneIoV1alpha1MutationDeleteFluxArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: FluxServicesOpenmcpCloudV1alpha1Flux_Input;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'FluxServicesOpenmcpCloudV1alpha1Query';
-  Flux: FluxServicesOpenmcpCloudV1alpha1Flux;
+export type FluxServicesOpenControlPlaneIoV1alpha1MutationUpdateFluxArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input;
+};
+
+export type FluxServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Query';
+  Flux: FluxServicesOpenControlPlaneIoV1alpha1Flux;
   FluxYaml: Scalars['String']['output'];
-  Fluxes: FluxServicesOpenmcpCloudV1alpha1FluxList;
+  Fluxes: FluxServicesOpenControlPlaneIoV1alpha1FluxList;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1QueryFluxArgs = {
+export type FluxServicesOpenControlPlaneIoV1alpha1QueryFluxArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1QueryFluxYamlArgs = {
+export type FluxServicesOpenControlPlaneIoV1alpha1QueryFluxYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type FluxServicesOpenmcpCloudV1alpha1QueryFluxesArgs = {
+export type FluxServicesOpenControlPlaneIoV1alpha1QueryFluxesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9840,18 +9846,18 @@ export type KroRunV1alpha1ResourceGraphDefinition_Input = {
   status?: InputMaybe<KroRunV1alpha1ResourceGraphDefinitionStatus_Input>;
 };
 
-export type KroServicesOpenmcpCloudMutation = {
-  __typename?: 'KroServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<KroServicesOpenmcpCloudV1alpha1Mutation>;
+export type KroServicesOpenControlPlaneIoMutation = {
+  __typename?: 'KroServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<KroServicesOpenControlPlaneIoV1alpha1Mutation>;
 };
 
-export type KroServicesOpenmcpCloudQuery = {
-  __typename?: 'KroServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<KroServicesOpenmcpCloudV1alpha1Query>;
+export type KroServicesOpenControlPlaneIoQuery = {
+  __typename?: 'KroServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<KroServicesOpenControlPlaneIoV1alpha1Query>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1Kro = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1Kro';
+export type KroServicesOpenControlPlaneIoV1alpha1Kro = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1Kro';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -9859,54 +9865,54 @@ export type KroServicesOpenmcpCloudV1alpha1Kro = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** spec defines the desired state of Kro */
-  spec?: Maybe<KroServicesOpenmcpCloudV1alpha1KroSpec>;
+  spec?: Maybe<KroServicesOpenControlPlaneIoV1alpha1KroSpec>;
   /** status defines the observed state of Kro */
-  status?: Maybe<KroServicesOpenmcpCloudV1alpha1KroStatus>;
+  status?: Maybe<KroServicesOpenControlPlaneIoV1alpha1KroStatus>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1KroEvent = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroEvent';
-  object?: Maybe<KroServicesOpenmcpCloudV1alpha1Kro>;
+export type KroServicesOpenControlPlaneIoV1alpha1KroEvent = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroEvent';
+  object?: Maybe<KroServicesOpenControlPlaneIoV1alpha1Kro>;
   type: WatchEventType;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1KroList = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroList';
+export type KroServicesOpenControlPlaneIoV1alpha1KroList = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<KroServicesOpenmcpCloudV1alpha1Kro>;
+  items: Array<KroServicesOpenControlPlaneIoV1alpha1Kro>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of Kro */
-export type KroServicesOpenmcpCloudV1alpha1KroSpec = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroSpec';
+export type KroServicesOpenControlPlaneIoV1alpha1KroSpec = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroSpec';
   /** Version is the version of the controller to install */
   version?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of Kro */
-export type KroServicesOpenmcpCloudV1alpha1KroSpec_Input = {
+export type KroServicesOpenControlPlaneIoV1alpha1KroSpec_Input = {
   /** Version is the version of the controller to install */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** status defines the observed state of Kro */
-export type KroServicesOpenmcpCloudV1alpha1KroStatus = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroStatus';
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatus = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroStatus';
   /** Conditions contains the conditions. */
-  conditions?: Maybe<Array<Maybe<KroServicesOpenmcpCloudV1alpha1KroStatusConditions>>>;
+  conditions?: Maybe<Array<Maybe<KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
   phase?: Maybe<Scalars['String']['output']>;
   /** Resources managed by this service provider Kro instance. */
-  resources?: Maybe<Array<Maybe<KroServicesOpenmcpCloudV1alpha1KroStatusResources>>>;
+  resources?: Maybe<Array<Maybe<KroServicesOpenControlPlaneIoV1alpha1KroStatusResources>>>;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type KroServicesOpenmcpCloudV1alpha1KroStatusConditions = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroStatusConditions';
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -9938,7 +9944,7 @@ export type KroServicesOpenmcpCloudV1alpha1KroStatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type KroServicesOpenmcpCloudV1alpha1KroStatusConditions_Input = {
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -9970,8 +9976,8 @@ export type KroServicesOpenmcpCloudV1alpha1KroStatusConditions_Input = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase. */
-export type KroServicesOpenmcpCloudV1alpha1KroStatusResources = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1KroStatusResources';
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusResources = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1KroStatusResources';
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -9996,7 +10002,7 @@ export type KroServicesOpenmcpCloudV1alpha1KroStatusResources = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase. */
-export type KroServicesOpenmcpCloudV1alpha1KroStatusResources_Input = {
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatusResources_Input = {
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -10021,18 +10027,18 @@ export type KroServicesOpenmcpCloudV1alpha1KroStatusResources_Input = {
 };
 
 /** status defines the observed state of Kro */
-export type KroServicesOpenmcpCloudV1alpha1KroStatus_Input = {
+export type KroServicesOpenControlPlaneIoV1alpha1KroStatus_Input = {
   /** Conditions contains the conditions. */
-  conditions?: InputMaybe<Array<InputMaybe<KroServicesOpenmcpCloudV1alpha1KroStatusConditions_Input>>>;
+  conditions?: InputMaybe<Array<InputMaybe<KroServicesOpenControlPlaneIoV1alpha1KroStatusConditions_Input>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
   phase?: InputMaybe<Scalars['String']['input']>;
   /** Resources managed by this service provider Kro instance. */
-  resources?: InputMaybe<Array<InputMaybe<KroServicesOpenmcpCloudV1alpha1KroStatusResources_Input>>>;
+  resources?: InputMaybe<Array<InputMaybe<KroServicesOpenControlPlaneIoV1alpha1KroStatusResources_Input>>>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1Kro_Input = {
+export type KroServicesOpenControlPlaneIoV1alpha1Kro_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -10040,55 +10046,55 @@ export type KroServicesOpenmcpCloudV1alpha1Kro_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of Kro */
-  spec?: InputMaybe<KroServicesOpenmcpCloudV1alpha1KroSpec_Input>;
+  spec?: InputMaybe<KroServicesOpenControlPlaneIoV1alpha1KroSpec_Input>;
   /** status defines the observed state of Kro */
-  status?: InputMaybe<KroServicesOpenmcpCloudV1alpha1KroStatus_Input>;
+  status?: InputMaybe<KroServicesOpenControlPlaneIoV1alpha1KroStatus_Input>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1Mutation';
-  createKro?: Maybe<KroServicesOpenmcpCloudV1alpha1Kro>;
+export type KroServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1Mutation';
+  createKro?: Maybe<KroServicesOpenControlPlaneIoV1alpha1Kro>;
   deleteKro?: Maybe<Scalars['Boolean']['output']>;
-  updateKro?: Maybe<KroServicesOpenmcpCloudV1alpha1Kro>;
+  updateKro?: Maybe<KroServicesOpenControlPlaneIoV1alpha1Kro>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1MutationCreateKroArgs = {
+export type KroServicesOpenControlPlaneIoV1alpha1MutationCreateKroArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: KroServicesOpenmcpCloudV1alpha1Kro_Input;
+  object: KroServicesOpenControlPlaneIoV1alpha1Kro_Input;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1MutationDeleteKroArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type KroServicesOpenmcpCloudV1alpha1MutationUpdateKroArgs = {
+export type KroServicesOpenControlPlaneIoV1alpha1MutationDeleteKroArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: KroServicesOpenmcpCloudV1alpha1Kro_Input;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'KroServicesOpenmcpCloudV1alpha1Query';
-  Kro: KroServicesOpenmcpCloudV1alpha1Kro;
+export type KroServicesOpenControlPlaneIoV1alpha1MutationUpdateKroArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: KroServicesOpenControlPlaneIoV1alpha1Kro_Input;
+};
+
+export type KroServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'KroServicesOpenControlPlaneIoV1alpha1Query';
+  Kro: KroServicesOpenControlPlaneIoV1alpha1Kro;
   KroYaml: Scalars['String']['output'];
-  Kroes: KroServicesOpenmcpCloudV1alpha1KroList;
+  Kroes: KroServicesOpenControlPlaneIoV1alpha1KroList;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1QueryKroArgs = {
+export type KroServicesOpenControlPlaneIoV1alpha1QueryKroArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1QueryKroYamlArgs = {
+export type KroServicesOpenControlPlaneIoV1alpha1QueryKroYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type KroServicesOpenmcpCloudV1alpha1QueryKroesArgs = {
+export type KroServicesOpenControlPlaneIoV1alpha1QueryKroesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10096,18 +10102,18 @@ export type KroServicesOpenmcpCloudV1alpha1QueryKroesArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperServicesOpenmcpCloudMutation = {
-  __typename?: 'LandscaperServicesOpenmcpCloudMutation';
-  v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Mutation>;
+export type LandscaperServicesOpenControlPlaneIoMutation = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoMutation';
+  v1alpha2?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2Mutation>;
 };
 
-export type LandscaperServicesOpenmcpCloudQuery = {
-  __typename?: 'LandscaperServicesOpenmcpCloudQuery';
-  v1alpha2?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Query>;
+export type LandscaperServicesOpenControlPlaneIoQuery = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoQuery';
+  v1alpha2?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2Query>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -10115,33 +10121,33 @@ export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** LandscaperSpec defines the desired state of Landscaper. */
-  spec?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec>;
+  spec?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec>;
   /** LandscaperStatus defines the observed state of Landscaper. */
-  status?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus>;
+  status?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent';
-  object?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperEvent = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperEvent';
+  object?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper>;
   type: WatchEventType;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperList = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperList';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperList = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  items: Array<LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** LandscaperSpec defines the desired state of Landscaper. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec';
   /**
    * ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance should use.
    * If not specified, the controller will use the default ProviderConfig in the cluster.
    */
-  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRef>;
+  providerConfigRef?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef>;
   /** Version is the version of the Landscaper instance to deploy. */
   version?: Maybe<Scalars['String']['output']>;
 };
@@ -10150,8 +10156,8 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec = {
  * ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance should use.
  * If not specified, the controller will use the default ProviderConfig in the cluster.
  */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRef = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRef';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef';
   /**
    * Name of the referent.
    * This field is effectively required, but due to backwards compatibility is
@@ -10166,7 +10172,7 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRe
  * ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance should use.
  * If not specified, the controller will use the default ProviderConfig in the cluster.
  */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRef_Input = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input = {
   /**
    * Name of the referent.
    * This field is effectively required, but due to backwards compatibility is
@@ -10178,31 +10184,31 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRe
 };
 
 /** LandscaperSpec defines the desired state of Landscaper. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec_Input = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec_Input = {
   /**
    * ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance should use.
    * If not specified, the controller will use the default ProviderConfig in the cluster.
    */
-  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpecProviderConfigRef_Input>;
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input>;
   /** Version is the version of the Landscaper instance to deploy. */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** LandscaperStatus defines the observed state of Landscaper. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus';
-  conditions?: Maybe<Array<Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions>>>;
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus';
+  conditions?: Maybe<Array<Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions>>>;
   /** ObservedGeneration is the last observed generation. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** The current phase of the Landscaper instance deployment. */
   phase?: Maybe<Scalars['String']['output']>;
   /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
-  providerConfigRef?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfigRef>;
+  providerConfigRef?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef>;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -10234,7 +10240,7 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions_Input = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -10266,8 +10272,8 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions_Inp
 };
 
 /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfigRef = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfigRef';
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef';
   /**
    * Name of the referent.
    * This field is effectively required, but due to backwards compatibility is
@@ -10279,7 +10285,7 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfig
 };
 
 /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfigRef_Input = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input = {
   /**
    * Name of the referent.
    * This field is effectively required, but due to backwards compatibility is
@@ -10291,17 +10297,19 @@ export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfig
 };
 
 /** LandscaperStatus defines the observed state of Landscaper. */
-export type LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus_Input = {
-  conditions?: InputMaybe<Array<InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions_Input>>>;
+export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input = {
+  conditions?: InputMaybe<
+    Array<InputMaybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions_Input>>
+  >;
   /** ObservedGeneration is the last observed generation. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** The current phase of the Landscaper instance deployment. */
   phase?: InputMaybe<Scalars['String']['input']>;
   /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
-  providerConfigRef?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusProviderConfigRef_Input>;
+  providerConfigRef?: InputMaybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -10309,55 +10317,55 @@ export type LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** LandscaperSpec defines the desired state of Landscaper. */
-  spec?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec_Input>;
+  spec?: InputMaybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec_Input>;
   /** LandscaperStatus defines the observed state of Landscaper. */
-  status?: InputMaybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus_Input>;
+  status?: InputMaybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2Mutation = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
-  createLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+export type LandscaperServicesOpenControlPlaneIoV1alpha2Mutation = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Mutation';
+  createLandscaper?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper>;
   deleteLandscaper?: Maybe<Scalars['Boolean']['output']>;
-  updateLandscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2Landscaper>;
+  updateLandscaper?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2MutationCreateLandscaperArgs = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2MutationCreateLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input;
+  object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2MutationDeleteLandscaperArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LandscaperServicesOpenmcpCloudV1alpha2MutationUpdateLandscaperArgs = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2MutationDeleteLandscaperArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2Query = {
-  __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Query';
-  Landscaper: LandscaperServicesOpenmcpCloudV1alpha2Landscaper;
+export type LandscaperServicesOpenControlPlaneIoV1alpha2MutationUpdateLandscaperArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input;
+};
+
+export type LandscaperServicesOpenControlPlaneIoV1alpha2Query = {
+  __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Query';
+  Landscaper: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper;
   LandscaperYaml: Scalars['String']['output'];
-  Landscapers: LandscaperServicesOpenmcpCloudV1alpha2LandscaperList;
+  Landscapers: LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperList;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscaperArgs = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2QueryLandscaperArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscaperYamlArgs = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2QueryLandscaperYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type LandscaperServicesOpenmcpCloudV1alpha2QueryLandscapersArgs = {
+export type LandscaperServicesOpenControlPlaneIoV1alpha2QueryLandscapersArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10378,21 +10386,22 @@ export type Mutation = {
   cert_gardener_cloud?: Maybe<CertGardenerCloudMutation>;
   certificates_k8s_io?: Maybe<CertificatesK8sIoMutation>;
   coordination_k8s_io?: Maybe<CoordinationK8sIoMutation>;
+  core_open_control_plane_io?: Maybe<CoreOpenControlPlaneIoMutation>;
   core_openmcp_cloud?: Maybe<CoreOpenmcpCloudMutation>;
-  crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudMutation>;
+  crossplane_services_open_control_plane_io?: Maybe<CrossplaneServicesOpenControlPlaneIoMutation>;
   discovery_k8s_io?: Maybe<DiscoveryK8sIoMutation>;
   dns_gardener_cloud?: Maybe<DnsGardenerCloudMutation>;
   events_k8s_io?: Maybe<EventsK8sIoMutation>;
-  external_secrets_services_openmcp_cloud?: Maybe<ExternalSecretsServicesOpenmcpCloudMutation>;
+  external_secrets_services_open_control_plane_io?: Maybe<ExternalSecretsServicesOpenControlPlaneIoMutation>;
   externaldns_k8s_io?: Maybe<ExternaldnsK8sIoMutation>;
   flowcontrol_apiserver_k8s_io?: Maybe<FlowcontrolApiserverK8sIoMutation>;
-  flux_services_openmcp_cloud?: Maybe<FluxServicesOpenmcpCloudMutation>;
+  flux_services_open_control_plane_io?: Maybe<FluxServicesOpenControlPlaneIoMutation>;
   kro_run?: Maybe<KroRunMutation>;
-  kro_services_openmcp_cloud?: Maybe<KroServicesOpenmcpCloudMutation>;
-  landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudMutation>;
+  kro_services_open_control_plane_io?: Maybe<KroServicesOpenControlPlaneIoMutation>;
+  landscaper_services_open_control_plane_io?: Maybe<LandscaperServicesOpenControlPlaneIoMutation>;
   networking_k8s_io?: Maybe<NetworkingK8sIoMutation>;
   node_k8s_io?: Maybe<NodeK8sIoMutation>;
-  ocm_services_openmcp_cloud?: Maybe<OcmServicesOpenmcpCloudMutation>;
+  ocm_services_open_control_plane_io?: Maybe<OcmServicesOpenControlPlaneIoMutation>;
   openmcp_cloud?: Maybe<OpenmcpCloudMutation>;
   rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoMutation>;
   scheduling_k8s_io?: Maybe<SchedulingK8sIoMutation>;
@@ -10400,7 +10409,7 @@ export type Mutation = {
   usage_openmcp_cloud?: Maybe<UsageOpenmcpCloudMutation>;
   v1?: Maybe<V1Mutation>;
   velero_io?: Maybe<VeleroIoMutation>;
-  velero_services_openmcp_cloud?: Maybe<VeleroServicesOpenmcpCloudMutation>;
+  velero_services_open_control_plane_io?: Maybe<VeleroServicesOpenControlPlaneIoMutation>;
 };
 
 export type MutationApplyYamlArgs = {
@@ -10921,44 +10930,44 @@ export type NodeK8sIoV1RuntimeClass_Input = {
   scheduling?: InputMaybe<Io_K8s_Api_Node_V1_SchedulingScheduling_Input>;
 };
 
-export type OcmServicesOpenmcpCloudMutation = {
-  __typename?: 'OcmServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<OcmServicesOpenmcpCloudV1alpha1Mutation>;
+export type OcmServicesOpenControlPlaneIoMutation = {
+  __typename?: 'OcmServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1Mutation>;
 };
 
-export type OcmServicesOpenmcpCloudQuery = {
-  __typename?: 'OcmServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<OcmServicesOpenmcpCloudV1alpha1Query>;
+export type OcmServicesOpenControlPlaneIoQuery = {
+  __typename?: 'OcmServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1Query>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1Mutation';
-  createOCM?: Maybe<OcmServicesOpenmcpCloudV1alpha1Ocm>;
+export type OcmServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1Mutation';
+  createOCM?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1Ocm>;
   deleteOCM?: Maybe<Scalars['Boolean']['output']>;
-  updateOCM?: Maybe<OcmServicesOpenmcpCloudV1alpha1Ocm>;
+  updateOCM?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1Ocm>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1MutationCreateOcmArgs = {
+export type OcmServicesOpenControlPlaneIoV1alpha1MutationCreateOcmArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: OcmServicesOpenmcpCloudV1alpha1Ocm_Input;
+  object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1MutationDeleteOcmArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type OcmServicesOpenmcpCloudV1alpha1MutationUpdateOcmArgs = {
+export type OcmServicesOpenControlPlaneIoV1alpha1MutationDeleteOcmArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: OcmServicesOpenmcpCloudV1alpha1Ocm_Input;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1Ocm = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCM';
+export type OcmServicesOpenControlPlaneIoV1alpha1MutationUpdateOcmArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input;
+};
+
+export type OcmServicesOpenControlPlaneIoV1alpha1Ocm = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCM';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -10966,41 +10975,41 @@ export type OcmServicesOpenmcpCloudV1alpha1Ocm = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** spec defines the desired state of OCM */
-  spec?: Maybe<OcmServicesOpenmcpCloudV1alpha1OcmSpec>;
+  spec?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmSpec>;
   /** status defines the observed state of OCM */
-  status?: Maybe<OcmServicesOpenmcpCloudV1alpha1OcmStatus>;
+  status?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatus>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1OcmEvent = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMEvent';
-  object?: Maybe<OcmServicesOpenmcpCloudV1alpha1Ocm>;
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmEvent = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMEvent';
+  object?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1Ocm>;
   type: WatchEventType;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1OcmList = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMList';
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmList = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<OcmServicesOpenmcpCloudV1alpha1Ocm>;
+  items: Array<OcmServicesOpenControlPlaneIoV1alpha1Ocm>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of OCM */
-export type OcmServicesOpenmcpCloudV1alpha1OcmSpec = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMSpec';
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmSpec = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMSpec';
   /** Version is the version of the controller to install. */
   version?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of OCM */
-export type OcmServicesOpenmcpCloudV1alpha1OcmSpec_Input = {
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmSpec_Input = {
   /** Version is the version of the controller to install. */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** status defines the observed state of OCM */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatus = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMStatus';
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatus = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMStatus';
   /**
    * conditions represent the current state of the OCM resource.
    * Each condition has a unique type and reflects the status of a specific aspect of the resource.
@@ -11012,18 +11021,18 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatus = {
    *
    * The status of each condition is one of True, False, or Unknown.
    */
-  conditions?: Maybe<Array<Maybe<OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions>>>;
+  conditions?: Maybe<Array<Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
   phase?: Maybe<Scalars['String']['output']>;
   /** Resources managed by this OCM instance. */
-  resources?: Maybe<Array<Maybe<OcmServicesOpenmcpCloudV1alpha1OcmStatusResources>>>;
+  resources?: Maybe<Array<Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources>>>;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMStatusConditions';
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -11055,7 +11064,7 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions_Input = {
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -11087,8 +11096,8 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions_Input = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase. */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatusResources = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1OCMStatusResources';
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1OCMStatusResources';
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -11113,7 +11122,7 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatusResources = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase. */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatusResources_Input = {
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources_Input = {
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -11138,7 +11147,7 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatusResources_Input = {
 };
 
 /** status defines the observed state of OCM */
-export type OcmServicesOpenmcpCloudV1alpha1OcmStatus_Input = {
+export type OcmServicesOpenControlPlaneIoV1alpha1OcmStatus_Input = {
   /**
    * conditions represent the current state of the OCM resource.
    * Each condition has a unique type and reflects the status of a specific aspect of the resource.
@@ -11150,16 +11159,16 @@ export type OcmServicesOpenmcpCloudV1alpha1OcmStatus_Input = {
    *
    * The status of each condition is one of True, False, or Unknown.
    */
-  conditions?: InputMaybe<Array<InputMaybe<OcmServicesOpenmcpCloudV1alpha1OcmStatusConditions_Input>>>;
+  conditions?: InputMaybe<Array<InputMaybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusConditions_Input>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
   phase?: InputMaybe<Scalars['String']['input']>;
   /** Resources managed by this OCM instance. */
-  resources?: InputMaybe<Array<InputMaybe<OcmServicesOpenmcpCloudV1alpha1OcmStatusResources_Input>>>;
+  resources?: InputMaybe<Array<InputMaybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatusResources_Input>>>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1Ocm_Input = {
+export type OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -11167,29 +11176,29 @@ export type OcmServicesOpenmcpCloudV1alpha1Ocm_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of OCM */
-  spec?: InputMaybe<OcmServicesOpenmcpCloudV1alpha1OcmSpec_Input>;
+  spec?: InputMaybe<OcmServicesOpenControlPlaneIoV1alpha1OcmSpec_Input>;
   /** status defines the observed state of OCM */
-  status?: InputMaybe<OcmServicesOpenmcpCloudV1alpha1OcmStatus_Input>;
+  status?: InputMaybe<OcmServicesOpenControlPlaneIoV1alpha1OcmStatus_Input>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'OcmServicesOpenmcpCloudV1alpha1Query';
-  OCM: OcmServicesOpenmcpCloudV1alpha1Ocm;
+export type OcmServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'OcmServicesOpenControlPlaneIoV1alpha1Query';
+  OCM: OcmServicesOpenControlPlaneIoV1alpha1Ocm;
   OCMYaml: Scalars['String']['output'];
-  OCMs: OcmServicesOpenmcpCloudV1alpha1OcmList;
+  OCMs: OcmServicesOpenControlPlaneIoV1alpha1OcmList;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1QueryOcmArgs = {
+export type OcmServicesOpenControlPlaneIoV1alpha1QueryOcmArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1QueryOcmYamlArgs = {
+export type OcmServicesOpenControlPlaneIoV1alpha1QueryOcmYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type OcmServicesOpenmcpCloudV1alpha1QueryOcMsArgs = {
+export type OcmServicesOpenControlPlaneIoV1alpha1QueryOcMsArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -11398,21 +11407,22 @@ export type Query = {
   cert_gardener_cloud?: Maybe<CertGardenerCloudQuery>;
   certificates_k8s_io?: Maybe<CertificatesK8sIoQuery>;
   coordination_k8s_io?: Maybe<CoordinationK8sIoQuery>;
+  core_open_control_plane_io?: Maybe<CoreOpenControlPlaneIoQuery>;
   core_openmcp_cloud?: Maybe<CoreOpenmcpCloudQuery>;
-  crossplane_services_openmcp_cloud?: Maybe<CrossplaneServicesOpenmcpCloudQuery>;
+  crossplane_services_open_control_plane_io?: Maybe<CrossplaneServicesOpenControlPlaneIoQuery>;
   discovery_k8s_io?: Maybe<DiscoveryK8sIoQuery>;
   dns_gardener_cloud?: Maybe<DnsGardenerCloudQuery>;
   events_k8s_io?: Maybe<EventsK8sIoQuery>;
-  external_secrets_services_openmcp_cloud?: Maybe<ExternalSecretsServicesOpenmcpCloudQuery>;
+  external_secrets_services_open_control_plane_io?: Maybe<ExternalSecretsServicesOpenControlPlaneIoQuery>;
   externaldns_k8s_io?: Maybe<ExternaldnsK8sIoQuery>;
   flowcontrol_apiserver_k8s_io?: Maybe<FlowcontrolApiserverK8sIoQuery>;
-  flux_services_openmcp_cloud?: Maybe<FluxServicesOpenmcpCloudQuery>;
+  flux_services_open_control_plane_io?: Maybe<FluxServicesOpenControlPlaneIoQuery>;
   kro_run?: Maybe<KroRunQuery>;
-  kro_services_openmcp_cloud?: Maybe<KroServicesOpenmcpCloudQuery>;
-  landscaper_services_openmcp_cloud?: Maybe<LandscaperServicesOpenmcpCloudQuery>;
+  kro_services_open_control_plane_io?: Maybe<KroServicesOpenControlPlaneIoQuery>;
+  landscaper_services_open_control_plane_io?: Maybe<LandscaperServicesOpenControlPlaneIoQuery>;
   networking_k8s_io?: Maybe<NetworkingK8sIoQuery>;
   node_k8s_io?: Maybe<NodeK8sIoQuery>;
-  ocm_services_openmcp_cloud?: Maybe<OcmServicesOpenmcpCloudQuery>;
+  ocm_services_open_control_plane_io?: Maybe<OcmServicesOpenControlPlaneIoQuery>;
   openmcp_cloud?: Maybe<OpenmcpCloudQuery>;
   rbac_authorization_k8s_io?: Maybe<RbacAuthorizationK8sIoQuery>;
   scheduling_k8s_io?: Maybe<SchedulingK8sIoQuery>;
@@ -11421,7 +11431,7 @@ export type Query = {
   usage_openmcp_cloud?: Maybe<UsageOpenmcpCloudQuery>;
   v1?: Maybe<V1Query>;
   velero_io?: Maybe<VeleroIoQuery>;
-  velero_services_openmcp_cloud?: Maybe<VeleroServicesOpenmcpCloudQuery>;
+  velero_services_open_control_plane_io?: Maybe<VeleroServicesOpenControlPlaneIoQuery>;
 };
 
 export type QueryTypeByCategoryArgs = {
@@ -12370,6 +12380,10 @@ export type Subscription = {
   coordination_k8s_io_v1_lease?: Maybe<CoordinationK8sIoV1LeaseEvent>;
   /** Subscribe to changes of Leases */
   coordination_k8s_io_v1_leases?: Maybe<CoordinationK8sIoV1LeaseEvent>;
+  /** Subscribe to changes of ControlPlane */
+  core_open_control_plane_io_v2alpha1_controlplane?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneEvent>;
+  /** Subscribe to changes of ControlPlanes */
+  core_open_control_plane_io_v2alpha1_controlplanes?: Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneEvent>;
   /** Subscribe to changes of APIServer */
   core_openmcp_cloud_v1alpha1_apiserver?: Maybe<CoreOpenmcpCloudV1alpha1ApiServerEvent>;
   /** Subscribe to changes of APIServers */
@@ -12420,14 +12434,10 @@ export type Subscription = {
   core_openmcp_cloud_v1alpha1_workspace?: Maybe<CoreOpenmcpCloudV1alpha1WorkspaceEvent>;
   /** Subscribe to changes of Workspaces */
   core_openmcp_cloud_v1alpha1_workspaces?: Maybe<CoreOpenmcpCloudV1alpha1WorkspaceEvent>;
-  /** Subscribe to changes of ManagedControlPlaneV2 */
-  core_openmcp_cloud_v2alpha1_managedcontrolplanev2?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Event>;
-  /** Subscribe to changes of ManagedControlPlaneV2s */
-  core_openmcp_cloud_v2alpha1_managedcontrolplanev2s?: Maybe<CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Event>;
   /** Subscribe to changes of Crossplane */
-  crossplane_services_openmcp_cloud_v1alpha1_crossplane?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneEvent>;
+  crossplane_services_open_control_plane_io_v1alpha1_crossplane?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneEvent>;
   /** Subscribe to changes of Crossplanes */
-  crossplane_services_openmcp_cloud_v1alpha1_crossplanes?: Maybe<CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneEvent>;
+  crossplane_services_open_control_plane_io_v1alpha1_crossplanes?: Maybe<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneEvent>;
   /** Subscribe to changes of EndpointSlice */
   discovery_k8s_io_v1_endpointslice?: Maybe<DiscoveryK8sIoV1EndpointSliceEvent>;
   /** Subscribe to changes of EndpointSlices */
@@ -12445,9 +12455,9 @@ export type Subscription = {
   /** Subscribe to changes of Events */
   events_k8s_io_v1_events?: Maybe<EventsK8sIoV1EventEvent>;
   /** Subscribe to changes of ExternalSecretsOperator */
-  external_secrets_services_openmcp_cloud_v1alpha1_externalsecretsoperator?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorEvent>;
+  external_secrets_services_open_control_plane_io_v1alpha1_externalsecretsoperator?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorEvent>;
   /** Subscribe to changes of ExternalSecretsOperators */
-  external_secrets_services_openmcp_cloud_v1alpha1_externalsecretsoperators?: Maybe<ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorEvent>;
+  external_secrets_services_open_control_plane_io_v1alpha1_externalsecretsoperators?: Maybe<ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorEvent>;
   /** Subscribe to changes of DNSEndpoint */
   externaldns_k8s_io_v1alpha1_dnsendpoint?: Maybe<ExternaldnsK8sIoV1alpha1DnsEndpointEvent>;
   /** Subscribe to changes of DNSEndpoints */
@@ -12461,9 +12471,9 @@ export type Subscription = {
   /** Subscribe to changes of PriorityLevelConfigurations */
   flowcontrol_apiserver_k8s_io_v1_prioritylevelconfigurations?: Maybe<FlowcontrolApiserverK8sIoV1PriorityLevelConfigurationEvent>;
   /** Subscribe to changes of Flux */
-  flux_services_openmcp_cloud_v1alpha1_flux?: Maybe<FluxServicesOpenmcpCloudV1alpha1FluxEvent>;
+  flux_services_open_control_plane_io_v1alpha1_flux?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxEvent>;
   /** Subscribe to changes of Fluxes */
-  flux_services_openmcp_cloud_v1alpha1_fluxes?: Maybe<FluxServicesOpenmcpCloudV1alpha1FluxEvent>;
+  flux_services_open_control_plane_io_v1alpha1_fluxes?: Maybe<FluxServicesOpenControlPlaneIoV1alpha1FluxEvent>;
   /** Subscribe to changes of ManagedControlPlaneTemplate */
   kro_run_v1alpha1_managedcontrolplanetemplate?: Maybe<KroRunV1alpha1ManagedControlPlaneTemplateEvent>;
   /** Subscribe to changes of ManagedControlPlaneTemplates */
@@ -12477,13 +12487,13 @@ export type Subscription = {
   /** Subscribe to changes of ResourceGraphDefinitions */
   kro_run_v1alpha1_resourcegraphdefinitions?: Maybe<KroRunV1alpha1ResourceGraphDefinitionEvent>;
   /** Subscribe to changes of Kro */
-  kro_services_openmcp_cloud_v1alpha1_kro?: Maybe<KroServicesOpenmcpCloudV1alpha1KroEvent>;
+  kro_services_open_control_plane_io_v1alpha1_kro?: Maybe<KroServicesOpenControlPlaneIoV1alpha1KroEvent>;
   /** Subscribe to changes of Kroes */
-  kro_services_openmcp_cloud_v1alpha1_kroes?: Maybe<KroServicesOpenmcpCloudV1alpha1KroEvent>;
+  kro_services_open_control_plane_io_v1alpha1_kroes?: Maybe<KroServicesOpenControlPlaneIoV1alpha1KroEvent>;
   /** Subscribe to changes of Landscaper */
-  landscaper_services_openmcp_cloud_v1alpha2_landscaper?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
+  landscaper_services_open_control_plane_io_v1alpha2_landscaper?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Landscapers */
-  landscaper_services_openmcp_cloud_v1alpha2_landscapers?: Maybe<LandscaperServicesOpenmcpCloudV1alpha2LandscaperEvent>;
+  landscaper_services_open_control_plane_io_v1alpha2_landscapers?: Maybe<LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperEvent>;
   /** Subscribe to changes of Ingress */
   networking_k8s_io_v1_ingress?: Maybe<NetworkingK8sIoV1IngressEvent>;
   /** Subscribe to changes of IngressClass */
@@ -12509,9 +12519,9 @@ export type Subscription = {
   /** Subscribe to changes of RuntimeClasses */
   node_k8s_io_v1_runtimeclasses?: Maybe<NodeK8sIoV1RuntimeClassEvent>;
   /** Subscribe to changes of OCM */
-  ocm_services_openmcp_cloud_v1alpha1_ocm?: Maybe<OcmServicesOpenmcpCloudV1alpha1OcmEvent>;
+  ocm_services_open_control_plane_io_v1alpha1_ocm?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmEvent>;
   /** Subscribe to changes of OCMs */
-  ocm_services_openmcp_cloud_v1alpha1_ocms?: Maybe<OcmServicesOpenmcpCloudV1alpha1OcmEvent>;
+  ocm_services_open_control_plane_io_v1alpha1_ocms?: Maybe<OcmServicesOpenControlPlaneIoV1alpha1OcmEvent>;
   /** Subscribe to changes of QuotaIncrease */
   openmcp_cloud_v1alpha1_quotaincrease?: Maybe<OpenmcpCloudV1alpha1QuotaIncreaseEvent>;
   /** Subscribe to changes of QuotaIncreases */
@@ -12678,9 +12688,9 @@ export type Subscription = {
   /** Subscribe to changes of DataUploads */
   velero_io_v2alpha1_datauploads?: Maybe<VeleroIoV2alpha1DataUploadEvent>;
   /** Subscribe to changes of Velero */
-  velero_services_openmcp_cloud_v1alpha1_velero?: Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroEvent>;
+  velero_services_open_control_plane_io_v1alpha1_velero?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroEvent>;
   /** Subscribe to changes of Veleroes */
-  velero_services_openmcp_cloud_v1alpha1_veleroes?: Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroEvent>;
+  velero_services_open_control_plane_io_v1alpha1_veleroes?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroEvent>;
 };
 
 export type SubscriptionAdmissionregistration_K8s_Io_V1_MutatingwebhookconfigurationArgs = {
@@ -12963,6 +12973,23 @@ export type SubscriptionCoordination_K8s_Io_V1_LeasesArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type SubscriptionCore_Open_Control_Plane_Io_V2alpha1_ControlplaneArgs = {
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type SubscriptionCore_Open_Control_Plane_Io_V2alpha1_ControlplanesArgs = {
+  continue?: InputMaybe<Scalars['String']['input']>;
+  labelselector?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  resourceVersion?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type SubscriptionCore_Openmcp_Cloud_V1alpha1_ApiserverArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
@@ -13170,31 +13197,14 @@ export type SubscriptionCore_Openmcp_Cloud_V1alpha1_WorkspacesArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionCore_Openmcp_Cloud_V2alpha1_Managedcontrolplanev2Args = {
+export type SubscriptionCrossplane_Services_Open_Control_Plane_Io_V1alpha1_CrossplaneArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionCore_Openmcp_Cloud_V2alpha1_Managedcontrolplanev2sArgs = {
-  continue?: InputMaybe<Scalars['String']['input']>;
-  labelselector?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  resourceVersion?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type SubscriptionCrossplane_Services_Openmcp_Cloud_V1alpha1_CrossplaneArgs = {
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  resourceVersion?: InputMaybe<Scalars['String']['input']>;
-  subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type SubscriptionCrossplane_Services_Openmcp_Cloud_V1alpha1_CrossplanesArgs = {
+export type SubscriptionCrossplane_Services_Open_Control_Plane_Io_V1alpha1_CrossplanesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13272,14 +13282,14 @@ export type SubscriptionEvents_K8s_Io_V1_EventsArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionExternal_Secrets_Services_Openmcp_Cloud_V1alpha1_ExternalsecretsoperatorArgs = {
+export type SubscriptionExternal_Secrets_Services_Open_Control_Plane_Io_V1alpha1_ExternalsecretsoperatorArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionExternal_Secrets_Services_Openmcp_Cloud_V1alpha1_ExternalsecretsoperatorsArgs = {
+export type SubscriptionExternal_Secrets_Services_Open_Control_Plane_Io_V1alpha1_ExternalsecretsoperatorsArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13336,14 +13346,14 @@ export type SubscriptionFlowcontrol_Apiserver_K8s_Io_V1_Prioritylevelconfigurati
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionFlux_Services_Openmcp_Cloud_V1alpha1_FluxArgs = {
+export type SubscriptionFlux_Services_Open_Control_Plane_Io_V1alpha1_FluxArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionFlux_Services_Openmcp_Cloud_V1alpha1_FluxesArgs = {
+export type SubscriptionFlux_Services_Open_Control_Plane_Io_V1alpha1_FluxesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13402,14 +13412,14 @@ export type SubscriptionKro_Run_V1alpha1_ResourcegraphdefinitionsArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionKro_Services_Openmcp_Cloud_V1alpha1_KroArgs = {
+export type SubscriptionKro_Services_Open_Control_Plane_Io_V1alpha1_KroArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionKro_Services_Openmcp_Cloud_V1alpha1_KroesArgs = {
+export type SubscriptionKro_Services_Open_Control_Plane_Io_V1alpha1_KroesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13419,14 +13429,14 @@ export type SubscriptionKro_Services_Openmcp_Cloud_V1alpha1_KroesArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionLandscaper_Services_Openmcp_Cloud_V1alpha2_LandscaperArgs = {
+export type SubscriptionLandscaper_Services_Open_Control_Plane_Io_V1alpha2_LandscaperArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionLandscaper_Services_Openmcp_Cloud_V1alpha2_LandscapersArgs = {
+export type SubscriptionLandscaper_Services_Open_Control_Plane_Io_V1alpha2_LandscapersArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13530,14 +13540,14 @@ export type SubscriptionNode_K8s_Io_V1_RuntimeclassesArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionOcm_Services_Openmcp_Cloud_V1alpha1_OcmArgs = {
+export type SubscriptionOcm_Services_Open_Control_Plane_Io_V1alpha1_OcmArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionOcm_Services_Openmcp_Cloud_V1alpha1_OcmsArgs = {
+export type SubscriptionOcm_Services_Open_Control_Plane_Io_V1alpha1_OcmsArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -14233,14 +14243,14 @@ export type SubscriptionVelero_Io_V2alpha1_DatauploadsArgs = {
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionVelero_Services_Openmcp_Cloud_V1alpha1_VeleroArgs = {
+export type SubscriptionVelero_Services_Open_Control_Plane_Io_V1alpha1_VeleroArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
   resourceVersion?: InputMaybe<Scalars['String']['input']>;
   subscribeToAll?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type SubscriptionVelero_Services_Openmcp_Cloud_V1alpha1_VeleroesArgs = {
+export type SubscriptionVelero_Services_Open_Control_Plane_Io_V1alpha1_VeleroesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -20843,60 +20853,60 @@ export type VeleroIoV2alpha1QueryDataUploadsArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type VeleroServicesOpenmcpCloudMutation = {
-  __typename?: 'VeleroServicesOpenmcpCloudMutation';
-  v1alpha1?: Maybe<VeleroServicesOpenmcpCloudV1alpha1Mutation>;
+export type VeleroServicesOpenControlPlaneIoMutation = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoMutation';
+  v1alpha1?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1Mutation>;
 };
 
-export type VeleroServicesOpenmcpCloudQuery = {
-  __typename?: 'VeleroServicesOpenmcpCloudQuery';
-  v1alpha1?: Maybe<VeleroServicesOpenmcpCloudV1alpha1Query>;
+export type VeleroServicesOpenControlPlaneIoQuery = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoQuery';
+  v1alpha1?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1Query>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1Mutation = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1Mutation';
-  createVelero?: Maybe<VeleroServicesOpenmcpCloudV1alpha1Velero>;
+export type VeleroServicesOpenControlPlaneIoV1alpha1Mutation = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1Mutation';
+  createVelero?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1Velero>;
   deleteVelero?: Maybe<Scalars['Boolean']['output']>;
-  updateVelero?: Maybe<VeleroServicesOpenmcpCloudV1alpha1Velero>;
+  updateVelero?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1Velero>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1MutationCreateVeleroArgs = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1MutationCreateVeleroArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: VeleroServicesOpenmcpCloudV1alpha1Velero_Input;
+  object: VeleroServicesOpenControlPlaneIoV1alpha1Velero_Input;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1MutationDeleteVeleroArgs = {
-  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type VeleroServicesOpenmcpCloudV1alpha1MutationUpdateVeleroArgs = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1MutationDeleteVeleroArgs = {
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: VeleroServicesOpenmcpCloudV1alpha1Velero_Input;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1Query = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1Query';
-  Velero: VeleroServicesOpenmcpCloudV1alpha1Velero;
+export type VeleroServicesOpenControlPlaneIoV1alpha1MutationUpdateVeleroArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: VeleroServicesOpenControlPlaneIoV1alpha1Velero_Input;
+};
+
+export type VeleroServicesOpenControlPlaneIoV1alpha1Query = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1Query';
+  Velero: VeleroServicesOpenControlPlaneIoV1alpha1Velero;
   VeleroYaml: Scalars['String']['output'];
-  Veleroes: VeleroServicesOpenmcpCloudV1alpha1VeleroList;
+  Veleroes: VeleroServicesOpenControlPlaneIoV1alpha1VeleroList;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1QueryVeleroArgs = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1QueryVeleroArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1QueryVeleroYamlArgs = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1QueryVeleroYamlArgs = {
   name: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1QueryVeleroesArgs = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1QueryVeleroesArgs = {
   continue?: InputMaybe<Scalars['String']['input']>;
   labelselector?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -20904,8 +20914,8 @@ export type VeleroServicesOpenmcpCloudV1alpha1QueryVeleroesArgs = {
   sortBy?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1Velero = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1Velero';
+export type VeleroServicesOpenControlPlaneIoV1alpha1Velero = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1Velero';
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: Maybe<Scalars['String']['output']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -20913,37 +20923,37 @@ export type VeleroServicesOpenmcpCloudV1alpha1Velero = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Maybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata>;
   /** spec defines the desired state of Velero */
-  spec?: Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroSpec>;
+  spec?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpec>;
   /** status defines the observed state of Velero */
-  status?: Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatus>;
+  status?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatus>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroEvent = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroEvent';
-  object?: Maybe<VeleroServicesOpenmcpCloudV1alpha1Velero>;
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroEvent = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroEvent';
+  object?: Maybe<VeleroServicesOpenControlPlaneIoV1alpha1Velero>;
   type: WatchEventType;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroList = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroList';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroList = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroList';
   continue?: Maybe<Scalars['String']['output']>;
-  items: Array<VeleroServicesOpenmcpCloudV1alpha1Velero>;
+  items: Array<VeleroServicesOpenControlPlaneIoV1alpha1Velero>;
   remainingItemCount?: Maybe<Scalars['Int']['output']>;
   resourceVersion?: Maybe<Scalars['String']['output']>;
 };
 
 /** spec defines the desired state of Velero */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpec = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroSpec';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpec = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpec';
   /** Plugins that should be installed. */
-  plugins?: Maybe<Array<Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins>>>;
+  plugins?: Maybe<Array<Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpecPlugins>>>;
   /** The Velero version. */
   version?: Maybe<Scalars['String']['output']>;
 };
 
 /** VeleroPlugin defines a velero plugin */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpecPlugins = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpecPlugins';
   /** The Velero plugin name. */
   name?: Maybe<Scalars['String']['output']>;
   /** The Velero plugin version. */
@@ -20951,7 +20961,7 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins = {
 };
 
 /** VeleroPlugin defines a velero plugin */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpecPlugins_Input = {
   /** The Velero plugin name. */
   name?: InputMaybe<Scalars['String']['input']>;
   /** The Velero plugin version. */
@@ -20959,29 +20969,29 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins_Input = {
 };
 
 /** spec defines the desired state of Velero */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroSpec_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpec_Input = {
   /** Plugins that should be installed. */
-  plugins?: InputMaybe<Array<InputMaybe<VeleroServicesOpenmcpCloudV1alpha1VeleroSpecPlugins_Input>>>;
+  plugins?: InputMaybe<Array<InputMaybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpecPlugins_Input>>>;
   /** The Velero version. */
   version?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** status defines the observed state of Velero */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatus = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroStatus';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatus = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatus';
   /** Conditions contains the conditions. */
-  conditions?: Maybe<Array<Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions>>>;
+  conditions?: Maybe<Array<Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusConditions>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
   phase?: Maybe<Scalars['String']['output']>;
   /** Resources managed by this velero instance */
-  resources?: Maybe<Array<Maybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources>>>;
+  resources?: Maybe<Array<Maybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusResources>>>;
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusConditions = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusConditions';
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -21013,7 +21023,7 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions = {
 };
 
 /** Condition contains details for one aspect of the current state of this API Resource. */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusConditions_Input = {
   /**
    * lastTransitionTime is the last time the condition transitioned from one status to another.
    * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -21045,8 +21055,8 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions_Input = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources = {
-  __typename?: 'VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources';
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusResources = {
+  __typename?: 'VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusResources';
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -21071,7 +21081,7 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources = {
 };
 
 /** ManagedResource defines a kubernetes object with its lifecycle phase */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusResources_Input = {
   /**
    * APIGroup is the group for the resource being referenced.
    * If APIGroup is not specified, the specified Kind must be in the core API group.
@@ -21096,18 +21106,18 @@ export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources_Input = {
 };
 
 /** status defines the observed state of Velero */
-export type VeleroServicesOpenmcpCloudV1alpha1VeleroStatus_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatus_Input = {
   /** Conditions contains the conditions. */
-  conditions?: InputMaybe<Array<InputMaybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatusConditions_Input>>>;
+  conditions?: InputMaybe<Array<InputMaybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusConditions_Input>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
   phase?: InputMaybe<Scalars['String']['input']>;
   /** Resources managed by this velero instance */
-  resources?: InputMaybe<Array<InputMaybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatusResources_Input>>>;
+  resources?: InputMaybe<Array<InputMaybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatusResources_Input>>>;
 };
 
-export type VeleroServicesOpenmcpCloudV1alpha1Velero_Input = {
+export type VeleroServicesOpenControlPlaneIoV1alpha1Velero_Input = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
@@ -21115,9 +21125,9 @@ export type VeleroServicesOpenmcpCloudV1alpha1Velero_Input = {
   /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: InputMaybe<Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input>;
   /** spec defines the desired state of Velero */
-  spec?: InputMaybe<VeleroServicesOpenmcpCloudV1alpha1VeleroSpec_Input>;
+  spec?: InputMaybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroSpec_Input>;
   /** status defines the observed state of Velero */
-  status?: InputMaybe<VeleroServicesOpenmcpCloudV1alpha1VeleroStatus_Input>;
+  status?: InputMaybe<VeleroServicesOpenControlPlaneIoV1alpha1VeleroStatus_Input>;
 };
 
 export enum WatchEventType {
@@ -34076,12 +34086,12 @@ export type GetCrossplaneQueryVariables = Exact<{
 
 export type GetCrossplaneQuery = {
   __typename?: 'Query';
-  crossplane_services_openmcp_cloud?: {
-    __typename?: 'CrossplaneServicesOpenmcpCloudQuery';
+  crossplane_services_open_control_plane_io?: {
+    __typename?: 'CrossplaneServicesOpenControlPlaneIoQuery';
     v1alpha1?: {
-      __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Query';
+      __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Query';
       Crossplane: {
-        __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane';
+        __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane';
         kind?: string | null;
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
@@ -34089,18 +34099,18 @@ export type GetCrossplaneQuery = {
           namespace?: string | null;
         } | null;
         spec?: {
-          __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpec';
+          __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec';
           version?: string | null;
           providers?: Array<{
-            __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneSpecProviders';
+            __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders';
             name?: string | null;
             version?: string | null;
           } | null> | null;
         } | null;
         status?: {
-          __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatus';
+          __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatus';
           conditions?: Array<{
-            __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1CrossplaneStatusConditions';
+            __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneStatusConditions';
             type?: string | null;
             status?: string | null;
             reason?: string | null;
@@ -34119,25 +34129,25 @@ export type GetExternalSecretsOperatorQueryVariables = Exact<{
 
 export type GetExternalSecretsOperatorQuery = {
   __typename?: 'Query';
-  external_secrets_services_openmcp_cloud?: {
-    __typename?: 'ExternalSecretsServicesOpenmcpCloudQuery';
+  external_secrets_services_open_control_plane_io?: {
+    __typename?: 'ExternalSecretsServicesOpenControlPlaneIoQuery';
     v1alpha1?: {
-      __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Query';
+      __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Query';
       ExternalSecretsOperator: {
-        __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator';
+        __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
           namespace?: string | null;
         } | null;
         spec?: {
-          __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorSpec';
+          __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorSpec';
           version?: string | null;
         } | null;
         status?: {
-          __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatus';
+          __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatus';
           conditions?: Array<{
-            __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperatorStatusConditions';
+            __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperatorStatusConditions';
             type?: string | null;
             status?: string | null;
             reason?: string | null;
@@ -34156,22 +34166,22 @@ export type GetFluxQueryVariables = Exact<{
 
 export type GetFluxQuery = {
   __typename?: 'Query';
-  flux_services_openmcp_cloud?: {
-    __typename?: 'FluxServicesOpenmcpCloudQuery';
+  flux_services_open_control_plane_io?: {
+    __typename?: 'FluxServicesOpenControlPlaneIoQuery';
     v1alpha1?: {
-      __typename?: 'FluxServicesOpenmcpCloudV1alpha1Query';
+      __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Query';
       Flux: {
-        __typename?: 'FluxServicesOpenmcpCloudV1alpha1Flux';
+        __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Flux';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
           namespace?: string | null;
         } | null;
-        spec?: { __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxSpec'; version?: string | null } | null;
+        spec?: { __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxSpec'; version?: string | null } | null;
         status?: {
-          __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxStatus';
+          __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxStatus';
           conditions?: Array<{
-            __typename?: 'FluxServicesOpenmcpCloudV1alpha1FluxStatusConditions';
+            __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions';
             type?: string | null;
             status?: string | null;
             reason?: string | null;
@@ -34190,23 +34200,26 @@ export type GetLandscaperQueryVariables = Exact<{
 
 export type GetLandscaperQuery = {
   __typename?: 'Query';
-  landscaper_services_openmcp_cloud?: {
-    __typename?: 'LandscaperServicesOpenmcpCloudQuery';
+  landscaper_services_open_control_plane_io?: {
+    __typename?: 'LandscaperServicesOpenControlPlaneIoQuery';
     v1alpha2?: {
-      __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Query';
+      __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Query';
       Landscaper: {
-        __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+        __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
           namespace?: string | null;
         } | null;
-        spec?: { __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperSpec'; version?: string | null } | null;
+        spec?: {
+          __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec';
+          version?: string | null;
+        } | null;
         status?: {
-          __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatus';
+          __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus';
           phase?: string | null;
           conditions?: Array<{
-            __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2LandscaperStatusConditions';
+            __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusConditions';
             type?: string | null;
             status?: string | null;
             reason?: string | null;
@@ -34220,17 +34233,17 @@ export type GetLandscaperQuery = {
 
 export type CreateCrossplaneMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input;
+  object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input;
 }>;
 
 export type CreateCrossplaneMutation = {
   __typename?: 'Mutation';
-  crossplane_services_openmcp_cloud?: {
-    __typename?: 'CrossplaneServicesOpenmcpCloudMutation';
+  crossplane_services_open_control_plane_io?: {
+    __typename?: 'CrossplaneServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation';
       createCrossplane?: {
-        __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane';
+        __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34243,17 +34256,17 @@ export type CreateCrossplaneMutation = {
 
 export type CreateExternalSecretsOperatorMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input;
+  object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input;
 }>;
 
 export type CreateExternalSecretsOperatorMutation = {
   __typename?: 'Mutation';
-  external_secrets_services_openmcp_cloud?: {
-    __typename?: 'ExternalSecretsServicesOpenmcpCloudMutation';
+  external_secrets_services_open_control_plane_io?: {
+    __typename?: 'ExternalSecretsServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation';
       createExternalSecretsOperator?: {
-        __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator';
+        __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34266,17 +34279,17 @@ export type CreateExternalSecretsOperatorMutation = {
 
 export type CreateFluxMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: FluxServicesOpenmcpCloudV1alpha1Flux_Input;
+  object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input;
 }>;
 
 export type CreateFluxMutation = {
   __typename?: 'Mutation';
-  flux_services_openmcp_cloud?: {
-    __typename?: 'FluxServicesOpenmcpCloudMutation';
+  flux_services_open_control_plane_io?: {
+    __typename?: 'FluxServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'FluxServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Mutation';
       createFlux?: {
-        __typename?: 'FluxServicesOpenmcpCloudV1alpha1Flux';
+        __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Flux';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34289,17 +34302,17 @@ export type CreateFluxMutation = {
 
 export type CreateLandscaperMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input;
+  object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input;
 }>;
 
 export type CreateLandscaperMutation = {
   __typename?: 'Mutation';
-  landscaper_services_openmcp_cloud?: {
-    __typename?: 'LandscaperServicesOpenmcpCloudMutation';
+  landscaper_services_open_control_plane_io?: {
+    __typename?: 'LandscaperServicesOpenControlPlaneIoMutation';
     v1alpha2?: {
-      __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
+      __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Mutation';
       createLandscaper?: {
-        __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+        __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34312,24 +34325,24 @@ export type CreateLandscaperMutation = {
 
 export type CreateManagedControlPlaneV2MutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
-  object: CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input;
+  object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 export type CreateManagedControlPlaneV2Mutation = {
   __typename?: 'Mutation';
-  core_openmcp_cloud?: {
-    __typename?: 'CoreOpenmcpCloudMutation';
+  core_open_control_plane_io?: {
+    __typename?: 'CoreOpenControlPlaneIoMutation';
     v2alpha1?: {
-      __typename?: 'CoreOpenmcpCloudV2alpha1Mutation';
-      createManagedControlPlaneV2?: {
-        __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2';
+      __typename?: 'CoreOpenControlPlaneIoV2alpha1Mutation';
+      createControlPlane?: {
+        __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlane';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
           namespace?: string | null;
         } | null;
-        status?: { __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status'; phase?: string | null } | null;
+        status?: { __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus'; phase?: string | null } | null;
       } | null;
     } | null;
   } | null;
@@ -34404,26 +34417,26 @@ export type DeleteManagedControlPlaneV2MutationVariables = Exact<{
 
 export type DeleteManagedControlPlaneV2Mutation = {
   __typename?: 'Mutation';
-  core_openmcp_cloud?: {
-    __typename?: 'CoreOpenmcpCloudMutation';
-    v2alpha1?: { __typename?: 'CoreOpenmcpCloudV2alpha1Mutation'; deleteManagedControlPlaneV2?: boolean | null } | null;
+  core_open_control_plane_io?: {
+    __typename?: 'CoreOpenControlPlaneIoMutation';
+    v2alpha1?: { __typename?: 'CoreOpenControlPlaneIoV2alpha1Mutation'; deleteControlPlane?: boolean | null } | null;
   } | null;
 };
 
 export type UpdateCrossplaneMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input;
+  object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input;
 }>;
 
 export type UpdateCrossplaneMutation = {
   __typename?: 'Mutation';
-  crossplane_services_openmcp_cloud?: {
-    __typename?: 'CrossplaneServicesOpenmcpCloudMutation';
+  crossplane_services_open_control_plane_io?: {
+    __typename?: 'CrossplaneServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation';
       updateCrossplane?: {
-        __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane';
+        __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34437,17 +34450,17 @@ export type UpdateCrossplaneMutation = {
 export type UpdateExternalSecretsOperatorMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input;
+  object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input;
 }>;
 
 export type UpdateExternalSecretsOperatorMutation = {
   __typename?: 'Mutation';
-  external_secrets_services_openmcp_cloud?: {
-    __typename?: 'ExternalSecretsServicesOpenmcpCloudMutation';
+  external_secrets_services_open_control_plane_io?: {
+    __typename?: 'ExternalSecretsServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation';
       updateExternalSecretsOperator?: {
-        __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator';
+        __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34461,17 +34474,17 @@ export type UpdateExternalSecretsOperatorMutation = {
 export type UpdateFluxMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  object: FluxServicesOpenmcpCloudV1alpha1Flux_Input;
+  object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input;
 }>;
 
 export type UpdateFluxMutation = {
   __typename?: 'Mutation';
-  flux_services_openmcp_cloud?: {
-    __typename?: 'FluxServicesOpenmcpCloudMutation';
+  flux_services_open_control_plane_io?: {
+    __typename?: 'FluxServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'FluxServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Mutation';
       updateFlux?: {
-        __typename?: 'FluxServicesOpenmcpCloudV1alpha1Flux';
+        __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Flux';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
@@ -34485,22 +34498,48 @@ export type UpdateFluxMutation = {
 export type UpdateLandscaperMutationVariables = Exact<{
   namespace?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input;
+  object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input;
 }>;
 
 export type UpdateLandscaperMutation = {
   __typename?: 'Mutation';
-  landscaper_services_openmcp_cloud?: {
-    __typename?: 'LandscaperServicesOpenmcpCloudMutation';
+  landscaper_services_open_control_plane_io?: {
+    __typename?: 'LandscaperServicesOpenControlPlaneIoMutation';
     v1alpha2?: {
-      __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
+      __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Mutation';
       updateLandscaper?: {
-        __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper';
+        __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper';
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
           namespace?: string | null;
         } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateManagedControlPlaneV2MutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  namespace?: InputMaybe<Scalars['String']['input']>;
+  object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input;
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+export type UpdateManagedControlPlaneV2Mutation = {
+  __typename?: 'Mutation';
+  core_open_control_plane_io?: {
+    __typename?: 'CoreOpenControlPlaneIoMutation';
+    v2alpha1?: {
+      __typename?: 'CoreOpenControlPlaneIoV2alpha1Mutation';
+      updateControlPlane?: {
+        __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlane';
+        metadata?: {
+          __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+          name?: string | null;
+          namespace?: string | null;
+        } | null;
+        status?: { __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus'; phase?: string | null } | null;
       } | null;
     } | null;
   } | null;
@@ -34596,12 +34635,12 @@ export type GetMcPv2QueryVariables = Exact<{
 
 export type GetMcPv2Query = {
   __typename?: 'Query';
-  core_openmcp_cloud?: {
-    __typename?: 'CoreOpenmcpCloudQuery';
+  core_open_control_plane_io?: {
+    __typename?: 'CoreOpenControlPlaneIoQuery';
     v2alpha1?: {
-      __typename?: 'CoreOpenmcpCloudV2alpha1Query';
-      ManagedControlPlaneV2: {
-        __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2';
+      __typename?: 'CoreOpenControlPlaneIoV2alpha1Query';
+      ControlPlane: {
+        __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlane';
         kind?: string | null;
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
@@ -34611,23 +34650,23 @@ export type GetMcPv2Query = {
           creationTimestamp?: string | null;
         } | null;
         spec?: {
-          __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Spec';
+          __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpec';
           iam?: {
-            __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIam';
+            __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIam';
             oidc?: {
-              __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidc';
+              __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidc';
               defaultProvider?: {
-                __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProvider';
+                __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProvider';
                 roleBindings?: Array<{
-                  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindings';
+                  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindings';
                   roleRefs?: Array<{
-                    __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsRoleRefs';
+                    __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsRoleRefs';
                     kind?: string | null;
                     name?: string | null;
                     namespace?: string | null;
                   } | null> | null;
                   subjects?: Array<{
-                    __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcDefaultProviderRoleBindingsSubjects';
+                    __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcDefaultProviderRoleBindingsSubjects';
                     apiGroup?: string | null;
                     kind?: string | null;
                     name?: string | null;
@@ -34636,17 +34675,17 @@ export type GetMcPv2Query = {
                 } | null> | null;
               } | null;
               extraProviders?: Array<{
-                __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProviders';
+                __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders';
                 roleBindings?: Array<{
-                  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindings';
+                  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings';
                   roleRefs?: Array<{
-                    __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsRoleRefs';
+                    __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsRoleRefs';
                     kind?: string | null;
                     name?: string | null;
                     namespace?: string | null;
                   } | null> | null;
                   subjects?: Array<{
-                    __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamOidcExtraProvidersRoleBindingsSubjects';
+                    __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindingsSubjects';
                     apiGroup?: string | null;
                     kind?: string | null;
                     name?: string | null;
@@ -34656,19 +34695,19 @@ export type GetMcPv2Query = {
               } | null> | null;
             } | null;
             tokens?: Array<{
-              __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokens';
+              __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens';
               name?: string | null;
               permissions?: Array<{
-                __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissions';
+                __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissions';
                 rules?: Array<{
-                  __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensPermissionsRules';
+                  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensPermissionsRules';
                   apiGroups?: Array<string | null> | null;
                   resources?: Array<string | null> | null;
                   verbs?: Array<string | null> | null;
                 } | null> | null;
               } | null> | null;
               roleRefs?: Array<{
-                __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2SpecIamTokensRoleRefs';
+                __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs';
                 kind?: string | null;
                 name?: string | null;
                 namespace?: string | null;
@@ -34677,12 +34716,12 @@ export type GetMcPv2Query = {
           } | null;
         } | null;
         status?: {
-          __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status';
+          __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus';
           phase?: string | null;
           access?: any | null;
           observedGeneration?: number | null;
           conditions?: Array<{
-            __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions';
+            __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions';
             type?: string | null;
             status?: string | null;
             reason?: string | null;
@@ -34743,12 +34782,15 @@ export type GetMcPsListQuery = {
         }>;
       };
     } | null;
+  } | null;
+  core_open_control_plane_io?: {
+    __typename?: 'CoreOpenControlPlaneIoQuery';
     v2alpha1?: {
-      __typename?: 'CoreOpenmcpCloudV2alpha1Query';
-      ManagedControlPlaneV2s: {
-        __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2List';
+      __typename?: 'CoreOpenControlPlaneIoV2alpha1Query';
+      ControlPlanes: {
+        __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneList';
         items: Array<{
-          __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2';
+          __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlane';
           metadata?: {
             __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
             name?: string | null;
@@ -34757,11 +34799,11 @@ export type GetMcPsListQuery = {
             annotations?: any | null;
           } | null;
           status?: {
-            __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2Status';
+            __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus';
             phase?: string | null;
             access?: any | null;
             conditions?: Array<{
-              __typename?: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2StatusConditions';
+              __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions';
               type?: string | null;
               status?: string | null;
               reason?: string | null;
@@ -34879,7 +34921,7 @@ export const GetCrossplaneDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'crossplane_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35000,7 +35042,7 @@ export const GetExternalSecretsOperatorDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'external_secrets_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35107,7 +35149,7 @@ export const GetFluxDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'flux_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35214,7 +35256,7 @@ export const GetLandscaperDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'landscaper_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35318,7 +35360,7 @@ export const CreateCrossplaneDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input' },
+              name: { kind: 'Name', value: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input' },
             },
           },
         },
@@ -35328,7 +35370,7 @@ export const CreateCrossplaneDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'crossplane_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35401,7 +35443,10 @@ export const CreateExternalSecretsOperatorDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input' },
+              name: {
+                kind: 'Name',
+                value: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input',
+              },
             },
           },
         },
@@ -35411,7 +35456,7 @@ export const CreateExternalSecretsOperatorDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'external_secrets_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35482,7 +35527,10 @@ export const CreateFluxDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FluxServicesOpenmcpCloudV1alpha1Flux_Input' } },
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'FluxServicesOpenControlPlaneIoV1alpha1Flux_Input' },
+            },
           },
         },
       ],
@@ -35491,7 +35539,7 @@ export const CreateFluxDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'flux_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35564,7 +35612,7 @@ export const CreateLandscaperDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input' },
+              name: { kind: 'Name', value: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input' },
             },
           },
         },
@@ -35574,7 +35622,7 @@ export const CreateLandscaperDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'landscaper_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35647,7 +35695,7 @@ export const CreateManagedControlPlaneV2Document = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input' },
+              name: { kind: 'Name', value: 'CoreOpenControlPlaneIoV2alpha1ControlPlane_Input' },
             },
           },
         },
@@ -35662,7 +35710,7 @@ export const CreateManagedControlPlaneV2Document = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35674,7 +35722,7 @@ export const CreateManagedControlPlaneV2Document = {
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'createManagedControlPlaneV2' },
+                        name: { kind: 'Name', value: 'createControlPlane' },
                         arguments: [
                           {
                             kind: 'Argument',
@@ -36001,7 +36049,7 @@ export const DeleteManagedControlPlaneV2Document = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36013,7 +36061,7 @@ export const DeleteManagedControlPlaneV2Document = {
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'deleteManagedControlPlaneV2' },
+                        name: { kind: 'Name', value: 'deleteControlPlane' },
                         arguments: [
                           {
                             kind: 'Argument',
@@ -36068,7 +36116,7 @@ export const UpdateCrossplaneDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input' },
+              name: { kind: 'Name', value: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input' },
             },
           },
         },
@@ -36078,7 +36126,7 @@ export const UpdateCrossplaneDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'crossplane_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36161,7 +36209,10 @@ export const UpdateExternalSecretsOperatorDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input' },
+              name: {
+                kind: 'Name',
+                value: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input',
+              },
             },
           },
         },
@@ -36171,7 +36222,7 @@ export const UpdateExternalSecretsOperatorDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'external_secrets_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36252,7 +36303,10 @@ export const UpdateFluxDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FluxServicesOpenmcpCloudV1alpha1Flux_Input' } },
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'FluxServicesOpenControlPlaneIoV1alpha1Flux_Input' },
+            },
           },
         },
       ],
@@ -36261,7 +36315,7 @@ export const UpdateFluxDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'flux_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36344,7 +36398,7 @@ export const UpdateLandscaperDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input' },
+              name: { kind: 'Name', value: 'LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input' },
             },
           },
         },
@@ -36354,7 +36408,7 @@ export const UpdateLandscaperDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'landscaper_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36412,6 +36466,117 @@ export const UpdateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLandscaperMutation, UpdateLandscaperMutationVariables>;
+export const UpdateManagedControlPlaneV2Document = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateManagedControlPlaneV2' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenControlPlaneIoV2alpha1ControlPlane_Input' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v2alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'dryRun' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateManagedControlPlaneV2Mutation, UpdateManagedControlPlaneV2MutationVariables>;
 export const CreateProjectDocument = {
   kind: 'Document',
   definitions: [
@@ -36791,7 +36956,7 @@ export const GetMcPv2Document = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -36803,7 +36968,7 @@ export const GetMcPv2Document = {
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'ManagedControlPlaneV2' },
+                        name: { kind: 'Name', value: 'ControlPlane' },
                         arguments: [
                           {
                             kind: 'Argument',
@@ -37195,6 +37360,15 @@ export const GetMcPsListDocument = {
                     ],
                   },
                 },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'v2alpha1' },
@@ -37203,7 +37377,7 @@ export const GetMcPsListDocument = {
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'ManagedControlPlaneV2s' },
+                        name: { kind: 'Name', value: 'ControlPlanes' },
                         arguments: [
                           {
                             kind: 'Argument',

@@ -27,8 +27,9 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
-import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
+import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
+import { EditManagedControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
@@ -161,18 +162,18 @@ export default function McpPageV2() {
                       <YamlViewButton
                         variant="loader"
                         workspaceName={mcp?.metadata?.namespace}
-                        resourceType={'managedcontrolplanev2s'}
+                        resourceType={'controlplanes'}
                         resourceName={controlPlaneName}
                         withoutApiConfig
                       />
                       <CopyKubeconfigButton />
-                      {/*<ControlPlanePageMenu*/}
-                      {/*  setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}*/}
-                      {/*/>*/}
-                      <EditManagedControlPlaneWizardDataLoader
+                      <ControlPlanePageMenu
+                        setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                      />
+                      <EditManagedControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
                         setIsOpen={handleEditManagedControlPlaneWizardClose}
-                        workspaceName={mcp?.status?.access?.namespace}
+                        namespace={namespace}
                         resourceName={controlPlaneName}
                         initialSection={editManagedControlPlaneWizardSection}
                       />

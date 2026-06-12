@@ -3,7 +3,13 @@ import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext.tsx';
-import { areMembersEqual, MCP_V2_DEFAULT_ROLE, mcpV2RoleOptions, Member } from '../../lib/api/types/shared/members';
+import {
+  areMembersEqual,
+  MCP_V2_DEFAULT_ROLE,
+  MCP_V2_VIEWER_ROLE,
+  mcpV2RoleOptions,
+  Member,
+} from '../../lib/api/types/shared/members';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
@@ -23,10 +29,19 @@ export interface EditMembersProps {
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
   { value: 'User', label: 'User', icon: 'employee' },
+  { value: 'Group', label: 'Group', icon: 'group' },
   { value: 'ServiceAccount', label: 'Service Account', icon: 'machine' },
 ];
 
-export type AccountType = 'User' | 'ServiceAccount';
+export const V1_ACCOUNT_TYPES: RadioButtonsSelectOption[] = ACCOUNT_TYPES.filter(({ value }) =>
+  ['User', 'ServiceAccount'].includes(value),
+);
+
+export const V2_ACCOUNT_TYPES: RadioButtonsSelectOption[] = ACCOUNT_TYPES.filter(({ value }) =>
+  ['User', 'Group'].includes(value),
+);
+
+export type AccountType = 'User' | 'Group' | 'ServiceAccount';
 
 const PROJECT_PREFIX = 'project-';
 const removeProjectPrefix = (name?: string) =>
@@ -43,6 +58,13 @@ export const EditMembers: FC<EditMembersProps> = ({
   isV2 = false,
 }) => {
   const { t } = useTranslation();
+  const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
+  const usesUserGroupAccountTypes = useMemo(
+    () =>
+      accountTypeOptions.some(({ value }) => value === 'Group') &&
+      !accountTypeOptions.some(({ value }) => value === 'ServiceAccount'),
+    [accountTypeOptions],
+  );
 
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState<Member | undefined>(undefined);
@@ -84,9 +106,29 @@ export const EditMembers: FC<EditMembersProps> = ({
       let numberOfAddedMembers = 0;
       let numberOfChangedMembers = 0;
 
+      const allowedKinds = new Set(accountTypeOptions.map(({ value }) => value));
+
       const membersByName = new Map<string, Member>(members.map((member) => [member.name, member]));
       imported.forEach((importedMember) => {
-        const normalized = isV2 ? { ...importedMember, roles: [MCP_V2_DEFAULT_ROLE] } : importedMember;
+        if (!allowedKinds.has(importedMember.kind)) {
+          return;
+        }
+
+        const normalizeV2Role = (roleInput?: string | null): string => {
+          const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
+          if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
+            return MCP_V2_VIEWER_ROLE;
+          }
+          return MCP_V2_DEFAULT_ROLE;
+        };
+
+        const normalized = isV2
+          ? {
+              ...importedMember,
+              roles: [normalizeV2Role(importedMember.roles?.[0])],
+              namespace: importedMember.kind === 'ServiceAccount' ? importedMember.namespace : undefined,
+            }
+          : importedMember;
         const existingMember = membersByName.get(normalized.name);
         if (!existingMember) {
           numberOfAddedMembers++;
@@ -100,7 +142,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
       onMemberChanged(updatedMembers);
     },
-    [members, onMemberChanged, t, toast, isV2],
+    [members, onMemberChanged, t, toast, isV2, accountTypeOptions],
   );
 
   const handleSaveMember = useCallback(
@@ -139,7 +181,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           icon={'sap-icon://add-employee'}
           onClick={handleOpenMemberFormDialog}
         >
-          {t('EditMembers.addButton')}
+          {t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
         </Button>
         {type !== 'project' && (
           <Button
@@ -156,6 +198,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         open={isMemberDialogOpen}
         existingMembers={members}
         memberToEdit={memberToEdit}
+        accountTypeOptions={accountTypeOptions}
         {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
@@ -166,6 +209,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           isOpen={isImportDialogOpen}
           workspaceName={workspaceName}
           projectName={computedProjectName}
+          accountTypeOptions={accountTypeOptions}
           onClose={handleCloseImportDialog}
           onImport={handleImportMembers}
         />

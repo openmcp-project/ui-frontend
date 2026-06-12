@@ -119,36 +119,47 @@ if (DYNATRACE_SCRIPT_URL) {
 }
 
 fastify.register(helmet, {
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      // styleSrc: unsafe-inline is needed for our styling
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:'],
-      'connect-src': [
-        "'self'",
-        'sdk.openui5.org',
-        // Headlamp uses iconify for icons — these CDNs are fetched by the iframe (same-origin via BFF proxy)
-        'api.iconify.design',
-        'api.simplesvg.com',
-        'api.unisvg.com',
-        sentryHost,
-        dynatraceOrigin,
-      ],
-      'script-src': isLocalDev
-        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
-        : ["'self'", sentryHost, dynatraceOrigin],
-      'frame-src': ["'self'"],
-      // @ts-ignore
-      'frame-ancestors': [...fastify.config.FRAME_ANCESTORS.split(',')],
-    },
-  },
+  // CSP is managed manually below so we can suppress it for /api/headlamp/* paths.
+  // Headlamp's inline bootstrap scripts are blocked by script-src 'self', and the header
+  // must simply be absent for those responses — Helmet does not support per-request directives.
+  contentSecurityPolicy: false,
   // Needed for https enforcement
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true,
   },
+});
+
+// Strip BFF CSP for Headlamp proxy responses — Helmet's script-src 'self' blocks inline scripts.
+// Headlamp's own CSP is already removed by rewriteHeaders in http-proxy.ts.
+fastify.addHook('onSend', async (req, reply, payload) => {
+  const pathname = req.url.split('?')[0];
+  if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
+    return payload;
+  }
+  const frameAncestors = (fastify as any).config?.FRAME_ANCESTORS ?? '';
+  const csp = [
+    "default-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${sentryHost} ${dynatraceOrigin}`,
+    isLocalDev
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${sentryHost} ${dynatraceOrigin}`
+      : `script-src 'self' ${sentryHost} ${dynatraceOrigin}`,
+    "frame-src 'self'",
+    `frame-ancestors 'self' ${frameAncestors}`,
+    "base-uri 'self'",
+    "font-src 'self' https: data:",
+    "form-action 'self'",
+    "object-src 'none'",
+    "script-src-attr 'none'",
+    'upgrade-insecure-requests',
+  ]
+    .filter(Boolean)
+    .join(';');
+  reply.header('content-security-policy', csp);
+  return payload;
 });
 
 fastify.register(proxy, {
