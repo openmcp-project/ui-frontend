@@ -38,13 +38,13 @@ describe('PathAwareBreadcrumbs', () => {
     // Click on 'my-project' > Navigate to 'my-project'
     cy.contains('my-project').click();
     cy.wrap(null).then(() => {
-      expect(lastNavigatedPath).to.equal('/mcp/projects/my-project');
+      expect(lastNavigatedPath).to.equal('/projects/my-project');
     });
 
-    // Click on 'my-workspace' > Navigate to 'my-project' since workspaces don’t expose a direct path
+    // Click on 'my-workspace' > Navigate to 'my-project' since workspaces don't expose a direct path
     cy.contains('my-workspace').click();
     cy.wrap(null).then(() => {
-      expect(lastNavigatedPath).to.equal('/mcp/projects/my-project');
+      expect(lastNavigatedPath).to.equal('/projects/my-project');
     });
   });
 

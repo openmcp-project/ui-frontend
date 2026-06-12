@@ -45,7 +45,7 @@ export default function ProjectsList() {
               paddingBottom: '0.5rem',
             }}
             onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
+              navigate(`/projects/${instance.cell.row.original?.projectName as string}`);
             }}
           >
             {instance.cell.value}
