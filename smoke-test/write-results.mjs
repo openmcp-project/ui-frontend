@@ -69,7 +69,7 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: openmcp-smoke-test
 spec:
-  targetUrl: ${process.env.CYPRESS_BASE_URL ?? 'unknown'}
+  targetUrl: ${process.env.SMOKE_WEBAPP_URL ?? 'unknown'}
   startTime: "${startTime}"
   durationMs: ${duration}
 status:

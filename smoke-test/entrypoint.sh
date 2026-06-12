@@ -5,8 +5,8 @@
 set -e
 
 # ---- Required ---------------------------------------------------------------
-if [ -z "$CYPRESS_BASE_URL" ]; then
-  echo "ERROR: CYPRESS_BASE_URL is required (e.g. https://my-ui.example.com)"
+if [ -z "$SMOKE_WEBAPP_URL" ]; then
+  echo "ERROR: SMOKE_WEBAPP_URL is required (e.g. https://my-ui.example.com)"
   exit 2
 fi
 
@@ -22,7 +22,7 @@ fi
 # ---- Push output directory -------------------------------------------------
 mkdir -p /results
 
-echo "==> Starting smoke test against $CYPRESS_BASE_URL"
+echo "==> Starting smoke test against $SMOKE_WEBAPP_URL"
 echo "    Project : $SMOKE_PROJECT_NAME"
 echo "    Workspace: $SMOKE_WORKSPACE_NAME"
 echo "    MCP     : $SMOKE_MCP_NAME"

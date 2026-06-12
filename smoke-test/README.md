@@ -12,7 +12,7 @@ After each deployment your ops team can run a single container that logs in, cre
 ```sh
 cd smoke-test
 npm install
-cp env.smoke.template .env.smoke   # fill in CYPRESS_BASE_URL, credentials, etc.
+cp env.smoke.template .env.smoke   # fill in SMOKE_WEBAPP_URL, credentials, etc.
 set -a && source .env.smoke && set +a
 npm run smoke          # headless
 npm run smoke:open     # interactive browser
@@ -31,7 +31,7 @@ docker compose run smoke
 
 ```sh
 docker run --rm \
-  -e CYPRESS_BASE_URL=https://my-ui.example.com \
+  -e SMOKE_WEBAPP_URL=https://my-ui.example.com \
   -e SMOKE_USERNAME=ops@example.com \
   -e SMOKE_PASSWORD=*** \
   -v "$(pwd)/results:/results" \
@@ -46,7 +46,7 @@ All parameters are passed as environment variables.
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `CYPRESS_BASE_URL` | ✅ | — | Base URL of the deployed UI |
+| `SMOKE_WEBAPP_URL` | ✅ | — | Base URL of the deployed UI |
 | `SMOKE_USERNAME` | ✅ | — | OIDC login username / email |
 | `SMOKE_PASSWORD` | ✅ | — | OIDC login password |
 | `CYPRESS_CLIENT_CERT_PATH` | | — | Path to client TLS cert (inside container) |

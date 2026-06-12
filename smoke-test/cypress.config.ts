@@ -2,8 +2,8 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
-    // Base URL injected at runtime via CYPRESS_BASE_URL env var
-    baseUrl: process.env.CYPRESS_BASE_URL ?? 'http://localhost:5173',
+    // Base URL injected at runtime via SMOKE_WEBAPP_URL env var
+    baseUrl: process.env.SMOKE_WEBAPP_URL ?? 'http://localhost:5173',
     specPattern: 'cypress/e2e/**/*.cy.ts',
     supportFile: 'cypress/support/e2e.ts',
     screenshotsFolder: 'results/screenshots',
@@ -24,7 +24,7 @@ export default defineConfig({
     clientCertificates: process.env.CYPRESS_CLIENT_CERT_PATH
       ? [
           {
-            url: process.env.CYPRESS_BASE_URL ?? 'http://localhost:5173',
+            url: process.env.SMOKE_WEBAPP_URL ?? 'http://localhost:5173',
             certs: [
               {
                 cert: process.env.CYPRESS_CLIENT_CERT_PATH,

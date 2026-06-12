@@ -40,7 +40,7 @@ RUN chmod +x entrypoint.sh
 VOLUME ["/results"]
 
 # Environment variable documentation (all overridable at runtime)
-ENV CYPRESS_BASE_URL=""   \
+ENV SMOKE_WEBAPP_URL=""   \
     SMOKE_USERNAME=""      \
     SMOKE_PASSWORD=""      \
     SMOKE_PROJECT_NAME="smoke-test-project" \
