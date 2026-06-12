@@ -1,0 +1,26 @@
+# docker-compose.yaml — local development / one-shot smoke test run
+#
+# Usage:
+#   cp env.smoke.template .env.smoke   # fill in your values
+#   docker compose run smoke
+#
+# Results land in ./results/ on your host.
+
+services:
+  smoke:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openmcp-smoke-test:local
+    env_file:
+      - .env.smoke
+    volumes:
+      # Results written here — browse after the run
+      - ./results:/results
+      # Optional: mount client certs
+      # - /path/to/certs:/certs:ro
+      # Optional: mount kubeconfig to apply CRD result
+      # - ~/.kube:/root/.kube:ro
+    # Override the browser for local debugging
+    # environment:
+    #   SMOKE_BROWSER: electron

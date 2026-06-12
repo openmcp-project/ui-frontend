@@ -1,0 +1,74 @@
+# CustomResourceDefinition for SmokeTestResult.
+# Apply once to a cluster: kubectl apply -f smoke-test-crd.yaml
+#
+# After each smoke test run the container writes a SmokeTestResult instance.
+# Kubernetes operators or GitOps tools can watch this resource to automate
+# post-deployment decisions (e.g. roll back, alert, promote).
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: smoketestresults.openmcp.cloud
+spec:
+  group: openmcp.cloud
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                targetUrl:
+                  type: string
+                startTime:
+                  type: string
+                  format: date-time
+                durationMs:
+                  type: integer
+            status:
+              type: object
+              properties:
+                overall:
+                  type: string
+                  enum: [success, failure]
+                totals:
+                  type: object
+                  properties:
+                    passed: { type: integer }
+                    failed: { type: integer }
+                    pending: { type: integer }
+                    total: { type: integer }
+                tests:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      state:
+                        type: string
+                        enum: [passed, failed, pending]
+                      durationMs: { type: integer }
+                      error: { type: string }
+      additionalPrinterColumns:
+        - name: Overall
+          type: string
+          jsonPath: .status.overall
+        - name: Passed
+          type: integer
+          jsonPath: .status.totals.passed
+        - name: Failed
+          type: integer
+          jsonPath: .status.totals.failed
+        - name: StartTime
+          type: string
+          jsonPath: .spec.startTime
+  scope: Namespaced
+  names:
+    plural: smoketestresults
+    singular: smoketestresult
+    kind: SmokeTestResult
+    shortNames:
+      - str
