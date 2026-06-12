@@ -115,7 +115,7 @@
     "npm-package-json-lint": "10.4.0",
     "prettier": "3.8.3",
     "tsx": "4.22.3",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.60.0",
     "vite": "8.0.14",
     "vite-plugin-static-copy": "4.1.0",
