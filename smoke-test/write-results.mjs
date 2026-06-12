@@ -57,11 +57,15 @@ console.log('Wrote results/smoke-result.json');
 // CRD definition lives alongside this tool (smoke-test-crd.yaml).
 // The manifest below is an *instance* of that CRD.
 const runName = `smoke-${new Date(startTime).toISOString().replace(/[:.]/g, '-').slice(0, 19)}`;
+// Use a dedicated namespace to keep results out of app namespaces.
+// Override with SMOKE_RESULT_NAMESPACE env var.
+const namespace = process.env.SMOKE_RESULT_NAMESPACE ?? 'smoke-tests';
 
 const crd = `apiVersion: openmcp.cloud/v1alpha1
 kind: SmokeTestResult
 metadata:
   name: ${runName}
+  namespace: ${namespace}
   labels:
     app.kubernetes.io/managed-by: openmcp-smoke-test
 spec:

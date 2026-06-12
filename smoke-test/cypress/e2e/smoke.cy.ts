@@ -62,25 +62,30 @@ function deleteProjectIfExists(projectName: string) {
 }
 
 function signIn() {
-  const username = Cypress.env('USERNAME') as string;
-  const password = Cypress.env('PASSWORD') as string;
-
   cy.visit('/');
-  // Wait for the sign-in page
+  // Click the app's "Sign In" button — uses the system (default) IdP configured
+  // in the deployment. Credentials are passed via OIDC session/cert; username
+  // and password fields are only used if the IdP presents a login form.
   cy.get('ui5-button').contains('Sign In', { timeout: 15000 }).click();
 
-  // OIDC login form — selectors vary by IdP, adjust as needed
-  cy.origin(Cypress.config('baseUrl')!, () => {
-    const u = Cypress.env('USERNAME') as string;
-    const p = Cypress.env('PASSWORD') as string;
-    cy.get('input[name="username"], input[type="email"], #username', { timeout: 15000 }).type(u);
-    cy.get('input[name="password"], input[type="password"], #password').type(p, { log: false });
-    cy.get('button[type="submit"], input[type="submit"]').click();
-  });
+  // If the IdP presents a username/password form, fill it in.
+  // This is skipped when cert-based auth or SSO handles authentication silently.
+  const username = Cypress.env('USERNAME') as string;
+  const password = Cypress.env('PASSWORD') as string;
+  if (username && password) {
+    cy.get('input[name="username"], input[type="email"], #username', { timeout: 10000 })
+      .then(($el) => {
+        if ($el.length) {
+          cy.wrap($el).type(username);
+          cy.get('input[name="password"], input[type="password"], #password').type(password, { log: false });
+          cy.get('button[type="submit"], input[type="submit"]').click();
+        }
+      });
+  }
 
-  // Back on the app — project list should be visible
-  cy.url({ timeout: 30000 }).should('include', '/mcp/projects');
-  // Dismiss any "Beta" info popover if present
+  // Wait to land back on the project list after the OIDC redirect
+  cy.url({ timeout: 60000 }).should('include', '/mcp/projects');
+  // Dismiss the Beta info popover if it appears on first load
   cy.get('body').then(($body) => {
     if ($body.find('ui5-popover[open]').length) {
       cy.get('ui5-popover[open] ui5-button').first().click({ force: true });

@@ -58,6 +58,7 @@ All parameters are passed as environment variables.
 | `SMOKE_EXTRA_ADMINS` | | — | Comma-separated emails to add as admins on project, workspace, and MCP — handy for ops debugging access after the run |
 | `SMOKE_BROWSER` | | `chrome` | Browser to use (`chrome`, `electron`) |
 | `KUBECONFIG` | | — | If set, applies the `SmokeTestResult` CRD to your cluster |
+| `SMOKE_RESULT_NAMESPACE` | | `smoke-tests` | Kubernetes namespace for result CRD instances |
 
 Mount `/certs` to pass a client certificate:
 
@@ -100,9 +101,10 @@ After a run, `results/` contains:
 
 ### Kubernetes integration
 
-Apply the CRD definition once:
+Apply the CRD definition once (into a dedicated namespace):
 
 ```sh
+kubectl create namespace smoke-tests --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f smoke-test/smoke-test-crd.yaml
 ```
 

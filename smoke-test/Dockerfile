@@ -15,7 +15,8 @@ RUN npm ci --omit=dev
 
 # ---- Stage 2: final runnable image ----------------------------------------
 # cypress/included bundles Cypress + Chrome + all system dependencies.
-# Pin the digest for reproducible builds; update intentionally.
+# TODO: pin to a digest once first run confirms the version works, e.g.:
+#   FROM cypress/included:14.0.0@sha256:<digest>
 FROM cypress/included:14.0.0
 
 # kubectl — optional, used to apply CRD results to a cluster
