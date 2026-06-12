@@ -4,6 +4,8 @@ import '@ui5/webcomponents-icons/dist/arrow-right';
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useMemo } from 'react';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
+import { useProjectsDisplayNames } from '../../spaces/onboarding/hooks/useProjectsDisplayNames';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -14,22 +16,35 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
   projectName: string;
+  displayName: string;
   nameSpace: string;
 };
+
+interface DisplayNameCellProps {
+  projectName: string;
+  useProjectMembers?: typeof _useProjectMembers;
+}
+
+function DisplayNameCell({ projectName, useProjectMembers = _useProjectMembers }: DisplayNameCellProps) {
+  const { displayName } = useProjectMembers(projectName);
+  return <span>{displayName ?? ''}</span>;
+}
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error } = useProjectsQuery();
+  const displayNames = useProjectsDisplayNames();
+
   const stabilizedData = useMemo<ProjectListRow[]>(
     () =>
-      data?.map((projectName) => {
-        return {
-          projectName: projectName,
-          nameSpace: projectnameToNamespace(projectName),
-        };
-      }) ?? [],
-    [data],
+      data?.map((projectName) => ({
+        projectName,
+        displayName: displayNames.get(projectName) ?? '',
+        nameSpace: projectnameToNamespace(projectName),
+      })) ?? [],
+    [data, displayNames],
   );
+
   const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
@@ -51,6 +66,11 @@ export default function ProjectsList() {
             {instance.cell.value}
           </Link>
         ),
+      },
+      {
+        Header: t('ProjectsListView.displayNameHeader'),
+        accessor: 'displayName',
+        Cell: (instance) => <DisplayNameCell projectName={instance.cell.row.original?.projectName as string} />,
       },
       {
         Header: 'Namespace',
@@ -76,6 +96,7 @@ export default function ProjectsList() {
         accessor: 'yaml',
         width: 75,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div
@@ -99,6 +120,7 @@ export default function ProjectsList() {
         accessor: 'options',
         width: 60,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div
@@ -116,6 +138,7 @@ export default function ProjectsList() {
     ],
     [navigate],
   );
+
   if (error) {
     return <IllustratedError details={error.message} />;
   }
@@ -130,6 +153,8 @@ export default function ProjectsList() {
           borderRadius: '12px',
           overflow: 'hidden',
         }}
+        sortable
+        reactTableOptions={{ autoResetSortBy: false }}
         columns={stabilizedColumns}
         data={stabilizedData}
       />
