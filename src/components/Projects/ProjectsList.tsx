@@ -17,7 +17,11 @@ type ProjectListRow = {
   nameSpace: string;
 };
 
-export default function ProjectsList() {
+interface ProjectsListProps {
+  onProjectSelect?: (projectName: string) => void;
+}
+
+export default function ProjectsList({ onProjectSelect }: ProjectsListProps = {}) {
   const navigate = useLuigiNavigate();
   const { data, error } = useProjectsQuery();
   const stabilizedData = useMemo<ProjectListRow[]>(
@@ -45,7 +49,9 @@ export default function ProjectsList() {
               paddingBottom: '0.5rem',
             }}
             onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
+              const projectName = instance.cell.row.original?.projectName as string;
+              onProjectSelect?.(projectName);
+              navigate(`/mcp/projects/${projectName}`);
             }}
           >
             {instance.cell.value}
@@ -114,7 +120,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, onProjectSelect],
   );
   if (error) {
     return <IllustratedError details={error.message} />;
