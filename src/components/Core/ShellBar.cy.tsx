@@ -3,6 +3,7 @@ import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { setRememberedProject, clearRememberedProject } from '../../utils/rememberedProject.ts';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
@@ -80,6 +81,40 @@ describe('ShellBar', () => {
     // Verify logout was called
     cy.wrap(null).should(() => {
       expect(logoutCalled).to.equal(true);
+    });
+  });
+
+  it('does not show clear remembered project when no project is stored', () => {
+    cy.wrap(null).then(() => clearRememberedProject());
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+      cy.contains('Clear remembered project').should('not.exist');
+    });
+  });
+
+  it('shows clear remembered project when a project is stored', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+      cy.contains('Clear remembered project').should('exist');
+    });
+
+    cy.wrap(null).then(() => clearRememberedProject());
+  });
+
+  it('clears remembered project when clear item is clicked', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.contains('Clear remembered project').click({ force: true });
+
+    cy.wrap(null).should(() => {
+      expect(localStorage.getItem('rememberedProject')).to.equal(null);
     });
   });
 });

@@ -4,7 +4,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useMemo } from 'react';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -32,9 +32,13 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
 
 interface ProjectsListProps {
   onProjectSelect?: (projectName: string) => void;
+  useProjectsQuery?: typeof _useProjectsQuery;
 }
 
-export default function ProjectsList({ onProjectSelect }: ProjectsListProps = {}) {
+export default function ProjectsList({
+  onProjectSelect,
+  useProjectsQuery = _useProjectsQuery,
+}: ProjectsListProps = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
 
