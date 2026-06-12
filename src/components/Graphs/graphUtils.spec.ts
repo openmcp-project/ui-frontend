@@ -99,8 +99,8 @@ describe('buildTreeData', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
-      id: 'test-resource-v1',
-      label: 'test-resource-v1',
+      id: 'test-resource',
+      label: 'test-resource',
       type: 'TestKind',
       providerConfigName: 'test-config',
       status: 'OK',
@@ -128,17 +128,17 @@ describe('buildTreeData', () => {
     const result = buildTreeData(managedResources, mockProviderConfigsList, mockOnYamlClick);
 
     expect(result[0]).toMatchObject({
-      id: 'space-resource-v1beta1',
-      parentId: 'my-subaccount-v1beta1',
-      extraRefs: ['my-org-v1beta1'],
+      id: 'space-resource',
+      parentId: 'my-subaccount',
+      extraRefs: ['my-org'],
       status: 'ERROR',
     });
   });
 
-  it('creates separate nodes for items with same name but different apiVersion', () => {
+  it('deduplicates items with same name+kind but different apiVersion', () => {
     const item1: ManagedResourceItem = {
       metadata: { name: 'same-resource' },
-      apiVersion: 'v1',
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
       kind: 'TestKind',
       spec: { providerConfigRef: { name: 'test-config' }, forProvider: {} },
       status: { conditions: [{ type: 'Ready', status: 'True' }] },
@@ -146,7 +146,7 @@ describe('buildTreeData', () => {
 
     const item2: ManagedResourceItem = {
       metadata: { name: 'same-resource' },
-      apiVersion: 'v1beta1',
+      apiVersion: 'account.btp.sap.crossplane.io/v1beta1',
       kind: 'TestKind',
       spec: { providerConfigRef: { name: 'test-config' }, forProvider: {} },
       status: { conditions: [{ type: 'Ready', status: 'True' }] },
@@ -155,8 +155,7 @@ describe('buildTreeData', () => {
     const managedResources: ManagedResourceGroup[] = [{ items: [item1, item2] }];
     const result = buildTreeData(managedResources, mockProviderConfigsList, mockOnYamlClick);
 
-    expect(result).toHaveLength(2);
-    expect(result.map((r) => r.id)).toEqual(['same-resource-v1', 'same-resource-v1beta1']);
-    expect(result.map((r) => r.label)).toEqual(['same-resource-v1', 'same-resource-v1beta1']);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('same-resource');
   });
 });

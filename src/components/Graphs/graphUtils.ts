@@ -1,5 +1,6 @@
 import { Condition, ManagedResourceGroup, ManagedResourceItem, ProviderConfigs } from '../../lib/shared/types';
 import { NodeData } from './types';
+import { deduplicateManagedResources } from '../../utils/deduplicateManagedResources';
 
 export type StatusType = 'ERROR' | 'OK';
 
@@ -83,92 +84,86 @@ export function buildTreeData(
 ): NodeData[] {
   if (!managedResources || !providerConfigsList) return [];
 
+  const allItems = managedResources.flatMap((group) => group.items ?? []);
+  const deduplicated = deduplicateManagedResources(allItems);
+
   const allNodesMap = new Map<string, NodeData>();
 
-  managedResources.forEach((group: ManagedResourceGroup) => {
-    group.items?.forEach((item: ManagedResourceItem) => {
-      const name = item?.metadata?.name;
-      const apiVersion = item?.apiVersion ?? '';
-      const id = `${name}-${apiVersion}`;
-      const kind = item?.kind;
-      const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
-      const providerType = resolveProviderTypeFromApiVersion(apiVersion);
-      const statusCond = getStatusCondition(item?.status?.conditions);
-      const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
-      const conditions = (item?.status?.conditions ?? []).map((condition) => ({
-        ...condition,
-        type: String(condition.type),
-        reason: condition.reason ?? '',
-        message: condition.message ?? '',
-      }));
+  deduplicated.forEach((item: ManagedResourceItem) => {
+    const name = item?.metadata?.name;
+    const apiVersion = item?.apiVersion ?? '';
+    const id = name;
+    const kind = item?.kind;
+    const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
+    const providerType = resolveProviderTypeFromApiVersion(apiVersion);
+    const statusCond = getStatusCondition(item?.status?.conditions);
+    const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
+    const conditions = (item?.status?.conditions ?? []).map((condition) => ({
+      ...condition,
+      type: String(condition.type),
+      reason: condition.reason ?? '',
+      message: condition.message ?? '',
+    }));
 
-      let fluxName: string | undefined;
-      const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
-      if (labelsMap) {
-        const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
-        if (key) fluxName = labelsMap[key];
-      }
+    let fluxName: string | undefined;
+    const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
+    if (labelsMap) {
+      const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
+      if (key) fluxName = labelsMap[key];
+    }
 
-      const {
-        subaccountRef,
-        serviceManagerRef,
-        spaceRef,
-        orgRef,
-        cloudManagementRef,
-        directoryRef,
-        entitlementRef,
-        globalAccountRef,
-        orgRoleRef,
-        spaceMembersRef,
-        cloudFoundryEnvironmentRef,
-        kymaEnvironmentRef,
-        roleCollectionRef,
-        roleCollectionAssignmentRef,
-        subaccountTrustConfigurationRef,
-        globalaccountTrustConfigurationRef,
-      } = extractRefs(item);
+    const {
+      subaccountRef,
+      serviceManagerRef,
+      spaceRef,
+      orgRef,
+      cloudManagementRef,
+      directoryRef,
+      entitlementRef,
+      globalAccountRef,
+      orgRoleRef,
+      spaceMembersRef,
+      cloudFoundryEnvironmentRef,
+      kymaEnvironmentRef,
+      roleCollectionRef,
+      roleCollectionAssignmentRef,
+      subaccountTrustConfigurationRef,
+      globalaccountTrustConfigurationRef,
+    } = extractRefs(item);
 
-      const createReferenceIdWithApiVersion = (referenceName: string | undefined) => {
-        if (!referenceName) return undefined;
-        return `${referenceName}-${apiVersion}`;
-      };
-
-      if (id) {
-        allNodesMap.set(id, {
-          id,
-          label: id,
-          type: kind,
-          providerConfigName,
-          providerType,
-          status,
-          transitionTime: statusCond?.lastTransitionTime ?? '',
-          statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
-          conditions,
-          fluxName,
-          parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
-          extraRefs: [
-            spaceRef,
-            orgRef,
-            cloudManagementRef,
-            directoryRef,
-            entitlementRef,
-            globalAccountRef,
-            orgRoleRef,
-            spaceMembersRef,
-            cloudFoundryEnvironmentRef,
-            kymaEnvironmentRef,
-            roleCollectionRef,
-            roleCollectionAssignmentRef,
-            subaccountTrustConfigurationRef,
-            globalaccountTrustConfigurationRef,
-          ]
-            .map(createReferenceIdWithApiVersion)
-            .filter(Boolean) as string[],
-          item,
-          onYamlClick,
-        });
-      }
-    });
+    if (id) {
+      allNodesMap.set(id, {
+        id,
+        label: id,
+        type: kind,
+        providerConfigName,
+        providerType,
+        status,
+        transitionTime: statusCond?.lastTransitionTime ?? '',
+        statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+        conditions,
+        fluxName,
+        parentId: serviceManagerRef || subaccountRef || undefined,
+        extraRefs: [
+          spaceRef,
+          orgRef,
+          cloudManagementRef,
+          directoryRef,
+          entitlementRef,
+          globalAccountRef,
+          orgRoleRef,
+          spaceMembersRef,
+          cloudFoundryEnvironmentRef,
+          kymaEnvironmentRef,
+          roleCollectionRef,
+          roleCollectionAssignmentRef,
+          subaccountTrustConfigurationRef,
+          globalaccountTrustConfigurationRef,
+        ].filter(Boolean) as string[],
+        item,
+        onYamlClick,
+      });
+    }
   });
 
   return Array.from(allNodesMap.values());
