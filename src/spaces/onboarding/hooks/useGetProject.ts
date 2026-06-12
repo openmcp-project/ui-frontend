@@ -1,4 +1,4 @@
-import type { TypedDocumentNode } from '@apollo/client';
+import { gql, type TypedDocumentNode } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import {
   CHARGING_TARGET_LABEL,
@@ -6,13 +6,12 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
-import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1QueryProjectArgs, Query } from '../../../types/__generated__/graphql/graphql';
 
 type GetProjectQueryData = Pick<Query, 'core_openmcp_cloud'>;
 type GetProjectQueryVariables = CoreOpenmcpCloudV1alpha1QueryProjectArgs;
 
-const GetProjectQuery = graphql(`
+const GetProjectQuery = gql(`
   query GetProject($name: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -62,16 +61,16 @@ export function useGetProject(projectName: string | undefined) {
         chargingTarget: labels[CHARGING_TARGET_LABEL] ?? '',
         chargingTargetType: labels[CHARGING_TARGET_TYPE_LABEL] ?? '',
         members: (project.spec?.members ?? []).flatMap((member) => {
-            if (!member?.name || !member?.kind) return [];
-            return [
-              {
-                kind: member.kind,
-                name: member.name,
-                namespace: member.namespace ?? undefined,
-                roles: member.roles?.filter((role): role is string => Boolean(role)) ?? [],
-              },
-            ];
-          }),
+          if (!member?.name || !member?.kind) return [];
+          return [
+            {
+              kind: member.kind,
+              name: member.name,
+              namespace: member.namespace ?? undefined,
+              roles: member.roles?.filter((role): role is string => Boolean(role)) ?? [],
+            },
+          ];
+        }),
       }
     : undefined;
 
