@@ -6,9 +6,9 @@ const UpdateLandscaperMutation = gql`
   mutation UpdateLandscaper(
     $namespace: String
     $name: String!
-    $object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input!
+    $object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input!
   ) {
-    landscaper_services_openmcp_cloud {
+    landscaper_services_open_control_plane_io {
       v1alpha2 {
         updateLandscaper(namespace: $namespace, name: $name, object: $object) {
           metadata {

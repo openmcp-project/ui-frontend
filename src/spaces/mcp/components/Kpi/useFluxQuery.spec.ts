@@ -21,7 +21,7 @@ function makeQueryResult(raw: unknown) {
   return {
     ...baseQueryResult,
     data: {
-      flux_services_openmcp_cloud: {
+      flux_services_open_control_plane_io: {
         v1alpha1: {
           Flux: raw,
         },

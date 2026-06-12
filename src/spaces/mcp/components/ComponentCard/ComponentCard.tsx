@@ -1,5 +1,19 @@
-import { Button, Card, CardHeader } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/overflow';
+import {
+  Button,
+  ButtonDomRef,
+  Card,
+  CardHeader,
+  Menu,
+  MenuDomRef,
+  MenuItem,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { clsx } from 'clsx';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
@@ -16,6 +30,7 @@ export type ComponentCardProps = KpiProps & {
   onNavigateToComponentSection?: () => void;
   onInstallButtonClick?: () => void;
   onEditButtonClick?: () => void;
+  onDeleteButtonClick?: () => void;
 };
 
 export function ComponentCard({
@@ -27,12 +42,25 @@ export function ComponentCard({
   onNavigateToComponentSection,
   onInstallButtonClick,
   onEditButtonClick,
+  onDeleteButtonClick,
   ...props
 }: ComponentCardProps) {
   const { t } = useTranslation();
+  const menuRef = useRef<MenuDomRef>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection;
+  const canNavigateToComponentDetails = isInstalled && !!onNavigateToComponentSection && !menuOpen;
   const prefixedVersion = version ? prefixVersion(version) : undefined;
+  const hasActions = !!(onEditButtonClick || onDeleteButtonClick);
+
+  const handleMenuOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    if (menuRef.current && e.currentTarget) {
+      menuRef.current.opener = e.currentTarget as HTMLElement;
+      setMenuOpen((prev) => !prev);
+    }
+  };
 
   return (
     <Card
@@ -60,19 +88,46 @@ export function ComponentCard({
               <div className={styles.kpiContent}>
                 <Kpi {...props} />
               </div>
-              <div className={styles.actions}>
-                {onEditButtonClick && (
+              {hasActions && (
+                <div className={styles.actions}>
                   <Button
-                    accessibleName={t('ComponentCard.editButton')}
-                    data-cy="edit-button"
-                    icon="sap-icon://edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditButtonClick();
-                    }}
+                    accessibleName={t('ComponentCard.actionsMenu')}
+                    data-cy="actions-menu-button"
+                    design="Transparent"
+                    icon="overflow"
+                    onClick={handleMenuOpenerClick}
                   />
-                )}
-              </div>
+                  <Menu
+                    ref={menuRef}
+                    open={menuOpen}
+                    onItemClick={(event) => {
+                      event.stopImmediatePropagation();
+                      event.stopPropagation();
+                      const action = (event.detail.item as HTMLElement).dataset.action;
+                      if (action === 'edit') onEditButtonClick?.();
+                      if (action === 'delete') onDeleteButtonClick?.();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {onEditButtonClick && (
+                      <MenuItem
+                        data-action="edit"
+                        data-cy="edit-menu-item"
+                        icon="edit"
+                        text={t('ComponentCard.editButton')}
+                      />
+                    )}
+                    {onDeleteButtonClick && (
+                      <MenuItem
+                        data-action="delete"
+                        data-cy="delete-menu-item"
+                        icon="delete"
+                        text={t('ComponentCard.deleteButton')}
+                      />
+                    )}
+                  </Menu>
+                </div>
+              )}
             </div>
           ) : (
             <div data-cy="uninstalled-container" className={styles.uninstalledContainer}>

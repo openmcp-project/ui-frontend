@@ -6,9 +6,9 @@ const UpdateCrossplaneMutation = gql`
   mutation UpdateCrossplane(
     $namespace: String
     $name: String!
-    $object: CrossplaneServicesOpenmcpCloudV1alpha1Crossplane_Input!
+    $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!
   ) {
-    crossplane_services_openmcp_cloud {
+    crossplane_services_open_control_plane_io {
       v1alpha1 {
         updateCrossplane(namespace: $namespace, name: $name, object: $object) {
           metadata {

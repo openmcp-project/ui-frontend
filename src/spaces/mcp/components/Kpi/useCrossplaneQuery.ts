@@ -7,7 +7,7 @@ import { CrossplaneData, CrossplaneSchema } from '../../types/Crossplane.ts';
 
 const GET_CROSSPLANE_QUERY = graphql(`
   query GetCrossplane($name: String!, $namespace: String) {
-    crossplane_services_openmcp_cloud {
+    crossplane_services_open_control_plane_io {
       v1alpha1 {
         Crossplane(name: $name, namespace: $namespace) {
           kind
@@ -43,7 +43,7 @@ export function useCrossplaneQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawCrossplane = queryResult.data?.crossplane_services_openmcp_cloud?.v1alpha1?.Crossplane;
+  const rawCrossplane = queryResult.data?.crossplane_services_open_control_plane_io?.v1alpha1?.Crossplane;
 
   const crossplaneData = useMemo<CrossplaneData | null>(() => {
     if (!rawCrossplane) return null;

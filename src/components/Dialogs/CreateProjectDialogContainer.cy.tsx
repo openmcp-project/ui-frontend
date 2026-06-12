@@ -139,6 +139,7 @@ describe('CreateProjectDialogContainer', () => {
     cy.get('#name').find('input[id*="inner"]').type('test-project');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
 
     goToMembers();
