@@ -190,6 +190,10 @@
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
   },
+  "EditProjectDialog": {
+    "title": "Edit Project",
+    "toastMessage": "Project updated successfully."
+  },
   "CreateWorkspaceDialog": {
     "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
   },
@@ -219,6 +223,7 @@
   },
   "CreateProjectWorkspaceDialog": {
     "createButton": "Create",
+    "saveButton": "Save",
     "cancelButton": "Cancel",
     "createWorkspaceTitle": "Create Workspace",
     "createProjectTitle": "Create Project",
@@ -255,6 +260,7 @@
     "title": "Projects",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
+    "editProject": "Edit project",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {
