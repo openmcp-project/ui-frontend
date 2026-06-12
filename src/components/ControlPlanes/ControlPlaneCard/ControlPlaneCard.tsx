@@ -19,6 +19,7 @@ import { canConnectToMCP } from '../controlPlanes.ts';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import { EditManagedControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
@@ -47,6 +48,7 @@ export const ControlPlaneCard = ({
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
+  const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
     mode: undefined,
@@ -102,6 +104,7 @@ export const ControlPlaneCard = ({
                 <ControlPlaneCardMenuV2
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                  setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
                 />
               )}
               {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}
@@ -166,6 +169,14 @@ export const ControlPlaneCard = ({
         resourceName={name}
         mode={managedControlPlaneWizardState.mode}
       />
+      {controlPlane.version === 'v2' && (
+        <EditManagedControlPlaneV2WizardDataLoader
+          isOpen={isEditV2WizardOpen}
+          setIsOpen={setIsEditV2WizardOpen}
+          namespace={namespace}
+          resourceName={name}
+        />
+      )}
     </>
   );
 };

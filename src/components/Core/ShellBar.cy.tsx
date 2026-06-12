@@ -35,7 +35,7 @@ describe('ShellBar', () => {
   it('renders the ShellBar with logo and title', () => {
     mountComponent();
 
-    cy.contains('ManagedControlPlane UI').should('be.visible');
+    cy.contains('Control Plane UI').should('be.visible');
     cy.get('img[alt="SAP"]').should('be.visible');
   });
 
