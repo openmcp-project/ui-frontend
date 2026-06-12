@@ -34355,10 +34355,10 @@ export type DeleteCrossplaneMutationVariables = Exact<{
 
 export type DeleteCrossplaneMutation = {
   __typename?: 'Mutation';
-  crossplane_services_openmcp_cloud?: {
-    __typename?: 'CrossplaneServicesOpenmcpCloudMutation';
+  crossplane_services_open_control_plane_io?: {
+    __typename?: 'CrossplaneServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'CrossplaneServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'CrossplaneServicesOpenControlPlaneIoV1alpha1Mutation';
       deleteCrossplane?: boolean | null;
     } | null;
   } | null;
@@ -34371,10 +34371,10 @@ export type DeleteExternalSecretsOperatorMutationVariables = Exact<{
 
 export type DeleteExternalSecretsOperatorMutation = {
   __typename?: 'Mutation';
-  external_secrets_services_openmcp_cloud?: {
-    __typename?: 'ExternalSecretsServicesOpenmcpCloudMutation';
+  external_secrets_services_open_control_plane_io?: {
+    __typename?: 'ExternalSecretsServicesOpenControlPlaneIoMutation';
     v1alpha1?: {
-      __typename?: 'ExternalSecretsServicesOpenmcpCloudV1alpha1Mutation';
+      __typename?: 'ExternalSecretsServicesOpenControlPlaneIoV1alpha1Mutation';
       deleteExternalSecretsOperator?: boolean | null;
     } | null;
   } | null;
@@ -34387,9 +34387,9 @@ export type DeleteFluxMutationVariables = Exact<{
 
 export type DeleteFluxMutation = {
   __typename?: 'Mutation';
-  flux_services_openmcp_cloud?: {
-    __typename?: 'FluxServicesOpenmcpCloudMutation';
-    v1alpha1?: { __typename?: 'FluxServicesOpenmcpCloudV1alpha1Mutation'; deleteFlux?: boolean | null } | null;
+  flux_services_open_control_plane_io?: {
+    __typename?: 'FluxServicesOpenControlPlaneIoMutation';
+    v1alpha1?: { __typename?: 'FluxServicesOpenControlPlaneIoV1alpha1Mutation'; deleteFlux?: boolean | null } | null;
   } | null;
 };
 
@@ -34400,10 +34400,10 @@ export type DeleteLandscaperMutationVariables = Exact<{
 
 export type DeleteLandscaperMutation = {
   __typename?: 'Mutation';
-  landscaper_services_openmcp_cloud?: {
-    __typename?: 'LandscaperServicesOpenmcpCloudMutation';
+  landscaper_services_open_control_plane_io?: {
+    __typename?: 'LandscaperServicesOpenControlPlaneIoMutation';
     v1alpha2?: {
-      __typename?: 'LandscaperServicesOpenmcpCloudV1alpha2Mutation';
+      __typename?: 'LandscaperServicesOpenControlPlaneIoV1alpha2Mutation';
       deleteLandscaper?: boolean | null;
     } | null;
   } | null;
@@ -35800,7 +35800,7 @@ export const DeleteCrossplaneDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'crossplane_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35861,7 +35861,7 @@ export const DeleteExternalSecretsOperatorDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'external_secrets_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35922,7 +35922,7 @@ export const DeleteFluxDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'flux_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -35983,7 +35983,7 @@ export const DeleteLandscaperDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'landscaper_services_openmcp_cloud' },
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
