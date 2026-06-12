@@ -46,12 +46,13 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  handleSubmit: UseFormHandleSubmit<CreateDialogProps>;
+  handleSubmit?: UseFormHandleSubmit<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project';
   watch: UseFormWatch<CreateDialogProps>;
-  isMetadataValid: boolean;
+  isMetadataValid?: boolean;
   isLoading?: boolean;
+  isEditMode?: boolean;
 }
 
 type Step = 'metadata' | 'members';
@@ -70,8 +71,9 @@ export function CreateProjectWorkspaceDialog({
   projectName,
   type,
   watch,
-  isMetadataValid,
+  isMetadataValid = true,
   isLoading = false,
+  isEditMode = false,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>('metadata');
@@ -99,7 +101,7 @@ export function CreateProjectWorkspaceDialog({
     setIsOpen(false);
   };
 
-  const goToMembers = () => handleSubmit(() => setStep('members'))();
+  const goToMembers = () => handleSubmit?.(() => setStep('members'))();
 
   return (
     <>
@@ -116,7 +118,11 @@ export function CreateProjectWorkspaceDialog({
                 <Button design="Transparent" onClick={onClose}>
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
-                {step === 'metadata' ? (
+                {isEditMode ? (
+                  <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                    {t('CreateProjectWorkspaceDialog.saveButton')}
+                  </Button>
+                ) : step === 'metadata' ? (
                   <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
                     {t('buttons.next')}
                   </Button>
@@ -149,11 +155,12 @@ export function CreateProjectWorkspaceDialog({
                   requireChargingTarget={type === 'project'}
                   setValue={setValue}
                   watch={watch}
+                  isEditMode={isEditMode}
                 />
               </WizardStep>
               <WizardStep
                 data-step="members"
-                disabled={!isMetadataValid}
+                disabled={!isEditMode && !isMetadataValid}
                 icon="user-edit"
                 selected={step === 'members'}
                 titleText={t('CreateProjectWorkspaceDialog.membersHeader')}

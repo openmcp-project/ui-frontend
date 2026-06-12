@@ -1,8 +1,9 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { CreateCrossplaneMutationVariables } from '../../../types/__generated__/graphql/graphql';
 
-const CreateCrossplaneMutation = gql`
+const CreateCrossplaneMutation = graphql(`
   mutation CreateCrossplane(
     $namespace: String
     $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!
@@ -18,7 +19,7 @@ const CreateCrossplaneMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useCreateCrossplane() {
   const [createMutation, { loading, error }] = useMutation(CreateCrossplaneMutation, {
@@ -26,9 +27,8 @@ export function useCreateCrossplane() {
   });
 
   const create = useCallback(
-    // TODO: replace `object: unknown` with the generated `CrossplaneInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; object: unknown }) => {
-      return createMutation({ variables });
+      return createMutation({ variables: variables as CreateCrossplaneMutationVariables });
     },
     [createMutation],
   );
