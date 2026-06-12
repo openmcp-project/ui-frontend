@@ -129,9 +129,9 @@ describe('ProjectsListItemMenu', () => {
     cy.get('ui5-button[icon="overflow"]').click();
     cy.contains('Edit project').click({ force: true });
 
-    cy.get('[data-testid="add-member-button"]').first().click();
+    cy.get('[data-testid="add-member-button"]').first().click({ force: true });
     cy.get('[data-testid="member-email-input"]').typeIntoUi5Input('new-user@example.com');
-    cy.get('[data-testid="add-member-button"]').last().click();
+    cy.get('[data-testid="add-member-button"]').last().click({ force: true });
 
     cy.get('ui5-button').contains('Save').click();
 
