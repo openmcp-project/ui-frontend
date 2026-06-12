@@ -4,7 +4,7 @@ import '@ui5/webcomponents-icons/dist/arrow-right';
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useMemo } from 'react';
-import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
@@ -17,7 +17,15 @@ type ProjectListRow = {
   nameSpace: string;
 };
 
-export default function ProjectsList() {
+interface ProjectsListProps {
+  onProjectSelect?: (projectName: string) => void;
+  useProjectsQuery?: typeof _useProjectsQuery;
+}
+
+export default function ProjectsList({
+  onProjectSelect,
+  useProjectsQuery = _useProjectsQuery,
+}: ProjectsListProps = {}) {
   const navigate = useLuigiNavigate();
   const { data, error } = useProjectsQuery();
   const stabilizedData = useMemo<ProjectListRow[]>(
@@ -45,7 +53,9 @@ export default function ProjectsList() {
               paddingBottom: '0.5rem',
             }}
             onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
+              const projectName = instance.cell.row.original?.projectName as string;
+              onProjectSelect?.(projectName);
+              navigate(`/mcp/projects/${projectName}`);
             }}
           >
             {instance.cell.value}
@@ -114,7 +124,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, onProjectSelect],
   );
   if (error) {
     return <IllustratedError details={error.message} />;

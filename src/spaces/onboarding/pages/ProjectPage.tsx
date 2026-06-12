@@ -11,6 +11,7 @@ import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
+import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
@@ -22,6 +23,9 @@ export default function ProjectPage() {
   }
 
   if (isNotFoundError(error)) {
+    if (getRememberedProject() === projectName) {
+      clearRememberedProject();
+    }
     return (
       <Center>
         <NotFoundBanner entityType={t('Entities.Project')} />

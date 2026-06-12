@@ -1,11 +1,31 @@
-import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { CheckBox, ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
 import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
-import { useTranslation } from 'react-i18next';
+import { Routes } from '../Routes.ts';
+import { clearRememberedProject, getRememberedProject, setRememberedProject } from '../utils/rememberedProject.ts';
 
 export default function ProjectsListView() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [rememberChecked, setRememberChecked] = useState(() => getRememberedProject() !== null);
+
+  useEffect(() => {
+    const remembered = getRememberedProject();
+    if (remembered) {
+      navigate(Routes.Project.replace(':projectName', remembered), { replace: true });
+    }
+  }, [navigate]);
+
+  const onRememberChange = (checked: boolean) => {
+    setRememberChecked(checked);
+    if (!checked) {
+      clearRememberedProject();
+    }
+  };
 
   return (
     <ObjectPage
@@ -18,7 +38,14 @@ export default function ProjectsListView() {
         />
       }
     >
-      <ProjectsList />
+      <ProjectsList onProjectSelect={rememberChecked ? setRememberedProject : undefined} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', maxWidth: '1280px', margin: '0.5rem auto 0' }}>
+        <CheckBox
+          checked={rememberChecked}
+          text={t('ProjectsListView.rememberProject')}
+          onChange={(e) => onRememberChange(e.target.checked ?? false)}
+        />
+      </div>
     </ObjectPage>
   );
 }
