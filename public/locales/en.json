@@ -176,6 +176,7 @@
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
+    "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
     "feedbackHeader": "Your feedback",
@@ -257,6 +258,7 @@
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
+    "rememberProject": "Remember selection",
     "title": "Projects",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",

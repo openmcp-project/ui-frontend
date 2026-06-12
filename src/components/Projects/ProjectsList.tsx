@@ -30,7 +30,11 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
   return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
 }
 
-export default function ProjectsList() {
+interface ProjectsListProps {
+  onProjectSelect?: (projectName: string) => void;
+}
+
+export default function ProjectsList({ onProjectSelect }: ProjectsListProps = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
 
@@ -52,7 +56,10 @@ export default function ProjectsList() {
               <Link
                 className={styles.nameLink}
                 design="Emphasized"
-                onClick={() => navigate(`/mcp/projects/${projectName}`)}
+                onClick={() => {
+                  onProjectSelect?.(projectName);
+                  navigate(`/mcp/projects/${projectName}`);
+                }}
               >
                 {projectName}
               </Link>
@@ -102,7 +109,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, onProjectSelect],
   );
 
   if (isLoading) {

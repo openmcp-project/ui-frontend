@@ -21,6 +21,7 @@ import { useLink } from '../../lib/shared/useLink.ts';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { clearRememberedProject, getRememberedProject } from '../../utils/rememberedProject.ts';
 import { BetaButton } from './BetaButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -95,6 +96,7 @@ const ProfilePopover = ({
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
   const [rating, setRating] = useState(0);
+  const [hasRememberedProject, setHasRememberedProject] = useState(() => getRememberedProject() !== null);
   const toast = useToast();
 
   const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
@@ -157,6 +159,18 @@ const ProfilePopover = ({
           <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
             {t('ShellBar.feedbackButtonInfo')}
           </ListItemStandard>
+          {hasRememberedProject && (
+            <ListItemStandard
+              icon="bookmark"
+              onClick={() => {
+                clearRememberedProject();
+                setHasRememberedProject(false);
+                setOpen(false);
+              }}
+            >
+              {t('ShellBar.clearRememberedProject')}
+            </ListItemStandard>
+          )}
           <ListItemStandard
             icon="log"
             onClick={() => {
