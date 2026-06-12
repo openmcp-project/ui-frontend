@@ -1,13 +1,18 @@
-import { gql } from '@apollo/client';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
-import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
+import { Member } from '../../../lib/api/types/shared/members';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { CoreOpenmcpCloudV1alpha1QueryProjectArgs, Query } from '../../../types/__generated__/graphql/graphql';
 
-const GetProjectQuery = gql`
+type GetProjectQueryData = Pick<Query, 'core_openmcp_cloud'>;
+type GetProjectQueryVariables = CoreOpenmcpCloudV1alpha1QueryProjectArgs;
+
+const GetProjectQuery = graphql(`
   query GetProject($name: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -29,7 +34,7 @@ const GetProjectQuery = gql`
       }
     }
   }
-`;
+`) as TypedDocumentNode<GetProjectQueryData, GetProjectQueryVariables>;
 
 export interface ProjectData {
   name: string;
@@ -46,8 +51,7 @@ export function useGetProject(projectName: string | undefined) {
     fetchPolicy: 'network-only',
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const project = (data as any)?.core_openmcp_cloud?.v1alpha1?.Project;
+  const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const labels = (project?.metadata?.labels as Record<string, string> | null | undefined) ?? {};
 
@@ -57,19 +61,17 @@ export function useGetProject(projectName: string | undefined) {
         displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
         chargingTarget: labels[CHARGING_TARGET_LABEL] ?? '',
         chargingTargetType: labels[CHARGING_TARGET_TYPE_LABEL] ?? '',
-        members: (project.spec?.members ?? []).flatMap(
-          (m: { kind?: string; name?: string; namespace?: string; roles?: string[] } | null) => {
-            if (!m?.name || !m?.kind) return [];
+        members: (project.spec?.members ?? []).flatMap((member) => {
+            if (!member?.name || !member?.kind) return [];
             return [
               {
-                kind: m.kind,
-                name: m.name,
-                namespace: m.namespace ?? undefined,
-                roles: (m.roles?.filter((r): r is string => !!r) ?? []) as MemberRoles[],
+                kind: member.kind,
+                name: member.name,
+                namespace: member.namespace ?? undefined,
+                roles: member.roles?.filter((role): role is string => Boolean(role)) ?? [],
               },
             ];
-          },
-        ),
+          }),
       }
     : undefined;
 

@@ -1,8 +1,9 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { UpdateLandscaperMutationVariables } from '../../../types/__generated__/graphql/graphql';
 
-const UpdateLandscaperMutation = gql`
+const UpdateLandscaperMutation = graphql(`
   mutation UpdateLandscaper(
     $namespace: String
     $name: String!
@@ -19,7 +20,7 @@ const UpdateLandscaperMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useUpdateLandscaper() {
   const [updateMutation, { loading, error }] = useMutation(UpdateLandscaperMutation, {
@@ -27,9 +28,8 @@ export function useUpdateLandscaper() {
   });
 
   const update = useCallback(
-    // TODO: replace `object: unknown` with the generated `LandscaperInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; name: string; object: unknown }) => {
-      return updateMutation({ variables });
+      return updateMutation({ variables: variables as UpdateLandscaperMutationVariables });
     },
     [updateMutation],
   );

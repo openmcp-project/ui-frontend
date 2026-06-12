@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { gql } from '@apollo/client';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
 import { Member } from '../../../lib/api/types/shared/members';
@@ -9,10 +9,17 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
-import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
+import { graphql } from '../../../types/__generated__/graphql';
+import type {
+  CoreOpenmcpCloudV1alpha1MutationUpdateProjectArgs as UpdateProjectMutationVariables,
+  CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput,
+  Mutation,
+} from '../../../types/__generated__/graphql/graphql';
 import { CreateProjectParams } from './useCreateProject';
 
-const UpdateProjectMutation = gql`
+type UpdateProjectMutationData = Pick<Mutation, 'core_openmcp_cloud'>;
+
+const UpdateProjectMutation = graphql(`
   mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -24,7 +31,7 @@ const UpdateProjectMutation = gql`
       }
     }
   }
-`;
+`) as TypedDocumentNode<UpdateProjectMutationData, UpdateProjectMutationVariables>;
 
 function buildUpdateProjectInput(params: CreateProjectParams): ProjectInput {
   return {
