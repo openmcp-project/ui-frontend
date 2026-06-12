@@ -4,7 +4,7 @@ import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
 const DeleteLandscaperMutation = graphql(`
   mutation DeleteLandscaper($name: String!, $namespace: String) {
-    landscaper_services_openmcp_cloud {
+    landscaper_services_open_control_plane_io {
       v1alpha2 {
         deleteLandscaper(name: $name, namespace: $namespace)
       }

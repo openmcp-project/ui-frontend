@@ -4,7 +4,7 @@ import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
 const DeleteEsoMutation = graphql(`
   mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {
-    external_secrets_services_openmcp_cloud {
+    external_secrets_services_open_control_plane_io {
       v1alpha1 {
         deleteExternalSecretsOperator(name: $name, namespace: $namespace)
       }

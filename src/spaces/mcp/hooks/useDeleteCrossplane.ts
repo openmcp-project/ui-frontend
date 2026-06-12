@@ -4,7 +4,7 @@ import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
 const DeleteCrossplaneMutation = graphql(`
   mutation DeleteCrossplane($name: String!, $namespace: String) {
-    crossplane_services_openmcp_cloud {
+    crossplane_services_open_control_plane_io {
       v1alpha1 {
         deleteCrossplane(name: $name, namespace: $namespace)
       }

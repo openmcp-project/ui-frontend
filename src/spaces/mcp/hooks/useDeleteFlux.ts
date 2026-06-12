@@ -4,7 +4,7 @@ import { graphql } from '../../../types/__generated__/graphql/index.ts';
 
 const DeleteFluxMutation = graphql(`
   mutation DeleteFlux($name: String!, $namespace: String) {
-    flux_services_openmcp_cloud {
+    flux_services_open_control_plane_io {
       v1alpha1 {
         deleteFlux(name: $name, namespace: $namespace)
       }
