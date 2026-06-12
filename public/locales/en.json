@@ -249,6 +249,7 @@
   "ProjectsListView": {
     "pageTitle": "Let's get started",
     "title": "Projects",
+    "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
