@@ -52,6 +52,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#displayName').find('input[id*="inner"]').type('Test Workspace Display Name');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
 
     goToMembers();
@@ -77,6 +78,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
 
     cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format');
     cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
@@ -98,6 +100,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#name').find('input[id*="inner"]').type('test-workspace');
     cy.get('#chargingTargetType').click();
     cy.contains('BTP').click();
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
 
     goToMembers();
