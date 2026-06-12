@@ -66,7 +66,7 @@ const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
         name: 'external-secrets-operator',
         kind: 'ExternalSecretsOperator',
         apiVersion: 'external-secrets.services.openmcp.cloud/v1alpha1',
-        versions: [{ version: 'v1.3.2' }],
+        versions: [{ version: 'v2.4.1' }, { version: 'v1.3.2' }],
       },
       {
         name: 'flux',

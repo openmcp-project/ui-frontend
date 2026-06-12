@@ -6,12 +6,17 @@ import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
+import LogoVelero from '../../../../assets/images/logo-velero.svg';
 import { useCreateEso } from '../../hooks/useCreateEso.ts';
 import { useCreateFlux } from '../../hooks/useCreateFlux.ts';
 import { useCreateLandscaper } from '../../hooks/useCreateLandscaper.ts';
+import { useCreateOcm } from '../../hooks/useCreateOcm.ts';
+import { useCreateVelero } from '../../hooks/useCreateVelero.ts';
 import { useUpdateEso } from '../../hooks/useUpdateEso.ts';
 import { useUpdateFlux } from '../../hooks/useUpdateFlux.ts';
 import { useUpdateLandscaper } from '../../hooks/useUpdateLandscaper.ts';
+import { useUpdateOcm } from '../../hooks/useUpdateOcm.ts';
+import { useUpdateVelero } from '../../hooks/useUpdateVelero.ts';
 import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 
 import { useTranslation } from 'react-i18next';
@@ -20,6 +25,8 @@ import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
+import type { OcmData } from '../../types/Ocm.ts';
+import type { VeleroData } from '../../types/Velero.ts';
 import { ComponentInstallDialog } from '../ComponentInstallDialog/ComponentInstallDialog.tsx';
 import styles from './ComponentsDashboard.module.css';
 
@@ -29,6 +36,8 @@ export interface ComponentsDashboardV2Props {
   landscaperData: LandscaperData | null;
   fluxData: FluxData | null;
   esoData: EsoData | null;
+  ocmData: OcmData | null;
+  veleroData: VeleroData | null;
   mcpName: string;
   mcpNamespace: string;
 }
@@ -39,6 +48,8 @@ export function ComponentsDashboardV2({
   landscaperData,
   fluxData,
   esoData,
+  ocmData,
+  veleroData,
   mcpName,
   mcpNamespace,
 }: ComponentsDashboardV2Props) {
@@ -56,6 +67,12 @@ export function ComponentsDashboardV2({
   const [isEsoDialogOpen, setIsEsoDialogOpen] = useState(false);
   const [esoDialogMode, setEsoDialogMode] = useState<'install' | 'edit'>('install');
 
+  const [isOcmDialogOpen, setIsOcmDialogOpen] = useState(false);
+  const [ocmDialogMode, setOcmDialogMode] = useState<'install' | 'edit'>('install');
+
+  const [isVeleroDialogOpen, setIsVeleroDialogOpen] = useState(false);
+  const [veleroDialogMode, setVeleroDialogMode] = useState<'install' | 'edit'>('install');
+
   const isCrossplaneInstalled = !!crossplaneData?.version;
   const crossplaneVersion = crossplaneData?.version ?? undefined;
 
@@ -67,6 +84,12 @@ export function ComponentsDashboardV2({
 
   const isEsoInstalled = !!esoData?.version;
   const esoVersion = esoData?.version ?? undefined;
+
+  const isOcmInstalled = !!ocmData?.version;
+  const ocmVersion = ocmData?.version ?? undefined;
+
+  const isVeleroInstalled = !!veleroData?.version;
+  const veleroVersion = veleroData?.version ?? undefined;
 
   return (
     <Panel fixed>
@@ -171,6 +194,56 @@ export function ComponentsDashboardV2({
               : undefined
           }
         />
+        <ComponentCard
+          name="OCM"
+          description={t('componentCardOcm.description')}
+          logoImgSrc=""
+          isInstalled={isOcmInstalled}
+          version={ocmVersion}
+          kpiType="enabled"
+          onNavigateToComponentSection={undefined}
+          onInstallButtonClick={
+            !isOcmInstalled
+              ? () => {
+                  setOcmDialogMode('install');
+                  setIsOcmDialogOpen(true);
+                }
+              : undefined
+          }
+          onEditButtonClick={
+            isOcmInstalled
+              ? () => {
+                  setOcmDialogMode('edit');
+                  setIsOcmDialogOpen(true);
+                }
+              : undefined
+          }
+        />
+        <ComponentCard
+          name="Velero"
+          description={t('componentCardVelero.description')}
+          logoImgSrc={LogoVelero}
+          isInstalled={isVeleroInstalled}
+          version={veleroVersion}
+          kpiType="enabled"
+          onNavigateToComponentSection={undefined}
+          onInstallButtonClick={
+            !isVeleroInstalled
+              ? () => {
+                  setVeleroDialogMode('install');
+                  setIsVeleroDialogOpen(true);
+                }
+              : undefined
+          }
+          onEditButtonClick={
+            isVeleroInstalled
+              ? () => {
+                  setVeleroDialogMode('edit');
+                  setIsVeleroDialogOpen(true);
+                }
+              : undefined
+          }
+        />
       </div>
       <CrossplaneInstallDialog
         open={isCrossplaneDialogOpen}
@@ -215,6 +288,30 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateEso}
         useUpdateMutation={useUpdateEso}
         onClose={() => setIsEsoDialogOpen(false)}
+      />
+      <ComponentInstallDialog
+        open={isOcmDialogOpen}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="OCM"
+        serviceName="ocm"
+        mode={ocmDialogMode}
+        initialVersion={ocmVersion}
+        useCreateMutation={useCreateOcm}
+        useUpdateMutation={useUpdateOcm}
+        onClose={() => setIsOcmDialogOpen(false)}
+      />
+      <ComponentInstallDialog
+        open={isVeleroDialogOpen}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Velero"
+        serviceName="velero"
+        mode={veleroDialogMode}
+        initialVersion={veleroVersion}
+        useCreateMutation={useCreateVelero}
+        useUpdateMutation={useUpdateVelero}
+        onClose={() => setIsVeleroDialogOpen(false)}
       />
     </Panel>
   );

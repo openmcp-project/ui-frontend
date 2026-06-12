@@ -41,6 +41,12 @@
   "componentCardEso": {
     "description": "Manage and sync credentials from your secret store"
   },
+  "componentCardOcm": {
+    "description": "Manage and distribute software components across environments"
+  },
+  "componentCardVelero": {
+    "description": "Back up and restore Kubernetes cluster resources and volumes"
+  },
   "Kpi": {
     "installed": "Installed",
     "error": "There was a problem loading this data. Please try again later."
