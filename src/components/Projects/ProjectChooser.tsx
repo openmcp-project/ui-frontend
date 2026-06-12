@@ -28,7 +28,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
         closeOnItemSelect
         placement="Bottom"
         onSelect={(e) => {
-          navigate(`/mcp/projects/${e.detail.selectedVariant.children}`);
+          navigate(`/projects/${e.detail.selectedVariant.children}`);
         }}
       >
         {data?.map((p) => (

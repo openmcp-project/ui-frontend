@@ -25,7 +25,7 @@ export default function ConnectButtonV2({
   return (
     <Button
       endIcon="navigation-right-arrow"
-      onClick={() => navigate(`/mcp/projects/${projectName}/workspaces/${workspaceName}/mcpsv2/${controlPlaneName}`)}
+      onClick={() => navigate(`/projects/${projectName}/workspaces/${workspaceName}/mcpsv2/${controlPlaneName}`)}
     >
       {t('ConnectButton.buttonText')}
     </Button>
