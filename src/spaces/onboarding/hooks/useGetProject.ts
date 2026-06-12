@@ -1,4 +1,3 @@
-import { gql, type TypedDocumentNode } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import {
   CHARGING_TARGET_LABEL,
@@ -6,12 +5,9 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
-import type { CoreOpenmcpCloudV1alpha1QueryProjectArgs, Query } from '../../../types/__generated__/graphql/graphql';
+import { graphql } from '../../../types/__generated__/graphql';
 
-type GetProjectQueryData = Pick<Query, 'core_openmcp_cloud'>;
-type GetProjectQueryVariables = CoreOpenmcpCloudV1alpha1QueryProjectArgs;
-
-const GetProjectQuery = gql(`
+const GetProjectQuery = graphql(`
   query GetProject($name: String!) {
     core_openmcp_cloud {
       v1alpha1 {
@@ -33,7 +29,7 @@ const GetProjectQuery = gql(`
       }
     }
   }
-`) as TypedDocumentNode<GetProjectQueryData, GetProjectQueryVariables>;
+`);
 
 export interface ProjectData {
   name: string;

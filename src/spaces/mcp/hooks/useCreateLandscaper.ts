@@ -1,12 +1,28 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
-import {
-  CreateLandscaperDocument,
-  type CreateLandscaperMutationVariables,
-} from '../../../types/__generated__/graphql/graphql';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { CreateLandscaperMutationVariables } from '../../../types/__generated__/graphql/graphql';
+
+const CreateLandscaperMutation = graphql(`
+  mutation CreateLandscaper(
+    $namespace: String
+    $object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input!
+  ) {
+    landscaper_services_open_control_plane_io {
+      v1alpha2 {
+        createLandscaper(namespace: $namespace, object: $object) {
+          metadata {
+            name
+            namespace
+          }
+        }
+      }
+    }
+  }
+`);
 
 export function useCreateLandscaper() {
-  const [createMutation, { loading, error }] = useMutation(CreateLandscaperDocument, {
+  const [createMutation, { loading, error }] = useMutation(CreateLandscaperMutation, {
     refetchQueries: ['GetLandscaper'],
   });
 
