@@ -55,26 +55,71 @@ export const generateColorMap = (items: NodeData[], colorBy: string): Record<str
   return Object.fromEntries(map);
 };
 
-export function extractRefs(item: ManagedResourceItem) {
-  return {
-    subaccountRef: item?.spec?.forProvider?.subaccountRef?.name,
-    serviceManagerRef: item?.spec?.forProvider?.serviceManagerRef?.name,
-    spaceRef: item?.spec?.forProvider?.spaceRef?.name,
-    orgRef: item?.spec?.forProvider?.orgRef?.name,
-    cloudManagementRef: item?.spec?.cloudManagementRef?.name,
-    directoryRef: item?.spec?.forProvider?.directoryRef?.name,
-    entitlementRef: item?.spec?.forProvider?.entitlementRef?.name,
-    globalAccountRef: item?.spec?.forProvider?.globalAccountRef?.name,
-    orgRoleRef: item?.spec?.forProvider?.orgRoleRef?.name,
-    spaceMembersRef: item?.spec?.forProvider?.spaceMembersRef?.name,
-    cloudFoundryEnvironmentRef: item?.spec?.forProvider?.cloudFoundryEnvironmentRef?.name,
-    kymaEnvironmentRef: item?.spec?.forProvider?.kymaEnvironmentRef?.name,
-    roleCollectionRef: item?.spec?.forProvider?.roleCollectionRef?.name,
-    roleCollectionAssignmentRef: item?.spec?.forProvider?.roleCollectionAssignmentRef?.name,
-    subaccountTrustConfigurationRef: item?.spec?.forProvider?.subaccountTrustConfigurationRef?.name,
-    globalaccountTrustConfigurationRef: item?.spec?.forProvider?.globalaccountTrustConfigurationRef?.name,
-  };
+// Maps spec ref field name to the kind of resource it points to.
+// Used to resolve a `*Ref.name` to the actual node id, since referencing item
+// and target may live in different API groups/versions.
+const REF_TARGET_KIND: Record<string, string> = {
+  subaccountRef: 'Subaccount',
+  serviceManagerRef: 'ServiceManager',
+  cloudManagementRef: 'CloudManagement',
+  spaceRef: 'Space',
+  orgRef: 'Org',
+  directoryRef: 'Directory',
+  entitlementRef: 'Entitlement',
+  globalAccountRef: 'GlobalAccount',
+  orgRoleRef: 'OrgRole',
+  spaceMembersRef: 'SpaceMembers',
+  cloudFoundryEnvironmentRef: 'CloudFoundryEnvironment',
+  kymaEnvironmentRef: 'KymaEnvironment',
+  kymaEnvironmentBindingRef: 'KymaEnvironmentBinding',
+  roleCollectionRef: 'RoleCollection',
+  roleCollectionAssignmentRef: 'RoleCollectionAssignment',
+  subaccountTrustConfigurationRef: 'SubaccountTrustConfiguration',
+  globalaccountTrustConfigurationRef: 'GlobalaccountTrustConfiguration',
+};
+
+const PARENT_REF_PRIORITY = ['serviceManagerRef', 'subaccountRef', 'kymaEnvironmentBindingRef'];
+
+const EXTRA_REF_KEYS = [
+  'spaceRef',
+  'orgRef',
+  'cloudManagementRef',
+  'directoryRef',
+  'entitlementRef',
+  'globalAccountRef',
+  'orgRoleRef',
+  'spaceMembersRef',
+  'cloudFoundryEnvironmentRef',
+  'kymaEnvironmentRef',
+  'roleCollectionRef',
+  'roleCollectionAssignmentRef',
+  'subaccountTrustConfigurationRef',
+  'globalaccountTrustConfigurationRef',
+];
+
+const readRefName = (item: ManagedResourceItem, key: string): string | undefined => {
+  const spec = item?.spec as Record<string, unknown> | undefined;
+  const forProvider = spec?.forProvider as Record<string, unknown> | undefined;
+  const fromForProvider = (forProvider?.[key] as { name?: string } | undefined)?.name;
+  const fromSpec = (spec?.[key] as { name?: string } | undefined)?.name;
+  return fromForProvider ?? fromSpec;
+};
+
+export function extractRefs(item: ManagedResourceItem): Record<string, string | undefined> {
+  const out: Record<string, string | undefined> = {};
+  for (const key of Object.keys(REF_TARGET_KIND)) {
+    out[key] = readRefName(item, key);
+  }
+  return out;
 }
+
+type ItemRecord = {
+  item: ManagedResourceItem;
+  name: string;
+  kind: string;
+  apiVersion: string;
+  id: string;
+};
 
 export function buildTreeData(
   managedResources: ManagedResourceGroup[] | undefined,
@@ -83,91 +128,92 @@ export function buildTreeData(
 ): NodeData[] {
   if (!managedResources || !providerConfigsList) return [];
 
-  const allNodesMap = new Map<string, NodeData>();
-
+  // Pass 1: flatten all items, build name+kind index for ref resolution.
+  const records: ItemRecord[] = [];
   managedResources.forEach((group: ManagedResourceGroup) => {
     group.items?.forEach((item: ManagedResourceItem) => {
       const name = item?.metadata?.name;
       const apiVersion = item?.apiVersion ?? '';
-      const id = `${name}-${apiVersion}`;
-      const kind = item?.kind;
-      const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
-      const providerType = resolveProviderTypeFromApiVersion(apiVersion);
-      const statusCond = getStatusCondition(item?.status?.conditions);
-      const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
-      const conditions = (item?.status?.conditions ?? []).map((condition) => ({
-        ...condition,
-        type: String(condition.type),
-        reason: condition.reason ?? '',
-        message: condition.message ?? '',
-      }));
+      const kind = item?.kind ?? '';
+      if (!name || !apiVersion) return;
+      records.push({ item, name, kind, apiVersion, id: `${name}-${apiVersion}` });
+    });
+  });
 
-      let fluxName: string | undefined;
-      const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
-      if (labelsMap) {
-        const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
-        if (key) fluxName = labelsMap[key];
+  const idByNameAndKind = new Map<string, string>();
+  records.forEach((r) => {
+    idByNameAndKind.set(`${r.name}::${r.kind}`, r.id);
+  });
+
+  const resolveRef = (refName: string | undefined, targetKind: string | undefined): string | undefined => {
+    if (!refName || !targetKind) return undefined;
+    return idByNameAndKind.get(`${refName}::${targetKind}`);
+  };
+
+  // Pass 2: build node data with refs resolved against the index.
+  const allNodesMap = new Map<string, NodeData>();
+  records.forEach(({ item, kind, apiVersion, id }) => {
+    const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
+    const providerType = resolveProviderTypeFromApiVersion(apiVersion);
+    const statusCond = getStatusCondition(item?.status?.conditions);
+    const status = statusCond?.status === 'True' ? 'OK' : 'ERROR';
+    const conditions = (item?.status?.conditions ?? []).map((condition) => ({
+      ...condition,
+      type: String(condition.type),
+      reason: condition.reason ?? '',
+      message: condition.message ?? '',
+    }));
+
+    let fluxName: string | undefined;
+    const labelsMap = (item.metadata as unknown as { labels?: Record<string, string> }).labels;
+    if (labelsMap) {
+      const key = Object.keys(labelsMap).find((k) => k.endsWith('/name'));
+      if (key) fluxName = labelsMap[key];
+    }
+
+    const refs = extractRefs(item);
+
+    let parentId: string | undefined;
+    for (const refKey of PARENT_REF_PRIORITY) {
+      const candidate = resolveRef(refs[refKey], REF_TARGET_KIND[refKey]);
+      if (candidate) {
+        parentId = candidate;
+        break;
       }
+    }
 
-      const {
-        subaccountRef,
-        serviceManagerRef,
-        spaceRef,
-        orgRef,
-        cloudManagementRef,
-        directoryRef,
-        entitlementRef,
-        globalAccountRef,
-        orgRoleRef,
-        spaceMembersRef,
-        cloudFoundryEnvironmentRef,
-        kymaEnvironmentRef,
-        roleCollectionRef,
-        roleCollectionAssignmentRef,
-        subaccountTrustConfigurationRef,
-        globalaccountTrustConfigurationRef,
-      } = extractRefs(item);
+    // KymaModule's binding ref points to a KymaEnvironmentBinding, which is not
+    // a managed-resource node. Fall back to the KymaEnvironment of the same name.
+    if (!parentId && kind === 'KymaModule') {
+      parentId = resolveRef(refs.kymaEnvironmentBindingRef, 'KymaEnvironment');
+    }
 
-      const createReferenceIdWithApiVersion = (referenceName: string | undefined) => {
-        if (!referenceName) return undefined;
-        return `${referenceName}-${apiVersion}`;
-      };
+    // Object (kubernetes.crossplane.io) has no structural ref to other managed
+    // resources, but its providerConfigRef.name typically matches the
+    // KymaEnvironment whose kubeconfig the k8s ProviderConfig consumes.
+    if (!parentId && kind === 'Object') {
+      parentId = resolveRef(item?.spec?.providerConfigRef?.name, 'KymaEnvironment');
+    }
 
-      if (id) {
-        allNodesMap.set(id, {
-          id,
-          label: id,
-          type: kind,
-          providerConfigName,
-          providerType,
-          status,
-          transitionTime: statusCond?.lastTransitionTime ?? '',
-          statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
-          conditions,
-          fluxName,
-          parentId: createReferenceIdWithApiVersion(serviceManagerRef || subaccountRef),
-          extraRefs: [
-            spaceRef,
-            orgRef,
-            cloudManagementRef,
-            directoryRef,
-            entitlementRef,
-            globalAccountRef,
-            orgRoleRef,
-            spaceMembersRef,
-            cloudFoundryEnvironmentRef,
-            kymaEnvironmentRef,
-            roleCollectionRef,
-            roleCollectionAssignmentRef,
-            subaccountTrustConfigurationRef,
-            globalaccountTrustConfigurationRef,
-          ]
-            .map(createReferenceIdWithApiVersion)
-            .filter(Boolean) as string[],
-          item,
-          onYamlClick,
-        });
-      }
+    const extraRefs = EXTRA_REF_KEYS.map((refKey) => resolveRef(refs[refKey], REF_TARGET_KIND[refKey])).filter(
+      Boolean,
+    ) as string[];
+
+    allNodesMap.set(id, {
+      id,
+      label: id,
+      type: kind,
+      providerConfigName,
+      providerType,
+      status,
+      transitionTime: statusCond?.lastTransitionTime ?? '',
+      statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
+      conditions,
+      fluxName,
+      parentId,
+      extraRefs,
+      item,
+      onYamlClick,
     });
   });
 

@@ -110,9 +110,25 @@ describe('buildTreeData', () => {
   });
 
   it('builds tree data with references', () => {
+    const subaccount: ManagedResourceItem = {
+      metadata: { name: 'my-subaccount' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+      kind: 'Subaccount',
+      spec: { providerConfigRef: { name: 'cf-config' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const org: ManagedResourceItem = {
+      metadata: { name: 'my-org' },
+      apiVersion: 'cloudfoundry.crossplane.io/v1alpha1',
+      kind: 'Org',
+      spec: { providerConfigRef: { name: 'cf-config' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
     const item: ManagedResourceItem = {
       metadata: { name: 'space-resource' },
-      apiVersion: 'v1beta1',
+      apiVersion: 'cloudfoundry.crossplane.io/v1beta1',
       kind: 'Space',
       spec: {
         providerConfigRef: { name: 'cf-config' },
@@ -124,15 +140,141 @@ describe('buildTreeData', () => {
       status: { conditions: [{ type: 'Ready', status: 'False' }] },
     } as any;
 
-    const managedResources: ManagedResourceGroup[] = [{ items: [item] }];
+    const managedResources: ManagedResourceGroup[] = [{ items: [subaccount, org, item] }];
     const result = buildTreeData(managedResources, mockProviderConfigsList, mockOnYamlClick);
 
-    expect(result[0]).toMatchObject({
-      id: 'space-resource-v1beta1',
-      parentId: 'my-subaccount-v1beta1',
-      extraRefs: ['my-org-v1beta1'],
+    const space = result.find((r) => r.id === 'space-resource-cloudfoundry.crossplane.io/v1beta1');
+    expect(space).toMatchObject({
+      parentId: 'my-subaccount-account.btp.sap.crossplane.io/v1alpha1',
+      extraRefs: ['my-org-cloudfoundry.crossplane.io/v1alpha1'],
       status: 'ERROR',
     });
+  });
+
+  it('resolves cross-apiVersion refs by target kind, not by referencing item apiVersion', () => {
+    const subaccount: ManagedResourceItem = {
+      metadata: { name: 'my-sub' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+      kind: 'Subaccount',
+      spec: { providerConfigRef: { name: 'pc' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const sm: ManagedResourceItem = {
+      metadata: { name: 'my-sub-sm' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1beta1',
+      kind: 'ServiceManager',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        forProvider: { subaccountRef: { name: 'my-sub' } },
+      },
+      status: { conditions: [] },
+    } as any;
+
+    const result = buildTreeData([{ items: [subaccount, sm] }], mockProviderConfigsList, mockOnYamlClick);
+    const smNode = result.find((r) => r.type === 'ServiceManager');
+    expect(smNode?.parentId).toBe('my-sub-account.btp.sap.crossplane.io/v1alpha1');
+  });
+
+  it('reads refs from spec root when not under spec.forProvider', () => {
+    const subaccount: ManagedResourceItem = {
+      metadata: { name: 'sa' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+      kind: 'Subaccount',
+      spec: { providerConfigRef: { name: 'pc' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const cm: ManagedResourceItem = {
+      metadata: { name: 'sa-cis' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1beta1',
+      kind: 'CloudManagement',
+      spec: { providerConfigRef: { name: 'pc' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const kymaEnv: ManagedResourceItem = {
+      metadata: { name: 'sa' },
+      apiVersion: 'environment.btp.sap.crossplane.io/v1alpha1',
+      kind: 'KymaEnvironment',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        subaccountRef: { name: 'sa' },
+        cloudManagementRef: { name: 'sa-cis' },
+        forProvider: {},
+      },
+      status: { conditions: [] },
+    } as any;
+
+    const result = buildTreeData([{ items: [subaccount, cm, kymaEnv] }], mockProviderConfigsList, mockOnYamlClick);
+    const env = result.find((r) => r.type === 'KymaEnvironment');
+    expect(env?.parentId).toBe('sa-account.btp.sap.crossplane.io/v1alpha1');
+    expect(env?.extraRefs).toContain('sa-cis-account.btp.sap.crossplane.io/v1beta1');
+  });
+
+  it('links Object resources to KymaEnvironment via providerConfigRef name', () => {
+    const kymaEnv: ManagedResourceItem = {
+      metadata: { name: 'rt-1' },
+      apiVersion: 'environment.btp.sap.crossplane.io/v1alpha1',
+      kind: 'KymaEnvironment',
+      spec: { providerConfigRef: { name: 'pc' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const obj: ManagedResourceItem = {
+      metadata: { name: 'rt-1-deployer-cr' },
+      apiVersion: 'kubernetes.crossplane.io/v1alpha2',
+      kind: 'Object',
+      spec: { providerConfigRef: { name: 'rt-1' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const result = buildTreeData([{ items: [kymaEnv, obj] }], mockProviderConfigsList, mockOnYamlClick);
+    const objNode = result.find((r) => r.type === 'Object');
+    expect(objNode?.parentId).toBe('rt-1-environment.btp.sap.crossplane.io/v1alpha1');
+  });
+
+  it('links KymaModule to KymaEnvironment via kymaEnvironmentBindingRef', () => {
+    const kymaEnv: ManagedResourceItem = {
+      metadata: { name: 'rt-1' },
+      apiVersion: 'environment.btp.sap.crossplane.io/v1alpha1',
+      kind: 'KymaEnvironment',
+      spec: { providerConfigRef: { name: 'pc' }, forProvider: {} },
+      status: { conditions: [] },
+    } as any;
+
+    const mod: ManagedResourceItem = {
+      metadata: { name: 'rt-1-deployer' },
+      apiVersion: 'environment.btp.sap.crossplane.io/v1alpha1',
+      kind: 'KymaModule',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        kymaEnvironmentBindingRef: { name: 'rt-1' },
+        forProvider: {},
+      },
+      status: { conditions: [] },
+    } as any;
+
+    const result = buildTreeData([{ items: [kymaEnv, mod] }], mockProviderConfigsList, mockOnYamlClick);
+    const modNode = result.find((r) => r.type === 'KymaModule');
+    expect(modNode?.parentId).toBe('rt-1-environment.btp.sap.crossplane.io/v1alpha1');
+  });
+
+  it('leaves parentId undefined when ref target is not in the resource list', () => {
+    const item: ManagedResourceItem = {
+      metadata: { name: 'orphan-sm' },
+      apiVersion: 'account.btp.sap.crossplane.io/v1beta1',
+      kind: 'ServiceManager',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        forProvider: { subaccountRef: { name: 'missing-sub' } },
+      },
+      status: { conditions: [] },
+    } as any;
+
+    const result = buildTreeData([{ items: [item] }], mockProviderConfigsList, mockOnYamlClick);
+    expect(result[0].parentId).toBeUndefined();
+    expect(result[0].extraRefs).toEqual([]);
   });
 
   it('creates separate nodes for items with same name but different apiVersion', () => {
