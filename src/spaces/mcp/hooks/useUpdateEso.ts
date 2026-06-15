@@ -1,14 +1,15 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { UpdateExternalSecretsOperatorMutationVariables } from '../../../types/__generated__/graphql/graphql';
 
-const UpdateEsoMutation = gql`
+const UpdateEsoMutation = graphql(`
   mutation UpdateExternalSecretsOperator(
     $namespace: String
     $name: String!
-    $object: ExternalSecretsServicesOpenmcpCloudV1alpha1ExternalSecretsOperator_Input!
+    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!
   ) {
-    external_secrets_services_openmcp_cloud {
+    external_secrets_services_open_control_plane_io {
       v1alpha1 {
         updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {
           metadata {
@@ -19,7 +20,7 @@ const UpdateEsoMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useUpdateEso() {
   const [updateMutation, { loading, error }] = useMutation(UpdateEsoMutation, {
@@ -27,9 +28,8 @@ export function useUpdateEso() {
   });
 
   const update = useCallback(
-    // TODO: replace `object: unknown` with the generated `ExternalSecretsOperatorInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; name: string; object: unknown }) => {
-      return updateMutation({ variables });
+      return updateMutation({ variables: variables as UpdateExternalSecretsOperatorMutationVariables });
     },
     [updateMutation],
   );

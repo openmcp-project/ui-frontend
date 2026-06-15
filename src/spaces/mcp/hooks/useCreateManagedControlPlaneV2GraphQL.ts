@@ -1,38 +1,9 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { z } from 'zod';
-import { CoreOpenmcpCloudV2alpha1ManagedControlPlaneV2_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
+import { buildMcpV2GraphQLInput } from '../helpers/mcpV2GraphQLInput.ts';
 import { McpV2Input, McpV2InputSchema } from '../schemas/mcpV2Input.schema.ts';
 import { CreateManagedControlPlaneV2Mutation } from './useCreateManagedControlPlaneV2Mutation.ts';
-
-export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
-  return {
-    apiVersion: 'core.openmcp.cloud/v2alpha1',
-    kind: 'ManagedControlPlaneV2',
-    metadata: {
-      name: input.name,
-      namespace: input.namespace,
-    },
-    spec: {
-      iam: {
-        oidc: {
-          defaultProvider: {
-            roleBindings: input.roleBindings.map((rb) => ({
-              roleRefs: rb.roleRefs.map((ref) => ({ kind: ref.kind, name: ref.name })),
-              subjects: rb.subjects.map((s) => ({
-                kind: s.kind,
-                name: s.name,
-                ...(s.kind === 'ServiceAccount'
-                  ? { namespace: s.namespace }
-                  : { apiGroup: 'rbac.authorization.k8s.io' }),
-              })),
-            })),
-          },
-        },
-      },
-    },
-  };
-}
 
 export function useCreateManagedControlPlaneV2GraphQL() {
   const [createMutation, { loading, error }] = useMutation(CreateManagedControlPlaneV2Mutation);
@@ -54,7 +25,7 @@ export function useCreateManagedControlPlaneV2GraphQL() {
         },
       });
 
-      return result.data?.core_openmcp_cloud?.v2alpha1?.createManagedControlPlaneV2;
+      return result.data?.core_open_control_plane_io?.v2alpha1?.createControlPlane;
     },
     [createMutation],
   );

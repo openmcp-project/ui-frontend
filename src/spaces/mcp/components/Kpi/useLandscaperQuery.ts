@@ -7,7 +7,7 @@ import { LandscaperData, LandscaperSchema } from '../../types/Landscaper.ts';
 
 const GET_LANDSCAPER_QUERY = graphql(`
   query GetLandscaper($name: String!, $namespace: String) {
-    landscaper_services_openmcp_cloud {
+    landscaper_services_open_control_plane_io {
       v1alpha2 {
         Landscaper(name: $name, namespace: $namespace) {
           metadata {
@@ -39,7 +39,7 @@ export function useLandscaperQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawLandscaper = queryResult.data?.landscaper_services_openmcp_cloud?.v1alpha2?.Landscaper;
+  const rawLandscaper = queryResult.data?.landscaper_services_open_control_plane_io?.v1alpha2?.Landscaper;
 
   const landscaperData = useMemo<LandscaperData | null>(() => {
     if (!rawLandscaper) return null;

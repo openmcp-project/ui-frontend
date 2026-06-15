@@ -7,7 +7,7 @@ import { FluxData, FluxSchema } from '../../types/Flux.ts';
 
 const GET_FLUX_QUERY = graphql(`
   query GetFlux($name: String!, $namespace: String) {
-    flux_services_openmcp_cloud {
+    flux_services_open_control_plane_io {
       v1alpha1 {
         Flux(name: $name, namespace: $namespace) {
           metadata {
@@ -38,7 +38,7 @@ export function useFluxQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawFlux = queryResult.data?.flux_services_openmcp_cloud?.v1alpha1?.Flux;
+  const rawFlux = queryResult.data?.flux_services_open_control_plane_io?.v1alpha1?.Flux;
 
   const fluxData = useMemo<FluxData | null>(() => {
     if (!rawFlux) return null;

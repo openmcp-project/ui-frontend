@@ -7,7 +7,7 @@ import { EsoData, EsoSchema } from '../../types/Eso.ts';
 
 const GET_ESO_QUERY = graphql(`
   query GetExternalSecretsOperator($name: String!, $namespace: String) {
-    external_secrets_services_openmcp_cloud {
+    external_secrets_services_open_control_plane_io {
       v1alpha1 {
         ExternalSecretsOperator(name: $name, namespace: $namespace) {
           metadata {
@@ -38,7 +38,7 @@ export function useEsoQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawEso = queryResult.data?.external_secrets_services_openmcp_cloud?.v1alpha1?.ExternalSecretsOperator;
+  const rawEso = queryResult.data?.external_secrets_services_open_control_plane_io?.v1alpha1?.ExternalSecretsOperator;
 
   const esoData = useMemo<EsoData | null>(() => {
     if (!rawEso) return null;

@@ -1,8 +1,8 @@
-import { Grid, List, ListItemStandard, Title } from '@ui5/webcomponents-react';
+import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/helpers/mcpV2GraphQLInput.ts';
 import { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
@@ -26,7 +26,6 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
 
   return (
     <div className={styles.wrapper}>
-      <Title>{t('common.summarize')}</Title>
       <Grid defaultSpan="XL6 L6 M6 S6">
         <div>
           <List headerText={t('common.metadata')}>

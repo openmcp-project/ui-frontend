@@ -21,7 +21,7 @@ function makeQueryResult(raw: unknown) {
   return {
     ...baseQueryResult,
     data: {
-      landscaper_services_openmcp_cloud: {
+      landscaper_services_open_control_plane_io: {
         v1alpha2: {
           Landscaper: raw,
         },

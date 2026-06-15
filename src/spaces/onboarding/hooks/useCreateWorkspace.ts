@@ -63,7 +63,7 @@ const CreateWorkspaceMutation = graphql(`
 export function useCreateWorkspace(namespace: string) {
   const { t } = useTranslation();
   const toast = useToast();
-  const [createWorkspaceMutation] = useMutation(CreateWorkspaceMutation);
+  const [createWorkspaceMutation, { loading }] = useMutation(CreateWorkspaceMutation);
 
   const createWorkspace = useCallback(
     async (params: CreateWorkspaceParams): Promise<void> => {
@@ -82,5 +82,6 @@ export function useCreateWorkspace(namespace: string) {
 
   return {
     createWorkspace,
+    isLoading: loading,
   };
 }
