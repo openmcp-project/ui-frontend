@@ -1,0 +1,27 @@
+.table {
+  border-radius: 12px;
+  margin: 10px auto 0 auto;
+  max-width: 1280px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.nameCell {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.nameLink {
+  margin-right: 0.25rem;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.centeredCell {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

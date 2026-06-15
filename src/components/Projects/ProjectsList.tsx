@@ -3,8 +3,8 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/web
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useMemo } from 'react';
-import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
+import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -13,10 +13,17 @@ import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import styles from './ProjectsList.module.css';
 
 type ProjectListRow = {
   projectName: string;
+  displayName?: string;
 };
+
+function ProjectNameCell({ projectName }: { projectName: string }) {
+  const { displayName } = useProjectMembers(projectName);
+  return <>{displayName ?? projectName}</>;
+}
 
 function CreatedAtCell({ projectName }: { projectName: string }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
@@ -35,13 +42,13 @@ export default function ProjectsList() {
         Header: t('ProjectsListView.title'),
         accessor: 'projectName',
         Cell: (instance) => (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', width: '100%' }}>
+          <div className={styles.nameCell}>
             <Link
+              className={styles.nameLink}
               design="Emphasized"
-              style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
               onClick={() => navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`)}
             >
-              {instance.cell.value}
+              <ProjectNameCell projectName={instance.cell.row.original?.projectName as string} />
             </Link>
             <CopyButton collapsible text={projectnameToNamespace(instance.cell.row.original?.projectName as string)} />
           </div>
@@ -70,7 +77,7 @@ export default function ProjectsList() {
         disableFilters: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className={styles.centeredCell}>
             <YamlViewButton
               variant="loader"
               resourceType="projects"
@@ -86,7 +93,7 @@ export default function ProjectsList() {
         disableFilters: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className={styles.centeredCell}>
             <ProjectsListItemMenu projectName={(instance.cell.row.original?.projectName as string) ?? ''} />
           </div>
         ),
@@ -99,17 +106,5 @@ export default function ProjectsList() {
     return <IllustratedError details={error.message} />;
   }
 
-  return (
-    <AnalyticalTable
-      style={{
-        maxWidth: '1280px',
-        margin: '10px auto 0px auto',
-        width: '100%',
-        borderRadius: '12px',
-        overflow: 'hidden',
-      }}
-      columns={stabilizedColumns}
-      data={stabilizedData}
-    />
-  );
+  return <AnalyticalTable className={styles.table} columns={stabilizedColumns} data={stabilizedData} />;
 }

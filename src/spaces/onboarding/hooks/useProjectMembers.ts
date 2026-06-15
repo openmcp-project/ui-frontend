@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
 
 const GetProjectMembersQuery = gql`
@@ -9,6 +10,7 @@ const GetProjectMembersQuery = gql`
         Project(name: $name) {
           metadata {
             creationTimestamp
+            annotations
           }
           spec {
             members {
@@ -33,6 +35,8 @@ export function useProjectMembers(projectName: string) {
   const project = (data as any)?.core_openmcp_cloud?.v1alpha1?.Project;
   const rawMembers = project?.spec?.members ?? [];
   const creationTimestamp: string | undefined = project?.metadata?.creationTimestamp ?? undefined;
+  const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
+  const displayName: string | undefined = annotations[DISPLAY_NAME_ANNOTATION] || undefined;
 
   const members: Member[] = rawMembers.flatMap(
     (m: { kind?: string; name?: string; namespace?: string; roles?: string[] } | null) => {
@@ -48,5 +52,5 @@ export function useProjectMembers(projectName: string) {
     },
   );
 
-  return { members, creationTimestamp, isLoading: loading };
+  return { members, creationTimestamp, displayName, isLoading: loading };
 }
