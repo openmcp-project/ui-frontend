@@ -23,11 +23,9 @@ describe('CreateProjectDialogContainer', () => {
   });
 
   const fillMetadata = () => {
-    cy.get('#name').find('input[id*="inner"]').type('test-project');
-    cy.get('#displayName').find('input[id*="inner"]').type('Test Project Display Name');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#name').typeIntoUi5Input('test-project');
+    cy.get('#displayName').typeIntoUi5Input('Test Project Display Name');
+    cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
   };
 
   const goToMembers = () => {
@@ -103,12 +101,10 @@ describe('CreateProjectDialogContainer', () => {
       />,
     );
 
-    cy.get('#name').find('input[id*="inner"]').type('test-project');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
+    cy.get('#name').typeIntoUi5Input('test-project');
 
     // Invalid format — Next should remain disabled
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format');
+    cy.get('#chargingTarget').typeIntoUi5Input('invalid-format').type('{enter}');
     cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
 
     // Should show validation error
@@ -136,11 +132,9 @@ describe('CreateProjectDialogContainer', () => {
       />,
     );
 
-    cy.get('#name').find('input[id*="inner"]').type('test-project');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
+    cy.get('#name').typeIntoUi5Input('test-project');
     cy.get('#chargingTarget').should('not.have.attr', 'disabled');
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
     cy.get('ui5-button').contains('Create').click();

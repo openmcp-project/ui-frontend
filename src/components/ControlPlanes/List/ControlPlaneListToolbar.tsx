@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { CreateWorkspaceDialogContainer } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
 import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
 import '@ui5/webcomponents-icons/dist/overflow';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/edit';
 import { Routes } from '../../../Routes.ts';
 
 type ControlPlaneListToolbarProps = {
@@ -23,6 +25,7 @@ export function ControlPlaneListToolbar({
 }: ControlPlaneListToolbarProps) {
   const [dialogCreateProjectIsOpen, setDialogIsOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
+  const [dialogEditProjectIsOpen, setDialogEditProjectIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonId = useId();
   const { t } = useTranslation();
@@ -63,14 +66,24 @@ export function ControlPlaneListToolbar({
         onClose={() => setMenuOpen(false)}
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
+          if (action === 'editProject') {
+            setDialogEditProjectIsOpen(true);
+          }
           if (action === 'deleteProject') {
             setDialogDeleteProjectIsOpen(true);
           }
           setMenuOpen(false);
         }}
       >
+        <MenuItem key="edit" text={t('ProjectsListView.editProject')} data-action="editProject" icon="edit" />
         <MenuItem key="delete" text={t('ProjectsListView.deleteProject')} data-action="deleteProject" icon="delete" />
       </Menu>
+
+      <EditProjectDialogContainer
+        isOpen={dialogEditProjectIsOpen}
+        setIsOpen={setDialogEditProjectIsOpen}
+        projectName={projectName}
+      />
 
       <CreateWorkspaceDialogContainer
         isOpen={dialogCreateProjectIsOpen}

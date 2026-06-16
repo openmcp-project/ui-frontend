@@ -1,3 +1,4 @@
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import {
   Bar,
   BusyIndicator,
@@ -9,7 +10,6 @@ import {
   Wizard,
   WizardStep,
 } from '@ui5/webcomponents-react';
-import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
@@ -20,11 +20,11 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 
 import { useTranslation } from 'react-i18next';
 
-import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form';
-import { MetadataForm } from './MetadataForm.tsx';
+import { FieldErrors, UseFormHandleSubmit, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
+import { MetadataForm } from './MetadataForm.tsx';
 
 const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
@@ -46,12 +46,13 @@ export interface CreateProjectWorkspaceDialogProps {
   register: UseFormRegister<CreateDialogProps>;
   errors: FieldErrors<CreateDialogProps>;
   setValue: UseFormSetValue<CreateDialogProps>;
-  handleSubmit: UseFormHandleSubmit<CreateDialogProps>;
+  handleSubmit?: UseFormHandleSubmit<CreateDialogProps>;
   projectName?: string;
   type: 'workspace' | 'project';
   watch: UseFormWatch<CreateDialogProps>;
-  isMetadataValid: boolean;
+  isMetadataValid?: boolean;
   isLoading?: boolean;
+  isEditMode?: boolean;
 }
 
 type Step = 'metadata' | 'members';
@@ -70,8 +71,9 @@ export function CreateProjectWorkspaceDialog({
   projectName,
   type,
   watch,
-  isMetadataValid,
+  isMetadataValid = true,
   isLoading = false,
+  isEditMode = false,
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
   const [step, setStep] = useState<Step>('metadata');
@@ -99,7 +101,7 @@ export function CreateProjectWorkspaceDialog({
     setIsOpen(false);
   };
 
-  const goToMembers = () => handleSubmit(() => setStep('members'))();
+  const goToMembers = () => handleSubmit?.(() => setStep('members'))();
 
   return (
     <>
@@ -116,7 +118,11 @@ export function CreateProjectWorkspaceDialog({
                 <Button design="Transparent" onClick={onClose}>
                   {t('CreateProjectWorkspaceDialog.cancelButton')}
                 </Button>
-                {step === 'metadata' ? (
+                {isEditMode ? (
+                  <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                    {t('CreateProjectWorkspaceDialog.saveButton')}
+                  </Button>
+                ) : step === 'metadata' ? (
                   <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
                     {t('buttons.next')}
                   </Button>
@@ -149,11 +155,12 @@ export function CreateProjectWorkspaceDialog({
                   requireChargingTarget={type === 'project'}
                   setValue={setValue}
                   watch={watch}
+                  isEditMode={isEditMode}
                 />
               </WizardStep>
               <WizardStep
                 data-step="members"
-                disabled={!isMetadataValid}
+                disabled={!isEditMode && !isMetadataValid}
                 icon="user-edit"
                 selected={step === 'members'}
                 titleText={t('CreateProjectWorkspaceDialog.membersHeader')}

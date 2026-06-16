@@ -1,5 +1,5 @@
 schema:
-  - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/onboarding/graphql:
+  - https://gateway.ui.dev-core.mcpd.shoot.canary.k8s-hana.ondemand.com/api/clusters/single-onboarding/graphql:
       headers:
         Authorization: ${GRAPHQL_AUTH_TOKEN}
 documents: './src/**/*.{ts,tsx}'

@@ -18,6 +18,10 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
+    "actionsMenu": "Actions",
+    "deleteButton": "Delete",
+    "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
+    "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
     "installButton": "Install {{component}}",
     "notInstalledLabel": "not installed"
@@ -186,6 +190,10 @@
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
   },
+  "EditProjectDialog": {
+    "title": "Edit Project",
+    "toastMessage": "Project updated successfully."
+  },
   "CreateWorkspaceDialog": {
     "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
   },
@@ -215,6 +223,7 @@
   },
   "CreateProjectWorkspaceDialog": {
     "createButton": "Create",
+    "saveButton": "Save",
     "cancelButton": "Cancel",
     "createWorkspaceTitle": "Create Workspace",
     "createProjectTitle": "Create Project",
@@ -252,6 +261,9 @@
     "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
+    "editProject": "Edit project",
+    "membersHeader": "Members",
+    "createdHeader": "Created",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {

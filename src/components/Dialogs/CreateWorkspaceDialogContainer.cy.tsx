@@ -48,11 +48,11 @@ describe('CreateWorkspaceDialogContainer', () => {
       members: [{ name: 'name@domain.com', roles: ['admin'], kind: 'User' }],
     };
 
-    cy.get('#name').find('input[id*="inner"]').type('test-workspace');
-    cy.get('#displayName').find('input[id*="inner"]').type('Test Workspace Display Name');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#name').typeIntoUi5Input('test-workspace');
+    cy.get('#displayName').typeIntoUi5Input('Test Workspace Display Name');
+    cy.get('#chargingTargetType').openDropDownByClick();
+    cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
+    cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
     cy.get('ui5-button').contains('Create').click();
@@ -74,11 +74,11 @@ describe('CreateWorkspaceDialogContainer', () => {
     const setIsOpen = cy.stub();
     mountWorkspace(setIsOpen);
 
-    cy.get('#name').find('input[id*="inner"]').type('test-workspace');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
+    cy.get('#name').typeIntoUi5Input('test-workspace');
+    cy.get('#chargingTargetType').openDropDownByClick();
+    cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
 
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('invalid-format');
+    cy.get('#chargingTarget').typeIntoUi5Input('invalid-format').type('{enter}');
     cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
     cy.get('#chargingTarget').should('have.attr', 'value-state', 'Negative');
     cy.wrap(setIsOpen).should('not.have.been.called');
@@ -95,10 +95,10 @@ describe('CreateWorkspaceDialogContainer', () => {
     const setIsOpen = cy.stub();
     mountWorkspace(setIsOpen, failingUseCreateWorkspace);
 
-    cy.get('#name').find('input[id*="inner"]').type('test-workspace');
-    cy.get('#chargingTargetType').click();
-    cy.contains('BTP').click();
-    cy.get('#chargingTarget').find('input[id*="inner"]').type('12345678-1234-1234-1234-123456789abc');
+    cy.get('#name').typeIntoUi5Input('test-workspace');
+    cy.get('#chargingTargetType').openDropDownByClick();
+    cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
+    cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
     cy.get('ui5-button').contains('Create').click();
