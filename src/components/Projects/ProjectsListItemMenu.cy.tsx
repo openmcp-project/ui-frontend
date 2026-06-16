@@ -94,6 +94,8 @@ describe('ProjectsListItemMenu', () => {
     cy.get('ui5-button[icon="overflow"]').click();
     cy.contains('Edit project').click({ force: true });
 
+    // Wait for the dialog form to be fully rendered (not in loading state)
+    cy.get('#displayName').should('not.have.attr', 'disabled');
     cy.get('#displayName').find('input[id*="inner"]').clear().type('Updated Display Name');
     cy.get('ui5-button').contains('Save').click();
 
