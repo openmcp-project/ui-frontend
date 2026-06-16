@@ -17,6 +17,7 @@ const mockAuth = (userEmail: string | null | undefined) => {
     user: userEmail !== null && userEmail !== undefined ? ({ email: userEmail } as any) : null,
     isPending: false,
     isAuthenticated: userEmail !== null,
+    sessionExpired: false,
     error: null,
     login: vi.fn(),
     logout: vi.fn(),

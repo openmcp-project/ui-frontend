@@ -136,6 +136,14 @@ async function authUtilsPlugin(fastify) {
     url.searchParams.set('code_challenge', codeChallenge);
     url.searchParams.set('code_challenge_method', 'S256');
 
+    // Forward prompt=none for silent re-authentication attempts.
+    // When the IdP SSO session is still alive the user is redirected back
+    // without any login UI. If SSO has expired the IdP returns login_required.
+    const { prompt } = request.query as { prompt?: string };
+    if (prompt === 'none') {
+      url.searchParams.set('prompt', 'none');
+    }
+
     request.log.info('Prepared OIDC login redirect.');
 
     return url.toString();

@@ -14,6 +14,7 @@ describe('ShellBar', () => {
     },
     isPending: false,
     isAuthenticated: true,
+    sessionExpired: false,
     error: null,
     login: () => {},
   });

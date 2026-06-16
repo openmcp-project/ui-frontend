@@ -10,6 +10,7 @@ interface AuthContextOnboardingType {
   isAuthenticated: boolean;
   user: User | null;
   error: Error | null;
+  sessionExpired: boolean;
   login: () => void;
   logout: () => Promise<void>;
 }
@@ -24,6 +25,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const refreshAuthStatus = useCallback(async (isBackground: boolean) => {
     // Only show loading spinner for user-initiated auth checks, not background token refreshes
@@ -85,7 +87,14 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
   // Check the authentication status when the component mounts
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Detect silent re-auth failure signalled by the server via #auth=session_expired
+    if (window.location.hash.includes('auth=session_expired')) {
+      window.location.hash = '';
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSessionExpired(true);
+      setIsPending(false);
+      return;
+    }
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
@@ -102,9 +111,15 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
       }
 
       if (response.status === 401) {
+        // Refresh token expired — attempt silent re-auth via prompt=none.
+        // The server will redirect back with #auth=session_expired if the
+        // IdP SSO session is also gone, triggering the session-expired dialog.
         setIsAuthenticated(false);
         setUser(null);
         setTokenExpiry(null);
+        window.location.replace(
+          `/api/auth/onboarding/login?prompt=none&redirectTo=${encodeURIComponent(getRedirectSuffix())}`,
+        );
       }
 
       return false;
@@ -177,7 +192,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, login, logout }}>
+    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, sessionExpired, login, logout }}>
       {children}
     </AuthContextOnboarding>
   );

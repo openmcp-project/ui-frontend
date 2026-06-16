@@ -4,12 +4,18 @@ import { BusyIndicator } from '@ui5/webcomponents-react';
 import AppRouter from './AppRouter';
 import { useAuthOnboarding } from './spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { SignInPage } from './spaces/onboarding/pages/SignInPage/SignInPage.tsx';
+import { SessionExpiredDialog } from './components/Shared/SessionExpiredDialog.tsx';
 
 function App() {
   const auth = useAuthOnboarding();
 
   if (auth.isPending) {
     return <BusyIndicator active />;
+  }
+
+  // Silent re-auth failed (IdP SSO session also expired) — show dialog
+  if (auth.sessionExpired) {
+    return <SessionExpiredDialog open={true} onLogin={auth.login} />;
   }
 
   if (!auth.isAuthenticated) {

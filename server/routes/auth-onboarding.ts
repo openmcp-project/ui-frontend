@@ -44,6 +44,15 @@ async function authPlugin(fastify) {
 
   // @ts-ignore
   fastify.get('/auth/onboarding/callback', { config: authRateLimit }, async function (req, reply) {
+    // When prompt=none is used and the IdP SSO session has expired it redirects
+    // back here with ?error=login_required instead of a code.
+    // Signal this to the client so it can show the session-expired dialog.
+    const { error: oidcError } = req.query as { error?: string };
+    if (oidcError === 'login_required' || oidcError === 'interaction_required') {
+      req.log.info('Silent re-auth failed (%s) — SSO session expired', oidcError);
+      return reply.redirect(`${POST_LOGIN_REDIRECT}#auth=session_expired`);
+    }
+
     try {
       const callbackResult = await fastify.handleOidcCallback(
         req,

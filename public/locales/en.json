@@ -1,4 +1,9 @@
 {
+  "SessionExpiredDialog": {
+    "title": "Session Expired",
+    "message": "Your session has expired. Please log in again to continue.",
+    "loginButton": "Log In"
+  },
   "SignInPage": {
     "welcomeMessage": "Welcome to Control Plane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
