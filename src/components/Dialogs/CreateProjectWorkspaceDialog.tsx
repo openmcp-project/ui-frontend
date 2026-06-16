@@ -164,7 +164,6 @@ export function CreateProjectWorkspaceDialog({
                 icon="user-edit"
                 selected={step === 'members'}
                 titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
-                id="members-step"
               >
                 <FormGroup>
                   <EditMembers
