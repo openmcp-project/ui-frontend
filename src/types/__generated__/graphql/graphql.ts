@@ -34545,6 +34545,29 @@ export type UpdateManagedControlPlaneV2Mutation = {
   } | null;
 };
 
+export type GetAllProjectsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetAllProjectsQuery = {
+  __typename?: 'Query';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudQuery';
+    v1alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV1alpha1Query';
+      Projects: {
+        __typename?: 'CoreOpenmcpCloudV1alpha1ProjectList';
+        items: Array<{
+          __typename?: 'CoreOpenmcpCloudV1alpha1Project';
+          metadata?: {
+            __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+            name?: string | null;
+            annotations?: any | null;
+          } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+};
+
 export type CreateProjectMutationVariables = Exact<{
   object: CoreOpenmcpCloudV1alpha1Project_Input;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
@@ -34845,6 +34868,38 @@ export type GetMcPsListQuery = {
             } | null> | null;
           } | null;
         }>;
+      };
+    } | null;
+  } | null;
+};
+
+export type GetProjectMembersQueryVariables = Exact<{
+  name: Scalars['String']['input'];
+}>;
+
+export type GetProjectMembersQuery = {
+  __typename?: 'Query';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudQuery';
+    v1alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV1alpha1Query';
+      Project: {
+        __typename?: 'CoreOpenmcpCloudV1alpha1Project';
+        metadata?: {
+          __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+          creationTimestamp?: string | null;
+          annotations?: any | null;
+        } | null;
+        spec?: {
+          __typename?: 'CoreOpenmcpCloudV1alpha1ProjectSpec';
+          members?: Array<{
+            __typename?: 'CoreOpenmcpCloudV1alpha1ProjectSpecMembers';
+            kind?: string | null;
+            name?: string | null;
+            namespace?: string | null;
+            roles?: Array<string | null> | null;
+          } | null> | null;
+        } | null;
       };
     } | null;
   } | null;
@@ -36633,6 +36688,68 @@ export const UpdateManagedControlPlaneV2Document = {
     },
   ],
 } as unknown as DocumentNode<UpdateManagedControlPlaneV2Mutation, UpdateManagedControlPlaneV2MutationVariables>;
+export const GetAllProjectsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAllProjects' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Projects' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAllProjectsQuery, GetAllProjectsQueryVariables>;
 export const CreateProjectDocument = {
   kind: 'Document',
   definitions: [
@@ -37595,6 +37712,95 @@ export const GetMcPsListDocument = {
     },
   ],
 } as unknown as DocumentNode<GetMcPsListQuery, GetMcPsListQueryVariables>;
+export const GetProjectMembersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetProjectMembers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Project' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'members' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'roles' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetProjectMembersQuery, GetProjectMembersQueryVariables>;
 export const CreateSelfSubjectRulesReviewDocument = {
   kind: 'Document',
   definitions: [
