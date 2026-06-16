@@ -20,6 +20,10 @@ type ProjectListRow = {
   projectName: string;
 };
 
+function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
+  return (instance.cell.row.original as ProjectListRow).projectName;
+}
+
 function CreatedAtCell({ projectName }: { projectName: string }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
   if (isLoading || !creationTimestamp) return null;
@@ -30,36 +34,39 @@ export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
 
-  const stabilizedData = useMemo<ProjectListRow[]>(
+  const rows = useMemo<ProjectListRow[]>(
     () =>
       data?.map((projectName) => ({ projectName })).sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
     [data],
   );
 
-  const stabilizedColumns: AnalyticalTableColumnDefinition[] = useMemo(
+  const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
         Header: t('ProjectsListView.title'),
         accessor: 'projectName',
-        Cell: (instance) => (
-          <div className={styles.nameCell}>
-            <Link
-              className={styles.nameLink}
-              design="Emphasized"
-              onClick={() => navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`)}
-            >
-              {instance.cell.row.original?.projectName}
-            </Link>
-            <CopyButton collapsible text={projectnameToNamespace(instance.cell.row.original?.projectName as string)} />
-          </div>
-        ),
+        Cell: (instance) => {
+          const projectName = getProjectName(instance);
+          return (
+            <div className={styles.nameCell}>
+              <Link
+                className={styles.nameLink}
+                design="Emphasized"
+                onClick={() => navigate(`/mcp/projects/${projectName}`)}
+              >
+                {projectName}
+              </Link>
+              <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+            </div>
+          );
+        },
       },
       {
         Header: t('ProjectsListView.membersHeader'),
         accessor: 'members',
         width: 220,
         disableFilters: true,
-        Cell: (instance) => <ProjectMembersCell projectName={instance.cell.row.original?.projectName as string} />,
+        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('ProjectsListView.createdHeader'),
@@ -68,7 +75,7 @@ export default function ProjectsList() {
         disableFilters: true,
         responsivePopIn: true,
         responsiveMinWidth: 1200,
-        Cell: (instance) => <CreatedAtCell projectName={instance.cell.row.original?.projectName as string} />,
+        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),
@@ -78,11 +85,7 @@ export default function ProjectsList() {
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
-            <YamlViewButton
-              variant="loader"
-              resourceType="projects"
-              resourceName={instance.cell.row.original?.projectName as string}
-            />
+            <YamlViewButton variant="loader" resourceType="projects" resourceName={getProjectName(instance)} />
           </div>
         ),
       },
@@ -94,13 +97,14 @@ export default function ProjectsList() {
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
-            <ProjectsListItemMenu projectName={(instance.cell.row.original?.projectName as string) ?? ''} />
+            <ProjectsListItemMenu projectName={getProjectName(instance)} />
           </div>
         ),
       },
     ],
     [navigate],
   );
+
   if (isLoading) {
     return <Loading />;
   }
@@ -108,5 +112,5 @@ export default function ProjectsList() {
     return <IllustratedError details={error.message} />;
   }
 
-  return <AnalyticalTable className={styles.table} columns={stabilizedColumns} data={stabilizedData} minRows={10} />;
+  return <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />;
 }
