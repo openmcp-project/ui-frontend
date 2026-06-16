@@ -1,3 +1,4 @@
+import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import {
   Bar,
   BusyIndicator,
@@ -9,7 +10,6 @@ import {
   Wizard,
   WizardStep,
 } from '@ui5/webcomponents-react';
-import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 
 import { Member } from '../../lib/api/types/shared/members';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
@@ -20,11 +20,11 @@ import { EditMembers } from '../Members/EditMembers.tsx';
 
 import { useTranslation } from 'react-i18next';
 
-import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
-import { FieldErrors, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormHandleSubmit } from 'react-hook-form';
-import { MetadataForm } from './MetadataForm.tsx';
+import { FieldErrors, UseFormHandleSubmit, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
+import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
+import { MetadataForm } from './MetadataForm.tsx';
 
 const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
@@ -164,6 +164,7 @@ export function CreateProjectWorkspaceDialog({
                 icon="user-edit"
                 selected={step === 'members'}
                 titleText={t('CreateProjectWorkspaceDialog.membersHeader')}
+                id="members-step"
               >
                 <FormGroup>
                   <EditMembers
