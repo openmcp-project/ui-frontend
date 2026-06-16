@@ -1,9 +1,9 @@
-import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
-import { useDeleteProject } from '../../spaces/onboarding/hooks/useDeleteProject.ts';
-import { useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject.ts';
-import { useGetProject, ProjectData } from '../../spaces/onboarding/hooks/useGetProject.ts';
-import { MemberRoles } from '../../lib/api/types/shared/members.ts';
 import '@ui5/webcomponents-cypress-commands';
+import { MemberRoles } from '../../lib/api/types/shared/members.ts';
+import { useDeleteProject } from '../../spaces/onboarding/hooks/useDeleteProject.ts';
+import { ProjectData, useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
+import { useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject.ts';
+import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 const fakeUseDeleteProject: typeof useDeleteProject = () => ({
   deleteProject: async (): Promise<void> => {},
