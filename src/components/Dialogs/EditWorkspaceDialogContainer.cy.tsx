@@ -33,13 +33,19 @@ const fakeUseUpdateWorkspace: typeof useUpdateWorkspace = () => ({
 
 describe('EditWorkspaceDialogContainer', () => {
   it('pre-populates form with existing workspace data', () => {
+    const fakeUseGetWorkspaceWithCharging: typeof useGetWorkspace = () => ({
+      workspaceData: workspaceDataWithCharging,
+      isLoading: false,
+      error: undefined,
+    });
+
     cy.mount(
       <EditWorkspaceDialogContainer
         isOpen={true}
         setIsOpen={cy.stub()}
         workspaceName="existing-workspace"
         namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
+        useGetWorkspace={fakeUseGetWorkspaceWithCharging}
         useUpdateWorkspace={fakeUseUpdateWorkspace}
       />,
     );
