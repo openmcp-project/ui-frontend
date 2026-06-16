@@ -2,6 +2,7 @@ import ProjectsList from './ProjectsList.tsx';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
+import { MockedProvider } from '@apollo/client/testing/react';
 import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
 import { clearRememberedProject, getRememberedProject } from '../../utils/rememberedProject.ts';
 
@@ -15,9 +16,11 @@ const fakeUseProjectsQuery: typeof useProjectsQuery = () => ({
 const mountList = (onProjectSelect?: (name: string) => void) => {
   cy.mount(
     <MemoryRouter>
-      <SplitterProvider>
-        <ProjectsList useProjectsQuery={fakeUseProjectsQuery} onProjectSelect={onProjectSelect} />
-      </SplitterProvider>
+      <MockedProvider mocks={[]} addTypename={false}>
+        <SplitterProvider>
+          <ProjectsList useProjectsQuery={fakeUseProjectsQuery} onProjectSelect={onProjectSelect} />
+        </SplitterProvider>
+      </MockedProvider>
     </MemoryRouter>,
   );
 };
