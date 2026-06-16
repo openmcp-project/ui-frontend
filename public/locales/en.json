@@ -423,6 +423,12 @@
     "colorsProviderConfig": "Provider Config",
     "colorBy": "Color by",
     "colorsFlux": "Flux",
+    "colorsLabel": "Common Label",
+    "layoutDirection": "Layout direction",
+    "layoutTB": "Top → Bottom",
+    "layoutLR": "Left → Right",
+    "enterFullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
