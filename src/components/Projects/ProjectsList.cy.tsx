@@ -16,7 +16,7 @@ const fakeUseProjectsQuery: typeof useProjectsQuery = () => ({
 const mountList = (onProjectSelect?: (name: string) => void) => {
   cy.mount(
     <MemoryRouter>
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider mocks={[]}>
         <SplitterProvider>
           <ProjectsList useProjectsQuery={fakeUseProjectsQuery} onProjectSelect={onProjectSelect} />
         </SplitterProvider>
