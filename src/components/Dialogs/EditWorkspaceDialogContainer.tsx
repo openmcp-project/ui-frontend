@@ -41,7 +41,7 @@ export function EditWorkspaceDialogContainer({
       name: '',
       displayName: '',
       chargingTarget: '',
-      chargingTargetType: 'btp',
+      chargingTargetType: '',
       members: [],
     },
   });
@@ -66,7 +66,7 @@ export function EditWorkspaceDialogContainer({
       name: workspaceData.name,
       displayName: workspaceData.displayName,
       chargingTarget: workspaceData.chargingTarget,
-      chargingTargetType: workspaceData.chargingTargetType?.toLowerCase() || 'btp',
+      chargingTargetType: workspaceData.chargingTargetType?.toLowerCase() || '',
       members: workspaceData.members,
     });
   }, [isOpen, workspaceData, reset]);

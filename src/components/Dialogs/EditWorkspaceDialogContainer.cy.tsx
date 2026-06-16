@@ -7,6 +7,15 @@ const workspaceData: WorkspaceData = {
   name: 'existing-workspace',
   namespace: 'project-test-project',
   displayName: 'Existing Display Name',
+  chargingTarget: '',
+  chargingTargetType: '',
+  members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+};
+
+const workspaceDataWithCharging: WorkspaceData = {
+  name: 'existing-workspace',
+  namespace: 'project-test-project',
+  displayName: 'Existing Display Name',
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
@@ -61,13 +70,19 @@ describe('EditWorkspaceDialogContainer', () => {
   it('sends correct payload on save', () => {
     let updatePayload: Parameters<ReturnType<typeof useUpdateWorkspace>['updateWorkspace']> | null = null;
 
+    const fakeUseGetWorkspaceWithCharging: typeof useGetWorkspace = () => ({
+      workspaceData: workspaceDataWithCharging,
+      isLoading: false,
+      error: undefined,
+    });
+
     cy.mount(
       <EditWorkspaceDialogContainer
         isOpen={true}
         setIsOpen={cy.stub()}
         workspaceName="existing-workspace"
         namespace="project-test-project"
-        useGetWorkspace={fakeUseGetWorkspace}
+        useGetWorkspace={fakeUseGetWorkspaceWithCharging}
         useUpdateWorkspace={() => ({
           updateWorkspace: async (ns, params) => {
             updatePayload = [ns, params];
@@ -92,6 +107,25 @@ describe('EditWorkspaceDialogContainer', () => {
         },
       ]);
     });
+  });
+
+  it('saves without charging target — charging target is optional for workspaces', () => {
+    const setIsOpen = cy.stub();
+
+    cy.mount(
+      <EditWorkspaceDialogContainer
+        isOpen={true}
+        setIsOpen={setIsOpen}
+        workspaceName="existing-workspace"
+        namespace="project-test-project"
+        useGetWorkspace={fakeUseGetWorkspace}
+        useUpdateWorkspace={fakeUseUpdateWorkspace}
+      />,
+    );
+
+    // No charging target set — Save should still work
+    cy.get('ui5-button').contains('Save').click();
+    cy.wrap(setIsOpen).should('have.been.calledWith', false);
   });
 
   it('closes dialog on successful save', () => {
