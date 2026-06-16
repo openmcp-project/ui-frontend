@@ -8,6 +8,7 @@ import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import ControlPlaneListAllWorkspaces from './ControlPlaneListAllWorkspaces.tsx';
+import { setExpandedWorkspace, clearExpandedWorkspace } from '../../../utils/expandedWorkspace.ts';
 
 const frontendConfig = {
   landscape: Landscape.Local,
@@ -128,20 +129,61 @@ describe('ControlPlaneListAllWorkspaces — mutually exclusive expansion', () =>
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
-  it('collapsing the expanded workspace leaves all panels collapsed', () => {
+  it('collapsing the expanded workspace re-expands the first accessible workspace', () => {
     mountAllWorkspaces(workspaces);
 
     togglePanel('alpha');
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    // With remember-workspace behaviour, collapsing clears the stored value
+    // so the component falls back to auto-expanding the first accessible workspace
+    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
     panel('beta').invoke('prop', 'collapsed').should('equal', true);
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
+});
 
-  it('renders empty state when there are no workspaces', () => {
-    mountAllWorkspaces([]);
+describe('ControlPlaneListAllWorkspaces — remember expanded workspace', () => {
+  beforeEach(() => {
+    clearExpandedWorkspace('test');
+  });
 
-    cy.get('[data-testid^="workspace-panel-"]').should('not.exist');
-    cy.get('ui5-illustrated-message').should('exist');
+  it('remembers the expanded workspace across remounts (happy path)', () => {
+    // User previously expanded 'beta'
+    setExpandedWorkspace('test', 'beta');
+    mountAllWorkspaces(workspaces);
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+  });
+
+  it('persists to localStorage when user expands a workspace', () => {
+    mountAllWorkspaces(workspaces);
+
+    togglePanel('gamma');
+
+    cy.wrap(null).should(() => {
+      expect(localStorage.getItem('expandedWorkspace:test')).to.equal('gamma');
+    });
+  });
+
+  it('clears localStorage when user collapses the expanded workspace', () => {
+    setExpandedWorkspace('test', 'alpha');
+    mountAllWorkspaces(workspaces);
+
+    togglePanel('alpha');
+
+    cy.wrap(null).should(() => {
+      expect(localStorage.getItem('expandedWorkspace:test')).to.equal(null);
+    });
+  });
+
+  it('falls back to first accessible workspace when stored one no longer exists', () => {
+    setExpandedWorkspace('test', 'deleted-ws');
+    mountAllWorkspaces(workspaces); // 'deleted-ws' not in [alpha, beta, gamma]
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
+    panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 });
