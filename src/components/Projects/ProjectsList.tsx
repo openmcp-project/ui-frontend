@@ -2,7 +2,7 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/web
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
@@ -24,19 +24,6 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
   if (isLoading || !creationTimestamp) return null;
   return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
-}
-
-const SMALL_SCREEN_QUERY = '(max-width: 600px)';
-
-function useIsSmallScreen() {
-  const [isSmall, setIsSmall] = useState(() => window.matchMedia(SMALL_SCREEN_QUERY).matches);
-  useEffect(() => {
-    const mq = window.matchMedia(SMALL_SCREEN_QUERY);
-    const handler = (e: MediaQueryListEvent) => setIsSmall(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return isSmall;
 }
 
 export default function ProjectsList() {
