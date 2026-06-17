@@ -166,6 +166,7 @@ export default function ProjectsList() {
           borderRadius: '12px',
           overflow: 'hidden',
         }}
+        sortable
         className={styles.table}
         columns={columns}
         data={rows}
