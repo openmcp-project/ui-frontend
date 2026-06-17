@@ -262,7 +262,7 @@
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
-    "subHeader": "Select a project to manage your control planes, workspaces, and members.",
+    "subHeader": "Create or select a project to manage your control planes, workspaces, and members.",
     "learnMore": "Learn more",
     "title": "Projects",
     "fetchError": "Failed to load projects",
