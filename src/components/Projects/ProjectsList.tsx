@@ -64,7 +64,6 @@ export default function ProjectsList() {
       {
         Header: t('ProjectsListView.membersHeader'),
         accessor: 'members',
-        width: 220,
         disableFilters: true,
         Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
       },

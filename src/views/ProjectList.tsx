@@ -1,4 +1,4 @@
-import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
 import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
@@ -18,7 +18,9 @@ export default function ProjectsListView() {
         />
       }
     >
-      <ProjectsList />
+      <ObjectPageSection id="projects" titleText="Projects" hideTitleText>
+        <ProjectsList />
+      </ObjectPageSection>
     </ObjectPage>
   );
 }
