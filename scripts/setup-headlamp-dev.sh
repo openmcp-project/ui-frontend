@@ -94,7 +94,7 @@ pluginsManager:
       - name: headlamp-kiosk
         source: https://artifacthub.io/packages/headlamp/kiosk-headlamp-plugin/headlamp_kiosk
       - name: headlamp-crossplane
-        source: https://artifacthub.io/packages/headlamp/crossplane-headlamp-plugin/headlamp_crossplane
+        source: https://artifacthub.io/packages/headlamp/crossplane-headlamp-plugin/headlamp_crossplane/0.0.2
 EOF
 
 # ── Port-forward ──────────────────────────────────────────────────────────────

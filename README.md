@@ -34,6 +34,32 @@ npm run dev
 The UI will be served on http://localhost:5173.
 
 
+#### Headlamp (local dev cluster)
+
+The UI embeds [Headlamp](https://headlamp.dev) in an iframe for Kubernetes resource inspection. For local development, a dedicated kind cluster is used.
+
+**Prerequisites:** `kind`, `kubectl`, `helm`, `task` ([Taskfile](https://taskfile.dev))
+
+**One-time setup** — creates a kind cluster, installs Headlamp with the latest plugin releases from ArtifactHub, and port-forwards to `http://localhost:8090`:
+
+```bash
+task headlamp:dev
+```
+
+Then start the BFF pointing at the local cluster (note: no `--local-dev` flag, to match production CSP):
+
+```bash
+HEADLAMP_UPSTREAM_URL=http://localhost:8090 npx tsx ./server.ts
+```
+
+**Iterating on a plugin** — if you have `crossplane-headlamp-plugin`, `kiosk-headlamp-plugin`, or `opencontrolplane-headlamp-plugin` checked out as siblings of this repo, build and hot-sync them into the running pod (no restart needed):
+
+```bash
+task headlamp:update
+```
+
+Then hard-refresh the browser (`Cmd+Shift+R`).
+
 #### Safari Support
 
 **Note:** The frontend is currently incompatible with Safari when running locally on `localhost`.
