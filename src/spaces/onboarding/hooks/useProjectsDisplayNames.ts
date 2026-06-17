@@ -1,22 +1,9 @@
-import { TypedDocumentNode } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames';
 import { graphql } from '../../../types/__generated__/graphql';
 
-type GetProjectsDisplayNamesData = {
-  core_openmcp_cloud?: {
-    v1alpha1?: {
-      Projects?: {
-        items: {
-          metadata?: { name?: string | null; annotations?: Record<string, string> | null } | null;
-        }[];
-      };
-    };
-  };
-};
-
-const GetProjectsDisplayNamesQuery: TypedDocumentNode<GetProjectsDisplayNamesData, Record<string, never>> = graphql`
+const GetProjectsDisplayNamesQuery = graphql(`
   query GetProjectsDisplayNames {
     core_openmcp_cloud {
       v1alpha1 {
@@ -31,7 +18,7 @@ const GetProjectsDisplayNamesQuery: TypedDocumentNode<GetProjectsDisplayNamesDat
       }
     }
   }
-`;
+`);
 
 export function useProjectsDisplayNames(): Map<string, string> {
   const { data } = useQuery(GetProjectsDisplayNamesQuery);
