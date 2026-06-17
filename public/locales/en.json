@@ -263,11 +263,13 @@
   "ProjectsListView": {
     "pageTitle": "Let's get started",
     "title": "Projects",
+    "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
     "editProject": "Edit project",
     "membersHeader": "Members",
     "createdHeader": "Created",
+    "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {

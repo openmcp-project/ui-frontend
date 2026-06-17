@@ -1,4 +1,4 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
@@ -11,6 +11,7 @@ import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
@@ -18,6 +19,7 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
   projectName: string;
+  nameSpace: string;
 };
 
 function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
@@ -27,7 +29,17 @@ function getProjectName(instance: { cell: { row: { original: unknown } } }): str
 function CreatedAtCell({ projectName }: { projectName: string }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
   if (isLoading || !creationTimestamp) return null;
-  return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
+  return (
+    <FadeIn>
+      <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>
+    </FadeIn>
+  );
+}
+
+function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
+  const { displayName, isLoading } = useProjectMembers(projectName);
+  if (isLoading) return <BusyIndicator active size="S" />;
+  return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
 
 export default function ProjectsList() {
@@ -36,7 +48,12 @@ export default function ProjectsList() {
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
-      data?.map((projectName) => ({ projectName })).sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
+      data
+        ?.map((projectName) => ({
+          projectName,
+          nameSpace: projectnameToNamespace(projectName),
+        }))
+        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
     [data],
   );
 
@@ -62,25 +79,52 @@ export default function ProjectsList() {
         },
       },
       {
-        Header: t('ProjectsListView.membersHeader'),
-        accessor: 'members',
-        disableFilters: true,
-        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
+        Header: t('ProjectsListView.displayNameHeader'),
+        accessor: 'displayName',
+        Cell: (instance) => <ProjectDisplayNameCell projectName={getProjectName(instance)} />,
+      },
+      {
+        Header: t('ProjectsListView.namespaceHeader'),
+        accessor: 'nameSpace',
+        Cell: (instance) => (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'start',
+              gap: '0.5rem',
+              alignItems: 'center',
+              width: '100%',
+              cursor: 'pointer',
+            }}
+          >
+            <CopyButton text={instance.cell.value != null ? String(instance.cell.value) : ''} />
+          </div>
+        ),
       },
       {
         Header: t('ProjectsListView.createdHeader'),
         accessor: 'created',
         width: 120,
         disableFilters: true,
+        disableSortBy: true,
         responsivePopIn: true,
         responsiveMinWidth: 1200,
         Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
+      },
+      {
+        Header: t('ProjectsListView.membersHeader'),
+        accessor: 'members',
+        width: 220,
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),
         accessor: 'yaml',
         width: 70,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
@@ -93,6 +137,7 @@ export default function ProjectsList() {
         accessor: 'options',
         width: 55,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
@@ -111,5 +156,22 @@ export default function ProjectsList() {
     return <IllustratedError details={error.message} />;
   }
 
-  return <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />;
+  return (
+    <FadeIn>
+      <AnalyticalTable
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+        sortable
+        className={styles.table}
+        columns={columns}
+        data={rows}
+        minRows={10}
+      />
+    </FadeIn>
+  );
 }
