@@ -176,7 +176,19 @@ export default function ProjectsList() {
       {data?.map((projectName) => (
         <ProjectDisplayNameFetcher key={projectName} projectName={projectName} onDisplayName={handleDisplayName} />
       ))}
-      <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />
+      <AnalyticalTable
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+        className={styles.table}
+        columns={columns}
+        data={rows}
+        minRows={10}
+      />
     </>
   );
 }
