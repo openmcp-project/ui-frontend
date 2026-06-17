@@ -2,7 +2,7 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/web
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
@@ -19,7 +19,6 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 type ProjectListRow = {
   projectName: string;
   nameSpace: string;
-  displayName: string | undefined;
 };
 
 function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
@@ -32,33 +31,14 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
   return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
 }
 
-function ProjectDisplayNameFetcher({
-  projectName,
-  onDisplayName,
-}: {
-  projectName: string;
-  onDisplayName: (projectName: string, displayName: string | undefined) => void;
-}) {
-  const { displayName, isLoading } = useProjectMembers(projectName);
-  useEffect(() => {
-    if (!isLoading) {
-      onDisplayName(projectName, displayName);
-    }
-  }, [projectName, displayName, isLoading, onDisplayName]);
-  return null;
+function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
+  const { displayName } = useProjectMembers(projectName);
+  return <span>{displayName ?? ''}</span>;
 }
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
-  const [displayNames, setDisplayNames] = useState<Record<string, string | undefined>>({});
-
-  const handleDisplayName = useCallback((projectName: string, displayName: string | undefined) => {
-    setDisplayNames((prev) => {
-      if (prev[projectName] === displayName) return prev;
-      return { ...prev, [projectName]: displayName };
-    });
-  }, []);
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
@@ -66,10 +46,9 @@ export default function ProjectsList() {
         ?.map((projectName) => ({
           projectName,
           nameSpace: projectnameToNamespace(projectName),
-          displayName: displayNames[projectName],
         }))
         .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
-    [data, displayNames],
+    [data],
   );
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -96,7 +75,7 @@ export default function ProjectsList() {
       {
         Header: t('ProjectsListView.displayNameHeader'),
         accessor: 'displayName',
-        Cell: (instance) => <span>{(instance.cell.value as string | undefined) ?? ''}</span>,
+        Cell: (instance) => <ProjectDisplayNameCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('ProjectsListView.namespaceHeader'),
@@ -173,9 +152,6 @@ export default function ProjectsList() {
 
   return (
     <>
-      {data?.map((projectName) => (
-        <ProjectDisplayNameFetcher key={projectName} projectName={projectName} onDisplayName={handleDisplayName} />
-      ))}
       <AnalyticalTable
         style={{
           maxWidth: '1280px',
