@@ -627,3 +627,90 @@ describe('Graph.listCommonLabelKeys', () => {
     expect(g.listCommonLabelKeys()).toEqual([]);
   });
 });
+
+// ---------- ServiceInstance ⇄ Entitlement auxiliary edge ----------
+
+describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
+  const mkEntitlement = (name: string, serviceName: string, servicePlanName: string) =>
+    mkItem({
+      name,
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+      kind: 'Entitlement',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        forProvider: { serviceName, servicePlanName },
+      },
+    });
+
+  const mkServiceInstance = (name: string, offeringName?: string, planName?: string) =>
+    mkItem({
+      name,
+      apiVersion: 'account.btp.sap.crossplane.io/v1alpha1',
+      kind: 'ServiceInstance',
+      spec: {
+        providerConfigRef: { name: 'pc' },
+        forProvider: { offeringName, planName },
+      },
+    });
+
+  it('links a ServiceInstance to its matching Entitlement via extras', () => {
+    const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
+    const si = mkServiceInstance('hana-instance', 'hana-cloud', 'hana');
+    const g = buildGraph([ent, si]);
+    const siNode = g.nodes.find((n) => n.type === 'ServiceInstance');
+    expect(siNode?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
+  });
+
+  it('emits the link as an aux edge (not primary)', () => {
+    const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
+    const si = mkServiceInstance('hana-instance', 'hana-cloud', 'hana');
+    const g = buildGraph([ent, si]);
+    const edges = g.collectEdges();
+    const link = edges.find(
+      (e) =>
+        e.source === 'hana-ent-account.btp.sap.crossplane.io/v1alpha1' &&
+        e.target === 'hana-instance-account.btp.sap.crossplane.io/v1alpha1',
+    );
+    expect(link?.aux).toBe(true);
+  });
+
+  it('produces no edge when no Entitlement matches the offering+plan', () => {
+    const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
+    const si = mkServiceInstance('orphan', 'destination', 'lite');
+    const g = buildGraph([ent, si]);
+    const siNode = g.nodes.find((n) => n.id === 'orphan-account.btp.sap.crossplane.io/v1alpha1');
+    expect(siNode?.extraRefs).toEqual([]);
+  });
+
+  it('links multiple ServiceInstances of the same plan to one Entitlement', () => {
+    const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
+    const si1 = mkServiceInstance('hana-a', 'hana-cloud', 'hana');
+    const si2 = mkServiceInstance('hana-b', 'hana-cloud', 'hana');
+    const g = buildGraph([ent, si1, si2]);
+    const a = g.nodes.find((n) => n.id === 'hana-a-account.btp.sap.crossplane.io/v1alpha1');
+    const b = g.nodes.find((n) => n.id === 'hana-b-account.btp.sap.crossplane.io/v1alpha1');
+    expect(a?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
+    expect(b?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
+  });
+
+  it('matches across subaccounts (graph-wide service-key index)', () => {
+    // Two Entitlements with the same service+plan in different subaccounts
+    // collapse to a single index entry. Last record wins; the SI links to it.
+    const entA = mkEntitlement('ent-a', 'hana-cloud', 'hana');
+    const entB = mkEntitlement('ent-b', 'hana-cloud', 'hana');
+    const si = mkServiceInstance('hana-instance', 'hana-cloud', 'hana');
+    const g = buildGraph([entA, entB, si]);
+    const siNode = g.nodes.find((n) => n.type === 'ServiceInstance');
+    expect(siNode?.extraRefs).toHaveLength(1);
+    expect(siNode?.extraRefs?.[0]).toMatch(/^ent-(a|b)-/);
+  });
+
+  it('emits no edge when ServiceInstance is missing offeringName or planName', () => {
+    const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
+    const partial = mkServiceInstance('partial', 'hana-cloud', undefined);
+    const empty = mkServiceInstance('empty', undefined, undefined);
+    const g = buildGraph([ent, partial, empty]);
+    expect(g.nodes.find((n) => n.id === 'partial-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs).toEqual([]);
+    expect(g.nodes.find((n) => n.id === 'empty-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs).toEqual([]);
+  });
+});

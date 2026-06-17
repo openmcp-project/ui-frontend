@@ -78,6 +78,23 @@ export const DEFAULT_RULES: readonly RefRule[] = [
     role: 'parent',
     priority: 100,
   },
+  // ServiceInstance has no direct ref to its Entitlement; the BTP relationship
+  // is by matching service offering + plan. Use a predicate to derive the
+  // synthetic key, then resolveRef consults entitlementIdByServiceKey.
+  {
+    fromKind: 'ServiceInstance',
+    source: {
+      type: 'predicate',
+      match: (item) => {
+        const fp = (item?.spec as { forProvider?: Record<string, unknown> } | undefined)?.forProvider;
+        const off = fp?.offeringName as string | undefined;
+        const plan = fp?.planName as string | undefined;
+        return off && plan ? `${off}::${plan}` : undefined;
+      },
+    },
+    targetKind: 'Entitlement',
+    role: 'extra',
+  },
   // Catch-all: convention-derived kind, role from parentKeys list.
   {},
 ];
@@ -256,10 +273,15 @@ export class Graph {
   readonly nodeById: Map<string, NodeData>;
   private readonly rules: readonly RefRule[];
   private readonly parentKeys: readonly string[];
+  // Alt index for the rule-engine-defined synthetic key
+  // `${serviceName}::${servicePlanName}` → Entitlement node id. Lets rules with
+  // a `predicate` source link kinds that have no direct *Ref between them.
+  private readonly entitlementIdByServiceKey: Map<string, string>;
 
   constructor(input: GraphInput) {
     this.rules = input.rules ?? DEFAULT_RULES;
     this.parentKeys = input.parentKeys ?? DEFAULT_PARENT_KEYS;
+    this.entitlementIdByServiceKey = new Map();
 
     if (!input.managedResources || !input.providerConfigs) {
       this.nodes = [];
@@ -269,6 +291,14 @@ export class Graph {
 
     const records = Graph.collectRecords(input.managedResources);
     const idByNameAndKind = Graph.buildIndex(records);
+    records.forEach((r) => {
+      if (r.kind !== 'Entitlement') return;
+      const fp = (r.item?.spec as { forProvider?: Record<string, unknown> } | undefined)?.forProvider;
+      const svc = fp?.serviceName as string | undefined;
+      const plan = fp?.servicePlanName as string | undefined;
+      if (!svc || !plan) return;
+      this.entitlementIdByServiceKey.set(`${svc}::${plan}`, r.id);
+    });
     this.nodes = this.buildNodes(records, idByNameAndKind, input.onYamlClick);
     this.nodeById = new Map(this.nodes.map((n) => [n.id, n]));
   }
@@ -471,7 +501,15 @@ export class Graph {
 
     const resolveRef = (refName: string | undefined, targetKind: string | undefined): string | undefined => {
       if (!refName || !targetKind) return undefined;
-      return idByNameAndKind.get(`${refName}::${targetKind}`);
+      const direct = idByNameAndKind.get(`${refName}::${targetKind}`);
+      if (direct) return direct;
+      // Synthetic-key fallback: rules using `predicate` source can produce a
+      // composite name like `${offeringName}::${planName}` that doesn't appear
+      // as an actual node name. Look it up in the kind-specific alt index.
+      if (targetKind === 'Entitlement' && refName.includes('::')) {
+        return this.entitlementIdByServiceKey.get(refName);
+      }
+      return undefined;
     };
 
     records.forEach(({ item, kind, apiVersion, id }) => {
