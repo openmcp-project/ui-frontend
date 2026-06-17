@@ -1,6 +1,7 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView';
+import { FadeIn } from '../Ui/FadeIn/FadeIn';
 
 interface Props {
   projectName: string;
@@ -14,5 +15,9 @@ export function ProjectMembersCell({ projectName, useProjectMembers = _useProjec
     return <BusyIndicator active delay={0} size="S" />;
   }
 
-  return <MembersAvatarView members={members} project={projectName} hideNamespaceColumn />;
+  return (
+    <FadeIn>
+      <MembersAvatarView members={members} project={projectName} hideNamespaceColumn />
+    </FadeIn>
+  );
 }

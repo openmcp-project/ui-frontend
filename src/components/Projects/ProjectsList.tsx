@@ -1,4 +1,4 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
@@ -11,6 +11,7 @@ import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
@@ -28,12 +29,17 @@ function getProjectName(instance: { cell: { row: { original: unknown } } }): str
 function CreatedAtCell({ projectName }: { projectName: string }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
   if (isLoading || !creationTimestamp) return null;
-  return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
+  return (
+    <FadeIn>
+      <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>
+    </FadeIn>
+  );
 }
 
 function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
-  const { displayName } = useProjectMembers(projectName);
-  return <span>{displayName ?? ''}</span>;
+  const { displayName, isLoading } = useProjectMembers(projectName);
+  if (isLoading) return <BusyIndicator active size="S" />;
+  return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
 
 export default function ProjectsList() {
@@ -151,7 +157,7 @@ export default function ProjectsList() {
   }
 
   return (
-    <>
+    <FadeIn>
       <AnalyticalTable
         style={{
           maxWidth: '1280px',
@@ -165,6 +171,6 @@ export default function ProjectsList() {
         data={rows}
         minRows={10}
       />
-    </>
+    </FadeIn>
   );
 }
