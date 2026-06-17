@@ -92,6 +92,7 @@
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
+    "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create new Control Plane",
     "createNewManagedControlPlaneV2": "Create new Control Plane V2",
     "V2": "V2"
@@ -192,10 +193,14 @@
   },
   "EditProjectDialog": {
     "title": "Edit Project",
-    "toastMessage": "Project updated successfully."
+    "toastMessage": "Project updated successfully. Changes may take a moment to be reflected in the UI."
   },
   "CreateWorkspaceDialog": {
     "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
+  },
+  "EditWorkspaceDialog": {
+    "title": "Edit Workspace",
+    "toastMessage": "Workspace updated successfully. Changes may take a moment to be reflected in the UI."
   },
   "DeleteConfirmationDialog": {
     "deleteButton": "Delete",

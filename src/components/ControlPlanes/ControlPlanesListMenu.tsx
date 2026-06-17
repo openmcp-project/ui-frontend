@@ -1,5 +1,6 @@
 import '@ui5/webcomponents-icons/dist/accept';
 import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/edit';
 import { Button, ButtonDomRef, Menu, MenuDomRef, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { Dispatch, FC, SetStateAction, useRef, useState } from 'react';
@@ -10,6 +11,7 @@ import { ManagedControlPlaneTemplate } from '../../lib/api/types/templates/mcpTe
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteWsIsOpen: Dispatch<SetStateAction<boolean>>;
+  setDialogEditWsIsOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpenV2: Dispatch<SetStateAction<boolean>>;
   setInitialTemplateName: Dispatch<SetStateAction<string | undefined>>;
@@ -17,6 +19,7 @@ type ControlPlanesListMenuProps = {
 
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setDialogDeleteWsIsOpen,
+  setDialogEditWsIsOpen,
   setIsCreateManagedControlPlaneWizardOpen,
   setInitialTemplateName,
   setIsCreateManagedControlPlaneWizardOpenV2,
@@ -67,6 +70,9 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           if (action === 'deleteWorkspace') {
             setDialogDeleteWsIsOpen(true);
           }
+          if (action === 'editWorkspace') {
+            setDialogEditWsIsOpen(true);
+          }
           setOpen(false);
         }}
       >
@@ -96,6 +102,12 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           />
         ))}
 
+        <MenuItem
+          key={'edit'}
+          text={t('ControlPlaneListToolbar.editWorkspace')}
+          data-action="editWorkspace"
+          icon="edit"
+        />
         <MenuItem
           key={'delete'}
           text={t('ControlPlaneListToolbar.deleteWorkspace')}
