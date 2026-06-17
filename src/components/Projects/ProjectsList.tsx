@@ -2,10 +2,8 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/web
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { useProjectsDisplayNames } from '../../spaces/onboarding/hooks/useProjectsDisplayNames';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
@@ -20,8 +18,8 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
   projectName: string;
-  displayName: string;
   nameSpace: string;
+  displayName: string | undefined;
 };
 
 function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
@@ -34,28 +32,44 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
   return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
 }
 
-interface DisplayNameCellProps {
+function ProjectDisplayNameFetcher({
+  projectName,
+  onDisplayName,
+}: {
   projectName: string;
-  useProjectMembers?: typeof _useProjectMembers;
-}
-
-function DisplayNameCell({ projectName, useProjectMembers = _useProjectMembers }: DisplayNameCellProps) {
-  const { displayName } = useProjectMembers(projectName);
-  return <span>{displayName ?? ''}</span>;
+  onDisplayName: (projectName: string, displayName: string | undefined) => void;
+}) {
+  const { displayName, isLoading } = useProjectMembers(projectName);
+  useEffect(() => {
+    if (!isLoading) {
+      onDisplayName(projectName, displayName);
+    }
+  }, [projectName, displayName, isLoading, onDisplayName]);
+  return null;
 }
 
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
-  const { data, error } = useProjectsQuery();
-  const displayNames = useProjectsDisplayNames();
-
-  const stabilizedData = useMemo<ProjectListRow[]>(
   const { data, error, isLoading } = useProjectsQuery();
+  const [displayNames, setDisplayNames] = useState<Record<string, string | undefined>>({});
+
+  const handleDisplayName = useCallback((projectName: string, displayName: string | undefined) => {
+    setDisplayNames((prev) => {
+      if (prev[projectName] === displayName) return prev;
+      return { ...prev, [projectName]: displayName };
+    });
+  }, []);
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
-      data?.map((projectName) => ({ projectName })).sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
-    [data],
+      data
+        ?.map((projectName) => ({
+          projectName,
+          nameSpace: projectnameToNamespace(projectName),
+          displayName: displayNames[projectName],
+        }))
+        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
+    [data, displayNames],
   );
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -80,46 +94,13 @@ export default function ProjectsList() {
         },
       },
       {
-        Header: t('ProjectsListView.membersHeader'),
-        accessor: 'members',
-        width: 220,
-        disableFilters: true,
-        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
-      },
-      {
-        Header: t('ProjectsListView.createdHeader'),
-        accessor: 'created',
-        width: 120,
-        disableFilters: true,
-        responsivePopIn: true,
-        responsiveMinWidth: 1200,
-        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
-        Cell: (instance) => (
-          <Link
-            design={'Emphasized'}
-            style={{
-              width: '100%',
-              textAlign: 'left',
-              paddingTop: '0.5rem',
-              paddingBottom: '0.5rem',
-            }}
-            onClick={() => {
-              navigate(`/mcp/projects/${instance.cell.row.original?.projectName as string}`);
-            }}
-          >
-            {instance.cell.value}
-          </Link>
-        ),
-      },
-      {
         Header: t('ProjectsListView.displayNameHeader'),
         accessor: 'displayName',
-        Cell: (instance) => <DisplayNameCell projectName={instance.cell.row.original?.projectName as string} />,
+        Cell: (instance) => <span>{(instance.cell.value as string | undefined) ?? ''}</span>,
       },
       {
-        Header: 'Namespace',
+        Header: t('ProjectsListView.namespaceHeader'),
         accessor: 'nameSpace',
-        width: 340,
         Cell: (instance) => (
           <div
             style={{
@@ -134,6 +115,24 @@ export default function ProjectsList() {
             <CopyButton text={instance.cell.value != null ? String(instance.cell.value) : ''} />
           </div>
         ),
+      },
+      {
+        Header: t('ProjectsListView.createdHeader'),
+        accessor: 'created',
+        width: 120,
+        disableFilters: true,
+        disableSortBy: true,
+        responsivePopIn: true,
+        responsiveMinWidth: 1200,
+        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
+      },
+      {
+        Header: t('ProjectsListView.membersHeader'),
+        accessor: 'members',
+        width: 220,
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),
@@ -172,5 +171,12 @@ export default function ProjectsList() {
     return <IllustratedError details={error.message} />;
   }
 
-  return <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />;
+  return (
+    <>
+      {data?.map((projectName) => (
+        <ProjectDisplayNameFetcher key={projectName} projectName={projectName} onDisplayName={handleDisplayName} />
+      ))}
+      <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />
+    </>
+  );
 }

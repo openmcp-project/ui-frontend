@@ -49,5 +49,5 @@ export function useProjectMembers(projectName: string) {
     ];
   });
 
-  return { members, displayName, creationTimestamp, displayName, isLoading: loading };
+  return { members, displayName, creationTimestamp, isLoading: loading };
 }

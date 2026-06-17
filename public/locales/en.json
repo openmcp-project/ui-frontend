@@ -264,6 +264,7 @@
     "editProject": "Edit project",
     "membersHeader": "Members",
     "createdHeader": "Created",
+    "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
   "McpPage": {
