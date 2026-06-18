@@ -51,7 +51,7 @@ Then start the BFF pointing at the local cluster (no `--local-dev`, to match pro
 HEADLAMP_UPSTREAM_URL=http://localhost:8090 npx tsx ./server.ts
 ```
 
-**Iterating on a plugin** — if you have `crossplane-headlamp-plugin`, `kiosk-headlamp-plugin`, or `opencontrolplane-headlamp-plugin` checked out as siblings of this repo, build and hot-sync all of them into the running pod (no restart needed):
+**Iterating on a plugin** — if you have `crossplane-headlamp-plugin` or `kiosk-headlamp-plugin` checked out as siblings of this repo, build and hot-sync them into the running pod (no restart needed):
 
 ```bash
 task headlamp:update

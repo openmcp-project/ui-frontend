@@ -40,16 +40,13 @@ fi
 
 kubectl config use-context "kind-${CLUSTER_NAME}"
 
-# ── Namespace + opencontrolplane ConfigMap (pod needs it to mount) ────────────
+# ── Namespace ─────────────────────────────────────────────────────────────────
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-
-echo "→ applying plugin ConfigMaps..."
-kubectl apply -f "${SCRIPT_DIR}/configmap-opencontrolplane-plugin.yaml"
 
 # ── Headlamp via Helm ─────────────────────────────────────────────────────────
 helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/ --force-update &>/dev/null
 
-echo "→ deploying Headlamp ${HEADLAMP_VERSION} with flux + kiosk + crossplane (ArtifactHub) + opencontrolplane plugins..."
+echo "→ deploying Headlamp ${HEADLAMP_VERSION} with flux + kiosk + crossplane (ArtifactHub)..."
 helm upgrade --install headlamp headlamp/headlamp \
   --version "$HEADLAMP_VERSION" \
   --namespace "$NAMESPACE" \
@@ -65,25 +62,6 @@ config:
     - -in-cluster-context-name=main
     - -user-plugins-dir=/headlamp/user-plugins
     - -watch-plugins-changes=true
-initContainers:
-  - name: copy-opencontrolplane-plugin
-    image: busybox
-    command:
-      - /bin/sh
-      - -c
-      - |
-        mkdir -p /headlamp/plugins/opencontrolplane-plugin
-        cp /configmaps/opencontrolplane/main.js /headlamp/plugins/opencontrolplane-plugin/main.js
-        cp /configmaps/opencontrolplane/package.json /headlamp/plugins/opencontrolplane-plugin/package.json
-    volumeMounts:
-      - name: plugins-dir
-        mountPath: /headlamp/plugins
-      - name: opencontrolplane-plugin-cm
-        mountPath: /configmaps/opencontrolplane
-volumes:
-  - name: opencontrolplane-plugin-cm
-    configMap:
-      name: opencontrolplane-plugin
 pluginsManager:
   enabled: true
   baseImage: node:lts-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
