@@ -2,7 +2,7 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link }
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
@@ -19,15 +19,21 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
   projectName: string;
-  nameSpace: string;
 };
 
 function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
   return (instance.cell.row.original as ProjectListRow).projectName;
 }
 
-function CreatedAtCell({ projectName }: { projectName: string }) {
+function CreatedAtCell({
+  projectName,
+  onTimestamp,
+}: {
+  projectName: string;
+  onTimestamp: (name: string, ts: string) => void;
+}) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
   return (
     <FadeIn>
@@ -45,13 +51,17 @@ function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
 export default function ProjectsList() {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const timestampsRef = useRef<Map<string, string>>(new Map());
+
+  const handleTimestamp = (name: string, ts: string) => {
+    timestampsRef.current.set(name, ts);
+  };
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
       data
         ?.map((projectName) => ({
           projectName,
-          nameSpace: projectnameToNamespace(projectName),
         }))
         .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
     [data],
@@ -84,32 +94,18 @@ export default function ProjectsList() {
         Cell: (instance) => <ProjectDisplayNameCell projectName={getProjectName(instance)} />,
       },
       {
-        Header: t('ProjectsListView.namespaceHeader'),
-        accessor: 'nameSpace',
-        Cell: (instance) => (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'start',
-              gap: '0.5rem',
-              alignItems: 'center',
-              width: '100%',
-              cursor: 'pointer',
-            }}
-          >
-            <CopyButton text={instance.cell.value != null ? String(instance.cell.value) : ''} />
-          </div>
-        ),
-      },
-      {
         Header: t('ProjectsListView.createdHeader'),
-        accessor: 'created',
+        accessor: 'creationTimestamp',
         width: 120,
         disableFilters: true,
-        disableSortBy: true,
         responsivePopIn: true,
         responsiveMinWidth: 1200,
-        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
+        sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
+          const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
+          const b = timestampsRef.current.get(rowB.original.projectName) ?? '';
+          return a.localeCompare(b);
+        },
+        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} onTimestamp={handleTimestamp} />,
       },
       {
         Header: t('ProjectsListView.membersHeader'),
