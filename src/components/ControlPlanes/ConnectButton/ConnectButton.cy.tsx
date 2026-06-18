@@ -148,7 +148,6 @@ describe('ConnectButton', () => {
     cy.get('ui5-menu[open]').within(() => {
       cy.contains('openmcp').should('be.visible');
       cy.contains('custom-user').should('be.visible');
-      cy.contains('Download Kubeconfig').should('be.visible');
     });
 
     // First item: default IdP

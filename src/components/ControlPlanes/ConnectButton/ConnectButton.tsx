@@ -1,11 +1,10 @@
-import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react';
+import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 import { useId, useState } from 'react';
-import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
-import { useConnectOptions } from './useConnectOptions.ts';
 import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useConnectOptions } from './useConnectOptions.ts';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -43,22 +42,6 @@ export default function ConnectButton({
 
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
-  const handleMenuAction = (event: CustomEvent) => {
-    const { action, target } = event.detail.item.dataset;
-
-    if (action === 'download') {
-      DownloadKubeconfig(kubeconfigResource, controlPlaneName);
-      setIsMenuOpen(false);
-      return;
-    }
-
-    if (target) {
-      navigate(target);
-      setIsMenuOpen(false);
-      return;
-    }
-  };
-
   if (isLoading || error || connectionTargets.length === 0) {
     return (
       <Button endIcon="navigation-right-arrow" disabled={true}>
@@ -86,7 +69,16 @@ export default function ConnectButton({
       >
         {t('ConnectButton.buttonText')}
       </Button>
-      <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
+      <Menu
+        opener={buttonId}
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onItemClick={(event) => {
+          const { target } = event.detail.item.dataset;
+          if (target) navigate(target);
+          setIsMenuOpen(false);
+        }}
+      >
         {connectionTargets.map((target) => (
           <MenuItem
             key={target.name}
@@ -95,8 +87,6 @@ export default function ConnectButton({
             additionalText={target.isSystemIdP ? t('ConnectButton.defaultIdP') : undefined}
           />
         ))}
-        <MenuSeparator />
-        <MenuItem text={t('ConnectButton.downloadKubeconfig')} data-action="download" />
       </Menu>
     </div>
   );

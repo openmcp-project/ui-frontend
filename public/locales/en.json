@@ -105,9 +105,9 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit Control Plane",
-    "duplicateMCP": "Duplicate Control Plane",
-    "deleteMCP": "Delete Control Plane"
+    "editMCP": "Edit",
+    "duplicateMCP": "Duplicate",
+    "deleteMCP": "Delete"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
