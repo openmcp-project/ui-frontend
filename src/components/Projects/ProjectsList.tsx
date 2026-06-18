@@ -2,14 +2,15 @@ import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link }
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo } from 'react';
-import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useMemo, useRef, useState } from 'react';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
+import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
@@ -27,7 +28,7 @@ function getProjectName(instance: { cell: { row: { original: unknown } } }): str
 }
 
 function CreatedAtCell({ projectName }: { projectName: string }) {
-  const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+  const { creationTimestamp, isLoading } = _useProjectMembers(projectName);
   if (isLoading || !creationTimestamp) return null;
   return (
     <FadeIn>
@@ -36,26 +37,61 @@ function CreatedAtCell({ projectName }: { projectName: string }) {
   );
 }
 
-function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
+function ProjectDisplayNameCell({
+  projectName,
+  onDisplayName,
+  useProjectMembers,
+}: {
+  projectName: string;
+  onDisplayName: (name: string, displayName: string) => void;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
   const { displayName, isLoading } = useProjectMembers(projectName);
+  if (!isLoading && displayName) onDisplayName(projectName, displayName);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
 
-export default function ProjectsList() {
+interface Props {
+  useProjectsQuery?: typeof _useProjectsQuery;
+  useProjectMembers?: typeof _useProjectMembers;
+}
+
+export default function ProjectsList({
+  useProjectsQuery = _useProjectsQuery,
+  useProjectMembers = _useProjectMembers,
+}: Props = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const displayNamesRef = useRef<Map<string, string>>(new Map());
+  const [search, setSearch] = useState('');
+  const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
 
-  const rows = useMemo<ProjectListRow[]>(
-    () =>
+  const handleDisplayName = (name: string, displayName: string) => {
+    if (displayNamesRef.current.get(name) === displayName) return;
+    displayNamesRef.current.set(name, displayName);
+    setDisplayNamesVersion((v) => v + 1);
+  };
+
+  const rows = useMemo<ProjectListRow[]>(() => {
+    const query = search.trim().toLowerCase();
+    return (
       data
         ?.map((projectName) => ({
           projectName,
           nameSpace: projectnameToNamespace(projectName),
         }))
-        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
-    [data],
-  );
+        // eslint-disable-next-line react-hooks/refs
+        .filter(({ projectName }) => {
+          if (!query) return true;
+          if (projectName.toLowerCase().includes(query)) return true;
+          const dn = displayNamesRef.current.get(projectName)?.toLowerCase() ?? '';
+          return dn.includes(query);
+        })
+        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? []
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, search, displayNamesVersion]);
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
@@ -81,7 +117,13 @@ export default function ProjectsList() {
       {
         Header: t('ProjectsListView.displayNameHeader'),
         accessor: 'displayName',
-        Cell: (instance) => <ProjectDisplayNameCell projectName={getProjectName(instance)} />,
+        Cell: (instance) => (
+          <ProjectDisplayNameCell
+            projectName={getProjectName(instance)}
+            useProjectMembers={useProjectMembers}
+            onDisplayName={handleDisplayName}
+          />
+        ),
       },
       {
         Header: t('ProjectsListView.namespaceHeader'),
@@ -146,7 +188,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, useProjectMembers],
   );
 
   if (isLoading) {
@@ -158,6 +200,7 @@ export default function ProjectsList() {
 
   return (
     <FadeIn>
+      <ResourceSearchBar value={search} onChange={setSearch} />
       <AnalyticalTable
         style={{
           maxWidth: '1280px',

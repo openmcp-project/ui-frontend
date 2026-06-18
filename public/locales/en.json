@@ -278,6 +278,9 @@
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
   },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
+  },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
     "overviewTitle": "Overview",
