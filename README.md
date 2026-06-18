@@ -45,10 +45,10 @@ The UI embeds [Headlamp](https://headlamp.dev) for Kubernetes resource inspectio
 task headlamp:dev
 ```
 
-Then start the BFF pointing at the local cluster (no `--local-dev`, to match production CSP):
+Then set `HEADLAMP_UPSTREAM_URL=http://localhost:8090` in your `.env` and start the app:
 
 ```bash
-HEADLAMP_UPSTREAM_URL=http://localhost:8090 npx tsx ./server.ts
+npm run dev
 ```
 
 **Iterating on a plugin** — if you have `crossplane-headlamp-plugin` or `kiosk-headlamp-plugin` checked out as siblings of this repo, build and hot-sync them into the running pod (no restart needed):
