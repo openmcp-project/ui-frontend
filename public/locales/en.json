@@ -99,9 +99,12 @@
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
-    "permissionErrorMessage": "Not permitted to list mcps in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
-    "loadingErrorMessage": "Failed to list mcps in workspace"
+    "permissionErrorMessage": "Not permitted to list control planes in workspace",
+    "permissionErrorMessageSubtitle": "You need workspace membership to see control planes here.",
+    "askAdminButton": "Request access",
+    "accessRequestSubject": "Access request: workspace {{workspaceName}} in project {{projectName}}",
+    "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
+    "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",

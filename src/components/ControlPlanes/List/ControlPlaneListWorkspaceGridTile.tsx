@@ -7,7 +7,8 @@ import { useMemo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -66,7 +67,16 @@ export function ControlPlaneListWorkspaceGridTile({
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
-  const errorView = createErrorView(cpsError);
+  const workspaceAdminEmails = useMemo(() => {
+    const adminMembers = (workspace.spec.members ?? [])
+      .filter((m) => m.kind === 'User' && m.roles.includes(MemberRoles.admin))
+      .map((m) => m.name);
+    if (adminMembers.length > 0) return adminMembers;
+    const createdBy = workspace.metadata.annotations?.[CREATED_BY_ANNOTATION];
+    return createdBy ? [createdBy] : [];
+  }, [workspace.spec.members, workspace.metadata.annotations]);
+
+  const errorView = createErrorView(cpsError, workspaceAdminEmails);
   const shouldCollapsePanel = !isExpanded;
 
   useEffect(() => {
@@ -77,14 +87,29 @@ export function ControlPlaneListWorkspaceGridTile({
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
   }
 
-  function createErrorView(error: Error | undefined) {
+  function createErrorView(error: Error | undefined, adminEmails: string[]) {
     if (error) {
       if (isForbiddenError(error)) {
+        const subject = encodeURIComponent(
+          t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
+        );
+        const body = encodeURIComponent(
+          t('ControlPlaneListWorkspaceGridTile.accessRequestBody', { workspaceName, projectName }),
+        );
+        const mailtoHref = `mailto:${adminEmails.join(',')}?subject=${subject}&body=${body}`;
+
         return (
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
             details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
             compact={true}
+            button={
+              <a href={mailtoHref}>
+                <Button design="Transparent" icon="email">
+                  {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                </Button>
+              </a>
+            }
           />
         );
       } else {
