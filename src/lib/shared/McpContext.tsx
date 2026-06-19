@@ -1,5 +1,5 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
@@ -45,27 +45,29 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
 
   const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace, secretKey);
 
-  if (mcp.isLoading || kubeconfigQuery.isPending) {
-    onState?.({ loading: true, error: null, ready: false });
+  const loading = mcp.isLoading || kubeconfigQuery.isPending;
+  const error: Error | string | null = useMemo(
+    () =>
+      mcp.error ??
+      kubeconfigQuery.error ??
+      (!secretKey && !loading ? new Error('Control plane has no kubeconfig access information yet') : null),
+    [mcp.error, kubeconfigQuery.error, secretKey, loading],
+  );
+  const ready = !loading && !error && !!secretKey;
+
+  useEffect(() => {
+    onState?.({ loading, error, ready });
+  }, [loading, error, ready, onState]);
+
+  if (loading) {
     return <></>;
   }
 
-  if (mcp.error) {
-    onState?.({ loading: false, error: mcp.error, ready: false });
-    return <></>;
-  }
-
-  if (kubeconfigQuery.error) {
-    onState?.({ loading: false, error: kubeconfigQuery.error, ready: false });
+  if (error) {
     return <></>;
   }
 
   if (!secretKey) {
-    onState?.({
-      loading: false,
-      error: new Error('Control plane has no kubeconfig access information yet'),
-      ready: false,
-    });
     return <></>;
   }
 
@@ -75,7 +77,6 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };
-  onState?.({ loading: false, error: null, ready: true });
   return <McpContext.Provider value={enrichedContext}>{children}</McpContext.Provider>;
 };
 
