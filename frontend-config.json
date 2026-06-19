@@ -2,7 +2,6 @@
   "landscape": "LOCAL",
   "documentationBaseUrl": "http://localhost:3000",
   "githubBaseUrl": "https://github.com",
-  "backendUrl": "http://localhost:8080",
   "mcp2DocsUrl": "",
   "featureToggles": {
     "markMcpV1asDeprecated": false,
