@@ -36,7 +36,9 @@ vi.mock('../../../components/Ui/Center/Center.tsx', () => ({
   Center: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx', () => ({
-  NotFoundBanner: () => <div data-testid="not-found-banner" />,
+  NotFoundBanner: ({ homePath }: { homePath?: string }) => (
+    <div data-testid="not-found-banner" data-home-path={homePath} />
+  ),
 }));
 vi.mock('../../../components/Shared/Loading.tsx', () => ({
   default: () => <div data-testid="loading" />,
@@ -76,6 +78,19 @@ describe('ProjectPage', () => {
     renderPage('deleted-project');
 
     expect(getRememberedProject()).toBeNull();
+  });
+
+  it('renders NotFoundBanner with homePath containing noRedirect when project returns 404', () => {
+    mockUseWorkspacesQuery.mockReturnValue({
+      data: undefined,
+      error: NOT_FOUND_ERROR,
+      isPending: false,
+    } as unknown as ReturnType<typeof useWorkspacesQuery>);
+
+    const { getByTestId } = renderPage('deleted-project');
+
+    const homePath = getByTestId('not-found-banner').getAttribute('data-home-path');
+    expect(homePath).toBe('/mcp/projects?noRedirect=true');
   });
 
   it('does not clear the remembered project when a different project returns 404', () => {

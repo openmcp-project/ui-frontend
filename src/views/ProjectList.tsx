@@ -1,24 +1,32 @@
 import { CheckBox, ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
 import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 import { Routes } from '../Routes.ts';
-import { clearRememberedProject, getRememberedProject, setRememberedProject } from '../utils/rememberedProject.ts';
+import { useRememberedProject } from '../hooks/useRememberedProject.ts';
 
 export default function ProjectsListView() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [rememberChecked, setRememberChecked] = useState(() => getRememberedProject() !== null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const noRedirect = searchParams.get('noRedirect') === 'true';
+  const { rememberedProject, setRememberedProject, clearRememberedProject } = useRememberedProject();
+  const [rememberChecked, setRememberChecked] = useState(() => rememberedProject !== null);
 
   useEffect(() => {
-    const remembered = getRememberedProject();
-    if (remembered) {
-      navigate(Routes.Project.replace(':projectName', remembered), { replace: true });
+    if (rememberedProject && !noRedirect) {
+      navigate(Routes.Project.replace(':projectName', rememberedProject), { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, noRedirect, rememberedProject]);
+
+  useEffect(() => {
+    if (noRedirect) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [noRedirect, setSearchParams]);
 
   const onRememberChange = (checked: boolean) => {
     setRememberChecked(checked);

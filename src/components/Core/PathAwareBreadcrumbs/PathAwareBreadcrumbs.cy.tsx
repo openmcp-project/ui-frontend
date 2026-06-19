@@ -29,10 +29,10 @@ describe('PathAwareBreadcrumbs', () => {
   it('navigates when clicking breadcrumbs for all path parameters', () => {
     cy.mount(<PathAwareBreadcrumbs useNavigate={fakeUseNavigate} useParams={fakeUseParams} />);
 
-    // Navigate to '/'
+    // Navigate to projects list with noRedirect param
     cy.contains('[LOCAL] Projects').click();
     cy.wrap(null).then(() => {
-      expect(lastNavigatedPath).to.equal('/');
+      expect(lastNavigatedPath).to.equal('/mcp/projects?noRedirect=true');
     });
 
     // Click on 'my-project' > Navigate to 'my-project'

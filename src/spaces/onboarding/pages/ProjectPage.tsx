@@ -12,6 +12,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
+import { Routes } from '../../../Routes.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
@@ -28,7 +29,7 @@ export default function ProjectPage() {
     }
     return (
       <Center>
-        <NotFoundBanner entityType={t('Entities.Project')} />
+        <NotFoundBanner entityType={t('Entities.Project')} homePath={`${Routes.Projects}?noRedirect=true`} />
       </Center>
     );
   }

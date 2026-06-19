@@ -6,6 +6,8 @@ import ProjectsListView from './ProjectList';
 import { setRememberedProject, clearRememberedProject, getRememberedProject } from '../utils/rememberedProject';
 
 const mockNavigate = vi.fn();
+const mockSetSearchParams = vi.fn();
+let currentSearchParams = new URLSearchParams();
 
 vi.mock('@ui5/webcomponents-react', () => ({
   ObjectPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -30,6 +32,7 @@ vi.mock('@ui5/webcomponents-react', () => ({
 vi.mock('react-router-dom', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router-dom')>()),
   useNavigate: () => mockNavigate,
+  useSearchParams: () => [currentSearchParams, mockSetSearchParams],
 }));
 
 vi.mock('../components/Projects/ProjectsList.tsx', () => ({
@@ -48,17 +51,21 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
 }));
 
-const renderView = () =>
-  render(
+const renderView = (searchParamsString = '') => {
+  currentSearchParams = new URLSearchParams(searchParamsString);
+  return render(
     <MemoryRouter>
       <ProjectsListView />
     </MemoryRouter>,
   );
+};
 
 describe('ProjectsListView', () => {
   beforeEach(() => {
     clearRememberedProject();
     mockNavigate.mockReset();
+    mockSetSearchParams.mockReset();
+    currentSearchParams = new URLSearchParams();
   });
 
   afterEach(() => {
@@ -78,6 +85,25 @@ describe('ProjectsListView', () => {
       renderView();
 
       expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not redirect when noRedirect param is present even if a project is remembered', () => {
+      setRememberedProject('my-project');
+      renderView('noRedirect=true');
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('strips noRedirect param from the URL after reading it', () => {
+      renderView('noRedirect=true');
+
+      expect(mockSetSearchParams).toHaveBeenCalledWith({}, { replace: true });
+    });
+
+    it('does not call setSearchParams when noRedirect param is absent', () => {
+      renderView();
+
+      expect(mockSetSearchParams).not.toHaveBeenCalled();
     });
   });
 
