@@ -117,6 +117,7 @@ export default function McpPage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { featureToggles } = useFrontendConfig();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -132,6 +133,17 @@ export default function McpPage() {
     }
     return 'overview' as McpPageSectionIdAll;
   }, [searchParams, headlampEnabled]);
+
+  useEffect(() => {
+    if (featureToggles.enableHeadlamp) {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set('headlamp', 'true');
+        newParams.set('tab', 'headlamp');
+        return newParams;
+      });
+    }
+  }, [featureToggles.enableHeadlamp, setSearchParams]);
 
   const setTabFromSection = (sectionId: McpPageSectionIdAll) => {
     setSearchParams((prev) => {
