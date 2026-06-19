@@ -186,7 +186,13 @@
     "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
     "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!",
-    "feedbackError": "Failed to send feedback. Please try again later."
+    "feedbackError": "Failed to send feedback. Please try again later.",
+    "modeOpenSource": "Open Source View",
+    "backButton": "Back",
+    "copyNamespace": "Copy namespace",
+    "membersLabel": "Members:",
+    "overflowEditMcp": "Edit control plane",
+    "overflowViewYaml": "View YAML"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
