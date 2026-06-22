@@ -67,9 +67,9 @@ const Graph: React.FC = () => {
 
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     } else {
-      containerRef.current?.requestFullscreen();
+      containerRef.current?.requestFullscreen().catch(() => {});
     }
   }, []);
 

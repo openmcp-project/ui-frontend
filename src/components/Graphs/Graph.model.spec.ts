@@ -274,14 +274,29 @@ describe('Graph index + dedup', () => {
     });
     const g = buildGraph([cmAlpha, cmBeta, referrer]);
     const env = g.nodes.find((n) => n.type === 'KymaEnvironment');
-    expect(env?.extraRefs).toEqual(['cis-g/v1beta1']);
+    expect(env?.extraRefs).toEqual(['cis-CloudManagement-g/v1beta1']);
+  });
+
+  it('drops the lower-version duplicate node (no orphan)', () => {
+    const cmAlpha = mkItem({ name: 'cis', apiVersion: 'g/v1alpha1', kind: 'CloudManagement' });
+    const cmBeta = mkItem({ name: 'cis', apiVersion: 'g/v1beta1', kind: 'CloudManagement' });
+    const g = buildGraph([cmAlpha, cmBeta]);
+    expect(g.nodes.map((n) => n.id)).toEqual(['cis-CloudManagement-g/v1beta1']);
+  });
+
+  it('keeps both nodes when same name+apiVersion but different kinds', () => {
+    const a = mkItem({ name: 'x', apiVersion: 'g/v1', kind: 'KindA' });
+    const b = mkItem({ name: 'x', apiVersion: 'g/v1', kind: 'KindB' });
+    const g = buildGraph([a, b]);
+    expect(g.nodeById.has('x-KindA-g/v1')).toBe(true);
+    expect(g.nodeById.has('x-KindB-g/v1')).toBe(true);
   });
 
   it('keeps first-write entry on equal-rank collision', () => {
     const a = mkItem({ name: 'x', apiVersion: 'g/v1', kind: 'K' });
     const b = mkItem({ name: 'x', apiVersion: 'g/v1', kind: 'K' });
     const g = buildGraph([a, b]);
-    expect(g.nodeById.has('x-g/v1')).toBe(true);
+    expect(g.nodeById.has('x-K-g/v1')).toBe(true);
   });
 
   it('skips records missing name or apiVersion', () => {
@@ -289,7 +304,7 @@ describe('Graph index + dedup', () => {
     const noName = mkItem({ name: '', apiVersion: 'g/v1', kind: 'K' });
     const noVer = mkItem({ name: 'b', apiVersion: '', kind: 'K' });
     const g = buildGraph([valid, noName, noVer]);
-    expect(g.nodes.map((n) => n.id)).toEqual(['a-g/v1']);
+    expect(g.nodes.map((n) => n.id)).toEqual(['a-K-g/v1']);
   });
 
   it('returns empty graph for missing inputs', () => {
@@ -315,7 +330,7 @@ describe('Graph rule engine', () => {
     });
     const g = buildGraph([sa, sm]);
     const smNode = g.nodes.find((n) => n.type === 'ServiceManager');
-    expect(smNode?.parentId).toBe('my-sub-g/v1');
+    expect(smNode?.parentId).toBe('my-sub-Subaccount-g/v1');
   });
 
   it('refKey-targeted rule beats catch-all even when listed later', () => {
@@ -331,14 +346,14 @@ describe('Graph rule engine', () => {
       { refKey: 'someRef', targetKind: 'CustomTarget', role: 'extra' }, // never reached
     ];
     const g = buildGraph([target, referrer], rules);
-    const r = g.nodes.find((n) => n.id === 'r-g/v1');
+    const r = g.nodes.find((n) => n.id === 'r-X-g/v1');
     // catch-all uses inferKind = 'Some' → no match → no extras.
     expect(r?.extraRefs).toEqual([]);
 
     const rulesReversed: RefRule[] = [{ refKey: 'someRef', targetKind: 'CustomTarget', role: 'extra' }, {}];
     const g2 = buildGraph([target, referrer], rulesReversed);
-    const r2 = g2.nodes.find((n) => n.id === 'r-g/v1');
-    expect(r2?.extraRefs).toEqual(['t-g/v1']);
+    const r2 = g2.nodes.find((n) => n.id === 'r-X-g/v1');
+    expect(r2?.extraRefs).toEqual(['t-CustomTarget-g/v1']);
   });
 
   it('fromKind narrows a rule', () => {
@@ -356,9 +371,9 @@ describe('Graph rule engine', () => {
       spec: { forProvider: { kymaEnvironmentBindingRef: { name: 't' } } },
     });
     const g = buildGraph([target, km, other]);
-    expect(g.nodes.find((n) => n.id === 'm-g/v1')?.parentId).toBe('t-g/v1');
+    expect(g.nodes.find((n) => n.id === 'm-KymaModule-g/v1')?.parentId).toBe('t-KymaEnvironment-g/v1');
     // Other kind: convention says target kind = KymaEnvironmentBinding (no node) → unresolved.
-    expect(g.nodes.find((n) => n.id === 'o-g/v1')?.parentId).toBeUndefined();
+    expect(g.nodes.find((n) => n.id === 'o-OtherKind-g/v1')?.parentId).toBeUndefined();
   });
 
   it('refKeyPattern matches across discovered refs', () => {
@@ -371,7 +386,7 @@ describe('Graph rule engine', () => {
     });
     const rules: RefRule[] = [{ refKeyPattern: /Trust/, targetKind: 'TrustOverride', role: 'extra' }, {}];
     const g = buildGraph([target, r], rules);
-    expect(g.nodes.find((n) => n.id === 'r-g/v1')?.extraRefs).toEqual(['t-g/v1']);
+    expect(g.nodes.find((n) => n.id === 'r-X-g/v1')?.extraRefs).toEqual(['t-TrustOverride-g/v1']);
   });
 
   it('targetKindFn computes kind from refKey', () => {
@@ -384,7 +399,7 @@ describe('Graph rule engine', () => {
     });
     const rules: RefRule[] = [{ refKey: 'somethingRef', targetKindFn: () => 'COMPUTED', role: 'extra' }, {}];
     const g = buildGraph([target, r], rules);
-    expect(g.nodes.find((n) => n.id === 'r-g/v1')?.extraRefs).toEqual(['t-g/v1']);
+    expect(g.nodes.find((n) => n.id === 'r-X-g/v1')?.extraRefs).toEqual(['t-COMPUTED-g/v1']);
   });
 
   it('priority decides among multiple parent candidates', () => {
@@ -398,7 +413,7 @@ describe('Graph rule engine', () => {
       spec: { forProvider: { subaccountRef: { name: 'sa' }, serviceManagerRef: { name: 'sm' } } },
     });
     const g = buildGraph([sa, sm, r]);
-    expect(g.nodes.find((n) => n.id === 'child-g/v1')?.parentId).toBe('sm-g/v1');
+    expect(g.nodes.find((n) => n.id === 'child-X-g/v1')?.parentId).toBe('sm-ServiceManager-g/v1');
   });
 
   it('explicit priority on rule overrides parent-key default order', () => {
@@ -413,7 +428,7 @@ describe('Graph rule engine', () => {
     // Boost subaccountRef above serviceManagerRef.
     const rules: RefRule[] = [{ refKey: 'subaccountRef', priority: 999 }, {}];
     const g = buildGraph([sa, sm, r], rules);
-    expect(g.nodes.find((n) => n.id === 'child-g/v1')?.parentId).toBe('sa-g/v1');
+    expect(g.nodes.find((n) => n.id === 'child-X-g/v1')?.parentId).toBe('sa-Subaccount-g/v1');
   });
 
   it('role override flips a parent-key default into extras', () => {
@@ -426,9 +441,9 @@ describe('Graph rule engine', () => {
     });
     const rules: RefRule[] = [{ refKey: 'subaccountRef', role: 'extra' }, {}];
     const g = buildGraph([sa, r], rules);
-    const child = g.nodes.find((n) => n.id === 'child-g/v1');
+    const child = g.nodes.find((n) => n.id === 'child-X-g/v1');
     expect(child?.parentId).toBeUndefined();
-    expect(child?.extraRefs).toEqual(['sa-g/v1']);
+    expect(child?.extraRefs).toEqual(['sa-Subaccount-g/v1']);
   });
 
   it('source.path adds a ref discovery couldn’t see', () => {
@@ -449,7 +464,7 @@ describe('Graph rule engine', () => {
       {},
     ];
     const g = buildGraph([target, r], rules);
-    expect(g.nodes.find((n) => n.id === 'r-g/v1')?.extraRefs).toEqual(['tgt-g/v1']);
+    expect(g.nodes.find((n) => n.id === 'r-X-g/v1')?.extraRefs).toEqual(['tgt-Deep-g/v1']);
   });
 
   it('source.predicate produces ref name from arbitrary item shape', () => {
@@ -470,7 +485,7 @@ describe('Graph rule engine', () => {
       {},
     ];
     const g = buildGraph([target, r], rules);
-    expect(g.nodes.find((n) => n.id === 'r-g/v1')?.extraRefs).toEqual(['tag-value-g/v1']);
+    expect(g.nodes.find((n) => n.id === 'r-X-g/v1')?.extraRefs).toEqual(['tag-value-Tag-g/v1']);
   });
 });
 
@@ -486,7 +501,9 @@ describe('Default rules', () => {
       spec: { forProvider: {}, kymaEnvironmentBindingRef: { name: 'rt' } },
     });
     const g = buildGraph([env, mod]);
-    expect(g.nodes.find((n) => n.id === 'rt-mod-g/v1alpha1')?.parentId).toBe('rt-g/v1alpha1');
+    expect(g.nodes.find((n) => n.id === 'rt-mod-KymaModule-g/v1alpha1')?.parentId).toBe(
+      'rt-KymaEnvironment-g/v1alpha1',
+    );
   });
 
   it('Object.providerConfigRef resolves to KymaEnvironment of same name', () => {
@@ -498,7 +515,7 @@ describe('Default rules', () => {
       spec: { providerConfigRef: { name: 'rt' }, forProvider: {} },
     });
     const g = buildGraph([env, obj]);
-    expect(g.nodes.find((n) => n.id === 'rt-obj-k8s/v1alpha2')?.parentId).toBe('rt-g/v1alpha1');
+    expect(g.nodes.find((n) => n.id === 'rt-obj-Object-k8s/v1alpha2')?.parentId).toBe('rt-KymaEnvironment-g/v1alpha1');
   });
 });
 
@@ -517,9 +534,9 @@ describe('Graph.collectEdges', () => {
   it('emits parent edges as non-aux and extras as aux', () => {
     const g = buildGraph([sa, cm, env]);
     const edges = g.collectEdges();
-    const envEdges = edges.filter((e) => e.target === 'sa-g/v1alpha1');
-    expect(envEdges.find((e) => e.source === 'sa-g/v1')?.aux).toBe(false);
-    expect(envEdges.find((e) => e.source === 'sa-cis-g/v1beta1')?.aux).toBe(true);
+    const envEdges = edges.filter((e) => e.target === 'sa-KymaEnvironment-g/v1alpha1');
+    expect(envEdges.find((e) => e.source === 'sa-Subaccount-g/v1')?.aux).toBe(false);
+    expect(envEdges.find((e) => e.source === 'sa-cis-CloudManagement-g/v1beta1')?.aux).toBe(true);
   });
 
   it('includeAux=false omits aux edges', () => {
@@ -658,7 +675,7 @@ describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
     const si = mkServiceInstance('hana-instance', 'hana-cloud', 'hana');
     const g = buildGraph([ent, si]);
     const siNode = g.nodes.find((n) => n.type === 'ServiceInstance');
-    expect(siNode?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
+    expect(siNode?.extraRefs).toEqual(['hana-ent-Entitlement-account.btp.sap.crossplane.io/v1alpha1']);
   });
 
   it('emits the link as an aux edge (not primary)', () => {
@@ -668,8 +685,8 @@ describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
     const edges = g.collectEdges();
     const link = edges.find(
       (e) =>
-        e.source === 'hana-ent-account.btp.sap.crossplane.io/v1alpha1' &&
-        e.target === 'hana-instance-account.btp.sap.crossplane.io/v1alpha1',
+        e.source === 'hana-ent-Entitlement-account.btp.sap.crossplane.io/v1alpha1' &&
+        e.target === 'hana-instance-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1',
     );
     expect(link?.aux).toBe(true);
   });
@@ -678,7 +695,7 @@ describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
     const ent = mkEntitlement('hana-ent', 'hana-cloud', 'hana');
     const si = mkServiceInstance('orphan', 'destination', 'lite');
     const g = buildGraph([ent, si]);
-    const siNode = g.nodes.find((n) => n.id === 'orphan-account.btp.sap.crossplane.io/v1alpha1');
+    const siNode = g.nodes.find((n) => n.id === 'orphan-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1');
     expect(siNode?.extraRefs).toEqual([]);
   });
 
@@ -687,10 +704,10 @@ describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
     const si1 = mkServiceInstance('hana-a', 'hana-cloud', 'hana');
     const si2 = mkServiceInstance('hana-b', 'hana-cloud', 'hana');
     const g = buildGraph([ent, si1, si2]);
-    const a = g.nodes.find((n) => n.id === 'hana-a-account.btp.sap.crossplane.io/v1alpha1');
-    const b = g.nodes.find((n) => n.id === 'hana-b-account.btp.sap.crossplane.io/v1alpha1');
-    expect(a?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
-    expect(b?.extraRefs).toEqual(['hana-ent-account.btp.sap.crossplane.io/v1alpha1']);
+    const a = g.nodes.find((n) => n.id === 'hana-a-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1');
+    const b = g.nodes.find((n) => n.id === 'hana-b-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1');
+    expect(a?.extraRefs).toEqual(['hana-ent-Entitlement-account.btp.sap.crossplane.io/v1alpha1']);
+    expect(b?.extraRefs).toEqual(['hana-ent-Entitlement-account.btp.sap.crossplane.io/v1alpha1']);
   });
 
   it('matches across subaccounts (graph-wide service-key index)', () => {
@@ -710,7 +727,11 @@ describe('Graph: ServiceInstance → Entitlement auxiliary edge', () => {
     const partial = mkServiceInstance('partial', 'hana-cloud', undefined);
     const empty = mkServiceInstance('empty', undefined, undefined);
     const g = buildGraph([ent, partial, empty]);
-    expect(g.nodes.find((n) => n.id === 'partial-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs).toEqual([]);
-    expect(g.nodes.find((n) => n.id === 'empty-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs).toEqual([]);
+    expect(
+      g.nodes.find((n) => n.id === 'partial-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs,
+    ).toEqual([]);
+    expect(
+      g.nodes.find((n) => n.id === 'empty-ServiceInstance-account.btp.sap.crossplane.io/v1alpha1')?.extraRefs,
+    ).toEqual([]);
   });
 });

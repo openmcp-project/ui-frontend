@@ -10,8 +10,6 @@ export interface NodeData extends Record<string, unknown> {
   providerConfigName: string;
   providerType: string;
   status: string;
-  transitionTime?: string;
-  statusMessage?: string;
   fluxName?: string;
   labels?: Record<string, string>;
   parentId?: string;

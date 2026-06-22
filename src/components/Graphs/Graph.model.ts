@@ -469,7 +469,9 @@ export class Graph {
         const apiVersion = item?.apiVersion ?? '';
         const kind = item?.kind ?? '';
         if (!name || !apiVersion) return;
-        out.push({ item, name, kind, apiVersion, id: `${name}-${apiVersion}` });
+        // kind is part of the id so two different kinds sharing a name+apiVersion
+        // don't collapse onto each other (see buildNodes dedup).
+        out.push({ item, name, kind, apiVersion, id: `${name}-${kind}-${apiVersion}` });
       });
     });
     return out;
@@ -512,7 +514,12 @@ export class Graph {
       return undefined;
     };
 
-    records.forEach(({ item, kind, apiVersion, id }) => {
+    records.forEach(({ item, name, kind, apiVersion, id }) => {
+      // Only the highest-rank version per (name, kind) becomes a node — the same
+      // record buildIndex selected for ref resolution. Skipping the rest avoids
+      // orphan duplicate nodes when the API serves an object under several versions.
+      if (idByNameAndKind.get(`${name}::${kind}`) !== id) return;
+
       const providerConfigName = item?.spec?.providerConfigRef?.name ?? 'unknown';
       const providerType = resolveProviderTypeFromApiVersion(apiVersion);
       const statusCond = getStatusCondition(item?.status?.conditions);
@@ -535,13 +542,11 @@ export class Graph {
 
       allNodesMap.set(id, {
         id,
-        label: id,
+        label: `${name}-${apiVersion}`,
         type: kind,
         providerConfigName,
         providerType,
         status,
-        transitionTime: statusCond?.lastTransitionTime ?? '',
-        statusMessage: statusCond?.reason ?? statusCond?.message ?? '',
         conditions,
         fluxName,
         labels: labelsMap,
