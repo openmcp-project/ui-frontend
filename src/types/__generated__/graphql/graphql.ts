@@ -2814,6 +2814,12 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders 
    */
   groupsClaim?: Maybe<Scalars['String']['output']>;
   /**
+   * GroupsPrefix is the prefix for groups for this OIDC provider.
+   * If not specified, it defaults to '<name>:'.
+   * To disable the prefix completely, set it to an empty string.
+   */
+  groupsPrefix?: Maybe<Scalars['String']['output']>;
+  /**
    * Issuer is the issuer URL of the OIDC provider.
    * Must be a valid URL.
    */
@@ -2836,6 +2842,12 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders 
    * If empty, the default claim "sub" will be used.
    */
   usernameClaim?: Maybe<Scalars['String']['output']>;
+  /**
+   * UsernamePrefix is the prefix for usernames for this OIDC provider.
+   * If not specified, it defaults to '<name>:'.
+   * To disable the prefix completely, set it to an empty string.
+   */
+  usernamePrefix?: Maybe<Scalars['String']['output']>;
 };
 
 export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProvidersRoleBindings = {
@@ -2968,6 +2980,12 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders_
    */
   groupsClaim?: InputMaybe<Scalars['String']['input']>;
   /**
+   * GroupsPrefix is the prefix for groups for this OIDC provider.
+   * If not specified, it defaults to '<name>:'.
+   * To disable the prefix completely, set it to an empty string.
+   */
+  groupsPrefix?: InputMaybe<Scalars['String']['input']>;
+  /**
    * Issuer is the issuer URL of the OIDC provider.
    * Must be a valid URL.
    */
@@ -2992,6 +3010,12 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamOidcExtraProviders_
    * If empty, the default claim "sub" will be used.
    */
   usernameClaim?: InputMaybe<Scalars['String']['input']>;
+  /**
+   * UsernamePrefix is the prefix for usernames for this OIDC provider.
+   * If not specified, it defaults to '<name>:'.
+   * To disable the prefix completely, set it to an empty string.
+   */
+  usernamePrefix?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** OIDC is the OIDC-based access configuration. */
@@ -3181,6 +3205,8 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus = {
   access?: Maybe<Scalars['JSONString']['output']>;
   /** Conditions contains the conditions. */
   conditions?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions>>>;
+  /** Endpoints is a list of exposed Cluster endpoints. */
+  endpoints?: Maybe<Array<Maybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: Maybe<Scalars['Int']['output']>;
   /** Phase is the current phase of the resource. */
@@ -3252,6 +3278,21 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input = {
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints = {
+  __typename?: 'CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints';
+  /** Name is the identifier of the endpoint. */
+  name?: Maybe<Scalars['String']['output']>;
+  /** URL is the endpoint URL. */
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input = {
+  /** Name is the identifier of the endpoint. */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** URL is the endpoint URL. */
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input = {
   /**
    * Access is a mapping from OIDC provider names to secret references.
@@ -3262,6 +3303,8 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input = {
   access?: InputMaybe<Scalars['JSONString']['input']>;
   /** Conditions contains the conditions. */
   conditions?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input>>>;
+  /** Endpoints is a list of exposed Cluster endpoints. */
+  endpoints?: InputMaybe<Array<InputMaybe<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input>>>;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: InputMaybe<Scalars['Int']['input']>;
   /** Phase is the current phase of the resource. */
@@ -34545,29 +34588,6 @@ export type UpdateManagedControlPlaneV2Mutation = {
   } | null;
 };
 
-export type GetAllProjectsQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetAllProjectsQuery = {
-  __typename?: 'Query';
-  core_openmcp_cloud?: {
-    __typename?: 'CoreOpenmcpCloudQuery';
-    v1alpha1?: {
-      __typename?: 'CoreOpenmcpCloudV1alpha1Query';
-      Projects: {
-        __typename?: 'CoreOpenmcpCloudV1alpha1ProjectList';
-        items: Array<{
-          __typename?: 'CoreOpenmcpCloudV1alpha1Project';
-          metadata?: {
-            __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
-            name?: string | null;
-            annotations?: any | null;
-          } | null;
-        }>;
-      };
-    } | null;
-  } | null;
-};
-
 export type CreateProjectMutationVariables = Exact<{
   object: CoreOpenmcpCloudV1alpha1Project_Input;
   dryRun?: InputMaybe<Scalars['Boolean']['input']>;
@@ -34663,6 +34683,41 @@ export type GetProjectQuery = {
           __typename?: 'CoreOpenmcpCloudV1alpha1ProjectSpec';
           members?: Array<{
             __typename?: 'CoreOpenmcpCloudV1alpha1ProjectSpecMembers';
+            kind?: string | null;
+            name?: string | null;
+            namespace?: string | null;
+            roles?: Array<string | null> | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
+export type GetWorkspaceQueryVariables = Exact<{
+  name: Scalars['String']['input'];
+  namespace: Scalars['String']['input'];
+}>;
+
+export type GetWorkspaceQuery = {
+  __typename?: 'Query';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudQuery';
+    v1alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV1alpha1Query';
+      Workspace: {
+        __typename?: 'CoreOpenmcpCloudV1alpha1Workspace';
+        metadata?: {
+          __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+          name?: string | null;
+          namespace?: string | null;
+          annotations?: any | null;
+          labels?: any | null;
+        } | null;
+        spec?: {
+          __typename?: 'CoreOpenmcpCloudV1alpha1WorkspaceSpec';
+          members?: Array<{
+            __typename?: 'CoreOpenmcpCloudV1alpha1WorkspaceSpecMembers';
             kind?: string | null;
             name?: string | null;
             namespace?: string | null;
@@ -34905,6 +34960,29 @@ export type GetProjectMembersQuery = {
   } | null;
 };
 
+export type GetProjectsDisplayNamesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetProjectsDisplayNamesQuery = {
+  __typename?: 'Query';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudQuery';
+    v1alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV1alpha1Query';
+      Projects: {
+        __typename?: 'CoreOpenmcpCloudV1alpha1ProjectList';
+        items: Array<{
+          __typename?: 'CoreOpenmcpCloudV1alpha1Project';
+          metadata?: {
+            __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+            name?: string | null;
+            annotations?: any | null;
+          } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+};
+
 export type CreateSelfSubjectRulesReviewMutationVariables = Exact<{
   object: AuthorizationK8sIoV1SelfSubjectRulesReview_Input;
 }>;
@@ -34951,6 +35029,31 @@ export type UpdateProjectMutation = {
         metadata?: {
           __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
           name?: string | null;
+        } | null;
+      } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateWorkspaceMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  namespace: Scalars['String']['input'];
+  object: CoreOpenmcpCloudV1alpha1Workspace_Input;
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+export type UpdateWorkspaceMutation = {
+  __typename?: 'Mutation';
+  core_openmcp_cloud?: {
+    __typename?: 'CoreOpenmcpCloudMutation';
+    v1alpha1?: {
+      __typename?: 'CoreOpenmcpCloudV1alpha1Mutation';
+      updateWorkspace?: {
+        __typename?: 'CoreOpenmcpCloudV1alpha1Workspace';
+        metadata?: {
+          __typename?: 'io_k8s_apimachinery_pkg_apis_meta_v1_ObjectMetaMetadata';
+          name?: string | null;
+          namespace?: string | null;
         } | null;
       } | null;
     } | null;
@@ -36688,68 +36791,6 @@ export const UpdateManagedControlPlaneV2Document = {
     },
   ],
 } as unknown as DocumentNode<UpdateManagedControlPlaneV2Mutation, UpdateManagedControlPlaneV2MutationVariables>;
-export const GetAllProjectsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetAllProjects' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Projects' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetAllProjectsQuery, GetAllProjectsQueryVariables>;
 export const CreateProjectDocument = {
   kind: 'Document',
   definitions: [
@@ -37139,6 +37180,107 @@ export const GetProjectDocument = {
     },
   ],
 } as unknown as DocumentNode<GetProjectQuery, GetProjectQueryVariables>;
+export const GetWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Workspace' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'labels' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'members' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'roles' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceQuery, GetWorkspaceQueryVariables>;
 export const GetKubeconfigDocument = {
   kind: 'Document',
   definitions: [
@@ -37801,6 +37943,68 @@ export const GetProjectMembersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetProjectMembersQuery, GetProjectMembersQueryVariables>;
+export const GetProjectsDisplayNamesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetProjectsDisplayNames' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'Projects' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetProjectsDisplayNamesQuery, GetProjectsDisplayNamesQueryVariables>;
 export const CreateSelfSubjectRulesReviewDocument = {
   kind: 'Document',
   definitions: [
@@ -37974,6 +38178,106 @@ export const UpdateProjectDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateProjectMutation, UpdateProjectMutationVariables>;
+export const UpdateWorkspaceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CoreOpenmcpCloudV1alpha1Workspace_Input' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateWorkspace' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'dryRun' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'dryRun' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
 export const GetWorkspacesDocument = {
   kind: 'Document',
   definitions: [

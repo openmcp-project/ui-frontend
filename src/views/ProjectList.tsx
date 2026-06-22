@@ -1,4 +1,4 @@
-import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +41,9 @@ export default function ProjectsListView() {
         />
       }
     >
-      <ProjectsList />
+      <ObjectPageSection id="projects" titleText="Projects" hideTitleText>
+        <ProjectsList />
+      </ObjectPageSection>
     </ObjectPage>
   );
 }
