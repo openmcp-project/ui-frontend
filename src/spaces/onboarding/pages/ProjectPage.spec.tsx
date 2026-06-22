@@ -1,4 +1,4 @@
-/// <reference types="@testing-library/jest-dom" />
+/* eslint-disable jest-dom/prefer-to-have-attribute */
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -140,19 +140,19 @@ describe('ProjectPage', () => {
 
     it('shows unpin icon when the current project is not remembered', () => {
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('tooltip', 'ProjectsPage.pinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.pinProject');
     });
 
     it('shows pin icon when the current project is remembered', () => {
       setRememberedProject('mcp-ui');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('tooltip', 'ProjectsPage.unpinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.unpinProject');
     });
 
     it('shows unpin icon when a different project is remembered', () => {
       setRememberedProject('other-project');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('tooltip', 'ProjectsPage.pinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.pinProject');
     });
 
     it('saves the project to localStorage when clicking the unpin button', () => {
