@@ -139,19 +139,19 @@ describe('ProjectPage', () => {
 
     it('shows unpin icon when the current project is not remembered', () => {
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('data-icon', 'pushpin-off');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
     it('shows pin icon when the current project is remembered', () => {
       setRememberedProject('mcp-ui');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('data-icon', 'pushpin-on');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-on');
     });
 
     it('shows unpin icon when a different project is remembered', () => {
       setRememberedProject('other-project');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button')).toHaveAttribute('data-icon', 'pushpin-off');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
     it('saves the project to localStorage when clicking the unpin button', () => {
