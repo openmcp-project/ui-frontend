@@ -87,7 +87,7 @@ export default function ProjectPage() {
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}
             actionsBar={
-              <FlexBox alignItems="Center" gap="0.5rem">
+              <FlexBox alignItems="Baseline" gap="0.5rem">
                 <ControlPlaneListToolbar projectName={projectName ?? ''} />
               </FlexBox>
             }
