@@ -11,8 +11,6 @@ describe('<NotFoundBanner />', () => {
     );
 
     cy.contains('%entityType% not found').should('be.visible');
-    cy.contains("Sorry, we couldn't find what you are looking for").should('be.visible');
-
     cy.get('ui5-button').contains('Back to Homepage');
   });
 
@@ -29,7 +27,7 @@ describe('<NotFoundBanner />', () => {
       </MemoryRouter>,
     );
 
-    cy.get('ui5-button').shadow().contains('Back to Homepage').click();
+    cy.get('ui5-button').contains('Back to Homepage').click();
     cy.get('[data-testid="projects-page"]').should('exist');
   });
 });

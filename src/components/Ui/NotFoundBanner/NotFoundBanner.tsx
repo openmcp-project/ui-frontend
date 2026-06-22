@@ -21,14 +21,14 @@ export function NotFoundBanner({ entityType, homePath = '/' }: NotFoundBannerPro
         illustrationName={IllustrationMessageType.PageNotFound}
         title={t('NotFoundBanner.titleMessage', { entityType })}
         subtitle={
-          <div className={styles.subtitleContainer}>
-            <span>
-              <Trans i18nKey="NotFoundBanner.subtitleMessage" values={{ entityType }} />
-            </span>
-            <Button className={styles.button} onClick={() => navigate(homePath)}>
-              {t('NotFoundBanner.navigateHome')}
-            </Button>
-          </div>
+          <span>
+            <Trans i18nKey="NotFoundBanner.subtitleMessage" values={{ entityType }} />
+          </span>
+        }
+        button={
+          <Button className={styles.button} onClick={() => navigate(homePath)}>
+            {t('NotFoundBanner.navigateHome')}
+          </Button>
         }
       />
     </Center>
