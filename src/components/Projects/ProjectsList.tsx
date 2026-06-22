@@ -1,8 +1,9 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+import { AnalyticalTable, AnalyticalTableColumnDefinition, CheckBox, Link } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
@@ -41,6 +42,8 @@ export default function ProjectsList({
 }: ProjectsListProps = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const { setRememberedProject } = useRememberedProject();
+  const [setAsDefault, setSetAsDefault] = useState(false);
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
@@ -61,6 +64,9 @@ export default function ProjectsList({
                 className={styles.nameLink}
                 design="Emphasized"
                 onClick={() => {
+                  if (setAsDefault) {
+                    setRememberedProject(projectName);
+                  }
                   onProjectSelect?.(projectName);
                   navigate(`/mcp/projects/${projectName}`);
                 }}
@@ -113,7 +119,7 @@ export default function ProjectsList({
         ),
       },
     ],
-    [navigate, onProjectSelect],
+    [navigate, onProjectSelect, setAsDefault, setRememberedProject],
   );
 
   if (isLoading) {
@@ -123,5 +129,15 @@ export default function ProjectsList({
     return <IllustratedError details={error.message} />;
   }
 
-  return <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />;
+  return (
+    <>
+      <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />
+
+      <CheckBox
+        checked={setAsDefault}
+        text={t('ProjectsListView.setDefaultProject')}
+        onChange={() => setSetAsDefault((v) => !v)}
+      />
+    </>
+  );
 }
