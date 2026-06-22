@@ -254,7 +254,8 @@
   },
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
-    "projectHeader": "Project:"
+    "projectHeader": "Project:",
+    "rememberProject": "Remember project"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",

@@ -1,4 +1,4 @@
-import { render, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ProjectPage from './ProjectPage';
@@ -29,8 +29,29 @@ vi.mock('react-i18next', () => ({
 }));
 vi.mock('@ui5/webcomponents-react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@ui5/webcomponents-react')>()),
-  ObjectPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  ObjectPageTitle: () => null,
+  ObjectPage: ({ children, titleArea }: { children: React.ReactNode; titleArea?: React.ReactNode }) => (
+    <div>
+      {titleArea}
+      {children}
+    </div>
+  ),
+  ObjectPageTitle: ({ actionsBar }: { actionsBar?: React.ReactNode }) => <div>{actionsBar}</div>,
+  FlexBox: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Label: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+  Switch: ({
+    checked,
+    onChange,
+  }: {
+    checked?: boolean;
+    onChange?: (e: { target: { checked: boolean } }) => void;
+  }) => (
+    <input
+      type="checkbox"
+      data-testid="remember-toggle"
+      checked={!!checked}
+      onChange={(e) => onChange?.({ target: { checked: e.target.checked } })}
+    />
+  ),
 }));
 vi.mock('../../../components/Ui/Center/Center.tsx', () => ({
   Center: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -117,5 +138,52 @@ describe('ProjectPage', () => {
     renderPage('my-project');
 
     expect(getRememberedProject()).toBe('my-project');
+  });
+
+  describe('remember project toggle', () => {
+    beforeEach(() => {
+      mockUseWorkspacesQuery.mockReturnValue({
+        data: [],
+        error: null,
+        isPending: false,
+      } as unknown as ReturnType<typeof useWorkspacesQuery>);
+    });
+
+    it('renders toggle unchecked when the current project is not remembered', () => {
+      renderPage('mcp-ui');
+      // eslint-disable-next-line jest-dom/prefer-checked
+      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(false);
+    });
+
+    it('renders toggle checked when the current project is remembered', () => {
+      setRememberedProject('mcp-ui');
+      renderPage('mcp-ui');
+      // eslint-disable-next-line jest-dom/prefer-checked
+      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(true);
+    });
+
+    it('renders toggle unchecked when a different project is remembered', () => {
+      setRememberedProject('other-project');
+      renderPage('mcp-ui');
+      // eslint-disable-next-line jest-dom/prefer-checked
+      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(false);
+    });
+
+    it('saves the project to localStorage when toggle is turned on', () => {
+      renderPage('mcp-ui');
+
+      fireEvent.click(screen.getByTestId('remember-toggle'));
+
+      expect(getRememberedProject()).toBe('mcp-ui');
+    });
+
+    it('clears localStorage when toggle is turned off', () => {
+      setRememberedProject('mcp-ui');
+      renderPage('mcp-ui');
+
+      fireEvent.click(screen.getByTestId('remember-toggle'));
+
+      expect(getRememberedProject()).toBeNull();
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import { FlexBox, Label, ObjectPage, ObjectPageTitle, Switch, Title } from '@ui5/webcomponents-react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
@@ -12,12 +12,15 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
+import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { Routes } from '../../../Routes.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
+  const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
+  const isProjectRemembered = rememberedProject === projectName;
 
   if (isPending) {
     return <Loading />;
@@ -66,7 +69,23 @@ export default function ProjectPage() {
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}
-            actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ''} />}
+            actionsBar={
+              <FlexBox alignItems="Center" gap="0.5rem">
+                <Label>{t('ProjectsPage.rememberProject')}</Label>
+                <Switch
+                  accessibleName={t('ProjectsPage.rememberProject')}
+                  checked={isProjectRemembered}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      if (projectName) setRememberedProject(projectName);
+                    } else {
+                      clearRemembered();
+                    }
+                  }}
+                />
+                <ControlPlaneListToolbar projectName={projectName ?? ''} />
+              </FlexBox>
+            }
           />
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?

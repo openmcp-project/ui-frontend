@@ -1,5 +1,5 @@
-import { CheckBox, ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
-import { useEffect, useState } from 'react';
+import { ObjectPage, ObjectPageTitle } from '@ui5/webcomponents-react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
@@ -13,27 +13,22 @@ export default function ProjectsListView() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const noRedirect = searchParams.get('noRedirect') === 'true';
-  const { rememberedProject, setRememberedProject, clearRememberedProject } = useRememberedProject();
-  const [rememberChecked, setRememberChecked] = useState(() => rememberedProject !== null);
+  const { rememberedProject } = useRememberedProject();
+  // Capture noRedirect at mount time so the redirect effect is not re-triggered
+  // when the cleanup effect strips the param and causes a re-render with noRedirect=false.
+  const suppressRedirect = useRef(noRedirect);
 
   useEffect(() => {
-    if (rememberedProject && !noRedirect) {
+    if (rememberedProject && !suppressRedirect.current) {
       navigate(Routes.Project.replace(':projectName', rememberedProject), { replace: true });
     }
-  }, [navigate, noRedirect, rememberedProject]);
+  }, [navigate, rememberedProject]);
 
   useEffect(() => {
     if (noRedirect) {
       setSearchParams({}, { replace: true });
     }
   }, [noRedirect, setSearchParams]);
-
-  const onRememberChange = (checked: boolean) => {
-    setRememberChecked(checked);
-    if (!checked) {
-      clearRememberedProject();
-    }
-  };
 
   return (
     <ObjectPage
@@ -46,14 +41,7 @@ export default function ProjectsListView() {
         />
       }
     >
-      <ProjectsList onProjectSelect={rememberChecked ? setRememberedProject : undefined} />
-      <div style={{ display: 'flex', justifyContent: 'flex-end', maxWidth: '1280px', margin: '0.5rem auto 0' }}>
-        <CheckBox
-          checked={rememberChecked}
-          text={t('ProjectsListView.rememberProject')}
-          onChange={(e) => onRememberChange(e.target.checked ?? false)}
-        />
-      </div>
+      <ProjectsList />
     </ObjectPage>
   );
 }
