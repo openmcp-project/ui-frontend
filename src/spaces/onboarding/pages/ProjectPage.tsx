@@ -71,6 +71,7 @@ export default function ProjectPage() {
                 <p style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</p>
                 <ProjectChooser currentProjectName={projectName ?? ''} />
                 <Button
+                  data-testid="pin-button"
                   design="Transparent"
                   icon={isProjectRemembered ? 'pushpin-on' : 'pushpin-off'}
                   tooltip={isProjectRemembered ? t('ProjectsPage.unpinProject') : t('ProjectsPage.pinProject')}

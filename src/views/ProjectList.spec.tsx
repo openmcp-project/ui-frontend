@@ -1,9 +1,9 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import ProjectsListView from './ProjectList';
-import { setRememberedProject, clearRememberedProject, getRememberedProject } from '../utils/rememberedProject';
+import { setRememberedProject, clearRememberedProject } from '../utils/rememberedProject';
 
 const mockNavigate = vi.fn();
 const mockSetSearchParams = vi.fn();
@@ -12,21 +12,7 @@ let currentSearchParams = new URLSearchParams();
 vi.mock('@ui5/webcomponents-react', () => ({
   ObjectPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ObjectPageTitle: ({ header }: { header: React.ReactNode }) => <div>{header}</div>,
-  CheckBox: ({
-    checked,
-    onChange,
-  }: {
-    text: string;
-    checked?: boolean;
-    onChange?: (e: { target: { checked: boolean } }) => void;
-  }) => (
-    <input
-      type="checkbox"
-      data-testid="remember-checkbox"
-      defaultChecked={!!checked}
-      onChange={(e) => onChange?.({ target: { checked: e.target.checked } })}
-    />
-  ),
+  ObjectPageSection: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('react-router-dom', async (importOriginal) => ({
@@ -104,31 +90,6 @@ describe('ProjectsListView', () => {
       renderView();
 
       expect(mockSetSearchParams).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('remember selection checkbox', () => {
-    it('renders unchecked when no project is remembered', () => {
-      renderView();
-      // eslint-disable-next-line jest-dom/prefer-checked
-      expect((screen.getByTestId('remember-checkbox') as HTMLInputElement).checked).toBe(false);
-    });
-
-    it('renders checked when a project is already remembered', () => {
-      setRememberedProject('existing-project');
-      renderView();
-      // eslint-disable-next-line jest-dom/prefer-checked
-      expect((screen.getByTestId('remember-checkbox') as HTMLInputElement).checked).toBe(true);
-    });
-
-    it('clears localStorage when checkbox is unchecked', () => {
-      setRememberedProject('some-project');
-      renderView();
-
-      // starts checked (defaultChecked=true); clicking toggles to unchecked
-      fireEvent.click(screen.getByTestId('remember-checkbox'));
-
-      expect(getRememberedProject()).toBeNull();
     });
   });
 });

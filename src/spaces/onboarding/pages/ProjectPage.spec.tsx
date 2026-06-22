@@ -24,6 +24,9 @@ vi.mock('../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx', ()
 vi.mock('../../../components/Projects/ProjectChooser.tsx', () => ({
   default: () => null,
 }));
+vi.mock('../../../components/Shared/CopyButton.tsx', () => ({
+  CopyButton: () => null,
+}));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
   Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
@@ -36,10 +39,20 @@ vi.mock('@ui5/webcomponents-react', async (importOriginal) => ({
       {children}
     </div>
   ),
-  ObjectPageTitle: ({ actionsBar }: { actionsBar?: React.ReactNode }) => <div>{actionsBar}</div>,
+  ObjectPageTitle: ({ actionsBar, subHeader }: { actionsBar?: React.ReactNode; subHeader?: React.ReactNode }) => (
+    <div>
+      {subHeader}
+      {actionsBar}
+    </div>
+  ),
   FlexBox: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ icon, tooltip, onClick }: { icon?: string; tooltip?: string; onClick?: () => void }) => (
-    <button data-testid="pin-button" data-icon={icon} title={tooltip} onClick={onClick} />
+    <button
+      data-testid={icon?.startsWith('pushpin') ? 'pin-button' : undefined}
+      data-icon={icon}
+      title={tooltip}
+      onClick={onClick}
+    />
   ),
 }));
 vi.mock('../../../components/Ui/Center/Center.tsx', () => ({
@@ -140,19 +153,19 @@ describe('ProjectPage', () => {
 
     it('shows unpin icon when the current project is not remembered', () => {
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.pinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
     it('shows pin icon when the current project is remembered', () => {
       setRememberedProject('mcp-ui');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.unpinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-on');
     });
 
     it('shows unpin icon when a different project is remembered', () => {
       setRememberedProject('other-project');
       renderPage('mcp-ui');
-      expect(screen.getByTestId('pin-button').getAttribute('tooltip')).toBe('ProjectsPage.pinProject');
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
     it('saves the project to localStorage when clicking the unpin button', () => {
