@@ -27,8 +27,17 @@ function getProjectName(instance: { cell: { row: { original: unknown } } }): str
   return (instance.cell.row.original as ProjectListRow).projectName;
 }
 
-function CreatedAtCell({ projectName }: { projectName: string }) {
-  const { creationTimestamp, isLoading } = _useProjectMembers(projectName);
+function CreatedAtCell({
+  projectName,
+  onTimestamp,
+  useProjectMembers,
+}: {
+  projectName: string;
+  onTimestamp: (name: string, ts: string) => void;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
+  const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
   return (
     <FadeIn>
@@ -63,9 +72,14 @@ export default function ProjectsList({
 }: Props = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const timestampsRef = useRef<Map<string, string>>(new Map());
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
   const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
+
+  const handleTimestamp = (name: string, ts: string) => {
+    timestampsRef.current.set(name, ts);
+  };
 
   const handleDisplayName = (name: string, displayName: string) => {
     if (displayNamesRef.current.get(name) === displayName) return;
@@ -151,7 +165,13 @@ export default function ProjectsList({
         disableSortBy: true,
         responsivePopIn: true,
         responsiveMinWidth: 1200,
-        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
+        Cell: (instance) => (
+          <CreatedAtCell
+            projectName={getProjectName(instance)}
+            useProjectMembers={useProjectMembers}
+            onTimestamp={handleTimestamp}
+          />
+        ),
       },
       {
         Header: t('ProjectsListView.membersHeader'),

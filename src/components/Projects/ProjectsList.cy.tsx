@@ -1,4 +1,7 @@
 import '@ui5/webcomponents-cypress-commands';
+import { MockedProvider } from '@apollo/client/testing/react';
+import { MemoryRouter } from 'react-router-dom';
+import { SplitterProvider } from '../Splitter/SplitterContext.tsx';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import ProjectsList from './ProjectsList';
@@ -25,7 +28,15 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
 });
 
 const mount = () =>
-  cy.mount(<ProjectsList useProjectsQuery={fakeUseProjectsQuery} useProjectMembers={fakeUseProjectMembers} />);
+  cy.mount(
+    <MockedProvider mocks={[]}>
+      <MemoryRouter>
+        <SplitterProvider>
+          <ProjectsList useProjectsQuery={fakeUseProjectsQuery} useProjectMembers={fakeUseProjectMembers} />
+        </SplitterProvider>
+      </MemoryRouter>
+    </MockedProvider>,
+  );
 
 describe('ProjectsList search', () => {
   it('shows all projects when search is empty', () => {
