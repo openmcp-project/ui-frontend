@@ -1,5 +1,10 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, CheckBox, Link } from '@ui5/webcomponents-react';
-import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+  BusyIndicator,
+  CheckBox,
+  Link,
+} from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
@@ -175,29 +180,35 @@ export default function ProjectsList({
   }
 
   return (
-    <>
-      <FadeIn>
-        <AnalyticalTable
-          style={{
-            maxWidth: '1280px',
-            margin: '10px auto 0px auto',
-            width: '100%',
-            borderRadius: '12px',
-            overflow: 'hidden',
-          }}
-          sortable
-          className={styles.table}
-          columns={columns}
-          data={rows}
-          minRows={10}
-        />
-      </FadeIn>
-
-      <CheckBox
-        checked={setAsDefault}
-        text={t('ProjectsListView.setDefaultProject')}
-        onChange={() => setSetAsDefault((v) => !v)}
+    <FadeIn>
+      <AnalyticalTable
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}
+        sortable
+        className={styles.table}
+        columns={columns}
+        data={rows}
+        minRows={10}
       />
-    </>
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <CheckBox
+          checked={setAsDefault}
+          text={t('ProjectsListView.setDefaultProject')}
+          onChange={() => setSetAsDefault((v) => !v)}
+        />
+      </div>
+    </FadeIn>
   );
 }

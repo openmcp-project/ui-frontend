@@ -26,7 +26,6 @@ import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
-import { BetaButton } from './BetaButton.tsx';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
