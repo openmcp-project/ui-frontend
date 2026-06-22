@@ -255,7 +255,8 @@
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:",
-    "rememberProject": "Remember project"
+    "pinProject": "Set as default project",
+    "unpinProject": "Clear default project"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",

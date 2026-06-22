@@ -1,10 +1,8 @@
 import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
-import { CopyButton } from '../Shared/CopyButton.tsx';
-import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
-import IllustratedError from '../Shared/IllustratedError.tsx';
-import { useApiResource } from '../../lib/api/useApiResource';
 import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { projectnameToNamespace } from '../../utils';
+import { useApiResource } from '../../lib/api/useApiResource';
+import IllustratedError from '../Shared/IllustratedError.tsx';
+import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 
 interface Props {
   currentProjectName: string;
@@ -37,7 +35,6 @@ export default function ProjectChooser({ currentProjectName }: Props) {
           </VariantItem>
         ))}
       </VariantManagement>
-      <CopyButton collapsible text={projectnameToNamespace(currentProjectName)} />
     </>
   );
 }

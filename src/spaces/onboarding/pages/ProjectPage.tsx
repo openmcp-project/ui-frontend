@@ -1,19 +1,23 @@
-import { FlexBox, Label, ObjectPage, ObjectPageTitle, Switch, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/pushpin-off';
+import '@ui5/webcomponents-icons/dist/pushpin-on';
+import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
+import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
-import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
-import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
+import { isNotFoundError } from '../../../lib/api/error.ts';
 import { Routes } from '../../../Routes.ts';
+import { projectnameToNamespace } from '../../../utils/index.ts';
+import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
+import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
@@ -66,23 +70,24 @@ export default function ProjectPage() {
               >
                 <p style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</p>
                 <ProjectChooser currentProjectName={projectName ?? ''} />
+                <Button
+                  design="Transparent"
+                  icon={isProjectRemembered ? 'pushpin-on' : 'pushpin-off'}
+                  tooltip={isProjectRemembered ? t('ProjectsPage.unpinProject') : t('ProjectsPage.pinProject')}
+                  onClick={() => {
+                    if (isProjectRemembered) {
+                      clearRemembered();
+                    } else if (projectName) {
+                      setRememberedProject(projectName);
+                    }
+                  }}
+                />
+                <CopyButton collapsible text={projectnameToNamespace(projectName)} />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}
             actionsBar={
               <FlexBox alignItems="Center" gap="0.5rem">
-                <Label>{t('ProjectsPage.rememberProject')}</Label>
-                <Switch
-                  accessibleName={t('ProjectsPage.rememberProject')}
-                  checked={isProjectRemembered}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      if (projectName) setRememberedProject(projectName);
-                    } else {
-                      clearRemembered();
-                    }
-                  }}
-                />
                 <ControlPlaneListToolbar projectName={projectName ?? ''} />
               </FlexBox>
             }

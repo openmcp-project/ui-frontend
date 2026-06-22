@@ -37,20 +37,16 @@ vi.mock('@ui5/webcomponents-react', async (importOriginal) => ({
   ),
   ObjectPageTitle: ({ actionsBar }: { actionsBar?: React.ReactNode }) => <div>{actionsBar}</div>,
   FlexBox: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  Label: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
-  Switch: ({
-    checked,
-    onChange,
+  Button: ({
+    icon,
+    tooltip,
+    onClick,
   }: {
-    checked?: boolean;
-    onChange?: (e: { target: { checked: boolean } }) => void;
+    icon?: string;
+    tooltip?: string;
+    onClick?: () => void;
   }) => (
-    <input
-      type="checkbox"
-      data-testid="remember-toggle"
-      checked={!!checked}
-      onChange={(e) => onChange?.({ target: { checked: e.target.checked } })}
-    />
+    <button data-testid="pin-button" data-icon={icon} title={tooltip} onClick={onClick} />
   ),
 }));
 vi.mock('../../../components/Ui/Center/Center.tsx', () => ({
@@ -140,7 +136,7 @@ describe('ProjectPage', () => {
     expect(getRememberedProject()).toBe('my-project');
   });
 
-  describe('remember project toggle', () => {
+  describe('pin/unpin button', () => {
     beforeEach(() => {
       mockUseWorkspacesQuery.mockReturnValue({
         data: [],
@@ -149,39 +145,36 @@ describe('ProjectPage', () => {
       } as unknown as ReturnType<typeof useWorkspacesQuery>);
     });
 
-    it('renders toggle unchecked when the current project is not remembered', () => {
+    it('shows unpin icon when the current project is not remembered', () => {
       renderPage('mcp-ui');
-      // eslint-disable-next-line jest-dom/prefer-checked
-      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(false);
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
-    it('renders toggle checked when the current project is remembered', () => {
+    it('shows pin icon when the current project is remembered', () => {
       setRememberedProject('mcp-ui');
       renderPage('mcp-ui');
-      // eslint-disable-next-line jest-dom/prefer-checked
-      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(true);
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-on');
     });
 
-    it('renders toggle unchecked when a different project is remembered', () => {
+    it('shows unpin icon when a different project is remembered', () => {
       setRememberedProject('other-project');
       renderPage('mcp-ui');
-      // eslint-disable-next-line jest-dom/prefer-checked
-      expect((screen.getByTestId('remember-toggle') as HTMLInputElement).checked).toBe(false);
+      expect(screen.getByTestId('pin-button').getAttribute('data-icon')).toBe('pushpin-off');
     });
 
-    it('saves the project to localStorage when toggle is turned on', () => {
+    it('saves the project to localStorage when clicking the unpin button', () => {
       renderPage('mcp-ui');
 
-      fireEvent.click(screen.getByTestId('remember-toggle'));
+      fireEvent.click(screen.getByTestId('pin-button'));
 
       expect(getRememberedProject()).toBe('mcp-ui');
     });
 
-    it('clears localStorage when toggle is turned off', () => {
+    it('clears localStorage when clicking the pin button', () => {
       setRememberedProject('mcp-ui');
       renderPage('mcp-ui');
 
-      fireEvent.click(screen.getByTestId('remember-toggle'));
+      fireEvent.click(screen.getByTestId('pin-button'));
 
       expect(getRememberedProject()).toBeNull();
     });
