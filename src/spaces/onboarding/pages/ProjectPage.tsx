@@ -16,7 +16,6 @@ import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { Routes } from '../../../Routes.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
-import { clearRememberedProject, getRememberedProject } from '../../../utils/rememberedProject.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
 export default function ProjectPage() {
@@ -32,8 +31,8 @@ export default function ProjectPage() {
   }
 
   if (isNotFoundError(error)) {
-    if (getRememberedProject() === projectName) {
-      clearRememberedProject();
+    if (isProjectRemembered) {
+      clearRemembered();
     }
     return (
       <Center>
