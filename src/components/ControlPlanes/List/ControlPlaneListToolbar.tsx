@@ -2,6 +2,7 @@ import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/overflow';
 import { Button, Menu, MenuItem, Toolbar, ToolbarButton } from '@ui5/webcomponents-react';
+import styles from './ControlPlaneListToolbar.module.css';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
@@ -44,7 +45,7 @@ export function ControlPlaneListToolbar({
 
   return (
     <>
-      <Toolbar style={{ border: 0 }}>
+      <Toolbar className={styles.toolbar}>
         <ToolbarButton
           design="Emphasized"
           icon="add"
