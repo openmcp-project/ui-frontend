@@ -10,6 +10,7 @@ const mockSetSearchParams = vi.fn();
 let currentSearchParams = new URLSearchParams();
 
 vi.mock('@ui5/webcomponents-react', () => ({
+  Link: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   ObjectPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ObjectPageTitle: ({ header }: { header: React.ReactNode }) => <div>{header}</div>,
   ObjectPageSection: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
