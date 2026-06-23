@@ -64,6 +64,7 @@ import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
 import { useComponentsQuery as _useComponentsQuery } from '../../../hooks/useComponentsQuery.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 // Remap MCP components keys from internal replaceName back to originalName using replaceComponentsName mapping
 const remapComponentsKeysToOriginalNames = (components: MCPComponentsSpec = {}): MCPComponentsSpec => {
@@ -111,6 +112,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
   useComponentsQuery = _useComponentsQuery,
 }) => {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
@@ -293,6 +295,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             ),
           );
         }
+        telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created' });
         setSelectedStep('success');
         return true;
       } catch (e) {

@@ -13,6 +13,7 @@ import { useDeleteProject as _useDeleteProject } from '../../spaces/onboarding/h
 import { useUpdateProject as _useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject.ts';
 import { useGetProject as _useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
 import { KubectlDeleteProjectDialog } from '../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 type ProjectsListItemMenuProps = {
   projectName: string;
@@ -32,6 +33,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
   const [dialogEditProjectIsOpen, setDialogEditProjectIsOpen] = useState(false);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   const { deleteProject } = useDeleteProject(projectName);
 
@@ -76,7 +78,10 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
           )}
           isOpen={dialogDeleteProjectIsOpen}
           setIsOpen={setDialogDeleteProjectIsOpen}
-          onDeletionConfirmed={deleteProject}
+          onDeletionConfirmed={async () => {
+            telemetry.track({ name: 'project.deleted' });
+            await deleteProject();
+          }}
         />
       )}
       <EditProjectDialogContainer

@@ -48,7 +48,7 @@ export default function ConnectButton({
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
   const connectTo = (target: ConnectOption) => {
-    telemetry.track({ name: 'mcp.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    telemetry.track({ name: 'controlplane.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
     navigate(target.url);
   };
 

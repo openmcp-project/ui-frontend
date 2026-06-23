@@ -43,6 +43,7 @@ import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -86,6 +87,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useAuthOnboarding = _useAuthOnboarding,
 }) => {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
@@ -250,6 +252,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       } else {
         await createMcp(rawInput);
       }
+      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created' });
       setSelectedStep('success');
       return true;
     } catch (e) {
@@ -261,7 +264,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       console.error(e);
       return false;
     }
-  }, [isEditMode, updateMcp, initialData, createMcp, rawInput]);
+  }, [isEditMode, updateMcp, initialData, createMcp, rawInput, telemetry]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
     const step = (e.detail.step.dataset.step ?? '') as WizardStepType;

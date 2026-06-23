@@ -25,6 +25,7 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import styles from './WorkspacesList.module.css';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   projectName: string;
@@ -65,6 +66,7 @@ export function ControlPlaneListWorkspaceGridTile({
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
+  const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
   const shouldCollapsePanel = !isExpanded;
@@ -232,7 +234,10 @@ export function ControlPlaneListWorkspaceGridTile({
         )}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
-        onDeletionConfirmed={deleteWorkspace}
+        onDeletionConfirmed={async () => {
+          telemetry.track({ name: 'workspace.deleted' });
+          await deleteWorkspace();
+        }}
       />
       <EditWorkspaceDialogContainer
         isOpen={dialogEditWsIsOpen}

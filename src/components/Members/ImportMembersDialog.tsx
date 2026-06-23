@@ -25,6 +25,7 @@ import { useApiResource } from '../../lib/api/useApiResource.ts';
 import { useTranslation } from 'react-i18next';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { TFunction } from 'i18next';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 type FilteredFor = 'All' | 'Users' | 'Groups' | 'ServiceAccounts';
 type SourceType = 'Workspace' | 'Project';
@@ -56,6 +57,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   const [selectedRowIds, setSelectedRowIds] = useState<AnalyticalTablePropTypes['selectedRowIds']>({});
 
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
   const allowedKinds = useMemo(
     () => new Set(effectiveAccountTypeOptions.map(({ value }) => value as AccountType)),
@@ -155,6 +157,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
       .filter(([, isSelected]) => isSelected)
       .map(([idx]) => tableData[Number(idx)]._member);
 
+    telemetry.track({ name: 'member.added', scope: workspaceName ? 'workspace' : 'project' });
     onImport(selectedMembers);
     onClose();
   };
