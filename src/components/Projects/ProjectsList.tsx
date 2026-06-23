@@ -8,7 +8,7 @@ import {
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
@@ -73,6 +73,10 @@ export default function ProjectsList({
   };
   const { setRememberedProject } = useRememberedProject();
   const [setAsDefault, setSetAsDefault] = useState(false);
+  const setAsDefaultRef = useRef(false);
+  useEffect(() => {
+    setAsDefaultRef.current = setAsDefault;
+  }, [setAsDefault]);
 
   const rows = useMemo<ProjectListRow[]>(
     () =>
@@ -97,7 +101,7 @@ export default function ProjectsList({
                 className={styles.nameLink}
                 design="Emphasized"
                 onClick={() => {
-                  if (setAsDefault) {
+                  if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
                   }
                   onProjectSelect?.(projectName);
@@ -165,7 +169,7 @@ export default function ProjectsList({
         ),
       },
     ],
-    [navigate, onProjectSelect, setAsDefault, setRememberedProject],
+    [navigate, onProjectSelect, setRememberedProject],
   );
 
   if (isLoading) {
