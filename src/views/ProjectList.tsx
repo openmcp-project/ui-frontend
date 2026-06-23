@@ -1,16 +1,14 @@
 import { Link, ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useTranslation } from 'react-i18next';
-import { ObjectPage, ObjectPageSection, ObjectPageTitle } from '@ui5/webcomponents-react';
 import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import ProjectsList from '../components/Projects/ProjectsList.tsx';
 import { BreadcrumbFeedbackHeader } from '../components/Core/BreadcrumbFeedbackHeader.tsx';
 import { ProjectListToolbar } from '../components/Projects/ProjectListToolbar.tsx';
 
-const LEARN_MORE_URL = 'https://open-control-plane.io/users/concepts/projects-and-workspaces/';
 import { Routes } from '../Routes.ts';
 import { useRememberedProject } from '../hooks/useRememberedProject.ts';
+const LEARN_MORE_URL = 'https://open-control-plane.io/users/concepts/projects-and-workspaces/';
 
 export default function ProjectsListView() {
   const { t } = useTranslation();
