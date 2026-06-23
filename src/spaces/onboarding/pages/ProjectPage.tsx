@@ -2,7 +2,7 @@ import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
 import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
@@ -23,6 +23,7 @@ export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
 
@@ -44,7 +45,14 @@ export default function ProjectPage() {
   if (error || !workspaces || !projectName) {
     return (
       <Center>
-        <IllustratedError details={error?.message} />
+        <IllustratedError
+          button={
+            <Button onClick={() => navigate(`${Routes.Projects}?noRedirect=true`)}>
+              {t('ProjectPage.backToProjects')}
+            </Button>
+          }
+          details={error?.message}
+        />
       </Center>
     );
   }

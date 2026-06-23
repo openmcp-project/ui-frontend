@@ -263,6 +263,9 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
+  "ProjectPage": {
+    "backToProjects": "Go to all projects"
+  },
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
     "projectHeader": "Project:",
