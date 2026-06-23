@@ -194,7 +194,7 @@ async function authPlugin(fastify) {
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
-  fastify.post('/auth/mcp/refresh', { config: authRateLimit }, async function (req, reply) {
+  fastify.post('/auth/mcp/refresh', { config: authRateLimit, preHandler: fastify.csrfPreHandler }, async function (req, reply) {
     const { namespace, mcp, idp } = req.query;
 
     const refreshToken = req.encryptedSession.get('mcp_refreshToken');
