@@ -4,11 +4,14 @@
 
 ## About This Project
 
-This repository contains code relevant for the frontend component required in the Managed Control Plane UI (MCP UI), which is part of the @openmcp-project, more info [here](https://github.com/openmcp-project).
+This repository contains code relevant for the frontend component required in the Control Plane UI (MCP UI), which is part of the @openmcp-project, more info [here](https://github.com/openmcp-project).
 
-The MCP UI enables endusers to work with Managed Control Planes, without having to use kubectl. Note that the current focus of the UI is on displaying information about the various managed resources, as well as the MCP instances themselves. It is also possible to check the status of the resources, and display / copy their YAML representations.
+The Control Plane UI empowers endusers to create  and manage `Projects`, `Workspaces` and `ControlPlanes`, without installing any additional tools. 
 
-Overall, the UI provides an easy jump-start for everyone interested in checking the status of Managed Control Planes, without having to use kubectl.
+It allows users to observe and edit managed resources of the Onboarding API, as well as the control planes it creates. 
+
+Our goal is to provide quick access, simple overview, and encourage users to create cloud landscapes using Kubernetes Ressource Model.
+
 
 ## Getting Started
 
@@ -33,6 +36,33 @@ npm run dev
 
 The UI will be served on http://localhost:5173.
 
+#### Headlamp (local dev cluster)
+
+The UI embeds [Headlamp](https://headlamp.dev) to visualize any Kubernetes resource running inside of `ControlPlane`. 
+
+For local development a kind cluster is used.
+
+**Prerequisites:** `kind`, `kubectl`, `helm`, `task` ([Taskfile](https://taskfile.dev))
+
+**One-time setup** — creates the kind cluster, installs Headlamp with the latest plugin releases from ArtifactHub, and port-forwards to `http://localhost:8090`:
+
+```bash
+task headlamp:dev
+```
+
+Then set `HEADLAMP_UPSTREAM_URL=http://localhost:8090` in your `.env` and start the app:
+
+```bash
+npm run dev
+```
+
+**Develop a plugin** — if you have [`crossplane-headlamp-plugin`](https://github.com/openmcp-project/crossplane-headlamp-plugin) or [`kiosk-headlamp-plugin`](https://github.com/openmcp-project/kiosk-headlamp-plugin) checked out as in the same dicrectory next to this repo, build and hot-sync them into the running pod (no restart needed):
+
+```bash
+task headlamp:update
+```
+
+Then hard-refresh the browser (`Cmd+Shift+R`).
 
 #### Safari Support
 
