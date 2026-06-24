@@ -44,7 +44,7 @@ describe('MemberTable', () => {
 
   it('shows validation message when requireAtLeastOneMember and no members', () => {
     cy.mount(<MemberTable members={[]} requireAtLeastOneMember hideNamespaceColumn />);
-    cy.contains('validationErrors.atLeastOneUser').should('exist');
+    cy.contains('You need to have at least one member assigned.').should('exist');
   });
 
   it('renders role badges', () => {
