@@ -125,7 +125,7 @@ The token is automatically prefixed with `Bearer` and passed as the `Authorizati
 
 #### Which access token
 
-Getting the required access token depends on how you you [deploy your platform](#deploy-platform-service). This is an example of an IDP-centered setup. More guidance coming soon.
+The schema is fetched from the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway). Getting the required access token depends on how you [deploy your platform](#deploy-platform-service). For OIDC setups, use [kubelogin](https://github.com/int128/kubelogin) (`kubectl oidc-login`) to obtain the token — this is an example of an IDP-centered setup. More guidance coming soon.
 
 ```
 kubectl oidc-login get-token 
