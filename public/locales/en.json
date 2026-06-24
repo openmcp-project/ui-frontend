@@ -252,7 +252,7 @@
     "membersHeader": "Members"
   },
   "EditMembers": {
-    "addButton": "Add ",
+    "addButton": "Add User or ServiceAccount",
     "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",

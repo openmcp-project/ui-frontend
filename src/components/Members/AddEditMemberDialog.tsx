@@ -235,7 +235,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               ? t('EditMembers.saveButton')
               : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
           </Button>
-          <Button className={styles.wrapper} onClick={onClose}>
+          <Button className={styles.wrapper} design="Transparent" onClick={onClose}>
             {t('buttons.cancel')}
           </Button>
         </FlexBox>
