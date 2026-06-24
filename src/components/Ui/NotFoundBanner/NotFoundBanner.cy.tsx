@@ -20,9 +20,9 @@ describe('<NotFoundBanner />', () => {
         <Routes>
           <Route
             path="/not-found"
-            element={<NotFoundBanner entityType="Project" homePath="/mcp/projects?noRedirect=true" />}
+            element={<NotFoundBanner entityType="Project" homePath="/projects?noRedirect=true" />}
           />
-          <Route path="/mcp/projects" element={<div data-testid="projects-page" />} />
+          <Route path="/projects" element={<div data-testid="projects-page" />} />
         </Routes>
       </MemoryRouter>,
     );

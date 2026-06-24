@@ -1,5 +1,6 @@
 import { Navigate, Route, HashRouter as Router } from 'react-router-dom';
 import GlobalProviderOutlet from './components/Core/ApiConfigWrapper.tsx';
+import { ParamRedirect } from './components/Core/ParamRedirect.tsx';
 import { ShellBarComponent } from './components/Core/ShellBar.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
@@ -28,24 +29,62 @@ function AppRouter() {
         <SplitterLayout>
           <Router>
             <SentryRoutes>
-              <Route path="/mcp" element={<GlobalProviderOutlet />}>
+              <Route element={<GlobalProviderOutlet />}>
                 <Route path="projects" element={<ProjectListView />} />
                 <Route path="projects/:projectName" element={<ProjectPage />} />
                 <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+                  path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName"
                   element={<McpPageV2 />}
                 />
                 <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName/headlamp"
+                  path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName/headlamp"
                   element={<HeadlampPage />}
                 />
                 <Route
-                  path="projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
+                  path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
                   element={<McpPage />}
                 />
               </Route>
-              <Route path="/" element={<Navigate to="/mcp/projects" />} />
-              <Route path="*" element={<Navigate to="/" />} />
+
+              {/* backward-compat: /mcp prefix + old segment names */}
+              <Route path="/mcp/projects" element={<Navigate to="/projects" replace />} />
+              <Route
+                path="/mcp/projects/:projectName"
+                element={<ParamRedirect to={({ projectName }) => `/projects/${projectName}`} />}
+              />
+              <Route
+                path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName"
+                element={
+                  <ParamRedirect
+                    to={({ projectName, workspaceName, controlPlaneName }) =>
+                      `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}`
+                    }
+                  />
+                }
+              />
+              <Route
+                path="/mcp/projects/:projectName/workspaces/:workspaceName/mcpsv2/:controlPlaneName/headlamp"
+                element={
+                  <ParamRedirect
+                    to={({ projectName, workspaceName, controlPlaneName }) =>
+                      `/projects/${projectName}/workspaces/${workspaceName}/controlplane/${controlPlaneName}/headlamp`
+                    }
+                  />
+                }
+              />
+              <Route
+                path="/mcp/projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName"
+                element={
+                  <ParamRedirect
+                    to={({ projectName, workspaceName, controlPlaneName }) =>
+                      `/projects/${projectName}/workspaces/${workspaceName}/managedcontrolplane/${controlPlaneName}`
+                    }
+                  />
+                }
+              />
+
+              <Route path="/" element={<Navigate to="/projects" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </SentryRoutes>
           </Router>
         </SplitterLayout>
