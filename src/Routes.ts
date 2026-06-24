@@ -1,6 +1,7 @@
 export const Routes = {
   Home: '/',
-  Projects: '/mcp/projects',
-  Project: '/mcp/projects/:projectName',
-  Mcp: '/mcp/projects/:projectName/workspaces/:workspaceName/mcps/:controlPlaneName',
+  Projects: '/projects',
+  Project: '/projects/:projectName',
+  Mcp: '/projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName',
+  McpV2: '/projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName',
 } as const;

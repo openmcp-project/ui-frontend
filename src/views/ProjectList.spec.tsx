@@ -65,7 +65,7 @@ describe('ProjectsListView', () => {
       setRememberedProject('my-project');
       renderView();
 
-      expect(mockNavigate).toHaveBeenCalledWith('/mcp/projects/my-project', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/projects/my-project', { replace: true });
     });
 
     it('does not redirect when no project is remembered', () => {

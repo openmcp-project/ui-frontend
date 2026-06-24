@@ -22,7 +22,7 @@ function extractWorkspaceNameFromNamespace(namespace: string): string {
 
 function buildMcpUrl(projectName: string, workspaceName: string, controlPlaneName: string, idp?: string): string {
   const normalizedWorkspace = extractWorkspaceNameFromNamespace(workspaceName);
-  const basePath = `/mcp/projects/${projectName}/workspaces/${normalizedWorkspace}/mcps/${controlPlaneName}`;
+  const basePath = `/projects/${projectName}/workspaces/${normalizedWorkspace}/managedcontrolplane/${controlPlaneName}`;
   return idp ? `${basePath}?idp=${encodeURIComponent(idp)}` : basePath;
 }
 

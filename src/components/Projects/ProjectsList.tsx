@@ -105,7 +105,7 @@ export default function ProjectsList({
                     setRememberedProject(projectName);
                   }
                   onProjectSelect?.(projectName);
-                  navigate(`/mcp/projects/${projectName}`);
+                  navigate(`/projects/${projectName}`);
                 }}
               >
                 {projectName}

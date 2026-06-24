@@ -73,9 +73,9 @@ const NOT_FOUND_ERROR = new APIError('not found', 404);
 
 const renderPage = (projectName = 'deleted-project') =>
   render(
-    <MemoryRouter initialEntries={[`/mcp/projects/${projectName}`]}>
+    <MemoryRouter initialEntries={[`/projects/${projectName}`]}>
       <Routes>
-        <Route path="/mcp/projects/:projectName" element={<ProjectPage />} />
+        <Route path="/projects/:projectName" element={<ProjectPage />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -113,7 +113,7 @@ describe('ProjectPage', () => {
     const { getByTestId } = renderPage('deleted-project');
 
     const homePath = getByTestId('not-found-banner').getAttribute('data-home-path');
-    expect(homePath).toBe('/mcp/projects?noRedirect=true');
+    expect(homePath).toBe('/projects?noRedirect=true');
   });
 
   it('does not clear the remembered project when a different project returns 404', () => {

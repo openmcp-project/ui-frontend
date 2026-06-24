@@ -3,10 +3,10 @@
  *
  * @example
  * ```ts
- * // Current URL: https://example.com/?sap-theme=sap_horizon#/mcp/projects
+ * // Current URL: https://example.com/?sap-theme=sap_horizon#/projects
  *
  * const redirectTo = getRedirectSuffix();
- * // redirectTo -> "/?sap-theme=sap_horizon#/mcp/projects"
+ * // redirectTo -> "/?sap-theme=sap_horizon#/projects"
  * ```
  */
 export function getRedirectSuffix() {
