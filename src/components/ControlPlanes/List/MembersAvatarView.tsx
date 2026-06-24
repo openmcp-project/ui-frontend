@@ -1,8 +1,7 @@
-import { Avatar, AvatarGroup, Button, ResponsivePopover } from '@ui5/webcomponents-react';
+import { Avatar, AvatarGroup, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useId, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
 import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
@@ -19,7 +18,6 @@ interface Props {
 export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false, onEdit }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
-  const { t } = useTranslation();
   const avatars = [];
 
   for (const member of members) {
@@ -50,21 +48,12 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
         onClose={() => setPopoverIsOpen(false)}
       >
         <div className={styles.content}>
-          {onEdit && (
-            <div className={styles.editRow}>
-              <Button
-                icon="edit"
-                design="Transparent"
-                onClick={() => {
-                  setPopoverIsOpen(false);
-                  onEdit();
-                }}
-              >
-                {t('MembersAvatarView.editButton')}
-              </Button>
-            </div>
-          )}
-          <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+          <MemberTable
+            members={members}
+            requireAtLeastOneMember={false}
+            hideNamespaceColumn={hideNamespaceColumn}
+            onEdit={onEdit}
+          />
         </div>
       </ResponsivePopover>
     </div>

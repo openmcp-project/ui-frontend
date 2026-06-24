@@ -32,6 +32,7 @@ type MemberTableProps = {
   members: Member[];
   onDeleteMember?: (email: string) => void;
   onEditMember?: (member: Member) => void;
+  onEdit?: () => void;
   isValidationError?: boolean;
   requireAtLeastOneMember: boolean;
   hideNamespaceColumn?: boolean;
@@ -53,6 +54,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
   onEditMember,
+  onEdit,
   isValidationError = false,
   requireAtLeastOneMember,
   hideNamespaceColumn = false,
@@ -150,13 +152,21 @@ export const MemberTable: FC<MemberTableProps> = ({
 
   return (
     <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
-      <Input
-        icon={<Icon name="search" />}
-        placeholder={t('MemberTable.searchPlaceholder')}
-        value={search}
-        showClearIcon
-        onInput={(e: Ui5CustomEvent<InputDomRef, never>) => setSearch(e.target.value)}
-      />
+      <FlexBox alignItems="Center" style={{ gap: '0.5rem' }}>
+        <Input
+          style={{ flex: 1 }}
+          icon={<Icon name="search" />}
+          placeholder={t('MemberTable.searchPlaceholder')}
+          value={search}
+          showClearIcon
+          onInput={(e: Ui5CustomEvent<InputDomRef, never>) => setSearch(e.target.value)}
+        />
+        {onEdit && (
+          <Button design="Transparent" icon="edit" onClick={onEdit}>
+            {t('MembersAvatarView.editButton')}
+          </Button>
+        )}
+      </FlexBox>
       <AnalyticalTable sortable scaleWidthMode="Smart" columns={columns} data={data} />
     </FlexBox>
   );
