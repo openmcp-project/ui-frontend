@@ -47,6 +47,7 @@ function AppRouter() {
               </Route>
 
               {/* backward-compat: /mcp prefix + old segment names */}
+              <Route path="/mcp" element={<Navigate to="/projects" replace />} />
               <Route path="/mcp/projects" element={<Navigate to="/projects" replace />} />
               <Route
                 path="/mcp/projects/:projectName"
