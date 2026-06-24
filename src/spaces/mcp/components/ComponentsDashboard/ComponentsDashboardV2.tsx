@@ -20,6 +20,7 @@ import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneIn
 
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../../../components/Dialogs/DeleteConfirmationDialog.tsx';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
@@ -59,6 +60,7 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
   const toast = useToast();
+  const { showLandscaperCard } = useFeatureToggle();
 
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
   const [crossplaneDialogMode, setCrossplaneDialogMode] = useState<'install' | 'edit'>('install');
@@ -166,32 +168,34 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isFluxInstalled ? () => setDeleteTarget('flux') : undefined}
         />
-        <ComponentCard
-          name="Landscaper"
-          description={t('componentCardLandscaper.description')}
-          logoImgSrc={LogoLandscaper}
-          isInstalled={isLandscaperInstalled}
-          version={landscaperVersion}
-          kpiType="enabled"
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
-          onInstallButtonClick={
-            !isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('install');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onEditButtonClick={
-            isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('edit');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
-        />
+        {showLandscaperCard && (
+          <ComponentCard
+            name="Landscaper"
+            description={t('componentCardLandscaper.description')}
+            logoImgSrc={LogoLandscaper}
+            isInstalled={isLandscaperInstalled}
+            version={landscaperVersion}
+            kpiType="enabled"
+            onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
+            onInstallButtonClick={
+              !isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('install');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onEditButtonClick={
+              isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('edit');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
+          />
+        )}
         <ComponentCard
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
