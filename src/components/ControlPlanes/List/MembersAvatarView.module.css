@@ -1,0 +1,18 @@
+.popover {
+  width: 580px;
+}
+
+/* Override shadow DOM content padding via part selector */
+.popover::part(content) {
+  padding: 0;
+}
+
+.content {
+  padding: 0.5rem 0.75rem 0.75rem;
+}
+
+.editRow {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 0.25rem;
+}

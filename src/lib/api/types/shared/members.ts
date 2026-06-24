@@ -7,16 +7,16 @@ export enum MemberRoles {
 }
 
 export const memberRolesOptions: RadioButtonsSelectOption[] = [
-  { label: 'Viewer', value: MemberRoles.view, icon: 'employee' },
-  { label: 'Admin', value: MemberRoles.admin, icon: 'key-user-settings' },
+  { label: 'Viewer', value: MemberRoles.view, icon: 'show' },
+  { label: 'Admin', value: MemberRoles.admin, icon: 'shield' },
 ];
 
 export const MCP_V2_DEFAULT_ROLE = 'cluster-admin';
 export const MCP_V2_VIEWER_ROLE = 'viewer';
 
 export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
-  { value: 'cluster-admin', label: 'Cluster Admin', icon: 'key-user-settings' },
-  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'employee' },
+  { value: 'cluster-admin', label: 'Cluster Admin', icon: 'badge' },
+  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
 ];
 
 export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {

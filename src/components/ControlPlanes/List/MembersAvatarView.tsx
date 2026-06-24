@@ -1,4 +1,4 @@
-import { Avatar, AvatarGroup, Bar, Button, ResponsivePopover, Title } from '@ui5/webcomponents-react';
+import { Avatar, AvatarGroup, Button, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useId, useState } from 'react';
@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
 import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
+import styles from './MembersAvatarView.module.css';
 
 interface Props {
   project?: string;
@@ -45,29 +46,24 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
         opener={openerId}
         placement={PopoverPlacement.Bottom}
         open={popoverIsOpen}
-        style={{ width: '600px' }}
-        header={
-          <Bar
-            startContent={<Title level="H5">{t('MembersAvatarView.title')}</Title>}
-            endContent={
-              onEdit ? (
-                <Button
-                  icon="edit"
-                  design="Emphasized"
-                  onClick={() => {
-                    setPopoverIsOpen(false);
-                    onEdit();
-                  }}
-                >
-                  {t('MembersAvatarView.editButton')}
-                </Button>
-              ) : undefined
-            }
-          />
-        }
+        className={styles.popover}
         onClose={() => setPopoverIsOpen(false)}
       >
-        <div style={{ padding: '0.75rem' }}>
+        <div className={styles.content}>
+          {onEdit && (
+            <div className={styles.editRow}>
+              <Button
+                icon="edit"
+                design="Transparent"
+                onClick={() => {
+                  setPopoverIsOpen(false);
+                  onEdit();
+                }}
+              >
+                {t('MembersAvatarView.editButton')}
+              </Button>
+            </div>
+          )}
           <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
         </div>
       </ResponsivePopover>

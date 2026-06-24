@@ -228,7 +228,6 @@
     "searchPlaceholder": "Search members"
   },
   "MembersAvatarView": {
-    "title": "Members",
     "editButton": "Edit Members"
   },
   "IllustratedError": {
@@ -502,6 +501,7 @@
     "close": "Close",
     "back": "Back",
     "cancel": "Cancel",
+    "add": "Add",
     "update": "Update",
     "applyChanges": "Apply changes",
     "edit": "Edit"

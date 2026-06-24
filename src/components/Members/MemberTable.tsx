@@ -9,8 +9,9 @@ import {
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/search';
+import '@ui5/webcomponents-icons/dist/show';
+import '@ui5/webcomponents-icons/dist/shield';
 import '@ui5/webcomponents-icons/dist/badge';
-import '@ui5/webcomponents-icons/dist/key-user-settings';
 import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
@@ -37,13 +38,15 @@ type MemberTableProps = {
 };
 
 function roleState(role: string): ValueState {
-  if (role === 'Administrator' || role === 'Cluster Admin') return ValueState.Critical;
+  if (role === 'Cluster Admin') return ValueState.Negative;
+  if (role === 'Administrator') return ValueState.Critical;
   return ValueState.None;
 }
 
 function roleIcon(role: string): string {
-  if (role === 'Administrator' || role === 'Cluster Admin') return 'key-user-settings';
-  return 'badge';
+  if (role === 'Cluster Admin') return 'badge';
+  if (role === 'Administrator') return 'shield';
+  return 'show';
 }
 
 export const MemberTable: FC<MemberTableProps> = ({
