@@ -29,6 +29,7 @@ import styles from './WorkspacesList.module.css';
 interface Props {
   projectName: string;
   workspace: Workspace;
+  search?: string;
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
   onForbidden?: () => void;
@@ -39,6 +40,7 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  search = '',
   isExpanded,
   onToggleExpanded,
   onForbidden,
@@ -64,10 +66,23 @@ export function ControlPlaneListWorkspaceGridTile({
     error: cpsError,
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+
+  const query = search.trim().toLowerCase();
+  const workspaceMatches =
+    query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
+  const visibleMcps =
+    query && !workspaceMatches
+      ? (managedControlPlanes ?? []).filter((mcp) => mcp.metadata.name.toLowerCase().includes(query))
+      : managedControlPlanes;
+
+  const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
+  // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
+  const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
+  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
-  const shouldCollapsePanel = !isExpanded;
 
   useEffect(() => {
     if (isForbiddenError(cpsError)) onForbidden?.();
@@ -113,7 +128,7 @@ export function ControlPlaneListWorkspaceGridTile({
   }, [workspace.spec.members, workspace.status?.namespace]);
 
   return (
-    <>
+    <div style={hidden ? { display: 'none' } : undefined}>
       <ObjectPageSection
         key={`${projectName}${workspaceName}`}
         id={workspaceName}
@@ -207,7 +222,7 @@ export function ControlPlaneListWorkspaceGridTile({
           ) : (
             <div className={styles.wrapper}>
               <div className={styles.grid}>
-                {managedControlPlanes?.map((mcp) => (
+                {visibleMcps?.map((mcp) => (
                   <ControlPlaneCard
                     key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
                     controlPlane={mcp}
@@ -258,6 +273,6 @@ export function ControlPlaneListWorkspaceGridTile({
           initialTemplateName={initialTemplateName}
         />
       ) : null}
-    </>
+    </div>
   );
 }

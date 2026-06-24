@@ -1,10 +1,12 @@
 import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
+import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
@@ -16,6 +18,7 @@ export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
+  const [search, setSearch] = useState('');
 
   if (isPending) {
     return <Loading />;
@@ -66,7 +69,8 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} />
+        <ResourceSearchBar value={search} onChange={setSearch} />
+        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} search={search} />
       </ObjectPage>
     </>
   );

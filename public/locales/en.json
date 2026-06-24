@@ -111,7 +111,9 @@
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
-    "emptyListSubtitleMessage": "Create a workspace to get started"
+    "emptyListSubtitleMessage": "Create a workspace to get started",
+    "noSearchResultsTitle": "No results found",
+    "noSearchResultsSubtitle": "Try a different search term"
   },
   "ConnectButton": {
     "buttonText": "Connect",
@@ -277,6 +279,9 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
+  },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
