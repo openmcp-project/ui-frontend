@@ -227,9 +227,6 @@
     "columnNamespaceHeader": "Namespace",
     "searchPlaceholder": "Search members"
   },
-  "MembersAvatarView": {
-    "editButton": "Edit Members"
-  },
   "IllustratedError": {
     "titleText": "Something went wrong",
     "subtitleText": "Contact admins for help"

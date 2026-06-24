@@ -12,10 +12,9 @@ interface Props {
   workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
-  onEdit?: () => void;
 }
 
-export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false, onEdit }: Props) {
+export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const avatars = [];
@@ -48,12 +47,7 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
         onClose={() => setPopoverIsOpen(false)}
       >
         <div className={styles.content}>
-          <MemberTable
-            members={members}
-            requireAtLeastOneMember={false}
-            hideNamespaceColumn={hideNamespaceColumn}
-            onEdit={onEdit}
-          />
+          <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
         </div>
       </ResponsivePopover>
     </div>
