@@ -51,7 +51,7 @@ export function ShellBarComponent({
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
-  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } =
+  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace, onEditMcp } =
     useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
 
@@ -104,6 +104,7 @@ export function ShellBarComponent({
                 project={project}
                 workspace={workspace}
                 hideNamespaceColumn
+                onEdit={onEditMcp ?? undefined}
               />
             </div>
           )}

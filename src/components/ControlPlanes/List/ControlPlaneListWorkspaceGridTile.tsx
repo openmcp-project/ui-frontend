@@ -145,7 +145,12 @@ export function ControlPlaneListWorkspaceGridTile({
                 <CopyButton collapsible text={workspace.status?.namespace || '-'} />
               </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
+              <MembersAvatarView
+                members={uniqueMembers}
+                project={projectName}
+                workspace={workspaceName}
+                onEdit={() => setDialogEditWsIsOpen(true)}
+              />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <YamlViewButton
                   variant="loader"

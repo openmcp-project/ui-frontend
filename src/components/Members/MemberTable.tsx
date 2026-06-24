@@ -1,10 +1,23 @@
-import { AnalyticalTable, Button, FlexBox, Icon } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  Button,
+  FlexBox,
+  Icon,
+  Input,
+  InputDomRef,
+  ObjectStatus,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/search';
+import '@ui5/webcomponents-icons/dist/badge';
+import '@ui5/webcomponents-icons/dist/key-user-settings';
 import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
+import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
 
 type MemberTableRow = {
   email: string;
@@ -23,6 +36,16 @@ type MemberTableProps = {
   hideNamespaceColumn?: boolean;
 };
 
+function roleState(role: string): ValueState {
+  if (role === 'Administrator' || role === 'Cluster Admin') return ValueState.Critical;
+  return ValueState.None;
+}
+
+function roleIcon(role: string): string {
+  if (role === 'Administrator' || role === 'Cluster Admin') return 'key-user-settings';
+  return 'badge';
+}
+
 export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
@@ -32,31 +55,39 @@ export const MemberTable: FC<MemberTableProps> = ({
   hideNamespaceColumn = false,
 }) => {
   const { t } = useTranslation();
+  const [search, setSearch] = useState('');
 
   const columns: AnalyticalTableColumnDefinition[] = [
     {
       Header: t('MemberTable.columnNameHeader'),
       accessor: 'email',
+      minWidth: 200,
     },
-
     {
       Header: t('MemberTable.columnTypeHeader'),
       accessor: 'kind',
-      width: 145,
+      width: 155,
       Cell: (instance) => {
         const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
         return (
-          <FlexBox gap={'0.5rem'} wrap={'NoWrap'}>
-            <Icon name={kind?.icon} accessibleName={kind?.label} showTooltip />
+          <ObjectStatus icon={<Icon name={kind?.icon ?? 'employee'} />} inverted>
             {kind?.label}
-          </FlexBox>
+          </ObjectStatus>
         );
       },
     },
     {
       Header: t('MemberTable.columnRoleHeader'),
       accessor: 'role',
-      width: 105,
+      width: 155,
+      Cell: (instance) => {
+        const role = instance.cell.value as string;
+        return (
+          <ObjectStatus state={roleState(role)} icon={<Icon name={roleIcon(role)} />} inverted>
+            {role}
+          </ObjectStatus>
+        );
+      },
     },
   ];
 
@@ -102,15 +133,28 @@ export const MemberTable: FC<MemberTableProps> = ({
       </Infobox>
     );
   }
-  const data: MemberTableRow[] = members.map((m) => {
-    return {
-      email: m.name,
-      role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.toString(),
-      kind: m.kind,
-      namespace: m.namespace ?? '',
-      _member: m,
-    };
-  });
 
-  return <AnalyticalTable scaleWidthMode="Smart" columns={columns} data={data} />;
+  const query = search.trim().toLowerCase();
+  const filteredMembers = query ? members.filter((m) => m.name.toLowerCase().includes(query)) : members;
+
+  const data: MemberTableRow[] = filteredMembers.map((m) => ({
+    email: m.name,
+    role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.toString(),
+    kind: m.kind,
+    namespace: m.namespace ?? '',
+    _member: m,
+  }));
+
+  return (
+    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+      <Input
+        icon={<Icon name="search" />}
+        placeholder={t('MemberTable.searchPlaceholder')}
+        value={search}
+        showClearIcon
+        onInput={(e: Ui5CustomEvent<InputDomRef, never>) => setSearch(e.target.value)}
+      />
+      <AnalyticalTable sortable scaleWidthMode="Smart" columns={columns} data={data} />
+    </FlexBox>
+  );
 };
