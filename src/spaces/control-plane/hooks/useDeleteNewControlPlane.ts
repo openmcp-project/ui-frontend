@@ -2,9 +2,9 @@ import { useCallback } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext.tsx';
 import { useTranslation } from 'react-i18next';
-import { DeleteManagedControlPlaneV2Mutation } from './useDeleteManagedControlPlaneV2Mutation.ts';
+import { DeleteManagedControlPlaneV2Mutation } from './useDeleteControlPlaneMutation.ts';
 
-export function useDeleteManagedControlPlaneV2GraphQL(namespace: string, name: string) {
+export function useDeleteNewControlPlane(namespace: string, name: string) {
   const { t } = useTranslation();
   const toast = useToast();
   const [deleteMutation] = useMutation(DeleteManagedControlPlaneV2Mutation);

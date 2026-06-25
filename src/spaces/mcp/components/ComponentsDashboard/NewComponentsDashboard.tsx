@@ -21,7 +21,7 @@ import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneIn
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../../../components/Dialogs/DeleteConfirmationDialog.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
-import type { McpPageSectionId } from '../../pages/McpPage.tsx';
+import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
@@ -48,7 +48,7 @@ export interface ComponentsDashboardV2Props {
   mcpNamespace: string;
 }
 
-export function ComponentsDashboardV2({
+export function NewComponentsDashboard({
   onNavigateToMcpSection,
   crossplaneData,
   landscaperData,

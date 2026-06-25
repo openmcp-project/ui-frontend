@@ -12,7 +12,7 @@ interface ConnectButtonProps {
   useNavigate?: typeof _useNavigate;
 }
 
-export default function ConnectButtonV2({
+export default function NewControlPlaneConnectButton({
   useNavigate = _useNavigate,
   controlPlaneName,
   projectName,

@@ -1,16 +1,16 @@
 import '@ui5/webcomponents-cypress-commands';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
-import { useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
-import type { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { CreateManagedControlPlaneV2WizardContainer } from './CreateManagedControlPlaneV2WizardContainer.tsx';
+import { NewControlPlane } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { useCreateControlPlane } from '../../../spaces/control-plane/hooks/useCreateControlPlane.ts';
+import { useUpdateControlPlane } from '../../../spaces/control-plane/hooks/useUpdateControlPlane.ts';
+import type { NewControlPlaneInput } from '../../../spaces/mcp/schemas/ControlPlaneInput.schema.ts';
+import { NewCreateWizardContainer } from './NewCreateWizardContainer.tsx';
 
 describe('CreateManagedControlPlaneV2WizardContainer', () => {
-  let createPayload: McpV2Input | null = null;
-  let updatePayload: McpV2Input | null = null;
+  let createPayload: NewControlPlaneInput | null = null;
+  let updatePayload: NewControlPlaneInput | null = null;
 
-  const mockMutationResult = (input: McpV2Input) => ({
+  const mockMutationResult = (input: NewControlPlaneInput) => ({
     metadata: {
       name: input.name,
       namespace: input.namespace,
@@ -24,8 +24,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     user: { email: 'user@example.com' },
   })) as typeof useAuthOnboarding;
 
-  const fakeUseCreateMcp: typeof useCreateManagedControlPlaneV2GraphQL = () => ({
-    createMcp: async (input: McpV2Input) => {
+  const fakeUseCreateMcp: typeof useCreateControlPlane = () => ({
+    createMcp: async (input: NewControlPlaneInput) => {
       createPayload = input;
       return mockMutationResult(input);
     },
@@ -33,8 +33,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     error: undefined,
   });
 
-  const fakeUseUpdateMcp: typeof useUpdateManagedControlPlaneV2GraphQL = () => ({
-    updateMcp: async (input: McpV2Input) => {
+  const fakeUseUpdateMcp: typeof useUpdateControlPlane = () => ({
+    updateMcp: async (input: NewControlPlaneInput) => {
       updatePayload = input;
       return mockMutationResult(input);
     },
@@ -57,7 +57,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('creates a new MCP with name and default member', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         projectName="my-project"
@@ -82,7 +82,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('shows the success step after a successful create', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         projectName="my-project"
@@ -103,7 +103,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   // ── Edit mode ─────────────────────────────────────────────────────────────
 
-  const existingMcp: ManagedControlPlaneV2 = {
+  const existingMcp: NewControlPlane = {
     metadata: {
       name: 'existing-mcp',
       namespace: 'project-my-project--ws-my-workspace',
@@ -137,7 +137,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('pre-fills the name field from initialData in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -153,7 +153,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('pre-fills members from initialData roleBindings in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -173,7 +173,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('calls updateMcp with correct payload on submit in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -200,7 +200,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('shows the success step after a successful update in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -219,7 +219,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
   });
 
   it('shows an error dialog when updateMcp throws in edit mode', () => {
-    const fakeFailingUpdate: typeof useUpdateManagedControlPlaneV2GraphQL = () => ({
+    const fakeFailingUpdate: typeof useUpdateControlPlane = () => ({
       updateMcp: async () => {
         throw new Error('Network error');
       },
@@ -228,7 +228,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     });
 
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <NewCreateWizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}

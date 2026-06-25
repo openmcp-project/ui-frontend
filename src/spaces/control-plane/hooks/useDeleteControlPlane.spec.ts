@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { useMutation } from '@apollo/client/react';
-import { useDeleteManagedControlPlaneV2GraphQL } from './useDeleteManagedControlPlaneV2GraphQL';
+import { useDeleteNewControlPlane } from './useDeleteNewControlPlane.ts';
 
 const toastShowMock = vi.fn();
 
@@ -39,7 +39,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
     mutateMock.mockResolvedValue({});
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteManagedControlPlaneV2GraphQL('test-project--ws-test', 'my-mcp'));
+    const renderHookResult = renderHook(() => useDeleteNewControlPlane('test-project--ws-test', 'my-mcp'));
     const { deleteManagedControlPlaneV2 } = renderHookResult.result.current;
 
     await act(async () => {
@@ -60,7 +60,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
     mutateMock.mockResolvedValue({});
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteManagedControlPlaneV2GraphQL('test-namespace', 'test-mcp'));
+    const renderHookResult = renderHook(() => useDeleteNewControlPlane('test-namespace', 'test-mcp'));
     const { deleteManagedControlPlaneV2 } = renderHookResult.result.current;
 
     await act(async () => {
@@ -76,7 +76,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
     mutateMock.mockRejectedValue(new Error('API Error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteManagedControlPlaneV2GraphQL('test-namespace', 'test-mcp'));
+    const renderHookResult = renderHook(() => useDeleteNewControlPlane('test-namespace', 'test-mcp'));
     const { deleteManagedControlPlaneV2 } = renderHookResult.result.current;
 
     // ASSERT
@@ -92,7 +92,7 @@ describe('useDeleteManagedControlPlaneV2GraphQL', () => {
     mutateMock.mockRejectedValue(new TypeError('Network error'));
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteManagedControlPlaneV2GraphQL('test-namespace', 'test-mcp'));
+    const renderHookResult = renderHook(() => useDeleteNewControlPlane('test-namespace', 'test-mcp'));
     const { deleteManagedControlPlaneV2 } = renderHookResult.result.current;
 
     // ASSERT

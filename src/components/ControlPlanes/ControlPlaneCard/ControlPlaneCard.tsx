@@ -19,13 +19,13 @@ import styles from './ControlPlaneCard.module.css';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
+import { useDeleteNewControlPlane as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/control-plane/hooks/useDeleteNewControlPlane.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
+import { NewEditWizardDataLoader } from '../../Wizards/CreateControlPlane/NewEditWizardDataLoader.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
-import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
+import NewControlPlaneConnectButton from '../ConnectButton/NewControlPlaneConnectButton.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
-import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
+import { NewControlPlaneCardMenu } from './NewControlPlaneCardMenu.tsx';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -101,7 +101,7 @@ export const ControlPlaneCard = ({
                 />
               )}
               {controlPlane.version === 'v2' && (
-                <ControlPlaneCardMenuV2
+                <NewControlPlaneCardMenu
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                   setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
@@ -116,7 +116,7 @@ export const ControlPlaneCard = ({
                   resourceType={controlPlane.version === 'v2' ? 'controlplanes' : 'managedcontrolplanes'}
                 />
                 {controlPlane.version === 'v2' ? (
-                  <ConnectButtonV2
+                  <NewControlPlaneConnectButton
                     controlPlaneName={name}
                     projectName={projectName}
                     workspaceName={workspace.metadata.name ?? ''}
@@ -170,7 +170,7 @@ export const ControlPlaneCard = ({
         mode={managedControlPlaneWizardState.mode}
       />
       {controlPlane.version === 'v2' && (
-        <EditManagedControlPlaneV2WizardDataLoader
+        <NewEditWizardDataLoader
           isOpen={isEditV2WizardOpen}
           setIsOpen={setIsEditV2WizardOpen}
           namespace={namespace}

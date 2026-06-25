@@ -1,7 +1,7 @@
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
-export const UpdateManagedControlPlaneV2Mutation = graphql(`
-  mutation UpdateManagedControlPlaneV2(
+export const UpdateNewControlPlaneMutation = graphql(`
+  mutation UpdateNewControlPlane(
     $name: String!
     $namespace: String
     $object: CoreOpenControlPlaneIoV2alpha1ControlPlane_Input!

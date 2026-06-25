@@ -2,18 +2,18 @@ import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/helpers/mcpV2GraphQLInput.ts';
-import { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/mcp/helpers/newControlPlaneInput.ts';
+import { NewControlPlaneInput } from '../../../spaces/mcp/schemas/ControlPlaneInput.schema.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
-import styles from './SummarizeStep.module.css';
-import YamlSummarize from './YamlSummarize.tsx';
+import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 
 interface SummarizeStepProps {
-  rawInput: McpV2Input;
+  rawInput: NewControlPlaneInput;
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
+export const NewSummarizeStep: React.FC<SummarizeStepProps> = ({ rawInput }) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {

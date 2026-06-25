@@ -1,16 +1,16 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { z } from 'zod';
-import { buildMcpV2GraphQLInput } from '../helpers/mcpV2GraphQLInput.ts';
-import { McpV2Input, McpV2InputSchema } from '../schemas/mcpV2Input.schema.ts';
-import { UpdateManagedControlPlaneV2Mutation } from './useUpdateManagedControlPlaneV2Mutation.ts';
+import { buildMcpV2GraphQLInput } from '../../mcp/helpers/newControlPlaneInput.ts';
+import { NewControlPlaneInput, ControlPlaneInputSchema } from '../../mcp/schemas/ControlPlaneInput.schema.ts';
+import { UpdateNewControlPlaneMutation } from './useUpdateControlPlaneMutation.ts';
 
-export function useUpdateManagedControlPlaneV2GraphQL() {
-  const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation);
+export function useUpdateControlPlane() {
+  const [updateMutation, { loading, error }] = useMutation(UpdateNewControlPlaneMutation);
 
   const updateMcp = useCallback(
-    async (rawInput: McpV2Input) => {
-      const parsed = McpV2InputSchema.safeParse(rawInput);
+    async (rawInput: NewControlPlaneInput) => {
+      const parsed = ControlPlaneInputSchema.safeParse(rawInput);
       if (!parsed.success) {
         console.warn('Invalid McpV2 input:', z.treeifyError(parsed.error));
         throw new Error('Invalid ManagedControlPlaneV2 input');

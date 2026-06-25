@@ -1,13 +1,13 @@
 import { Text } from '@ui5/webcomponents-react';
 import { ControlPlaneType } from '../../../../lib/api/types/crate/controlPlanes.ts';
-import { ManagedControlPlaneV2 } from '../../../onboarding/types/ControlPlane.ts';
+import { NewControlPlane } from '../../../onboarding/types/ControlPlane.ts';
 
 import { useTranslation } from 'react-i18next';
 import { formatDateAsTimeAgo } from '../../../../utils/i18n/timeAgo.ts';
 import styles from './McpHeader.module.css';
 
 export interface McpHeaderProps {
-  mcp: ControlPlaneType | ManagedControlPlaneV2;
+  mcp: ControlPlaneType | NewControlPlane;
 }
 
 export function McpHeader({ mcp }: McpHeaderProps) {

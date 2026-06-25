@@ -171,7 +171,7 @@ export const ManagedControlPlaneV2Schema = z.object({
   status: StatusV2Schema.nullish(),
 });
 
-export type ManagedControlPlaneV2 = z.infer<typeof ManagedControlPlaneV2Schema>;
+export type NewControlPlane = z.infer<typeof ManagedControlPlaneV2Schema>;
 export type ManagedControlPlaneV2Status = z.infer<typeof StatusV2Schema>;
 export type ManagedControlPlaneV2Condition = z.infer<typeof ConditionSchema>;
 export type IamRoleBinding = z.infer<typeof IamRoleBindingSchema>;

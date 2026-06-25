@@ -10,7 +10,7 @@ type ControlPlaneCardMenuV2Props = {
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
+export const NewControlPlaneCardMenu: FC<ControlPlaneCardMenuV2Props> = ({
   setDialogDeleteMcpIsOpen,
   isDeleteMcpButtonDisabled,
   setIsEditManagedControlPlaneWizardOpen,

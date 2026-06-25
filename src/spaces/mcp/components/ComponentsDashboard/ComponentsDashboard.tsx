@@ -7,7 +7,7 @@ import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
-import type { McpPageSectionId } from '../../pages/McpPage.tsx';
+import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
 

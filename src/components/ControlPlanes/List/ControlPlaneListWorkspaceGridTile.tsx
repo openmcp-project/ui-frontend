@@ -18,7 +18,7 @@ import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlD
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
+import { NewCreateWizardContainer } from '../../Wizards/CreateControlPlane/NewCreateWizardContainer.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
@@ -250,7 +250,7 @@ export function ControlPlaneListWorkspaceGridTile({
         />
       ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
-        <CreateManagedControlPlaneV2WizardContainer
+        <NewCreateWizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpenV2}
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}

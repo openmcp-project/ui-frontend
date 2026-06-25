@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
-import { useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
+import { useDeleteNewControlPlane } from '../../../spaces/control-plane/hooks/useDeleteNewControlPlane.ts';
 import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
@@ -29,7 +29,7 @@ describe('ControlPlaneCard', () => {
     },
   });
 
-  const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteManagedControlPlaneV2GraphQL = () => ({
+  const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteNewControlPlane = () => ({
     deleteManagedControlPlaneV2: async (): Promise<void> => {},
   });
 

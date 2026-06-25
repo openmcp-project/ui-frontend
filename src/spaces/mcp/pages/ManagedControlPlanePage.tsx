@@ -12,7 +12,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
-import styles from './McpPage.module.css';
+import styles from './ManagedControlPlanePage.module.css';
 // thorws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
@@ -222,7 +222,7 @@ function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function McpPage() {
+export default function ManagedControlPlanePage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();

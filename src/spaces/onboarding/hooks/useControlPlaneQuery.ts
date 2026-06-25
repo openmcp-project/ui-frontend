@@ -5,10 +5,10 @@ import { useMemo } from 'react';
 import { z } from 'zod';
 
 import { graphql } from '../../../types/__generated__/graphql';
-import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../types/ControlPlane';
+import { NewControlPlane, ManagedControlPlaneV2Schema } from '../types/ControlPlane';
 
-const GET_MCP_V2_QUERY = graphql(`
-  query GetMCPv2($name: String!, $namespace: String) {
+const GET_NEW_CONTROL_PLANE_QUERY = graphql(`
+  query GetNewControlPlane($name: String!, $namespace: String) {
     core_open_control_plane_io {
       v2alpha1 {
         ControlPlane(name: $name, namespace: $namespace) {
@@ -88,8 +88,8 @@ const GET_MCP_V2_QUERY = graphql(`
   }
 `);
 
-export function useMcpV2Query(name?: string, namespace?: string) {
-  const queryResult = useQuery(GET_MCP_V2_QUERY, {
+export function useControlPlaneQuery(name?: string, namespace?: string) {
+  const queryResult = useQuery(GET_NEW_CONTROL_PLANE_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
     notifyOnNetworkStatusChange: true,
@@ -98,7 +98,7 @@ export function useMcpV2Query(name?: string, namespace?: string) {
   const isPending = queryResult.networkStatus === NetworkStatus.loading;
   const rawItem = queryResult.data?.core_open_control_plane_io?.v2alpha1?.ControlPlane;
 
-  const data = useMemo<ManagedControlPlaneV2 | undefined>(() => {
+  const data = useMemo<NewControlPlane | undefined>(() => {
     if (!rawItem) return undefined;
     const result = ManagedControlPlaneV2Schema.safeParse(rawItem);
     if (!result.success) {

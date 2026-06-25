@@ -32,17 +32,17 @@ import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
 
 import { ManagedControlPlaneTemplate, noTemplateValue } from '../../../lib/api/types/templates/mcpTemplate.ts';
-import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import { NewControlPlane } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPrefixesAndSuffixes.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useCreateManagedControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
-import { useUpdateManagedControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
+import { useCreateControlPlane as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/control-plane/hooks/useCreateControlPlane.ts';
+import { useUpdateControlPlane as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/control-plane/hooks/useUpdateControlPlane.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
-import styles from './CreateManagedControlPlaneWizardContainer.module.css';
-import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
+import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import { NewSummarizeStep } from './NewSummarizeStep.tsx';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -52,7 +52,7 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   isEditMode?: boolean;
   isDuplicateMode?: boolean;
   initialTemplateName?: string;
-  initialData?: ManagedControlPlaneV2;
+  initialData?: NewControlPlane;
   initialSection?: WizardStepType;
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
@@ -71,7 +71,7 @@ const normalizeMcpV2Role = (roleInput?: string | null): string => {
   return MCP_V2_DEFAULT_ROLE;
 };
 
-export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
+export const NewCreateWizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
   setIsOpen,
   projectName = '',
@@ -528,7 +528,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2 rawInput={rawInput} />
+            <NewSummarizeStep rawInput={rawInput} />
           </WizardStep>
           <WizardStep
             icon="activities"

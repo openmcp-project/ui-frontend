@@ -16,10 +16,10 @@ const RoleBindingSchema = z.object({
   subjects: z.array(SubjectSchema),
 });
 
-export const McpV2InputSchema = z.object({
+export const ControlPlaneInputSchema = z.object({
   name: z.string().min(1),
   namespace: z.string().min(1),
   roleBindings: z.array(RoleBindingSchema),
 });
 
-export type McpV2Input = z.infer<typeof McpV2InputSchema>;
+export type NewControlPlaneInput = z.infer<typeof ControlPlaneInputSchema>;

@@ -1,12 +1,12 @@
-import { useMemo } from 'react';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
+import { useMemo } from 'react';
 import { z } from 'zod';
 
+import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { graphql } from '../../../types/__generated__/graphql';
 import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 
 const GET_MCPS_LIST_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
@@ -118,7 +118,7 @@ function toV2Input(item: V2Item) {
 }
 
 export function useMcpsQuery(workspaceNamespace?: string) {
-  const { enableMcpV2 } = useFeatureToggle();
+  const { isNewControlPlane } = useFeatureToggle();
 
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
@@ -132,7 +132,7 @@ export function useMcpsQuery(workspaceNamespace?: string) {
 
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);
-    const v2 = enableMcpV2 ? (v2Items ?? []).map(toV2Input) : [];
+    const v2 = isNewControlPlane ? (v2Items ?? []).map(toV2Input) : [];
 
     return [...v1, ...v2].flatMap((item) => {
       const result = ControlPlaneListItemSchema.safeParse(item);
@@ -142,7 +142,7 @@ export function useMcpsQuery(workspaceNamespace?: string) {
       }
       return [result.data];
     });
-  }, [v1Items, v2Items, enableMcpV2]);
+  }, [v1Items, v2Items, isNewControlPlane]);
 
   const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
 
