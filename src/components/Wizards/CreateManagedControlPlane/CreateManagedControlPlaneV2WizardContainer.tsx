@@ -422,7 +422,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     <>
       <Dialog
         stretch
-        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitleV2')}
+        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitleControlPlane')}
         open={isOpen}
         initialFocus="project-name-input"
         footer={

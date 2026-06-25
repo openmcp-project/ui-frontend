@@ -198,7 +198,7 @@ export function ControlPlaneListWorkspaceGridTile({
                         setIsCreateManagedControlPlaneWizardOpenV2(true);
                       }}
                     >
-                      {t('ControlPlaneListToolbar.createNewManagedControlPlaneV2')}
+                      {t('ControlPlaneListToolbar.createNewControlPlane')}
                     </Button>
                   )}
                 </>
