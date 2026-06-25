@@ -85,6 +85,7 @@ tasks:
     desc: 'Bootstrap a local Headlamp kind cluster using the OCI helm chart and port-forward to http://localhost:8090. Usage: task headlamp:dev'
     cmds:
       - bash {{.ROOT_DIR}}/scripts/setup-headlamp-dev.sh
+      - task: headlamp:update
 
   headlamp:update:
     desc: 'Build local plugin sources and hot-sync them into the running headlamp-dev pod (no restart needed). Usage: task headlamp:update'
