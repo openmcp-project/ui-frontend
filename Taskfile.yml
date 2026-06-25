@@ -82,7 +82,7 @@ tasks:
     internal: true
 
   headlamp:dev:
-    desc: 'Build plugins, bootstrap a local Headlamp kind cluster, and port-forward to http://localhost:8090. Usage: task headlamp:dev'
+    desc: 'Bootstrap a local Headlamp kind cluster using the OCI helm chart and port-forward to http://localhost:8090. Usage: task headlamp:dev'
     cmds:
       - bash {{.ROOT_DIR}}/scripts/setup-headlamp-dev.sh
 
