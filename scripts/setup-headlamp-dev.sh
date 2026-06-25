@@ -98,7 +98,8 @@ build_plugin() {
   plugin_name=$(node -e "process.stdout.write(require('${plugin_dir}/package.json').name)")
   plugin_version=$(node -e "process.stdout.write(require('${plugin_dir}/package.json').version)")
 
-  local cm_name="${name,,}-plugin"
+  local cm_name
+  cm_name="$(echo "${name}" | tr '[:upper:]' '[:lower:]')-plugin"
   echo "→ ${name}: writing ConfigMap ${output_yaml}..."
   python3 - "$output_yaml" "$cm_name" "$plugin_name" "$plugin_version" \
     "${plugin_dir}/package.json" "$main_js" << 'PYEOF'
@@ -130,7 +131,7 @@ PYEOF
   echo "  ✓ ${name} plugin built ($(du -sh "$main_js" | cut -f1) → ${output_yaml##*/})"
 }
 
-build_plugin "kiosk"      "${SCRIPT_DIR}/../../kiosk-headlamp-plugin"      "${SCRIPT_DIR}/configmap-kiosk-plugin.yaml"
+build_plugin "ocp"        "${SCRIPT_DIR}/../../opencontrolplane-headlamp-plugin" "${SCRIPT_DIR}/configmap-ocp-plugin.yaml"
 build_plugin "crossplane" "${SCRIPT_DIR}/../../crossplane-headlamp-plugin" "${SCRIPT_DIR}/configmap-crossplane-plugin.yaml"
 
 echo ""
@@ -163,7 +164,7 @@ echo ""
 # ── Namespace + plugin ConfigMaps ─────────────────────────────────────────────
 echo "── Deploying ConfigMaps ─────────────────────────────────────────────────────"
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f "${SCRIPT_DIR}/configmap-kiosk-plugin.yaml"
+kubectl apply -f "${SCRIPT_DIR}/configmap-ocp-plugin.yaml"
 kubectl apply -f "${SCRIPT_DIR}/configmap-crossplane-plugin.yaml"
 echo ""
 
@@ -193,8 +194,8 @@ pluginsManager:
     plugins:
       - name: headlamp-flux
         source: https://artifacthub.io/packages/headlamp/headlamp-plugins/headlamp_flux
-      - name: headlamp-kiosk
-        source: https://artifacthub.io/packages/headlamp/kiosk-headlamp-plugin/headlamp_kiosk
+      - name: headlamp-ocp
+        source: https://artifacthub.io/packages/headlamp/opencontrolplane-headlamp-plugin/opencontrolplane
       - name: headlamp-crossplane
         source: https://artifacthub.io/packages/headlamp/crossplane-headlamp-plugin/headlamp_crossplane
 EOF
