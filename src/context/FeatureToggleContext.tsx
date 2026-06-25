@@ -3,7 +3,7 @@ import { useFrontendConfig } from './FrontendConfigContext';
 
 interface FeatureToggles {
   markMcpV1asDeprecated: boolean;
-  enableMcpV2: boolean;
+  isNewControlPlane: boolean;
 }
 
 export const FeatureToggleContext = createContext<FeatureToggles | null>(null);
@@ -14,7 +14,12 @@ interface FeatureToggleProviderProps {
 
 export function FeatureToggleProvider({ children }: FeatureToggleProviderProps) {
   const { featureToggles } = useFrontendConfig();
-  return <FeatureToggleContext.Provider value={featureToggles}>{children}</FeatureToggleContext.Provider>;
+  const mappedFeatureToggles: FeatureToggles = {
+    ...featureToggles,
+    isNewControlPlane: featureToggles.enableMcpV2 ?? false,
+  };
+
+  return <FeatureToggleContext.Provider value={mappedFeatureToggles}>{children}</FeatureToggleContext.Provider>;
 }
 
 /**

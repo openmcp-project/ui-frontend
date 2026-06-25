@@ -28,7 +28,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   const [open, setOpen] = useState(false);
 
   const { t } = useTranslation();
-  const { enableMcpV2, markMcpV1asDeprecated } = useFeatureToggle();
+  const { isNewControlPlane, markMcpV1asDeprecated } = useFeatureToggle();
 
   // Here we will pass template list from OnboardingAPI
   const allTemplates: ManagedControlPlaneTemplate[] = [];
@@ -83,7 +83,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           icon="add"
           additionalText={markMcpV1asDeprecated ? t('ControlPlaneListToolbar.deprecatedBadge') : undefined}
         />
-        {enableMcpV2 && (
+        {isNewControlPlane && (
           <MenuItem
             key={'addV2'}
             text={t('ControlPlaneListToolbar.createNewControlPlane')}

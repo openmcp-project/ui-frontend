@@ -1,10 +1,10 @@
-import { renderHook } from '@testing-library/react';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
-import { useMcpsQuery } from './useMcpsQuery';
 import { ReadyStatus } from '../types/ControlPlane';
+import { useMcpsQuery } from './useMcpsQuery';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
@@ -27,7 +27,7 @@ const baseQueryResult = {
 describe('useMcpsQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
+    useFeatureToggleMock.mockReturnValue({ isNewControlPlane: false, markMcpV1asDeprecated: false });
   });
 
   it('passes namespace as a variable and skips the query when namespace is undefined', () => {
@@ -129,8 +129,8 @@ describe('useMcpsQuery', () => {
     expect(mcp.status?.access).toEqual({ key: 'my-key', name: 'my-secret', namespace: 'my-ns' });
   });
 
-  it('maps a v2 ManagedControlPlaneV2 to the expected shape when enableMcpV2 is true', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false });
+  it('maps a v2 ManagedControlPlaneV2 to the expected shape when isNewControlPlane is true', () => {
+    useFeatureToggleMock.mockReturnValue({ isNewControlPlane: true, markMcpV1asDeprecated: false });
     const accessObj = { key: 'k2', name: 'n2', namespace: 'ns2' };
 
     useQueryMock.mockReturnValue({
@@ -181,8 +181,8 @@ describe('useMcpsQuery', () => {
     expect(mcp.status?.access).toEqual({ key: 'k2', name: 'n2', namespace: 'ns2' });
   });
 
-  it('excludes v2 items when enableMcpV2 feature flag is off', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
+  it('excludes v2 items when isNewControlPlane feature flag is off', () => {
+    useFeatureToggleMock.mockReturnValue({ isNewControlPlane: false, markMcpV1asDeprecated: false });
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
@@ -219,8 +219,8 @@ describe('useMcpsQuery', () => {
     expect(result.current.data[0].metadata.name).toBe('mcp-v1');
   });
 
-  it('merges v1 and v2 items when enableMcpV2 feature flag is on', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false });
+  it('merges v1 and v2 items when isNewControlPlane feature flag is on', () => {
+    useFeatureToggleMock.mockReturnValue({ isNewControlPlane: true, markMcpV1asDeprecated: false });
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
