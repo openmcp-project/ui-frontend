@@ -1,4 +1,5 @@
 import { Button } from '@ui5/webcomponents-react';
+import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate as _useNavigate } from 'react-router-dom';
@@ -24,6 +25,7 @@ export default function ConnectButtonV2({
 
   return (
     <Button
+      design={ButtonDesign.Emphasized}
       endIcon="navigation-right-arrow"
       onClick={() => navigate(generatePath(Routes.McpV2, { projectName, workspaceName, controlPlaneName }))}
     >
