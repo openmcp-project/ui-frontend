@@ -92,7 +92,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
       'have.been.calledWith',
-      '/mcp/projects/my-project/workspaces/my-workspace/mcps/my-mcp',
+      '/projects/my-project/workspaces/my-workspace/managedcontrolplane/my-mcp',
     );
   });
 
@@ -120,7 +120,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
       'have.been.calledWith',
-      '/mcp/projects/my-project/workspaces/my-workspace/mcps/my-mcp?idp=custom-user',
+      '/projects/my-project/workspaces/my-workspace/managedcontrolplane/my-mcp?idp=custom-user',
     );
   });
 
@@ -156,7 +156,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
       'have.been.calledWith',
-      '/mcp/projects/my-project/workspaces/my-workspace/mcps/my-mcp',
+      '/projects/my-project/workspaces/my-workspace/managedcontrolplane/my-mcp',
     );
 
     // Reset spy for next assertion
@@ -168,7 +168,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
       'have.been.calledWith',
-      '/mcp/projects/my-project/workspaces/my-workspace/mcps/my-mcp?idp=custom-user',
+      '/projects/my-project/workspaces/my-workspace/managedcontrolplane/my-mcp?idp=custom-user',
     );
   });
 

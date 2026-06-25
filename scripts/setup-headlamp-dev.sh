@@ -61,7 +61,7 @@ echo "── Cluster ───────────────────�
 
 if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
   echo "✓ kind cluster '${CLUSTER_NAME}' already exists"
-else
+else 
   echo "→ creating kind cluster '${CLUSTER_NAME}'..."
   kind create cluster --name "$CLUSTER_NAME"
   CLUSTER_CREATED=true

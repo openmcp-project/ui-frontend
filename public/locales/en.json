@@ -177,6 +177,7 @@
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
+    "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
     "feedbackHeader": "Your feedback",
@@ -262,12 +263,20 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
+  "ProjectPage": {
+    "backToProjects": "Go to all projects"
+  },
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
-    "projectHeader": "Project:"
+    "projectHeader": "Project:",
+    "pinProject": "Set as default project",
+    "unpinProject": "Clear default project"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
+    "rememberProject": "Remember selection",
+    "subHeader": "Create or select a project to manage your control planes, workspaces, and members.",
+    "learnMore": "Learn more",
     "title": "Projects",
     "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
@@ -276,7 +285,8 @@
     "membersHeader": "Members",
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
-    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
+    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
+    "setDefaultProject": "Set selected project as default"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
