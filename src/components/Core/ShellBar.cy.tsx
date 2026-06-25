@@ -6,6 +6,7 @@ import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboa
 import { setRememberedProject, clearRememberedProject } from '../../utils/rememberedProject.ts';
 import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
+import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
@@ -25,16 +26,25 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = () => {
+  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+    const fakeConfig = {
+      landscape: undefined,
+      documentationBaseUrl: '',
+      githubBaseUrl: '',
+      mcp2DocsUrl: '',
+      featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+    };
     cy.mount(
       <MemoryRouter>
-        <ToastProvider>
-          <ViewModeProvider>
-            <ShellBarMcpActionsProvider>
-              <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-            </ShellBarMcpActionsProvider>
-          </ViewModeProvider>
-        </ToastProvider>
+        <FrontendConfigContext.Provider value={fakeConfig}>
+          <ToastProvider>
+            <ViewModeProvider>
+              <ShellBarMcpActionsProvider>
+                <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+              </ShellBarMcpActionsProvider>
+            </ViewModeProvider>
+          </ToastProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
   };
