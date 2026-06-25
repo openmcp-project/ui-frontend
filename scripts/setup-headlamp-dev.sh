@@ -3,7 +3,7 @@ set -euo pipefail
 
 CLUSTER_NAME="headlamp-dev"
 NAMESPACE="headlamp"
-CHART_VERSION="0.0.4"
+CHART_VERSION="0.0.5"
 PORT=8090
 
 CLUSTER_CREATED=false
