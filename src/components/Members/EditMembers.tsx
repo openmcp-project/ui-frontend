@@ -24,7 +24,7 @@ export interface EditMembersProps {
   projectName?: string;
   workspaceName?: string;
   type: 'workspace' | 'project' | 'mcp';
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -55,10 +55,13 @@ export const EditMembers: FC<EditMembersProps> = ({
   workspaceName,
   projectName,
   type,
-  isV2 = false,
+  isNewControlPlane = false,
 }) => {
   const { t } = useTranslation();
-  const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
+  const accountTypeOptions = useMemo(
+    () => (isNewControlPlane ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES),
+    [isNewControlPlane],
+  );
   const usesUserGroupAccountTypes = useMemo(
     () =>
       accountTypeOptions.some(({ value }) => value === 'Group') &&
@@ -122,7 +125,7 @@ export const EditMembers: FC<EditMembersProps> = ({
           return MCP_V2_DEFAULT_ROLE;
         };
 
-        const normalized = isV2
+        const normalized = isNewControlPlane
           ? {
               ...importedMember,
               roles: [normalizeV2Role(importedMember.roles?.[0])],
@@ -142,7 +145,7 @@ export const EditMembers: FC<EditMembersProps> = ({
       toast.show(buildToastMessage(numberOfAddedMembers, numberOfChangedMembers, t));
       onMemberChanged(updatedMembers);
     },
-    [members, onMemberChanged, t, toast, isV2, accountTypeOptions],
+    [members, onMemberChanged, t, toast, isNewControlPlane, accountTypeOptions],
   );
 
   const handleSaveMember = useCallback(
@@ -199,7 +202,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         existingMembers={members}
         memberToEdit={memberToEdit}
         accountTypeOptions={accountTypeOptions}
-        {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
+        {...(isNewControlPlane && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />

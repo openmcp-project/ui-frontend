@@ -2,7 +2,7 @@ type McpConfig = {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
 };
 
 //syntax basically combines all the atrributes from the types into one

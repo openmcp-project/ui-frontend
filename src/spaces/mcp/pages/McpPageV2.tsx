@@ -25,9 +25,9 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
+import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
-import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
 import { EditManagedControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
@@ -144,7 +144,7 @@ export default function McpPageV2() {
         workspace: workspaceName,
         name: controlPlaneName,
       }}
-      isV2
+      isNewControlPlane
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>

@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
-import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
-import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
-import styles from './HeadlampPage.module.css';
-import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
 import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
+import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
+import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
+import styles from './HeadlampPage.module.css';
 
 function HeadlampIframe() {
   const mcp = useMcp();
@@ -68,7 +68,10 @@ export default function HeadlampPage() {
   if (!projectName || !workspaceName || !controlPlaneName) return null;
 
   return (
-    <McpContextProvider context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }} isV2>
+    <McpContextProvider
+      context={{ project: projectName, workspace: workspaceName, name: controlPlaneName }}
+      isNewControlPlane
+    >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <HeadlampIframe />

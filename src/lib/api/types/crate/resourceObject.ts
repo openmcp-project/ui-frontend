@@ -12,9 +12,9 @@ export const ResourceObject = <T>(
   resourceType: ResourceType,
   resourceName: string,
 ): Resource<T> => {
-  const isV2 = V2_RESOURCE_TYPES.has(resourceType);
-  const apiGroup = isV2 ? V2_API_GROUP : V1_API_GROUP;
-  const apiVersion = isV2 ? 'v2alpha1' : 'v1alpha1';
+  const isNewControlPlane = V2_RESOURCE_TYPES.has(resourceType);
+  const apiGroup = isNewControlPlane ? V2_API_GROUP : V1_API_GROUP;
+  const apiVersion = isNewControlPlane ? 'v2alpha1' : 'v1alpha1';
   return {
     path: `/apis/${apiGroup}/${apiVersion}/${workspaceName ? `namespaces/${workspaceName}/` : ''}${resourceType}/${resourceName}`,
   };

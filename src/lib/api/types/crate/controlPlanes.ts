@@ -26,7 +26,7 @@ export interface Authorization {
 
 export interface ControlPlaneType {
   metadata: Metadata;
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
   spec:
     | {
         authentication: {
@@ -89,14 +89,14 @@ export const ControlPlane = (
   projectName?: string,
   workspaceName?: string,
   controlPlaneName?: string,
-  isV2 = false,
+  isNewControlPlane = false,
 ): Resource<ControlPlaneType> => {
-  const apiGroup = isV2 ? 'core.open-control-plane.io' : 'core.openmcp.cloud';
-  const apiVersion = isV2 ? 'v2alpha1' : 'v1alpha1';
-  const resource = isV2 ? 'controlplanes' : 'managedcontrolplanes';
+  const apiGroup = isNewControlPlane ? 'core.open-control-plane.io' : 'core.openmcp.cloud';
+  const apiVersion = isNewControlPlane ? 'v2alpha1' : 'v1alpha1';
+  const resource = isNewControlPlane ? 'controlplanes' : 'managedcontrolplanes';
   return {
     path: `/apis/${apiGroup}/${apiVersion}/namespaces/project-${projectName}--ws-${workspaceName}/${resource}/${controlPlaneName}`,
-    jq: isV2
+    jq: isNewControlPlane
       ? undefined
       : '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',
   };

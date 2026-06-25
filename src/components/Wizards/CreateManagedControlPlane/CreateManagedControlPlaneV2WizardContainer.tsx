@@ -478,7 +478,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
                   displayNamePrefix={templateAffixes.displayNamePrefix}
                   nameSuffix={templateAffixes.nameSuffix}
                   displayNameSuffix={templateAffixes.displayNameSuffix}
-                  isV2
+                  isNewControlPlane
                 />
               </div>
               {isDuplicateMode && (
@@ -514,7 +514,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
                   workspaceName={workspaceName}
                   projectName={projectName}
                   type={'mcp'}
-                  isV2
+                  isNewControlPlane
                   onMemberChanged={setMembers}
                 />
               </FormGroup>

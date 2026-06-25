@@ -27,7 +27,7 @@ export interface MetadataFormProps {
   nameSuffix?: string;
   displayNameSuffix?: string;
   isEditMode?: boolean;
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
 }
 
 interface SelectOption {
@@ -47,7 +47,7 @@ export function MetadataForm({
   displayNamePrefix = '',
   nameSuffix: propNameSuffix = '',
   displayNameSuffix: propDisplayNameSuffix = '',
-  isV2 = false,
+  isNewControlPlane = false,
 }: MetadataFormProps) {
   const { t } = useTranslation();
 
@@ -153,7 +153,7 @@ export function MetadataForm({
         )}
       </FormItem>
 
-      {!isV2 && (
+      {!isNewControlPlane && (
         <>
           <FormItem labelContent={<Label>{t('CreateProjectWorkspaceDialog.displayNameLabel')}</Label>}>
             {resolvedDisplayNamePrefix || resolvedDisplayNameSuffix ? (

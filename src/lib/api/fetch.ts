@@ -1,9 +1,9 @@
-import { APIError } from './error';
 import * as Sentry from '@sentry/react';
-import { ApiConfig } from './types/apiConfig';
 import { redirectToLogin } from '../../common/auth/redirectToLogin';
-import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
 import { refreshToken as refreshMcpToken } from '../../spaces/mcp/auth/tokenRefresh';
+import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
+import { APIError } from './error';
+import { ApiConfig } from './types/apiConfig';
 
 const useCrateClusterHeader = 'X-use-crate';
 const projectNameHeader = 'X-project';
@@ -73,7 +73,7 @@ export const fetchApiServer = async (
     headers[projectNameHeader] = config.mcpConfig.projectName;
     headers[workspaceNameHeader] = config.mcpConfig.workspaceName;
     headers[mcpNameHeader] = config.mcpConfig.controlPlaneName;
-    if (config.mcpConfig.isV2) {
+    if (config.mcpConfig.isNewControlPlane) {
       headers[mcpVersionHeader] = 'v2';
     }
   } else {

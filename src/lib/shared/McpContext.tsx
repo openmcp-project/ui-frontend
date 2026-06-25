@@ -15,7 +15,7 @@ interface Mcp {
   secretKey?: string;
   kubeconfig?: string;
   roleBindings?: RoleBinding[];
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
 }
 
 interface McpContextProviderResult {
@@ -27,7 +27,7 @@ interface McpContextProviderResult {
 interface Props {
   context: Mcp;
   children?: ReactNode;
-  isV2?: boolean;
+  isNewControlPlane?: boolean;
   onState?: (state: McpContextProviderResult) => void;
 }
 
@@ -37,11 +37,13 @@ export const useMcp = () => {
   return useContext(McpContext);
 };
 
-export const McpContextProvider = ({ children, context, isV2 = false, onState }: Props) => {
-  const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name, isV2));
-  const secretNamespace = isV2 ? mcp.data?.metadata?.namespace : mcp.data?.status?.access?.namespace;
-  const secretName = isV2 ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
-  const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
+export const McpContextProvider = ({ children, context, isNewControlPlane = false, onState }: Props) => {
+  const mcp = useApiResource(
+    ManagedControlPlaneResource(context.project, context.workspace, context.name, isNewControlPlane),
+  );
+  const secretNamespace = isNewControlPlane ? mcp.data?.metadata?.namespace : mcp.data?.status?.access?.namespace;
+  const secretName = isNewControlPlane ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
+  const secretKey = isNewControlPlane ? 'kubeconfig' : mcp.data?.status?.access?.key;
 
   const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace, secretKey);
 
@@ -73,7 +75,7 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
 
   const enrichedContext: Mcp = {
     ...context,
-    isV2,
+    isNewControlPlane,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };
@@ -89,10 +91,10 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
         projectName: mcp.project,
         workspaceName: mcp.workspace,
         controlPlaneName: mcp.name,
-        isV2: mcp.isV2,
+        isNewControlPlane: mcp.isNewControlPlane,
       },
     }),
-    [mcp.project, mcp.workspace, mcp.name, mcp.isV2],
+    [mcp.project, mcp.workspace, mcp.name, mcp.isNewControlPlane],
   );
 
   return (
