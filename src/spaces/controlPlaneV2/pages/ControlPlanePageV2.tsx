@@ -28,11 +28,11 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
-import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
+import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateControlPlaneV2WizardContainer.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
+import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -71,7 +71,7 @@ export default function ControlPlanePageV2() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
-  const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
+  const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
   const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
   const { fluxData } = useFluxQuery(controlPlaneName, namespace);
   const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
@@ -170,7 +170,7 @@ export default function ControlPlanePageV2() {
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
                       />
-                      <EditManagedControlPlaneV2WizardDataLoader
+                      <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
                         setIsOpen={handleEditManagedControlPlaneWizardClose}
                         namespace={namespace}

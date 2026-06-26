@@ -21,7 +21,7 @@ import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '.
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditControlPlaneV2WizardDataLoader.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
@@ -170,7 +170,7 @@ export const ControlPlaneCard = ({
         mode={managedControlPlaneWizardState.mode}
       />
       {controlPlane.version === 'v2' && (
-        <EditManagedControlPlaneV2WizardDataLoader
+        <EditControlPlaneV2WizardDataLoader
           isOpen={isEditV2WizardOpen}
           setIsOpen={setIsEditV2WizardOpen}
           namespace={namespace}

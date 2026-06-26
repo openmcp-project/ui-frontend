@@ -4,8 +4,8 @@ import { useMemo } from 'react';
 
 import { z } from 'zod';
 
-import { graphql } from '../../../types/__generated__/graphql';
-import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../types/ControlPlane';
+import { graphql } from '../../../../types/__generated__/graphql';
+import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../../types/ControlPlane.ts';
 
 const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
@@ -88,7 +88,7 @@ const GET_MCP_V2_QUERY = graphql(`
   }
 `);
 
-export function useMcpV2Query(name?: string, namespace?: string) {
+export function useControlPlaneV2Query(name?: string, namespace?: string) {
   const queryResult = useQuery(GET_MCP_V2_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,

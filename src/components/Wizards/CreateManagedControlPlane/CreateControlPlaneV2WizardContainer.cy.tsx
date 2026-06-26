@@ -4,7 +4,7 @@ import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlP
 import { useCreateControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
 import { useUpdateControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import type { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { CreateManagedControlPlaneV2WizardContainer } from './CreateManagedControlPlaneV2WizardContainer.tsx';
+import { CreateControlPlaneV2WizardContainer } from './CreateControlPlaneV2WizardContainer.tsx';
 
 describe('CreateManagedControlPlaneV2WizardContainer', () => {
   let createPayload: McpV2Input | null = null;
@@ -57,7 +57,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('creates a new MCP with name and default member', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         projectName="my-project"
@@ -82,7 +82,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('shows the success step after a successful create', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         projectName="my-project"
@@ -137,7 +137,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('pre-fills the name field from initialData in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -153,7 +153,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('pre-fills members from initialData roleBindings in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -173,7 +173,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('calls updateMcp with correct payload on submit in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -200,7 +200,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   it('shows the success step after a successful update in edit mode', () => {
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}
@@ -228,7 +228,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     });
 
     cy.mount(
-      <CreateManagedControlPlaneV2WizardContainer
+      <CreateControlPlaneV2WizardContainer
         isOpen={true}
         setIsOpen={() => {}}
         isEditMode={true}

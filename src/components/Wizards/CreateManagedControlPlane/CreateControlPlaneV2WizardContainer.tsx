@@ -71,7 +71,7 @@ const normalizeMcpV2Role = (roleInput?: string | null): string => {
   return MCP_V2_DEFAULT_ROLE;
 };
 
-export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
+export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
   setIsOpen,
   projectName = '',
