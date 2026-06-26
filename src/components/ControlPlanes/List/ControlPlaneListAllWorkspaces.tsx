@@ -11,6 +11,8 @@ import { useLink } from '../../../lib/shared/useLink.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
+const MAX_CONCURRENT_MEMBER_QUERIES = 3;
+
 interface Props {
   projectName: string;
   workspaces: Workspace[];
@@ -29,6 +31,8 @@ export default function ControlPlaneListAllWorkspaces({
   // null = initial (auto-expand first accessible workspace); undefined = user explicitly collapsed all; string = user picked one
   const [expandedWorkspace, setExpandedWorkspace] = useState<string | null | undefined>(null);
   const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
+  // How many workspaces have had their members query unlocked so far (sliding window cursor)
+  const [membersUnlockedCount, setMembersUnlockedCount] = useState(MAX_CONCURRENT_MEMBER_QUERIES);
 
   const firstAccessible = workspaces.find((ws) => !forbiddenWorkspaces.has(ws.metadata.name))?.metadata.name ?? null;
   const resolvedExpanded = expandedWorkspace === null ? firstAccessible : expandedWorkspace;
@@ -38,6 +42,10 @@ export default function ControlPlaneListAllWorkspaces({
       if (prev.has(workspaceName)) return prev;
       return new Set(prev).add(workspaceName);
     });
+  }
+
+  function handleMembersLoaded() {
+    setMembersUnlockedCount((prev) => Math.min(prev + 1, workspaces.length));
   }
 
   return (
@@ -60,12 +68,13 @@ export default function ControlPlaneListAllWorkspaces({
           </Button>
         </FlexBox>
       ) : (
-        workspaces.map((workspace) => (
+        workspaces.map((workspace, index) => (
           <ControlPlaneListWorkspaceGridTile
             key={`${projectName}-${workspace.metadata.name}`}
             projectName={projectName}
             workspace={workspace}
             isExpanded={resolvedExpanded === workspace.metadata.name}
+            membersQueryEnabled={index < membersUnlockedCount}
             useMcpsQuery={useMcpsQuery}
             useDeleteWorkspace={useDeleteWorkspace}
             onToggleExpanded={() => {
@@ -73,6 +82,7 @@ export default function ControlPlaneListAllWorkspaces({
               setExpandedWorkspace(isCurrentlyExpanded ? undefined : workspace.metadata.name);
             }}
             onForbidden={() => handleForbidden(workspace.metadata.name)}
+            onMembersLoaded={handleMembersLoaded}
           />
         ))
       )}

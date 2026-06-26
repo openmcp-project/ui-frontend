@@ -148,7 +148,11 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     isLoading: false,
   });
 
-  const mountTile = (isExpanded: boolean, useWorkspaceMembersHook: typeof useWorkspaceMembers) =>
+  const mountTile = (
+    isExpanded: boolean,
+    useWorkspaceMembersHook: typeof useWorkspaceMembers,
+    membersQueryEnabled = true,
+  ) =>
     cy.mount(
       <MockedProvider mocks={[]}>
         <MemoryRouter>
@@ -165,6 +169,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
                   workspace={workspace}
                   projectName="test-project"
                   isExpanded={isExpanded}
+                  membersQueryEnabled={membersQueryEnabled}
                   useMcpsQuery={fakeUseMcpsQueryEmpty}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                   useWorkspaceMembers={useWorkspaceMembersHook}
@@ -176,11 +181,18 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       </MockedProvider>,
     );
 
-  it('does not show members avatar when panel is collapsed', () => {
-    mountTile(false, fakeUseMembersLoaded);
+  it('does not show members avatar when query is not yet enabled', () => {
+    mountTile(false, fakeUseMembersLoaded, false);
 
     cy.get('ui5-avatar-group').should('not.exist');
     cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
+  });
+
+  it('shows avatar group in collapsed panel header when query is enabled and loaded', () => {
+    mountTile(false, fakeUseMembersLoaded, true);
+
+    cy.get('ui5-avatar-group').should('exist');
+    cy.get('ui5-avatar').should('have.length', 2);
   });
 
   it('shows busy indicator while members are loading when expanded', () => {

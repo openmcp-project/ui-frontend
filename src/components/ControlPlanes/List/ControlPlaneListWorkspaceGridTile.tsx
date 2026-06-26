@@ -25,14 +25,17 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { FadeIn } from '../../Ui/FadeIn/FadeIn.tsx';
 import styles from './WorkspacesList.module.css';
 
 interface Props {
   projectName: string;
   workspace: Workspace;
   isExpanded?: boolean;
+  membersQueryEnabled?: boolean;
   onToggleExpanded?: () => void;
   onForbidden?: () => void;
+  onMembersLoaded?: () => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
   useWorkspaceMembers?: typeof _useWorkspaceMembers;
@@ -42,8 +45,10 @@ export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
   isExpanded,
+  membersQueryEnabled = false,
   onToggleExpanded,
   onForbidden,
+  onMembersLoaded,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
   useWorkspaceMembers = _useWorkspaceMembers,
@@ -100,8 +105,12 @@ export function ControlPlaneListWorkspaceGridTile({
   const { members: workspaceMembers, isLoading: membersLoading } = useWorkspaceMembers(
     workspace.metadata.namespace,
     workspaceName,
-    !isExpanded,
+    !membersQueryEnabled,
   );
+
+  useEffect(() => {
+    if (membersQueryEnabled && !membersLoading) onMembersLoaded?.();
+  }, [membersQueryEnabled, membersLoading, onMembersLoaded]);
 
   return (
     <>
@@ -136,12 +145,13 @@ export function ControlPlaneListWorkspaceGridTile({
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {isExpanded &&
-                  (membersLoading ? (
-                    <BusyIndicator active data-testid="members-loading-indicator" delay={0} size="S" />
-                  ) : (
+                {membersLoading ? (
+                  <BusyIndicator active data-testid="members-loading-indicator" delay={0} size="S" />
+                ) : (
+                  <FadeIn>
                     <MembersAvatarView members={workspaceMembers} project={projectName} workspace={workspaceName} />
-                  ))}
+                  </FadeIn>
+                )}
               </div>
               <FlexBox justifyContent={'End'} gap={10}>
                 <YamlViewButton
