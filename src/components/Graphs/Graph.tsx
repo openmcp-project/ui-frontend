@@ -1,6 +1,15 @@
 import React, { useCallback, useMemo, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ReactFlow, Background, Controls, MarkerType, Node, Panel } from '@xyflow/react';
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  MarkerType,
+  Node,
+  Panel,
+  ReactFlowProvider,
+  useReactFlow,
+} from '@xyflow/react';
 import { Button } from '@ui5/webcomponents-react';
 
 import type { NodeProps } from '@xyflow/react';
@@ -36,7 +45,21 @@ const edgeTypes = {
   orth: OrthogonalEdge,
 };
 
-const Graph: React.FC = () => {
+const FitOnLayoutChange: React.FC<{ layoutDirection: LayoutDirection; nodes: Node<NodeData>[] }> = ({
+  layoutDirection,
+  nodes,
+}) => {
+  const { fitView } = useReactFlow();
+  useEffect(() => {
+    if (!nodes.length) return;
+    // Wait one frame so ReactFlow has measured the new node positions.
+    const id = requestAnimationFrame(() => fitView({ duration: 200 }));
+    return () => cancelAnimationFrame(id);
+  }, [layoutDirection, nodes, fitView]);
+  return null;
+};
+
+const GraphInner: React.FC = () => {
   const { t } = useTranslation();
   const { openInAsideWithApiConfig } = useSplitter();
   const { isDarkTheme } = useTheme();
@@ -73,19 +96,22 @@ const Graph: React.FC = () => {
     }
   }, []);
 
-  const handleYamlClick = useCallback(
-    (item: ManagedResourceItem) => {
+  // Hold the latest open-in-aside callback in a ref so handleYamlClick stays
+  // reference-stable. Otherwise apiConfig churn cascades into Graph rebuild +
+  // elkjs re-layout on every parent re-render.
+  const yamlClickImpl = useRef<(item: ManagedResourceItem) => void>(() => {});
+  useEffect(() => {
+    yamlClickImpl.current = (item: ManagedResourceItem) => {
       const yamlFilename = item
         ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}`
         : '';
-
       openInAsideWithApiConfig(
         <YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />,
         apiConfig,
       );
-    },
-    [openInAsideWithApiConfig, apiConfig],
-  );
+    };
+  });
+  const handleYamlClick = useCallback((item: ManagedResourceItem) => yamlClickImpl.current(item), []);
 
   const { nodes, edges, colorMap, labelKey, availableLabelKeys, loading, error } = useGraph(
     colorBy,
@@ -121,6 +147,8 @@ const Graph: React.FC = () => {
 
   const displayedEdges = useMemo(() => {
     if (!hoveredId) return edges;
+    // Only rebuild the connected edges; keep refs for the rest so ReactFlow
+    // skips reconciliation on unrelated nodes/edges.
     return edges.map((e) => {
       if (e.target === hoveredId) {
         return { ...e, animated: true, style: { ...e.style, stroke: '#0070f2', strokeWidth: 3, opacity: 1 } };
@@ -128,7 +156,7 @@ const Graph: React.FC = () => {
       if (e.source === hoveredId) {
         return { ...e, animated: true, style: { ...e.style, stroke: '#e76500', strokeWidth: 3, opacity: 1 } };
       }
-      return { ...e, style: { ...e.style, opacity: 0.05 } };
+      return e;
     });
   }, [edges, hoveredId]);
 
@@ -177,6 +205,7 @@ const Graph: React.FC = () => {
         >
           <Controls showInteractive={false} showFitView={false} />
           <Background />
+          <FitOnLayoutChange layoutDirection={layoutDirection} nodes={nodes} />
           <Panel position="top-left" className={styles.panelContent}>
             <Button
               design="Transparent"
@@ -205,5 +234,11 @@ const Graph: React.FC = () => {
     </div>
   );
 };
+
+const Graph: React.FC = () => (
+  <ReactFlowProvider>
+    <GraphInner />
+  </ReactFlowProvider>
+);
 
 export default Graph;
