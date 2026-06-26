@@ -188,6 +188,8 @@ const GraphInner: React.FC = () => {
           fitView
           minZoom={0.05}
           maxZoom={4}
+          onlyRenderVisibleElements
+          elevateNodesOnSelect={false}
           translateExtent={[
             [-Infinity, -Infinity],
             [Infinity, Infinity],
