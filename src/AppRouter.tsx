@@ -8,7 +8,7 @@ import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
 import { SentryRoutes } from './mount.ts';
 import HeadlampPage from './spaces/mcp/pages/HeadlampPage.tsx';
 import McpPage from './spaces/mcp/pages/McpPage.tsx';
-import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
+import McpPageV2 from './spaces/controlPlaneV2/pages/McpPageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
 
