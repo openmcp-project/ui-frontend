@@ -12,7 +12,7 @@ describe('ShellBar', () => {
   let logoutCalled = false;
 
   const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
-    user: { email: 'test@example.com' },
+    user: { sub: 'test@example.com', email: 'test@example.com' },
     logout: async () => {
       logoutCalled = true;
     },
