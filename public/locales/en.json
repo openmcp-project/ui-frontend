@@ -189,6 +189,7 @@
     "feedbackThanks": "Thank you for your feedback!",
     "feedbackError": "Failed to send feedback. Please try again later.",
     "modeOpenSource": "Open Source View",
+    "hello": "Hello, {{name}}",
     "backButton": "Back",
     "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",

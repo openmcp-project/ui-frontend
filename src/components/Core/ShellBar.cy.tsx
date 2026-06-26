@@ -67,7 +67,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    cy.get('ui5-popover[header-text="Profile"]', { timeout: 5000 }).should('be.visible');
+    cy.get('ui5-popover[header-text="Hello, test"]', { timeout: 5000 }).should('be.visible');
   });
 
   it('shows sign out option in profile menu', () => {
@@ -75,7 +75,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Sign Out').should('exist');
     });
   });
@@ -96,7 +96,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Clear remembered project').should('not.exist');
     });
   });
@@ -106,7 +106,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Clear remembered project').should('exist');
     });
 

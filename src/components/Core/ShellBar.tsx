@@ -303,7 +303,7 @@ const ProfilePopover = ({
         ref={popoverRef}
         placement={PopoverPlacement.Bottom}
         open={open}
-        headerText="Profile"
+        headerText={t('ShellBar.hello', { name: auth.user?.email?.split('@')[0] ?? '' })}
         onClose={() => setOpen(false)}
       >
         <List>
