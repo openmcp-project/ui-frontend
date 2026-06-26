@@ -8,7 +8,7 @@ import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import ControlPlaneListAllWorkspaces from './ControlPlaneListAllWorkspaces.tsx';
-import { setExpandedWorkspace, clearExpandedWorkspace } from '../../../utils/expandedWorkspace.ts';
+import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
 
 const frontendConfig = {
   landscape: Landscape.Local,
@@ -22,36 +22,6 @@ const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   error: undefined,
   isPending: false,
 });
-
-const fakeForbiddenMcpsQuery: typeof useMcpsQuery = () => ({
-  data: [],
-  error: Object.assign(new Error('is forbidden'), {
-    graphQLErrors: [],
-    networkError: null,
-    clientErrors: [],
-    cause: undefined,
-    extraInfo: undefined,
-    protocolErrors: [],
-  }),
-  isPending: false,
-});
-
-const fakeUseMcpsQueryForWorkspace =
-  (forbiddenWorkspace: string): typeof useMcpsQuery =>
-  (workspaceNamespace) => ({
-    data: [],
-    error: workspaceNamespace?.includes(forbiddenWorkspace)
-      ? Object.assign(new Error('is forbidden'), {
-          graphQLErrors: [],
-          networkError: null,
-          clientErrors: [],
-          cause: undefined,
-          extraInfo: undefined,
-          protocolErrors: [],
-        })
-      : undefined,
-    isPending: false,
-  });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
   deleteWorkspace: async () => undefined,
@@ -94,96 +64,122 @@ function togglePanel(name: string) {
   panel(name).then(($el: JQuery<HTMLElement>) => $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true })));
 }
 
-describe('ControlPlaneListAllWorkspaces — mutually exclusive expansion', () => {
-  it('expands only the first workspace by default', () => {
-    mountAllWorkspaces(workspaces);
-
-    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+describe('ControlPlaneListAllWorkspaces — independent expansion', () => {
+  beforeEach(() => {
+    setExpandedWorkspaces('test', new Set());
   });
 
-  it('skips forbidden workspaces when auto-expanding', () => {
-    mountAllWorkspaces(workspaces, fakeForbiddenMcpsQuery);
+  it('all workspaces start collapsed when no localStorage state', () => {
+    mountAllWorkspaces(workspaces);
 
     panel('alpha').invoke('prop', 'collapsed').should('equal', true);
     panel('beta').invoke('prop', 'collapsed').should('equal', true);
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
-  it('auto-expands second workspace when first is forbidden', () => {
-    mountAllWorkspaces(workspaces, fakeUseMcpsQueryForWorkspace('alpha'));
-
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
-    panel('beta').invoke('prop', 'collapsed').should('equal', false);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
-  });
-
-  it('expanding a second workspace collapses the first', () => {
+  it('expanding one workspace does not collapse others', () => {
     mountAllWorkspaces(workspaces);
 
+    togglePanel('alpha');
     togglePanel('beta');
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
     panel('beta').invoke('prop', 'collapsed').should('equal', false);
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 
-  it('collapsing the expanded workspace re-expands the first accessible workspace', () => {
+  it('collapsing a workspace does not affect others', () => {
+    setExpandedWorkspaces('test', new Set(['alpha', 'beta']));
     mountAllWorkspaces(workspaces);
 
     togglePanel('alpha');
 
-    // With remember-workspace behaviour, collapsing clears the stored value
-    // so the component falls back to auto-expanding the first accessible workspace
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+  });
+});
+
+describe('ControlPlaneListAllWorkspaces — expand/collapse all', () => {
+  beforeEach(() => {
+    setExpandedWorkspaces('test', new Set());
+  });
+
+  it('shows expand all button when not all expanded', () => {
+    mountAllWorkspaces(workspaces);
+    cy.contains('Expand all').should('be.visible');
+  });
+
+  it('expand all expands all workspaces', () => {
+    mountAllWorkspaces(workspaces);
+
+    cy.contains('Expand all').click();
+
     panel('alpha').invoke('prop', 'collapsed').should('equal', false);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
+  });
+
+  it('shows collapse all button when all expanded', () => {
+    setExpandedWorkspaces('test', new Set(['alpha', 'beta', 'gamma']));
+    mountAllWorkspaces(workspaces);
+    cy.contains('Collapse all').should('be.visible');
+  });
+
+  it('collapse all collapses all workspaces', () => {
+    setExpandedWorkspaces('test', new Set(['alpha', 'beta', 'gamma']));
+    mountAllWorkspaces(workspaces);
+
+    cy.contains('Collapse all').click();
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
     panel('beta').invoke('prop', 'collapsed').should('equal', true);
     panel('gamma').invoke('prop', 'collapsed').should('equal', true);
   });
 });
 
-describe('ControlPlaneListAllWorkspaces — remember expanded workspace', () => {
+describe('ControlPlaneListAllWorkspaces — localStorage persistence', () => {
   beforeEach(() => {
-    clearExpandedWorkspace('test');
+    setExpandedWorkspaces('test', new Set());
   });
 
-  it('remembers the expanded workspace across remounts (happy path)', () => {
-    // User previously expanded 'beta'
-    setExpandedWorkspace('test', 'beta');
+  it('restores previously expanded workspaces on mount', () => {
+    setExpandedWorkspaces('test', new Set(['beta', 'gamma']));
     mountAllWorkspaces(workspaces);
 
     panel('alpha').invoke('prop', 'collapsed').should('equal', true);
     panel('beta').invoke('prop', 'collapsed').should('equal', false);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
   });
 
-  it('persists to localStorage when user expands a workspace', () => {
+  it('persists expansion to localStorage', () => {
     mountAllWorkspaces(workspaces);
 
     togglePanel('gamma');
 
     cy.wrap(null).should(() => {
-      expect(localStorage.getItem('expandedWorkspace:test')).to.equal('gamma');
+      const stored = getExpandedWorkspaces('test');
+      expect(stored.has('gamma')).to.equal(true);
     });
   });
 
-  it('clears localStorage when user collapses the expanded workspace', () => {
-    setExpandedWorkspace('test', 'alpha');
+  it('removes workspace from localStorage when collapsed', () => {
+    setExpandedWorkspaces('test', new Set(['alpha']));
     mountAllWorkspaces(workspaces);
 
     togglePanel('alpha');
 
     cy.wrap(null).should(() => {
-      expect(localStorage.getItem('expandedWorkspace:test')).to.equal(null);
+      const stored = getExpandedWorkspaces('test');
+      expect(stored.has('alpha')).to.equal(false);
     });
   });
 
-  it('falls back to first accessible workspace when stored one no longer exists', () => {
-    setExpandedWorkspace('test', 'deleted-ws');
-    mountAllWorkspaces(workspaces); // 'deleted-ws' not in [alpha, beta, gamma]
+  it('ignores stored workspaces that no longer exist', () => {
+    setExpandedWorkspaces('test', new Set(['deleted-ws', 'beta']));
+    mountAllWorkspaces(workspaces);
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', false);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
   });
 });

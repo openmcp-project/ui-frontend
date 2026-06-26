@@ -1,13 +1,25 @@
-const STORAGE_KEY_PREFIX = 'expandedWorkspace:';
+const STORAGE_KEY_PREFIX = 'expandedWorkspaces:';
 
-export function getExpandedWorkspace(projectName: string): string | null {
-  return localStorage.getItem(`${STORAGE_KEY_PREFIX}${projectName}`);
+function storageKey(projectName: string): string {
+  return `${STORAGE_KEY_PREFIX}${projectName}`;
 }
 
-export function setExpandedWorkspace(projectName: string, workspaceName: string): void {
-  localStorage.setItem(`${STORAGE_KEY_PREFIX}${projectName}`, workspaceName);
+export function getExpandedWorkspaces(projectName: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(storageKey(projectName));
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed as string[]);
+  } catch {
+    return new Set();
+  }
 }
 
-export function clearExpandedWorkspace(projectName: string): void {
-  localStorage.removeItem(`${STORAGE_KEY_PREFIX}${projectName}`);
+export function setExpandedWorkspaces(projectName: string, expanded: Set<string>): void {
+  if (expanded.size === 0) {
+    localStorage.removeItem(storageKey(projectName));
+  } else {
+    localStorage.setItem(storageKey(projectName), JSON.stringify([...expanded]));
+  }
 }
