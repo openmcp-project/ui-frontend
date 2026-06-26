@@ -1,4 +1,4 @@
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
 export const DeleteManagedControlPlaneV2Mutation = graphql(`
   mutation DeleteManagedControlPlaneV2($name: String!, $namespace: String, $dryRun: Boolean) {

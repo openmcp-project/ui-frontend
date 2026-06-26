@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach, Mock, beforeEach } from 'vitest';
 import { useMutation } from '@apollo/client/react';
-import { useDeleteManagedControlPlaneV2GraphQL } from './useDeleteManagedControlPlaneV2GraphQL';
+import { useDeleteManagedControlPlaneV2GraphQL } from './useDeleteManagedControlPlaneV2GraphQL.ts';
 
 const toastShowMock = vi.fn();
 

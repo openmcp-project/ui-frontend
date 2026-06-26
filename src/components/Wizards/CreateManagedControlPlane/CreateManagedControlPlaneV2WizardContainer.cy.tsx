@@ -1,8 +1,8 @@
 import '@ui5/webcomponents-cypress-commands';
 import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
-import { useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
+import { useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
+import { useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
 import type { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { CreateManagedControlPlaneV2WizardContainer } from './CreateManagedControlPlaneV2WizardContainer.tsx';
 
