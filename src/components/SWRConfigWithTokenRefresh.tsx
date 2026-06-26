@@ -15,6 +15,12 @@ export function SWRConfigWithTokenRefresh({ children }: { children: ReactNode })
     <SWRConfig
       value={{
         refreshInterval: 10000,
+        // Tab-focus / network-reconnect revalidation double-spends on top of
+        // the 10s poll. Per-hook overrides still apply.
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        // Share back-to-back mounts within a navigation.
+        dedupingInterval: 30_000,
         // component re-renders on refresh state changes, so the closure is not stale
         isPaused: () => isRefreshing,
       }}
