@@ -295,7 +295,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             ),
           );
         }
-        telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created' });
+        telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v1' });
         setSelectedStep('success');
         return true;
       } catch (e) {

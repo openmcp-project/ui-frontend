@@ -252,7 +252,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       } else {
         await createMcp(rawInput);
       }
-      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created' });
+      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
       setSelectedStep('success');
       return true;
     } catch (e) {

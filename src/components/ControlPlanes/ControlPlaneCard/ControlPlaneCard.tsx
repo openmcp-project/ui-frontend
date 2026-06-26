@@ -154,7 +154,7 @@ export const ControlPlaneCard = ({
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
           onDeletionConfirmed={async () => {
-            telemetry.track({ name: 'controlplane.deleted' });
+            telemetry.track({ name: 'controlplane.deleted', source: 'v1-card' });
             await deleteManagedControlPlane();
           }}
         />
@@ -165,7 +165,7 @@ export const ControlPlaneCard = ({
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
           onDeletionConfirmed={async () => {
-            telemetry.track({ name: 'controlplane.deleted' });
+            telemetry.track({ name: 'controlplane.deleted', source: 'v2-card' });
             await deleteManagedControlPlaneV2();
           }}
         />

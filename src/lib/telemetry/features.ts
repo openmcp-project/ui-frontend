@@ -14,16 +14,16 @@ export type TelemetryFeature =
   | Feature<'controlplane.connected', { idp: 'system' | 'custom' }>
   // Projects
   | Feature<'project.created'>
-  | Feature<'project.deleted'>
+  | Feature<'project.deleted', { source: 'list' | 'detail' }>
   | Feature<'project.edited'>
   // Workspaces
   | Feature<'workspace.created'>
-  | Feature<'workspace.deleted'>
+  | Feature<'workspace.deleted', { source: 'card' }>
   | Feature<'workspace.edited'>
   // Control Planes
-  | Feature<'controlplane.created'>
-  | Feature<'controlplane.deleted'>
-  | Feature<'controlplane.edited'>
+  | Feature<'controlplane.created', { source: 'v1' | 'v2' }>
+  | Feature<'controlplane.deleted', { source: 'v1-card' | 'v2-card' }>
+  | Feature<'controlplane.edited', { source: 'v1' | 'v2' | 'v1-detail' | 'v2-detail' }>
   | Feature<'controlplane.duplicated'>
   // YAML
   | Feature<'yaml.viewed', { resourceType: string }>
