@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useControlPlaneV2Query } from '../../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { CreateControlPlaneV2WizardContainer, WizardStepType } from './CreateControlPlaneV2WizardContainer.tsx';
-import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
+import styles from '../CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.module.css';
 
 export type EditManagedControlPlaneV2WizardDataLoaderProps = {
   namespace?: string;

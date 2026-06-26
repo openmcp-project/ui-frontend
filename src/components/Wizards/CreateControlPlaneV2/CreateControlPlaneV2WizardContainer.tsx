@@ -41,7 +41,7 @@ import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQ
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
-import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {

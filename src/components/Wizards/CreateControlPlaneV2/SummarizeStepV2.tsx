@@ -6,8 +6,8 @@ import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/c
 import { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
-import styles from './SummarizeStep.module.css';
-import YamlSummarize from './YamlSummarize.tsx';
+import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;

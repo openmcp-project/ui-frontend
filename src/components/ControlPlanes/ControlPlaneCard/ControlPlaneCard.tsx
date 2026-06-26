@@ -21,7 +21,7 @@ import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '.
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
-import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditControlPlaneV2WizardDataLoader.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';

@@ -11,7 +11,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
-import styles from '../../mcp/pages/McpPage.module.css';
+import styles from './ControlPlanePageV2.module.css';
 // throws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
@@ -28,8 +28,8 @@ import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSect
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
-import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateControlPlaneV2WizardContainer.tsx';
-import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditControlPlaneV2WizardDataLoader.tsx';
+import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
@@ -46,10 +46,10 @@ import Graph from '../../../components/Graphs/Graph.tsx';
 import { AuthProviderMcp } from '../../mcp/auth/AuthContextMcp.tsx';
 import { ManagedControlPlaneAuthorization } from '../../mcp/authorization/ManagedControlPlaneAuthorization.tsx';
 import { ComponentsDashboardV2 } from '../../mcp/components/ComponentsDashboard/ComponentsDashboardV2.tsx';
-import { useCrossplaneQuery } from '../../mcp/components/Kpi/useCrossplaneQuery.ts';
-import { useEsoQuery } from '../../mcp/components/Kpi/useEsoQuery.ts';
-import { useFluxQuery } from '../../mcp/components/Kpi/useFluxQuery.ts';
-import { useLandscaperQuery } from '../../mcp/components/Kpi/useLandscaperQuery.ts';
+import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
+import { useEsoQuery } from '../components/Kpi/useEsoQuery.ts';
+import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
+import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
 import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
