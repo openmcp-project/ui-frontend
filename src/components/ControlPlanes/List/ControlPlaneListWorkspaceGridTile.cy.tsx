@@ -156,7 +156,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
             value={{
               documentationBaseUrl: '',
               githubBaseUrl: '',
-              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
             }}
           >
             <SplitterProvider>
@@ -196,5 +196,28 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.get('ui5-avatar-group').should('exist');
     cy.get('ui5-avatar').should('have.length', 2);
     cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
+  });
+
+  it('opens member popover on avatar group click and shows member names', () => {
+    mountTile(true, fakeUseMembersLoaded);
+
+    cy.get('ui5-avatar-group').click();
+
+    cy.get('ui5-popover[open]').should('exist');
+    cy.get('ui5-popover[open]').contains('alice@example.com').should('exist');
+    cy.get('ui5-popover[open]').contains('bob@example.com').should('exist');
+  });
+
+  it('closes member popover when popover fires close event', () => {
+    mountTile(true, fakeUseMembersLoaded);
+
+    cy.get('ui5-avatar-group').click();
+    cy.get('ui5-popover[open]').should('exist');
+
+    cy.get('ui5-popover[open]').then(($el) => {
+      $el[0].dispatchEvent(new CustomEvent('close', { bubbles: true }));
+    });
+
+    cy.get('ui5-popover[open]').should('not.exist');
   });
 });
