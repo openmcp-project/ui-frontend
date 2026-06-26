@@ -111,7 +111,7 @@ const AccessV2Schema = z.preprocess(
 const StatusV2Schema = z.object({
   phase: z.string().nullish(),
   conditions: ConditionsSchema,
-  access: AccessV2Schema,
+  access: AccessV2Schema.nullish(),
 });
 
 const SpecV2Schema = z.object({
@@ -129,17 +129,25 @@ const SpecV2Schema = z.object({
             .object({
               name: z.string().nullish(),
               permissions: z
-                .object({
-                  rules: z
-                    .array(
-                      z.object({
-                        apiGroups: z.array(z.string().nullable()).nullish(),
-                        resources: z.array(z.string().nullable()).nullish(),
-                        verbs: z.array(z.string().nullable()).nullish(),
-                      }),
-                    )
-                    .nullish(),
-                })
+                .array(
+                  z
+                    .object({
+                      name: z.string().nullish(),
+                      namespace: z.string().nullish(),
+                      rules: z
+                        .array(
+                          z.object({
+                            apiGroups: z.array(z.string().nullable()).nullish(),
+                            nonResourceURLs: z.array(z.string().nullable()).nullish(),
+                            resourceNames: z.array(z.string().nullable()).nullish(),
+                            resources: z.array(z.string().nullable()).nullish(),
+                            verbs: z.array(z.string().nullable()).nullish(),
+                          }),
+                        )
+                        .nullish(),
+                    })
+                    .nullable(),
+                )
                 .nullish(),
               roleRefs: z.array(RoleRefSchema.nullable()).nullish(),
             })

@@ -1,10 +1,14 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { CreateLandscaperMutationVariables } from '../../../types/__generated__/graphql/graphql';
 
-const CreateLandscaperMutation = gql`
-  mutation CreateLandscaper($namespace: String, $object: LandscaperServicesOpenmcpCloudV1alpha2Landscaper_Input!) {
-    landscaper_services_openmcp_cloud {
+const CreateLandscaperMutation = graphql(`
+  mutation CreateLandscaper(
+    $namespace: String
+    $object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input!
+  ) {
+    landscaper_services_open_control_plane_io {
       v1alpha2 {
         createLandscaper(namespace: $namespace, object: $object) {
           metadata {
@@ -15,7 +19,7 @@ const CreateLandscaperMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useCreateLandscaper() {
   const [createMutation, { loading, error }] = useMutation(CreateLandscaperMutation, {
@@ -23,9 +27,8 @@ export function useCreateLandscaper() {
   });
 
   const create = useCallback(
-    // TODO: replace `object: unknown` with the generated `LandscaperInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; object: unknown }) => {
-      return createMutation({ variables });
+      return createMutation({ variables: variables as CreateLandscaperMutationVariables });
     },
     [createMutation],
   );

@@ -2,14 +2,15 @@
   "SignInPage": {
     "welcomeMessage": "Welcome to Control Plane UI",
     "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
-    "learnMoreLink": "Learn about Control Planes",
-    "signInButton": "Sign In"
+    "signInButton": "Sign In",
+    "becomeContributorLink": "Become a Contributor"
   },
   "Entities": {
     "ManagedControlPlane": "Control Plane",
     "Project": "Project",
     "Workspace": "Workspace",
     "Users": "Users",
+    "Groups": "Groups",
     "ServiceAccounts": "ServiceAccounts"
   },
   "ComponentList": {
@@ -17,6 +18,10 @@
     "tableVersionHeader": "Version"
   },
   "ComponentCard": {
+    "actionsMenu": "Actions",
+    "deleteButton": "Delete",
+    "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
+    "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
     "installButton": "Install {{component}}",
     "notInstalledLabel": "not installed"
@@ -87,6 +92,7 @@
   "ControlPlaneListToolbar": {
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
+    "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create new Control Plane",
     "createNewManagedControlPlaneV2": "Create new Control Plane V2",
     "V2": "V2"
@@ -102,7 +108,6 @@
     "editMCP": "Edit Control Plane",
     "duplicateMCP": "Duplicate Control Plane",
     "deleteMCP": "Delete Control Plane"
-
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -170,7 +175,9 @@
     "betaButton": "Beta",
     "betaButtonAriaLabel": "Beta – open information about this app's beta status",
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
+    "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
+    "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
     "feedbackHeader": "Your feedback",
@@ -180,13 +187,27 @@
     "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
     "feedbackNotificationAction": "click here.",
     "feedbackThanks": "Thank you for your feedback!",
-    "feedbackError": "Failed to send feedback. Please try again later."
+    "feedbackError": "Failed to send feedback. Please try again later.",
+    "modeOpenSource": "Open Source View",
+    "backButton": "Back",
+    "copyNamespace": "Copy namespace",
+    "membersLabel": "Members:",
+    "overflowEditMcp": "Edit control plane",
+    "overflowViewYaml": "View YAML"
   },
   "CreateProjectDialog": {
     "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
   },
+  "EditProjectDialog": {
+    "title": "Edit Project",
+    "toastMessage": "Project updated successfully. Changes may take a moment to be reflected in the UI."
+  },
   "CreateWorkspaceDialog": {
     "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
+  },
+  "EditWorkspaceDialog": {
+    "title": "Edit Workspace",
+    "toastMessage": "Workspace updated successfully. Changes may take a moment to be reflected in the UI."
   },
   "DeleteConfirmationDialog": {
     "deleteButton": "Delete",
@@ -214,7 +235,10 @@
   },
   "CreateProjectWorkspaceDialog": {
     "createButton": "Create",
+    "saveButton": "Save",
     "cancelButton": "Cancel",
+    "createWorkspaceTitle": "Create Workspace",
+    "createProjectTitle": "Create Project",
     "chargingTargetLabel": "Charging Target",
     "chargingTargetTypeLabel": "Charging Target Type",
     "displayNameLabel": "Display Name",
@@ -224,8 +248,11 @@
   },
   "EditMembers": {
     "addButton": "Add User or ServiceAccount",
+    "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
+    "editHeaderUserGroup": "Edit User or Group",
     "addHeader": "Add User or ServiceAccount",
+    "addHeaderUserGroup": "Add User or Group",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
@@ -236,17 +263,30 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
-
+  "ProjectPage": {
+    "backToProjects": "Go to all projects"
+  },
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
-    "projectHeader": "Project:"
+    "projectHeader": "Project:",
+    "pinProject": "Set as default project",
+    "unpinProject": "Clear default project"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
+    "rememberProject": "Remember selection",
+    "subHeader": "Create or select a project to manage your control planes, workspaces, and members.",
+    "learnMore": "Learn more",
     "title": "Projects",
+    "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
     "deleteProject": "Delete project",
-    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
+    "editProject": "Edit project",
+    "membersHeader": "Members",
+    "createdHeader": "Created",
+    "namespaceHeader": "Namespace",
+    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
+    "setDefaultProject": "Set selected project as default"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
@@ -542,8 +582,7 @@
       "errorLoadingResources": "Error loading resources",
       "activate": "Activate"
     }
-  }
-  ,
+  },
   "ImportMembersDialog": {
     "dialogTitle": "Reuse Members",
     "reuseFromLabel": "Reuse from",

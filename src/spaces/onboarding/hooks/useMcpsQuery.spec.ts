@@ -107,7 +107,9 @@ describe('useMcpsQuery', () => {
               ],
             },
           },
-          v2alpha1: { ManagedControlPlaneV2s: { items: [] } },
+        },
+        core_open_control_plane_io: {
+          v2alpha1: { ControlPlanes: { items: [] } },
         },
       },
     } as ReturnType<typeof useQuery>);
@@ -136,8 +138,10 @@ describe('useMcpsQuery', () => {
       data: {
         core_openmcp_cloud: {
           v1alpha1: { ManagedControlPlanes: { items: [] } },
+        },
+        core_open_control_plane_io: {
           v2alpha1: {
-            ManagedControlPlaneV2s: {
+            ControlPlanes: {
               items: [
                 {
                   metadata: {
@@ -193,8 +197,10 @@ describe('useMcpsQuery', () => {
               ],
             },
           },
+        },
+        core_open_control_plane_io: {
           v2alpha1: {
-            ManagedControlPlaneV2s: {
+            ControlPlanes: {
               items: [
                 {
                   metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} },
@@ -229,8 +235,10 @@ describe('useMcpsQuery', () => {
               ],
             },
           },
+        },
+        core_open_control_plane_io: {
           v2alpha1: {
-            ManagedControlPlaneV2s: {
+            ControlPlanes: {
               items: [
                 {
                   metadata: { name: 'mcp-v2', namespace: 'ns', creationTimestamp: '', annotations: {} },
@@ -266,7 +274,9 @@ describe('useMcpsQuery', () => {
               ],
             },
           },
-          v2alpha1: { ManagedControlPlaneV2s: { items: [] } },
+        },
+        core_open_control_plane_io: {
+          v2alpha1: { ControlPlanes: { items: [] } },
         },
       },
     } as ReturnType<typeof useQuery>);

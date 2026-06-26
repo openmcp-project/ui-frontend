@@ -14,6 +14,7 @@ import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/
 import { useWorkspaceMembers as _useWorkspaceMembers } from '../../../spaces/onboarding/hooks/useWorkspaceMembers.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
 import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteWorkspaceDialog.tsx';
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
@@ -59,6 +60,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const { enableMcpV2 } = useFeatureToggle();
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
+  const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
   const {
     data: managedControlPlanes,
@@ -150,6 +152,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 />
                 <ControlPlanesListMenu
                   setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
+                  setDialogEditWsIsOpen={setDialogEditWsIsOpen}
                   setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
                   setInitialTemplateName={setInitialTemplateName}
                   setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
@@ -227,6 +230,12 @@ export function ControlPlaneListWorkspaceGridTile({
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={deleteWorkspace}
+      />
+      <EditWorkspaceDialogContainer
+        isOpen={dialogEditWsIsOpen}
+        setIsOpen={setDialogEditWsIsOpen}
+        workspaceName={workspaceName}
+        namespace={projectNamespace}
       />
       {isCreateManagedControlPlaneWizardOpen ? (
         <CreateManagedControlPlaneWizardContainer

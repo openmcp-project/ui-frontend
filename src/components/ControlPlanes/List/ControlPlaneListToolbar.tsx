@@ -1,14 +1,17 @@
-import { Toolbar, ToolbarButton, Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/overflow';
+import { Button, Menu, MenuItem, Toolbar, ToolbarButton } from '@ui5/webcomponents-react';
+import styles from './ControlPlaneListToolbar.module.css';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
+import { Routes } from '../../../Routes.ts';
+import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
 import { CreateWorkspaceDialogContainer } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
-import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
-import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/delete';
-import { Routes } from '../../../Routes.ts';
 
 type ControlPlaneListToolbarProps = {
   projectName: string;
@@ -23,6 +26,7 @@ export function ControlPlaneListToolbar({
 }: ControlPlaneListToolbarProps) {
   const [dialogCreateProjectIsOpen, setDialogIsOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
+  const [dialogEditProjectIsOpen, setDialogEditProjectIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonId = useId();
   const { t } = useTranslation();
@@ -41,7 +45,7 @@ export function ControlPlaneListToolbar({
 
   return (
     <>
-      <Toolbar>
+      <Toolbar className={styles.toolbar}>
         <ToolbarButton
           design="Emphasized"
           icon="add"
@@ -51,6 +55,7 @@ export function ControlPlaneListToolbar({
         <Button
           id={menuButtonId}
           data-testid="project-overflow-menu"
+          design="Transparent"
           icon="overflow"
           onClick={() => setMenuOpen((prev) => !prev)}
         />
@@ -62,14 +67,24 @@ export function ControlPlaneListToolbar({
         onClose={() => setMenuOpen(false)}
         onItemClick={(event) => {
           const action = (event.detail.item as HTMLElement).dataset.action;
+          if (action === 'editProject') {
+            setDialogEditProjectIsOpen(true);
+          }
           if (action === 'deleteProject') {
             setDialogDeleteProjectIsOpen(true);
           }
           setMenuOpen(false);
         }}
       >
+        <MenuItem key="edit" text={t('ProjectsListView.editProject')} data-action="editProject" icon="edit" />
         <MenuItem key="delete" text={t('ProjectsListView.deleteProject')} data-action="deleteProject" icon="delete" />
       </Menu>
+
+      <EditProjectDialogContainer
+        isOpen={dialogEditProjectIsOpen}
+        setIsOpen={setDialogEditProjectIsOpen}
+        projectName={projectName}
+      />
 
       <CreateWorkspaceDialogContainer
         isOpen={dialogCreateProjectIsOpen}

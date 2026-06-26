@@ -3,12 +3,16 @@ import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { setRememberedProject, clearRememberedProject } from '../../utils/rememberedProject.ts';
+import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
+import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
+import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
 
   const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
-    user: { email: 'test@example.com' },
+    user: { sub: 'test@example.com', email: 'test@example.com' },
     logout: async () => {
       logoutCalled = true;
     },
@@ -22,12 +26,25 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = () => {
+  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+    const fakeConfig = {
+      landscape: undefined,
+      documentationBaseUrl: '',
+      githubBaseUrl: '',
+      mcp2DocsUrl: '',
+      featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+    };
     cy.mount(
       <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-        </ToastProvider>
+        <FrontendConfigContext.Provider value={fakeConfig}>
+          <ToastProvider>
+            <ViewModeProvider>
+              <ShellBarMcpActionsProvider>
+                <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+              </ShellBarMcpActionsProvider>
+            </ViewModeProvider>
+          </ToastProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
   };
@@ -35,14 +52,8 @@ describe('ShellBar', () => {
   it('renders the ShellBar with logo and title', () => {
     mountComponent();
 
-    cy.contains('ManagedControlPlane UI').should('be.visible');
     cy.get('img[alt="SAP"]').should('be.visible');
-  });
-
-  it('renders beta badge', () => {
-    mountComponent();
-
-    cy.contains('Beta').should('be.visible');
+    cy.contains('ManagedControlPlane UI').should('be.visible');
   });
 
   it('shows avatar with user initials', () => {
@@ -56,7 +67,6 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    // Wait for popover to open
     cy.get('ui5-popover[header-text="Profile"]', { timeout: 5000 }).should('be.visible');
   });
 
@@ -65,7 +75,6 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    // Check for Sign Out within the popover
     cy.get('ui5-popover[header-text="Profile"]').within(() => {
       cy.contains('Sign Out').should('exist');
     });
@@ -77,9 +86,42 @@ describe('ShellBar', () => {
     cy.get('ui5-avatar').click();
     cy.contains('Sign Out').click({ force: true });
 
-    // Verify logout was called
     cy.wrap(null).should(() => {
       expect(logoutCalled).to.equal(true);
+    });
+  });
+
+  it('does not show clear remembered project when no project is stored', () => {
+    cy.wrap(null).then(() => clearRememberedProject());
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+      cy.contains('Clear remembered project').should('not.exist');
+    });
+  });
+
+  it('shows clear remembered project when a project is stored', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+      cy.contains('Clear remembered project').should('exist');
+    });
+
+    cy.wrap(null).then(() => clearRememberedProject());
+  });
+
+  it('clears remembered project when clear item is clicked', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.contains('Clear remembered project').click({ force: true });
+
+    cy.wrap(null).should(() => {
+      expect(localStorage.getItem('rememberedProject')).to.equal(null);
     });
   });
 });

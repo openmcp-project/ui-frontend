@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react';
 import React from 'react';
-import { createRoutesFromChildren, matchRoutes, Routes, useLocation, useNavigationType } from 'react-router-dom';
+import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
 
 // Define proper typing for Sentry configuration
 interface SentryConfig {
@@ -37,19 +37,16 @@ async function fetchSentryConfig(): Promise<unknown> {
   }
 }
 
-// Initialize Sentry and return the wrapped Routes component
-export async function initializeSentry(): Promise<{
-  SentryRoutes: typeof Routes;
-  isSentryEnabled: boolean;
-}> {
+// Initialize Sentry. Returns whether init succeeded so callers can decide
+// whether to wire Sentry-aware error handlers / route wrappers.
+export async function initializeSentry(): Promise<{ isSentryEnabled: boolean }> {
   const sentryConfig = await fetchSentryConfig();
 
   if (!isValidSentryConfig(sentryConfig)) {
     console.warn('Invalid or missing Sentry configuration, continuing without Sentry integration');
-    return { SentryRoutes: Routes, isSentryEnabled: false };
+    return { isSentryEnabled: false };
   }
 
-  // Initialize Sentry with valid configuration
   Sentry.init({
     dsn: sentryConfig.FRONTEND_SENTRY_DSN,
     environment: sentryConfig.FRONTEND_SENTRY_ENVIRONMENT,
@@ -90,8 +87,5 @@ export async function initializeSentry(): Promise<{
     },
   });
 
-  return {
-    SentryRoutes: Sentry.withSentryReactRouterV7Routing(Routes),
-    isSentryEnabled: true,
-  };
+  return { isSentryEnabled: true };
 }

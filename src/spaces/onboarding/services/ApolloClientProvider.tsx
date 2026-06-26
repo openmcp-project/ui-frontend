@@ -115,11 +115,13 @@ const client = new ApolloClient({
       Query: {
         fields: {
           core_openmcp_cloud: { merge: true },
+          core_open_control_plane_io: { merge: true },
         },
       },
       CoreOpenmcpCloudQuery: { merge: true },
       CoreOpenmcpCloudV1alpha1Query: { merge: true },
-      CoreOpenmcpCloudV2alpha1Query: { merge: true },
+      CoreOpenControlPlaneIoQuery: { merge: true },
+      CoreOpenControlPlaneIoV2alpha1Query: { merge: true },
     },
   }),
 });
