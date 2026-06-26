@@ -37,8 +37,8 @@ import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPr
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useCreateManagedControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
-import { useUpdateManagedControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
+import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
+import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
