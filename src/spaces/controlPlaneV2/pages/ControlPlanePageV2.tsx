@@ -55,7 +55,7 @@ import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function McpPageV2() {
+export default function ControlPlanePageV2() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
