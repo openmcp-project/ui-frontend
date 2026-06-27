@@ -8,15 +8,20 @@ import type { Cache } from 'swr';
  * Each MCP gets its own bucket — switching MCPs never overwrites another's
  * cache, and per-MCP wipe is a single `removeItem`.
  *
- * Why this exists: CRD lists and a few other near-static endpoints would
- * otherwise be re-fetched on every page reload. With this provider, SWR
- * hydrates the in-memory Map from localStorage at mount, paints cached data
- * instantly, then revalidates in the background.
+ * Persistence policy:
+ *  - Only entries that have `data` and no `error` are written. Failed requests
+ *    stay in the in-memory cache for the session but never hit localStorage,
+ *    so a transient 403 / 500 doesn't sticky into the next page load.
+ *  - Each persisted entry is timestamped; entries older than TTL_MS are
+ *    dropped on hydrate.
  */
 
 const PREFIX = 'mcp-ui:swr:v1:';
 const MAX_BYTES_PER_BUCKET = 4 * 1024 * 1024; // 4 MB — under the 5 MB common quota
 const PERSIST_DEBOUNCE_MS = 200;
+const TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+type PersistedEntry = { ts: number; value: any };
 
 export function storageKeyForMcp(mcpId: string): string {
   return `${PREFIX}${mcpId}`;
@@ -27,8 +32,10 @@ function hydrate(storageKey: string): Map<string, any> {
   try {
     const raw = window.localStorage.getItem(storageKey);
     if (!raw) return new Map();
-    const entries = JSON.parse(raw) as [string, any][];
-    return new Map(entries);
+    const entries = JSON.parse(raw) as [string, PersistedEntry][];
+    const cutoff = Date.now() - TTL_MS;
+    const fresh = entries.filter(([, e]) => e && typeof e.ts === 'number' && e.ts >= cutoff);
+    return new Map(fresh.map(([k, e]) => [k, e.value]));
   } catch {
     return new Map();
   }
@@ -36,12 +43,17 @@ function hydrate(storageKey: string): Map<string, any> {
 
 function persist(storageKey: string, map: Map<string, any>): void {
   if (typeof window === 'undefined') return;
-  let entries: [string, any][] = Array.from(map.entries());
+  const now = Date.now();
+  let entries: [string, PersistedEntry][] = [];
+  for (const [k, value] of map.entries()) {
+    if (!isPersistable(value)) continue;
+    entries.push([k, { ts: now, value }]);
+  }
   let serialized = '';
   try {
     serialized = JSON.stringify(entries);
   } catch {
-    return; // unserializable value somewhere — skip persist
+    return;
   }
   // Trim oldest entries until under the size cap.
   while (serialized.length > MAX_BYTES_PER_BUCKET && entries.length > 1) {
@@ -57,6 +69,15 @@ function persist(storageKey: string, map: Map<string, any>): void {
   } catch {
     // QuotaExceededError or privacy mode — ignore
   }
+}
+
+// SWR stores State objects: { data, error, isLoading, isValidating, … }.
+// We only persist successful entries — keep failed and in-flight ones in
+// memory only so a transient 403 doesn't survive reload.
+function isPersistable(state: any): boolean {
+  if (state == null || typeof state !== 'object') return false;
+  if (state.error !== undefined) return false;
+  return state.data !== undefined;
 }
 
 /**
@@ -78,7 +99,7 @@ export function createPersistentProvider(mcpId: string): () => Cache<any> {
     const originalSet = map.set.bind(map);
     map.set = (key, value) => {
       originalSet(key, value);
-      scheduleFlush();
+      if (isPersistable(value)) scheduleFlush();
       return map;
     };
     const originalDelete = map.delete.bind(map);
