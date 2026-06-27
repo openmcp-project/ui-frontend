@@ -42,20 +42,13 @@ export const useApiResource = <T>(
   };
 };
 
-// CRDs are effectively static within a session — disable polling and let
-// SWR paint cached data first while it revalidates in the background.
-const CRD_SWR_DEFAULTS: SWRConfiguration = {
-  refreshInterval: 0,
-  revalidateIfStale: true,
-};
-
 export const useCRDItemsMapping = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
   const { data, error, isValidating, isLoading } = useSWR(
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    { ...CRD_SWR_DEFAULTS, ...config },
+    config,
   );
 
   const kindMapping = useMemo(() => {
@@ -89,7 +82,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    { ...CRD_SWR_DEFAULTS, ...config },
+    config,
   );
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];

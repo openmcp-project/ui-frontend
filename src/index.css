@@ -122,11 +122,3 @@ ui5-toast {
   margin: 1rem auto;
   max-width: 80%;
 }
-
-/* UI5 ObjectPageSubSection adds a focus outline that frames the whole
-   section (most visible around the graph). UI5 uses :focus (not
-   :focus-visible) so override that. The tabs already convey which
-   section is active. */
-[class*="objectPageSubSection"]:focus {
-  outline: none;
-}

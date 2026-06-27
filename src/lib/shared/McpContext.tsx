@@ -1,12 +1,10 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
 import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
-import { SWRConfig } from 'swr';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
 import { useApiResource } from '../api/useApiResource.ts';
-import { createPersistentProvider } from '../swr/persistentProvider.ts';
 
 interface Mcp {
   project: string;
@@ -97,15 +95,10 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
     [mcp.project, mcp.workspace, mcp.name, mcp.isV2],
   );
 
-  // Per-MCP SWR provider: hydrates cached entries (CRDs, providerconfigs, …)
-  // from localStorage on mount so the page paints instantly on reload.
-  const mcpId = `${mcp.project}:${mcp.workspace}:${mcp.name}`;
-  const provider = useMemo(() => createPersistentProvider(mcpId), [mcpId]);
-
   return (
-    <SWRConfig value={{ provider }}>
+    <>
       <ApiConfigProvider apiConfig={apiConfig}>{props.children}</ApiConfigProvider>
-    </SWRConfig>
+    </>
   );
 }
 
