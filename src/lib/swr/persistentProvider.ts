@@ -20,8 +20,13 @@ const PREFIX = 'mcp-ui:swr:v1:';
 const MAX_BYTES_PER_BUCKET = 4 * 1024 * 1024; // 4 MB — under the 5 MB common quota
 const PERSIST_DEBOUNCE_MS = 200;
 const TTL_MS = 30 * 60 * 1000; // 30 minutes
+// Bump SCHEMA_VERSION when the on-disk shape changes (entry layout, jq filter
+// for cached endpoints, or SWR's internal State shape). Old buckets that
+// don't match are silently dropped on hydrate.
+const SCHEMA_VERSION = 1;
 
 type PersistedEntry = { ts: number; value: any };
+type Envelope = { schemaVersion: number; entries: [string, PersistedEntry][] };
 
 export function storageKeyForMcp(mcpId: string): string {
   return `${PREFIX}${mcpId}`;
@@ -32,9 +37,12 @@ function hydrate(storageKey: string): Map<string, any> {
   try {
     const raw = window.localStorage.getItem(storageKey);
     if (!raw) return new Map();
-    const entries = JSON.parse(raw) as [string, PersistedEntry][];
+    const parsed = JSON.parse(raw) as Envelope;
+    if (!parsed || parsed.schemaVersion !== SCHEMA_VERSION || !Array.isArray(parsed.entries)) {
+      return new Map();
+    }
     const cutoff = Date.now() - TTL_MS;
-    const fresh = entries.filter(([, e]) => e && typeof e.ts === 'number' && e.ts >= cutoff);
+    const fresh = parsed.entries.filter(([, e]) => e && typeof e.ts === 'number' && e.ts >= cutoff);
     return new Map(fresh.map(([k, e]) => [k, e.value]));
   } catch {
     return new Map();
@@ -49,9 +57,10 @@ function persist(storageKey: string, map: Map<string, any>): void {
     if (!isPersistable(value)) continue;
     entries.push([k, { ts: now, value }]);
   }
+  const envelope = (e: [string, PersistedEntry][]): Envelope => ({ schemaVersion: SCHEMA_VERSION, entries: e });
   let serialized = '';
   try {
-    serialized = JSON.stringify(entries);
+    serialized = JSON.stringify(envelope(entries));
   } catch {
     return;
   }
@@ -59,7 +68,7 @@ function persist(storageKey: string, map: Map<string, any>): void {
   while (serialized.length > MAX_BYTES_PER_BUCKET && entries.length > 1) {
     entries = entries.slice(Math.ceil(entries.length / 8));
     try {
-      serialized = JSON.stringify(entries);
+      serialized = JSON.stringify(envelope(entries));
     } catch {
       return;
     }

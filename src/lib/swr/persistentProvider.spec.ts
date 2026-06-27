@@ -1,0 +1,164 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { clearPersistedSwrCache, createPersistentProvider, storageKeyForMcp } from './persistentProvider';
+
+const MCP_ID = 'agentic-runtime:dev:heuristic-curie';
+const KEY = storageKeyForMcp(MCP_ID);
+
+/**
+ * The project's jsdom config doesn't expose a working localStorage to specs
+ * (same blocker that breaks ViewModeContext.spec.tsx and rememberedProject.
+ * spec.ts). Install a minimal in-memory shim on window+globalThis before each
+ * test so this suite is self-contained.
+ */
+function installLocalStorageShim(): Storage {
+  const store = new Map<string, string>();
+  const shim: Storage = {
+    get length() {
+      return store.size;
+    },
+    clear: () => store.clear(),
+    getItem: (k) => (store.has(k) ? (store.get(k) as string) : null),
+    setItem: (k, v) => {
+      store.set(k, String(v));
+    },
+    removeItem: (k) => {
+      store.delete(k);
+    },
+    key: (i) => Array.from(store.keys())[i] ?? null,
+  };
+  Object.defineProperty(globalThis, 'localStorage', { value: shim, configurable: true });
+  if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'localStorage', { value: shim, configurable: true });
+  }
+  return shim;
+}
+
+beforeEach(() => {
+  installLocalStorageShim();
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
+
+describe('createPersistentProvider', () => {
+  it('returns an empty Map when nothing is persisted', () => {
+    const cache = createPersistentProvider(MCP_ID)();
+    expect(cache.get('any')).toBeUndefined();
+  });
+
+  it('hydrates entries from a valid bucket', () => {
+    const now = Date.now();
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [
+          ['a', { ts: now, value: { data: 1 } }],
+          ['b', { ts: now, value: { data: 'hello' } }],
+        ],
+      }),
+    );
+    const cache = createPersistentProvider(MCP_ID)();
+    expect(cache.get('a')).toEqual({ data: 1 });
+    expect(cache.get('b')).toEqual({ data: 'hello' });
+  });
+
+  it('drops entries older than the TTL on hydrate', () => {
+    const stale = Date.now() - 31 * 60 * 1000; // 31 minutes ago
+    const fresh = Date.now() - 60_000; // 1 minute ago
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [
+          ['stale', { ts: stale, value: { data: 'old' } }],
+          ['fresh', { ts: fresh, value: { data: 'new' } }],
+        ],
+      }),
+    );
+    const cache = createPersistentProvider(MCP_ID)();
+    expect(cache.get('stale')).toBeUndefined();
+    expect(cache.get('fresh')).toEqual({ data: 'new' });
+  });
+
+  it('rejects buckets with a different schemaVersion', () => {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        schemaVersion: 99,
+        entries: [['k', { ts: Date.now(), value: { data: 'x' } }]],
+      }),
+    );
+    const cache = createPersistentProvider(MCP_ID)();
+    expect(cache.get('k')).toBeUndefined();
+  });
+
+  it('rejects buckets with malformed JSON', () => {
+    localStorage.setItem(KEY, '{not json');
+    const cache = createPersistentProvider(MCP_ID)() as Map<string, unknown>;
+    expect(cache.size).toBe(0);
+  });
+
+  it('persists entries with data after the debounce', () => {
+    const cache = createPersistentProvider(MCP_ID)();
+    cache.set('k', { data: { hello: 'world' } });
+    expect(localStorage.getItem(KEY)).toBeNull(); // debounced — not flushed yet
+    vi.advanceTimersByTime(300);
+    const raw = localStorage.getItem(KEY);
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.schemaVersion).toBe(1);
+    expect(parsed.entries).toEqual([['k', { ts: expect.any(Number), value: { data: { hello: 'world' } } }]]);
+  });
+
+  it('does not persist entries with an error', () => {
+    const cache = createPersistentProvider(MCP_ID)();
+    cache.set('k', { error: new Error('boom') });
+    vi.advanceTimersByTime(300);
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it('does not persist entries with no data and no error', () => {
+    const cache = createPersistentProvider(MCP_ID)();
+    cache.set('k', { isLoading: true });
+    vi.advanceTimersByTime(300);
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it('swallows quota-exceeded errors', () => {
+    const cache = createPersistentProvider(MCP_ID)();
+    const setItem = vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      const e = new Error('QuotaExceededError');
+      (e as any).name = 'QuotaExceededError';
+      throw e;
+    });
+    cache.set('k', { data: 'x' });
+    expect(() => vi.advanceTimersByTime(300)).not.toThrow();
+    expect(setItem).toHaveBeenCalled();
+  });
+});
+
+describe('clearPersistedSwrCache', () => {
+  beforeEach(() => {
+    localStorage.setItem(storageKeyForMcp('a:b:c'), JSON.stringify({ schemaVersion: 1, entries: [] }));
+    localStorage.setItem(storageKeyForMcp('x:y:z'), JSON.stringify({ schemaVersion: 1, entries: [] }));
+    localStorage.setItem('mcp-ui:unrelated', 'keep me');
+  });
+
+  it('clears a single bucket when mcpId is given', () => {
+    clearPersistedSwrCache('a:b:c');
+    expect(localStorage.getItem(storageKeyForMcp('a:b:c'))).toBeNull();
+    expect(localStorage.getItem(storageKeyForMcp('x:y:z'))).not.toBeNull();
+    expect(localStorage.getItem('mcp-ui:unrelated')).toBe('keep me');
+  });
+
+  it('clears all swr buckets when mcpId is omitted', () => {
+    clearPersistedSwrCache();
+    expect(localStorage.getItem(storageKeyForMcp('a:b:c'))).toBeNull();
+    expect(localStorage.getItem(storageKeyForMcp('x:y:z'))).toBeNull();
+    expect(localStorage.getItem('mcp-ui:unrelated')).toBe('keep me');
+  });
+});
