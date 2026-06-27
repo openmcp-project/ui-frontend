@@ -77,12 +77,15 @@ export default function McpPageV2() {
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
-  // Hold graph mount until the cards' 0.3s height transition (index.css) has
-  // settled — otherwise the graph layout fights with concurrent card animations.
+  // Hold graph mount until the cards' height transition has settled — otherwise
+  // elkjs layout fights with concurrent card animations. The card transition is
+  // `transition: height 0.3s ease` in src/index.css (.component-card); 100ms
+  // buffer covers easing tail + paint.
+  const CARD_TRANSITION_BUFFER_MS = 400;
   const [graphReady, setGraphReady] = useState(false);
   useEffect(() => {
     if (!cardsReady) return;
-    const id = setTimeout(() => setGraphReady(true), 400);
+    const id = setTimeout(() => setGraphReady(true), CARD_TRANSITION_BUFFER_MS);
     return () => clearTimeout(id);
   }, [cardsReady]);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
@@ -220,7 +223,15 @@ export default function McpPageV2() {
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
-                  {graphReady ? <Graph /> : <div>{t('Graphs.loadingGraph')}</div>}
+                  {graphReady ? (
+                    <Graph />
+                  ) : (
+                    // Match Graph.module.css .graphContainer height so the page
+                    // doesn't reflow when <Graph /> mounts.
+                    <div style={{ height: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {t('Graphs.loadingGraph')}
+                    </div>
+                  )}
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
