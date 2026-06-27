@@ -115,7 +115,7 @@
     "emptyListSubtitleMessage": "Create a workspace to get started"
   },
   "ConnectButton": {
-    "buttonText": "Connect",
+    "buttonText": "View",
     "defaultIdP": "default IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
