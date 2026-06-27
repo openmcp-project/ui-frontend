@@ -22,6 +22,7 @@ import { Legend, LegendItem } from './Legend';
 import { useTranslation } from 'react-i18next';
 import { useGraph, type LayoutDirection } from './useGraph';
 import { ManagedResourceItem } from '../../lib/shared/types';
+import { useStableCallback } from '../../hooks/useStableCallback';
 import { useTheme } from '../../hooks/useTheme';
 import { useLocalStoragePref } from '../../hooks/useLocalStoragePref';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
@@ -96,22 +97,15 @@ const GraphInner: React.FC = () => {
     }
   }, []);
 
-  // Hold the latest open-in-aside callback in a ref so handleYamlClick stays
-  // reference-stable. Otherwise apiConfig churn cascades into Graph rebuild +
-  // elkjs re-layout on every parent re-render.
-  const yamlClickImpl = useRef<(item: ManagedResourceItem) => void>(() => {});
-  useEffect(() => {
-    yamlClickImpl.current = (item: ManagedResourceItem) => {
-      const yamlFilename = item
-        ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}`
-        : '';
-      openInAsideWithApiConfig(
-        <YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />,
-        apiConfig,
-      );
-    };
+  // Stable reference so apiConfig churn doesn't rebuild the Graph instance +
+  // re-run elkjs on every parent render.
+  const handleYamlClick = useStableCallback((item: ManagedResourceItem) => {
+    const yamlFilename = item ? `${item.kind ?? ''}${item.metadata?.name ? '_' : ''}${item.metadata?.name ?? ''}` : '';
+    openInAsideWithApiConfig(
+      <YamlSidePanel resource={item as unknown as Resource} filename={yamlFilename} />,
+      apiConfig,
+    );
   });
-  const handleYamlClick = useCallback((item: ManagedResourceItem) => yamlClickImpl.current(item), []);
 
   const { nodes, edges, colorMap, labelKey, availableLabelKeys, loading, error } = useGraph(
     colorBy,
