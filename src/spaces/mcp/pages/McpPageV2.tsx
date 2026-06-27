@@ -22,7 +22,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -72,10 +72,19 @@ export default function McpPageV2() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
-  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
-  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
-  const { esoData } = useEsoQuery(controlPlaneName, namespace);
+  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
+  const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
+  const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
+  // Hold graph mount until the cards' 0.3s height transition (index.css) has
+  // settled — otherwise the graph layout fights with concurrent card animations.
+  const [graphReady, setGraphReady] = useState(false);
+  useEffect(() => {
+    if (!cardsReady) return;
+    const id = setTimeout(() => setGraphReady(true), 400);
+    return () => clearTimeout(id);
+  }, [cardsReady]);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -211,7 +220,7 @@ export default function McpPageV2() {
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
-                  <Graph />
+                  {graphReady ? <Graph /> : <div>{t('Graphs.loadingGraph')}</div>}
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
