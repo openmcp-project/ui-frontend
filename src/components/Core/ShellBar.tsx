@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
 import {
-  Avatar,
   Button,
   ButtonDomRef,
   List,
@@ -24,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { generateInitialsForEmail, avatarColorsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
@@ -66,7 +65,11 @@ export function ShellBarComponent({
       <ShellBar
         className={styles.shellBar}
         hidden={window.location.href.includes('compact-mode')}
-        profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
+        profile={
+          <div className={styles.profileAvatar} style={avatarColorsForEmail(auth.user?.email)}>
+            {generateInitialsForEmail(auth.user?.email)}
+          </div>
+        }
         startButton={
           <div className={styles.container}>
             {navigateBack && (
