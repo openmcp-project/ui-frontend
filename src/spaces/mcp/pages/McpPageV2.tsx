@@ -77,16 +77,23 @@ export default function McpPageV2() {
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
-  // Hold graph mount until the cards' height transition has settled — otherwise
-  // elkjs layout fights with concurrent card animations. The card transition is
-  // `transition: height 0.3s ease` in src/index.css (.component-card); 100ms
-  // buffer covers easing tail + paint.
-  const CARD_TRANSITION_BUFFER_MS = 400;
+  // Hold graph mount until the first `.component-card` actually finishes its
+  // height transition (`transition: height 0.3s ease` in src/index.css) —
+  // otherwise elkjs layout fights with concurrent card animations. The 600ms
+  // safety-net timer covers reduced-motion users, browsers that don't fire
+  // transitionend, and the empty-MCP edge case where no card is rendered.
   const [graphReady, setGraphReady] = useState(false);
   useEffect(() => {
     if (!cardsReady) return;
-    const id = setTimeout(() => setGraphReady(true), CARD_TRANSITION_BUFFER_MS);
-    return () => clearTimeout(id);
+    const SAFETY_NET_MS = 600;
+    const finish = () => setGraphReady(true);
+    const card = document.querySelector('.component-card');
+    card?.addEventListener('transitionend', finish, { once: true });
+    const timer = setTimeout(finish, SAFETY_NET_MS);
+    return () => {
+      card?.removeEventListener('transitionend', finish);
+      clearTimeout(timer);
+    };
   }, [cardsReady]);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
