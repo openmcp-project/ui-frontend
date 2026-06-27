@@ -178,6 +178,35 @@ describe('createPersistentProvider', () => {
   });
 });
 
+describe('cross-MCP isolation', () => {
+  it('two providers for different MCPs return distinct Maps and distinct buckets', () => {
+    const a = createPersistentProvider('proj:ws:mcp-a')();
+    const b = createPersistentProvider('proj:ws:mcp-b')();
+    a.set('shared-key', { data: 'A' });
+    b.set('shared-key', { data: 'B' });
+    expect(a.get('shared-key')).toEqual({ data: 'A' });
+    expect(b.get('shared-key')).toEqual({ data: 'B' });
+    vi.advanceTimersByTime(300);
+    expect(localStorage.getItem(storageKeyForMcp('proj:ws:mcp-a'))).toContain('"A"');
+    expect(localStorage.getItem(storageKeyForMcp('proj:ws:mcp-b'))).toContain('"B"');
+  });
+
+  it("late callbacks on the old MCP's Map don't pollute the new MCP's bucket", () => {
+    // Simulate the MCP-switch sequence: hook in MCP A mounts, fires a fetch,
+    // user navigates to MCP B (new provider mounts), then A's fetch resolves
+    // and calls cache.set on A's Map (the closure SWR captured).
+    const oldMap = createPersistentProvider('proj:ws:old')();
+    const newMap = createPersistentProvider('proj:ws:new')();
+    // Late callback resolves into the old Map (this is correct behaviour —
+    // SWR keeps the cache reference it was created with).
+    oldMap.set('late-key', { data: 'from-old-mcp' });
+    vi.advanceTimersByTime(300);
+    expect(localStorage.getItem(storageKeyForMcp('proj:ws:old'))).toContain('from-old-mcp');
+    expect(localStorage.getItem(storageKeyForMcp('proj:ws:new'))).toBeNull();
+    expect(newMap.get('late-key')).toBeUndefined();
+  });
+});
+
 describe('clearPersistedSwrCache', () => {
   beforeEach(() => {
     localStorage.setItem(storageKeyForMcp('a:b:c'), JSON.stringify({ schemaVersion: 1, entries: [] }));
