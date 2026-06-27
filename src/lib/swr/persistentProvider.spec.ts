@@ -139,6 +139,43 @@ describe('createPersistentProvider', () => {
     expect(() => vi.advanceTimersByTime(300)).not.toThrow();
     expect(setItem).toHaveBeenCalled();
   });
+
+  it('evicts the LRU other-MCP bucket on quota error and retries', () => {
+    // Seed two older buckets with different most-recent timestamps.
+    const old1 = Date.now() - 10 * 60 * 1000;
+    const old2 = Date.now() - 2 * 60 * 1000;
+    localStorage.setItem(
+      storageKeyForMcp('p1:w:older'),
+      JSON.stringify({ schemaVersion: 1, entries: [['x', { ts: old1, value: { data: 1 } }]] }),
+    );
+    localStorage.setItem(
+      storageKeyForMcp('p1:w:newer'),
+      JSON.stringify({ schemaVersion: 1, entries: [['x', { ts: old2, value: { data: 2 } }]] }),
+    );
+    const cache = createPersistentProvider(MCP_ID)();
+    // First call to setItem (writing the active MCP's bucket) throws Quota;
+    // after we evict, subsequent calls succeed.
+    let callsToActiveKey = 0;
+    const realSetItem = localStorage.setItem.bind(localStorage);
+    vi.spyOn(localStorage, 'setItem').mockImplementation((k: string, v: string) => {
+      if (k === KEY) {
+        callsToActiveKey++;
+        if (callsToActiveKey === 1) {
+          const e = new Error('QuotaExceededError');
+          (e as any).name = 'QuotaExceededError';
+          throw e;
+        }
+      }
+      realSetItem(k, v);
+    });
+    cache.set('k', { data: 'x' });
+    vi.advanceTimersByTime(300);
+    // The older bucket should be gone; the newer should still be present.
+    expect(localStorage.getItem(storageKeyForMcp('p1:w:older'))).toBeNull();
+    expect(localStorage.getItem(storageKeyForMcp('p1:w:newer'))).not.toBeNull();
+    // Active bucket was written on the retry.
+    expect(localStorage.getItem(KEY)).not.toBeNull();
+  });
 });
 
 describe('clearPersistedSwrCache', () => {

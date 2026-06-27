@@ -14,6 +14,9 @@ import type { Cache } from 'swr';
  *    so a transient 403 / 500 doesn't sticky into the next page load.
  *  - Each persisted entry is timestamped; entries older than TTL_MS are
  *    dropped on hydrate.
+ *  - On QuotaExceededError when writing, drop the *other* MCP bucket whose
+ *    most-recent write is oldest (LRU across MCPs) and retry. Active MCP's
+ *    bucket is never evicted to write itself out.
  */
 
 const PREFIX = 'mcp-ui:swr:v1:';
@@ -73,10 +76,92 @@ function persist(storageKey: string, map: Map<string, any>): void {
       return;
     }
   }
+  if (writeWithQuotaRecovery(storageKey, serialized)) return;
+  // Final fallback: clear our other buckets entirely and try once more.
+  evictAllOtherBuckets(storageKey);
   try {
     window.localStorage.setItem(storageKey, serialized);
   } catch {
-    // QuotaExceededError or privacy mode — ignore
+    // give up
+  }
+}
+
+/**
+ * Try `setItem`; on QuotaExceededError, evict the least-recently-touched
+ * `mcp-ui:swr:v1:*` bucket (other than `excludeKey`) and retry, up to a few
+ * times. Returns true if the write eventually succeeded.
+ */
+function writeWithQuotaRecovery(storageKey: string, serialized: string): boolean {
+  const MAX_EVICTIONS = 4;
+  for (let i = 0; i <= MAX_EVICTIONS; i++) {
+    try {
+      window.localStorage.setItem(storageKey, serialized);
+      return true;
+    } catch (e) {
+      if (!isQuotaError(e)) return false; // some other failure — don't loop
+      if (!evictOldestOtherBucket(storageKey)) return false; // nothing left to drop
+    }
+  }
+  return false;
+}
+
+function isQuotaError(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false;
+  // Browsers differ — check both name and code.
+  const name = (e as { name?: string }).name;
+  const code = (e as { code?: number }).code;
+  return name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED' || code === 22 || code === 1014;
+}
+
+/**
+ * Find the `mcp-ui:swr:v1:*` bucket (other than `excludeKey`) whose
+ * most-recent entry is the oldest, and remove it. Returns true if a bucket
+ * was removed.
+ */
+function evictOldestOtherBucket(excludeKey: string): boolean {
+  let oldestKey: string | null = null;
+  let oldestTs = Infinity;
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (!k || !k.startsWith(PREFIX) || k === excludeKey) continue;
+    const raw = window.localStorage.getItem(k);
+    if (!raw) continue;
+    let maxTs = 0;
+    try {
+      const parsed = JSON.parse(raw) as Envelope;
+      if (parsed && Array.isArray(parsed.entries)) {
+        for (const [, entry] of parsed.entries) {
+          if (entry && typeof entry.ts === 'number' && entry.ts > maxTs) maxTs = entry.ts;
+        }
+      }
+    } catch {
+      // unparseable bucket — treat as oldest (epoch) so it's dropped first.
+      maxTs = 0;
+    }
+    if (maxTs < oldestTs) {
+      oldestTs = maxTs;
+      oldestKey = k;
+    }
+  }
+  if (!oldestKey) return false;
+  try {
+    window.localStorage.removeItem(oldestKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function evictAllOtherBuckets(excludeKey: string): void {
+  const toRemove: string[] = [];
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(PREFIX) && k !== excludeKey) toRemove.push(k);
+    }
+    for (const k of toRemove) window.localStorage.removeItem(k);
+  } catch {
+    // ignore
   }
 }
 
