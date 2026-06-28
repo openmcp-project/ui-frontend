@@ -22,7 +22,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -72,10 +72,29 @@ export default function McpPageV2() {
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
   const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
-  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
-  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
-  const { esoData } = useEsoQuery(controlPlaneName, namespace);
+  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
+  const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
+  const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
+  // Hold graph mount until the first `.component-card` actually finishes its
+  // height transition (`transition: height 0.3s ease` in src/index.css) —
+  // otherwise elkjs layout fights with concurrent card animations. The 600ms
+  // safety-net timer covers reduced-motion users, browsers that don't fire
+  // transitionend, and the empty-MCP edge case where no card is rendered.
+  const [graphReady, setGraphReady] = useState(false);
+  useEffect(() => {
+    if (!cardsReady) return;
+    const SAFETY_NET_MS = 600;
+    const finish = () => setGraphReady(true);
+    const card = document.querySelector('.component-card');
+    card?.addEventListener('transitionend', finish, { once: true });
+    const timer = setTimeout(finish, SAFETY_NET_MS);
+    return () => {
+      card?.removeEventListener('transitionend', finish);
+      clearTimeout(timer);
+    };
+  }, [cardsReady]);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -211,7 +230,15 @@ export default function McpPageV2() {
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
-                  <Graph />
+                  {graphReady ? (
+                    <Graph />
+                  ) : (
+                    // Match Graph.module.css .graphContainer height so the page
+                    // doesn't reflow when <Graph /> mounts.
+                    <div style={{ height: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {t('Graphs.loadingGraph')}
+                    </div>
+                  )}
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"
