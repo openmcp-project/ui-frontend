@@ -122,3 +122,14 @@ ui5-toast {
   margin: 1rem auto;
   max-width: 80%;
 }
+
+/* UI5 ObjectPageSubSection adds a focus outline via `:focus` (not
+   `:focus-visible`) that frames the whole subsection in cyan even when the
+   container gets clicked with the mouse. The active tab already conveys which
+   section is selected, so the mouse-focus outline is noise.
+
+   `:focus:not(:focus-visible)` strips the outline for pointer focus only —
+   keyboard users still get the focus cue. */
+[class*="objectPageSubSection"]:focus:not(:focus-visible) {
+  outline: none;
+}
