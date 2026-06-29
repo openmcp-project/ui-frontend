@@ -18,6 +18,7 @@ echo "→ building crossplane plugin..."
 (cd "${ROOT_DIR}/../crossplane-headlamp-plugin" && npm run build 2>&1 | tail -3)
 
 echo "→ syncing to pod ${POD}:/headlamp/plugins/headlamp_crossplane/ ..."
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/headlamp_crossplane
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../crossplane-headlamp-plugin/dist/main.js" "${NAMESPACE}/${POD}:/headlamp/plugins/headlamp_crossplane/main.js"
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../crossplane-headlamp-plugin/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/headlamp_crossplane/package.json"
 echo "✓ crossplane plugin deployed"
@@ -26,6 +27,7 @@ echo "→ building ocp plugin..."
 (cd "${ROOT_DIR}/../opencontrolplane-headlamp-plugin" && npm run build 2>&1 | tail -3)
 
 echo "→ syncing to pod ${POD}:/headlamp/plugins/opencontrolplane/ ..."
+kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/opencontrolplane
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin/dist/main.js" "${NAMESPACE}/${POD}:/headlamp/plugins/opencontrolplane/main.js"
 kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin/package.json" "${NAMESPACE}/${POD}:/headlamp/plugins/opencontrolplane/package.json"
 echo "✓ ocp plugin deployed"
