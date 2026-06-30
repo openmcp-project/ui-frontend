@@ -98,14 +98,27 @@ export default function ConnectButton({
         {t('ConnectButton.buttonText')}
       </Button>
       <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
-        {connectionTargets.map((target) => (
-          <MenuItem
-            key={target.name}
-            text={target.user}
-            data-target={target.url}
-            additionalText={target.isSystemIdP ? t('ConnectButton.defaultIdP') : undefined}
-          />
-        ))}
+        {connectionTargets
+          .filter((t) => t.isSystemIdP)
+          .map((target) => (
+            <MenuItem
+              key={target.name}
+              text={target.user}
+              data-target={target.url}
+              additionalText={t('ConnectButton.defaultIdP')}
+            />
+          ))}
+        {connectionTargets.some((t) => !t.isSystemIdP) && <MenuSeparator />}
+        {connectionTargets
+          .filter((t) => !t.isSystemIdP)
+          .map((target) => (
+            <MenuItem
+              key={target.name}
+              text={target.user}
+              data-target={target.url}
+              additionalText={t('ConnectButton.customIdP')}
+            />
+          ))}
         <MenuSeparator />
         <MenuItem text={t('ConnectButton.downloadKubeconfig')} data-action="download" />
       </Menu>
