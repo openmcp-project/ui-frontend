@@ -98,6 +98,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#name').typeIntoUi5Input('test-workspace');
     cy.get('#chargingTargetType').openDropDownByClick();
     cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').typeIntoUi5Input('12345678-1234-1234-1234-123456789abc').type('{enter}');
 
     goToMembers();
