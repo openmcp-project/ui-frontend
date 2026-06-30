@@ -5,12 +5,14 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useTranslation } from 'react-i18next';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export default function CopyKubeconfigButton() {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
   const { copyToClipboard } = useCopyToClipboard();
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
@@ -34,10 +36,12 @@ export default function CopyKubeconfigButton() {
         onItemClick={(event) => {
           if (event.detail.item.dataset.action === 'download') {
             DownloadKubeconfig(mcp.kubeconfig, mcp.name);
+            telemetry.track({ name: 'kubeconfig.downloaded' });
             return;
           }
           if (event.detail.item.dataset.action === 'copy') {
             void copyToClipboard(mcp.kubeconfig ?? '');
+            telemetry.track({ name: 'kubeconfig.copied' });
           }
 
           setOpen(false);
@@ -77,5 +81,4 @@ export function DownloadKubeconfig(config: any, displayName: string) {
   } catch (error) {
     console.error(error);
   }
-  // dynaLeaveAction(id);
 }

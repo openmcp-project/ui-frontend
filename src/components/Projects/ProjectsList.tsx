@@ -1,8 +1,15 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, BusyIndicator, Link } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+  BusyIndicator,
+  CheckBox,
+  Link,
+} from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
@@ -20,7 +27,6 @@ import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
 
 type ProjectListRow = {
   projectName: string;
-  nameSpace: string;
 };
 
 function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
@@ -64,11 +70,13 @@ function ProjectDisplayNameCell({
 interface Props {
   useProjectsQuery?: typeof _useProjectsQuery;
   useProjectMembers?: typeof _useProjectMembers;
+  onProjectSelect?: (projectName: string) => void;
 }
 
 export default function ProjectsList({
   useProjectsQuery = _useProjectsQuery,
   useProjectMembers = _useProjectMembers,
+  onProjectSelect,
 }: Props = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
@@ -76,6 +84,13 @@ export default function ProjectsList({
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
   const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
+
+  const { setRememberedProject } = useRememberedProject();
+  const [setAsDefault, setSetAsDefault] = useState(false);
+  const setAsDefaultRef = useRef(false);
+  useEffect(() => {
+    setAsDefaultRef.current = setAsDefault;
+  }, [setAsDefault]);
 
   const handleTimestamp = (name: string, ts: string) => {
     timestampsRef.current.set(name, ts);
@@ -93,7 +108,6 @@ export default function ProjectsList({
       data
         ?.map((projectName) => ({
           projectName,
-          nameSpace: projectnameToNamespace(projectName),
         }))
         // eslint-disable-next-line react-hooks/refs
         .filter(({ projectName }) => {
@@ -119,7 +133,13 @@ export default function ProjectsList({
               <Link
                 className={styles.nameLink}
                 design="Emphasized"
-                onClick={() => navigate(`/mcp/projects/${projectName}`)}
+                onClick={() => {
+                  if (setAsDefaultRef.current) {
+                    setRememberedProject(projectName);
+                  }
+                  onProjectSelect?.(projectName);
+                  navigate(`/projects/${projectName}`);
+                }}
               >
                 {projectName}
               </Link>
@@ -140,31 +160,17 @@ export default function ProjectsList({
         ),
       },
       {
-        Header: t('ProjectsListView.namespaceHeader'),
-        accessor: 'nameSpace',
-        Cell: (instance) => (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'start',
-              gap: '0.5rem',
-              alignItems: 'center',
-              width: '100%',
-              cursor: 'pointer',
-            }}
-          >
-            <CopyButton text={instance.cell.value != null ? String(instance.cell.value) : ''} />
-          </div>
-        ),
-      },
-      {
         Header: t('ProjectsListView.createdHeader'),
-        accessor: 'created',
+        accessor: 'creationTimestamp',
         width: 120,
         disableFilters: true,
-        disableSortBy: true,
         responsivePopIn: true,
         responsiveMinWidth: 1200,
+        sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
+          const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
+          const b = timestampsRef.current.get(rowB.original.projectName) ?? '';
+          return a.localeCompare(b);
+        },
         Cell: (instance) => (
           <CreatedAtCell
             projectName={getProjectName(instance)}
@@ -208,7 +214,7 @@ export default function ProjectsList({
         ),
       },
     ],
-    [navigate, useProjectMembers],
+    [navigate, useProjectMembers, onProjectSelect, setRememberedProject],
   );
 
   if (isLoading) {
@@ -235,6 +241,20 @@ export default function ProjectsList({
         data={rows}
         minRows={10}
       />
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <CheckBox
+          checked={setAsDefault}
+          text={t('ProjectsListView.setDefaultProject')}
+          onChange={() => setSetAsDefault((v) => !v)}
+        />
+      </div>
     </FadeIn>
   );
 }

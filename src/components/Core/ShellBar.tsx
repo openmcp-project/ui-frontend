@@ -25,6 +25,7 @@ import SapLogo from '../../assets/images/sap-logo.svg';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
@@ -245,6 +246,8 @@ const ProfilePopover = ({
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
   const [rating, setRating] = useState(0);
+  const { rememberedProject, clearRememberedProject } = useRememberedProject();
+  const hasRememberedProject = rememberedProject !== null;
   const toast = useToast();
 
   const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
@@ -307,6 +310,17 @@ const ProfilePopover = ({
           <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
             {t('ShellBar.feedbackButtonInfo')}
           </ListItemStandard>
+          {hasRememberedProject && (
+            <ListItemStandard
+              icon="bookmark"
+              onClick={() => {
+                clearRememberedProject();
+                setOpen(false);
+              }}
+            >
+              {t('ShellBar.clearRememberedProject')}
+            </ListItemStandard>
+          )}
           <ListItemStandard
             icon="log"
             onClick={() => {
