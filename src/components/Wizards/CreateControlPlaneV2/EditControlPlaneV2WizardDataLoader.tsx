@@ -2,12 +2,9 @@ import { BusyIndicator, Button } from '@ui5/webcomponents-react';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ManagedControlPlaneV2 } from '../../../spaces/onboarding/types/ControlPlane.ts';
-import { useMcpV2Query } from '../../../spaces/onboarding/hooks/useMcpV2Query.ts';
-import {
-  CreateManagedControlPlaneV2WizardContainer,
-  WizardStepType,
-} from './CreateManagedControlPlaneV2WizardContainer.tsx';
-import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
+import { useControlPlaneV2Query } from '../../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { CreateControlPlaneV2WizardContainer, WizardStepType } from './CreateControlPlaneV2WizardContainer.tsx';
+import styles from '../CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.module.css';
 
 export type EditManagedControlPlaneV2WizardDataLoaderProps = {
   namespace?: string;
@@ -29,7 +26,7 @@ function parseNamespaceString(namespace: string): { projectName: string; workspa
   };
 }
 
-export const EditManagedControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2WizardDataLoaderProps> = ({
+export const EditControlPlaneV2WizardDataLoader: FC<EditManagedControlPlaneV2WizardDataLoaderProps> = ({
   namespace,
   resourceName,
   isOpen,
@@ -37,7 +34,10 @@ export const EditManagedControlPlaneV2WizardDataLoader: FC<EditManagedControlPla
   initialSection,
 }) => {
   const { t } = useTranslation();
-  const { isPending, data, error } = useMcpV2Query(isOpen ? resourceName : undefined, isOpen ? namespace : undefined);
+  const { isPending, data, error } = useControlPlaneV2Query(
+    isOpen ? resourceName : undefined,
+    isOpen ? namespace : undefined,
+  );
 
   if (!isOpen) {
     return null;
@@ -63,7 +63,7 @@ export const EditManagedControlPlaneV2WizardDataLoader: FC<EditManagedControlPla
   const { projectName, workspaceName } = parseNamespaceString(namespace ?? '');
 
   return (
-    <CreateManagedControlPlaneV2WizardContainer
+    <CreateControlPlaneV2WizardContainer
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       projectName={projectName}
