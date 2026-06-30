@@ -81,7 +81,12 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button design="Emphasized" endIcon="navigation-right-arrow" disabled={disabled} onClick={() => connectTo(directTarget)}>
+      <Button
+        design="Emphasized"
+        endIcon="navigation-right-arrow"
+        disabled={disabled}
+        onClick={() => connectTo(directTarget)}
+      >
         {t('ConnectButton.buttonText')}
       </Button>
     );
