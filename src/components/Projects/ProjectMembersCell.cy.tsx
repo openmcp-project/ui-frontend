@@ -10,6 +10,8 @@ const fakeUseProjectMembersLoading: typeof useProjectMembers = () => ({
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
   supportOpsContacts: undefined,
   isLoading: true,
 });
@@ -23,6 +25,8 @@ const fakeUseProjectMembersLoaded: typeof useProjectMembers = () => ({
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
   supportOpsContacts: undefined,
   isLoading: false,
 });
@@ -33,6 +37,8 @@ const fakeUseProjectMembersEmpty: typeof useProjectMembers = () => ({
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
   supportOpsContacts: undefined,
   isLoading: false,
 });

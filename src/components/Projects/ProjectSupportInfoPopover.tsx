@@ -1,11 +1,17 @@
 import '@ui5/webcomponents-icons/dist/edit';
-import { Bar, Button, ResponsivePopover, Text } from '@ui5/webcomponents-react';
+import { Bar, Button, ResponsivePopover } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
-import { useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
 
-interface ProjectSupportInfoPopoverProps {
-  projectName: string;
+export interface ProjectSupportInfo {
+  supportLandscape?: string;
+  supportManagedRegions?: string;
+  supportServiceIds?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
+}
+
+interface ProjectSupportInfoPopoverProps extends ProjectSupportInfo {
   opener: string;
   open: boolean;
   onClose: () => void;
@@ -13,17 +19,20 @@ interface ProjectSupportInfoPopoverProps {
 }
 
 export function ProjectSupportInfoPopover({
-  projectName,
   opener,
   open,
   onClose,
   onEditClick,
+  supportLandscape,
+  supportManagedRegions,
+  supportServiceIds,
+  supportSecurityContacts,
+  supportOpsContacts,
 }: ProjectSupportInfoPopoverProps) {
   const { t } = useTranslation();
-  const { projectData, isLoading } = useGetProject(open ? projectName : undefined);
 
-  const landscapeLabel = projectData?.supportLandscape
-    ? t(`SupportInfo.landscape.${projectData.supportLandscape}`, { defaultValue: projectData.supportLandscape })
+  const purposeLabel = supportLandscape
+    ? t(`SupportInfo.landscape.${supportLandscape}`, { defaultValue: supportLandscape })
     : t('common.none');
 
   return (
@@ -52,22 +61,16 @@ export function ProjectSupportInfoPopover({
       style={{ minWidth: '22rem' }}
       onClose={onClose}
     >
-      {isLoading ? (
-        <div style={{ padding: '1rem' }}>
-          <Text>{t('common.cannotLoadData')}</Text>
-        </div>
-      ) : (
-        <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--sapContent_LabelColor)' }}>
-            {t('SupportInfo.popoverIntro')}
-          </p>
-          <InfoRow label={t('SupportInfo.purposeLabel')} value={landscapeLabel} />
-          <InfoRow label={t('SupportInfo.managedRegions')} value={projectData?.supportManagedRegions} />
-          <InfoRow label={t('SupportInfo.serviceIds')} value={projectData?.supportServiceIds} />
-          <InfoRow label={t('SupportInfo.securityContacts')} value={projectData?.supportSecurityContacts} />
-          <InfoRow label={t('SupportInfo.opsContacts')} value={projectData?.supportOpsContacts} />
-        </div>
-      )}
+      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--sapContent_LabelColor)' }}>
+          {t('SupportInfo.popoverIntro')}
+        </p>
+        <InfoRow label={t('SupportInfo.purposeLabel')} value={purposeLabel} />
+        <InfoRow label={t('SupportInfo.managedRegions')} value={supportManagedRegions} />
+        <InfoRow label={t('SupportInfo.serviceIds')} value={supportServiceIds} />
+        <InfoRow label={t('SupportInfo.securityContacts')} value={supportSecurityContacts} />
+        <InfoRow label={t('SupportInfo.opsContacts')} value={supportOpsContacts} />
+      </div>
     </ResponsivePopover>
   );
 }

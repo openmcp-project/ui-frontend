@@ -40,11 +40,11 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <Label>{t('SupportInfo.managedRegions')}</Label>
-          <Input {...register('supportManagedRegions')} placeholder="eu10,us10,ap11" style={{ width: '100%' }} />
+          <Input {...register('supportManagedRegions')} placeholder="eu, us, cn..." style={{ width: '100%' }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <Label>{t('SupportInfo.serviceIds')}</Label>
-          <Input {...register('supportServiceIds')} placeholder="ID-12345,ID-67890" style={{ width: '100%' }} />
+          <Input {...register('supportServiceIds')} placeholder="ID-12345,ID-67890..." style={{ width: '100%' }} />
         </div>
         <div style={{ marginTop: '0.5rem', fontWeight: 600, color: 'var(--sapContent_LabelColor)' }}>
           {t('SupportInfo.contacts')}

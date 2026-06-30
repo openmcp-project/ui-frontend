@@ -2,8 +2,10 @@ import { useQuery } from '@apollo/client/react';
 import {
   DISPLAY_NAME_ANNOTATION,
   SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_MANAGED_REGIONS_ANNOTATION,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
+  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
 import { graphql } from '../../../types/__generated__/graphql';
@@ -42,6 +44,8 @@ export function useProjectMembers(projectName: string) {
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const displayName: string | undefined = annotations[DISPLAY_NAME_ANNOTATION] || undefined;
   const supportLandscape: string | undefined = annotations[SUPPORT_LANDSCAPE_ANNOTATION] || undefined;
+  const supportManagedRegions: string | undefined = annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] || undefined;
+  const supportServiceIds: string | undefined = annotations[SUPPORT_SERVICE_IDS_ANNOTATION] || undefined;
   const supportSecurityContacts: string | undefined = annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] || undefined;
   const supportOpsContacts: string | undefined = annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] || undefined;
 
@@ -62,6 +66,8 @@ export function useProjectMembers(projectName: string) {
     displayName,
     creationTimestamp,
     supportLandscape,
+    supportManagedRegions,
+    supportServiceIds,
     supportSecurityContacts,
     supportOpsContacts,
     isLoading: loading,

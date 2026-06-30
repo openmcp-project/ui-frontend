@@ -653,7 +653,7 @@
       "validation": "Validation",
       "testing": "Testing"
     },
-    "managedRegions": "Managed Regions",
+    "managedRegions": "Managed Regions (de, us, cn...)",
     "serviceIds": "Service IDs",
     "contacts": "Contacts",
     "securityContacts": "Security Contacts",

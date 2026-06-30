@@ -61,7 +61,14 @@ function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
 }
 
 function MetadataCell({ projectName }: { projectName: string }) {
-  const { supportLandscape, supportSecurityContacts, supportOpsContacts, isLoading } = useProjectMembers(projectName);
+  const {
+    supportLandscape,
+    supportManagedRegions,
+    supportServiceIds,
+    supportSecurityContacts,
+    supportOpsContacts,
+    isLoading,
+  } = useProjectMembers(projectName);
   const openerId = `metadata-${projectName}`;
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -108,15 +115,17 @@ function MetadataCell({ projectName }: { projectName: string }) {
           />
         )}
       </div>
-      {popoverOpen && (
-        <ProjectSupportInfoPopover
-          projectName={projectName}
-          opener={openerId}
-          open={popoverOpen}
-          onClose={() => setPopoverOpen(false)}
-          onEditClick={() => setEditOpen(true)}
-        />
-      )}
+      <ProjectSupportInfoPopover
+        opener={openerId}
+        open={popoverOpen}
+        onClose={() => setPopoverOpen(false)}
+        onEditClick={() => setEditOpen(true)}
+        supportLandscape={supportLandscape}
+        supportManagedRegions={supportManagedRegions}
+        supportServiceIds={supportServiceIds}
+        supportSecurityContacts={supportSecurityContacts}
+        supportOpsContacts={supportOpsContacts}
+      />
       {editOpen && (
         <EditProjectDialogContainer
           isOpen={editOpen}
