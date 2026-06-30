@@ -1,17 +1,14 @@
 import '@ui5/webcomponents-icons/dist/edit';
-import { Bar, Button, ResponsivePopover } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/headset';
+import '@ui5/webcomponents-icons/dist/world';
+import { Bar, Button, ResponsivePopover, Tag } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
+import { purposeColorScheme, purposeLabel, SupportInfo } from '../../lib/supportInfo.ts';
+import { SupportInfoField, SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
+import styles from './ProjectSupportInfoPopover.module.css';
 
-export interface ProjectSupportInfo {
-  supportLandscape?: string;
-  supportManagedRegions?: string;
-  supportServiceIds?: string;
-  supportSecurityContacts?: string;
-  supportOpsContacts?: string;
-}
-
-interface ProjectSupportInfoPopoverProps extends ProjectSupportInfo {
+interface ProjectSupportInfoPopoverProps extends SupportInfo {
   opener: string;
   open: boolean;
   onClose: () => void;
@@ -31,16 +28,13 @@ export function ProjectSupportInfoPopover({
 }: ProjectSupportInfoPopoverProps) {
   const { t } = useTranslation();
 
-  const purposeLabel = supportLandscape
-    ? t(`SupportInfo.landscape.${supportLandscape}`, { defaultValue: supportLandscape })
-    : t('common.none');
-
   return (
     <ResponsivePopover
       opener={opener}
       open={open}
       placement={PopoverPlacement.Bottom}
       headerText={t('SupportInfo.popoverTitle')}
+      className={styles.popover}
       footer={
         <Bar
           design="Footer"
@@ -58,31 +52,25 @@ export function ProjectSupportInfoPopover({
           }
         />
       }
-      style={{ minWidth: '22rem' }}
       onClose={onClose}
     >
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--sapContent_LabelColor)' }}>
-          {t('SupportInfo.popoverIntro')}
-        </p>
-        <InfoRow label={t('SupportInfo.purposeLabel')} value={purposeLabel} />
-        <InfoRow label={t('SupportInfo.managedRegions')} value={supportManagedRegions} />
-        <InfoRow label={t('SupportInfo.serviceIds')} value={supportServiceIds} />
-        <InfoRow label={t('SupportInfo.securityContacts')} value={supportSecurityContacts} />
-        <InfoRow label={t('SupportInfo.opsContacts')} value={supportOpsContacts} />
+      <div className={styles.body}>
+        <p className={styles.intro}>{t('SupportInfo.popoverIntro')}</p>
+        <div className={styles.purposeRow}>
+          <span className={styles.purposeLabel}>{t('SupportInfo.purposeLabel')}:</span>
+          <Tag design="Set2" colorScheme={purposeColorScheme(supportLandscape)}>
+            {purposeLabel(t, supportLandscape)}
+          </Tag>
+        </div>
+
+        <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
+        <SupportInfoField label={t('SupportInfo.managedRegions')} value={supportManagedRegions} indent />
+        <SupportInfoField label={t('SupportInfo.serviceIds')} value={supportServiceIds} indent />
+
+        <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
+        <SupportInfoField label={t('SupportInfo.securityContacts')} value={supportSecurityContacts} indent />
+        <SupportInfoField label={t('SupportInfo.opsContacts')} value={supportOpsContacts} indent />
       </div>
     </ResponsivePopover>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value?: string }) {
-  const { t } = useTranslation();
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-      <span style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: '0.875rem', color: value ? 'inherit' : 'var(--sapContent_NonInteractiveIconColor)' }}>
-        {value || t('common.none')}
-      </span>
-    </div>
   );
 }

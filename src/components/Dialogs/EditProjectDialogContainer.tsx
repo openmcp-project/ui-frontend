@@ -114,7 +114,7 @@ export function EditProjectDialogContainer({
 
   return (
     <>
-      <Dialog open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
+      <Dialog stretch open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
         <div
           style={{
             display: 'flex',

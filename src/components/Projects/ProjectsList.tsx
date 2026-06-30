@@ -3,18 +3,17 @@ import {
   AnalyticalTableColumnDefinition,
   BusyIndicator,
   CheckBox,
-  Icon,
   Link,
-  ObjectStatus,
+  Tag,
 } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
-import '@ui5/webcomponents-icons/dist/headset';
 import { t } from 'i18next';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { EditProjectDialogContainer } from '../Dialogs/EditProjectDialogContainer.tsx';
@@ -75,57 +74,31 @@ function MetadataCell({ projectName }: { projectName: string }) {
 
   if (isLoading) return <BusyIndicator active size="S" />;
 
-  const state =
-    supportLandscape === 'production'
-      ? 'Negative'
-      : supportLandscape === 'validation'
-        ? 'Critical'
-        : supportLandscape === 'testing'
-          ? 'None'
-          : 'Information';
-
-  const label = supportLandscape
-    ? t(`SupportInfo.landscape.${supportLandscape}`, { defaultValue: supportLandscape })
-    : t('SupportInfo.pleaseSet');
-
-  // Readiness icon only for production — encourages providing contacts.
-  const isProduction = supportLandscape === 'production';
-  const ready = !!(supportSecurityContacts && supportOpsContacts);
-  const readinessTooltip = ready ? t('SupportInfo.readinessComplete') : t('SupportInfo.readinessMissing');
-  const readinessColor = ready ? 'var(--sapPositiveColor)' : 'var(--sapCriticalColor)';
-
   return (
     <FadeIn>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        <ObjectStatus
-          id={openerId}
-          interactive
-          showDefaultIcon
-          state={state}
-          style={{ cursor: 'pointer' }}
-          onClick={() => setPopoverOpen(true)}
-        >
-          {label}
-        </ObjectStatus>
-        {isProduction && (
-          <Icon
-            name="headset"
-            title={readinessTooltip}
-            style={{ color: readinessColor, fontSize: '1rem' }}
-          />
-        )}
-      </div>
-      <ProjectSupportInfoPopover
-        opener={openerId}
-        open={popoverOpen}
-        onClose={() => setPopoverOpen(false)}
-        onEditClick={() => setEditOpen(true)}
-        supportLandscape={supportLandscape}
-        supportManagedRegions={supportManagedRegions}
-        supportServiceIds={supportServiceIds}
-        supportSecurityContacts={supportSecurityContacts}
-        supportOpsContacts={supportOpsContacts}
-      />
+      <Tag
+        id={openerId}
+        interactive
+        design="Set2"
+        colorScheme={purposeColorScheme(supportLandscape)}
+        className={styles.metadataTag}
+        onClick={() => setPopoverOpen(true)}
+      >
+        {purposeLabel(t, supportLandscape)}
+      </Tag>
+      {popoverOpen && (
+        <ProjectSupportInfoPopover
+          opener={openerId}
+          open={popoverOpen}
+          supportLandscape={supportLandscape}
+          supportManagedRegions={supportManagedRegions}
+          supportServiceIds={supportServiceIds}
+          supportSecurityContacts={supportSecurityContacts}
+          supportOpsContacts={supportOpsContacts}
+          onClose={() => setPopoverOpen(false)}
+          onEditClick={() => setEditOpen(true)}
+        />
+      )}
       {editOpen && (
         <EditProjectDialogContainer
           isOpen={editOpen}
@@ -228,7 +201,7 @@ export default function ProjectsList({
       {
         Header: t('ProjectsListView.metadataHeader'),
         accessor: 'metadata',
-        width: 140,
+        width: 120,
         disableFilters: true,
         disableSortBy: true,
         Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} />,

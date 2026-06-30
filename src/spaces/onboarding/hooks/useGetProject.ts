@@ -3,13 +3,9 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
-  SUPPORT_LANDSCAPE_ANNOTATION,
-  SUPPORT_MANAGED_REGIONS_ANNOTATION,
-  SUPPORT_OPS_CONTACTS_ANNOTATION,
-  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
-  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
+import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
 
 const GetProjectQuery = graphql(`
@@ -59,6 +55,7 @@ export function useGetProject(projectName: string | undefined) {
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const labels = (project?.metadata?.labels as Record<string, string> | null | undefined) ?? {};
+  const support = extractSupportInfo(annotations);
 
   const projectData: ProjectData | undefined = project
     ? {
@@ -77,11 +74,11 @@ export function useGetProject(projectName: string | undefined) {
             },
           ];
         }),
-        supportServiceIds: annotations[SUPPORT_SERVICE_IDS_ANNOTATION] ?? '',
-        supportManagedRegions: annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] ?? '',
-        supportLandscape: annotations[SUPPORT_LANDSCAPE_ANNOTATION] ?? '',
-        supportSecurityContacts: annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] ?? '',
-        supportOpsContacts: annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] ?? '',
+        supportServiceIds: support.supportServiceIds ?? '',
+        supportManagedRegions: support.supportManagedRegions ?? '',
+        supportLandscape: support.supportLandscape ?? '',
+        supportSecurityContacts: support.supportSecurityContacts ?? '',
+        supportOpsContacts: support.supportOpsContacts ?? '',
       }
     : undefined;
 
