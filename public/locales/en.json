@@ -286,7 +286,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Metadata"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
@@ -637,5 +638,26 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Information",
+    "popoverIntro": "This metadata has no runtime impact. It helps organize projects and lets support engineers triage issues faster.",
+    "wizardStepTitle": "Support Info",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. Values have no runtime impact — they describe ownership, region, and contacts.",
+    "unknown": "Unknown",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "testing": "Testing"
+    },
+    "managedRegions": "Managed Regions",
+    "serviceIds": "Service IDs",
+    "contacts": "Contacts",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit",
+    "contactsComplete": "Security and ops contacts provided",
+    "contactsMissing": "Production landscape — security or ops contacts missing"
   }
 }

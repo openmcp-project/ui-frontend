@@ -7,6 +7,11 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
+  SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_MANAGED_REGIONS_ANNOTATION,
+  SUPPORT_OPS_CONTACTS_ANNOTATION,
+  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
+  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
@@ -17,6 +22,24 @@ export interface CreateProjectParams {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  supportServiceIds?: string;
+  supportManagedRegions?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
+}
+
+export function buildProjectAnnotations(params: CreateProjectParams): Record<string, string> {
+  const annotations: Record<string, string> = {
+    [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
+  };
+  if (params.supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = params.supportServiceIds;
+  if (params.supportManagedRegions) annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] = params.supportManagedRegions;
+  if (params.supportLandscape) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = params.supportLandscape;
+  if (params.supportSecurityContacts)
+    annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = params.supportSecurityContacts;
+  if (params.supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = params.supportOpsContacts;
+  return annotations;
 }
 
 function buildProjectInput(params: CreateProjectParams): ProjectInput {
@@ -25,9 +48,7 @@ function buildProjectInput(params: CreateProjectParams): ProjectInput {
     kind: 'Project',
     metadata: {
       name: params.name,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',

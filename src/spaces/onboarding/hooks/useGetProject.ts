@@ -3,6 +3,11 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
+  SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_MANAGED_REGIONS_ANNOTATION,
+  SUPPORT_OPS_CONTACTS_ANNOTATION,
+  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
+  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
 import { graphql } from '../../../types/__generated__/graphql';
@@ -37,6 +42,11 @@ export interface ProjectData {
   chargingTarget: string;
   chargingTargetType: string;
   members: Member[];
+  supportServiceIds: string;
+  supportManagedRegions: string;
+  supportLandscape: string;
+  supportSecurityContacts: string;
+  supportOpsContacts: string;
 }
 
 export function useGetProject(projectName: string | undefined) {
@@ -67,6 +77,11 @@ export function useGetProject(projectName: string | undefined) {
             },
           ];
         }),
+        supportServiceIds: annotations[SUPPORT_SERVICE_IDS_ANNOTATION] ?? '',
+        supportManagedRegions: annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] ?? '',
+        supportLandscape: annotations[SUPPORT_LANDSCAPE_ANNOTATION] ?? '',
+        supportSecurityContacts: annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] ?? '',
+        supportOpsContacts: annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] ?? '',
       }
     : undefined;
 

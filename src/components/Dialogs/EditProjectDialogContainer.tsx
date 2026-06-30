@@ -62,6 +62,11 @@ export function EditProjectDialogContainer({
       chargingTarget: projectData.chargingTarget,
       chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
       members: projectData.members,
+      supportServiceIds: projectData.supportServiceIds,
+      supportManagedRegions: projectData.supportManagedRegions,
+      supportLandscape: projectData.supportLandscape,
+      supportSecurityContacts: projectData.supportSecurityContacts,
+      supportOpsContacts: projectData.supportOpsContacts,
     });
   }, [isOpen, projectData, reset]);
 
@@ -77,6 +82,11 @@ export function EditProjectDialogContainer({
     displayName,
     chargingTargetType,
     members,
+    supportServiceIds,
+    supportManagedRegions,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await updateProject({
@@ -85,6 +95,11 @@ export function EditProjectDialogContainer({
         chargingTarget,
         chargingTargetType,
         members,
+        supportServiceIds,
+        supportManagedRegions,
+        supportLandscape,
+        supportSecurityContacts,
+        supportOpsContacts,
       });
       setIsOpen(false);
       return true;
