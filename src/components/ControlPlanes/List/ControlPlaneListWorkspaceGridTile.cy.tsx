@@ -7,8 +7,10 @@ import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useWorkspaceMembers } from '../../../spaces/onboarding/hooks/useWorkspaceMembers.ts';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import { MemberRoles } from '../../../lib/api/types/shared/members.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
@@ -126,5 +128,108 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
+  });
+
+  const workspace: Workspace = {
+    metadata: { name: 'workspaceName', namespace: 'project-test--ws-workspaceName', annotations: {} },
+    spec: { members: [] },
+    status: { namespace: 'project-test--ws-workspaceName' },
+  };
+
+  const fakeUseMcpsQueryEmpty: typeof useMcpsQuery = () => ({ data: [], error: undefined, isPending: false });
+
+  const fakeUseMembersLoading: typeof useWorkspaceMembers = () => ({ members: [], isLoading: true });
+
+  const fakeUseMembersLoaded: typeof useWorkspaceMembers = () => ({
+    members: [
+      { name: 'alice@example.com', kind: 'User', roles: [MemberRoles.admin] },
+      { name: 'bob@example.com', kind: 'User', roles: [MemberRoles.view] },
+    ],
+    isLoading: false,
+  });
+
+  const mountTile = (
+    isExpanded: boolean,
+    useWorkspaceMembersHook: typeof useWorkspaceMembers,
+    membersQueryEnabled = true,
+  ) =>
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider
+            value={{
+              documentationBaseUrl: '',
+              githubBaseUrl: '',
+              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
+            }}
+          >
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={workspace}
+                  projectName="test-project"
+                  isExpanded={isExpanded}
+                  membersQueryEnabled={membersQueryEnabled}
+                  useMcpsQuery={fakeUseMcpsQueryEmpty}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                  useWorkspaceMembers={useWorkspaceMembersHook}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+  it('does not show members avatar when query is not yet enabled', () => {
+    mountTile(false, fakeUseMembersLoaded, false);
+
+    cy.get('ui5-avatar-group').should('not.exist');
+    cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
+  });
+
+  it('shows avatar group in collapsed panel header when query is enabled and loaded', () => {
+    mountTile(false, fakeUseMembersLoaded, true);
+
+    cy.get('ui5-avatar-group').should('exist');
+    cy.get('ui5-avatar').should('have.length', 2);
+  });
+
+  it('shows busy indicator while members are loading when expanded', () => {
+    mountTile(true, fakeUseMembersLoading);
+
+    cy.get('[data-testid="members-loading-indicator"]').should('exist');
+    cy.get('ui5-avatar-group').should('not.exist');
+  });
+
+  it('shows avatar group with members when expanded and loaded', () => {
+    mountTile(true, fakeUseMembersLoaded);
+
+    cy.get('ui5-avatar-group').should('exist');
+    cy.get('ui5-avatar').should('have.length', 2);
+    cy.get('[data-testid="members-loading-indicator"]').should('not.exist');
+  });
+
+  it('opens member popover on avatar group click and shows member names', () => {
+    mountTile(true, fakeUseMembersLoaded);
+
+    cy.get('ui5-avatar-group').click();
+
+    cy.get('ui5-popover[open]').should('exist');
+    cy.get('ui5-popover[open]').contains('alice@example.com').should('exist');
+    cy.get('ui5-popover[open]').contains('bob@example.com').should('exist');
+  });
+
+  it('closes member popover when popover fires close event', () => {
+    mountTile(true, fakeUseMembersLoaded);
+
+    cy.get('ui5-avatar-group').click();
+    cy.get('ui5-popover[open]').should('exist');
+
+    cy.get('ui5-popover[open]').then(($el) => {
+      $el[0].dispatchEvent(new CustomEvent('close', { bubbles: true }));
+    });
+
+    cy.get('ui5-popover[open]').should('not.exist');
   });
 });

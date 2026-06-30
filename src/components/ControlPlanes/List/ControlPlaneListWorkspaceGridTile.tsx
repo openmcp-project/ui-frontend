@@ -2,8 +2,8 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import { useMemo, useEffect, useState } from 'react';
+import { BusyIndicator, Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
@@ -11,6 +11,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useWorkspaceMembers as _useWorkspaceMembers } from '../../../spaces/onboarding/hooks/useWorkspaceMembers.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
@@ -24,26 +25,33 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { FadeIn } from '../../Ui/FadeIn/FadeIn.tsx';
 import styles from './WorkspacesList.module.css';
 
 interface Props {
   projectName: string;
   workspace: Workspace;
   isExpanded?: boolean;
+  membersQueryEnabled?: boolean;
   onToggleExpanded?: () => void;
   onForbidden?: () => void;
+  onMembersLoaded?: () => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useWorkspaceMembers?: typeof _useWorkspaceMembers;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
   isExpanded,
+  membersQueryEnabled = false,
   onToggleExpanded,
   onForbidden,
+  onMembersLoaded,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useWorkspaceMembers = _useWorkspaceMembers,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
@@ -94,23 +102,15 @@ export function ControlPlaneListWorkspaceGridTile({
     return null;
   }
 
-  const uniqueMembers = useMemo(() => {
-    const seenKeys = new Set<string>();
-    const fallbackNamespace = workspace.status?.namespace ?? '';
+  const { members: workspaceMembers, isLoading: membersLoading } = useWorkspaceMembers(
+    workspace.metadata.namespace,
+    workspaceName,
+    !membersQueryEnabled,
+  );
 
-    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string }) => {
-      const memberNamespace = member?.namespace ?? fallbackNamespace;
-      const memberName = String(member?.name ?? '')
-        .trim()
-        .toLowerCase();
-      if (!memberName) return false;
-
-      const dedupeKey = `${memberNamespace}::${memberName}`;
-      if (seenKeys.has(dedupeKey)) return false;
-      seenKeys.add(dedupeKey);
-      return true;
-    });
-  }, [workspace.spec.members, workspace.status?.namespace]);
+  useEffect(() => {
+    if (membersQueryEnabled && !membersLoading) onMembersLoaded?.();
+  }, [membersQueryEnabled, membersLoading, onMembersLoaded]);
 
   return (
     <>
@@ -131,9 +131,8 @@ export function ControlPlaneListWorkspaceGridTile({
               style={{
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: '1fr 0.24fr auto',
+                gridTemplateColumns: '1fr 1fr 1fr',
                 gap: '1rem',
-                justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
@@ -145,8 +144,16 @@ export function ControlPlaneListWorkspaceGridTile({
                 <CopyButton collapsible text={workspace.status?.namespace || '-'} />
               </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
-              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {membersLoading ? (
+                  <BusyIndicator active data-testid="members-loading-indicator" delay={0} size="S" />
+                ) : (
+                  <FadeIn>
+                    <MembersAvatarView members={workspaceMembers} project={projectName} workspace={workspaceName} />
+                  </FadeIn>
+                )}
+              </div>
+              <FlexBox justifyContent={'End'} gap={10}>
                 <YamlViewButton
                   variant="loader"
                   workspaceName={workspace.metadata.namespace}
