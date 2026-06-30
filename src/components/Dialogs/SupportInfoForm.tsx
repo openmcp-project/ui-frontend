@@ -26,7 +26,7 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <Label>{t('SupportInfo.landscapeLabel')}</Label>
+          <Label>{t('SupportInfo.purposeLabel')}</Label>
           <Select value={supportLandscape} style={{ width: '100%' }} onChange={handleLandscapeChange}>
             <Option value="" data-value="">
               {t('common.notSelected')}

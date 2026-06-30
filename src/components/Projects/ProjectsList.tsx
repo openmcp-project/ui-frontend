@@ -3,10 +3,13 @@ import {
   AnalyticalTableColumnDefinition,
   BusyIndicator,
   CheckBox,
+  Icon,
   Link,
+  ObjectStatus,
 } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/headset';
 import { t } from 'i18next';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
@@ -14,6 +17,7 @@ import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembe
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
+import { EditProjectDialogContainer } from '../Dialogs/EditProjectDialogContainer.tsx';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
@@ -23,6 +27,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { ProjectSupportInfoPopover } from './ProjectSupportInfoPopover.tsx';
 
 type ProjectListRow = {
   projectName: string;
@@ -53,6 +58,75 @@ function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
   const { displayName, isLoading } = useProjectMembers(projectName);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
+}
+
+function MetadataCell({ projectName }: { projectName: string }) {
+  const { supportLandscape, supportSecurityContacts, supportOpsContacts, isLoading } = useProjectMembers(projectName);
+  const openerId = `metadata-${projectName}`;
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  if (isLoading) return <BusyIndicator active size="S" />;
+
+  const state =
+    supportLandscape === 'production'
+      ? 'Negative'
+      : supportLandscape === 'validation'
+        ? 'Critical'
+        : supportLandscape === 'testing'
+          ? 'None'
+          : 'Information';
+
+  const label = supportLandscape
+    ? t(`SupportInfo.landscape.${supportLandscape}`, { defaultValue: supportLandscape })
+    : t('SupportInfo.pleaseSet');
+
+  // Readiness icon only for production — encourages providing contacts.
+  const isProduction = supportLandscape === 'production';
+  const ready = !!(supportSecurityContacts && supportOpsContacts);
+  const readinessTooltip = ready ? t('SupportInfo.readinessComplete') : t('SupportInfo.readinessMissing');
+  const readinessColor = ready ? 'var(--sapPositiveColor)' : 'var(--sapCriticalColor)';
+
+  return (
+    <FadeIn>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <ObjectStatus
+          id={openerId}
+          interactive
+          showDefaultIcon
+          state={state}
+          style={{ cursor: 'pointer' }}
+          onClick={() => setPopoverOpen(true)}
+        >
+          {label}
+        </ObjectStatus>
+        {isProduction && (
+          <Icon
+            name="headset"
+            title={readinessTooltip}
+            style={{ color: readinessColor, fontSize: '1rem' }}
+          />
+        )}
+      </div>
+      {popoverOpen && (
+        <ProjectSupportInfoPopover
+          projectName={projectName}
+          opener={openerId}
+          open={popoverOpen}
+          onClose={() => setPopoverOpen(false)}
+          onEditClick={() => setEditOpen(true)}
+        />
+      )}
+      {editOpen && (
+        <EditProjectDialogContainer
+          isOpen={editOpen}
+          setIsOpen={setEditOpen}
+          projectName={projectName}
+          initialStep="supportInfo"
+        />
+      )}
+    </FadeIn>
+  );
 }
 
 interface ProjectsListProps {
@@ -141,6 +215,14 @@ export default function ProjectsList({
         disableFilters: true,
         disableSortBy: true,
         Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
+      },
+      {
+        Header: t('ProjectsListView.metadataHeader'),
+        accessor: 'metadata',
+        width: 140,
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),

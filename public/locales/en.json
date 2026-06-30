@@ -287,7 +287,7 @@
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
     "setDefaultProject": "Set selected project as default",
-    "metadataHeader": "Metadata"
+    "metadataHeader": "Support"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
@@ -645,6 +645,8 @@
     "wizardStepTitle": "Support Info",
     "wizardIntro": "Optional metadata to help support engineers triage issues. Values have no runtime impact — they describe ownership, region, and contacts.",
     "unknown": "Unknown",
+    "pleaseSet": "Please set",
+    "purposeLabel": "Purpose",
     "landscapeLabel": "Landscape",
     "landscape": {
       "production": "Production",
@@ -657,6 +659,8 @@
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
     "editButton": "Edit",
+    "readinessComplete": "Support readiness complete — security and ops contacts provided",
+    "readinessMissing": "Production project — security or ops contacts missing",
     "contactsComplete": "Security and ops contacts provided",
     "contactsMissing": "Production landscape — security or ops contacts missing"
   }

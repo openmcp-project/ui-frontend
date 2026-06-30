@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { BusyIndicator, Dialog } from '@ui5/webcomponents-react';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
+import { CreateProjectWorkspaceDialog, OnCreatePayload, Step } from './CreateProjectWorkspaceDialog.tsx';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -14,12 +14,14 @@ export function EditProjectDialogContainer({
   isOpen,
   setIsOpen,
   projectName,
+  initialStep,
   useUpdateProject = _useUpdateProject,
   useGetProject = _useGetProject,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName: string;
+  initialStep?: Step;
   useUpdateProject?: typeof _useUpdateProject;
   useGetProject?: typeof _useGetProject;
 }) {
@@ -139,6 +141,7 @@ export function EditProjectDialogContainer({
           setValue={setValue}
           type={'project'}
           isEditMode
+          initialStep={initialStep}
           // eslint-disable-next-line react-hooks/refs
           onCreate={handleSubmit(handleProjectUpdate)}
         />

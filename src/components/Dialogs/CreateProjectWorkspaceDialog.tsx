@@ -59,9 +59,10 @@ export interface CreateProjectWorkspaceDialogProps {
   isMetadataValid?: boolean;
   isLoading?: boolean;
   isEditMode?: boolean;
+  initialStep?: Step;
 }
 
-type Step = 'metadata' | 'members' | 'supportInfo';
+export type Step = 'metadata' | 'members' | 'supportInfo';
 
 export function CreateProjectWorkspaceDialog({
   isOpen,
@@ -80,9 +81,10 @@ export function CreateProjectWorkspaceDialog({
   isMetadataValid = true,
   isLoading = false,
   isEditMode = false,
+  initialStep = 'metadata',
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
-  const [step, setStep] = useState<Step>('metadata');
+  const [step, setStep] = useState<Step>(initialStep);
 
   const setMembers = (members: Member[]) => setValue('members', members);
 
@@ -119,7 +121,7 @@ export function CreateProjectWorkspaceDialog({
   };
 
   const onClose = () => {
-    setStep('metadata');
+    setStep(initialStep);
     setIsOpen(false);
   };
 
