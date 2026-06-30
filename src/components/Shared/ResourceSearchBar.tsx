@@ -1,18 +1,31 @@
 import { Icon, Input, InputDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/search';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './ResourceSearchBar.module.css';
 
 interface Props {
-  value: string;
+  focusOnMount?: boolean;
   onChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
+  value: string;
 }
 
-export function ResourceSearchBar({ value, onChange }: Props) {
+export function ResourceSearchBar({ focusOnMount, onChange, onKeyDown, value }: Props) {
   const { t } = useTranslation();
+  const inputRef = useRef<InputDomRef>(null);
+
+  useEffect(() => {
+    if (focusOnMount) {
+      inputRef.current?.focus();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} onKeyDown={onKeyDown}>
       <Input
+        ref={inputRef}
         className={styles.input}
         icon={<Icon name="search" />}
         placeholder={t('ResourceSearchBar.placeholder')}

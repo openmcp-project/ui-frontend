@@ -8,7 +8,7 @@ import {
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
@@ -121,6 +121,25 @@ export default function ProjectsList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, search, displayNamesVersion]);
 
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      if (rows.length === 1) {
+        const { projectName } = rows[0];
+        if (setAsDefaultRef.current) {
+          setRememberedProject(projectName);
+        }
+        onProjectSelect?.(projectName);
+        navigate(`/projects/${projectName}`);
+      } else if (rows.length > 1) {
+        tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
+      }
+    },
+    [rows, navigate, onProjectSelect, setRememberedProject],
+  );
+
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
       {
@@ -226,21 +245,23 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar value={search} onChange={setSearch} />
-      <AnalyticalTable
-        style={{
-          maxWidth: '1280px',
-          margin: '10px auto 0px auto',
-          width: '100%',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}
-        sortable
-        className={styles.table}
-        columns={columns}
-        data={rows}
-        minRows={10}
-      />
+      <ResourceSearchBar focusOnMount value={search} onChange={setSearch} onKeyDown={handleSearchKeyDown} />
+      <div ref={tableContainerRef}>
+        <AnalyticalTable
+          style={{
+            maxWidth: '1280px',
+            margin: '10px auto 0px auto',
+            width: '100%',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}
+          sortable
+          className={styles.table}
+          columns={columns}
+          data={rows}
+          minRows={10}
+        />
+      </div>
       <div
         style={{
           maxWidth: '1280px',
