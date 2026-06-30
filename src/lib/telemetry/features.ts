@@ -8,8 +8,8 @@ type Feature<N extends string, P extends Record<string, string> = {}> = { name: 
 
 export type TelemetryFeature =
   // Kubeconfig
-  | Feature<'kubeconfig.copied'>
-  | Feature<'kubeconfig.downloaded'>
+  | Feature<'kubeconfig.copied', { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' }>
+  | Feature<'kubeconfig.downloaded', { source: 'controlplane-card' | 'controlplane-detail' | 'controlplane-shellbar' }>
   // Control Plane connection
   | Feature<'controlplane.connected', { idp: 'system' | 'custom' }>
   // Projects
@@ -36,7 +36,7 @@ export type TelemetryFeature =
   | Feature<'component.updated', { componentName: string }>
   | Feature<'component.uninstalled', { componentName: string }>
   // Shell bar
-  | Feature<'view-mode.toggled', { mode: 'open-source' | 'beginner' }>
+  | Feature<'view-mode.toggled', { mode: 'headlamp' | 'legacy' }>
   | Feature<'feedback.opened'>
   | Feature<'feedback.submitted'>
   | Feature<'user.signed-out'>
@@ -45,4 +45,7 @@ export type TelemetryFeature =
   // Members
   | Feature<'members.viewed', { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' }>
   // Misc UI
-  | Feature<'clipboard.copied'>;
+  | Feature<
+      'clipboard.copied',
+      { source: 'project-namespace' | 'workspace-namespace' | 'controlplane-namespace' | 'other' }
+    >;

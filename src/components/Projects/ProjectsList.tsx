@@ -113,7 +113,7 @@ export default function ProjectsList({
               >
                 {projectName}
               </Link>
-              <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+              <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
             </div>
           );
         },

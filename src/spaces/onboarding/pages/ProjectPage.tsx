@@ -94,7 +94,7 @@ export default function ProjectPage() {
                     }
                   }}
                 />
-                <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+                <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}

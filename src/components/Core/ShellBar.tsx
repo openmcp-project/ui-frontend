@@ -89,7 +89,10 @@ export function ShellBarComponent({
                   icon="copy"
                   tooltip={t('ShellBar.copyNamespace')}
                   className={styles.copyNamespaceButton}
-                  onClick={() => void copyToClipboard(namespace)}
+                  onClick={() => {
+                    void copyToClipboard(namespace);
+                    telemetry.track({ name: 'clipboard.copied', source: 'controlplane-namespace' });
+                  }}
                 />
               )}
             </div>
@@ -121,7 +124,7 @@ export function ShellBarComponent({
                 onChange={(e) => {
                   const next = e.target.checked ? 'open-source' : 'beginner';
                   setMode(next);
-                  telemetry.track({ name: 'view-mode.toggled', mode: next });
+                  telemetry.track({ name: 'view-mode.toggled', mode: next === 'open-source' ? 'headlamp' : 'legacy' });
                 }}
               />
             </div>
@@ -144,6 +147,7 @@ function KubeconfigShellBarButton() {
   const { mode } = useViewMode();
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
+  const telemetry = useTelemetry();
   const kubeconfigMenuRef = useRef<MenuDomRef | null>(null);
   const buttonRef = useRef<ButtonDomRef | null>(null);
   const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
@@ -180,8 +184,10 @@ function KubeconfigShellBarButton() {
           const action = event.detail.item.dataset.action;
           if (action === 'download' && kubeconfig && mcpName) {
             DownloadKubeconfig(kubeconfig, mcpName);
+            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-shellbar' });
           } else if (action === 'copy' && kubeconfig) {
             void copyToClipboard(kubeconfig);
+            telemetry.track({ name: 'kubeconfig.copied', source: 'controlplane-shellbar' });
           }
           setKubeconfigMenuOpen(false);
         }}

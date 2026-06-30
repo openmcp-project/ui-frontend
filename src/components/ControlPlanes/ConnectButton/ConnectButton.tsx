@@ -57,6 +57,7 @@ export default function ConnectButton({
 
     if (action === 'download') {
       DownloadKubeconfig(kubeconfigResource, controlPlaneName);
+      telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
       setIsMenuOpen(false);
       return;
     }

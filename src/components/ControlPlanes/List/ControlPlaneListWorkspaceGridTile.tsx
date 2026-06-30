@@ -144,7 +144,7 @@ export function ControlPlaneListWorkspaceGridTile({
                   {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
                   {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
                 </Title>
-                <CopyButton collapsible text={workspace.status?.namespace || '-'} />
+                <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
               </div>
 
               <MembersAvatarView
