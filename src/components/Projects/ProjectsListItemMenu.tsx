@@ -88,6 +88,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
         isOpen={dialogEditProjectIsOpen}
         setIsOpen={setDialogEditProjectIsOpen}
         projectName={projectName}
+        source="list"
         useUpdateProject={useUpdateProject}
         useGetProject={useGetProject}
       />

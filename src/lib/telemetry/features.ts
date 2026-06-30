@@ -15,7 +15,9 @@ export type TelemetryFeature =
   // Projects
   | Feature<'project.created'>
   | Feature<'project.deleted', { source: 'list' | 'detail' }>
-  | Feature<'project.edited'>
+  | Feature<'project.edited', { source: 'list' | 'detail' | 'metadata-popover' }>
+  | Feature<'project.remembered', { source: 'list' | 'detail-header' }>
+  | Feature<'project.remembered-cleared', { source: 'detail-header' | 'shellbar-menu' }>
   // Workspaces
   | Feature<'workspace.created'>
   | Feature<'workspace.deleted', { source: 'card' }>
@@ -32,4 +34,15 @@ export type TelemetryFeature =
   // Components
   | Feature<'component.installed', { componentName: string }>
   | Feature<'component.updated', { componentName: string }>
-  | Feature<'component.uninstalled', { componentName: string }>;
+  | Feature<'component.uninstalled', { componentName: string }>
+  // Shell bar
+  | Feature<'view-mode.toggled', { mode: 'open-source' | 'beginner' }>
+  | Feature<'feedback.opened'>
+  | Feature<'feedback.submitted'>
+  | Feature<'user.signed-out'>
+  // Status / readiness
+  | Feature<'controlplane.status-viewed', { source: 'card' | 'detail' }>
+  // Members
+  | Feature<'members.viewed', { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' }>
+  // Misc UI
+  | Feature<'clipboard.copied'>;

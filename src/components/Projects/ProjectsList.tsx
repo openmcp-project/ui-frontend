@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -72,6 +73,7 @@ export default function ProjectsList({
     timestampsRef.current.set(name, ts);
   };
   const { setRememberedProject } = useRememberedProject();
+  const telemetry = useTelemetry();
   const [setAsDefault, setSetAsDefault] = useState(false);
   const setAsDefaultRef = useRef(false);
   useEffect(() => {
@@ -103,6 +105,7 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
+                    telemetry.track({ name: 'project.remembered', source: 'list' });
                   }
                   onProjectSelect?.(projectName);
                   navigate(`/projects/${projectName}`);
@@ -169,7 +172,7 @@ export default function ProjectsList({
         ),
       },
     ],
-    [navigate, onProjectSelect, setRememberedProject],
+    [navigate, onProjectSelect, setRememberedProject, telemetry],
   );
 
   if (isLoading) {

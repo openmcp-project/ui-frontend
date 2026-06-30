@@ -91,6 +91,7 @@ export const ControlPlaneCard = ({
                   projectName={projectName}
                   workspaceName={workspace.metadata.name ?? ''}
                   mcpName={controlPlane.metadata.name}
+                  source="card"
                 />
               </div>
             </FlexBox>

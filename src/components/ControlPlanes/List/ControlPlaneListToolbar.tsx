@@ -87,6 +87,7 @@ export function ControlPlaneListToolbar({
         isOpen={dialogEditProjectIsOpen}
         setIsOpen={setDialogEditProjectIsOpen}
         projectName={projectName}
+        source="detail"
       />
 
       <CreateWorkspaceDialogContainer

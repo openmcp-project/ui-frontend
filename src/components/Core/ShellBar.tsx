@@ -33,6 +33,7 @@ import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
@@ -51,6 +52,7 @@ export function ShellBarComponent({
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
+  const telemetry = useTelemetry();
   const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } =
     useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
@@ -104,6 +106,7 @@ export function ShellBarComponent({
                 project={project}
                 workspace={workspace}
                 hideNamespaceColumn
+                source="controlplane-detail"
               />
             </div>
           )}
@@ -115,7 +118,11 @@ export function ShellBarComponent({
               <Switch
                 checked={mode === 'open-source'}
                 disabled={!headlampAvailable}
-                onChange={(e) => setMode(e.target.checked ? 'open-source' : 'beginner')}
+                onChange={(e) => {
+                  const next = e.target.checked ? 'open-source' : 'beginner';
+                  setMode(next);
+                  telemetry.track({ name: 'view-mode.toggled', mode: next });
+                }}
               />
             </div>
           )}
@@ -240,6 +247,7 @@ const ProfilePopover = ({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) => {
   const auth = useAuthOnboarding();
+  const telemetry = useTelemetry();
   const { t } = useTranslation();
   const feedbackPopoverRef = useRef<PopoverDomRef>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -276,6 +284,7 @@ const ProfilePopover = ({
       }
 
       setFeedbackSent(true);
+      telemetry.track({ name: 'feedback.submitted' });
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -295,6 +304,7 @@ const ProfilePopover = ({
     setRating(0);
     setFeedbackSent(false);
     setFeedbackPopoverOpen(true);
+    telemetry.track({ name: 'feedback.opened' });
   };
 
   return (
@@ -315,6 +325,7 @@ const ProfilePopover = ({
               icon="bookmark"
               onClick={() => {
                 clearRememberedProject();
+                telemetry.track({ name: 'project.remembered-cleared', source: 'shellbar-menu' });
                 setOpen(false);
               }}
             >
@@ -325,6 +336,7 @@ const ProfilePopover = ({
             icon="log"
             onClick={() => {
               setOpen(false);
+              telemetry.track({ name: 'user.signed-out' });
               void auth.logout();
             }}
           >
