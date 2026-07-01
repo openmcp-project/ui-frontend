@@ -106,16 +106,16 @@
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit Control Plane",
-    "duplicateMCP": "Duplicate Control Plane",
-    "deleteMCP": "Delete Control Plane"
+    "editMCP": "Edit",
+    "duplicateMCP": "Duplicate",
+    "deleteMCP": "Delete"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
     "emptyListSubtitleMessage": "Create a workspace to get started"
   },
   "ConnectButton": {
-    "buttonText": "Connect",
+    "buttonText": "View",
     "defaultIdP": "default IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
@@ -288,6 +288,9 @@
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
     "setDefaultProject": "Set selected project as default"
+  },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
   },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",

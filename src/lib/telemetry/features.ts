@@ -18,6 +18,10 @@ export type TelemetryFeature =
   | Feature<'project.edited', { source: 'list' | 'detail' | 'metadata-popover' }>
   | Feature<'project.remembered', { source: 'list' | 'detail-header' }>
   | Feature<'project.remembered-cleared', { source: 'detail-header' | 'shellbar-menu' }>
+  // Project list interactions
+  | Feature<'project-list.navigated', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.set-as-default', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.search-enter-pressed'>
   // Workspaces
   | Feature<'workspace.created'>
   | Feature<'workspace.deleted', { source: 'card' }>
