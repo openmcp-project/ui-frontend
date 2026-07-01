@@ -3,6 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
 import { Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
 import { useTranslation } from 'react-i18next';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 const PROJECTS_REFRESH_INTERVAL_MS = 30_000;
 
@@ -50,6 +51,7 @@ export function useProjectsQuery() {
   const [localError, setLocalError] = useState<Error | null>(null);
   const [fetchMutation, { loading, error }] = useMutation(CreateSelfSubjectRulesReview);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   const fetch = useCallback(async () => {
     try {
@@ -69,11 +71,20 @@ export function useProjectsQuery() {
       });
 
       const status = res.data?.authorization_k8s_io?.v1?.createSelfSubjectRulesReview?.status;
+      // These fields fire on every 30s refetch when the platform's webhook
+      // authorizer can't fully resolve rules — that's a normal fallback
+      // path, not a user-visible failure. Route them through telemetry so
+      // Sentry still captures them with context, but the browser console
+      // stays clean.
       if (status?.evaluationError) {
-        console.warn('SelfSubjectRulesReview evaluation error:', status.evaluationError);
+        telemetry.report(new Error(status.evaluationError), {
+          message: 'SelfSubjectRulesReview evaluationError',
+        });
       }
       if (status?.incomplete) {
-        console.warn('SelfSubjectRulesReview result is incomplete');
+        telemetry.report(new Error('SelfSubjectRulesReview result is incomplete'), {
+          message: 'SelfSubjectRulesReview incomplete',
+        });
       }
 
       const rules = status?.resourceRules;
@@ -86,7 +97,7 @@ export function useProjectsQuery() {
       setLocalError(err);
       return [];
     }
-  }, [fetchMutation, t]);
+  }, [fetchMutation, t, telemetry]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
