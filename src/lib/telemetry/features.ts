@@ -12,4 +12,8 @@ export type TelemetryFeature =
   | Feature<'mcp.connected', { idp: 'system' | 'custom' }>
   | Feature<'project-list.navigated', { trigger: 'click' | 'keyboard' }>
   | Feature<'project-list.set-as-default', { trigger: 'click' | 'keyboard' }>
-  | Feature<'project-list.search-enter-pressed'>;
+  | Feature<'project-list.searched'>
+  | Feature<'project-list.search-enter-pressed'>
+  // Workspace grid search
+  | Feature<'workspace-list.searched'>
+  | Feature<'workspace-list.search-enter-pressed'>;
