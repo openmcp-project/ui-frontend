@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { BusyIndicator, Dialog } from '@ui5/webcomponents-react';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
+import { CreateProjectWorkspaceDialog, OnCreatePayload, Step } from './CreateProjectWorkspaceDialog.tsx';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -14,12 +14,14 @@ export function EditProjectDialogContainer({
   isOpen,
   setIsOpen,
   projectName,
+  initialStep,
   useUpdateProject = _useUpdateProject,
   useGetProject = _useGetProject,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName: string;
+  initialStep?: Step;
   useUpdateProject?: typeof _useUpdateProject;
   useGetProject?: typeof _useGetProject;
 }) {
@@ -62,6 +64,11 @@ export function EditProjectDialogContainer({
       chargingTarget: projectData.chargingTarget,
       chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
       members: projectData.members,
+      supportServiceIds: projectData.supportServiceIds,
+      supportManagedRegions: projectData.supportManagedRegions,
+      supportLandscape: projectData.supportLandscape,
+      supportSecurityContacts: projectData.supportSecurityContacts,
+      supportOpsContacts: projectData.supportOpsContacts,
     });
   }, [isOpen, projectData, reset]);
 
@@ -77,6 +84,11 @@ export function EditProjectDialogContainer({
     displayName,
     chargingTargetType,
     members,
+    supportServiceIds,
+    supportManagedRegions,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await updateProject({
@@ -85,6 +97,11 @@ export function EditProjectDialogContainer({
         chargingTarget,
         chargingTargetType,
         members,
+        supportServiceIds,
+        supportManagedRegions,
+        supportLandscape,
+        supportSecurityContacts,
+        supportOpsContacts,
       });
       setIsOpen(false);
       return true;
@@ -97,7 +114,7 @@ export function EditProjectDialogContainer({
 
   return (
     <>
-      <Dialog open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
+      <Dialog stretch open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
         <div
           style={{
             display: 'flex',
@@ -124,6 +141,7 @@ export function EditProjectDialogContainer({
           setValue={setValue}
           type={'project'}
           isEditMode
+          initialStep={initialStep}
           // eslint-disable-next-line react-hooks/refs
           onCreate={handleSubmit(handleProjectUpdate)}
         />

@@ -4,6 +4,7 @@ import {
   BusyIndicator,
   CheckBox,
   Link,
+  Tag,
 } from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
@@ -12,8 +13,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
+import { EditProjectDialogContainer } from '../Dialogs/EditProjectDialogContainer.tsx';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
@@ -23,6 +26,7 @@ import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
 import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
+import { ProjectSupportInfoPopover } from './ProjectSupportInfoPopover.tsx';
 
 type ProjectListRow = {
   projectName: string;
@@ -53,6 +57,58 @@ function ProjectDisplayNameCell({ projectName }: { projectName: string }) {
   const { displayName, isLoading } = useProjectMembers(projectName);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
+}
+
+function MetadataCell({ projectName }: { projectName: string }) {
+  const {
+    supportLandscape,
+    supportManagedRegions,
+    supportServiceIds,
+    supportSecurityContacts,
+    supportOpsContacts,
+    isLoading,
+  } = useProjectMembers(projectName);
+  const openerId = `metadata-${projectName}`;
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  if (isLoading) return <BusyIndicator active size="S" />;
+
+  return (
+    <FadeIn>
+      <Tag
+        id={openerId}
+        interactive
+        design="Set2"
+        colorScheme={purposeColorScheme(supportLandscape)}
+        className={styles.metadataTag}
+        onClick={() => setPopoverOpen(true)}
+      >
+        {purposeLabel(t, supportLandscape)}
+      </Tag>
+      {popoverOpen && (
+        <ProjectSupportInfoPopover
+          opener={openerId}
+          open={popoverOpen}
+          supportLandscape={supportLandscape}
+          supportManagedRegions={supportManagedRegions}
+          supportServiceIds={supportServiceIds}
+          supportSecurityContacts={supportSecurityContacts}
+          supportOpsContacts={supportOpsContacts}
+          onClose={() => setPopoverOpen(false)}
+          onEditClick={() => setEditOpen(true)}
+        />
+      )}
+      {editOpen && (
+        <EditProjectDialogContainer
+          isOpen={editOpen}
+          setIsOpen={setEditOpen}
+          projectName={projectName}
+          initialStep="supportInfo"
+        />
+      )}
+    </FadeIn>
+  );
 }
 
 interface ProjectsListProps {
@@ -141,6 +197,14 @@ export default function ProjectsList({
         disableFilters: true,
         disableSortBy: true,
         Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
+      },
+      {
+        Header: t('ProjectsListView.metadataHeader'),
+        accessor: 'metadata',
+        width: 120,
+        disableFilters: true,
+        disableSortBy: true,
+        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),

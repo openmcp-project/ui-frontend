@@ -8,6 +8,11 @@ const fakeUseProjectMembersLoading: typeof useProjectMembers = () => ({
   members: [],
   creationTimestamp: undefined,
   displayName: undefined,
+  supportLandscape: undefined,
+  supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
+  supportOpsContacts: undefined,
   isLoading: true,
 });
 
@@ -18,6 +23,11 @@ const fakeUseProjectMembersLoaded: typeof useProjectMembers = () => ({
   ],
   creationTimestamp: '2024-01-15T10:00:00Z',
   displayName: undefined,
+  supportLandscape: undefined,
+  supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
+  supportOpsContacts: undefined,
   isLoading: false,
 });
 
@@ -25,6 +35,11 @@ const fakeUseProjectMembersEmpty: typeof useProjectMembers = () => ({
   members: [],
   creationTimestamp: '2024-01-15T10:00:00Z',
   displayName: undefined,
+  supportLandscape: undefined,
+  supportSecurityContacts: undefined,
+  supportManagedRegions: undefined,
+  supportServiceIds: undefined,
+  supportOpsContacts: undefined,
   isLoading: false,
 });
 

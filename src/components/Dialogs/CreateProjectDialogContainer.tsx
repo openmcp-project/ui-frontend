@@ -56,6 +56,11 @@ export function CreateProjectDialogContainer({
     resetField('displayName');
     resetField('chargingTargetType');
     resetField('members');
+    resetField('supportServiceIds');
+    resetField('supportManagedRegions');
+    resetField('supportLandscape');
+    resetField('supportSecurityContacts');
+    resetField('supportOpsContacts');
   }, [resetField]);
 
   useEffect(() => {
@@ -73,6 +78,11 @@ export function CreateProjectDialogContainer({
     displayName,
     chargingTargetType,
     members,
+    supportServiceIds,
+    supportManagedRegions,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await createProject({
@@ -81,6 +91,11 @@ export function CreateProjectDialogContainer({
         chargingTarget,
         chargingTargetType,
         members,
+        supportServiceIds,
+        supportManagedRegions,
+        supportLandscape,
+        supportSecurityContacts,
+        supportOpsContacts,
       });
       setIsOpen(false);
       return true;

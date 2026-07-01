@@ -9,6 +9,11 @@ const projectData: ProjectData = {
   chargingTarget: '12345678-1234-1234-1234-123456789abc',
   chargingTargetType: 'btp',
   members: [{ name: 'admin@example.com', kind: 'User', roles: [MemberRoles.admin] }],
+  supportServiceIds: '',
+  supportManagedRegions: '',
+  supportLandscape: '',
+  supportSecurityContacts: '',
+  supportOpsContacts: '',
 };
 
 const fakeUseGetProject: typeof useGetProject = () => ({

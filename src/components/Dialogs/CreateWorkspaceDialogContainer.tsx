@@ -18,6 +18,11 @@ export type CreateDialogProps = {
   chargingTargetType?: string;
   members: Member[];
   componentsList?: ComponentsListItem[];
+  supportServiceIds?: string;
+  supportManagedRegions?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
 };
 
 export function CreateWorkspaceDialogContainer({

@@ -4,6 +4,11 @@ import {
   DISPLAY_NAME_ANNOTATION,
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
+  SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_MANAGED_REGIONS_ANNOTATION,
+  SUPPORT_OPS_CONTACTS_ANNOTATION,
+  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
+  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../lib/api/types/shared/keyNames.ts';
 import { Member } from '../lib/api/types/shared/members.ts';
 
@@ -15,6 +20,11 @@ export interface YamlPreviewFields {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  supportServiceIds?: string;
+  supportManagedRegions?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
 }
 
 const buildMembers = (members: Member[]) =>
@@ -28,7 +38,18 @@ const buildMembers = (members: Member[]) =>
     }));
 
 export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, projectNamespace?: string) {
-  const { name, displayName, chargingTarget, chargingTargetType, members } = fields;
+  const {
+    name,
+    displayName,
+    chargingTarget,
+    chargingTargetType,
+    members,
+    supportServiceIds,
+    supportManagedRegions,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
+  } = fields;
 
   return useMemo(() => {
     const resolvedMembers: Member[] = members ?? [];
@@ -38,6 +59,11 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     if (displayName) annotations[DISPLAY_NAME_ANNOTATION] = displayName;
     if (chargingTargetType) labels[CHARGING_TARGET_TYPE_LABEL] = chargingTargetType;
     if (chargingTarget) labels[CHARGING_TARGET_LABEL] = chargingTarget;
+    if (supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = supportServiceIds;
+    if (supportManagedRegions) annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] = supportManagedRegions;
+    if (supportLandscape) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = supportLandscape;
+    if (supportSecurityContacts) annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = supportSecurityContacts;
+    if (supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = supportOpsContacts;
 
     const resource = {
       apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -54,5 +80,18 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     };
 
     return stringify(resource);
-  }, [name, displayName, chargingTarget, chargingTargetType, members, type, projectNamespace]);
+  }, [
+    name,
+    displayName,
+    chargingTarget,
+    chargingTargetType,
+    members,
+    supportServiceIds,
+    supportManagedRegions,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
+    type,
+    projectNamespace,
+  ]);
 }
