@@ -83,8 +83,9 @@ export default function ConnectButton({
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onItemClick={(event) => {
-          const { target } = event.detail.item.dataset;
-          if (target) navigate(target);
+          const { target: url } = event.detail.item.dataset;
+          const target = connectionTargets.find((t) => t.url === url);
+          if (target) connectTo(target);
           setIsMenuOpen(false);
         }}
       >
