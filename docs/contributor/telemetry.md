@@ -105,6 +105,65 @@ Tests can then pass a stub without needing to mock the whole module. See [`Conne
 - **Environment detection** — `ConsoleAdapter` is auto-added in dev builds. Sentry SDK is auto-baked at build time. Dynatrace no-ops when its RUM script isn't present. You don't need env checks in feature code.
 - **User identification** — handled globally in `AuthContextOnboarding`.
 
+## Writing a new adapter
+
+The two shipped adapters (Sentry + Dynatrace) are examples, not a closed set. **Adding an adapter for another tool — PostHog, Matomo, Grafana Faro, Datadog RUM, OpenTelemetry web SDK, Snowplow, Amplitude, an in-house Kafka gateway, an intranet-only analytics service — is explicitly encouraged.** Both open-source and proprietary integrations belong here; each new adapter widens where this project can be deployed.
+
+An adapter is a class that implements the three-method [`Telemetry`](../../src/lib/telemetry/types.ts) interface:
+
+```ts
+// src/lib/telemetry/adapters/MyBackendAdapter.ts
+import type { Telemetry, TelemetryUser } from '../types';
+import type { TelemetryFeature } from '../features';
+
+export class MyBackendAdapter implements Telemetry {
+  track(feature: TelemetryFeature): void {
+    if (!window.myBackend) return;                   // no-op if SDK absent
+    const { name, ...props } = feature;
+    window.myBackend.capture(name, props);
+  }
+
+  report(error: unknown, options?: { message?: string; context?: Record<string, unknown> }): void {
+    if (!window.myBackend) return;
+    window.myBackend.reportError(error, { message: options?.message, ...options?.context });
+  }
+
+  identify(user: TelemetryUser | null): void {
+    if (!window.myBackend) return;
+    window.myBackend.identify(user?.id ?? null, user?.email ? { email: user.email } : undefined);
+  }
+}
+```
+
+**Then register it** in [`src/lib/telemetry/telemetry.ts`](../../src/lib/telemetry/telemetry.ts):
+
+```ts
+const buildAdapters = (): Telemetry[] => {
+  const adapters: Telemetry[] = [
+    new SentryAdapter(),
+    new DynatraceAdapter(),
+    new MyBackendAdapter(),   // ← added
+  ];
+  if (import.meta.env.DEV) adapters.push(new ConsoleAdapter());
+  return adapters;
+};
+```
+
+That's it. Because the `TelemetryFeature` union is the single source of truth, your new adapter now sees every existing event with the correct property shape — no manual event registration.
+
+### Guidelines
+
+- **No-op when the SDK is absent.** Check for the global / config the SDK needs and return early if missing. This is what lets a single bundle serve environments that have the tool and environments that don't.
+- **Initialise once.** If your SDK has a code-side `init(...)`, put it in [`src/lib/telemetry/bootstrap/`](../../src/lib/telemetry/bootstrap/) and import it from the adapter. See [`bootstrap/sentry.ts`](../../src/lib/telemetry/bootstrap/sentry.ts) or [`bootstrap/dynatrace.ts`](../../src/lib/telemetry/bootstrap/dynatrace.ts).
+- **Don't catch and swallow.** `TelemetryService.dispatch` already does that at the service level, and swallowing internally would hide bugs during development.
+- **Runtime config over build-time flags.** If your backend needs a DSN / endpoint / project ID, read it from `FrontendConfigContext` (see `frontend-config.json` semantics in the [Operator Guide](../operator/index.md#configuration)) so operators can point the same image at their own instance without rebuilding.
+- **Update [docs/operator/telemetry.md](../operator/telemetry.md)** to list what your adapter sends and how to opt out.
+- **Add a README-level note or open an issue** if your adapter changes the "what leaves the browser" contract — some operators may need to review before enabling it in production.
+
+### Removing an adapter for your fork
+
+Simply drop it from the `buildAdapters()` array. The type system won't complain — every adapter is optional at runtime, and the union of tracked events is completely decoupled from the list of adapters.
+
 ## Checklist before opening the PR
 
 - [ ] New event declared in [`features.ts`](../../src/lib/telemetry/features.ts) as a `Feature<...>` variant.
@@ -113,6 +172,7 @@ Tests can then pass a stub without needing to mock the whole module. See [`Conne
 - [ ] Event fired from the actual user interaction, not from a `useEffect` triggered by state that could re-run.
 - [ ] For loops / keystrokes: throttled, debounced, or reframed as a milestone.
 - [ ] Ran locally (`npm run dev`) and confirmed the `[Telemetry] track ...` line appears in the browser console.
+- [ ] **Adapter contributors:** [operator/telemetry.md](../operator/telemetry.md) updated to document what your adapter sends and how to opt out.
 
 ---
 

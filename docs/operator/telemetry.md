@@ -81,6 +81,20 @@ Both Sentry and Dynatrace then correlate subsequent events with that user until 
 - **Dynatrace** — Do not inject the OneAgent `<script>` tag in your reverse proxy / CDN. `window.dtrum` will be undefined and every adapter method becomes a no-op.
 - **Everything** — There is no runtime "telemetry off" flag today. If one is needed, the change is a single check in `TelemetryService.dispatch()`; open an issue if that would be useful.
 
+## Bringing your own backend
+
+The two shipped adapters (Sentry + Dynatrace) reflect the tools we happen to use — they are not a fixed contract. If your organisation already runs a different analytics or error-reporting stack — PostHog, Matomo, Grafana Faro, Datadog RUM, OpenTelemetry web SDK, Snowplow, Amplitude, an internal Kafka gateway, anything — adding a fourth adapter is a small, self-contained change. **We actively welcome contributions of adapters for open-source or proprietary tools.** The abstraction was built for exactly this.
+
+The recipe:
+
+1. Implement the `Telemetry` interface in a new file under [`src/lib/telemetry/adapters/`](../../src/lib/telemetry/adapters/). Match the pattern in [`SentryAdapter.ts`](../../src/lib/telemetry/adapters/SentryAdapter.ts) or [`DynatraceAdapter.ts`](../../src/lib/telemetry/adapters/DynatraceAdapter.ts) — three methods: `track(feature)`, `report(err, opts)`, `identify(user | null)`.
+2. If your backend needs SDK initialisation, add a bootstrap file to [`src/lib/telemetry/bootstrap/`](../../src/lib/telemetry/bootstrap/) and import it once from the adapter. Guard on presence (like the Dynatrace `window.dtrum` check) so the adapter no-ops when the SDK isn't loaded — this is what lets us ship one bundle to environments that have the tool and environments that don't.
+3. Register it in [`src/lib/telemetry/telemetry.ts`](../../src/lib/telemetry/telemetry.ts) alongside the existing adapters.
+
+Because `TelemetryService.dispatch` catches per-adapter failures, a new adapter that throws for any reason won't take the others down. Because the `TelemetryFeature` union is a compile-time type, your adapter automatically sees every existing event with the correct property shape — no manual mapping table.
+
+For a step-by-step example including the config surface, see [Contributor: writing a telemetry adapter](../contributor/telemetry.md#writing-a-new-adapter).
+
 ---
 
 - [Contributor: adding telemetry to a new feature](../contributor/telemetry.md)
