@@ -96,7 +96,8 @@ describe('ProjectsListItemMenu', () => {
 
     // Wait for the dialog form to be fully rendered (not in loading state)
     cy.get('#displayName').should('not.have.attr', 'disabled');
-    cy.get('#displayName').find('input[id*="inner"]').clear().type('Updated Display Name');
+    cy.get('#displayName').clearUi5Input();
+    cy.get('#displayName').typeIntoUi5Input('Updated Display Name');
     cy.get('ui5-button').contains('Save').click();
 
     cy.then(() => {
