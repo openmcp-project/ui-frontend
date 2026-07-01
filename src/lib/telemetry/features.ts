@@ -10,6 +10,6 @@ export type TelemetryFeature =
   | Feature<'kubeconfig.copied'>
   | Feature<'kubeconfig.downloaded'>
   | Feature<'mcp.connected', { idp: 'system' | 'custom' }>
-  | Feature<'projectList.navigated', { trigger: 'click' | 'keyboard' }>
-  | Feature<'projectList.setAsDefault', { trigger: 'click' | 'keyboard' }>
-  | Feature<'projectList.searchEnterPressed'>;
+  | Feature<'project-list.navigated', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.set-as-default', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.search-enter-pressed'>;

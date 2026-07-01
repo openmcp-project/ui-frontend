@@ -131,13 +131,13 @@ export default function ProjectsList({
       if (rows.length === 1) {
         const { projectName } = rows[0];
         if (setAsDefaultRef.current) {
-          telemetry.track({ name: 'projectList.setAsDefault', trigger: 'keyboard' });
+          telemetry.track({ name: 'project-list.set-as-default', trigger: 'keyboard' });
           setRememberedProject(projectName);
         }
         onProjectSelect?.(projectName);
         navigate(`/projects/${projectName}`);
       } else if (rows.length > 1) {
-        telemetry.track({ name: 'projectList.searchEnterPressed' });
+        telemetry.track({ name: 'project-list.search-enter-pressed' });
         tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
       }
     },
@@ -159,9 +159,9 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
-                    telemetry.track({ name: 'projectList.setAsDefault', trigger: 'click' });
+                    telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
                   }
-                  telemetry.track({ name: 'projectList.navigated', trigger: 'click' });
+                  telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
                   onProjectSelect?.(projectName);
                   navigate(`/projects/${projectName}`);
                 }}
