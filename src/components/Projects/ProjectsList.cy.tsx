@@ -44,6 +44,12 @@ const mount = (onProjectSelect?: (name: string) => void) =>
   );
 
 describe('ProjectsList search', () => {
+  beforeEach(() => {
+    // Ensure a stale `rememberedProject` from a previous test can't cause
+    // the ProjectsList to auto-redirect out of the search screen.
+    clearRememberedProject();
+  });
+
   it('shows all projects when search is empty', () => {
     mount();
     cy.contains('alpha-project').should('exist');

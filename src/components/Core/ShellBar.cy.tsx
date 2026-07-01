@@ -24,6 +24,9 @@ describe('ShellBar', () => {
 
   beforeEach(() => {
     logoutCalled = false;
+    // Reset remembered-project state so a test that pins a project doesn't
+    // leak that state into the next test's mount.
+    clearRememberedProject();
   });
 
   const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
@@ -84,7 +87,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.contains('Sign Out').click({ force: true });
+    cy.contains('Sign Out').clickEnabled();
 
     cy.wrap(null).should(() => {
       expect(logoutCalled).to.equal(true);
@@ -118,7 +121,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.contains('Clear remembered project').click({ force: true });
+    cy.contains('Clear remembered project').clickEnabled();
 
     cy.wrap(null).should(() => {
       expect(localStorage.getItem('rememberedProject')).to.equal(null);
