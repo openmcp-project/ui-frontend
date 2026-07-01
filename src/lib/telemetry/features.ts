@@ -9,4 +9,7 @@ type Feature<N extends string, P extends Record<string, string> = {}> = { name: 
 export type TelemetryFeature =
   | Feature<'kubeconfig.copied'>
   | Feature<'kubeconfig.downloaded'>
-  | Feature<'mcp.connected', { idp: 'system' | 'custom' }>;
+  | Feature<'mcp.connected', { idp: 'system' | 'custom' }>
+  | Feature<'project-list.navigated', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.set-as-default', { trigger: 'click' | 'keyboard' }>
+  | Feature<'project-list.search-enter-pressed'>;

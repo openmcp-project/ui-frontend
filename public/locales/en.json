@@ -289,6 +289,9 @@
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
     "setDefaultProject": "Set selected project as default"
   },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
+  },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
     "overviewTitle": "Overview",
