@@ -98,6 +98,10 @@ export const ControlPlaneCard = ({
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                   setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+                  controlPlaneName={name}
+                  namespace={controlPlane.status?.access?.namespace ?? ''}
+                  secretName={controlPlane.status?.access?.name ?? ''}
+                  secretKey={controlPlane.status?.access?.key ?? ''}
                 />
               )}
               {controlPlane.version === 'v2' && (
@@ -105,6 +109,9 @@ export const ControlPlaneCard = ({
                   setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                   isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
                   setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
+                  controlPlaneName={name}
+                  mcpNamespace={controlPlane.metadata.namespace}
+                  oidcOpenmcpSecretName={controlPlane.status?.access?.oidc_openmcp?.name}
                 />
               )}
               {markMcpV1asDeprecated && controlPlane.version !== 'v2' && <DeprecatedLabel />}

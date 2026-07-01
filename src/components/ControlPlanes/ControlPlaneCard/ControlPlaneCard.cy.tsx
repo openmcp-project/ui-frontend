@@ -78,7 +78,7 @@ describe('ControlPlaneCard', () => {
     );
 
     cy.get("[data-testid='ControlPlaneCardMenu-opener']").click();
-    cy.contains('Delete Control Plane').click({ force: true });
+    cy.contains('Delete').click({ force: true });
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('mcp-name');
     cy.then(() => cy.wrap(deleteManagedControlPlaneCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
