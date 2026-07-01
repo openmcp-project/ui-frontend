@@ -44,7 +44,12 @@ function CreatedAtCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
-  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
+  // Bubble the timestamp up in an effect, never during render — writing to
+  // the parent's ref map while ProjectsList itself is rendering triggers
+  // "Cannot update a component (…) while rendering a different component".
+  useEffect(() => {
+    if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
+  }, [isLoading, creationTimestamp, projectName, onTimestamp]);
   if (isLoading || !creationTimestamp) return null;
   return (
     <FadeIn>
@@ -63,7 +68,9 @@ function ProjectDisplayNameCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { displayName, isLoading } = useProjectMembers(projectName);
-  if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  useEffect(() => {
+    if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  }, [isLoading, displayName, projectName, onDisplayName]);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
 }

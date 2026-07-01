@@ -22,10 +22,15 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
     setPopoverIsOpen(true);
   };
 
-  for (const member of members) {
+  for (const [index, member] of members.entries()) {
     avatars.push(
       <Avatar
-        key={`project-${project}-ws-${workspace}-${member.name}`}
+        // Include index and kind+namespace in the key so a members array with
+        // the same principal name appearing twice (e.g. bound to different
+        // roles, User vs ServiceAccount with same short name) doesn't
+        // collide. `member.name` alone was producing "Encountered two
+        // children with the same key" warnings.
+        key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
         initials={generateInitialsForEmail(member.name)}
         size="XS"
       />,
