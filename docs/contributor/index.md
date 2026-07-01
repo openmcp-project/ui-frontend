@@ -9,6 +9,7 @@ Welcome! Before contributing, please read [`CONTRIBUTING.md`](../../CONTRIBUTING
 - [Testing](testing.md) — unit, component, smoke tests and when to use each
 - [New Components](new-component.md) — design, build, and test patterns
 - [New API Requests](new-api-request.md) — SWR, Apollo, and BFF proxy patterns
+- [Telemetry](telemetry.md) — how to add tracked events to a new feature
 - [Static Analysis](static-analysis.md) — ESLint, TypeScript, Prettier, npmPkgJsonLint
 - [Licensing & Legal](licensing.md) — REUSE, Apache-2.0, DCO, Code of Conduct
 

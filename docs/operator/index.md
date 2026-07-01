@@ -74,6 +74,10 @@ task build:ocm OCM_COMPONENT_VERSION=v1.2.3
 task publish:ocm OCM_COMPONENT_VERSION=v1.2.3
 ```
 
+## Telemetry
+
+The UI emits product analytics and error reports through a fan-out service that talks to Sentry, Dynatrace, and (in dev only) the browser console. For architectural details, the exact list of events sent, and how to opt a deployment out, see [Telemetry](telemetry.md).
+
 ---
 
 - [End User Guide](../end-user/index.md) — what users can do with the UI
