@@ -189,7 +189,6 @@ export default function ProjectsList({
         accessor: 'creationTimestamp',
         width: 120,
         disableFilters: true,
-        responsivePopIn: true,
         responsiveMinWidth: 1200,
         sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
           const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
