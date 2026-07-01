@@ -9,6 +9,7 @@ import {
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
@@ -85,6 +86,7 @@ export default function ProjectsList({
   const [search, setSearch] = useState('');
   const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
 
+  const telemetry = useTelemetry();
   const { setRememberedProject } = useRememberedProject();
   const [setAsDefault, setSetAsDefault] = useState(false);
   const setAsDefaultRef = useRef(false);
@@ -129,15 +131,17 @@ export default function ProjectsList({
       if (rows.length === 1) {
         const { projectName } = rows[0];
         if (setAsDefaultRef.current) {
+          telemetry.track({ name: 'projectList.setAsDefault', trigger: 'keyboard' });
           setRememberedProject(projectName);
         }
         onProjectSelect?.(projectName);
         navigate(`/projects/${projectName}`);
       } else if (rows.length > 1) {
+        telemetry.track({ name: 'projectList.searchEnterPressed' });
         tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
       }
     },
-    [rows, navigate, onProjectSelect, setRememberedProject],
+    [rows, navigate, onProjectSelect, setRememberedProject, telemetry],
   );
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -155,7 +159,9 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
+                    telemetry.track({ name: 'projectList.setAsDefault', trigger: 'click' });
                   }
+                  telemetry.track({ name: 'projectList.navigated', trigger: 'click' });
                   onProjectSelect?.(projectName);
                   navigate(`/projects/${projectName}`);
                 }}
@@ -233,7 +239,7 @@ export default function ProjectsList({
         ),
       },
     ],
-    [navigate, useProjectMembers, onProjectSelect, setRememberedProject],
+    [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
   if (isLoading) {
