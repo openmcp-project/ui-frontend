@@ -99,6 +99,10 @@ Use the docker image which uses nginx for best performance and small bundle size
 docker build -t my-label .
 ```
 
+#### Coming Soon: Deploy on Open Control Plane {#deploy-platform-service}
+
+We plan to ship this component as a [PlatformService](https://open-control-plane.io/users/concepts/providers#platform-services) of Open Control Plane.
+
 ### Dynamic FrontendConfig
 
 The frontend loads a `frontend-config.json` file from the root folder containing dynamic config like the backend url. For development, the file `frontend-config.json` can be copied to `public/frontend-config.json`. For production, NGINX will serve the content from the environment variable `BACKEND_CONFIG`.
@@ -123,6 +127,20 @@ npm run generate-graphql-types:watch -- myaccesstokenhere
 ```
 
 The token is automatically prefixed with `Bearer` and passed as the `Authorization` header when fetching the remote GraphQL schema.
+
+#### Which access token
+
+The schema is fetched from the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway). Getting the required access token depends on how you [deploy your platform](#deploy-platform-service). For OIDC setups, use [kubelogin](https://github.com/int128/kubelogin) (`kubectl oidc-login`) to obtain the token — this is an example of an IDP-centered setup. More guidance coming soon.
+
+```
+kubectl oidc-login get-token 
+  --oidc-issuer-url=<according to your setup>
+  --oidc-client-id=<according to your setup> --oidc-extra-scope=offline_access 
+  --oidc-extra-scope=email 
+  --oidc-extra-scope=profile 
+  --oidc-use-pkce 
+  --grant-type=auto | jq .status.token -r
+```
 
 ## Support & Contributing
 

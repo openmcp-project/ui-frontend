@@ -1,5 +1,11 @@
 import * as Sentry from '@sentry/react';
 import { ShellBarProfileClickEventDetail } from '@ui5/webcomponents-fiori/dist/ShellBar.js';
+import '@ui5/webcomponents-icons/dist/copy';
+import '@ui5/webcomponents-icons/dist/download';
+import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/nav-back';
+import '@ui5/webcomponents-icons/dist/overflow';
+import '@ui5/webcomponents-icons/dist/source-code';
 import {
   Avatar,
   Button,
@@ -22,23 +28,18 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
+import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
+import { useViewMode } from '../../context/ViewModeContext.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
+import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
+import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
+import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
 import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
-import { useViewMode } from '../../context/ViewModeContext.tsx';
-import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
-import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
-import '@ui5/webcomponents-icons/dist/copy';
-import '@ui5/webcomponents-icons/dist/download';
-import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/nav-back';
-import '@ui5/webcomponents-icons/dist/overflow';
-import '@ui5/webcomponents-icons/dist/source-code';
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
-import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
-import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 
 export function ShellBarComponent({
   useAuthOnboarding = _useAuthOnboarding,
@@ -79,7 +80,7 @@ export function ShellBarComponent({
             )}
             <div className={styles.logoWrapper}>
               <img src={SapLogo} alt="SAP" className={styles.logo} />
-              <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'ManagedControlPlane UI'}</span>
+              <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}</span>
               {namespace && (
                 <Button
                   design="Transparent"
@@ -245,6 +246,8 @@ const ProfilePopover = ({
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackPopoverOpen, setFeedbackPopoverOpen] = useState(false);
   const [rating, setRating] = useState(0);
+  const { rememberedProject, clearRememberedProject } = useRememberedProject();
+  const hasRememberedProject = rememberedProject !== null;
   const toast = useToast();
 
   const onFeedbackMessageChange = (event: Ui5CustomEvent<TextAreaDomRef, TextAreaInputEventDetail>) => {
@@ -307,6 +310,17 @@ const ProfilePopover = ({
           <ListItemStandard icon="feedback" onClick={handleFeedbackClick}>
             {t('ShellBar.feedbackButtonInfo')}
           </ListItemStandard>
+          {hasRememberedProject && (
+            <ListItemStandard
+              icon="bookmark"
+              onClick={() => {
+                clearRememberedProject();
+                setOpen(false);
+              }}
+            >
+              {t('ShellBar.clearRememberedProject')}
+            </ListItemStandard>
+          )}
           <ListItemStandard
             icon="log"
             onClick={() => {

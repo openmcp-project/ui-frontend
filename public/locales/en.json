@@ -93,9 +93,10 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create new Control Plane",
-    "createNewManagedControlPlaneV2": "Create new Control Plane V2",
-    "V2": "V2"
+    "createNewManagedControlPlane": "Create Managed Control Plane",
+    "createNewControlPlane": "Create Control Plane",
+    "recommendedBadge": "Recommended",
+    "deprecatedBadge": "Deprecated"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
@@ -116,7 +117,7 @@
     "noSearchResultsSubtitle": "Try a different search term"
   },
   "ConnectButton": {
-    "buttonText": "Connect",
+    "buttonText": "View",
     "defaultIdP": "default IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
@@ -179,6 +180,7 @@
     "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
     "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
+    "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
     "feedbackRatingLabel": "Rating",
     "feedbackHeader": "Your feedback",
@@ -264,12 +266,20 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
+  "ProjectPage": {
+    "backToProjects": "Go to all projects"
+  },
   "ProjectsPage": {
     "header": "Your instances of <span>Control Plane</span>",
-    "projectHeader": "Project:"
+    "projectHeader": "Project:",
+    "pinProject": "Set as default project",
+    "unpinProject": "Clear default project"
   },
   "ProjectsListView": {
     "pageTitle": "Let's get started",
+    "rememberProject": "Remember selection",
+    "subHeader": "Create or select a project to manage your control planes, workspaces, and members.",
+    "learnMore": "Learn more",
     "title": "Projects",
     "displayNameHeader": "Display Name",
     "fetchError": "Failed to load projects",
@@ -278,7 +288,8 @@
     "membersHeader": "Members",
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
-    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed."
+    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
+    "setDefaultProject": "Set selected project as default"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -510,8 +521,8 @@
     "fluxManaged": "This resource is managed by Flux and cannot be edited here"
   },
   "createMCP": {
-    "dialogTitle": "Create Control Plane",
-    "dialogTitleV2": "Create Control Plane V2",
+    "dialogTitle": "Create Managed Control Plane",
+    "dialogTitleControlPlane": "Create Control Plane",
     "titleText": "Control Plane Created Successfully!",
     "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
     "copySuffix": "-copy"

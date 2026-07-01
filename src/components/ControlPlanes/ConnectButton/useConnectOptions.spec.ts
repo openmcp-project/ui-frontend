@@ -34,7 +34,7 @@ contexts:
       name: 'context-system',
       user: 'openmcp',
       isSystemIdP: true,
-      url: '/mcp/projects/test-project/workspaces/test-workspace/mcps/test-mcp',
+      url: '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp',
     });
   });
 
@@ -87,15 +87,19 @@ contexts:
       name: 'context-system',
       user: 'openmcp',
       isSystemIdP: true,
-      url: '/mcp/projects/test-project/workspaces/test-workspace/mcps/test-mcp',
+      url: '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp',
     });
 
     const customOptions = options.filter((o) => !o.isSystemIdP);
     expect(customOptions).toHaveLength(2);
     expect(customOptions[0].user).toBe('user-a');
-    expect(customOptions[0].url).toBe('/mcp/projects/test-project/workspaces/test-workspace/mcps/test-mcp?idp=user-a');
+    expect(customOptions[0].url).toBe(
+      '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp?idp=user-a',
+    );
     expect(customOptions[1].user).toBe('user-b');
-    expect(customOptions[1].url).toBe('/mcp/projects/test-project/workspaces/test-workspace/mcps/test-mcp?idp=user-b');
+    expect(customOptions[1].url).toBe(
+      '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp?idp=user-b',
+    );
   });
 
   it('should handle kubeconfig without system IdP', () => {
@@ -116,7 +120,7 @@ contexts:
     expect(result.current[0].isSystemIdP).toBe(false);
     expect(result.current[0].user).toBe('custom-user');
     expect(result.current[0].url).toBe(
-      '/mcp/projects/test-project/workspaces/test-workspace/mcps/test-mcp?idp=custom-user',
+      '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp?idp=custom-user',
     );
   });
 
