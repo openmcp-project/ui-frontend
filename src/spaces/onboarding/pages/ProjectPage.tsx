@@ -1,6 +1,7 @@
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
 import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import { useCallback, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
@@ -8,12 +9,14 @@ import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
 import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
+import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
@@ -22,9 +25,37 @@ export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
+  const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
+  const telemetry = useTelemetry();
+
+  // Fire `workspace-list.searched` only once per "search session" — from the
+  // first non-empty character until the user clears the field — so we
+  // measure adoption, not keystrokes.
+  const hasFiredSearchedRef = useRef(false);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (value === '' && hasFiredSearchedRef.current) {
+        hasFiredSearchedRef.current = false;
+      } else if (value !== '' && !hasFiredSearchedRef.current) {
+        telemetry.track({ name: 'workspace-list.searched' });
+        hasFiredSearchedRef.current = true;
+      }
+      setSearch(value);
+    },
+    [telemetry],
+  );
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      if (search.trim() === '') return;
+      telemetry.track({ name: 'workspace-list.search-enter-pressed' });
+    },
+    [search, telemetry],
+  );
 
   if (isPending) {
     return <Loading />;
@@ -103,7 +134,8 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} />
+        <ResourceSearchBar value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} search={search} />
       </ObjectPage>
     </>
   );
