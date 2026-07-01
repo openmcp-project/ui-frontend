@@ -12,6 +12,7 @@ import { CreateWorkspaceDialogContainer } from '../../Dialogs/CreateWorkspaceDia
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 type ControlPlaneListToolbarProps = {
   projectName: string;
@@ -31,12 +32,14 @@ export function ControlPlaneListToolbar({
   const menuButtonId = useId();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const telemetry = useTelemetry();
 
   const { deleteProject } = useDeleteProject(projectName);
 
   const handleDeleteProject = async () => {
     try {
       await deleteProject();
+      telemetry.track({ name: 'project.deleted', source: 'detail' });
       navigate(Routes.Projects, { replace: true });
     } catch {
       // toast already shown by the hook
@@ -84,6 +87,7 @@ export function ControlPlaneListToolbar({
         isOpen={dialogEditProjectIsOpen}
         setIsOpen={setDialogEditProjectIsOpen}
         projectName={projectName}
+        source="detail"
       />
 
       <CreateWorkspaceDialogContainer

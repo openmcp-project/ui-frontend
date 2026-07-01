@@ -15,6 +15,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { Routes } from '../../../Routes.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
@@ -24,6 +25,7 @@ export default function ProjectPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
+  const telemetry = useTelemetry();
   const isProjectRemembered = rememberedProject === projectName;
 
   if (isPending) {
@@ -85,12 +87,14 @@ export default function ProjectPage() {
                   onClick={() => {
                     if (isProjectRemembered) {
                       clearRemembered();
+                      telemetry.track({ name: 'project.remembered-cleared', source: 'detail-header' });
                     } else if (projectName) {
                       setRememberedProject(projectName);
+                      telemetry.track({ name: 'project.remembered', source: 'detail-header' });
                     }
                   }}
                 />
-                <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+                <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}

@@ -33,6 +33,7 @@ import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
@@ -51,6 +52,7 @@ export function ShellBarComponent({
   const profilePopoverRef = useRef<PopoverDomRef>(null);
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
+  const telemetry = useTelemetry();
   const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } =
     useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
@@ -87,7 +89,10 @@ export function ShellBarComponent({
                   icon="copy"
                   tooltip={t('ShellBar.copyNamespace')}
                   className={styles.copyNamespaceButton}
-                  onClick={() => void copyToClipboard(namespace)}
+                  onClick={() => {
+                    void copyToClipboard(namespace);
+                    telemetry.track({ name: 'clipboard.copied', source: 'controlplane-namespace' });
+                  }}
                 />
               )}
             </div>
@@ -104,6 +109,7 @@ export function ShellBarComponent({
                 project={project}
                 workspace={workspace}
                 hideNamespaceColumn
+                source="controlplane-detail"
               />
             </div>
           )}
@@ -115,7 +121,11 @@ export function ShellBarComponent({
               <Switch
                 checked={mode === 'open-source'}
                 disabled={!headlampAvailable}
-                onChange={(e) => setMode(e.target.checked ? 'open-source' : 'beginner')}
+                onChange={(e) => {
+                  const next = e.target.checked ? 'open-source' : 'beginner';
+                  setMode(next);
+                  telemetry.track({ name: 'view-mode.toggled', mode: next === 'open-source' ? 'headlamp' : 'legacy' });
+                }}
               />
             </div>
           )}
@@ -137,6 +147,7 @@ function KubeconfigShellBarButton() {
   const { mode } = useViewMode();
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
+  const telemetry = useTelemetry();
   const kubeconfigMenuRef = useRef<MenuDomRef | null>(null);
   const buttonRef = useRef<ButtonDomRef | null>(null);
   const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
@@ -173,8 +184,10 @@ function KubeconfigShellBarButton() {
           const action = event.detail.item.dataset.action;
           if (action === 'download' && kubeconfig && mcpName) {
             DownloadKubeconfig(kubeconfig, mcpName);
+            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-shellbar' });
           } else if (action === 'copy' && kubeconfig) {
             void copyToClipboard(kubeconfig);
+            telemetry.track({ name: 'kubeconfig.copied', source: 'controlplane-shellbar' });
           }
           setKubeconfigMenuOpen(false);
         }}
@@ -240,6 +253,7 @@ const ProfilePopover = ({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) => {
   const auth = useAuthOnboarding();
+  const telemetry = useTelemetry();
   const { t } = useTranslation();
   const feedbackPopoverRef = useRef<PopoverDomRef>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -276,6 +290,7 @@ const ProfilePopover = ({
       }
 
       setFeedbackSent(true);
+      telemetry.track({ name: 'feedback.submitted' });
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -295,6 +310,7 @@ const ProfilePopover = ({
     setRating(0);
     setFeedbackSent(false);
     setFeedbackPopoverOpen(true);
+    telemetry.track({ name: 'feedback.opened' });
   };
 
   return (
@@ -315,6 +331,7 @@ const ProfilePopover = ({
               icon="bookmark"
               onClick={() => {
                 clearRememberedProject();
+                telemetry.track({ name: 'project.remembered-cleared', source: 'shellbar-menu' });
                 setOpen(false);
               }}
             >
@@ -325,6 +342,7 @@ const ProfilePopover = ({
             icon="log"
             onClick={() => {
               setOpen(false);
+              telemetry.track({ name: 'user.signed-out' });
               void auth.logout();
             }}
           >
