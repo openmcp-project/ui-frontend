@@ -106,12 +106,12 @@ describe('ManagedResources - Delete Resource', () => {
     );
 
     // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().clickEnabled();
+    cy.contains('Delete').clickEnabled();
 
     // Type confirmation text and verify it was accepted
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5InputWithDelay('test-subaccount');
@@ -143,16 +143,19 @@ describe('ManagedResources - Delete Resource', () => {
     );
 
     // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().clickEnabled();
+    cy.contains('Delete').clickEnabled();
 
-    // Wait for dialog open animation to complete (onOpen fires resetForm which clears state)
-    cy.get('ui5-dialog[open]').should('be.visible');
-    cy.wait(500);
+    // Wait for dialog open animation to complete (onOpen fires resetForm
+    // which clears state). Gate on the Advanced section being interactable
+    // rather than a fixed cy.wait(500) — the timing depends on the animation
+    // budget which varies across machines/CI.
+    cy.openedDialog();
+    cy.contains('Advanced').should('be.visible');
 
     // Expand Advanced section and enable force deletion checkbox
     cy.contains('Advanced').click();
@@ -191,12 +194,12 @@ describe('ManagedResources - Delete Resource', () => {
     );
 
     // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Delete
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Delete').click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().clickEnabled();
+    cy.contains('Delete').clickEnabled();
 
     // Delete button should be disabled initially
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').should('have.attr', 'disabled');
@@ -305,22 +308,22 @@ describe('ManagedResources - Edit Resource', () => {
     );
 
     // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu and click Edit
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
-    cy.contains('Edit').click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().clickEnabled();
+    cy.contains('Edit').clickEnabled();
 
     // Wait for YAML panel and Monaco editor to fully load (schema loader async re-renders)
     cy.contains('YAML').should('be.visible');
     cy.get('.monaco-editor', { timeout: 10000 }).should('exist');
 
     // Click Apply button — use force to avoid detached-DOM race from SWR revalidation re-renders
-    cy.get('[data-testid="yaml-apply-button"]').click({ force: true });
+    cy.get('[data-testid="yaml-apply-button"]').clickEnabled();
 
     // Confirm in dialog
-    cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').click({ force: true });
+    cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').clickEnabled();
 
     // Wait for success message
     cy.contains('Update submitted', { timeout: 10000 }).should('be.visible');
@@ -401,11 +404,11 @@ describe('ManagedResources - Without Admin Rights', () => {
     );
 
     // Expand resource group
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('test-subaccount').should('be.visible');
 
     // Open actions menu
-    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().clickEnabled();
 
     // Verify Delete action is disabled by checking the ui5-menu-item element
     cy.get('ui5-menu-item[data-action-key="delete"]').should('have.attr', 'disabled');
@@ -472,7 +475,7 @@ describe('ManagedResources', () => {
     );
 
     // Expand resource group (same pattern as other tests)
-    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('button[aria-label*="xpand"]').first().clickEnabled();
     cy.contains('some-resource').should('be.visible');
 
     // Link with label value should be rendered (ui5-link)

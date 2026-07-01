@@ -56,10 +56,10 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
-    cy.contains('Delete project').click({ force: true });
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('test-project');
+    cy.contains('Delete project').clickEnabled();
+    cy.openedDialog().find('ui5-input').typeIntoEnabledUi5Input('test-project');
     cy.then(() => cy.wrap(deleteProjectCalled).should('equal', false));
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    cy.openedDialog().find('ui5-button').contains('Delete').clickEnabled();
     cy.then(() => cy.wrap(deleteProjectCalled).should('equal', true));
   });
 
@@ -67,9 +67,9 @@ describe('ProjectsListItemMenu', () => {
     mountMenu();
 
     cy.get('ui5-button[icon="overflow"]').click();
-    cy.contains('Edit project').click({ force: true });
+    cy.contains('Edit project').clickEnabled();
 
-    cy.get('ui5-dialog[open]').should('exist');
+    cy.openedDialog().should('exist');
     cy.get('#name').should('have.attr', 'disabled');
     cy.get('#name').invoke('prop', 'value').should('eq', 'test-project');
   });
@@ -92,12 +92,12 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
-    cy.contains('Edit project').click({ force: true });
+    cy.contains('Edit project').clickEnabled();
 
     // Wait for the dialog form to be fully rendered (not in loading state)
     cy.get('#displayName').should('not.have.attr', 'disabled');
     cy.get('#displayName').find('input[id*="inner"]').clear().type('Updated Display Name');
-    cy.get('ui5-button').contains('Save').click();
+    cy.get('ui5-button').contains('Save').clickEnabled();
 
     cy.then(() => {
       cy.wrap(updatePayload).should('not.be.null');
@@ -129,13 +129,13 @@ describe('ProjectsListItemMenu', () => {
     );
 
     cy.get('ui5-button[icon="overflow"]').click();
-    cy.contains('Edit project').click({ force: true });
+    cy.contains('Edit project').clickEnabled();
 
-    cy.get('[data-testid="add-member-button"]').first().click({ force: true });
-    cy.get('[data-testid="member-email-input"]').typeIntoUi5Input('new-user@example.com');
-    cy.get('[data-testid="add-member-button"]').last().click({ force: true });
+    cy.get('[data-testid="add-member-button"]').first().clickEnabled();
+    cy.get('[data-testid="member-email-input"]').typeIntoEnabledUi5Input('new-user@example.com');
+    cy.get('[data-testid="add-member-button"]').last().clickEnabled();
 
-    cy.get('ui5-button').contains('Save').click();
+    cy.get('ui5-button').contains('Save').clickEnabled();
 
     cy.then(() => {
       cy.wrap(updatePayload).should('not.be.null');

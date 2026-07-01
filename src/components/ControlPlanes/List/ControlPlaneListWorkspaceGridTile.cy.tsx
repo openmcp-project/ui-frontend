@@ -121,10 +121,10 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     );
 
     cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
-    cy.contains('Delete workspace').click({ force: true });
-    cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('workspaceName');
+    cy.contains('Delete workspace').clickEnabled();
+    cy.openedDialog().find('ui5-input').typeIntoEnabledUi5Input('workspaceName');
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
-    cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
+    cy.openedDialog().find('ui5-button').contains('Delete').clickEnabled();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
   });
 });
