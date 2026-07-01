@@ -1,9 +1,9 @@
 import { Button, ButtonPropTypes } from '@ui5/webcomponents-react';
-import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
-import { useId, CSSProperties, useState } from 'react';
-import { useCopyButton } from '../../context/CopyButtonContext.tsx';
 import { ThemingParameters } from '@ui5/webcomponents-react-base';
+import { CSSProperties, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCopyButton } from '../../context/CopyButtonContext.tsx';
+import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
 import styles from './CopyButton.module.css';
 
 interface CopyButtonProps extends Omit<ButtonPropTypes, 'children'> {
@@ -28,6 +28,7 @@ export const CopyButton = ({ text, style = {}, collapsible = false, ...buttonPro
   };
 
   const defaultStyle: CSSProperties = {
+    border: '1px solid transparent',
     color: isCopied ? undefined : ThemingParameters.sapContent_LabelColor,
     ...(collapsible ? { justifyContent: 'start' } : {}),
   };

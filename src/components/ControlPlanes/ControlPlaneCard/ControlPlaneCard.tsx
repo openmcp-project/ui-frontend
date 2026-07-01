@@ -1,31 +1,31 @@
-import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
+import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import { Card, FlexBox, Label, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState } from 'react';
 
-import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
-import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
-import styles from './ControlPlaneCard.module.css';
-import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
+import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
+import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
+import { KubectlDeleteMcpDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteMcpDialog.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { canConnectToMCP } from '../controlPlanes.ts';
+import styles from './ControlPlaneCard.module.css';
 
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
+import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
+import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
+import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
+import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
-import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
-import { useDeleteManagedControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useDeleteManagedControlPlaneV2GraphQL.ts';
-import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
-import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
-import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -174,7 +174,7 @@ export const ControlPlaneCard = ({
         mode={managedControlPlaneWizardState.mode}
       />
       {controlPlane.version === 'v2' && (
-        <EditManagedControlPlaneV2WizardDataLoader
+        <EditControlPlaneV2WizardDataLoader
           isOpen={isEditV2WizardOpen}
           setIsOpen={setIsEditV2WizardOpen}
           namespace={namespace}
