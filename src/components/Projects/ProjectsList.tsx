@@ -94,6 +94,23 @@ export default function ProjectsList({
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
 
+  // Fire `project-list.searched` only once per "search session" — from the
+  // first non-empty character until the user clears the field — so we
+  // measure adoption, not keystrokes.
+  const hasFiredSearchedRef = useRef(false);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (value === '' && hasFiredSearchedRef.current) {
+        hasFiredSearchedRef.current = false;
+      } else if (value !== '' && !hasFiredSearchedRef.current) {
+        telemetry.track({ name: 'project-list.searched' });
+        hasFiredSearchedRef.current = true;
+      }
+      setSearch(value);
+    },
+    [telemetry],
+  );
+
   const handleTimestamp = (name: string, ts: string) => {
     timestampsRef.current.set(name, ts);
   };
@@ -251,7 +268,7 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar focusOnMount value={search} onChange={setSearch} onKeyDown={handleSearchKeyDown} />
+      <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       <div ref={tableContainerRef}>
         <AnalyticalTable
           style={{
