@@ -59,6 +59,20 @@ Do not commit these changes.
 
 ---
 
+#### Which access token
+
+The schema is fetched from the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway). Getting the required access token depends on how you [deploy your platform](#deploy-platform-service). For OIDC setups, use [kubelogin](https://github.com/int128/kubelogin) (`kubectl oidc-login`) to obtain the token — this is an example of an IDP-centered setup. More guidance coming soon.
+
+```
+kubectl oidc-login get-token 
+  --oidc-issuer-url=<according to your setup>
+  --oidc-client-id=<according to your setup> --oidc-extra-scope=offline_access 
+  --oidc-extra-scope=email 
+  --oidc-extra-scope=profile 
+  --oidc-use-pkce 
+  --grant-type=auto | jq .status.token -r
+```
+
 ## Support & Contributing
 
 Issues and feature requests: [GitHub Issues](https://github.com/openmcp-project/ui-frontend/issues)  

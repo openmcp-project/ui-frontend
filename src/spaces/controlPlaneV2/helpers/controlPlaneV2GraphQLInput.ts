@@ -1,5 +1,5 @@
 import { CoreOpenControlPlaneIoV2alpha1ControlPlane_Input as ManagedControlPlaneV2Input } from '../../../types/__generated__/graphql/graphql.ts';
-import { McpV2Input } from '../schemas/mcpV2Input.schema.ts';
+import { McpV2Input } from '../../mcp/schemas/mcpV2Input.schema.ts';
 
 export function buildMcpV2GraphQLInput(input: McpV2Input): ManagedControlPlaneV2Input {
   return {

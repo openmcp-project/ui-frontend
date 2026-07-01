@@ -1,11 +1,11 @@
-import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react';
+import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
 import { useId, useState } from 'react';
-import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
-import { useConnectOptions } from './useConnectOptions.ts';
+import { useConnectOptions, type ConnectOption } from './useConnectOptions.ts';
 import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -17,6 +17,7 @@ interface ConnectButtonProps {
   disabled?: boolean;
   useApiResource?: typeof _useApiResource;
   useNavigate?: typeof _useNavigate;
+  useTelemetry?: typeof _useTelemetry;
 }
 
 export default function ConnectButton({
@@ -29,11 +30,13 @@ export default function ConnectButton({
   disabled,
   useApiResource = _useApiResource,
   useNavigate = _useNavigate,
+  useTelemetry = _useTelemetry,
 }: ConnectButtonProps) {
   const navigate = useNavigate();
   const buttonId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   const {
     data: kubeconfigResource,
@@ -43,25 +46,14 @@ export default function ConnectButton({
 
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
-  const handleMenuAction = (event: CustomEvent) => {
-    const { action, target } = event.detail.item.dataset;
-
-    if (action === 'download') {
-      DownloadKubeconfig(kubeconfigResource, controlPlaneName);
-      setIsMenuOpen(false);
-      return;
-    }
-
-    if (target) {
-      navigate(target);
-      setIsMenuOpen(false);
-      return;
-    }
+  const connectTo = (target: ConnectOption) => {
+    telemetry.track({ name: 'mcp.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    navigate(target.url);
   };
 
   if (isLoading || error || connectionTargets.length === 0) {
     return (
-      <Button endIcon="navigation-right-arrow" disabled={true}>
+      <Button design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -70,7 +62,12 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => navigate(directTarget.url)}>
+      <Button
+        design="Emphasized"
+        endIcon="navigation-right-arrow"
+        disabled={disabled}
+        onClick={() => connectTo(directTarget)}
+      >
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -79,6 +76,7 @@ export default function ConnectButton({
   return (
     <div>
       <Button
+        design="Emphasized"
         id={buttonId}
         disabled={disabled}
         endIcon="slim-arrow-down"
@@ -86,7 +84,17 @@ export default function ConnectButton({
       >
         {t('ConnectButton.buttonText')}
       </Button>
-      <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
+      <Menu
+        opener={buttonId}
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onItemClick={(event) => {
+          const { target: url } = event.detail.item.dataset;
+          const target = connectionTargets.find((t) => t.url === url);
+          if (target) connectTo(target);
+          setIsMenuOpen(false);
+        }}
+      >
         {connectionTargets.map((target) => (
           <MenuItem
             key={target.name}
@@ -95,8 +103,6 @@ export default function ConnectButton({
             additionalText={target.isSystemIdP ? t('ConnectButton.defaultIdP') : undefined}
           />
         ))}
-        <MenuSeparator />
-        <MenuItem text={t('ConnectButton.downloadKubeconfig')} data-action="download" />
       </Menu>
     </div>
   );

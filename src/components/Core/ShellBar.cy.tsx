@@ -1,17 +1,18 @@
-import { ShellBarComponent } from './ShellBar.tsx';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
-import { ToastProvider } from '../../context/ToastContext.tsx';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { setRememberedProject, clearRememberedProject } from '../../utils/rememberedProject.ts';
-import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
+import { ToastProvider } from '../../context/ToastContext.tsx';
+import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
+import { ShellBarComponent } from './ShellBar.tsx';
+import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
 
   const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
-    user: { email: 'test@example.com' },
+    user: { sub: 'test@example.com', email: 'test@example.com' },
     logout: async () => {
       logoutCalled = true;
     },
@@ -25,16 +26,25 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = () => {
+  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+    const fakeConfig = {
+      landscape: undefined,
+      documentationBaseUrl: '',
+      githubBaseUrl: '',
+      mcp2DocsUrl: '',
+      featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+    };
     cy.mount(
       <MemoryRouter>
-        <ToastProvider>
-          <ViewModeProvider>
-            <ShellBarMcpActionsProvider>
-              <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-            </ShellBarMcpActionsProvider>
-          </ViewModeProvider>
-        </ToastProvider>
+        <FrontendConfigContext.Provider value={fakeConfig}>
+          <ToastProvider>
+            <ViewModeProvider>
+              <ShellBarMcpActionsProvider>
+                <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+              </ShellBarMcpActionsProvider>
+            </ViewModeProvider>
+          </ToastProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
   };
@@ -43,7 +53,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('img[alt="SAP"]').should('be.visible');
-    cy.contains('ManagedControlPlane UI').should('be.visible');
+    cy.contains('OpenControlPlane UI').should('be.visible');
   });
 
   it('shows avatar with user initials', () => {

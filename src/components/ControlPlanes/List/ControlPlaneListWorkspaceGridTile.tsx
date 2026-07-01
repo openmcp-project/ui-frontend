@@ -3,7 +3,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
-import { useMemo, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
@@ -18,7 +18,7 @@ import { DeleteWorkspaceDialog } from '../../Dialogs/KubectlCommandInfo/KubectlD
 import { CopyButton } from '../../Shared/CopyButton.tsx';
 import IllustratedError from '../../Shared/IllustratedError.tsx';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
-import { CreateManagedControlPlaneV2WizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
+import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
@@ -198,7 +198,7 @@ export function ControlPlaneListWorkspaceGridTile({
                         setIsCreateManagedControlPlaneWizardOpenV2(true);
                       }}
                     >
-                      {t('ControlPlaneListToolbar.createNewManagedControlPlaneV2')}
+                      {t('ControlPlaneListToolbar.createNewControlPlane')}
                     </Button>
                   )}
                 </>
@@ -250,7 +250,7 @@ export function ControlPlaneListWorkspaceGridTile({
         />
       ) : null}
       {isCreateManagedControlPlaneWizardOpenV2 ? (
-        <CreateManagedControlPlaneV2WizardContainer
+        <CreateControlPlaneV2WizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpenV2}
           setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
           projectName={projectNamespace}

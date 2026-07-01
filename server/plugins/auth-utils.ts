@@ -210,15 +210,21 @@ function extractUserInfoFromIdToken(request, idToken) {
   request.log.info('Extracting user info from ID token.');
 
   if (!idToken) {
-    request.log.warn('No ID token provided.');
+    request.log.error('No ID token provided.');
     return null;
   }
 
   const payloadBase64 = idToken.split('.')[1];
   const decodedPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
 
+  if (typeof decodedPayload.sub !== 'string' || decodedPayload.sub.length === 0) {
+    request.log.error('ID token missing sub claim.');
+    return null;
+  }
+
   request.log.info('User info extracted from ID token.');
   return {
+    sub: decodedPayload.sub,
     email: decodedPayload.email,
   };
 }

@@ -2,7 +2,7 @@ import { NetworkStatus } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useMcpV2Query } from './useMcpV2Query';
+import { useControlPlaneV2Query } from './useControlPlaneV2Query.ts';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
@@ -77,19 +77,19 @@ describe('useMcpV2Query', () => {
   });
 
   it('skips the query when name is undefined', () => {
-    renderHook(() => useMcpV2Query(undefined, 'project-foo--ws-bar'));
+    renderHook(() => useControlPlaneV2Query(undefined, 'project-foo--ws-bar'));
 
     expect(useQueryMock).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ skip: true }));
   });
 
   it('skips the query when namespace is undefined', () => {
-    renderHook(() => useMcpV2Query('my-mcp', undefined));
+    renderHook(() => useControlPlaneV2Query('my-mcp', undefined));
 
     expect(useQueryMock).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ skip: true }));
   });
 
   it('runs the query with the correct variables when both name and namespace are provided', () => {
-    renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(useQueryMock).toHaveBeenCalledWith(
       expect.anything(),
@@ -108,13 +108,13 @@ describe('useMcpV2Query', () => {
       networkStatus: NetworkStatus.loading,
     } as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.isPending).toBe(true);
   });
 
   it('sets isPending to false when the query is ready', () => {
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.isPending).toBe(false);
   });
@@ -122,7 +122,7 @@ describe('useMcpV2Query', () => {
   it('returns parsed data when the query responds with a valid item', () => {
     useQueryMock.mockReturnValue(makeQueryResult(validMcpItem));
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.metadata.name).toBe('my-mcp');
@@ -135,7 +135,7 @@ describe('useMcpV2Query', () => {
   it('parses spec.iam role bindings correctly', () => {
     useQueryMock.mockReturnValue(makeQueryResult(validMcpItem));
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     const roleBinding = result.current.data?.spec?.iam?.oidc?.defaultProvider?.roleBindings?.[0];
     expect(roleBinding?.roleRefs?.[0]?.name).toBe('admin');
@@ -145,7 +145,7 @@ describe('useMcpV2Query', () => {
   it('parses status conditions correctly', () => {
     useQueryMock.mockReturnValue(makeQueryResult(validMcpItem));
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data?.status?.conditions).toHaveLength(1);
     expect(result.current.data?.status?.conditions[0].type).toBe('Ready');
@@ -155,7 +155,7 @@ describe('useMcpV2Query', () => {
   it('parses the access field from a JSON string', () => {
     useQueryMock.mockReturnValue(makeQueryResult(validMcpItem));
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data?.status?.access).toEqual({
       key: 'my-key',
@@ -166,7 +166,7 @@ describe('useMcpV2Query', () => {
   });
 
   it('returns undefined data when rawItem is absent', () => {
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data).toBeUndefined();
   });
@@ -174,7 +174,7 @@ describe('useMcpV2Query', () => {
   it('returns undefined data when the item fails schema validation', () => {
     useQueryMock.mockReturnValue(makeQueryResult({ metadata: null }));
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.data).toBeUndefined();
   });
@@ -186,7 +186,7 @@ describe('useMcpV2Query', () => {
       error: apolloError,
     } as unknown as ReturnType<typeof useQuery>);
 
-    const { result } = renderHook(() => useMcpV2Query('my-mcp', 'project-foo--ws-bar'));
+    const { result } = renderHook(() => useControlPlaneV2Query('my-mcp', 'project-foo--ws-bar'));
 
     expect(result.current.error).toBe(apolloError);
   });

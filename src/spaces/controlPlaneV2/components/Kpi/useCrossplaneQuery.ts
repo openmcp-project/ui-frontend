@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
-import { CrossplaneData, CrossplaneSchema } from '../../types/Crossplane.ts';
+import { CrossplaneData, CrossplaneSchema } from '../../../mcp/types/Crossplane.ts';
 
 const GET_CROSSPLANE_QUERY = graphql(`
   query GetCrossplane($name: String!, $namespace: String) {
