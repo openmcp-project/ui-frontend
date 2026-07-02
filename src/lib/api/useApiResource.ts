@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
+import * as Sentry from '@sentry/react';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
 import { APIError } from './error';
@@ -9,7 +10,6 @@ import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
 import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
-import { useTelemetry } from '../telemetry/telemetry';
 
 export const useApiResource = <T>(
   resource: Resource<T>,
@@ -42,13 +42,20 @@ export const useApiResource = <T>(
   };
 };
 
+// CRDs are effectively static within a session — disable polling and let
+// SWR paint cached data first while it revalidates in the background.
+const CRD_SWR_DEFAULTS: SWRConfiguration = {
+  refreshInterval: 0,
+  revalidateIfStale: true,
+};
+
 export const useCRDItemsMapping = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
   const { data, error, isValidating, isLoading } = useSWR(
     CRDRequest.path === null ? null : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    config,
+    { ...CRD_SWR_DEFAULTS, ...config },
   );
 
   const kindMapping = useMemo(() => {
@@ -75,14 +82,13 @@ export const useCRDItemsMapping = (config?: SWRConfiguration) => {
 
 export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const apiConfig = useContext(ApiConfigContext);
-  const telemetry = useTelemetry();
   const { data, error, isValidating } = useSWR(
     CRDRequest.path === null
       ? null //TODO: is null a valid key?
       : [CRDRequest.path, apiConfig],
     ([path, apiConfig]) =>
       fetchApiServerJson<CRDResponse>(path, apiConfig, CRDRequest.jq, CRDRequest.method, CRDRequest.body),
-    config,
+    { ...CRD_SWR_DEFAULTS, ...config },
   );
 
   const providerConfigsDataForRequest: ProviderConfigsDataForRequest[] = [];
@@ -153,9 +159,11 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
       return providerConfigs.filter((config) => config !== null);
     } catch (error) {
       console.error('Error fetching provider configs:', error);
-      telemetry.report(error, {
-        message: 'Failed to fetch provider configs',
-        context: { requestCount: providerConfigsDataForRequest.length },
+      Sentry.captureException(error, {
+        extra: {
+          context: 'useProvidersConfigResource:fetchProviderConfigs',
+          requestCount: providerConfigsDataForRequest.length,
+        },
       });
       return []; // Return an empty array in case of error
     }
@@ -249,7 +257,6 @@ export function useMultipleApiResources<T>(
   getResource: (namespace: string) => { path: string | null },
 ) {
   const apiConfig = useContext(ApiConfigContext);
-  const telemetry = useTelemetry();
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -270,9 +277,11 @@ export function useMultipleApiResources<T>(
         setData(results);
       } catch (err) {
         console.error('Error fetching multiple resources:', err);
-        telemetry.report(err, {
-          message: 'Failed to fetch multiple resources',
-          context: { namespacesCount: namespaces.length },
+        Sentry.captureException(err, {
+          extra: {
+            context: 'useMultipleApiResources',
+            namespacesCount: namespaces.length,
+          },
         });
         setError(err as Error);
         setData([]);
@@ -282,7 +291,7 @@ export function useMultipleApiResources<T>(
     };
 
     fetchData();
-  }, [namespaces, getResource, apiConfig, telemetry]);
+  }, [namespaces, getResource, apiConfig]);
 
   return { data, isLoading, error };
 }
