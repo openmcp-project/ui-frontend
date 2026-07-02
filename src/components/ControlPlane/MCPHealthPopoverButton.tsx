@@ -17,6 +17,7 @@ import { ControlPlaneCondition, ReadyStatus } from '../../spaces/onboarding/type
 import { AnimatedHoverTextButton } from '../Helper/AnimatedHoverTextButton';
 import { useTranslation } from 'react-i18next';
 import { useLink } from '../../lib/shared/useLink.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
 import { ConditionsMessageListView } from './ConditionsMessageListView';
@@ -34,6 +35,7 @@ type MCPHealthPopoverButtonProps = {
   workspaceName: string;
   mcpName: string;
   large?: boolean;
+  source: 'card' | 'detail';
 };
 
 const MCPHealthPopoverButton = ({
@@ -42,12 +44,14 @@ const MCPHealthPopoverButton = ({
   workspaceName,
   mcpName,
   large = false,
+  source,
 }: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
   const { githubIssuesSupportTicket } = useLink();
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   const handleOpenerClick = (
     event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail> | Ui5CustomEvent<LinkDomRef, LinkClickEventDetail>,
@@ -55,7 +59,10 @@ const MCPHealthPopoverButton = ({
     if (popoverRef.current) {
       // Prefer explicit button ref as opener (works reliably); fall back to event.target
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
-      setOpen((prev) => !prev);
+      setOpen((prev) => {
+        if (!prev) telemetry.track({ name: 'controlplane.status-viewed', source });
+        return !prev;
+      });
     }
   };
 
