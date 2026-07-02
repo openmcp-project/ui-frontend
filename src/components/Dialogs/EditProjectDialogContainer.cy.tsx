@@ -25,6 +25,7 @@ describe('EditProjectDialogContainer', () => {
   it('pre-populates form with existing project data', () => {
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={cy.stub()}
         projectName="existing-project"
@@ -43,6 +44,7 @@ describe('EditProjectDialogContainer', () => {
   it('name field is always disabled — cannot be changed', () => {
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={cy.stub()}
         projectName="existing-project"
@@ -60,6 +62,7 @@ describe('EditProjectDialogContainer', () => {
 
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={cy.stub()}
         projectName="existing-project"
@@ -92,6 +95,7 @@ describe('EditProjectDialogContainer', () => {
 
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={setIsOpen}
         projectName="existing-project"
@@ -109,6 +113,7 @@ describe('EditProjectDialogContainer', () => {
 
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={setIsOpen}
         projectName="existing-project"
@@ -138,6 +143,7 @@ describe('EditProjectDialogContainer', () => {
 
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={cy.stub()}
         projectName="existing-project"
@@ -159,6 +165,7 @@ describe('EditProjectDialogContainer', () => {
 
     cy.mount(
       <EditProjectDialogContainer
+        source="list"
         isOpen={true}
         setIsOpen={cy.stub()}
         projectName="existing-project"

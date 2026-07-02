@@ -9,10 +9,10 @@ import {
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -176,6 +176,7 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
+                    telemetry.track({ name: 'project.remembered', source: 'list' });
                     telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
                   }
                   telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
@@ -185,7 +186,7 @@ export default function ProjectsList({
               >
                 {projectName}
               </Link>
-              <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+              <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
             </div>
           );
         },

@@ -36,12 +36,12 @@ export default function CopyKubeconfigButton() {
         onItemClick={(event) => {
           if (event.detail.item.dataset.action === 'download') {
             DownloadKubeconfig(mcp.kubeconfig, mcp.name);
-            telemetry.track({ name: 'kubeconfig.downloaded' });
+            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-detail' });
             return;
           }
           if (event.detail.item.dataset.action === 'copy') {
             void copyToClipboard(mcp.kubeconfig ?? '');
-            telemetry.track({ name: 'kubeconfig.copied' });
+            telemetry.track({ name: 'kubeconfig.copied', source: 'controlplane-detail' });
           }
 
           setOpen(false);

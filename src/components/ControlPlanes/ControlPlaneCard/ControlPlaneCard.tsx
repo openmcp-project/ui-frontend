@@ -26,6 +26,7 @@ import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateMan
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -65,6 +66,7 @@ export const ControlPlaneCard = ({
     controlPlane.metadata.namespace,
     controlPlane.metadata.name,
   );
+  const telemetry = useTelemetry();
 
   const name = controlPlane.metadata.name;
   const displayName = controlPlane.metadata.annotations?.[DISPLAY_NAME_ANNOTATION];
@@ -89,6 +91,7 @@ export const ControlPlaneCard = ({
                   projectName={projectName}
                   workspaceName={workspace.metadata.name ?? ''}
                   mcpName={controlPlane.metadata.name}
+                  source="card"
                 />
               </div>
             </FlexBox>
@@ -158,7 +161,10 @@ export const ControlPlaneCard = ({
           )}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
-          onDeletionConfirmed={deleteManagedControlPlane}
+          onDeletionConfirmed={async () => {
+            telemetry.track({ name: 'controlplane.deleted', source: 'v1-card' });
+            await deleteManagedControlPlane();
+          }}
         />
       )}
       {controlPlane.version === 'v2' && (
@@ -166,7 +172,10 @@ export const ControlPlaneCard = ({
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
-          onDeletionConfirmed={deleteManagedControlPlaneV2}
+          onDeletionConfirmed={async () => {
+            telemetry.track({ name: 'controlplane.deleted', source: 'v2-card' });
+            await deleteManagedControlPlaneV2();
+          }}
         />
       )}
       <EditManagedControlPlaneWizardDataLoader
