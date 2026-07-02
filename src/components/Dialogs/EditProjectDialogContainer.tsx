@@ -8,11 +8,79 @@ import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useUpdateProject as _useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject.ts';
-import { useGetProject as _useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
+import { useGetProject as _useGetProject, ProjectData } from '../../spaces/onboarding/hooks/useGetProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
 
 type ProjectEditedSource = Extract<TelemetryFeature, { name: 'project.edited' }>['source'];
+
+/**
+ * Inner form component: mounts `useForm` with real defaults on first render.
+ *
+ * Splitting this out fixes a Cypress-visible flake: previously the outer
+ * container mounted `useForm` with empty strings and then re-populated via
+ * `useEffect(() => reset(projectData))`. In the tick between mount and the
+ * effect, react-hook-form briefly disables inputs during the reset
+ * transaction, which UI5 propagates onto the shadow inner `<input>`. Any
+ * `cy.type()` firing in that window failed with
+ * "cy.type() failed because it targeted a disabled element".
+ *
+ * By taking `projectData` as a required prop and passing it straight into
+ * `defaultValues`, the form is populated on the very first render — no
+ * empty-then-reset flash, no disabled window.
+ */
+function EditProjectForm({
+  projectData,
+  isOpen,
+  setIsOpen,
+  errorDialogRef,
+  onUpdate,
+}: {
+  projectData: ProjectData;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
+  onUpdate: (payload: OnCreatePayload) => Promise<boolean>;
+}) {
+  const { t } = useTranslation();
+  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
+  const {
+    watch,
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateDialogProps>({
+    resolver: zodResolver(validationSchemaProjectWorkspace),
+    // Synchronous defaults — see file docstring on why this matters.
+    defaultValues: {
+      name: projectData.name,
+      displayName: projectData.displayName,
+      chargingTarget: projectData.chargingTarget,
+      chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
+      members: projectData.members,
+    },
+  });
+  const members = useWatch({ control, name: 'members' });
+
+  return (
+    <CreateProjectWorkspaceDialog
+      watch={watch}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      errorDialogRef={errorDialogRef}
+      titleText={t('EditProjectDialog.title')}
+      members={members}
+      register={register}
+      errors={errors}
+      setValue={setValue}
+      type={'project'}
+      isEditMode
+      onCreate={handleSubmit(onUpdate)}
+    />
+  );
+}
 
 export function EditProjectDialogContainer({
   isOpen,
@@ -30,47 +98,10 @@ export function EditProjectDialogContainer({
   useGetProject?: typeof _useGetProject;
 }) {
   const { t } = useTranslation();
-  const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
-  const {
-    watch,
-    control,
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<CreateDialogProps>({
-    resolver: zodResolver(validationSchemaProjectWorkspace),
-    defaultValues: {
-      name: '',
-      displayName: '',
-      chargingTarget: '',
-      chargingTargetType: 'btp',
-      members: [],
-    },
-  });
-  const members = useWatch({ control, name: 'members' });
   const { updateProject } = useUpdateProject();
   const telemetry = useTelemetry();
   const { projectData, isLoading, error: fetchError } = useGetProject(isOpen ? projectName : undefined);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
-  const hasPopulated = useRef(false);
-
-  useEffect(() => {
-    if (!isOpen) {
-      hasPopulated.current = false;
-      return;
-    }
-    if (!projectData || hasPopulated.current) return;
-    hasPopulated.current = true;
-    reset({
-      name: projectData.name,
-      displayName: projectData.displayName,
-      chargingTarget: projectData.chargingTarget,
-      chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
-      members: projectData.members,
-    });
-  }, [isOpen, projectData, reset]);
 
   useEffect(() => {
     if (fetchError) {
@@ -103,9 +134,12 @@ export function EditProjectDialogContainer({
     }
   };
 
+  const showBusy = isOpen && isLoading && !fetchError;
+  const showForm = isOpen && !isLoading && !fetchError && !!projectData;
+
   return (
     <>
-      <Dialog open={isOpen && isLoading && !fetchError} headerText={t('EditProjectDialog.title')}>
+      <Dialog open={showBusy} headerText={t('EditProjectDialog.title')}>
         <div
           style={{
             display: 'flex',
@@ -119,21 +153,13 @@ export function EditProjectDialogContainer({
         </div>
       </Dialog>
       <ErrorDialog ref={errorDialogRef} />
-      {isOpen && !isLoading && !fetchError && (
-        <CreateProjectWorkspaceDialog
-          watch={watch}
+      {showForm && (
+        <EditProjectForm
+          projectData={projectData!}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           errorDialogRef={errorDialogRef}
-          titleText={t('EditProjectDialog.title')}
-          members={members}
-          register={register}
-          errors={errors}
-          setValue={setValue}
-          type={'project'}
-          isEditMode
-          // eslint-disable-next-line react-hooks/refs
-          onCreate={handleSubmit(handleProjectUpdate)}
+          onUpdate={handleProjectUpdate}
         />
       )}
     </>
