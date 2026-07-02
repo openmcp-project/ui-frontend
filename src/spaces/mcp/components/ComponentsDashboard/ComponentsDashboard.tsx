@@ -7,6 +7,7 @@ import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoKyverno from '../../../../assets/images/logo-kyverno.png';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import { ControlPlaneComponentsType } from '../../../../lib/api/types/crate/controlPlanes.ts';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
 import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
 import { useKpiCrossplane } from '../Kpi/useKpiCrossplane.ts';
 import { useKpiFlux } from '../Kpi/useKpiFlux.ts';
@@ -28,6 +29,7 @@ export function ComponentsDashboard({
   const { t } = useTranslation();
   const crossplaneKpi = useKpiCrossplane();
   const fluxKpi = useKpiFlux();
+  const { showLandscaperCard } = useFeatureToggle();
 
   return (
     <Panel fixed>
@@ -63,16 +65,18 @@ export function ComponentsDashboard({
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={onInstallButtonClick}
         />*/}
-        <ComponentCard
-          name="Landscaper"
-          description={t('componentCardLandscaper.description')}
-          logoImgSrc={LogoLandscaper}
-          isInstalled={!!components?.landscaper}
-          version={undefined} // Landscaper does not have a version
-          kpiType="enabled"
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
-          onInstallButtonClick={undefined}
-        />
+        {showLandscaperCard && (
+          <ComponentCard
+            name="Landscaper"
+            description={t('componentCardLandscaper.description')}
+            logoImgSrc={LogoLandscaper}
+            isInstalled={!!components?.landscaper}
+            version={undefined} // Landscaper does not have a version
+            kpiType="enabled"
+            onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
+            onInstallButtonClick={undefined}
+          />
+        )}
         <ComponentCard
           name="Kyverno"
           description={t('componentCardKyverno.description')}

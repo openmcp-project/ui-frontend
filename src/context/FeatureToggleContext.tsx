@@ -4,6 +4,7 @@ import { useFrontendConfig } from './FrontendConfigContext';
 interface FeatureToggles {
   markMcpV1asDeprecated: boolean;
   enableMcpV2: boolean;
+  showLandscaperCard: boolean;
 }
 
 export const FeatureToggleContext = createContext<FeatureToggles | null>(null);
