@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next';
 import styles from './ResourceSearchBar.module.css';
 
 interface Props {
+  className?: string;
   focusOnMount?: boolean;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   value: string;
 }
 
-export function ResourceSearchBar({ focusOnMount, onChange, onKeyDown, value }: Props) {
+export function ResourceSearchBar({ className, focusOnMount, onChange, onKeyDown, value }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<InputDomRef>(null);
 
@@ -23,7 +24,7 @@ export function ResourceSearchBar({ focusOnMount, onChange, onKeyDown, value }: 
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={[styles.wrapper, className].filter(Boolean).join(' ')}>
       <Input
         ref={inputRef}
         className={styles.input}

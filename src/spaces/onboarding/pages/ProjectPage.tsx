@@ -12,6 +12,7 @@ import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
+import styles from './ProjectPage.module.css';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
@@ -149,7 +150,13 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+        <ResourceSearchBar
+          className={styles.searchBar}
+          focusOnMount
+          value={search}
+          onChange={handleSearchChange}
+          onKeyDown={handleSearchKeyDown}
+        />
         <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} search={search} />
       </ObjectPage>
     </>
