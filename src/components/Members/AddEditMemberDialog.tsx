@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
 import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
@@ -222,22 +222,23 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             </Activity>
           </div>
 
-          <Button
-            className={styles.addButton}
-            data-testid="add-member-button"
-            design={'Emphasized'}
-            icon={'sap-icon://add-employee'}
-            onClick={() => {
-              handleSubmit(onFormSubmit)();
-            }}
-          >
-            {memberToEdit
-              ? t('EditMembers.saveButton')
-              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
-          </Button>
-          <Button className={styles.wrapper} onClick={onClose}>
-            {t('buttons.cancel')}
-          </Button>
+          <Bar
+            design="Footer"
+            endContent={
+              <>
+                <Button design="Transparent" onClick={onClose}>
+                  {t('buttons.cancel')}
+                </Button>
+                <Button
+                  data-testid="add-member-button"
+                  design="Emphasized"
+                  onClick={() => handleSubmit(onFormSubmit)()}
+                >
+                  {memberToEdit ? t('EditMembers.saveButton') : t('buttons.add')}
+                </Button>
+              </>
+            }
+          />
         </FlexBox>
       </div>
     </Dialog>
