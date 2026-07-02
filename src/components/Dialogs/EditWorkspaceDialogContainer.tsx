@@ -11,13 +11,6 @@ import { useUpdateWorkspace as _useUpdateWorkspace } from '../../spaces/onboardi
 import { useGetWorkspace as _useGetWorkspace, WorkspaceData } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
-/**
- * Inner form component: mounts `useForm` with real defaults on first render.
- *
- * See EditProjectDialogContainer for the full rationale — the short version
- * is that populating via `useEffect(() => reset(...))` after mount produces
- * a disabled-input window that breaks Cypress typing.
- */
 function EditWorkspaceForm({
   workspaceData,
   isOpen,

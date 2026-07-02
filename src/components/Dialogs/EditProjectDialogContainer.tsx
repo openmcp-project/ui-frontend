@@ -14,21 +14,6 @@ import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
 
 type ProjectEditedSource = Extract<TelemetryFeature, { name: 'project.edited' }>['source'];
 
-/**
- * Inner form component: mounts `useForm` with real defaults on first render.
- *
- * Splitting this out fixes a Cypress-visible flake: previously the outer
- * container mounted `useForm` with empty strings and then re-populated via
- * `useEffect(() => reset(projectData))`. In the tick between mount and the
- * effect, react-hook-form briefly disables inputs during the reset
- * transaction, which UI5 propagates onto the shadow inner `<input>`. Any
- * `cy.type()` firing in that window failed with
- * "cy.type() failed because it targeted a disabled element".
- *
- * By taking `projectData` as a required prop and passing it straight into
- * `defaultValues`, the form is populated on the very first render — no
- * empty-then-reset flash, no disabled window.
- */
 function EditProjectForm({
   projectData,
   isOpen,
@@ -53,7 +38,6 @@ function EditProjectForm({
     formState: { errors },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
-    // Synchronous defaults — see file docstring on why this matters.
     defaultValues: {
       name: projectData.name,
       displayName: projectData.displayName,
