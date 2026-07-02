@@ -36,6 +36,25 @@ jobs:
       - name: Run Cypress Tests
         run: npm run test:cy
 
+      - name: Publish Cypress test results
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: 'cypress/results/junit-*.xml'
+          check_name: 'Cypress Tests'
+          detailed_summary: true
+          include_passed: false
+          fail_on_failure: true
+
+      - name: Upload Cypress JUnit results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cypress-junit-results
+          path: cypress/results/
+          retention-days: 7
+          if-no-files-found: warn
+
       - name: Upload Cypress Screenshots
         if: always() # Run this step even if tests fail
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
