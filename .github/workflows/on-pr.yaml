@@ -1,6 +1,8 @@
 name: On Pull Request
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
 on:
   pull_request:
     types:
@@ -10,3 +12,7 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yaml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write

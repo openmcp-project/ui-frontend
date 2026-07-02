@@ -29,6 +29,10 @@ export default defineConfig({
   includeShadowDom: true,
   viewportWidth: 1920,
   viewportHeight: 1080,
+  reporter: 'cypress-multi-reporters',
+  reporterOptions: {
+    configFile: 'cypress-reporters.json',
+  },
   component: {
     devServer: {
       framework: 'react',
