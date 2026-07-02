@@ -30,9 +30,11 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 interface Props {
   projectName: string;
   workspace: Workspace;
+  search?: string;
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
   onForbidden?: () => void;
+  onVisibilityChange?: (isVisible: boolean) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -40,9 +42,11 @@ interface Props {
 export function ControlPlaneListWorkspaceGridTile({
   projectName,
   workspace,
+  search = '',
   isExpanded,
   onToggleExpanded,
   onForbidden,
+  onVisibilityChange,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -65,11 +69,28 @@ export function ControlPlaneListWorkspaceGridTile({
     error: cpsError,
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+
+  const query = search.trim().toLowerCase();
+  const workspaceMatches =
+    query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
+  const visibleMcps =
+    query && !workspaceMatches
+      ? (managedControlPlanes ?? []).filter((mcp) => mcp.metadata.name.toLowerCase().includes(query))
+      : managedControlPlanes;
+
+  const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
+  // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
+  const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
+  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+
+  useEffect(() => {
+    onVisibilityChange?.(!hidden);
+  }, [hidden, onVisibilityChange]);
+
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
-  const shouldCollapsePanel = !isExpanded;
 
   useEffect(() => {
     if (isForbiddenError(cpsError)) onForbidden?.();
@@ -114,8 +135,10 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
+  if (hidden) return null;
+
   return (
-    <>
+    <div>
       <ObjectPageSection
         key={`${projectName}${workspaceName}`}
         id={workspaceName}
@@ -214,7 +237,7 @@ export function ControlPlaneListWorkspaceGridTile({
           ) : (
             <div className={styles.wrapper}>
               <div className={styles.grid}>
-                {managedControlPlanes?.map((mcp) => (
+                {visibleMcps?.map((mcp) => (
                   <ControlPlaneCard
                     key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
                     controlPlane={mcp}
@@ -268,6 +291,6 @@ export function ControlPlaneListWorkspaceGridTile({
           initialTemplateName={initialTemplateName}
         />
       ) : null}
-    </>
+    </div>
   );
 }

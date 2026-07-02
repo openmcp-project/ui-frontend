@@ -73,7 +73,7 @@ export default function ConnectButton({
 
   if (isLoading || error || connectionTargets.length === 0) {
     return (
-      <Button design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
+      <Button data-testid="connect-button" design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -83,6 +83,7 @@ export default function ConnectButton({
     const directTarget = connectionTargets[0];
     return (
       <Button
+        data-testid="connect-button"
         design="Emphasized"
         endIcon="navigation-right-arrow"
         disabled={disabled}
@@ -96,6 +97,7 @@ export default function ConnectButton({
   return (
     <div>
       <Button
+        data-testid="connect-button"
         design="Emphasized"
         id={buttonId}
         disabled={disabled}

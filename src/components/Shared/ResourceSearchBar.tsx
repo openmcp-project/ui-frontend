@@ -1,17 +1,20 @@
 import '@ui5/webcomponents-icons/dist/search';
 import { Icon, Input, InputDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+
+import cx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './ResourceSearchBar.module.css';
 
 interface Props {
+  className?: string;
   focusOnMount?: boolean;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   value: string;
 }
 
-export function ResourceSearchBar({ focusOnMount, onChange, onKeyDown, value }: Props) {
+export function ResourceSearchBar({ className, focusOnMount, onChange, onKeyDown, value }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<InputDomRef>(null);
 
@@ -23,7 +26,7 @@ export function ResourceSearchBar({ focusOnMount, onChange, onKeyDown, value }: 
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={cx(styles.wrapper, className)}>
       <Input
         ref={inputRef}
         className={styles.input}
