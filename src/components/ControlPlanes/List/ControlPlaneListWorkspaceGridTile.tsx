@@ -33,6 +33,7 @@ interface Props {
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
   onForbidden?: () => void;
+  onVisibilityChange?: (isVisible: boolean) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -44,6 +45,7 @@ export function ControlPlaneListWorkspaceGridTile({
   isExpanded,
   onToggleExpanded,
   onForbidden,
+  onVisibilityChange,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -79,6 +81,10 @@ export function ControlPlaneListWorkspaceGridTile({
   // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
   const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+
+  useEffect(() => {
+    onVisibilityChange?.(!hidden);
+  }, [hidden, onVisibilityChange]);
 
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const { mcpCreationGuide } = useLink();
@@ -127,8 +133,10 @@ export function ControlPlaneListWorkspaceGridTile({
     });
   }, [workspace.spec.members, workspace.status?.namespace]);
 
+  if (hidden) return null;
+
   return (
-    <div style={hidden ? { display: 'none' } : undefined}>
+    <div>
       <ObjectPageSection
         key={`${projectName}${workspaceName}`}
         id={workspaceName}

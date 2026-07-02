@@ -9,9 +9,9 @@ import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
 import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
-import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
+import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
@@ -53,6 +53,21 @@ export default function ProjectPage() {
       if (e.key !== 'Enter') return;
       if (search.trim() === '') return;
       telemetry.track({ name: 'workspace-list.search-enter-pressed' });
+
+      const allViewButtons = document.querySelectorAll<HTMLElement>('ui5-button[data-testid="connect-button"]');
+      const activeViewButton = Array.from(allViewButtons).find(
+        (btn) => !btn.hasAttribute('disabled') && btn.offsetParent !== null,
+      );
+      if (activeViewButton) {
+        requestAnimationFrame(() => activeViewButton.focus());
+        return;
+      }
+
+      const allHealthButtons = document.querySelectorAll<HTMLElement>('ui5-button[data-testid="mcp-health-button"]');
+      const visibleHealthButton = Array.from(allHealthButtons).find((btn) => btn.offsetParent !== null);
+      if (visibleHealthButton) {
+        requestAnimationFrame(() => visibleHealthButton.focus());
+      }
     },
     [search, telemetry],
   );
@@ -134,7 +149,7 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ResourceSearchBar value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
         <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} search={search} />
       </ObjectPage>
     </>

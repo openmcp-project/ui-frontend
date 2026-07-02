@@ -103,6 +103,7 @@ const MCPHealthPopoverButton = ({
     <div className="component-title-row">
       <AnimatedHoverTextButton
         ref={buttonRef}
+        data-testid="mcp-health-button"
         icon={getIconForOverallStatus(mcpStatus?.status ?? mcpStatus?.phase ?? undefined)}
         text={mcpStatus?.status ?? mcpStatus?.phase ?? ''}
         large={large}
