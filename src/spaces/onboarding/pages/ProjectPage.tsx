@@ -1,7 +1,9 @@
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
+import '@ui5/webcomponents-icons/dist/expand-all.js';
+import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
@@ -12,7 +14,6 @@ import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
 import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
-import styles from './ProjectPage.module.css';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
@@ -20,7 +21,9 @@ import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
+import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
+import styles from './ProjectPage.module.css';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
@@ -31,6 +34,26 @@ export default function ProjectPage() {
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
+
+  const [expandedWorkspaces, setExpandedWorkspacesState] = useState<Set<string>>(() =>
+    getExpandedWorkspaces(projectName ?? ''),
+  );
+
+  useEffect(() => {
+    setExpandedWorkspaces(projectName ?? '', expandedWorkspaces);
+  }, [projectName, expandedWorkspaces]);
+
+  function handleToggleWorkspace(workspaceName: string) {
+    setExpandedWorkspacesState((prev) => {
+      const next = new Set(prev);
+      if (next.has(workspaceName)) {
+        next.delete(workspaceName);
+      } else {
+        next.add(workspaceName);
+      }
+      return next;
+    });
+  }
 
   // Fire `workspace-list.searched` only once per "search session" — from the
   // first non-empty character until the user clears the field — so we
@@ -103,6 +126,16 @@ export default function ProjectPage() {
     );
   }
 
+  const allExpanded = workspaces.length > 0 && workspaces.every((ws) => expandedWorkspaces.has(ws.metadata.name));
+
+  function handleExpandAll() {
+    setExpandedWorkspacesState(new Set(workspaces!.map((ws) => ws.metadata.name)));
+  }
+
+  function handleCollapseAll() {
+    setExpandedWorkspacesState(new Set());
+  }
+
   return (
     <>
       <ObjectPage
@@ -152,14 +185,40 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ResourceSearchBar
-          className={styles.searchBar}
-          focusOnMount
-          value={search}
-          onChange={handleSearchChange}
-          onKeyDown={handleSearchKeyDown}
+        <FlexBox alignItems="Center" gap="0.5rem" className={styles.searchBar}>
+          <ResourceSearchBar
+            focusOnMount
+            value={search}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyDown}
+          />
+          {allExpanded ? (
+            <Button
+              design="Transparent"
+              icon="collapse-all"
+              tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
+              onClick={handleCollapseAll}
+            >
+              {t('ControlPlaneListAllWorkspaces.collapseAll')}
+            </Button>
+          ) : (
+            <Button
+              design="Transparent"
+              icon="expand-all"
+              tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
+              onClick={handleExpandAll}
+            >
+              {t('ControlPlaneListAllWorkspaces.expandAll')}
+            </Button>
+          )}
+        </FlexBox>
+        <ControlPlaneListAllWorkspaces
+          projectName={projectName}
+          workspaces={workspaces}
+          search={search}
+          expandedWorkspaces={expandedWorkspaces}
+          onToggleWorkspace={handleToggleWorkspace}
         />
-        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} search={search} />
       </ObjectPage>
     </>
   );
