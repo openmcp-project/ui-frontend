@@ -3,7 +3,7 @@
   "mochaJunitReporterReporterOptions": {
     "mochaFile": "cypress/results/junit-[hash].xml",
     "toConsole": false,
-    "jenkinsMode": true,
-    "testCaseSwitchClassnameAndName": true
+    "useFullSuiteTitle": false,
+    "testCaseSwitchClassnameAndName": false
   }
 }
