@@ -19,7 +19,6 @@ import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
-import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 
@@ -30,7 +29,6 @@ export default function ProjectPage() {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
-  const telemetry = useTelemetry();
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
 
