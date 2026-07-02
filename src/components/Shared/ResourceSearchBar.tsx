@@ -1,6 +1,7 @@
 import '@ui5/webcomponents-icons/dist/search';
 import { Icon, Input, InputDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import clsx from 'clsx';
+
+import cx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './ResourceSearchBar.module.css';
@@ -25,7 +26,7 @@ export function ResourceSearchBar({ className, focusOnMount, onChange, onKeyDown
   }, []);
 
   return (
-    <div className={clsx(styles.wrapper, className)}>
+    <div className={cx(styles.wrapper, className)}>
       <Input
         ref={inputRef}
         className={styles.input}
