@@ -117,6 +117,7 @@
   "ConnectButton": {
     "buttonText": "View",
     "defaultIdP": "default IdP",
+    "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
   "MCPHealthPopoverButton": {
