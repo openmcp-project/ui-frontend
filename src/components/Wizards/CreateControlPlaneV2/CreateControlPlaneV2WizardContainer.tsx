@@ -37,12 +37,13 @@ import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPr
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useCreateManagedControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useCreateManagedControlPlaneV2GraphQL.ts';
-import { useUpdateManagedControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/mcp/hooks/useUpdateManagedControlPlaneV2GraphQL.ts';
+import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
+import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
-import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -71,7 +72,7 @@ const normalizeMcpV2Role = (roleInput?: string | null): string => {
   return MCP_V2_DEFAULT_ROLE;
 };
 
-export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
+export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
   setIsOpen,
   projectName = '',
@@ -86,6 +87,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
   useAuthOnboarding = _useAuthOnboarding,
 }) => {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const { user } = useAuthOnboarding();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
@@ -250,6 +252,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       } else {
         await createMcp(rawInput);
       }
+      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
       setSelectedStep('success');
       return true;
     } catch (e) {
@@ -261,7 +264,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
       console.error(e);
       return false;
     }
-  }, [isEditMode, updateMcp, initialData, createMcp, rawInput]);
+  }, [isEditMode, updateMcp, initialData, createMcp, rawInput, telemetry]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
     const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
@@ -422,7 +425,7 @@ export const CreateManagedControlPlaneV2WizardContainer: FC<CreateManagedControl
     <>
       <Dialog
         stretch
-        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitleV2')}
+        headerText={isEditMode ? t('editMCP.dialogTitle') : t('createMCP.dialogTitleControlPlane')}
         open={isOpen}
         initialFocus="project-name-input"
         footer={

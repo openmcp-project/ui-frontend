@@ -1,11 +1,11 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { z } from 'zod';
-import { buildMcpV2GraphQLInput } from '../helpers/mcpV2GraphQLInput.ts';
-import { McpV2Input, McpV2InputSchema } from '../schemas/mcpV2Input.schema.ts';
-import { CreateManagedControlPlaneV2Mutation } from './useCreateManagedControlPlaneV2Mutation.ts';
+import { buildMcpV2GraphQLInput } from '../helpers/controlPlaneV2GraphQLInput.ts';
+import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schema.ts';
+import { CreateManagedControlPlaneV2Mutation } from './useCreateControlPlaneV2Mutation.ts';
 
-export function useCreateManagedControlPlaneV2GraphQL() {
+export function useCreateControlPlaneV2GraphQL() {
   const [createMutation, { loading, error }] = useMutation(CreateManagedControlPlaneV2Mutation);
 
   const createMcp = useCallback(

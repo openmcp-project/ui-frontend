@@ -11,7 +11,7 @@ import {
 } from '@ui5/webcomponents-react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
-import styles from './McpPage.module.css';
+import styles from './ControlPlanePageV2.module.css';
 // throws error sometimes if not imported
 import '@ui5/webcomponents-fiori/dist/illustrations/BeforeSearch';
 import { useTranslation } from 'react-i18next';
@@ -22,17 +22,17 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
-import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneV2WizardContainer.tsx';
-import { EditManagedControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneV2WizardDataLoader.tsx';
+import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
+import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
-import { useMcpV2Query } from '../../onboarding/hooks/useMcpV2Query.ts';
+import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -43,19 +43,19 @@ import { McpSecrets } from '../../../components/ControlPlane/McpSecrets.tsx';
 import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
-import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
-import { ManagedControlPlaneAuthorization } from '../authorization/ManagedControlPlaneAuthorization.tsx';
-import { ComponentsDashboardV2 } from '../components/ComponentsDashboard/ComponentsDashboardV2.tsx';
+import { AuthProviderMcp } from '../../mcp/auth/AuthContextMcp.tsx';
+import { ManagedControlPlaneAuthorization } from '../../mcp/authorization/ManagedControlPlaneAuthorization.tsx';
+import { ComponentsDashboardV2 } from '../../mcp/components/ComponentsDashboard/ComponentsDashboardV2.tsx';
 import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
 import { useEsoQuery } from '../components/Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
-import { McpHeader } from '../components/McpHeader/McpHeader.tsx';
+import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
 
-export default function McpPageV2() {
+export default function ControlPlanePageV2() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -71,11 +71,20 @@ export default function McpPageV2() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
-  const { data: mcp, isPending: isLoading, error } = useMcpV2Query(controlPlaneName, namespace);
-  const { crossplaneData } = useCrossplaneQuery(controlPlaneName, namespace);
-  const { fluxData } = useFluxQuery(controlPlaneName, namespace);
-  const { landscaperData } = useLandscaperQuery(controlPlaneName, namespace);
-  const { esoData } = useEsoQuery(controlPlaneName, namespace);
+  const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
+  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
+  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
+  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
+  const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
+  const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
+  // Hold graph mount until the cards' 0.3s height transition (index.css) has
+  // settled — otherwise the graph layout fights with concurrent card animations.
+  const [graphReady, setGraphReady] = useState(false);
+  useEffect(() => {
+    if (!cardsReady) return;
+    const id = setTimeout(() => setGraphReady(true), 400);
+    return () => clearTimeout(id);
+  }, [cardsReady]);
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
@@ -170,7 +179,7 @@ export default function McpPageV2() {
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
                       />
-                      <EditManagedControlPlaneV2WizardDataLoader
+                      <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
                         setIsOpen={handleEditManagedControlPlaneWizardClose}
                         namespace={namespace}
@@ -211,7 +220,7 @@ export default function McpPageV2() {
                   />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
-                  <Graph />
+                  {graphReady && <Graph />}
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"

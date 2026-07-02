@@ -48,7 +48,7 @@ export default function ConnectButton({
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
   const connectTo = (target: ConnectOption) => {
-    telemetry.track({ name: 'mcp.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    telemetry.track({ name: 'controlplane.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
     navigate(target.url);
   };
 
@@ -57,6 +57,7 @@ export default function ConnectButton({
 
     if (action === 'download') {
       DownloadKubeconfig(kubeconfigResource, controlPlaneName);
+      telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
       setIsMenuOpen(false);
       return;
     }
@@ -72,7 +73,7 @@ export default function ConnectButton({
 
   if (isLoading || error || connectionTargets.length === 0) {
     return (
-      <Button endIcon="navigation-right-arrow" disabled={true}>
+      <Button data-testid="connect-button" design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -81,7 +82,13 @@ export default function ConnectButton({
   if (connectionTargets.length === 1) {
     const directTarget = connectionTargets[0];
     return (
-      <Button endIcon="navigation-right-arrow" disabled={disabled} onClick={() => connectTo(directTarget)}>
+      <Button
+        data-testid="connect-button"
+        design="Emphasized"
+        endIcon="navigation-right-arrow"
+        disabled={disabled}
+        onClick={() => connectTo(directTarget)}
+      >
         {t('ConnectButton.buttonText')}
       </Button>
     );
@@ -90,6 +97,8 @@ export default function ConnectButton({
   return (
     <div>
       <Button
+        data-testid="connect-button"
+        design="Emphasized"
         id={buttonId}
         disabled={disabled}
         endIcon="slim-arrow-down"
@@ -98,14 +107,27 @@ export default function ConnectButton({
         {t('ConnectButton.buttonText')}
       </Button>
       <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
-        {connectionTargets.map((target) => (
-          <MenuItem
-            key={target.name}
-            text={target.user}
-            data-target={target.url}
-            additionalText={target.isSystemIdP ? t('ConnectButton.defaultIdP') : undefined}
-          />
-        ))}
+        {connectionTargets
+          .filter((t) => t.isSystemIdP)
+          .map((target) => (
+            <MenuItem
+              key={target.name}
+              text={target.user}
+              data-target={target.url}
+              additionalText={t('ConnectButton.defaultIdP')}
+            />
+          ))}
+        {connectionTargets.some((t) => !t.isSystemIdP) && <MenuSeparator />}
+        {connectionTargets
+          .filter((t) => !t.isSystemIdP)
+          .map((target) => (
+            <MenuItem
+              key={target.name}
+              text={target.user}
+              data-target={target.url}
+              additionalText={t('ConnectButton.customIdP')}
+            />
+          ))}
         <MenuSeparator />
         <MenuItem text={t('ConnectButton.downloadKubeconfig')} data-action="download" />
       </Menu>

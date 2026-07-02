@@ -21,7 +21,8 @@ import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneIn
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../../../components/Dialogs/DeleteConfirmationDialog.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
-import type { McpPageSectionId } from '../../pages/McpPage.tsx';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
@@ -59,6 +60,7 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
   const toast = useToast();
+  const telemetry = useTelemetry();
 
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
   const [crossplaneDialogMode, setCrossplaneDialogMode] = useState<'install' | 'edit'>('install');
@@ -105,11 +107,23 @@ export function ComponentsDashboardV2({
         await deleteEso({ name: mcpName, namespace: mcpNamespace });
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
+      telemetry.track({ name: 'component.uninstalled', componentName });
     } catch (error) {
       console.error(`${componentName} delete failed`, error);
       toast.show(t('ComponentCard.deleteErrorMessage', { component: componentName }));
     }
-  }, [deleteTarget, deleteCrossplane, deleteFlux, deleteLandscaper, deleteEso, mcpName, mcpNamespace, toast, t]);
+  }, [
+    deleteTarget,
+    deleteCrossplane,
+    deleteFlux,
+    deleteLandscaper,
+    deleteEso,
+    mcpName,
+    mcpNamespace,
+    toast,
+    t,
+    telemetry,
+  ]);
 
   return (
     <Panel fixed>

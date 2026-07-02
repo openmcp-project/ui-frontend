@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
-import { FluxData, FluxSchema } from '../../types/Flux.ts';
+import { FluxData, FluxSchema } from '../../../mcp/types/Flux.ts';
 
 const GET_FLUX_QUERY = graphql(`
   query GetFlux($name: String!, $namespace: String) {
