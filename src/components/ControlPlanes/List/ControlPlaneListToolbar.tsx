@@ -38,8 +38,8 @@ export function ControlPlaneListToolbar({
 
   const handleDeleteProject = async () => {
     try {
-      await deleteProject();
       telemetry.track({ name: 'project.deleted', source: 'detail' });
+      await deleteProject();
       navigate(Routes.Projects, { replace: true });
     } catch {
       // toast already shown by the hook
