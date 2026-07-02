@@ -225,7 +225,8 @@
     "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
-    "columnNamespaceHeader": "Namespace"
+    "columnNamespaceHeader": "Namespace",
+    "searchPlaceholder": "Search members"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -252,7 +253,7 @@
     "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",
-    "addHeader": "Add User or ServiceAccount",
+    "addHeader": "Add Member",
     "addHeaderUserGroup": "Add User or Group",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
@@ -501,6 +502,7 @@
     "close": "Close",
     "back": "Back",
     "cancel": "Cancel",
+    "add": "Add",
     "update": "Update",
     "applyChanges": "Apply changes",
     "edit": "Edit"
