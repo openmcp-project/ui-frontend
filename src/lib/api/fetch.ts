@@ -1,5 +1,5 @@
 import { APIError } from './error';
-import * as Sentry from '@sentry/react';
+import { telemetry } from '../telemetry/telemetry';
 import { ApiConfig } from './types/apiConfig';
 import { redirectToLogin } from '../../common/auth/redirectToLogin';
 import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
@@ -88,8 +88,8 @@ export const fetchApiServer = async (
       body,
     });
   } catch (error) {
-    Sentry.captureException(error, {
-      extra: {
+    telemetry().report(error, {
+      context: {
         method: httpMethod,
         path: `/api/onboarding${path}`,
       },
@@ -104,12 +104,10 @@ export const fetchApiServer = async (
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
 
-    Sentry.captureException(error, {
-      extra: {
+    telemetry().report(error, {
+      context: {
         method: httpMethod,
         path: `/api/onboarding${path}`,
-        status: res.status,
-        responseBody: error.info,
       },
     });
 

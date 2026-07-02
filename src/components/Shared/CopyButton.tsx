@@ -4,26 +4,33 @@ import { CSSProperties, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCopyButton } from '../../context/CopyButtonContext.tsx';
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard.ts';
+import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import styles from './CopyButton.module.css';
+
+type CopySource = Extract<TelemetryFeature, { name: 'clipboard.copied' }>['source'];
 
 interface CopyButtonProps extends Omit<ButtonPropTypes, 'children'> {
   text: string;
+  source: CopySource;
   style?: CSSProperties;
   collapsible?: boolean;
 }
 
-export const CopyButton = ({ text, style = {}, collapsible = false, ...buttonProps }: CopyButtonProps) => {
+export const CopyButton = ({ text, source, style = {}, collapsible = false, ...buttonProps }: CopyButtonProps) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { activeCopyId, setActiveCopyId } = useCopyButton();
   const uniqueId = useId();
   const isCopied = activeCopyId === uniqueId;
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCopy = async () => {
     const success = await copyToClipboard(text, { showToastOnSuccess: false });
     if (success) {
       setActiveCopyId(uniqueId);
+      telemetry.track({ name: 'clipboard.copied', source });
     }
   };
 

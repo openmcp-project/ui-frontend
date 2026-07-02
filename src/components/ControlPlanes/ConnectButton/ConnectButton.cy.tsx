@@ -1,6 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import ConnectButton from './ConnectButton';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import '@ui5/webcomponents-cypress-commands';
 import { APIError } from '../../../lib/api/error.ts';
 
@@ -148,7 +149,6 @@ describe('ConnectButton', () => {
     cy.get('ui5-menu[open]').within(() => {
       cy.contains('openmcp').should('be.visible');
       cy.contains('custom-user').should('be.visible');
-      cy.contains('Download Kubeconfig').should('be.visible');
     });
 
     // First item: default IdP
@@ -189,5 +189,107 @@ describe('ConnectButton', () => {
     );
 
     cy.get('ui5-button').should('have.attr', 'disabled');
+  });
+
+  describe('telemetry', () => {
+    const mockUseTelemetryWith = (trackSpy: Cypress.Agent<sinon.SinonStub>): typeof useTelemetry => {
+      return () => ({ track: trackSpy, report: cy.stub(), identify: cy.stub() });
+    };
+
+    it('tracks controlplane.connected with idp=system when connecting via system IdP', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
+        return {
+          data: generateKubeconfigYaml([{ user: 'openmcp' }]),
+          error: undefined,
+          isLoading: false,
+        };
+      };
+      const trackSpy = cy.stub().as('trackSpy');
+      const mockUseNavigate = () => cy.stub();
+
+      cy.mount(
+        <MemoryRouter>
+          <ConnectButton
+            {...defaultProps}
+            useApiResource={fakeUseApiResourceSingle}
+            useNavigate={mockUseNavigate}
+            useTelemetry={mockUseTelemetryWith(trackSpy)}
+          />
+        </MemoryRouter>,
+      );
+
+      cy.get('ui5-button').click();
+
+      cy.get('@trackSpy').should('have.been.calledOnce');
+      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+    });
+
+    it('tracks controlplane.connected with idp=custom when connecting via custom IdP', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
+        return {
+          data: generateKubeconfigYaml([{ user: 'custom-user' }]),
+          error: undefined,
+          isLoading: false,
+        };
+      };
+      const trackSpy = cy.stub().as('trackSpy');
+      const mockUseNavigate = () => cy.stub();
+
+      cy.mount(
+        <MemoryRouter>
+          <ConnectButton
+            {...defaultProps}
+            useApiResource={fakeUseApiResourceSingle}
+            useNavigate={mockUseNavigate}
+            useTelemetry={mockUseTelemetryWith(trackSpy)}
+          />
+        </MemoryRouter>,
+      );
+
+      cy.get('ui5-button').click();
+
+      cy.get('@trackSpy').should('have.been.calledOnce');
+      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+    });
+
+    it('tracks the selected idp when picking from the menu with multiple IdPs', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fakeUseApiResourceMultiple: typeof useApiResource = (): any => {
+        return {
+          data: generateKubeconfigYaml([{ user: 'openmcp' }, { user: 'custom-user' }]),
+          error: undefined,
+          isLoading: false,
+        };
+      };
+      const trackSpy = cy.stub().as('trackSpy');
+      const mockUseNavigate = () => cy.stub();
+
+      cy.mount(
+        <MemoryRouter>
+          <ConnectButton
+            {...defaultProps}
+            useApiResource={fakeUseApiResourceMultiple}
+            useNavigate={mockUseNavigate}
+            useTelemetry={mockUseTelemetryWith(trackSpy)}
+          />
+        </MemoryRouter>,
+      );
+
+      // Open menu and pick the system IdP
+      cy.get('ui5-button').click();
+      cy.get('ui5-menu-item').eq(0).click();
+
+      cy.get('@trackSpy').should('have.been.calledOnce');
+      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+
+      // Open menu again and pick the custom IdP
+      cy.get('ui5-button').click();
+      cy.get('ui5-menu-item').eq(1).click();
+
+      cy.get('@trackSpy').should('have.been.calledTwice');
+      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+    });
   });
 });

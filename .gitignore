@@ -43,3 +43,6 @@ public/frontend-config.json
 
 # Cypress
 cypress/screenshots/
+
+# Local GraphQL schema introspection dump
+schema.introspection.json

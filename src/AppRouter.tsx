@@ -1,16 +1,18 @@
-import { Navigate, Route, HashRouter as Router } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
+import { Navigate, Route, HashRouter as Router, Routes } from 'react-router-dom';
 import GlobalProviderOutlet from './components/Core/ApiConfigWrapper.tsx';
 import { ParamRedirect } from './components/Core/ParamRedirect.tsx';
 import { ShellBarComponent } from './components/Core/ShellBar.tsx';
 import { SearchParamToggleVisibility } from './components/Helper/FeatureToggleExistance.tsx';
 import { SplitterProvider } from './components/Splitter/SplitterContext.tsx';
 import { SplitterLayout } from './components/Splitter/SplitterLayout.tsx';
-import { SentryRoutes } from './mount.ts';
 import HeadlampPage from './spaces/mcp/pages/HeadlampPage.tsx';
-import McpPage from './spaces/mcp/pages/McpPage.tsx';
-import McpPageV2 from './spaces/mcp/pages/McpPageV2.tsx';
+import ManagedControlPlanePage from './spaces/mcp/pages/ManagedControlPlanePage.tsx';
+import ControlPlanePageV2 from './spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
+
+const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 function AppRouter() {
   return (
@@ -34,7 +36,7 @@ function AppRouter() {
                 <Route path="projects/:projectName" element={<ProjectPage />} />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName"
-                  element={<McpPageV2 />}
+                  element={<ControlPlanePageV2 />}
                 />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/controlplane/:controlPlaneName/headlamp"
@@ -42,7 +44,7 @@ function AppRouter() {
                 />
                 <Route
                   path="projects/:projectName/workspaces/:workspaceName/managedcontrolplane/:controlPlaneName"
-                  element={<McpPage />}
+                  element={<ManagedControlPlanePage />}
                 />
               </Route>
 
