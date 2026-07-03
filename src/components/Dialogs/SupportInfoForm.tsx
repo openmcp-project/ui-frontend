@@ -37,7 +37,12 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
       <p className={styles.intro}>{t('SupportInfo.wizardIntro')}</p>
       <div className={styles.fields}>
         <Field label={t('SupportInfo.purposeLabel')}>
-          <Select value={supportLandscape} className={styles.input} onChange={handleLandscapeChange}>
+          <Select
+            data-testid="support-landscape"
+            value={supportLandscape}
+            className={styles.input}
+            onChange={handleLandscapeChange}
+          >
             <Option value="" data-value="">
               {t('common.notSelected')}
             </Option>
@@ -51,19 +56,30 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
         <Field label={t('SupportInfo.serviceIds')}>
-          <Input {...register('supportServiceIds')} placeholder="ID-12345,ID-67890..." className={styles.input} />
+          <Input
+            {...register('supportServiceIds')}
+            data-testid="support-service-ids"
+            placeholder="ID-12345,ID-67890..."
+            className={styles.input}
+          />
         </Field>
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
         <Field label={t('SupportInfo.securityContacts')}>
           <Input
             {...register('supportSecurityContacts')}
+            data-testid="support-security-contacts"
             placeholder="mail:team@example.com"
             className={styles.input}
           />
         </Field>
         <Field label={t('SupportInfo.opsContacts')}>
-          <Input {...register('supportOpsContacts')} placeholder="mail:team@example.com" className={styles.input} />
+          <Input
+            {...register('supportOpsContacts')}
+            data-testid="support-ops-contacts"
+            placeholder="mail:team@example.com"
+            className={styles.input}
+          />
         </Field>
       </div>
     </div>
