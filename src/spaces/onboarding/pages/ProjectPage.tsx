@@ -199,6 +199,7 @@ export default function ProjectPage() {
           />
           {allExpanded ? (
             <Button
+              className={styles.expandCollapseButton}
               design="Transparent"
               disabled={!!search}
               icon="collapse-all"
@@ -209,6 +210,7 @@ export default function ProjectPage() {
             </Button>
           ) : (
             <Button
+              className={styles.expandCollapseButton}
               design="Transparent"
               disabled={!!search}
               icon="expand-all"

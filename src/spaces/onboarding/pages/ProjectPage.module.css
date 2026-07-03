@@ -3,3 +3,7 @@
   margin-top: 1.5rem;
   width: 1280px;
 }
+
+.expandCollapseButton {
+  flex-shrink: 0;
+}
