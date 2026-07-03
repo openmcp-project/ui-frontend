@@ -244,9 +244,11 @@ describe('EditProjectDialogContainer', () => {
       cy.contains('ui5-button', 'Next').click();
       cy.contains('ui5-button', 'Next').click();
 
-      cy.get('[data-testid="support-service-ids"]').typeIntoUi5Input('ID-42');
-      cy.get('[data-testid="support-security-contacts"]').typeIntoUi5Input('mail:sec@example.com');
-      cy.get('[data-testid="support-ops-contacts"]').typeIntoUi5Input('mail:ops@example.com');
+      // MultiInput commits its editable value into a Token on Enter,
+      // which fires the wrapped `change` event our TagListInput listens to.
+      cy.get('[data-testid="support-service-ids"]').find('input').type('ID-42{enter}');
+      cy.get('[data-testid="support-security-contacts"]').find('input').type('mail:sec@example.com{enter}');
+      cy.get('[data-testid="support-ops-contacts"]').find('input').type('mail:ops@example.com{enter}');
 
       cy.get('ui5-button').contains('Save').click();
 

@@ -654,7 +654,9 @@
       "testing": "Testing"
     },
     "serviceIds": "Service IDs",
+    "serviceIdsPlaceholder": "Enter an ID and press Enter",
     "contacts": "Contacts",
+    "contactsPlaceholder": "Enter a contact and press Enter",
     "contextSection": "Region & Service",
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",

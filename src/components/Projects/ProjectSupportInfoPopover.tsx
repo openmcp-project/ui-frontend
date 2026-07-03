@@ -5,7 +5,7 @@ import { Bar, Button, ResponsivePopover, Tag } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
 import { purposeColorScheme, purposeLabel, SupportInfo } from '../../lib/supportInfo.ts';
-import { SupportInfoField, SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
+import { SupportInfoListField, SupportInfoSectionHeader } from '../Shared/SupportInfoSection.tsx';
 import styles from './ProjectSupportInfoPopover.module.css';
 
 interface ProjectSupportInfoPopoverProps extends SupportInfo {
@@ -63,11 +63,11 @@ export function ProjectSupportInfoPopover({
         </div>
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
-        <SupportInfoField label={t('SupportInfo.serviceIds')} value={supportServiceIds} indent />
+        <SupportInfoListField label={t('SupportInfo.serviceIds')} value={supportServiceIds} indent />
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />
-        <SupportInfoField label={t('SupportInfo.securityContacts')} value={supportSecurityContacts} indent />
-        <SupportInfoField label={t('SupportInfo.opsContacts')} value={supportOpsContacts} indent />
+        <SupportInfoListField label={t('SupportInfo.securityContacts')} value={supportSecurityContacts} indent />
+        <SupportInfoListField label={t('SupportInfo.opsContacts')} value={supportOpsContacts} indent />
       </div>
     </ResponsivePopover>
   );

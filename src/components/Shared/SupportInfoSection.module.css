@@ -37,3 +37,9 @@
   font-size: 0.875rem;
   color: var(--sapContent_NonInteractiveIconColor);
 }
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
