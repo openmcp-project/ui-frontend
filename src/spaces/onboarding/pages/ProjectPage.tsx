@@ -1,7 +1,7 @@
+import '@ui5/webcomponents-icons/dist/collapse-all.js';
+import '@ui5/webcomponents-icons/dist/expand-all.js';
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
-import '@ui5/webcomponents-icons/dist/expand-all.js';
-import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -20,8 +20,8 @@ import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
-import { projectnameToNamespace } from '../../../utils/index.ts';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
+import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 import styles from './ProjectPage.module.css';
 
@@ -185,7 +185,7 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <FlexBox alignItems="Center" gap="0.5rem" className={styles.searchBar}>
+        <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
           <ResourceSearchBar
             focusOnMount
             value={search}
@@ -195,6 +195,7 @@ export default function ProjectPage() {
           {allExpanded ? (
             <Button
               design="Transparent"
+              disabled={!!search}
               icon="collapse-all"
               tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
               onClick={handleCollapseAll}
@@ -204,6 +205,7 @@ export default function ProjectPage() {
           ) : (
             <Button
               design="Transparent"
+              disabled={!!search}
               icon="expand-all"
               tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
               onClick={handleExpandAll}

@@ -19,6 +19,7 @@ import styles from './ControlPlaneCard.module.css';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { useDeleteManagedControlPlane as _useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useDeleteControlPlaneV2GraphQL as _useDeleteManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useDeleteControlPlaneV2GraphQL.ts';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
@@ -26,7 +27,6 @@ import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateMan
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { ControlPlaneCardMenu } from './ControlPlaneCardMenu.tsx';
 import { ControlPlaneCardMenuV2 } from './ControlPlaneCardMenuV2.tsx';
-import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -83,7 +83,7 @@ export const ControlPlaneCard = ({
             <FlexBox direction="Row" justifyContent="SpaceBetween">
               <FlexBox direction="Column">
                 <Title level={TitleLevel.H5}>{displayName ? displayName : name}</Title>
-                <Label>{workspace.metadata.name} </Label>
+                <Label>{name} </Label>
               </FlexBox>
               <div>
                 <MCPHealthPopoverButton
