@@ -50,9 +50,6 @@ export function SupportInfoForm({ register, watch, setValue }: SupportInfoFormPr
         </Field>
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
-        <Field label={t('SupportInfo.managedRegions')}>
-          <Input {...register('supportManagedRegions')} placeholder="eu, us, cn..." className={styles.input} />
-        </Field>
         <Field label={t('SupportInfo.serviceIds')}>
           <Input {...register('supportServiceIds')} placeholder="ID-12345,ID-67890..." className={styles.input} />
         </Field>

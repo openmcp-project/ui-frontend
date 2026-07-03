@@ -21,7 +21,6 @@ export function ProjectSupportInfoPopover({
   onClose,
   onEditClick,
   supportLandscape,
-  supportManagedRegions,
   supportServiceIds,
   supportSecurityContacts,
   supportOpsContacts,
@@ -64,7 +63,6 @@ export function ProjectSupportInfoPopover({
         </div>
 
         <SupportInfoSectionHeader icon="world" label={t('SupportInfo.contextSection')} />
-        <SupportInfoField label={t('SupportInfo.managedRegions')} value={supportManagedRegions} indent />
         <SupportInfoField label={t('SupportInfo.serviceIds')} value={supportServiceIds} indent />
 
         <SupportInfoSectionHeader icon="headset" label={t('SupportInfo.contacts')} />

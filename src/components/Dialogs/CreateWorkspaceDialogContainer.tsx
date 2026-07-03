@@ -19,7 +19,6 @@ export type CreateDialogProps = {
   members: Member[];
   componentsList?: ComponentsListItem[];
   supportServiceIds?: string;
-  supportManagedRegions?: string;
   supportLandscape?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;

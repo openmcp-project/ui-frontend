@@ -39,7 +39,6 @@ export interface ProjectData {
   chargingTargetType: string;
   members: Member[];
   supportServiceIds: string;
-  supportManagedRegions: string;
   supportLandscape: string;
   supportSecurityContacts: string;
   supportOpsContacts: string;
@@ -75,7 +74,6 @@ export function useGetProject(projectName: string | undefined) {
           ];
         }),
         supportServiceIds: support.supportServiceIds ?? '',
-        supportManagedRegions: support.supportManagedRegions ?? '',
         supportLandscape: support.supportLandscape ?? '',
         supportSecurityContacts: support.supportSecurityContacts ?? '',
         supportOpsContacts: support.supportOpsContacts ?? '',

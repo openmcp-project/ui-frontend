@@ -5,7 +5,6 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   SUPPORT_LANDSCAPE_ANNOTATION,
-  SUPPORT_MANAGED_REGIONS_ANNOTATION,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
   SUPPORT_SERVICE_IDS_ANNOTATION,
@@ -21,7 +20,6 @@ export interface YamlPreviewFields {
   chargingTargetType?: string;
   members: Member[];
   supportServiceIds?: string;
-  supportManagedRegions?: string;
   supportLandscape?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;
@@ -45,7 +43,6 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     chargingTargetType,
     members,
     supportServiceIds,
-    supportManagedRegions,
     supportLandscape,
     supportSecurityContacts,
     supportOpsContacts,
@@ -60,7 +57,6 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     if (chargingTargetType) labels[CHARGING_TARGET_TYPE_LABEL] = chargingTargetType;
     if (chargingTarget) labels[CHARGING_TARGET_LABEL] = chargingTarget;
     if (supportServiceIds) annotations[SUPPORT_SERVICE_IDS_ANNOTATION] = supportServiceIds;
-    if (supportManagedRegions) annotations[SUPPORT_MANAGED_REGIONS_ANNOTATION] = supportManagedRegions;
     if (supportLandscape) annotations[SUPPORT_LANDSCAPE_ANNOTATION] = supportLandscape;
     if (supportSecurityContacts) annotations[SUPPORT_SECURITY_CONTACTS_ANNOTATION] = supportSecurityContacts;
     if (supportOpsContacts) annotations[SUPPORT_OPS_CONTACTS_ANNOTATION] = supportOpsContacts;
@@ -87,7 +83,6 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     chargingTargetType,
     members,
     supportServiceIds,
-    supportManagedRegions,
     supportLandscape,
     supportSecurityContacts,
     supportOpsContacts,

@@ -20,7 +20,6 @@ const projectData: ProjectData = {
   chargingTargetType: 'btp',
   members: [{ name: 'user@example.com', kind: 'User', roles: [MemberRoles.admin] }],
   supportServiceIds: '',
-  supportManagedRegions: '',
   supportLandscape: '',
   supportSecurityContacts: '',
   supportOpsContacts: '',

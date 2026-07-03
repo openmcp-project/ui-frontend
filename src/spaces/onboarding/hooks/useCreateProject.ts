@@ -8,7 +8,6 @@ import {
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
   SUPPORT_LANDSCAPE_ANNOTATION,
-  SUPPORT_MANAGED_REGIONS_ANNOTATION,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
   SUPPORT_SERVICE_IDS_ANNOTATION,
@@ -23,7 +22,6 @@ export interface CreateProjectParams {
   chargingTargetType?: string;
   members: Member[];
   supportServiceIds?: string;
-  supportManagedRegions?: string;
   supportLandscape?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;
@@ -33,7 +31,6 @@ export function buildProjectAnnotations(params: CreateProjectParams): Record<str
   return {
     [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
     [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds ?? '',
-    [SUPPORT_MANAGED_REGIONS_ANNOTATION]: params.supportManagedRegions ?? '',
     [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape ?? '',
     [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts ?? '',
     [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts ?? '',

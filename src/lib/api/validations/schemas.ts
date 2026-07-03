@@ -39,7 +39,6 @@ export function createProjectWorkspaceSchema(t: TFunction) {
       chargingTargetType: z.string().optional(),
       members: z.array(member).refine((members) => members?.length > 0),
       supportServiceIds: z.string().optional(),
-      supportManagedRegions: z.string().optional(),
       supportLandscape: z.string().optional(),
       supportSecurityContacts: z.string().optional(),
       supportOpsContacts: z.string().optional(),

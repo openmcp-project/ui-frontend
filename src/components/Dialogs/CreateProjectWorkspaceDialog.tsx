@@ -36,7 +36,6 @@ export type OnCreatePayload = {
   chargingTargetType?: string;
   members: Member[];
   supportServiceIds?: string;
-  supportManagedRegions?: string;
   supportLandscape?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;
@@ -94,7 +93,6 @@ export function CreateProjectWorkspaceDialog({
   const chargingTarget = watch('chargingTarget') ?? '';
   const chargingTargetType = watch('chargingTargetType') ?? '';
   const supportLandscape = watch('supportLandscape') ?? '';
-  const supportManagedRegions = watch('supportManagedRegions') ?? '';
   const supportServiceIds = watch('supportServiceIds') ?? '';
   const supportSecurityContacts = watch('supportSecurityContacts') ?? '';
   const supportOpsContacts = watch('supportOpsContacts') ?? '';
@@ -106,7 +104,6 @@ export function CreateProjectWorkspaceDialog({
       chargingTargetType,
       members,
       supportLandscape,
-      supportManagedRegions,
       supportServiceIds,
       supportSecurityContacts,
       supportOpsContacts,

@@ -1,7 +1,6 @@
 import type { TFunction } from 'i18next';
 import {
   SUPPORT_LANDSCAPE_ANNOTATION,
-  SUPPORT_MANAGED_REGIONS_ANNOTATION,
   SUPPORT_OPS_CONTACTS_ANNOTATION,
   SUPPORT_SECURITY_CONTACTS_ANNOTATION,
   SUPPORT_SERVICE_IDS_ANNOTATION,
@@ -10,18 +9,16 @@ import {
 
 export interface SupportInfo {
   supportLandscape?: string;
-  supportManagedRegions?: string;
   supportServiceIds?: string;
   supportSecurityContacts?: string;
   supportOpsContacts?: string;
 }
 
-/** Reads the five support annotations from a project's annotations map. */
+/** Reads the four support annotations from a project's annotations map. */
 export function extractSupportInfo(annotations: Record<string, string> | null | undefined): SupportInfo {
   const a = annotations ?? {};
   return {
     supportLandscape: a[SUPPORT_LANDSCAPE_ANNOTATION] || undefined,
-    supportManagedRegions: a[SUPPORT_MANAGED_REGIONS_ANNOTATION] || undefined,
     supportServiceIds: a[SUPPORT_SERVICE_IDS_ANNOTATION] || undefined,
     supportSecurityContacts: a[SUPPORT_SECURITY_CONTACTS_ANNOTATION] || undefined,
     supportOpsContacts: a[SUPPORT_OPS_CONTACTS_ANNOTATION] || undefined,

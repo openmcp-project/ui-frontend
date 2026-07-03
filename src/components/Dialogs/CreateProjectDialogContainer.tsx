@@ -57,7 +57,6 @@ export function CreateProjectDialogContainer({
     resetField('chargingTargetType');
     resetField('members');
     resetField('supportServiceIds');
-    resetField('supportManagedRegions');
     resetField('supportLandscape');
     resetField('supportSecurityContacts');
     resetField('supportOpsContacts');
@@ -79,7 +78,6 @@ export function CreateProjectDialogContainer({
     chargingTargetType,
     members,
     supportServiceIds,
-    supportManagedRegions,
     supportLandscape,
     supportSecurityContacts,
     supportOpsContacts,
@@ -92,7 +90,6 @@ export function CreateProjectDialogContainer({
         chargingTargetType,
         members,
         supportServiceIds,
-        supportManagedRegions,
         supportLandscape,
         supportSecurityContacts,
         supportOpsContacts,
