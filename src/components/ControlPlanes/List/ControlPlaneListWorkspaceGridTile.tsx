@@ -33,7 +33,6 @@ interface Props {
   search?: string;
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
-  onForbidden?: () => void;
   onVisibilityChange?: (isVisible: boolean) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
@@ -45,7 +44,6 @@ export function ControlPlaneListWorkspaceGridTile({
   search = '',
   isExpanded,
   onToggleExpanded,
-  onForbidden,
   onVisibilityChange,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
@@ -91,10 +89,6 @@ export function ControlPlaneListWorkspaceGridTile({
   const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
-
-  useEffect(() => {
-    if (isForbiddenError(cpsError)) onForbidden?.();
-  }, [cpsError, onForbidden]);
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;

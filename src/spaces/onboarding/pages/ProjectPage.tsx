@@ -39,7 +39,12 @@ export default function ProjectPage() {
     getExpandedWorkspaces(projectName ?? ''),
   );
 
+  const isInitialRender = useRef(true);
   useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
     setExpandedWorkspaces(projectName ?? '', expandedWorkspaces);
   }, [projectName, expandedWorkspaces]);
 
