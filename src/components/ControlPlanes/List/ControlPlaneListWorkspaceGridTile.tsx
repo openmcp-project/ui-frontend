@@ -73,7 +73,11 @@ export function ControlPlaneListWorkspaceGridTile({
     query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
   const visibleMcps =
     query && !workspaceMatches
-      ? (managedControlPlanes ?? []).filter((mcp) => mcp.metadata.name.toLowerCase().includes(query))
+      ? (managedControlPlanes ?? []).filter(
+          (mcp) =>
+            mcp.metadata.name.toLowerCase().includes(query) ||
+            (mcp.metadata.annotations?.[DISPLAY_NAME_ANNOTATION] ?? '').toLowerCase().includes(query),
+        )
       : managedControlPlanes;
 
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
