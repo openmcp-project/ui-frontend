@@ -9,10 +9,10 @@ import {
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -101,6 +101,23 @@ export default function ProjectsList({
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
 
+  // Fire `project-list.searched` only once per "search session" — from the
+  // first non-empty character until the user clears the field — so we
+  // measure adoption, not keystrokes.
+  const hasFiredSearchedRef = useRef(false);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (value === '' && hasFiredSearchedRef.current) {
+        hasFiredSearchedRef.current = false;
+      } else if (value !== '' && !hasFiredSearchedRef.current) {
+        telemetry.track({ name: 'project-list.searched' });
+        hasFiredSearchedRef.current = true;
+      }
+      setSearch(value);
+    },
+    [telemetry],
+  );
+
   const handleTimestamp = (name: string, ts: string) => {
     timestampsRef.current.set(name, ts);
   };
@@ -166,6 +183,7 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
+                    telemetry.track({ name: 'project.remembered', source: 'list' });
                     telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
                   }
                   telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
@@ -175,7 +193,7 @@ export default function ProjectsList({
               >
                 {projectName}
               </Link>
-              <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+              <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
             </div>
           );
         },
@@ -196,7 +214,6 @@ export default function ProjectsList({
         accessor: 'creationTimestamp',
         width: 120,
         disableFilters: true,
-        responsivePopIn: true,
         responsiveMinWidth: 1200,
         sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
           const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
@@ -258,7 +275,7 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar focusOnMount value={search} onChange={setSearch} onKeyDown={handleSearchKeyDown} />
+      <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       <div ref={tableContainerRef}>
         <AnalyticalTable
           style={{

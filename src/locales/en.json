@@ -112,11 +112,14 @@
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
-    "emptyListSubtitleMessage": "Create a workspace to get started"
+    "emptyListSubtitleMessage": "Create a workspace to get started",
+    "noSearchResultsTitle": "No results found",
+    "noSearchResultsSubtitle": "Try a different search term"
   },
   "ConnectButton": {
     "buttonText": "View",
     "defaultIdP": "default IdP",
+    "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
   "MCPHealthPopoverButton": {
@@ -190,6 +193,7 @@
     "feedbackThanks": "Thank you for your feedback!",
     "feedbackError": "Failed to send feedback. Please try again later.",
     "modeOpenSource": "Open Source View",
+    "hello": "Hello, {{name}}",
     "backButton": "Back",
     "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",
@@ -423,6 +427,12 @@
     "colorsProviderConfig": "Provider Config",
     "colorBy": "Color by",
     "colorsFlux": "Flux",
+    "colorsLabel": "Common Label",
+    "layoutDirection": "Layout direction",
+    "layoutTB": "Top → Bottom",
+    "layoutLR": "Left → Right",
+    "enterFullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
