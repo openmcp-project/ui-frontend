@@ -12,6 +12,8 @@ export class ConsoleAdapter implements Telemetry {
   }
 
   identify(user: TelemetryUser | null): void {
-    console.info('[Telemetry] identify ', user);
+    if (user) {
+      console.info('[Telemetry] identify ', user);
+    }
   }
 }
