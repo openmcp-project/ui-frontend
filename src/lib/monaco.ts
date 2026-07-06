@@ -1,6 +1,8 @@
 /* eslint-disable import/default */
 import { loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { configureMonacoYaml } from 'monaco-yaml';
+import type { MonacoYaml, MonacoYamlOptions, SchemasSettings } from 'monaco-yaml';
 
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
 
@@ -10,6 +12,23 @@ import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 
 // Use ESM monaco to avoid loading AMD loader from CDN
 loader.config({ monaco });
+
+export type { SchemasSettings };
+
+const BASE_YAML_OPTIONS: MonacoYamlOptions = {
+  isKubernetes: true,
+  enableSchemaRequest: true,
+  hover: true,
+  completion: true,
+  validate: true,
+  format: { enable: true },
+};
+
+let monacoYamlInstance: MonacoYaml | undefined;
+
+export const updateYamlSchemas = (schemas: SchemasSettings[]): void => {
+  monacoYamlInstance?.update({ ...BASE_YAML_OPTIONS, schemas });
+};
 
 export const GITHUB_LIGHT_DEFAULT = 'github-light-default';
 export const GITHUB_DARK_DEFAULT = 'github-dark-default';
@@ -74,6 +93,29 @@ export const configureMonaco = () => {
       },
     };
   }
+
+  // Monaco 0.55 changed createWebWorker to require opts.worker (Worker instance) instead
+  // of opts.label/moduleId/createData. monaco-worker-manager still uses the old API, so
+  // we intercept the call, create the YamlWorker ourselves, and inject createData as the
+  // first postMessage (before Monaco's own '-please-ignore-') so our worker shim can read it.
+  const _originalCreateWebWorker = monaco.editor.createWebWorker.bind(monaco.editor);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (monaco.editor as Record<string, any>).createWebWorker = (opts: Record<string, any>) => {
+    if (opts.label === 'yaml') {
+      const worker = new YamlWorker();
+      // Send createData first so the compat shim receives it before '-please-ignore-'.
+      worker.postMessage(opts.createData ?? {});
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (_originalCreateWebWorker as (opts: any) => any)({ worker });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (_originalCreateWebWorker as (opts: any) => any)(opts);
+  };
+
+  // Initialize the YAML language service before any editor mounts.
+  // monaco-yaml only supports one instance at a time; editors call updateYamlSchemas()
+  // to change the active schema without recreating the service.
+  monacoYamlInstance = configureMonacoYaml(monaco, BASE_YAML_OPTIONS);
 
   monaco.editor.defineTheme(GITHUB_LIGHT_DEFAULT, {
     base: 'vs',
