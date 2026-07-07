@@ -10,9 +10,9 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -44,12 +44,8 @@ function CreatedAtCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
-  // Bubble the timestamp up in an effect, never during render — writing to
-  // the parent's ref map while ProjectsList itself is rendering triggers
-  // "Cannot update a component (…) while rendering a different component".
-  useEffect(() => {
-    if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
-  }, [isLoading, creationTimestamp, projectName, onTimestamp]);
+
+  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
   return (
     <FadeIn>
@@ -101,9 +97,6 @@ export default function ProjectsList({
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
 
-  // Fire `project-list.searched` only once per "search session" — from the
-  // first non-empty character until the user clears the field — so we
-  // measure adoption, not keystrokes.
   const hasFiredSearchedRef = useRef(false);
   const handleSearchChange = useCallback(
     (value: string) => {
