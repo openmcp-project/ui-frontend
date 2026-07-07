@@ -20,38 +20,30 @@ interface Props {
 
 export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false, source }: Props) {
   const openerId = useId();
-  const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const telemetry = useTelemetry();
-  const avatars = [];
 
-  const handleOnClick = () => {
-    setPopoverIsOpen(true);
+  const handleClick = () => {
+    setIsPopoverOpen(true);
     telemetry.track({ name: 'members.viewed', source });
   };
 
-  for (const [index, member] of members.entries()) {
-    avatars.push(
-      <Avatar
-        key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
-        initials={generateInitialsForEmail(member.name)}
-        size="XS"
-      />,
-    );
-  }
+  const handleClose = () => {
+    setIsPopoverOpen(false);
+  };
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup id={openerId} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleOnClick}>
-        {avatars}
+      <AvatarGroup id={openerId} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleClick}>
+        {members.map((member, index) => (
+          <Avatar
+            key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
+            initials={generateInitialsForEmail(member.name)}
+            size="XS"
+          />
+        ))}
       </AvatarGroup>
-      <Popover
-        opener={openerId}
-        placement={PopoverPlacement.Bottom}
-        open={popoverIsOpen}
-        onClose={() => {
-          setPopoverIsOpen(false);
-        }}
-      >
+      <Popover opener={openerId} placement={PopoverPlacement.Bottom} open={isPopoverOpen} onClose={handleClose}>
         <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
       </Popover>
     </div>
