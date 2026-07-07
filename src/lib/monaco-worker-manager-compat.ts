@@ -1,20 +1,15 @@
-// Compatibility shim that replaces monaco-worker-manager/worker for Monaco 0.55+.
+// Replaces monaco-worker-manager/worker to fix a deadlock in Monaco 0.55+.
+// Without this fix the YAML worker never starts, breaking IntelliSense in the Monaco editor.
 //
-// Root cause: monaco-worker-manager calls Monaco's old initialize() from
-// vs/common/initialize.js, which waits for a SECOND message before calling start().
-// Monaco 0.55's WebWorkerClient sends '-please-ignore-' first, then '$initialize'.
-// With the old protocol, '$initialize' is consumed before WebWorkerServer is ready,
-// deadlocking the worker (_onModuleLoaded never resolves) and causing a fallback to
-// SynchronousWorkerClient(EditorWorker(null)) → "Missing requestHandler or method".
+// The old library expected Monaco to send two messages before calling start(),
+// but Monaco 0.55 changed the order: it now sends '-please-ignore-' first, then
+// '$initialize'. This caused the worker to hang waiting for a message it already missed.
 //
-// Fix: call start() on the FIRST received message instead of deferring to the second.
-// Message ordering we rely on (guaranteed FIFO):
-//   #0 — createData  (postMessage'd by the main-thread monkey-patch before Monaco runs)
-//   #1 — '-please-ignore-'  (WebWorker constructor, via microtask)
-//   #2 — '$initialize'      (WebWorkerClient constructor, via microtask after #1)
-//
-// On #0 we store createData; on #1 we call start() → WebWorkerServer handles #2
-// ('$initialize') and all subsequent $fmr requests.
+// Fix: call start() on the first Monaco message instead of the second.
+// Expected message order (FIFO):
+//   #0 — createData     (injected by our main-thread patch before Monaco starts)
+//   #1 — '-please-ignore-'  (sent by Monaco's WebWorker constructor)
+//   #2 — '$initialize'      (sent by Monaco's WebWorkerClient, handled by start())
 // @ts-expect-error internal Monaco ESM path — no .d.ts declaration shipped
 import { start } from 'monaco-editor/esm/vs/editor/editor.worker.start.js';
 
@@ -24,14 +19,12 @@ let _fn: ((ctx: unknown, createData: unknown) => unknown) | null = null;
 export function initialize(fn: (ctx: unknown, createData: unknown) => unknown): void {
   _fn = fn;
 
-  // Message #0: receive createData injected by the main-thread createWebWorker interceptor
+  // Message #0: save createData sent by the main-thread patch
   self.onmessage = (m: MessageEvent<unknown>) => {
     _createData = m.data;
 
-    // Message #1: '-please-ignore-' → set up WebWorkerServer with YAML foreign module
+    // Message #1: '-please-ignore-' — call start() so Monaco's WebWorkerServer is ready for #2
     self.onmessage = () => {
-      // start() calls webWorkerBootstrap.initialize() which creates WebWorkerServer and
-      // sets globalThis.onmessage — from here Monaco's protocol handles everything.
       (start as (createClient: (ctx: unknown) => unknown) => void)((ctx) => _fn!(ctx, _createData));
     };
   };
