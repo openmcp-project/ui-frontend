@@ -94,22 +94,24 @@ export const configureMonaco = () => {
     };
   }
 
-  // Monaco 0.55 changed createWebWorker to require opts.worker (Worker instance) instead
-  // of opts.label/moduleId/createData. monaco-worker-manager still uses the old API, so
-  // we intercept the call, create the YamlWorker ourselves, and inject createData as the
-  // first postMessage (before Monaco's own '-please-ignore-') so our worker shim can read it.
-  const _originalCreateWebWorker = monaco.editor.createWebWorker.bind(monaco.editor);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (monaco.editor as Record<string, any>).createWebWorker = (opts: Record<string, any>) => {
+  // monaco-worker-manager calls createWebWorker with the pre-0.55 shape (label/moduleId/createData).
+  // Monaco 0.55+ only accepts { worker: Worker }. We intercept yaml calls, spawn the worker
+  // ourselves, and prime it with createData before Monaco sends its own '-please-ignore-' message
+  // so the compat shim in monaco-worker-manager-compat.ts can read it.
+  type LegacyWebWorkerOptions = monaco.editor.IInternalWebWorkerOptions & {
+    label?: string;
+    moduleId?: string;
+    createData?: unknown;
+  };
+  type CreateWebWorker = <T extends object>(opts: LegacyWebWorkerOptions) => monaco.editor.MonacoWebWorker<T>;
+  const originalCreateWebWorker = monaco.editor.createWebWorker.bind(monaco.editor) as CreateWebWorker;
+  (monaco.editor as unknown as { createWebWorker: CreateWebWorker }).createWebWorker = (opts) => {
     if (opts.label === 'yaml') {
       const worker = new YamlWorker();
-      // Send createData first so the compat shim receives it before '-please-ignore-'.
       worker.postMessage(opts.createData ?? {});
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (_originalCreateWebWorker as (opts: any) => any)({ worker });
+      return originalCreateWebWorker({ worker });
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (_originalCreateWebWorker as (opts: any) => any)(opts);
+    return originalCreateWebWorker(opts);
   };
 
   // Initialize the YAML language service before any editor mounts.
