@@ -10,9 +10,9 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -268,7 +268,9 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      {data.length > 0 && (
+        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      )}
       <div ref={tableContainerRef}>
         <AnalyticalTable
           style={{
