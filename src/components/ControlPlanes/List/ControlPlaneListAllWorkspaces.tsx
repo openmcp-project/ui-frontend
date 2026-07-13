@@ -15,6 +15,8 @@ interface Props {
   projectName: string;
   workspaces: Workspace[];
   search?: string;
+  expandedWorkspaces: Set<string>;
+  onToggleWorkspace: (workspaceName: string) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -23,19 +25,15 @@ export default function ControlPlaneListAllWorkspaces({
   projectName,
   workspaces,
   search = '',
+  expandedWorkspaces,
+  onToggleWorkspace,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
   const { workspaceCreationGuide } = useLink();
   const { t } = useTranslation();
-  // null = initial (auto-expand first accessible workspace); undefined = user explicitly collapsed all; string = user picked one
-  const [expandedWorkspace, setExpandedWorkspace] = useState<string | null | undefined>(null);
-  const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
 
   const query = search.trim().toLowerCase();
-
-  const firstAccessible = workspaces.find((ws) => !forbiddenWorkspaces.has(ws.metadata.name))?.metadata.name ?? null;
-  const resolvedExpanded = expandedWorkspace === null ? firstAccessible : expandedWorkspace;
 
   const [visibilityState, setVisibilityState] = useState<{ query: string; map: Record<string, boolean> }>({
     query: '',
@@ -52,13 +50,6 @@ export default function ControlPlaneListAllWorkspaces({
       const currentMap = prev.query === query ? prev.map : {};
       if (currentMap[workspaceName] === isVisible) return prev;
       return { query, map: { ...currentMap, [workspaceName]: isVisible } };
-    });
-  }
-
-  function handleForbidden(workspaceName: string) {
-    setForbiddenWorkspaces((prev) => {
-      if (prev.has(workspaceName)) return prev;
-      return new Set(prev).add(workspaceName);
     });
   }
 
@@ -98,14 +89,10 @@ export default function ControlPlaneListAllWorkspaces({
           projectName={projectName}
           workspace={workspace}
           search={search}
-          isExpanded={resolvedExpanded === workspace.metadata.name}
+          isExpanded={expandedWorkspaces.has(workspace.metadata.name)}
           useMcpsQuery={useMcpsQuery}
           useDeleteWorkspace={useDeleteWorkspace}
-          onToggleExpanded={() => {
-            const isCurrentlyExpanded = resolvedExpanded === workspace.metadata.name;
-            setExpandedWorkspace(isCurrentlyExpanded ? undefined : workspace.metadata.name);
-          }}
-          onForbidden={() => handleForbidden(workspace.metadata.name)}
+          onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
           onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
         />
       ))}

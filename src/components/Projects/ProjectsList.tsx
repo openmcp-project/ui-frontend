@@ -268,7 +268,9 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      {data.length > 0 && (
+        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      )}
       <div ref={tableContainerRef}>
         <AnalyticalTable
           style={{
