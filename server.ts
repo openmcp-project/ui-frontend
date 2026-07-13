@@ -123,6 +123,9 @@ fastify.register(helmet, {
   // Headlamp's inline bootstrap scripts are blocked by script-src 'self', and the header
   // must simply be absent for those responses — Helmet does not support per-request directives.
   contentSecurityPolicy: false,
+  // frame-ancestors in the manual CSP below handles framing policy; this would add a
+  // conflicting X-Frame-Options: SAMEORIGIN header that overrides it and breaks portal embedding.
+  xFrameOptions: false,
   // Needed for https enforcement
   hsts: {
     maxAge: 31536000,
