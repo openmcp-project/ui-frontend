@@ -96,7 +96,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@ui5/webcomponents-cypress-commands": "2.22.2",
-    "@vitejs/plugin-react": "6.0.2",
+    "@vitejs/plugin-react": "6.0.3",
     "@vitest/eslint-plugin": "1.6.22",
     "cypress": "15.18.1",
     "eslint-config-prettier": "10.1.8",
@@ -116,7 +116,7 @@
     "tsx": "4.23.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.63.0",
-    "vite": "8.0.16",
+    "vite": "8.1.4",
     "vite-plugin-static-copy": "4.1.1",
     "vitest": "4.1.10"
   },
