@@ -190,37 +190,39 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
-          <ResourceSearchBar
-            focusOnMount
-            value={search}
-            onChange={handleSearchChange}
-            onKeyDown={handleSearchKeyDown}
-          />
-          {allExpanded ? (
-            <Button
-              className={styles.expandCollapseButton}
-              design="Transparent"
-              disabled={!!search}
-              icon="collapse-all"
-              tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
-              onClick={handleCollapseAll}
-            >
-              {t('ControlPlaneListAllWorkspaces.collapseAll')}
-            </Button>
-          ) : (
-            <Button
-              className={styles.expandCollapseButton}
-              design="Transparent"
-              disabled={!!search}
-              icon="expand-all"
-              tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
-              onClick={handleExpandAll}
-            >
-              {t('ControlPlaneListAllWorkspaces.expandAll')}
-            </Button>
-          )}
-        </FlexBox>
+        {workspaces.length > 0 && (
+          <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
+            <ResourceSearchBar
+              focusOnMount
+              value={search}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
+            />
+            {allExpanded ? (
+              <Button
+                className={styles.expandCollapseButton}
+                design="Transparent"
+                disabled={!!search}
+                icon="collapse-all"
+                tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
+                onClick={handleCollapseAll}
+              >
+                {t('ControlPlaneListAllWorkspaces.collapseAll')}
+              </Button>
+            ) : (
+              <Button
+                className={styles.expandCollapseButton}
+                design="Transparent"
+                disabled={!!search}
+                icon="expand-all"
+                tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
+                onClick={handleExpandAll}
+              >
+                {t('ControlPlaneListAllWorkspaces.expandAll')}
+              </Button>
+            )}
+          </FlexBox>
+        )}
         <ControlPlaneListAllWorkspaces
           projectName={projectName}
           workspaces={workspaces}
