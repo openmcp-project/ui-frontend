@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { graphql } from '../../../types/__generated__/graphql/index.ts';
 import { Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
@@ -52,6 +52,8 @@ export function useProjectsQuery() {
   const [fetchMutation, { loading, error }] = useMutation(CreateSelfSubjectRulesReview);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
+  const hasReportedEvaluationErrorRef = useRef(false);
+  const hasReportedIncompleteRef = useRef(false);
 
   const fetch = useCallback(async () => {
     try {
@@ -75,13 +77,16 @@ export function useProjectsQuery() {
       // authorizer can't fully resolve rules — that's a normal fallback
       // path, not a user-visible failure. Route them through telemetry so
       // Sentry still captures them with context, but the browser console
-      // stays clean.
-      if (status?.evaluationError) {
+      // stays clean. Reported at most once per hook lifetime to avoid
+      // spamming Sentry every refetch interval.
+      if (status?.evaluationError && !hasReportedEvaluationErrorRef.current) {
+        hasReportedEvaluationErrorRef.current = true;
         telemetry.report(new Error(status.evaluationError), {
           message: 'SelfSubjectRulesReview evaluationError',
         });
       }
-      if (status?.incomplete) {
+      if (status?.incomplete && !hasReportedIncompleteRef.current) {
+        hasReportedIncompleteRef.current = true;
         telemetry.report(new Error('SelfSubjectRulesReview result is incomplete'), {
           message: 'SelfSubjectRulesReview incomplete',
         });
