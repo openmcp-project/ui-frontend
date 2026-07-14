@@ -231,7 +231,9 @@
     "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
-    "columnNamespaceHeader": "Namespace"
+    "columnNamespaceHeader": "Namespace",
+    "columnIdpHeader": "IdP",
+    "defaultIdp": "Default"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -264,11 +266,30 @@
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
     "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
     "reuseMembersButton": "Reuse",
+    "addIdpButton": "Add IdP",
     "membersToastNoChanges": "No changes.",
     "membersToastAdded1": "1 member added.",
     "membersToastAddedN": "{{count}} members added.",
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
+  },
+  "AddIdpDialog": {
+    "title": "Add Identity Provider",
+    "intro": "Register an additional OIDC provider. Members can then be assigned to authenticate through it.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. acme-corp",
+    "issuerLabel": "Issuer URL",
+    "clientIdLabel": "Client ID",
+    "advancedSection": "Advanced (optional)",
+    "usernameClaimLabel": "Username claim",
+    "usernamePrefixLabel": "Username prefix",
+    "groupsClaimLabel": "Groups claim",
+    "groupsPrefixLabel": "Groups prefix",
+    "extraScopesLabel": "Extra scopes",
+    "extraScopesPlaceholder": "comma-separated, e.g. email, profile",
+    "saveButton": "Add IdP",
+    "duplicateName": "An IdP with this name already exists.",
+    "reservedName": "This name is reserved for the default provider."
   },
   "ProjectPage": {
     "backToProjects": "Go to all projects"
@@ -303,6 +324,7 @@
     "overviewTitle": "Overview",
     "dashboardTitle": "Dashboard",
     "graphTitle": "Graph",
+    "membersTitle": "Members",
     "componentsTitle": "Components",
     "crossplaneTitle": "Crossplane",
     "providersTitle": "Providers",

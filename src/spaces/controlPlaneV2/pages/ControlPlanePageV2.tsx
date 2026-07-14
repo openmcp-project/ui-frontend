@@ -26,6 +26,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
+import { EditMembers } from '../../../components/Members/EditMembers.tsx';
+import { ControlPlaneIdp, Member } from '../../../lib/api/types/shared/members.ts';
+import { convertRoleBindingsToMembers } from '../../../utils/convertRoleBindingsToMembers.ts';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlPlanePageMenu.tsx';
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
@@ -122,6 +125,17 @@ export default function ControlPlanePageV2() {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
+
+  // Prototype: editable members + additional IdPs, seeded from the control
+  // plane's default-provider roleBindings. In-memory only — nothing is
+  // persisted back to the ControlPlane spec yet.
+  const seededMembers = useMemo(() => convertRoleBindingsToMembers(roleBindings), [roleBindings]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [idps, setIdps] = useState<ControlPlaneIdp[]>([]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMembers(seededMembers);
+  }, [seededMembers]);
   if (isLoading) {
     return (
       <Center>
@@ -221,6 +235,19 @@ export default function ControlPlanePageV2() {
                 </ObjectPageSubSection>
                 <ObjectPageSubSection id="graph" titleText={t('McpPage.graphTitle')} className={styles.section}>
                   {graphReady && <Graph />}
+                </ObjectPageSubSection>
+                <ObjectPageSubSection id="members" titleText={t('McpPage.membersTitle')} className={styles.section}>
+                  <EditMembers
+                    members={members}
+                    type={'mcp'}
+                    isV2
+                    requireAtLeastOneMember={false}
+                    projectName={projectName}
+                    workspaceName={workspaceName}
+                    idps={idps}
+                    onIdpsChanged={setIdps}
+                    onMemberChanged={setMembers}
+                  />
                 </ObjectPageSubSection>
                 <ObjectPageSubSection
                   id="configmaps"

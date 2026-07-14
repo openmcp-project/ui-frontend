@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
+import { Button, Dialog, FlexBox, Input, Label, Link, MessageStrip, Option, Select } from '@ui5/webcomponents-react';
 import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
+import { DEFAULT_IDP_NAME, Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
@@ -19,6 +19,9 @@ interface AddEditMemberDialogProps {
   accountTypeOptions?: RadioButtonsSelectOption[];
   roleOptions?: RadioButtonsSelectOption[];
   defaultRole?: string;
+  /** Show the IdP picker (v2 control planes). The list is Default + these names. */
+  showIdp?: boolean;
+  idpOptions?: string[];
 }
 
 type MemberFormData = {
@@ -26,6 +29,7 @@ type MemberFormData = {
   name: string;
   role: string;
   namespace?: string;
+  idp: string;
 };
 
 export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
@@ -37,8 +41,11 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   accountTypeOptions,
   roleOptions,
   defaultRole,
+  showIdp = false,
+  idpOptions,
 }) => {
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
+  const showIdpPicker = showIdp;
   const allowedAccountTypes = useMemo(
     () => effectiveAccountTypeOptions.map((option) => option.value) as AccountType[],
     [effectiveAccountTypeOptions],
@@ -60,6 +67,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           name: z.string(),
           role: z.string(),
           namespace: z.string().optional(),
+          idp: z.string(),
         })
         .superRefine((data, ctx) => {
           if (!allowedAccountTypes.includes(data.accountType)) {
@@ -104,11 +112,13 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       name: '',
       role: effectiveDefaultRole,
       namespace: '',
+      idp: DEFAULT_IDP_NAME,
     },
   });
 
   const accountType = useWatch({ control, name: 'accountType' });
   const role = useWatch({ control, name: 'role' });
+  const idp = useWatch({ control, name: 'idp' });
 
   useEffect(() => {
     if (open) {
@@ -121,6 +131,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           role: memberToEdit.roles?.[0] || effectiveDefaultRole,
           accountType,
           namespace: accountType === 'ServiceAccount' ? (memberToEdit?.namespace ?? '') : '',
+          idp: memberToEdit.idp || DEFAULT_IDP_NAME,
         });
       } else {
         reset({
@@ -128,6 +139,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           name: '',
           role: effectiveDefaultRole,
           namespace: '',
+          idp: DEFAULT_IDP_NAME,
         });
       }
     }
@@ -141,6 +153,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       roles: [data.role],
       kind: data.accountType,
       ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
+      ...(showIdpPicker && data.idp && data.idp !== DEFAULT_IDP_NAME && { idp: data.idp }),
     };
 
     onSave(newMember, isEdit);
@@ -186,6 +199,30 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                 label={t('MemberTable.columnRoleHeader')}
               />
             </div>
+          )}
+
+          {showIdpPicker && (
+            <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+              <Label for="member-idp-select">{t('MemberTable.columnIdpHeader')}</Label>
+              <Select
+                id="member-idp-select"
+                data-testid="member-idp-select"
+                value={idp}
+                onChange={(e) => {
+                  const value = (e.detail.selectedOption as HTMLElement).dataset.value ?? DEFAULT_IDP_NAME;
+                  setValue('idp', value, { shouldValidate: true });
+                }}
+              >
+                <Option data-value={DEFAULT_IDP_NAME} selected={idp === DEFAULT_IDP_NAME}>
+                  {t('MemberTable.defaultIdp')}
+                </Option>
+                {idpOptions?.map((name) => (
+                  <Option key={name} data-value={name} selected={idp === name}>
+                    {name}
+                  </Option>
+                ))}
+              </Select>
+            </FlexBox>
           )}
 
           <div className={styles.placeholder}>

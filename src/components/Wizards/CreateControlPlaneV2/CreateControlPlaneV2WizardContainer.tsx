@@ -23,7 +23,12 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
+import {
+  ControlPlaneIdp,
+  MCP_V2_DEFAULT_ROLE,
+  MCP_V2_VIEWER_ROLE,
+  Member,
+} from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
@@ -92,6 +97,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
+  // Prototype: additional OIDC IdPs configured for this control plane.
+  // In-memory only — not persisted to the GraphQL mutation yet.
+  const [idps, setIdps] = useState<ControlPlaneIdp[]>([]);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -518,6 +526,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   projectName={projectName}
                   type={'mcp'}
                   isV2
+                  idps={idps}
+                  onIdpsChanged={setIdps}
                   onMemberChanged={setMembers}
                 />
               </FormGroup>

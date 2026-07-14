@@ -1,5 +1,5 @@
-import { AnalyticalTable, Button, FlexBox, Icon } from '@ui5/webcomponents-react';
-import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import { AnalyticalTable, Button, FlexBox, Icon, Tag } from '@ui5/webcomponents-react';
+import { DEFAULT_IDP_NAME, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
@@ -11,6 +11,7 @@ type MemberTableRow = {
   role: string;
   kind: string;
   namespace: string;
+  idp: string;
   _member: Member;
 };
 
@@ -21,6 +22,7 @@ type MemberTableProps = {
   isValidationError?: boolean;
   requireAtLeastOneMember: boolean;
   hideNamespaceColumn?: boolean;
+  showIdp?: boolean;
 };
 
 export const MemberTable: FC<MemberTableProps> = ({
@@ -30,6 +32,7 @@ export const MemberTable: FC<MemberTableProps> = ({
   isValidationError = false,
   requireAtLeastOneMember,
   hideNamespaceColumn = false,
+  showIdp = false,
 }) => {
   const { t } = useTranslation();
 
@@ -59,6 +62,23 @@ export const MemberTable: FC<MemberTableProps> = ({
       width: 105,
     },
   ];
+
+  if (showIdp) {
+    columns.push({
+      Header: t('MemberTable.columnIdpHeader'),
+      accessor: 'idp',
+      width: 130,
+      Cell: (instance) => {
+        const idp = instance.cell.row.original.idp as string;
+        const isDefault = !idp || idp === DEFAULT_IDP_NAME;
+        return (
+          <Tag design={isDefault ? 'Neutral' : 'Positive'} hideStateIcon>
+            {isDefault ? t('MemberTable.defaultIdp') : idp}
+          </Tag>
+        );
+      },
+    });
+  }
 
   if (!hideNamespaceColumn) {
     columns.push({
@@ -108,6 +128,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.toString(),
       kind: m.kind,
       namespace: m.namespace ?? '',
+      idp: m.idp ?? '',
       _member: m,
     };
   });

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext.tsx';
 import {
   areMembersEqual,
+  ControlPlaneIdp,
   MCP_V2_DEFAULT_ROLE,
   MCP_V2_VIEWER_ROLE,
   mcpV2RoleOptions,
@@ -12,6 +13,7 @@ import {
 } from '../../lib/api/types/shared/members';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { AddEditMemberDialog } from './AddEditMemberDialog.tsx';
+import { AddIdpDialog } from './AddIdpDialog.tsx';
 import { ImportMembersDialog } from './ImportMembersDialog.tsx';
 import styles from './Members.module.css';
 import { MemberTable } from './MemberTable.tsx';
@@ -25,6 +27,13 @@ export interface EditMembersProps {
   workspaceName?: string;
   type: 'workspace' | 'project' | 'mcp';
   isV2?: boolean;
+  /**
+   * Additional OIDC IdPs configured on the control plane. When provided
+   * together with `onIdpsChanged` (v2 only), an "Add IdP" button and an
+   * IdP column/picker are shown.
+   */
+  idps?: ControlPlaneIdp[];
+  onIdpsChanged?: (idps: ControlPlaneIdp[]) => void;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -56,8 +65,13 @@ export const EditMembers: FC<EditMembersProps> = ({
   projectName,
   type,
   isV2 = false,
+  idps,
+  onIdpsChanged,
 }) => {
   const { t } = useTranslation();
+  const showIdpFeatures = isV2 && !!onIdpsChanged;
+  const idpNames = useMemo(() => (idps ?? []).map((idp) => idp.name), [idps]);
+  const [isIdpDialogOpen, setIsIdpDialogOpen] = useState(false);
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
   const usesUserGroupAccountTypes = useMemo(
     () =>
@@ -98,6 +112,22 @@ export const EditMembers: FC<EditMembersProps> = ({
   const handleCloseImportDialog = useCallback(() => {
     setIsImportDialogOpen(false);
   }, []);
+
+  const handleOpenIdpDialog = useCallback(() => {
+    setIsIdpDialogOpen(true);
+  }, []);
+
+  const handleCloseIdpDialog = useCallback(() => {
+    setIsIdpDialogOpen(false);
+  }, []);
+
+  const handleSaveIdp = useCallback(
+    (idp: ControlPlaneIdp) => {
+      onIdpsChanged?.([...(idps ?? []), idp]);
+      setIsIdpDialogOpen(false);
+    },
+    [idps, onIdpsChanged],
+  );
 
   const toast = useToast();
 
@@ -193,6 +223,16 @@ export const EditMembers: FC<EditMembersProps> = ({
             {t('EditMembers.reuseMembersButton')}
           </Button>
         )}
+        {showIdpFeatures && (
+          <Button
+            className={styles.narrowButton}
+            data-testid="add-idp-button"
+            icon={'key'}
+            onClick={handleOpenIdpDialog}
+          >
+            {t('EditMembers.addIdpButton')}
+          </Button>
+        )}
       </FlexBox>
       <AddEditMemberDialog
         open={isMemberDialogOpen}
@@ -200,9 +240,19 @@ export const EditMembers: FC<EditMembersProps> = ({
         memberToEdit={memberToEdit}
         accountTypeOptions={accountTypeOptions}
         {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
+        {...(showIdpFeatures && { showIdp: true, idpOptions: idpNames })}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
+
+      {showIdpFeatures && (
+        <AddIdpDialog
+          open={isIdpDialogOpen}
+          existingIdps={idps ?? []}
+          onClose={handleCloseIdpDialog}
+          onSave={handleSaveIdp}
+        />
+      )}
 
       {computedProjectName && (
         <ImportMembersDialog
@@ -219,6 +269,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         requireAtLeastOneMember={requireAtLeastOneMember}
         members={members}
         isValidationError={isValidationError}
+        showIdp={showIdpFeatures}
         onDeleteMember={handleRemoveMember}
         onEditMember={handleEditMember}
       />
