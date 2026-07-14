@@ -520,7 +520,6 @@
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
-    "panelTitle": "YAML",
     "applySuccess2": "The control plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",
