@@ -52,13 +52,11 @@
   width: 100%;
 }
 
-/* Wrapper placed in ShellBar's default slot — fills available space */
+/* Wrapper placed in ShellBar's content slot — pushed right by the preceding ShellBarSpacer */
 .shellBarContent {
   display: flex;
   align-items: center;
   gap: 1rem;
-  width: 100%;
-  justify-content: flex-end;
 }
 
 .membersSlot {
