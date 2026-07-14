@@ -44,6 +44,7 @@ function CreatedAtCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+
   if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
   return (
@@ -63,7 +64,9 @@ function ProjectDisplayNameCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { displayName, isLoading } = useProjectMembers(projectName);
-  if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  useEffect(() => {
+    if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  }, [isLoading, displayName, projectName, onDisplayName]);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
@@ -94,9 +97,6 @@ export default function ProjectsList({
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
 
-  // Fire `project-list.searched` only once per "search session" — from the
-  // first non-empty character until the user clears the field — so we
-  // measure adoption, not keystrokes.
   const hasFiredSearchedRef = useRef(false);
   const handleSearchChange = useCallback(
     (value: string) => {
