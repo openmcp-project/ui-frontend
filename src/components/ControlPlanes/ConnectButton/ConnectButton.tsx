@@ -1,6 +1,5 @@
 import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react';
 import { useId, useState } from 'react';
-import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { useConnectOptions, type ConnectOption } from './useConnectOptions.ts';
@@ -53,14 +52,7 @@ export default function ConnectButton({
   };
 
   const handleMenuAction = (event: CustomEvent) => {
-    const { action, target } = event.detail.item.dataset;
-
-    if (action === 'download') {
-      DownloadKubeconfig(kubeconfigResource, controlPlaneName);
-      telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
-      setIsMenuOpen(false);
-      return;
-    }
+    const { target } = event.detail.item.dataset;
 
     if (target) {
       const selected = connectionTargets.find((option) => option.url === target);
@@ -128,8 +120,6 @@ export default function ConnectButton({
               additionalText={t('ConnectButton.customIdP')}
             />
           ))}
-        <MenuSeparator />
-        <MenuItem text={t('ConnectButton.downloadKubeconfig')} data-action="download" />
       </Menu>
     </div>
   );
