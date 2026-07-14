@@ -12,6 +12,7 @@ import {
   ButtonDomRef,
   List,
   ListItemStandard,
+  ListItemStandardDomRef,
   Menu,
   MenuDomRef,
   MenuItem,
@@ -23,6 +24,7 @@ import {
   TextAreaDomRef,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
+import { ListItemBaseClickEventDetail } from '@ui5/webcomponents/dist/ListItemBase.js';
 import { TextAreaInputEventDetail } from '@ui5/webcomponents/dist/TextArea.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { RefObject, useRef, useState } from 'react';
@@ -301,7 +303,7 @@ const ProfilePopover = ({
     }
   }
 
-  const handleFeedbackClick = (e: React.MouseEvent) => {
+  const handleFeedbackClick = (e: Ui5CustomEvent<ListItemStandardDomRef, ListItemBaseClickEventDetail>) => {
     if (!feedbackPopoverRef.current || !popoverRef.current) return;
     e.stopPropagation();
     setOpen(false);
