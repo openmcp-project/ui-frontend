@@ -20,6 +20,7 @@ import {
   PopoverDomRef,
   ShellBar,
   ShellBarDomRef,
+  ShellBarSpacer,
   Switch,
   TextAreaDomRef,
   Ui5CustomEvent,
@@ -100,39 +101,44 @@ export function ShellBarComponent({
             </div>
           </div>
         }
+        content={[
+          <ShellBarSpacer key="spacer" />,
+          <div key="content" className={styles.shellBarContent}>
+            {roleBindings && (
+              <div className={styles.membersSlot}>
+                <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
+                <MembersAvatarView
+                  members={convertRoleBindingsToMembers(roleBindings)}
+                  project={project}
+                  workspace={workspace}
+                  hideNamespaceColumn
+                  source="controlplane-detail"
+                />
+              </div>
+            )}
+            <KubeconfigShellBarButton />
+            {mode === 'open-source' && <OverflowMenuButton />}
+            {mcpName && (
+              <div className={styles.switchWrapper}>
+                <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
+                <Switch
+                  checked={mode === 'open-source'}
+                  disabled={!headlampAvailable}
+                  onChange={(e) => {
+                    const next = e.target.checked ? 'open-source' : 'beginner';
+                    setMode(next);
+                    telemetry.track({
+                      name: 'view-mode.toggled',
+                      mode: next === 'open-source' ? 'headlamp' : 'legacy',
+                    });
+                  }}
+                />
+              </div>
+            )}
+          </div>,
+        ]}
         onProfileClick={onProfileClick}
-      >
-        <div className={styles.shellBarContent}>
-          {roleBindings && (
-            <div className={styles.membersSlot}>
-              <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
-              <MembersAvatarView
-                members={convertRoleBindingsToMembers(roleBindings)}
-                project={project}
-                workspace={workspace}
-                hideNamespaceColumn
-                source="controlplane-detail"
-              />
-            </div>
-          )}
-          <KubeconfigShellBarButton />
-          {mode === 'open-source' && <OverflowMenuButton />}
-          {mcpName && (
-            <div className={styles.switchWrapper}>
-              <span className={styles.switchLabel}>{t('ShellBar.modeOpenSource')}</span>
-              <Switch
-                checked={mode === 'open-source'}
-                disabled={!headlampAvailable}
-                onChange={(e) => {
-                  const next = e.target.checked ? 'open-source' : 'beginner';
-                  setMode(next);
-                  telemetry.track({ name: 'view-mode.toggled', mode: next === 'open-source' ? 'headlamp' : 'legacy' });
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </ShellBar>
+      />
 
       <ProfilePopover
         open={profilePopoverOpen}
