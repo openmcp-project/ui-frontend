@@ -1,0 +1,681 @@
+{
+  "SignInPage": {
+    "welcomeMessage": "Welcome to Control Plane UI",
+    "subtitle": "Your central hub to orchestrate control planes, components, and managed resources",
+    "signInButton": "Sign In",
+    "becomeContributorLink": "Become a Contributor"
+  },
+  "Entities": {
+    "ManagedControlPlane": "Control Plane",
+    "Project": "Project",
+    "Workspace": "Workspace",
+    "Users": "Users",
+    "Groups": "Groups",
+    "ServiceAccounts": "ServiceAccounts"
+  },
+  "ComponentList": {
+    "tableComponentHeader": "Name",
+    "tableVersionHeader": "Version"
+  },
+  "ComponentCard": {
+    "actionsMenu": "Actions",
+    "deleteButton": "Delete",
+    "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
+    "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
+    "editButton": "Edit",
+    "installButton": "Install {{component}}",
+    "notInstalledLabel": "not installed"
+  },
+  "componentCardCrossplane": {
+    "description": "Compose cloud infrastructure",
+    "progress": "Healthy",
+    "progressCount": "Healthy: {{count}} of {{total}} resources"
+  },
+  "componentCardFlux": {
+    "description": "GitOps for Kubernetes automating continuous sync and delivery",
+    "progress": "Managed",
+    "progressCount": "Managed: {{count}} of {{total}} resources"
+  },
+  "componentCardLandscaper": {
+    "description": "Automate cross‑dependent Kubernetes deployments"
+  },
+  "componentCardKyverno": {
+    "description": "Kubernetes-native policy as code for secure and compliant infrastructure"
+  },
+  "componentCardEso": {
+    "description": "Manage and sync credentials from your secret store"
+  },
+  "Kpi": {
+    "installed": "Installed",
+    "error": "There was a problem loading this data. Please try again later."
+  },
+  "FluxList": {
+    "tableNameHeader": "Name",
+    "tableStatusHeader": "Status",
+    "tableCreatedHeader": "Created",
+    "tableVersionHeader": "Revision",
+    "tableUrlHeader": "Address",
+    "noFluxError": "Please install flux to view this component",
+    "undefinedError": "Something went wrong"
+  },
+  "ProvidersList": {
+    "tableNameHeader": "Name",
+    "tableStatusHeader": "Status",
+    "tableCreatedHeader": "Created"
+  },
+  "ManagedResources": {
+    "tableHeaderKind": "Kind",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderSynced": "Synced",
+    "tableHeaderReady": "Ready",
+    "tableHeaderDelete": "Delete",
+    "tableHeaderManagedBy": "Managed By",
+    "deleteAction": "Delete resource",
+    "editAction": "Edit resource",
+    "deleteDialogTitle": "Delete resource",
+    "advancedOptions": "Advanced options",
+    "forceDeletion": "Force deletion",
+    "forceWarningLine": "Force deletion removes finalizers. Related resources may not be deleted and cleanup may be skipped.",
+    "deleteStarted": "Deleting {{resourceName}} initialized",
+    "patchStarted": "Updating {{resourceName}} initialized",
+    "patchSuccess": "Updated {{resourceName}}",
+    "patchError": "Failed to update {{resourceName}}",
+    "actionColumnHeader": " "
+  },
+  "ProvidersConfig": {
+    "tableHeaderProvider": "Provider",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderUsage": "Usage"
+  },
+  "ControlPlaneListToolbar": {
+    "buttonText": "Workspace",
+    "deleteWorkspace": "Delete workspace",
+    "editWorkspace": "Edit workspace",
+    "createNewManagedControlPlane": "Create Managed Control Plane",
+    "createNewControlPlane": "Create Control Plane",
+    "recommendedBadge": "Recommended",
+    "deprecatedBadge": "Deprecated"
+  },
+  "ControlPlaneListWorkspaceGridTile": {
+    "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
+    "permissionErrorMessage": "Not permitted to list mcps in workspace",
+    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "loadingErrorMessage": "Failed to list mcps in workspace"
+  },
+  "ControlPlaneCard": {
+    "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
+    "editMCP": "Edit",
+    "duplicateMCP": "Duplicate",
+    "deleteMCP": "Delete"
+  },
+  "ControlPlaneListAllWorkspaces": {
+    "emptyListTitleMessage": "No Workspaces created yet",
+    "emptyListSubtitleMessage": "Create a workspace to get started",
+    "noSearchResultsTitle": "No results found",
+    "noSearchResultsSubtitle": "Try a different search term",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all"
+  },
+  "ConnectButton": {
+    "buttonText": "View",
+    "defaultIdP": "default IdP",
+    "customIdP": "custom IdP",
+    "downloadKubeconfig": "Download Kubeconfig"
+  },
+  "MCPHealthPopoverButton": {
+    "statusHeader": "Status",
+    "typeHeader": "Type",
+    "messageHeader": "Message",
+    "reasonHeader": "Reason",
+    "createSupportTicketButton": "Create Support Ticket",
+    "supportTicketTitleReady": "MCP Ready",
+    "supportTicketTitleNotReady": "MCP Not Ready",
+    "supportTicketTitleDeletion": "MCP in Deletion",
+    "supportTicketTitleIssues": "Issues with Control Plane",
+    "statusDetailsLabel": "MCP Status",
+    "detailsLabel": "Details:"
+  },
+  "CopyKubeconfigButton": {
+    "kubeconfigButton": "Kubeconfig",
+    "menuDownload": "Download",
+    "menuCopy": "Copy to clipboard"
+  },
+  "ComponentsSelection": {
+    "chooseVersion": "Please select version"
+  },
+  "ComponentInstallDialog": {
+    "title": "Install {{component}}",
+    "titleEdit": "Edit {{component}}",
+    "versionLabel": "{{component}} Version",
+    "providers": "Providers",
+    "providerVersionLabel": "{{provider}} version",
+    "successMessage": "{{component}} has been successfully installed.",
+    "errorMessage": "Failed to install {{component}}. Please try again.",
+    "successMessageEdit": "{{component}} has been successfully updated.",
+    "errorMessageEdit": "Failed to update {{component}}. Please try again.",
+    "yamlPreview": "YAML Preview"
+  },
+  "IllustratedBanner": {
+    "titleMessage": "No Control Planes found",
+    "subtitleMessage": "Get started by creating your first Control Plane.",
+    "helpButton": "Help"
+  },
+  "NotFoundBanner": {
+    "titleMessage": "{{entityType}} not found",
+    "subtitleMessage": "Sorry, we couldn’t find what you are looking for.<br />The link may be incorrect or the {{entityType}} might have been removed.",
+    "navigateHome": "Back to Homepage"
+  },
+  "PathAwareBreadcrumbs": {
+    "projectsLabel": "Projects"
+  },
+  "MCPContext": {
+    "errorMessage": "An unknown error occurred"
+  },
+  "NotInLuigiView": {
+    "titleMessage": "Opened outside of Hyperspace Portal",
+    "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
+  },
+  "ShellBar": {
+    "betaButton": "Beta",
+    "betaButtonAriaLabel": "Beta – open information about this app's beta status",
+    "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
+    "contributeButton": "Contribute",
+    "signOutButton": "Sign Out",
+    "clearRememberedProject": "Clear remembered project",
+    "feedbackMessageLabel": "Message",
+    "feedbackRatingLabel": "Rating",
+    "feedbackHeader": "Your feedback",
+    "feedbackButton": "Send feedback",
+    "feedbackButtonInfo": "Give us your feedback",
+    "feedbackPlaceholder": "Please let us know what you think about our application",
+    "feedbackNotificationText": "*Slack notification with your email address will be shared with our Operations Team. If you have a special Feature request in mind ",
+    "feedbackNotificationAction": "click here.",
+    "feedbackThanks": "Thank you for your feedback!",
+    "feedbackError": "Failed to send feedback. Please try again later.",
+    "modeOpenSource": "Open Source View",
+    "hello": "Hello, {{name}}",
+    "backButton": "Back",
+    "copyNamespace": "Copy namespace",
+    "membersLabel": "Members:",
+    "overflowEditMcp": "Edit control plane",
+    "overflowViewYaml": "View YAML"
+  },
+  "CreateProjectDialog": {
+    "toastMessage": "Project creation triggered. The list will refresh automatically once completed."
+  },
+  "EditProjectDialog": {
+    "title": "Edit Project",
+    "toastMessage": "Project updated successfully. Changes may take a moment to be reflected in the UI."
+  },
+  "CreateWorkspaceDialog": {
+    "toastMessage": "Workspace creation triggered. The list will refresh automatically once completed."
+  },
+  "EditWorkspaceDialog": {
+    "title": "Edit Workspace",
+    "toastMessage": "Workspace updated successfully. Changes may take a moment to be reflected in the UI."
+  },
+  "DeleteConfirmationDialog": {
+    "deleteButton": "Delete",
+    "cancelButton": "Cancel",
+    "header": "Delete {{resourceName}}",
+    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
+    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
+  },
+  "Loading": {
+    "title": "Getting Ready",
+    "subtitle": "Fetching data..."
+  },
+  "MemberTable": {
+    "columnNameHeader": "Name",
+    "columnRoleHeader": "Role",
+    "columnTypeHeader": "Type",
+    "columnNamespaceHeader": "Namespace"
+  },
+  "IllustratedError": {
+    "titleText": "Something went wrong",
+    "subtitleText": "Contact admins for help"
+  },
+  "CopyButtonContext": {
+    "errorMessage": "useCopyButton must be used within a CopyButtonProvider"
+  },
+  "CreateProjectWorkspaceDialog": {
+    "createButton": "Create",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "createWorkspaceTitle": "Create Workspace",
+    "createProjectTitle": "Create Project",
+    "chargingTargetLabel": "Charging Target",
+    "chargingTargetTypeLabel": "Charging Target Type",
+    "displayNameLabel": "Display Name",
+    "nameLabel": "Name",
+    "metadataHeader": "Metadata",
+    "membersHeader": "Members"
+  },
+  "EditMembers": {
+    "addButton": "Add User or ServiceAccount",
+    "addButtonUserGroup": "Add User or Group",
+    "editHeader": "Edit User or ServiceAccount",
+    "editHeaderUserGroup": "Edit User or Group",
+    "addHeader": "Add User or ServiceAccount",
+    "addHeaderUserGroup": "Add User or Group",
+    "saveButton": "Save changes",
+    "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
+    "serviceAccoutsGuide": "You can also use our <link1>Service Account Guide</link1> for more information.",
+    "reuseMembersButton": "Reuse",
+    "membersToastNoChanges": "No changes.",
+    "membersToastAdded1": "1 member added.",
+    "membersToastAddedN": "{{count}} members added.",
+    "membersToastChanged1": "1 member changed.",
+    "membersToastChangedN": "{{count}} members changed."
+  },
+  "ProjectPage": {
+    "backToProjects": "Go to all projects"
+  },
+  "ProjectsPage": {
+    "header": "Your instances of <span>Control Plane</span>",
+    "projectHeader": "Project:",
+    "pinProject": "Set as default project",
+    "unpinProject": "Clear default project"
+  },
+  "ProjectsListView": {
+    "pageTitle": "Let's get started",
+    "rememberProject": "Remember selection",
+    "subHeader": "Create or select a project to manage your control planes, workspaces, and members.",
+    "learnMore": "Learn more",
+    "title": "Projects",
+    "displayNameHeader": "Display Name",
+    "fetchError": "Failed to load projects",
+    "deleteProject": "Delete project",
+    "editProject": "Edit project",
+    "membersHeader": "Members",
+    "createdHeader": "Created",
+    "namespaceHeader": "Namespace",
+    "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
+  },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
+  },
+  "McpPage": {
+    "accessError": "Control Plane does not have access information yet",
+    "overviewTitle": "Overview",
+    "dashboardTitle": "Dashboard",
+    "graphTitle": "Graph",
+    "componentsTitle": "Components",
+    "crossplaneTitle": "Crossplane",
+    "providersTitle": "Providers",
+    "providerConfigsTitle": "ProviderConfigs",
+    "managedResourcesTitle": "Managed Resources",
+    "fluxTitle": "Flux",
+    "gitRepositoriesTitle": "GitRepositories",
+    "kustomizationsTitle": "Kustomizations",
+    "landscaperTitle": "Landscaper",
+    "configMapsTitle": "ConfigMaps",
+    "secretsTitle": "Secrets",
+    "secretTypeHeader": "Type",
+    "headlampTitle": "Headlamp",
+    "headlampUnavailableTitle": "Headlamp unavailable",
+    "headlampUnavailableSubtitle": "The Headlamp service could not be reached. Please check that it is deployed and healthy.",
+    "headlampGetSupport": "Get support"
+  },
+  "McpHeader": {
+    "nameLabel": "Name",
+    "createdByLabel": "Created By",
+    "createdOnLabel": "Created On"
+  },
+  "ToastContext": {
+    "errorMessage": "useToast must be used within a ToastProvider"
+  },
+  "Landscapers": {
+    "headerLandscapers": "Landscapers",
+    "multiComboBoxPlaceholder": "Select namespace",
+    "noItemsFound": "No Deploy Items found",
+    "deployItems": "Deploy Items",
+    "treeDeployItem": "Deploy Item",
+    "treeInstallation": "Installation",
+    "treeExecution": "Execution",
+    "noExecutionFound": "No Executions found"
+  },
+  "DeleteWorkspaceDialog": {
+    "title": "Delete a Workspace",
+    "introSection1": "The below instructions will help you delete the workspace \"{{workspaceName}}\" from project namespace \"{{projectNamespace}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the workspace will be <bold2>permanently deleted</bold2>.",
+    "mainCommandDescription": "Run this command to delete the workspace:",
+    "verificationCommandDescription": "To verify the workspace has been deleted, run:"
+  },
+  "DeleteProjectDialog": {
+    "title": "Delete a Project",
+    "introSection1": "The below instructions will help you delete the project named \"{{projectName}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources within the project will be <bold2>permanently deleted</bold2>.",
+    "mainCommandDescription": "Run this command to delete the project:"
+  },
+  "KubectlDeleteMcpDialog": {
+    "title": "Delete a Control Plane",
+    "introSection1": "The below will help you delete the Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
+    "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
+    "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
+    "deleteCommand": "Run this command to delete the Control Plane:",
+    "verificationCommandDescription": "To verify the control plane has been deleted, run:"
+  },
+  "KubectlCreateProjectDialog": {
+    "title": "Create a Project",
+    "introSection": "A Project is the starting point to our Control Plane offering. Projects are usually created for each Organization/Team or similar root setups.",
+    "formFields": {
+      "projectName": {
+        "label": "Project Name",
+        "placeholder": "Enter project name"
+      },
+      "chargingTargetId": {
+        "label": "BTP Global Account ID",
+        "placeholder": "Enter your Global Account ID",
+        "defaultValue": "<your-ga-id>"
+      },
+      "userEmail": {
+        "label": "User Email",
+        "placeholder": "Enter your email address",
+        "defaultValue": "<youremail@example.com>"
+      }
+    },
+    "mainCommandDescription": "Run this command to create a new project:",
+    "resultCommandDescription": "To see the result of the project creation, run the below command:",
+    "namespaceCommandDescription": "A namespace is automatically generated for your project:"
+  },
+  "KubectlCreateWorkspaceDialog": {
+    "title": "Create a Workspace",
+    "introSection": "Let's add a Workspace to our Project. We use workspaces to separate productive and non-productive control planes.",
+    "formFields": {
+      "workspaceName": {
+        "label": "Workspace Name",
+        "placeholder": "Enter workspace name"
+      },
+      "chargingTargetId": {
+        "label": "BTP Global Account ID",
+        "placeholder": "Enter your Global Account ID",
+        "defaultValue": "<your-ga-id>"
+      },
+      "userEmail": {
+        "label": "User Email",
+        "placeholder": "Enter your email address",
+        "defaultValue": "<youremail@example.com>"
+      }
+    },
+    "mainCommandDescription": "Run this command to create a new workspace in your project:",
+    "resultCommandDescription": "To see the result of the workspace creation, run the below command:"
+  },
+  "KubectlBaseDialog": {
+    "prerequisites": "Prerequisites",
+    "prerequisitesText": "Make sure you have installed <bold1>kubectl</bold1> and the <bold2>kubelogin</bold2> plugin. We recommend using <bold3>krew</bold3> which is a plugin manager for kubectl.",
+    "formFieldsNote": "<bold1>Important</bold1>: Before executing, modify the commands below:",
+    "onboardingGuide": "You can also use our <link1>Onboarding Guide</link1> for more information."
+  },
+  "CommonKubectl": {
+    "emphasis": {
+      "irreversible": "irreversible",
+      "permanentlyDeleted": "permanently deleted"
+    },
+    "learnButton": "Learn how to do this in code"
+  },
+  "Providers": {
+    "tableHeaderVersion": "Version",
+    "tableHeaderName": "Name",
+    "tableHeaderCreated": "Created",
+    "tableHeaderInstalled": "Installed",
+    "tableHeaderHealthy": "Healthy"
+  },
+  "Graphs": {
+    "colorsProvider": "Provider",
+    "colorsProviderConfig": "Provider Config",
+    "colorBy": "Color by",
+    "colorsFlux": "Flux",
+    "colorsLabel": "Common Label",
+    "layoutDirection": "Layout direction",
+    "layoutTB": "Top → Bottom",
+    "layoutLR": "Left → Right",
+    "enterFullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "loadingError": "Error loading graph data",
+    "loadingGraph": "Loading graph data...",
+    "noResources": "No resources to display"
+  },
+  "validationErrors": {
+    "required": "This field is required!",
+    "properFormatting": "Use A-Z, a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
+    "properFormattingLowercase": "Use lowercase a-z, 0-9, hyphen (-), and period (.), but note that whitespace (spaces, tabs, etc.) is not allowed for proper compatibility.",
+    "maxChars": "Max length is {{maxLength}} characters.",
+    "userExists": "User with this name already exists!",
+    "atLeastOneUser": "You need to have at least one member assigned.",
+    "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "urlFormat": "Must be a valid HTTPS URL"
+  },
+  "common": {
+    "or": "or",
+    "all": "All",
+    "ok": "OK",
+    "notOk": "Not OK",
+    "status": "Status",
+    "documentation": "Documentation",
+    "close": "Close",
+    "cancel": "Cancel",
+    "applyChanges": "Apply Changes",
+    "created": "Created",
+    "cannotLoadData": "Cannot load data",
+    "file": "File",
+    "metadata": "Metadata",
+    "members": "Members",
+    "summarize": "Summarize",
+    "namespace": "Namespace",
+    "region": "Region",
+    "success": "Success",
+    "displayName": "Display Name",
+    "name": "Name",
+    "componentSelection": "Component Selection",
+    "search": "Search",
+    "components": "Components",
+    "notSelected": "Not selected",
+    "btp": "BTP",
+    "error": "Error",
+    "ready": "Ready",
+    "synced": "Synced",
+    "healthy": "Healthy",
+    "installed": "Installed",
+    "none": "None",
+    "creating": "Creating",
+    "unhealthy": "Unhealthy",
+    "progress": "Managed",
+    "remaining": "Remaining",
+    "active": "Active",
+    "copyToClipboardSuccessToast": "Copied to clipboard",
+    "copyToClipboardFailedToast": "Failed to copy to clipboard",
+    "resourcesCount": "Resources ({{count}})",
+    "itemsCount": "Items ({{count}})",
+    "deprecated": "Deprecated",
+    "readMore": "Read more"
+  },
+  "deprecated": {
+    "deprecatedPopoverMessage": "There is a new version of control plane available."
+  },
+  "errors": {
+    "installError": "Install error",
+    "syncError": "Sync error",
+    "error": "Error",
+    "notHealthy": "Not healthy",
+    "notReady": "Not ready",
+    "cannotLoadSchema": "Cannot load schema for this resource"
+  },
+  "buttons": {
+    "viewResource": "View resource",
+    "download": "Download",
+    "copy": "Copy",
+    "next": "Next",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "cancel": "Cancel",
+    "update": "Update",
+    "applyChanges": "Apply changes",
+    "edit": "Edit"
+  },
+  "yaml": {
+    "YAML": "File",
+    "showOnlyImportant": "Show only important fields",
+    "panelTitle": "YAML",
+    "applySuccess2": "The control plane will reconcile this resource shortly.",
+    "applySuccess": "Update submitted ",
+    "diffConfirmTitle": "Review changes",
+    "diffConfirmMessage": "Are you sure that you want to apply these changes?",
+    "diffNo": "No, go back",
+    "diffYes": "Yes",
+    "validationErrors": "Validation errors",
+    "fluxManaged": "This resource is managed by Flux and cannot be edited here"
+  },
+  "createMCP": {
+    "dialogTitle": "Create Managed Control Plane",
+    "dialogTitleControlPlane": "Create Control Plane",
+    "titleText": "Control Plane Created Successfully!",
+    "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
+    "copySuffix": "-copy"
+  },
+  "editMCP": {
+    "dialogTitle": "Edit Control Plane",
+    "titleText": "Control Plane Updated Successfully!",
+    "subtitleText": "Your control plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
+    "editComponents": "Edit components",
+    "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
+    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
+  },
+  "componentsSelection": {
+    "selectComponents": "Select Components",
+    "selectedComponents": "Selected Components",
+    "pleaseSelectComponents": "Choose the components you want to add to your control plane.",
+    "cannotLoad": "Cannot load components list",
+    "noComponentsFound": "No components found matching your search."
+  },
+  "Hints": {
+    "CrossplaneHint": {
+      "title": "Crossplane",
+      "subtitle": "Managed Resources Readiness",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "healthy": "Healthy",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "healthy": "Healthy",
+        "creating": "Creating",
+        "failing": "Failing"
+      }
+    },
+    "GitOpsHint": {
+      "title": "Flux",
+      "subtitle": "GitOps Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "managed": "Managed",
+      "hoverContent": {
+        "totalResources": "Total Resources",
+        "managed": "Managed",
+        "unmanaged": "Unmanaged"
+      }
+    },
+    "VaultHint": {
+      "title": "Vault",
+      "subtitle": "Rotating Secrets Progress",
+      "activeStatus": "Active v",
+      "progressAvailable": "% Available",
+      "noResources": "No Resources",
+      "inactive": "Coming soon...",
+      "activate": "Activate"
+    },
+    "common": {
+      "loading": "Loading...",
+      "errorLoadingResources": "Error loading resources",
+      "activate": "Activate"
+    }
+  },
+  "ImportMembersDialog": {
+    "dialogTitle": "Reuse Members",
+    "reuseFromLabel": "Reuse from",
+    "filterForLabel": "Filter for",
+    "addMembersButton0": "Add members",
+    "addMembersButton1": "Add member",
+    "addMembersButtonN": "Add {{count}} members"
+  },
+  "CreateGitRepositoryDialog": {
+    "dialogTitle": "Create Git Repository",
+    "metadataTitle": "Metadata",
+    "urlTitle": "URL",
+    "secretRefTitle": "SecretRef",
+    "nameTitle": "Name",
+    "intervalTitle": "Interval",
+    "specTitle": "Spec",
+    "refTypeTitle": "Type",
+    "refValueTitle": "Reference",
+    "refTypeTag": "Tag",
+    "refTypeCommit": "Commit",
+    "refTypeSemver": "Semver",
+    "refTypeBranch": "Branch",
+    "refTypeName": "Name",
+    "gitRepositoryCreated": "Git Repository created successfully",
+    "gitRepositoryCreationFailed": "Failed to create Git Repository: {{error}}",
+    "namespaceTitle": "Namespace"
+  },
+  "CreateKustomizationDialog": {
+    "dialogTitle": "Create Kustomization",
+    "metadataTitle": "Metadata",
+    "specTitle": "Spec",
+    "nameTitle": "Name",
+    "intervalTitle": "Interval",
+    "sourceRefTitle": "Source Reference",
+    "sourceRefNameTitle": "Name",
+    "gitRepositoryTitle": "Git Repository",
+    "pathTitle": "Path",
+    "pruneTitle": "Prune",
+    "targetNamespaceTitle": "Target Namespace",
+    "substitutionsTitle": "Substitutions",
+    "addSubstitutionButton": "Add Substitution",
+    "keyPlaceholder": "Key",
+    "valuePlaceholder": "Value",
+    "kustomizationCreated": "Kustomization created successfully",
+    "kustomizationCreationFailed": "Failed to create Kustomization: {{error}}"
+  },
+  "mcp": {
+    "authorization": {
+      "accessDenied": {
+        "title": "Access Denied",
+        "details": "You are not authorized to see this control plane."
+      },
+      "backToWorkspaces": "Back to Workspaces"
+    }
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "testing": "Testing"
+    },
+    "serviceIds": "Service IDs",
+    "serviceIdsPlaceholder": "Enter an ID and press Enter",
+    "contacts": "Contacts",
+    "contactsPlaceholder": "Enter a contact and press Enter",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit"
+  }
+}

@@ -26,6 +26,7 @@ const AccessSchema = z.object({
   name: z.string().optional(),
   namespace: z.string().optional(),
   kubeconfig: z.string().optional(),
+  oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
 });
 
 const StatusSchema = z.object({
