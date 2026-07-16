@@ -7,11 +7,14 @@ import { YamlIcon } from './YamlIcon.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
 import { YamlSidePanelWithLoader } from './YamlSidePanelWithLoader.tsx';
+import { YamlSidePanelWithGraphqlLoader } from './YamlSidePanelWithGraphqlLoader.tsx';
 import { JSX, useContext } from 'react';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+
+export type McpComponentKind = 'crossplane' | 'flux' | 'landscaper' | 'eso';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -26,7 +29,15 @@ export interface YamlViewButtonLoaderProps {
   resourceName: string;
   withoutApiConfig?: boolean;
 }
-export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps;
+export interface YamlViewButtonMcpComponentProps {
+  variant: 'mcp-component';
+  component: McpComponentKind;
+  mcpName: string;
+  mcpNamespace: string;
+  withoutApiConfig?: boolean;
+}
+export type YamlViewButtonProps =
+  YamlViewButtonResourceProps | YamlViewButtonLoaderProps | YamlViewButtonMcpComponentProps;
 
 export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
@@ -34,7 +45,12 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const apiConfig = useContext(ApiConfigContext);
   const telemetry = useTelemetry();
   const openSplitterSidePanel = () => {
-    const resourceType = variant === 'loader' ? (props as YamlViewButtonLoaderProps).resourceType : 'resource';
+    const resourceType =
+      variant === 'loader'
+        ? (props as YamlViewButtonLoaderProps).resourceType
+        : variant === 'mcp-component'
+          ? (props as YamlViewButtonMcpComponentProps).component
+          : 'resource';
     telemetry.track({ name: 'yaml.viewed', resourceType: String(resourceType) });
     switch (variant) {
       case 'resource': {
@@ -64,6 +80,19 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
             resourceType={resourceType}
             resourceName={resourceName}
           />
+        );
+        if (withoutApiConfig) {
+          openInAside(content);
+        } else {
+          openInAsideWithApiConfig(content, apiConfig);
+        }
+        break;
+      }
+
+      case 'mcp-component': {
+        const { component, mcpName, mcpNamespace, withoutApiConfig } = props as YamlViewButtonMcpComponentProps;
+        const content = (
+          <YamlSidePanelWithGraphqlLoader component={component} mcpName={mcpName} mcpNamespace={mcpNamespace} />
         );
         if (withoutApiConfig) {
           openInAside(content);

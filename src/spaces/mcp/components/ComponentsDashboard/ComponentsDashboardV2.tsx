@@ -28,6 +28,7 @@ import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
 import { ComponentInstallDialog } from '../ComponentInstallDialog/ComponentInstallDialog.tsx';
+import { YamlViewButton } from '../../../../components/Yaml/YamlViewButton.tsx';
 import styles from './ComponentsDashboard.module.css';
 
 type DeleteTarget = 'crossplane' | 'flux' | 'landscaper' | 'eso' | null;
@@ -135,6 +136,16 @@ export function ComponentsDashboardV2({
           kpiType="enabled"
           isInstalled={isCrossplaneInstalled}
           version={crossplaneVersion}
+          yamlViewButton={
+            isCrossplaneInstalled ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="crossplane"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
           onInstallButtonClick={
             !isCrossplaneInstalled
@@ -161,6 +172,11 @@ export function ComponentsDashboardV2({
           kpiType="enabled"
           isInstalled={isFluxInstalled}
           version={fluxVersion}
+          yamlViewButton={
+            isFluxInstalled ? (
+              <YamlViewButton variant="mcp-component" component="flux" mcpName={mcpName} mcpNamespace={mcpNamespace} />
+            ) : undefined
+          }
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
           onInstallButtonClick={
             !isFluxInstalled
@@ -187,6 +203,16 @@ export function ComponentsDashboardV2({
           isInstalled={isLandscaperInstalled}
           version={landscaperVersion}
           kpiType="enabled"
+          yamlViewButton={
+            isLandscaperInstalled ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="landscaper"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
           onInstallButtonClick={
             !isLandscaperInstalled
@@ -213,6 +239,11 @@ export function ComponentsDashboardV2({
           isInstalled={isEsoInstalled}
           version={esoVersion}
           kpiType="enabled"
+          yamlViewButton={
+            isEsoInstalled ? (
+              <YamlViewButton variant="mcp-component" component="eso" mcpName={mcpName} mcpNamespace={mcpNamespace} />
+            ) : undefined
+          }
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={
             !isEsoInstalled
