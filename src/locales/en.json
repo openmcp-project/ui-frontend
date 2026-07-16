@@ -669,10 +669,10 @@
       "validation": "Validation",
       "testing": "Testing"
     },
-    "serviceIds": "Service IDs",
-    "serviceIdsPlaceholder": "Enter an ID and press Enter",
+    "serviceIds": "Service Reference",
+    "serviceIdsPlaceholder": "Enter an ID or name of service(s)/app(s)/landscape(s) this project empowers",
     "contacts": "Contacts",
-    "contactsPlaceholder": "Enter a contact and press Enter",
+    "contactsPlaceholder": "Enter e-mail address(es) of responsible contact(s)",
     "contextSection": "Region & Service",
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",
