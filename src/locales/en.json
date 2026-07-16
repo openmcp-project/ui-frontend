@@ -100,9 +100,9 @@
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
-    "permissionErrorMessage": "Not permitted to list mcps in workspace",
+    "permissionErrorMessage": "Not permitted to list control planes in workspace",
     "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
-    "loadingErrorMessage": "Failed to list mcps in workspace"
+    "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
@@ -355,7 +355,7 @@
     "title": "Delete a Control Plane",
     "introSection1": "The below will help you delete the Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
-    "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
+    "annotateCommand": "First, annotate the control plane to confirm deletion:",
     "deleteCommand": "Run this command to delete the Control Plane:",
     "verificationCommandDescription": "To verify the control plane has been deleted, run:"
   },
