@@ -1,33 +1,39 @@
-# Operator Guide
+****# Operator Guide
 
 This guide covers deploying and running the Control Plane UI in your organisation.
 
 ## Architecture Overview
 
+```mermaid
+graph LR
+    Browser["🌐 Browser
+React 19 SPA"]
+
+    BFF["⚙️ Fastify BFF
+server.ts"]
+
+    subgraph Downstream
+        Backend["📦 mcp-ui-backend
+ghcr.io/openmcp-project/mcp-ui-backend"]
+        GQL["🔗 GraphQL Gateway
+kubernetes-graphql-gateway"]
+        Headlamp["💡 Headlamp Server
+ghcr.io/openmcp-project/helm-charts/headlamp-deployment"]
+    end
+
+    Browser -->|"/api/* same origin"| BFF
+    BFF -->|"REST · X-project / X-workspace / X-mcp headers"| Backend
+    BFF -->|"GraphQL"| GQL
+    BFF -->|"/api/headlamp/* reverse proxy"| Headlamp
+    BFF -.->|"/api/headlamp-kubeconfig
+token patched server-side"| Headlamp
 ```
-Browser
-  └─ React 19 SPA (Vite)
-       └─ /api/* (same origin)
-            └─ Fastify BFF (server.ts)          ← lives in this repo
-                 ├─ Encrypted cookie session + OIDC auth callbacks
-                 ├─ HTTP proxy → mcp-ui-backend  (image: ghcr.io/openmcp-project/mcp-ui-backend, source not yet public)
-                 └─ HTTP proxy → GraphQL Gateway (github.com/platform-mesh/kubernetes-graphql-gateway)
-```
 
-The BFF (Backend-for-Frontend) is a [Fastify](https://fastify.dev) server defined in `server.ts` — part of this repository. The client **never** contacts downstream services directly; all traffic flows through `/api` on the BFF.
+The **Fastify BFF** (`server.ts`) is the only component in this repository. The browser never contacts downstream services directly — all traffic flows through `/api` on the BFF.
 
-- **mcp-ui-backend** — the REST backend serving Crossplane / Flux / Landscaper CRDs. Published as `ghcr.io/openmcp-project/mcp-ui-backend`; source not currently public.
-- **GraphQL Gateway** — [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway) (public); serves the GraphQL schema consumed by the onboarding space.
-
-### GraphQL Gateway
-
-The onboarding space (Projects / Workspaces) is powered by Apollo Client against a remote GraphQL schema. That schema is served by the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway).
-
-### REST + SWR _(deprecated — GraphQL is the target)_
-
-> **Note:** The REST + SWR stack is being phased out. New features should use Apollo + GraphQL. `McpPageV2` is the migration target.
-
-The MCP space currently uses [SWR](https://swr.vercel.app) for data fetching. Routing headers (`X-project`, `X-workspace`, `X-mcp`, `X-use-crate`, `X-jq`) tell the BFF which cluster to proxy to.
+- **mcp-ui-backend** — REST backend serving Crossplane / Flux / Landscaper CRDs. Published as `ghcr.io/openmcp-project/mcp-ui-backend`; source not currently public.
+- **GraphQL Gateway** — [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway) (public); serves the GraphQL schema for the Projects / Workspaces space.
+- **Headlamp** — [Headlamp](https://headlamp.dev) is an optional embedded Kubernetes dashboard. Deploy it via the Helm chart at `ghcr.io/openmcp-project/helm-charts/headlamp-deployment` and point the BFF at it with `HEADLAMP_UPSTREAM_URL`. When provisioned, users can switch any Control Plane detail page into "open-source" view to browse live cluster resources without `kubectl`.
 
 ## Supported Target Setup
 

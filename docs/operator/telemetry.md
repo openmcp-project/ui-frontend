@@ -4,11 +4,25 @@ The ui-frontend emits **product analytics** (which features are used and how) an
 
 ## Architecture
 
-```
-Application code
-  └─ useTelemetry()  →  TelemetryService  ┬─► SentryAdapter    → Sentry
-                                          ├─► DynatraceAdapter → window.dtrum (OneAgent)
-                                          └─► ConsoleAdapter   → dev builds only
+```mermaid
+graph LR
+    App["🖥️ Application Code
+useTelemetry()"]
+
+    TS["⚙️ TelemetryService
+fan-out dispatcher"]
+
+    Sentry["🐛 SentryAdapter
+sentry.io"]
+    Dynatrace["📊 DynatraceAdapter
+window.dtrum / OneAgent"]
+    Console["🖨️ ConsoleAdapter
+dev builds only"]
+
+    App -->|"track / report / identify"| TS
+    TS --> Sentry
+    TS --> Dynatrace
+    TS -.->|"import.meta.env.DEV"| Console
 ```
 
 Every call site — a button click, a page navigation, a caught error — talks to the same `TelemetryService` interface. That service holds an ordered list of **adapters**, each of which knows how to talk to one backend. When the app fires `telemetry.track(...)`, the service dispatches to every adapter; a failure in one adapter is caught and logged but never propagates back to the caller. This means:

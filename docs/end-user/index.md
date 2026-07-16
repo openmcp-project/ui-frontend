@@ -2,16 +2,19 @@
 
 The Control Plane UI empowers you to create and manage cloud landscapes using the Kubernetes Resource Model — no `kubectl` required.
 
+![[current_view.png]]
+
 ## What can I do?
 
-| Area | Actions |
-|---|---|
-| **Projects** | Create, view, and manage projects |
-| **Workspaces** | Create and organise workspaces within a project |
-| **Managed Control Planes** | Create, configure, and monitor Managed Control Planes |
-| **Members** | Add and manage user / group / service-account access |
-| **Kubernetes Resources** | Observe managed resources, preview and copy their YAML |
-| **Control Plane Explorer** | Browse and inspect live Kubernetes resources orchestrated inside a ControlPlane — powered by [Headlamp](https://headlamp.dev) embedded directly in the UI |
+| Area                       | Actions                                                                                                                                                                                                         |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Projects**               | Create, view, and manage projects                                                                                                                                                                               |
+| **Workspaces**             | Create and organise workspaces within a project                                                                                                                                                                 |
+| **Control Planes**         | Create, configure, and monitor both Managed Control Planes (v1) and Open Control Planes (v2)                                                                                                                    |
+| **Members**                | Add and manage users, groups and service-account access                                                                                                                                                         |
+| **Platform Components**    | Install, configure, and manage platform components within a Control Plane like [Flux](https://fluxcd.io), [Crossplane](https://www.crossplane.io), and [External Secrets Operator](https://external-secrets.io) |
+| **Kubernetes Resources**   | Observe managed resources, preview and copy their YAML                                                                                                                                                          |
+| **Control Plane Explorer** | Browse and inspect live Kubernetes resources orchestrated inside a ControlPlane, powered by [Headlamp](https://headlamp.dev), embedded directly in the UI                                                       |
 
 ## Further Reading
 

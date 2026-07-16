@@ -1,6 +1,6 @@
 # ui-frontend Documentation
 
-**ui-frontend** is the Control Plane UI for the [OpenControlPlane project](https://github.com/openmcp-project). It lets users create and manage Projects, Workspaces, and Managed Control Planes — and explore the live Kubernetes resources orchestrated inside a ControlPlane via the embedded [Headlamp](https://headlamp.dev) integration — without installing any additional tooling.
+**ui-frontend** is the Control Plane UI for the [OpenControlPlane project](https://github.com/openmcp-project). It lets users create and manage Projects, Workspaces, and Control Planes — and explore the live Kubernetes resources orchestrated inside a ControlPlane via the embedded [Headlamp](https://headlamp.dev) integration — without installing any additional tooling.
 
 ---
 

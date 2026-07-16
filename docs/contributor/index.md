@@ -6,6 +6,8 @@ Welcome! Before contributing, please read [`CONTRIBUTING.md`](../../CONTRIBUTING
 
 - [Running Locally](#running-locally)
 - [Building](#building)
+- [Key Architectural Constraints](#key-architectural-constraints)
+- [Data Fetching Architecture](#data-fetching-architecture)
 - [Testing](testing.md) — unit, component, smoke tests and when to use each
 - [New Components](new-component.md) — design, build, and test patterns
 - [New API Requests](new-api-request.md) — SWR, Apollo, and BFF proxy patterns
@@ -91,3 +93,27 @@ A few non-obvious rules that CI enforces — violating them breaks the build:
 - **Do not import Node's `path` from client code.** It is aliased to `path-browserify`.
 
 Full linting rules: [Static Analysis](static-analysis.md).
+
+## Data Fetching Architecture
+
+### GraphQL + Apollo _(target stack)_
+
+The onboarding space (Projects / Workspaces) uses [Apollo Client](https://www.apollographql.com/docs/react/) against `/api/onboarding/graphql`. All GraphQL response types are generated into `src/types/__generated__/graphql/` by `@graphql-codegen/client-preset` — do not hand-write them. New features should use this stack.
+
+The remote schema is served by the [kubernetes-graphql-gateway](https://github.com/platform-mesh/kubernetes-graphql-gateway). To regenerate types when the schema changes, ask a maintainer to run `npm run generate-graphql-types` with a valid bearer token.
+
+### REST + SWR _(deprecated — GraphQL is the target)_
+
+> **Note:** The REST + SWR stack is being phased out. New features should use Apollo + GraphQL. `ControlPlanePageV2` is the migration target.
+
+The MCP space currently uses [SWR](https://swr.vercel.app) for data fetching. Routing headers (`X-project`, `X-workspace`, `X-mcp`, `X-use-crate`, `X-jq`) tell the BFF which downstream cluster to proxy to. See [New API Requests](new-api-request.md) for the full pattern.
+
+### Headlamp iframe integration
+
+When a user switches a Control Plane detail page to "open-source" view, the UI:
+
+1. Posts the control plane's kubeconfig to `/api/headlamp-kubeconfig` — the BFF patches the token server-side so credentials are never exposed to the browser.
+2. Renders Headlamp in a full-screen iframe via `/api/headlamp/c/<cluster-alias>`.
+3. Polls the iframe pathname every second and syncs it to the `headlampPath` URL search param so deep links survive a page reload.
+
+For local development see the [Headlamp (local dev cluster)](#headlamp-local-dev-cluster) section above.
