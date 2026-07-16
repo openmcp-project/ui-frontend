@@ -197,6 +197,7 @@
     "modeOpenSource": "Open Source View",
     "hello": "Hello, {{name}}",
     "backButton": "Back",
+    "homeButton": "Go to home",
     "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",

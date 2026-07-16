@@ -60,6 +60,10 @@ export function ShellBarComponent({
     useShellBarMcpActions();
   const { copyToClipboard } = useCopyToClipboard();
 
+  const onLogoClick = () => {
+    window.location.hash = '#/projects';
+  };
+
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     if (!profilePopoverRef.current) return;
     profilePopoverRef.current.opener = e.detail.targetRef;
@@ -84,8 +88,22 @@ export function ShellBarComponent({
               />
             )}
             <div className={styles.logoWrapper}>
-              <img src={SapLogo} alt="SAP" className={styles.logo} />
-              <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}</span>
+              <div
+                className={styles.logoButton}
+                role="button"
+                tabIndex={0}
+                title={t('ShellBar.homeButton')}
+                onClick={onLogoClick}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onLogoClick();
+                  }
+                }}
+              >
+                <img src={SapLogo} alt="SAP" className={styles.logo} />
+                <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}</span>
+              </div>
               {namespace && (
                 <Button
                   design="Transparent"
