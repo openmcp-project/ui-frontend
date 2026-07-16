@@ -25,6 +25,7 @@ import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import styles from './WorkspacesList.module.css';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface Props {
   projectName: string;
@@ -65,6 +66,7 @@ export function ControlPlaneListWorkspaceGridTile({
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
+  const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
   const errorView = createErrorView(cpsError);
   const shouldCollapsePanel = !isExpanded;
@@ -142,10 +144,15 @@ export function ControlPlaneListWorkspaceGridTile({
                   {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
                   {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
                 </Title>
-                <CopyButton collapsible text={workspace.status?.namespace || '-'} />
+                <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
               </div>
 
-              <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
+              <MembersAvatarView
+                members={uniqueMembers}
+                project={projectName}
+                workspace={workspaceName}
+                source="workspace-grid"
+              />
               <FlexBox justifyContent={'SpaceBetween'} gap={10}>
                 <YamlViewButton
                   variant="loader"
@@ -232,7 +239,10 @@ export function ControlPlaneListWorkspaceGridTile({
         )}
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
-        onDeletionConfirmed={deleteWorkspace}
+        onDeletionConfirmed={async () => {
+          telemetry.track({ name: 'workspace.deleted', source: 'card' });
+          await deleteWorkspace();
+        }}
       />
       <EditWorkspaceDialogContainer
         isOpen={dialogEditWsIsOpen}
