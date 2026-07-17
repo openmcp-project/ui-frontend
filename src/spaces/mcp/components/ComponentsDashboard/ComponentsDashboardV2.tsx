@@ -159,7 +159,7 @@ export function ComponentsDashboardV2({
           status={crossplaneStatus}
           version={crossplaneVersion}
           yamlViewButton={
-            isCrossplaneInstalled ? (
+            isCrossplaneInstalled && crossplaneResource ? (
               <YamlViewButton
                 variant="mcp-component"
                 component="crossplane"
@@ -195,7 +195,7 @@ export function ComponentsDashboardV2({
           status={fluxStatus}
           version={fluxVersion}
           yamlViewButton={
-            isFluxInstalled ? (
+            isFluxInstalled && fluxResource ? (
               <YamlViewButton
                 variant="mcp-component"
                 component="flux"
@@ -231,7 +231,7 @@ export function ComponentsDashboardV2({
           status={landscaperStatus}
           version={landscaperVersion}
           yamlViewButton={
-            isLandscaperInstalled ? (
+            isLandscaperInstalled && landscaperResource ? (
               <YamlViewButton
                 variant="mcp-component"
                 component="landscaper"
@@ -267,7 +267,7 @@ export function ComponentsDashboardV2({
           status={esoStatus}
           version={esoVersion}
           yamlViewButton={
-            isEsoInstalled ? (
+            isEsoInstalled && esoResource ? (
               <YamlViewButton
                 variant="mcp-component"
                 component="eso"

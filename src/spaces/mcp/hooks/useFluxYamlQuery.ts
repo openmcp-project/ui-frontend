@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
 const GET_FLUX_YAML_QUERY = graphql(`
   query GetFluxYaml($name: String!, $namespace: String) {

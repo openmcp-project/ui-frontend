@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
 const GET_LANDSCAPER_YAML_QUERY = graphql(`
   query GetLandscaperYaml($name: String!, $namespace: String) {

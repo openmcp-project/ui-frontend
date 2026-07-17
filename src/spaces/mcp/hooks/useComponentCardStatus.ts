@@ -8,6 +8,8 @@ import { ComponentCardV2Status } from '../components/ComponentCard/ComponentCard
 
 export interface UseComponentCardStatusYamlResult {
   yaml: string | null;
+  isLoading: boolean;
+  error?: unknown;
 }
 
 const ResourceConditionSchema = z.object({
@@ -35,13 +37,24 @@ export function useComponentCardStatus(isInstalled: boolean, yamlResult: UseComp
 
   const status = useMemo<ComponentCardV2Status>(() => {
     if (!isInstalled) return { kind: 'uninstalled' };
-    const result = ResourceStatusSchema.safeParse(resource?.status);
+    // No parsed resource yet: report why (still loading vs. errored) instead of a phase of
+    // `null`, so callers don't have to guess and default to looking healthy.
+    if (!resource) {
+      return {
+        kind: 'installed',
+        phase: null,
+        conditions: [],
+        isLoading: yamlResult.isLoading,
+        hasError: !!yamlResult.error,
+      };
+    }
+    const result = ResourceStatusSchema.safeParse(resource.status);
     const phase = result.success ? (result.data.phase ?? null) : null;
     const conditions: ControlPlaneStatusCondition[] = result.success
       ? (result.data.conditions?.flatMap((condition) => (condition ? [condition] : [])) ?? [])
       : [];
-    return { kind: 'installed', phase, conditions };
-  }, [isInstalled, resource]);
+    return { kind: 'installed', phase, conditions, isLoading: false, hasError: false };
+  }, [isInstalled, resource, yamlResult.isLoading, yamlResult.error]);
 
   return { resource, status };
 }

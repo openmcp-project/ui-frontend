@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
 const GET_CROSSPLANE_YAML_QUERY = graphql(`
   query GetCrossplaneYaml($name: String!, $namespace: String) {

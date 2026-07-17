@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
+import { graphql } from '../../../types/__generated__/graphql';
 
 const GET_ESO_YAML_QUERY = graphql(`
   query GetEsoYaml($name: String!, $namespace: String) {

@@ -13,7 +13,7 @@ import {
 } from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import { clsx } from 'clsx';
-import { ReactNode, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Kpi, KpiProps } from '../Kpi/Kpi.tsx';
@@ -31,7 +31,6 @@ export type ComponentCardProps = KpiProps & {
   onInstallButtonClick?: () => void;
   onEditButtonClick?: () => void;
   onDeleteButtonClick?: () => void;
-  yamlViewButton?: ReactNode;
 };
 
 export function ComponentCard({
@@ -44,7 +43,6 @@ export function ComponentCard({
   onInstallButtonClick,
   onEditButtonClick,
   onDeleteButtonClick,
-  yamlViewButton,
   ...props
 }: ComponentCardProps) {
   const { t } = useTranslation();
@@ -90,59 +88,44 @@ export function ComponentCard({
               <div className={styles.kpiContent}>
                 <Kpi {...props} />
               </div>
-              {(hasActions || yamlViewButton) && (
+              {hasActions && (
                 <div className={styles.actions}>
-                  {yamlViewButton && (
-                    // The Card has onClick={onNavigateToComponentSection} when interactive; without
-                    // this bubble-phase stopPropagation, clicking the YAML button would also navigate
-                    // away. This must stay a bubble-phase onClick (not onClickCapture): capture-phase
-                    // stopPropagation on an ancestor would stop the event before it ever reaches the
-                    // button inside, so the button's own click handler would never fire.
-                    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- this span is an event boundary, not a new interactive control; the actual interactive element is the button it wraps
-                    <span data-cy="yaml-view-button" onClick={(e) => e.stopPropagation()}>
-                      {yamlViewButton}
-                    </span>
-                  )}
-                  {hasActions && (
-                    <>
-                      <Button
-                        accessibleName={t('ComponentCard.actionsMenu')}
-                        data-cy="actions-menu-button"
-                        design="Transparent"
-                        icon="overflow"
-                        onClick={handleMenuOpenerClick}
+                  <Button
+                    accessibleName={t('ComponentCard.actionsMenu')}
+                    data-cy="actions-menu-button"
+                    design="Transparent"
+                    icon="overflow"
+                    onClick={handleMenuOpenerClick}
+                  />
+                  <Menu
+                    ref={menuRef}
+                    open={menuOpen}
+                    onItemClick={(event) => {
+                      event.stopImmediatePropagation();
+                      event.stopPropagation();
+                      const action = (event.detail.item as HTMLElement).dataset.action;
+                      if (action === 'edit') onEditButtonClick?.();
+                      if (action === 'delete') onDeleteButtonClick?.();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {onEditButtonClick && (
+                      <MenuItem
+                        data-action="edit"
+                        data-cy="edit-menu-item"
+                        icon="edit"
+                        text={t('ComponentCard.editButton')}
                       />
-                      <Menu
-                        ref={menuRef}
-                        open={menuOpen}
-                        onItemClick={(event) => {
-                          event.stopImmediatePropagation();
-                          event.stopPropagation();
-                          const action = (event.detail.item as HTMLElement).dataset.action;
-                          if (action === 'edit') onEditButtonClick?.();
-                          if (action === 'delete') onDeleteButtonClick?.();
-                          setMenuOpen(false);
-                        }}
-                      >
-                        {onEditButtonClick && (
-                          <MenuItem
-                            data-action="edit"
-                            data-cy="edit-menu-item"
-                            icon="edit"
-                            text={t('ComponentCard.editButton')}
-                          />
-                        )}
-                        {onDeleteButtonClick && (
-                          <MenuItem
-                            data-action="delete"
-                            data-cy="delete-menu-item"
-                            icon="delete"
-                            text={t('ComponentCard.deleteButton')}
-                          />
-                        )}
-                      </Menu>
-                    </>
-                  )}
+                    )}
+                    {onDeleteButtonClick && (
+                      <MenuItem
+                        data-action="delete"
+                        data-cy="delete-menu-item"
+                        icon="delete"
+                        text={t('ComponentCard.deleteButton')}
+                      />
+                    )}
+                  </Menu>
                 </div>
               )}
             </div>
