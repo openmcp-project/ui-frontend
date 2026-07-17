@@ -17,6 +17,7 @@ export function useCrossplaneYamlQuery(name: string, namespace: string, skip = f
     variables: { name, namespace },
     skip: skip || !name || !namespace,
     fetchPolicy: 'network-only',
+    pollInterval: 30_000,
   });
 
   return {

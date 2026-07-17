@@ -1,4 +1,4 @@
-import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
+import { ComponentCardV2 } from '../ComponentCard/ComponentCardV2.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
 import { useCallback, useState } from 'react';
@@ -6,13 +6,18 @@ import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
+import { useComponentCardStatus } from '../../hooks/useComponentCardStatus.ts';
 import { useCreateEso } from '../../hooks/useCreateEso.ts';
 import { useCreateFlux } from '../../hooks/useCreateFlux.ts';
 import { useCreateLandscaper } from '../../hooks/useCreateLandscaper.ts';
+import { useCrossplaneYamlQuery } from '../../hooks/useCrossplaneYamlQuery.ts';
 import { useDeleteCrossplane } from '../../hooks/useDeleteCrossplane.ts';
 import { useDeleteEso } from '../../hooks/useDeleteEso.ts';
 import { useDeleteFlux } from '../../hooks/useDeleteFlux.ts';
 import { useDeleteLandscaper } from '../../hooks/useDeleteLandscaper.ts';
+import { useEsoYamlQuery } from '../../hooks/useEsoYamlQuery.ts';
+import { useFluxYamlQuery } from '../../hooks/useFluxYamlQuery.ts';
+import { useLandscaperYamlQuery } from '../../hooks/useLandscaperYamlQuery.ts';
 import { useUpdateEso } from '../../hooks/useUpdateEso.ts';
 import { useUpdateFlux } from '../../hooks/useUpdateFlux.ts';
 import { useUpdateLandscaper } from '../../hooks/useUpdateLandscaper.ts';
@@ -94,6 +99,24 @@ export function ComponentsDashboardV2({
   const isEsoInstalled = !!esoData?.version;
   const esoVersion = esoData?.version ?? undefined;
 
+  const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace, !isCrossplaneInstalled);
+  const { resource: crossplaneResource, status: crossplaneStatus } = useComponentCardStatus(
+    isCrossplaneInstalled,
+    crossplaneYaml,
+  );
+
+  const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace, !isFluxInstalled);
+  const { resource: fluxResource, status: fluxStatus } = useComponentCardStatus(isFluxInstalled, fluxYaml);
+
+  const landscaperYaml = useLandscaperYamlQuery(mcpName, mcpNamespace, !isLandscaperInstalled);
+  const { resource: landscaperResource, status: landscaperStatus } = useComponentCardStatus(
+    isLandscaperInstalled,
+    landscaperYaml,
+  );
+
+  const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace, !isEsoInstalled);
+  const { resource: esoResource, status: esoStatus } = useComponentCardStatus(isEsoInstalled, esoYaml);
+
   const handleDeleteConfirmed = useCallback(async () => {
     if (!deleteTarget) return;
     const componentName = DELETE_TARGET_COMPONENT_NAME[deleteTarget];
@@ -129,12 +152,11 @@ export function ComponentsDashboardV2({
   return (
     <Panel fixed>
       <div className={styles['container']}>
-        <ComponentCard
+        <ComponentCardV2
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
           logoImgSrc={LogoCrossplane}
-          kpiType="enabled"
-          isInstalled={isCrossplaneInstalled}
+          status={crossplaneStatus}
           version={crossplaneVersion}
           yamlViewButton={
             isCrossplaneInstalled ? (
@@ -143,6 +165,7 @@ export function ComponentsDashboardV2({
                 component="crossplane"
                 mcpName={mcpName}
                 mcpNamespace={mcpNamespace}
+                preloadedResource={crossplaneResource}
               />
             ) : undefined
           }
@@ -165,16 +188,21 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isCrossplaneInstalled ? () => setDeleteTarget('crossplane') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
           name="Flux"
           description={t('componentCardFlux.description')}
           logoImgSrc={LogoFlux}
-          kpiType="enabled"
-          isInstalled={isFluxInstalled}
+          status={fluxStatus}
           version={fluxVersion}
           yamlViewButton={
             isFluxInstalled ? (
-              <YamlViewButton variant="mcp-component" component="flux" mcpName={mcpName} mcpNamespace={mcpNamespace} />
+              <YamlViewButton
+                variant="mcp-component"
+                component="flux"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={fluxResource}
+              />
             ) : undefined
           }
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
@@ -196,13 +224,12 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isFluxInstalled ? () => setDeleteTarget('flux') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
           logoImgSrc={LogoLandscaper}
-          isInstalled={isLandscaperInstalled}
+          status={landscaperStatus}
           version={landscaperVersion}
-          kpiType="enabled"
           yamlViewButton={
             isLandscaperInstalled ? (
               <YamlViewButton
@@ -210,6 +237,7 @@ export function ComponentsDashboardV2({
                 component="landscaper"
                 mcpName={mcpName}
                 mcpNamespace={mcpNamespace}
+                preloadedResource={landscaperResource}
               />
             ) : undefined
           }
@@ -232,16 +260,21 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
           logoImgSrc={LogoEso}
-          isInstalled={isEsoInstalled}
+          status={esoStatus}
           version={esoVersion}
-          kpiType="enabled"
           yamlViewButton={
             isEsoInstalled ? (
-              <YamlViewButton variant="mcp-component" component="eso" mcpName={mcpName} mcpNamespace={mcpNamespace} />
+              <YamlViewButton
+                variant="mcp-component"
+                component="eso"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={esoResource}
+              />
             ) : undefined
           }
           onNavigateToComponentSection={undefined}

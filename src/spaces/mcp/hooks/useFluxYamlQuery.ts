@@ -17,6 +17,7 @@ export function useFluxYamlQuery(name: string, namespace: string, skip = false) 
     variables: { name, namespace },
     skip: skip || !name || !namespace,
     fetchPolicy: 'network-only',
+    pollInterval: 30_000,
   });
 
   return {
