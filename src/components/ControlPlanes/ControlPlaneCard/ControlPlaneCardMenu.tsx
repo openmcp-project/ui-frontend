@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useApiResource } from '../../../lib/api/useApiResource.ts';
 import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
 import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 type ControlPlanesListMenuProps = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -28,6 +29,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const hasAccessInfo = !!(secretKey && secretName && namespace);
   const { data: kubeconfigResource } = useApiResource(
     GetKubeconfig(secretKey, secretName, namespace),
@@ -66,6 +68,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           }
           if (action === 'downloadKubeconfig') {
             DownloadKubeconfig(kubeconfigResource, controlPlaneName);
+            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
           }
 
           setMenuIsOpen(false);

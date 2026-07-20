@@ -123,6 +123,9 @@ fastify.register(helmet, {
   // Headlamp's inline bootstrap scripts are blocked by script-src 'self', and the header
   // must simply be absent for those responses — Helmet does not support per-request directives.
   contentSecurityPolicy: false,
+  // frame-ancestors in the manual CSP below handles framing policy; this would add a
+  // conflicting X-Frame-Options: SAMEORIGIN header that overrides it and breaks portal embedding.
+  xFrameOptions: false,
   // Needed for https enforcement
   hsts: {
     maxAge: 31536000,
@@ -138,7 +141,13 @@ fastify.addHook('onSend', async (req, reply, payload) => {
   if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
     return payload;
   }
-  const frameAncestors = (fastify as any).config?.FRAME_ANCESTORS ?? '';
+  // FRAME_ANCESTORS is a comma-separated env list; CSP separates sources by whitespace,
+  // so a raw comma turns every entry after the first into one invalid token the browser drops.
+  const frameAncestors = ((fastify as any).config?.FRAME_ANCESTORS ?? '')
+    .split(',')
+    .map((origin: string) => origin.trim())
+    .filter(Boolean)
+    .join(' ');
   const csp = [
     "default-src 'self'",
     "style-src 'self' 'unsafe-inline'",
@@ -148,7 +157,7 @@ fastify.addHook('onSend', async (req, reply, payload) => {
       ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${sentryHost} ${dynatraceOrigin}`
       : `script-src 'self' ${sentryHost} ${dynatraceOrigin}`,
     "frame-src 'self'",
-    `frame-ancestors 'self' ${frameAncestors}`,
+    `frame-ancestors 'self'${frameAncestors ? ` ${frameAncestors}` : ''}`,
     "base-uri 'self'",
     "font-src 'self' https: data:",
     "form-action 'self'",
