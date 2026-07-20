@@ -95,7 +95,8 @@
     "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create Managed Control Plane",
     "createNewControlPlane": "Create Control Plane",
-    "recommendedBadge": "Recommended",
+    "defaultBadge": "Default",
+    "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
   },
   "ControlPlaneListWorkspaceGridTile": {
