@@ -64,11 +64,7 @@ export function ComponentHealthPopoverButton({
   };
 
   return (
-    // The card this button sits in may itself be clickable (navigates to the component section).
-    // `ResponsivePopover` doesn't expose a `click` event in @ui5/webcomponents-react's wrapper
-    // (only before-close/before-open/close/open are wired up), so an `onClick` passed straight to
-    // it is not reliably hooked up - stopping propagation here on a plain element, covering both
-    // the opener button and anything clicked inside the open popover, is what actually works.
+    // Stops clicks from reaching the (potentially clickable) card behind this button/popover.
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- this span is an event boundary, not a new interactive control; the actual interactive elements are the button/popover it wraps
     <span data-cy="component-health-button" onClick={(e) => e.stopPropagation()}>
       <AnimatedHoverTextButton
