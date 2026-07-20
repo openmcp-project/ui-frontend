@@ -82,7 +82,6 @@ function createStore(request) {
       const decryptedCypherText = decryptSymetric(cipherText, iv, tag, currentEncryptionKey);
       const decryptedStore = JSON.parse(decryptedCypherText);
       unencryptedStore = decryptedStore;
-      console.log(decryptedStore);
     } catch (error) {
       request.log.error({ plugin: 'encrypted-session' }, 'Failed to parse encrypted session store', error);
     }
