@@ -20,10 +20,12 @@ const ResourceConditionSchema = z.object({
   lastTransitionTime: z.string().catch(''),
 });
 
-const PhaseSchema = z.string().nullish();
-// Each entry is validated independently and dropped (not the whole array) if malformed, so one
-// bad condition can't discard an otherwise-valid `phase` parsed alongside it.
-const ConditionsSchema = z.array(ResourceConditionSchema.nullable().catch(null)).nullish();
+// Each condition entry is validated independently and dropped (not the whole array) if
+// malformed, so one bad condition can't discard an otherwise-valid `phase` parsed alongside it.
+const ResourceStatusSchema = z.object({
+  phase: z.string().nullish(),
+  conditions: z.array(ResourceConditionSchema.nullable().catch(null)).nullish(),
+});
 
 export function useComponentCardStatus(isInstalled: boolean, yamlResult: UseComponentCardStatusYamlResult) {
   const { resource, parseFailed } = useMemo<{ resource: Resource | null; parseFailed: boolean }>(() => {
@@ -48,21 +50,20 @@ export function useComponentCardStatus(isInstalled: boolean, yamlResult: UseComp
         hasError: parseFailed || !!yamlResult.error,
       };
     }
-    const phaseResult = PhaseSchema.safeParse(resource.status?.phase);
-    const conditionsResult = ConditionsSchema.safeParse(resource.status?.conditions);
-    const phase = phaseResult.success ? (phaseResult.data ?? null) : null;
-    const conditions: ControlPlaneStatusCondition[] = conditionsResult.success
-      ? (conditionsResult.data?.flatMap((condition) => (condition ? [condition] : [])) ?? [])
+    const result = ResourceStatusSchema.safeParse(resource.status);
+    const phase = result.success ? (result.data.phase ?? null) : null;
+    const conditions: ControlPlaneStatusCondition[] = result.success
+      ? (result.data.conditions?.flatMap((condition) => (condition ? [condition] : [])) ?? [])
       : [];
     return {
       kind: 'installed',
       phase,
       conditions,
       isLoading: false,
-      // A malformed `phase` (present but not a string/null) means we genuinely don't know the
-      // component's health; a malformed `conditions` entry is already tolerated per-entry above
-      // and shouldn't flip this.
-      hasError: !phaseResult.success,
+      // A malformed `phase` (present but not a string/null) fails the whole schema, correctly
+      // reporting "unknown" instead of silently looking healthy; a malformed `conditions` entry
+      // is tolerated per-entry above and doesn't affect this.
+      hasError: !result.success,
     };
   }, [isInstalled, resource, parseFailed, yamlResult.isLoading, yamlResult.error]);
 

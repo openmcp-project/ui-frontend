@@ -1,6 +1,5 @@
-import { useQuery } from '@apollo/client/react';
-
 import { graphql } from '../../../types/__generated__/graphql';
+import { useYamlQuery } from './useYamlQuery.ts';
 
 const GET_LANDSCAPER_YAML_QUERY = graphql(`
   query GetLandscaperYaml($name: String!, $namespace: String) {
@@ -13,17 +12,11 @@ const GET_LANDSCAPER_YAML_QUERY = graphql(`
 `);
 
 export function useLandscaperYamlQuery(name: string, namespace: string, skip = false) {
-  const { data, loading, error, refetch } = useQuery(GET_LANDSCAPER_YAML_QUERY, {
-    variables: { name, namespace },
-    skip: skip || !name || !namespace,
-    fetchPolicy: 'network-only',
-    pollInterval: 30_000,
-  });
-
-  return {
-    yaml: data?.landscaper_services_open_control_plane_io?.v1alpha2?.LandscaperYaml ?? null,
-    isLoading: loading,
-    error,
-    refetch,
-  };
+  return useYamlQuery(
+    GET_LANDSCAPER_YAML_QUERY,
+    (data) => data.landscaper_services_open_control_plane_io?.v1alpha2?.LandscaperYaml,
+    name,
+    namespace,
+    skip,
+  );
 }

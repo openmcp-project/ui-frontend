@@ -1,6 +1,5 @@
-import { useQuery } from '@apollo/client/react';
-
 import { graphql } from '../../../types/__generated__/graphql';
+import { useYamlQuery } from './useYamlQuery.ts';
 
 const GET_ESO_YAML_QUERY = graphql(`
   query GetEsoYaml($name: String!, $namespace: String) {
@@ -13,17 +12,11 @@ const GET_ESO_YAML_QUERY = graphql(`
 `);
 
 export function useEsoYamlQuery(name: string, namespace: string, skip = false) {
-  const { data, loading, error, refetch } = useQuery(GET_ESO_YAML_QUERY, {
-    variables: { name, namespace },
-    skip: skip || !name || !namespace,
-    fetchPolicy: 'network-only',
-    pollInterval: 30_000,
-  });
-
-  return {
-    yaml: data?.external_secrets_services_open_control_plane_io?.v1alpha1?.ExternalSecretsOperatorYaml ?? null,
-    isLoading: loading,
-    error,
-    refetch,
-  };
+  return useYamlQuery(
+    GET_ESO_YAML_QUERY,
+    (data) => data.external_secrets_services_open_control_plane_io?.v1alpha1?.ExternalSecretsOperatorYaml,
+    name,
+    namespace,
+    skip,
+  );
 }

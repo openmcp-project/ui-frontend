@@ -86,6 +86,11 @@ export function ComponentsDashboardV2({
 
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 
+  // Known limitation, accepted as-is: if this dashboard unmounts within REFETCH_DELAY_MS of a
+  // delete/edit, the scheduled refetch below is cleared on unmount and never re-armed (the
+  // underlying Apollo query instance is torn down with the component, so there's nothing to
+  // refetch into). The existing 30s poll interval on each useXYamlQuery eventually catches up
+  // with a stale card, so this isn't fixed here.
   const pendingRefetchTimeouts = useRef(new Set<ReturnType<typeof setTimeout>>());
   useEffect(() => {
     const timeouts = pendingRefetchTimeouts.current;

@@ -3,6 +3,7 @@ import styles from './YamlViewButton.module.css';
 import { useTranslation } from 'react-i18next';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
+import { buildYamlFilename } from './buildYamlFilename.ts';
 import { YamlIcon } from './YamlIcon.tsx';
 import { useSplitter } from '../Splitter/SplitterContext.tsx';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
@@ -61,7 +62,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
           <YamlSidePanel
             isEdit={false}
             resource={resource}
-            filename={`${resource?.kind ?? ''}${resource?.metadata?.name ? '_' : ''}${resource?.metadata?.name ?? ''}`}
+            filename={buildYamlFilename(resource?.kind, resource?.metadata?.name)}
             toolbarContent={toolbarContent}
           />
         );
@@ -98,7 +99,10 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
           <YamlSidePanel
             isEdit={false}
             resource={preloadedResource}
-            filename={`${preloadedResource.kind ?? component}_${preloadedResource.metadata?.name ?? mcpName}`}
+            filename={buildYamlFilename(
+              preloadedResource.kind ?? component,
+              preloadedResource.metadata?.name ?? mcpName,
+            )}
           />
         ) : (
           <YamlSidePanelWithGraphqlLoader component={component} mcpName={mcpName} mcpNamespace={mcpNamespace} />

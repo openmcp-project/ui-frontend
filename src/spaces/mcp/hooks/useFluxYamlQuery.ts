@@ -1,6 +1,5 @@
-import { useQuery } from '@apollo/client/react';
-
 import { graphql } from '../../../types/__generated__/graphql';
+import { useYamlQuery } from './useYamlQuery.ts';
 
 const GET_FLUX_YAML_QUERY = graphql(`
   query GetFluxYaml($name: String!, $namespace: String) {
@@ -13,17 +12,11 @@ const GET_FLUX_YAML_QUERY = graphql(`
 `);
 
 export function useFluxYamlQuery(name: string, namespace: string, skip = false) {
-  const { data, loading, error, refetch } = useQuery(GET_FLUX_YAML_QUERY, {
-    variables: { name, namespace },
-    skip: skip || !name || !namespace,
-    fetchPolicy: 'network-only',
-    pollInterval: 30_000,
-  });
-
-  return {
-    yaml: data?.flux_services_open_control_plane_io?.v1alpha1?.FluxYaml ?? null,
-    isLoading: loading,
-    error,
-    refetch,
-  };
+  return useYamlQuery(
+    GET_FLUX_YAML_QUERY,
+    (data) => data.flux_services_open_control_plane_io?.v1alpha1?.FluxYaml,
+    name,
+    namespace,
+    skip,
+  );
 }

@@ -8,6 +8,7 @@ import { useEsoYamlQuery } from '../../spaces/mcp/hooks/useEsoYamlQuery.ts';
 import { useFluxYamlQuery } from '../../spaces/mcp/hooks/useFluxYamlQuery.ts';
 import { useLandscaperYamlQuery } from '../../spaces/mcp/hooks/useLandscaperYamlQuery.ts';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
+import { buildYamlFilename } from './buildYamlFilename.ts';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
 import type { McpComponentKind } from './YamlViewButton.tsx';
 
@@ -43,6 +44,6 @@ export function YamlSidePanelWithGraphqlLoader({
     return <IllustratedError details={t('common.cannotLoadData')} />;
   }
 
-  const filename = `${resource.kind ?? component}_${resource.metadata?.name ?? mcpName}`;
+  const filename = buildYamlFilename(resource.kind ?? component, resource.metadata?.name ?? mcpName);
   return <YamlSidePanel resource={resource} filename={filename} isEdit={false} />;
 }
