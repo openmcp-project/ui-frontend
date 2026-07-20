@@ -1,16 +1,16 @@
-import { ButtonDomRef, Icon, PopoverDomRef, ResponsivePopover } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-icons/dist/sys-enter-2';
-import '@ui5/webcomponents-icons/dist/pending';
-import '@ui5/webcomponents-icons/dist/in-progress-2';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/in-progress-2';
 import '@ui5/webcomponents-icons/dist/message-warning';
-import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import '@ui5/webcomponents-icons/dist/pending';
+import '@ui5/webcomponents-icons/dist/sys-enter-2';
+import { ButtonDomRef, Icon, PopoverDomRef, ResponsivePopover } from '@ui5/webcomponents-react';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useRef, useState } from 'react';
 
-import { AnimatedHoverTextButton } from '../../../../components/Helper/AnimatedHoverTextButton.tsx';
 import { ConditionsMessageListView } from '../../../../components/ControlPlane/ConditionsMessageListView.tsx';
+import { AnimatedHoverTextButton } from '../../../../components/Helper/AnimatedHoverTextButton.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 import {
@@ -53,9 +53,6 @@ export function ComponentHealthPopoverButton({
   const colorClassName = styles[`status${visual.state}`];
 
   const handleOpenerClick = (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
-    // The card this button sits in may itself be clickable (navigates to the component
-    // section); without this, opening the popover would also trigger that navigation.
-    event.stopPropagation();
     if (popoverRef.current) {
       // Prefer explicit button ref as opener (works reliably); fall back to event.target
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
@@ -67,7 +64,13 @@ export function ComponentHealthPopoverButton({
   };
 
   return (
-    <span data-cy="component-health-button">
+    // The card this button sits in may itself be clickable (navigates to the component section).
+    // `ResponsivePopover` doesn't expose a `click` event in @ui5/webcomponents-react's wrapper
+    // (only before-close/before-open/close/open are wired up), so an `onClick` passed straight to
+    // it is not reliably hooked up - stopping propagation here on a plain element, covering both
+    // the opener button and anything clicked inside the open popover, is what actually works.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- this span is an event boundary, not a new interactive control; the actual interactive elements are the button/popover it wraps
+    <span data-cy="component-health-button" onClick={(e) => e.stopPropagation()}>
       <AnimatedHoverTextButton
         ref={buttonRef}
         icon={<Icon className={colorClassName} name={`sap-icon://${visual.icon}`} />}

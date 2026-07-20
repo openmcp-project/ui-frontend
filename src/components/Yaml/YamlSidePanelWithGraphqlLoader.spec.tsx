@@ -28,7 +28,7 @@ vi.mock('./YamlSidePanel.tsx', () => ({
   ),
 }));
 
-const idle = { yaml: null, isLoading: false, error: undefined };
+const idle = { yaml: null, isLoading: false, error: undefined, refetch: vi.fn() };
 
 const useCrossplaneYamlQueryMock = vi.mocked(useCrossplaneYamlQuery);
 const useFluxYamlQueryMock = vi.mocked(useFluxYamlQuery);
@@ -57,7 +57,7 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
   });
 
   it('renders a loading state while the query is in flight', () => {
-    useCrossplaneYamlQueryMock.mockReturnValue({ yaml: null, isLoading: true, error: undefined });
+    useCrossplaneYamlQueryMock.mockReturnValue({ yaml: null, isLoading: true, error: undefined, refetch: vi.fn() });
 
     render(<YamlSidePanelWithGraphqlLoader component="crossplane" mcpName="my-mcp" mcpNamespace="my-ns" />);
 
@@ -65,7 +65,7 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
   });
 
   it('renders an error state when the query fails', () => {
-    useFluxYamlQueryMock.mockReturnValue({ yaml: null, isLoading: false, error: new Error('boom') });
+    useFluxYamlQueryMock.mockReturnValue({ yaml: null, isLoading: false, error: new Error('boom'), refetch: vi.fn() });
 
     render(<YamlSidePanelWithGraphqlLoader component="flux" mcpName="my-mcp" mcpNamespace="my-ns" />);
 
@@ -73,7 +73,12 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
   });
 
   it('renders an error state when the yaml cannot be parsed', () => {
-    useLandscaperYamlQueryMock.mockReturnValue({ yaml: '{{{not valid yaml::', isLoading: false, error: undefined });
+    useLandscaperYamlQueryMock.mockReturnValue({
+      yaml: '{{{not valid yaml::',
+      isLoading: false,
+      error: undefined,
+      refetch: vi.fn(),
+    });
 
     render(<YamlSidePanelWithGraphqlLoader component="landscaper" mcpName="my-mcp" mcpNamespace="my-ns" />);
 
@@ -85,6 +90,7 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
       yaml: 'apiVersion: v1\nkind: ExternalSecretsOperator\nmetadata:\n  name: my-mcp\n',
       isLoading: false,
       error: undefined,
+      refetch: vi.fn(),
     });
 
     render(<YamlSidePanelWithGraphqlLoader component="eso" mcpName="my-mcp" mcpNamespace="my-ns" />);

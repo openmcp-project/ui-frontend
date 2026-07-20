@@ -1,7 +1,7 @@
 import { ComponentCardV2 } from '../ComponentCard/ComponentCardV2.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
@@ -37,6 +37,10 @@ import { YamlViewButton } from '../../../../components/Yaml/YamlViewButton.tsx';
 import styles from './ComponentsDashboard.module.css';
 
 type DeleteTarget = 'crossplane' | 'flux' | 'landscaper' | 'eso' | null;
+
+// Backend reconciliation after an edit/delete isn't instant; refetching immediately would usually
+// just re-read the pre-mutation state. Waiting a beat gives it a chance to catch up.
+const REFETCH_DELAY_MS = 3_000;
 
 const DELETE_TARGET_COMPONENT_NAME: Record<NonNullable<DeleteTarget>, string> = {
   crossplane: 'Crossplane',
@@ -82,6 +86,21 @@ export function ComponentsDashboardV2({
 
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 
+  const pendingRefetchTimeouts = useRef(new Set<ReturnType<typeof setTimeout>>());
+  useEffect(() => {
+    const timeouts = pendingRefetchTimeouts.current;
+    return () => {
+      timeouts.forEach(clearTimeout);
+    };
+  }, []);
+  const scheduleRefetch = useCallback((refetch: () => void) => {
+    const timeoutId = setTimeout(() => {
+      pendingRefetchTimeouts.current.delete(timeoutId);
+      refetch();
+    }, REFETCH_DELAY_MS);
+    pendingRefetchTimeouts.current.add(timeoutId);
+  }, []);
+
   const { deleteCrossplane } = useDeleteCrossplane();
   const { deleteFlux } = useDeleteFlux();
   const { deleteLandscaper } = useDeleteLandscaper();
@@ -123,12 +142,16 @@ export function ComponentsDashboardV2({
     try {
       if (deleteTarget === 'crossplane') {
         await deleteCrossplane({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(crossplaneYaml.refetch);
       } else if (deleteTarget === 'flux') {
         await deleteFlux({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(fluxYaml.refetch);
       } else if (deleteTarget === 'landscaper') {
         await deleteLandscaper({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(landscaperYaml.refetch);
       } else if (deleteTarget === 'eso') {
         await deleteEso({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(esoYaml.refetch);
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
       telemetry.track({ name: 'component.uninstalled', componentName });
@@ -142,6 +165,11 @@ export function ComponentsDashboardV2({
     deleteFlux,
     deleteLandscaper,
     deleteEso,
+    scheduleRefetch,
+    crossplaneYaml.refetch,
+    fluxYaml.refetch,
+    landscaperYaml.refetch,
+    esoYaml.refetch,
     mcpName,
     mcpNamespace,
     toast,
@@ -304,6 +332,9 @@ export function ComponentsDashboardV2({
         mode={crossplaneDialogMode}
         initialData={crossplaneData ?? undefined}
         onClose={() => setIsCrossplaneDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(crossplaneYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isFluxDialogOpen}
@@ -316,6 +347,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateFlux}
         useUpdateMutation={useUpdateFlux}
         onClose={() => setIsFluxDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(fluxYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isLandscaperDialogOpen}
@@ -328,6 +362,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateLandscaper}
         useUpdateMutation={useUpdateLandscaper}
         onClose={() => setIsLandscaperDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(landscaperYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isEsoDialogOpen}
@@ -340,6 +377,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateEso}
         useUpdateMutation={useUpdateEso}
         onClose={() => setIsEsoDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(esoYaml.refetch);
+        }}
       />
       {deleteTarget && (
         <DeleteConfirmationDialog

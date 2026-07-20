@@ -29,6 +29,7 @@ import { createCrossplaneInstallSchema, CrossplaneInstallFormValues } from './Cr
 interface CrossplaneInstallDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (mode: 'install' | 'edit') => void;
   mcpName: string;
   mcpNamespace: string;
   mode?: 'install' | 'edit';
@@ -41,6 +42,7 @@ interface CrossplaneInstallDialogProps {
 export function CrossplaneInstallDialog({
   open,
   onClose,
+  onSuccess,
   mcpName,
   mcpNamespace,
   mode = 'install',
@@ -162,6 +164,7 @@ export function CrossplaneInstallDialog({
             ? t('ComponentInstallDialog.successMessageEdit', { component: 'Crossplane' })
             : t('ComponentInstallDialog.successMessage', { component: 'Crossplane' }),
         );
+        onSuccess?.(mode);
         handleClose();
       } catch (error) {
         console.error('Crossplane mutation failed', error);
@@ -172,7 +175,19 @@ export function CrossplaneInstallDialog({
         );
       }
     },
-    [create, update, mode, mcpName, mcpNamespace, t, toast, handleClose, crossplaneApiVersion, crossplaneKind],
+    [
+      create,
+      update,
+      mode,
+      mcpName,
+      mcpNamespace,
+      t,
+      toast,
+      onSuccess,
+      handleClose,
+      crossplaneApiVersion,
+      crossplaneKind,
+    ],
   );
 
   const handleApply = useCallback(() => {

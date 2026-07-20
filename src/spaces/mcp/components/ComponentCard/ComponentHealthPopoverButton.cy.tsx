@@ -31,6 +31,10 @@ describe('ComponentHealthPopoverButton', () => {
     cy.get('@onCardClick').should('not.have.been.called');
     cy.contains('Available').should('be.visible');
 
+    // Clicking content inside the open popover must not bubble to the Card's onClick either.
+    cy.contains('Available').click();
+    cy.get('@onCardClick').should('not.have.been.called');
+
     cy.get('[data-cy="component-health-button"] ui5-button').click();
     cy.contains('Available').should('not.exist');
   });

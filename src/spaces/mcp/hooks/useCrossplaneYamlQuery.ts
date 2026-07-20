@@ -13,7 +13,7 @@ const GET_CROSSPLANE_YAML_QUERY = graphql(`
 `);
 
 export function useCrossplaneYamlQuery(name: string, namespace: string, skip = false) {
-  const { data, loading, error } = useQuery(GET_CROSSPLANE_YAML_QUERY, {
+  const { data, loading, error, refetch } = useQuery(GET_CROSSPLANE_YAML_QUERY, {
     variables: { name, namespace },
     skip: skip || !name || !namespace,
     fetchPolicy: 'network-only',
@@ -24,5 +24,6 @@ export function useCrossplaneYamlQuery(name: string, namespace: string, skip = f
     yaml: data?.crossplane_services_open_control_plane_io?.v1alpha1?.CrossplaneYaml ?? null,
     isLoading: loading,
     error,
+    refetch,
   };
 }
