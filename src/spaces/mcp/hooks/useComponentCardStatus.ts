@@ -20,18 +20,18 @@ const ResourceConditionSchema = z.object({
   lastTransitionTime: z.string().catch(''),
 });
 
-const ResourceStatusSchema = z.object({
-  phase: z.string().nullish(),
-  conditions: z.array(ResourceConditionSchema.nullable()).nullish(),
-});
+const PhaseSchema = z.string().nullish();
+// Each entry is validated independently and dropped (not the whole array) if malformed, so one
+// bad condition can't discard an otherwise-valid `phase` parsed alongside it.
+const ConditionsSchema = z.array(ResourceConditionSchema.nullable().catch(null)).nullish();
 
 export function useComponentCardStatus(isInstalled: boolean, yamlResult: UseComponentCardStatusYamlResult) {
-  const resource = useMemo<Resource | null>(() => {
-    if (!yamlResult.yaml) return null;
+  const { resource, parseFailed } = useMemo<{ resource: Resource | null; parseFailed: boolean }>(() => {
+    if (!yamlResult.yaml) return { resource: null, parseFailed: false };
     try {
-      return parse(yamlResult.yaml) as Resource;
+      return { resource: parse(yamlResult.yaml) as Resource, parseFailed: false };
     } catch {
-      return null;
+      return { resource: null, parseFailed: true };
     }
   }, [yamlResult.yaml]);
 
@@ -45,16 +45,26 @@ export function useComponentCardStatus(isInstalled: boolean, yamlResult: UseComp
         phase: null,
         conditions: [],
         isLoading: yamlResult.isLoading,
-        hasError: !!yamlResult.error,
+        hasError: parseFailed || !!yamlResult.error,
       };
     }
-    const result = ResourceStatusSchema.safeParse(resource.status);
-    const phase = result.success ? (result.data.phase ?? null) : null;
-    const conditions: ControlPlaneStatusCondition[] = result.success
-      ? (result.data.conditions?.flatMap((condition) => (condition ? [condition] : [])) ?? [])
+    const phaseResult = PhaseSchema.safeParse(resource.status?.phase);
+    const conditionsResult = ConditionsSchema.safeParse(resource.status?.conditions);
+    const phase = phaseResult.success ? (phaseResult.data ?? null) : null;
+    const conditions: ControlPlaneStatusCondition[] = conditionsResult.success
+      ? (conditionsResult.data?.flatMap((condition) => (condition ? [condition] : [])) ?? [])
       : [];
-    return { kind: 'installed', phase, conditions, isLoading: false, hasError: false };
-  }, [isInstalled, resource, yamlResult.isLoading, yamlResult.error]);
+    return {
+      kind: 'installed',
+      phase,
+      conditions,
+      isLoading: false,
+      // A malformed `phase` (present but not a string/null) means we genuinely don't know the
+      // component's health; a malformed `conditions` entry is already tolerated per-entry above
+      // and shouldn't flip this.
+      hasError: !phaseResult.success,
+    };
+  }, [isInstalled, resource, parseFailed, yamlResult.isLoading, yamlResult.error]);
 
   return { resource, status };
 }

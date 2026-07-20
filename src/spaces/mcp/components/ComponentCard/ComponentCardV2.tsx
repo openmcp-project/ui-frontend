@@ -16,6 +16,7 @@ import { clsx } from 'clsx';
 import { ReactNode, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 import styles from './ComponentCard.module.css';
@@ -51,6 +52,9 @@ export interface ComponentPhaseVisual {
   icon: string;
 }
 
+// Intentionally separate from statusUtils.tsx's ReadyStatus-keyed mapping (MCP-level overall
+// readiness) - this is per-component InstancePhase. See statusUtils.tsx for why these two
+// vocabularies aren't unified.
 export const PHASE_VISUALS: Record<InstancePhase, ComponentPhaseVisual> = {
   [InstancePhase.Ready]: { state: 'Positive', icon: 'sys-enter-2' },
   [InstancePhase.Progressing]: { state: 'Critical', icon: 'in-progress-2' },
@@ -108,7 +112,6 @@ export function ComponentCardV2({
 
   const handleMenuOpenerClick = (e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
     e.stopImmediatePropagation();
-    e.stopPropagation();
     if (menuRef.current && e.currentTarget) {
       menuRef.current.opener = e.currentTarget as HTMLElement;
       setMenuOpen((prev) => !prev);
@@ -154,14 +157,8 @@ export function ComponentCardV2({
                 <div className={styles.actions}>
                   {yamlViewButton && (
                     // The Card has onClick={onNavigateToComponentSection} when interactive; without
-                    // this bubble-phase stopPropagation, clicking the YAML button would also navigate
-                    // away. This must stay a bubble-phase onClick (not onClickCapture): capture-phase
-                    // stopPropagation on an ancestor would stop the event before it ever reaches the
-                    // button inside, so the button's own click handler would never fire.
-                    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- this span is an event boundary, not a new interactive control; the actual interactive element is the button it wraps
-                    <span data-cy="yaml-view-button" onClick={(e) => e.stopPropagation()}>
-                      {yamlViewButton}
-                    </span>
+                    // this boundary, clicking the YAML button would also navigate away.
+                    <ClickBoundary data-cy="yaml-view-button">{yamlViewButton}</ClickBoundary>
                   )}
                   {hasActions && (
                     <>
@@ -177,7 +174,6 @@ export function ComponentCardV2({
                         open={menuOpen}
                         onItemClick={(event) => {
                           event.stopImmediatePropagation();
-                          event.stopPropagation();
                           const action = (event.detail.item as HTMLElement).dataset.action;
                           if (action === 'edit') onEditButtonClick?.();
                           if (action === 'delete') onDeleteButtonClick?.();

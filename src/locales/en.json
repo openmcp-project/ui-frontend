@@ -26,6 +26,10 @@
     "installButton": "Install {{component}}",
     "notInstalledLabel": "not installed"
   },
+  "ComponentHealthPopoverButton": {
+    "pendingStatus": "Pending",
+    "unknownStatus": "Unknown"
+  },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",
     "progress": "Healthy",

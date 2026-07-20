@@ -101,7 +101,7 @@ status:
     expect(result.current.status.kind === 'installed' && result.current.status.conditions).toHaveLength(1);
   });
 
-  it('returns resource: null when the yaml fails to parse', () => {
+  it('reports hasError when the yaml fails to parse, instead of looking healthy', () => {
     const { result } = renderHook(() =>
       useComponentCardStatus(true, yamlResult({ yaml: '{ unterminated flow mapping' })),
     );
@@ -112,11 +112,11 @@ status:
       phase: null,
       conditions: [],
       isLoading: false,
-      hasError: false,
+      hasError: true,
     });
   });
 
-  it('falls back to null phase and empty conditions when status does not match the expected schema', () => {
+  it('reports hasError when phase does not match the expected schema, instead of looking healthy', () => {
     const yaml = `
 apiVersion: v1
 kind: Crossplane
@@ -131,6 +131,41 @@ status:
       kind: 'installed',
       phase: null,
       conditions: [],
+      isLoading: false,
+      hasError: true,
+    });
+  });
+
+  it('keeps a valid phase even when a condition entry is malformed', () => {
+    const yaml = `
+apiVersion: v1
+kind: Crossplane
+metadata:
+  name: crossplane
+status:
+  phase: Progressing
+  conditions:
+    - message: still reconciling
+    - type: Ready
+      status: "False"
+      reason: Reconciling
+      message: still reconciling
+      lastTransitionTime: "2026-01-01T00:00:00Z"
+`;
+    const { result } = renderHook(() => useComponentCardStatus(true, yamlResult({ yaml })));
+
+    expect(result.current.status).toEqual({
+      kind: 'installed',
+      phase: 'Progressing',
+      conditions: [
+        {
+          type: 'Ready',
+          status: 'False',
+          reason: 'Reconciling',
+          message: 'still reconciling',
+          lastTransitionTime: '2026-01-01T00:00:00Z',
+        },
+      ],
       isLoading: false,
       hasError: false,
     });

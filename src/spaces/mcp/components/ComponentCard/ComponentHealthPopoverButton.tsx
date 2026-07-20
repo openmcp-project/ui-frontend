@@ -8,9 +8,11 @@ import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ConditionsMessageListView } from '../../../../components/ControlPlane/ConditionsMessageListView.tsx';
 import { AnimatedHoverTextButton } from '../../../../components/Helper/AnimatedHoverTextButton.tsx';
+import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 import {
@@ -39,12 +41,20 @@ export function ComponentHealthPopoverButton({
   isLoading = false,
   hasError = false,
 }: ComponentHealthPopoverButtonProps) {
+  const { t } = useTranslation();
   const telemetry = useTelemetry();
   const popoverRef = useRef<PopoverDomRef>(null);
   const buttonRef = useRef<ButtonDomRef>(null);
   const [open, setOpen] = useState(false);
 
-  const displayPhase = hasError ? 'Unknown' : isLoading ? 'Pending' : (phase ?? InstancePhase.Ready);
+  // `phase` itself is intentionally left untranslated: it's an open backend-reported string (see
+  // InstancePhase's `(string & {})` comment in ComponentCardV2.tsx), not a bounded set we can
+  // i18n - mirrors MCPHealthPopoverButton's existing behavior for the same reason.
+  const displayPhase = hasError
+    ? t('ComponentHealthPopoverButton.unknownStatus')
+    : isLoading
+      ? t('ComponentHealthPopoverButton.pendingStatus')
+      : (phase ?? InstancePhase.Ready);
   const visual = hasError
     ? UNRECOGNIZED_PHASE_VISUAL
     : isLoading
@@ -65,8 +75,7 @@ export function ComponentHealthPopoverButton({
 
   return (
     // Stops clicks from reaching the (potentially clickable) card behind this button/popover.
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- this span is an event boundary, not a new interactive control; the actual interactive elements are the button/popover it wraps
-    <span data-cy="component-health-button" onClick={(e) => e.stopPropagation()}>
+    <ClickBoundary data-cy="component-health-button">
       <AnimatedHoverTextButton
         ref={buttonRef}
         icon={<Icon className={colorClassName} name={`sap-icon://${visual.icon}`} />}
@@ -78,6 +87,6 @@ export function ComponentHealthPopoverButton({
       <ResponsivePopover ref={popoverRef} placement={PopoverPlacement.Top} open={open} onClose={() => setOpen(false)}>
         {open && <ConditionsMessageListView conditions={conditions} />}
       </ResponsivePopover>
-    </span>
+    </ClickBoundary>
   );
 }
