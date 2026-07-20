@@ -178,10 +178,6 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
-    "betaButton": "Beta",
-    "betaButtonAriaLabel": "Beta – open information about this app's beta status",
-    "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
-    "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
     "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
@@ -197,8 +193,6 @@
     "modeOpenSource": "Open Source View",
     "hello": "Hello, {{name}}",
     "backButton": "Back",
-    "homeButton": "Go to home",
-    "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
     "overflowViewYaml": "View YAML"

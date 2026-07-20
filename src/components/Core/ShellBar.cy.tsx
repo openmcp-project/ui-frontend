@@ -1,5 +1,6 @@
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
+import { Routes } from '../../Routes.ts';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
@@ -56,28 +57,16 @@ describe('ShellBar', () => {
     cy.contains('OpenControlPlane UI').should('be.visible');
   });
 
-  it('navigates to the projects home when the logo is clicked', () => {
+  it('navigates home when the logo is clicked', () => {
     mountComponent();
 
     cy.window().then((win) => {
       win.location.hash = '#/projects/some-project';
     });
 
-    cy.get('img[alt="SAP"]').parent().click();
+    cy.get('ui5-shellbar').shadow().find('[data-ui5-stable="logo"]').click({ force: true });
 
-    cy.window().its('location.hash').should('eq', '#/projects');
-  });
-
-  it('activates the logo home navigation via keyboard', () => {
-    mountComponent();
-
-    cy.window().then((win) => {
-      win.location.hash = '#/projects/some-project';
-    });
-
-    cy.get('img[alt="SAP"]').parent().focus().type('{enter}');
-
-    cy.window().its('location.hash').should('eq', '#/projects');
+    cy.window().its('location.hash').should('eq', `#${Routes.Home}`);
   });
 
   it('shows avatar with user initials', () => {
