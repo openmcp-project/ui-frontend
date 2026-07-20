@@ -186,6 +186,7 @@ export function ComponentsDashboardV2({
     <Panel fixed>
       <div className={styles['container']}>
         <ComponentCardV2
+          data-cy="component-card-crossplane"
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
           logoImgSrc={LogoCrossplane}
@@ -222,6 +223,7 @@ export function ComponentsDashboardV2({
           onDeleteButtonClick={isCrossplaneInstalled ? () => setDeleteTarget('crossplane') : undefined}
         />
         <ComponentCardV2
+          data-cy="component-card-flux"
           name="Flux"
           description={t('componentCardFlux.description')}
           logoImgSrc={LogoFlux}
@@ -258,6 +260,7 @@ export function ComponentsDashboardV2({
           onDeleteButtonClick={isFluxInstalled ? () => setDeleteTarget('flux') : undefined}
         />
         <ComponentCardV2
+          data-cy="component-card-landscaper"
           name="Landscaper"
           description={t('componentCardLandscaper.description')}
           logoImgSrc={LogoLandscaper}
@@ -294,6 +297,7 @@ export function ComponentsDashboardV2({
           onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
         />
         <ComponentCardV2
+          data-cy="component-card-eso"
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
           logoImgSrc={LogoEso}

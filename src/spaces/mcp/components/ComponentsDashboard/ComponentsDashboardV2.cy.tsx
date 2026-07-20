@@ -59,7 +59,7 @@ describe('ComponentsDashboardV2', () => {
   it('opens the Crossplane install dialog from the Install button', () => {
     mount();
 
-    cy.contains('ui5-card', 'Crossplane').within(() => {
+    cy.get('[data-cy="component-card-crossplane"]').within(() => {
       cy.get('[data-cy="install-button"]').click();
     });
 
@@ -69,7 +69,7 @@ describe('ComponentsDashboardV2', () => {
   it('opens the Flux install dialog from the Install button', () => {
     mount();
 
-    cy.contains('ui5-card', 'Flux').within(() => {
+    cy.get('[data-cy="component-card-flux"]').within(() => {
       cy.get('[data-cy="install-button"]').click();
     });
 
@@ -79,7 +79,7 @@ describe('ComponentsDashboardV2', () => {
   it('opens the Landscaper edit dialog from the actions menu when installed', () => {
     mount({ landscaperData: landscaperInstalled });
 
-    cy.contains('ui5-card', 'Landscaper').within(() => {
+    cy.get('[data-cy="component-card-landscaper"]').within(() => {
       cy.get('[data-cy="actions-menu-button"]').click();
     });
     cy.get('[data-cy="edit-menu-item"]').click();
@@ -90,7 +90,7 @@ describe('ComponentsDashboardV2', () => {
   it('opens the delete confirmation dialog for External Secrets Operator from the actions menu', () => {
     mount({ esoData: esoInstalled });
 
-    cy.contains('ui5-card', 'External Secrets Operator').within(() => {
+    cy.get('[data-cy="component-card-eso"]').within(() => {
       cy.get('[data-cy="actions-menu-button"]').click();
     });
     cy.get('[data-cy="delete-menu-item"]').click();

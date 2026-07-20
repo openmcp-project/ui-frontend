@@ -87,6 +87,7 @@ export type ComponentCardV2Props = {
   onEditButtonClick?: () => void;
   onDeleteButtonClick?: () => void;
   yamlViewButton?: ReactNode;
+  'data-cy'?: string;
 };
 
 export function ComponentCardV2({
@@ -100,6 +101,7 @@ export function ComponentCardV2({
   onEditButtonClick,
   onDeleteButtonClick,
   yamlViewButton,
+  'data-cy': dataCy,
 }: ComponentCardV2Props) {
   const { t } = useTranslation();
   const menuRef = useRef<MenuDomRef>(null);
@@ -120,6 +122,7 @@ export function ComponentCardV2({
 
   return (
     <Card
+      data-cy={dataCy}
       header={
         <CardHeader
           titleText={name}

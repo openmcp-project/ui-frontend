@@ -1,5 +1,10 @@
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
+
 import { telemetry } from '../../../../lib/telemetry/telemetry.ts';
 import { ComponentHealthPopoverButton, ComponentHealthPopoverButtonProps } from './ComponentHealthPopoverButton';
+
+TimeAgo.addDefaultLocale(en);
 
 describe('ComponentHealthPopoverButton', () => {
   const mount = (props: ComponentHealthPopoverButtonProps) => {
@@ -27,15 +32,19 @@ describe('ComponentHealthPopoverButton', () => {
     cy.contains('Ready').should('be.visible');
     cy.get('ui5-icon').should('have.attr', 'name', 'sap-icon://sys-enter-2');
 
-    cy.get('[data-cy="component-health-button"] ui5-button').click();
+    // Scoped to the toggle button specifically: once the popover is open, its content (e.g. the
+    // condition's "Copy" toolbar button) also matches "ui5-button" within this same boundary.
+    cy.get('[data-cy="component-health-button"] ui5-button').first().click();
     cy.get('@onCardClick').should('not.have.been.called');
     cy.contains('Available').should('be.visible');
 
     // Clicking content inside the open popover must not bubble to the Card's onClick either.
-    cy.contains('Available').click();
+    // "Available" appears twice (the message header subtitle and the raw condition YAML dump
+    // below it), so target the first match explicitly rather than relying on a single result.
+    cy.contains('Available').first().click();
     cy.get('@onCardClick').should('not.have.been.called');
 
-    cy.get('[data-cy="component-health-button"] ui5-button').click();
+    cy.get('[data-cy="component-health-button"] ui5-button').first().click();
     cy.contains('Available').should('not.exist');
   });
 

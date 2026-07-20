@@ -84,7 +84,9 @@ describe('ComponentCardV2', () => {
 
     cy.get('@onYamlClick').should('have.been.calledOnce');
     cy.get('@onNavigate').should('not.have.been.called');
-    cy.get('[data-cy="edit-menu-item"]').should('not.exist');
+    // The menu item is always mounted once onEditButtonClick is provided - only the enclosing
+    // ui5-menu's open state (not DOM presence) reflects whether the overflow menu is showing.
+    cy.get('[data-cy="edit-menu-item"]').should('not.be.visible');
   });
 
   it('does not render the yamlViewButton slot when the component is not installed', () => {
