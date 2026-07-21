@@ -46,3 +46,6 @@ cypress/screenshots/
 
 # Local GraphQL schema introspection dump
 schema.introspection.json
+
+.design-screenshots/
+design-reference.md
