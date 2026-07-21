@@ -59,12 +59,6 @@
   line-height: 1.2;
 }
 
-.metaRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .headerActions {
   flex-shrink: 0;
 }
@@ -79,16 +73,6 @@
 
 .deprecatedSection {
   margin-top: 0.125rem;
-}
-
-.rowLabel {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: rgba(0, 0, 0, 0.45);
-  display: block;
-  margin-bottom: 0.125rem;
 }
 
 .componentsRow {
@@ -155,17 +139,6 @@
   transform: translateY(-1px);
 }
 
-
-.metaIcon {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 0.875rem;
-}
-
-.metaText {
-  font-size: 0.8125rem;
-  color: rgba(0, 0, 0, 0.55);
-  font-weight: 500;
-}
 
 .cardFooter {
   padding: 0.625rem 1rem;
