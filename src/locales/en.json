@@ -631,6 +631,8 @@
     "sourceRefTitle": "Source Reference",
     "sourceRefNameTitle": "Name",
     "gitRepositoryTitle": "Git Repository",
+    "selectRepo": "Select a Git Repository",
+    "loadingRepos": "Loading repositories…",
     "pathTitle": "Path",
     "pruneTitle": "Prune",
     "targetNamespaceTitle": "Target Namespace",
