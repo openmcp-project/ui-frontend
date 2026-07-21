@@ -33,6 +33,10 @@ export default defineConfig({
   resolve: {
     alias: {
       path: 'path-browserify',
+      // Replace monaco-worker-manager's worker shim with a Monaco 0.55-compatible version.
+      // The original uses the old initialize() API that deadlocks with Monaco 0.55's
+      // two-message protocol (-please-ignore- then $initialize). See monaco-worker-manager-compat.ts.
+      'monaco-worker-manager/worker': resolve(import.meta.dirname, 'src/lib/monaco-worker-manager-compat.ts'),
     },
   },
 

@@ -1,57 +1,59 @@
-import { ResponsivePopover } from '@ui5/webcomponents-react';
+import { Avatar, AvatarGroup, Popover } from '@ui5/webcomponents-react';
+import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useId, useState } from 'react';
-import { MemberTable } from '../../Members/MemberTable.tsx';
 import { Member } from '../../../lib/api/types/shared/members';
-import { generateInitialsForEmail, avatarColorsForEmail } from '../../Helper/generateInitialsForEmail.ts';
-import styles from './MembersAvatarView.module.css';
+import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
+import { MemberTable } from '../../Members/MemberTable.tsx';
 
-const MAX_VISIBLE = 5;
+type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
 
 interface Props {
   project?: string;
   workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
+  source: MembersViewedSource;
 }
 
-export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false }: Props) {
+export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false, source }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
+  const telemetry = useTelemetry();
 
   if (members.length === 0) return null;
 
-  const visible = members.slice(0, MAX_VISIBLE);
-  const overflow = members.length - MAX_VISIBLE;
-
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-      <div
+      <AvatarGroup
         id={openerId}
-        className={styles.stack}
-        role="button"
-        tabIndex={0}
-        aria-label={`${members.length} members`}
-        onClick={() => setPopoverIsOpen((v) => !v)}
-        onKeyDown={(e) => e.key === 'Enter' && setPopoverIsOpen((v) => !v)}
+        type={AvatarGroupType.Individual}
+        onClick={() => {
+          if (!popoverIsOpen) {
+            telemetry.track({ name: 'members.viewed', source });
+          }
+          setPopoverIsOpen((v) => !v);
+        }}
       >
-        {visible.map((member) => {
-          const { background, color } = avatarColorsForEmail(member.name);
-          return (
-            <div
-              key={`${project}-${workspace}-${member.name}`}
-              className={styles.avatar}
-              style={{ background, color }}
-              title={member.name}
-            >
-              {generateInitialsForEmail(member.name)}
-            </div>
-          );
-        })}
-        {overflow > 0 && <div className={`${styles.avatar} ${styles.overflow}`}>+{overflow}</div>}
-      </div>
-      <ResponsivePopover opener={openerId} open={popoverIsOpen} onClose={() => setPopoverIsOpen(false)}>
+        {members.map((member) => (
+          <Avatar
+            key={`${project}-${workspace}-${member.name}`}
+            colorScheme={avatarColorSchemeForEmail(member.name)}
+            initials={generateInitialsForEmail(member.name)}
+            accessibleName={member.name}
+          />
+        ))}
+      </AvatarGroup>
+      <Popover
+        opener={openerId}
+        open={popoverIsOpen}
+        placement={PopoverPlacement.Bottom}
+        onClose={() => setPopoverIsOpen(false)}
+      >
         <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
-      </ResponsivePopover>
+      </Popover>
     </div>
   );
 }

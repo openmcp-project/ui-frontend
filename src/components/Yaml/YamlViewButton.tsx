@@ -11,6 +11,7 @@ import { JSX, useContext } from 'react';
 
 import { ApiConfigContext } from '../Shared/k8s';
 import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -31,7 +32,10 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
   const { openInAsideWithApiConfig, openInAside } = useSplitter();
   const apiConfig = useContext(ApiConfigContext);
+  const telemetry = useTelemetry();
   const openSplitterSidePanel = () => {
+    const resourceType = variant === 'loader' ? (props as YamlViewButtonLoaderProps).resourceType : 'resource';
+    telemetry.track({ name: 'yaml.viewed', resourceType: String(resourceType) });
     switch (variant) {
       case 'resource': {
         const { resource, toolbarContent, withoutApiConfig } = props as YamlViewButtonResourceProps;

@@ -13,10 +13,11 @@ type HoverTextButtonProps = {
   icon: JSX.Element;
   onClick: (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => void;
   large?: boolean;
+  'data-testid'?: string;
 };
 
 export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonProps>(
-  ({ id, text, icon, onClick, large = false }: HoverTextButtonProps, ref) => {
+  ({ id, text, icon, onClick, large = false, 'data-testid': dataTestId }: HoverTextButtonProps, ref) => {
     const [hover, setHover] = useState(false);
 
     const generatedId = useId();
@@ -42,6 +43,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
         <Button
           ref={ref}
           id={id}
+          data-testid={dataTestId}
           design={'Transparent'}
           className={cx(styles.link, styles[getClassNameForOverallStatus(text)])}
           onClick={onClick}
@@ -57,6 +59,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
       <Button
         ref={ref}
         id={id}
+        data-testid={dataTestId}
         design={'Transparent'}
         onClick={onClick}
         onMouseLeave={() => setHover(false)}

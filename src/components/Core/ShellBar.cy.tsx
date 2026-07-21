@@ -1,11 +1,12 @@
-import { ShellBarComponent } from './ShellBar.tsx';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
-import { ToastProvider } from '../../context/ToastContext.tsx';
-import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
-import { setRememberedProject, clearRememberedProject } from '../../utils/rememberedProject.ts';
-import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
+import { Routes } from '../../Routes.ts';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
+import { ToastProvider } from '../../context/ToastContext.tsx';
+import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
+import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
+import { ShellBarComponent } from './ShellBar.tsx';
 import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
@@ -53,7 +54,19 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('img[alt="SAP"]').should('be.visible');
-    cy.contains('ManagedControlPlane UI').should('be.visible');
+    cy.contains('OpenControlPlane UI').should('be.visible');
+  });
+
+  it('navigates home when the logo is clicked', () => {
+    mountComponent();
+
+    cy.window().then((win) => {
+      win.location.hash = '#/projects/some-project';
+    });
+
+    cy.get('ui5-shellbar').shadow().find('[data-ui5-stable="logo"]').click({ force: true });
+
+    cy.window().its('location.hash').should('eq', `#${Routes.Home}`);
   });
 
   it('shows avatar with user initials', () => {
@@ -67,7 +80,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    cy.get('ui5-popover[header-text="Profile"]', { timeout: 5000 }).should('be.visible');
+    cy.get('ui5-popover[header-text="Hello, test"]', { timeout: 5000 }).should('be.visible');
   });
 
   it('shows sign out option in profile menu', () => {
@@ -75,7 +88,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Sign Out').should('exist');
     });
   });
@@ -96,7 +109,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Clear remembered project').should('not.exist');
     });
   });
@@ -106,7 +119,7 @@ describe('ShellBar', () => {
     mountComponent();
 
     cy.get('ui5-avatar').click();
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Clear remembered project').should('exist');
     });
 

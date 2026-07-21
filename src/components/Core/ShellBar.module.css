@@ -1,77 +1,12 @@
-.container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.backButton {
-  flex-shrink: 0;
-}
-
-.logoWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
-
-.copyNamespaceButton {
-  margin-left: -0.25rem;
-}
-
 .logo {
   height: 1.5rem;
 }
 
-.logoText {
-  font-weight: bold;
-  font-size: 1rem;
-  color: var(--sapTextColor);
-}
-
-.profileAvatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 400;
-  letter-spacing: 0.025em;
-  cursor: pointer;
-}
-
-.betaBadge {
-  background: #d4edda;
-  color: #155724;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  border: 0;
-  font-size: 0.75rem;
-  font-family: inherit;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  opacity: 0.85;
-}
-
-.betaBadge:hover {
-  opacity: 1;
-}
-
-.shellBar {
-  width: 100%;
-}
-
-/* Wrapper placed in ShellBar's default slot — fills available space */
+/* Wrapper placed in ShellBar's content slot — pushed right by the preceding ShellBarSpacer */
 .shellBarContent {
   display: flex;
   align-items: center;
   gap: 1rem;
-  width: 100%;
-  justify-content: flex-end;
 }
 
 .membersSlot {

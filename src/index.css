@@ -2,7 +2,12 @@
   height: 144px;
 }
 
-html,
+html {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 body {
   height: 100%;
   overflow: hidden;
