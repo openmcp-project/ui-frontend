@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useCrossplaneQuery';
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery';
@@ -7,7 +8,7 @@ interface ComponentVersion {
   version?: string | null;
 }
 
-interface McpV2Components {
+export interface McpV2Components {
   crossplane?: ComponentVersion;
   flux?: ComponentVersion;
   landscaper?: ComponentVersion;
@@ -15,34 +16,32 @@ interface McpV2Components {
 }
 
 /**
- * Returns installed-component data for a v2 ControlPlane card using the same
- * four GraphQL queries the detail page (ControlPlanePageV2) already makes.
- * Returns `null` while loading so callers can skip rendering the content row.
+ * Returns installed-service data for a v2 ControlPlane card using the four
+ * GraphQL queries the detail page already makes. `components` is `null` while
+ * any query is still loading so callers can show a skeleton.
+ *
+ * Pass `skip = true` for v1 cards to avoid firing unnecessary requests.
  */
 export function useMcpV2Components(name: string, namespace: string, skip = false) {
-  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(
-    skip ? '' : name,
-    skip ? '' : namespace,
-  );
-  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(skip ? '' : name, skip ? '' : namespace);
-  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(
-    skip ? '' : name,
-    skip ? '' : namespace,
-  );
-  const { esoData, isLoading: isLoadingEso } = useEsoQuery(skip ? '' : name, skip ? '' : namespace);
+  const effectiveName = skip ? '' : name;
+  const effectiveNs = skip ? '' : namespace;
+
+  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(effectiveName, effectiveNs);
+  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(effectiveName, effectiveNs);
+  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(effectiveName, effectiveNs);
+  const { esoData, isLoading: isLoadingEso } = useEsoQuery(effectiveName, effectiveNs);
 
   const isLoading = isLoadingCrossplane || isLoadingFlux || isLoadingLandscaper || isLoadingEso;
 
-  if (isLoading) {
-    return { components: null, isLoading };
-  }
-
-  const components: McpV2Components = {
-    ...(crossplaneData?.isInstalled ? { crossplane: { version: crossplaneData.version } } : {}),
-    ...(fluxData?.isInstalled ? { flux: { version: fluxData.version } } : {}),
-    ...(landscaperData?.isInstalled ? { landscaper: { version: landscaperData.version } } : {}),
-    ...(esoData?.isInstalled ? { externalSecretsOperator: { version: esoData.version } } : {}),
-  };
+  const components = useMemo<McpV2Components | null>(() => {
+    if (isLoading) return null;
+    return {
+      ...(crossplaneData?.isInstalled ? { crossplane: { version: crossplaneData.version } } : {}),
+      ...(fluxData?.isInstalled ? { flux: { version: fluxData.version } } : {}),
+      ...(landscaperData?.isInstalled ? { landscaper: { version: landscaperData.version } } : {}),
+      ...(esoData?.isInstalled ? { externalSecretsOperator: { version: esoData.version } } : {}),
+    };
+  }, [isLoading, crossplaneData, fluxData, landscaperData, esoData]);
 
   return { components, isLoading };
 }
