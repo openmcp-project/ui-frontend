@@ -77,6 +77,12 @@
   letter-spacing: -0.01em;
 }
 
+.kindLabel {
+  font-size: 0.75rem;
+  color: var(--sapContent_LabelColor);
+  line-height: 1.2;
+}
+
 .metaRow {
   display: flex;
   align-items: center;

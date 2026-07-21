@@ -1,12 +1,11 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
+import { Card, FlexBox, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactTimeAgo from 'react-time-ago';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
@@ -155,14 +154,9 @@ export const ControlPlaneCard = ({
               <Title level={TitleLevel.H5} className={styles.title}>
                 {displayName ? displayName : name}
               </Title>
-              <div className={styles.metaRow}>
-                <Icon name="sap-icon://time-entry-request" className={styles.metaIcon} />
-                <span className={styles.metaText}>
-                  {controlPlane.metadata.creationTimestamp && (
-                    <ReactTimeAgo date={new Date(controlPlane.metadata.creationTimestamp)} />
-                  )}
-                </span>
-              </div>
+              <span className={`${styles.kindLabel} mono-font`}>
+                {controlPlane.version === 'v2' ? 'ControlPlane' : 'ManagedControlPlane'}
+              </span>
             </FlexBox>
           </div>
 
@@ -173,6 +167,7 @@ export const ControlPlaneCard = ({
               workspaceName={workspace.metadata.name ?? ''}
               mcpName={controlPlane.metadata.name}
               source="card"
+              creationTimestamp={controlPlane.metadata.creationTimestamp}
             />
           </div>
         </div>
@@ -184,7 +179,7 @@ export const ControlPlaneCard = ({
             <span className={styles.rowLabel}>
               {t('ControlPlaneCard.installedComponents', {
                 count: installedComponents.length,
-                defaultValue: 'Installed Components ({{count}})',
+                defaultValue: 'Content ({{count}})',
               })}
             </span>
             <div className={styles.componentIcons}>
@@ -253,7 +248,6 @@ export const ControlPlaneCard = ({
               />
             )}
           </div>
-        </div>
         </div>
       </Card>
 

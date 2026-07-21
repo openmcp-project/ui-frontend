@@ -110,8 +110,8 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installedComponents_one": "Installed Component ({{count}})",
-    "installedComponents_other": "Installed Components ({{count}})"
+    "installedComponents_one": "Content ({{count}})",
+    "installedComponents_other": "Content ({{count}})"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -138,7 +138,8 @@
     "supportTicketTitleDeletion": "MCP in Deletion",
     "supportTicketTitleIssues": "Issues with Control Plane",
     "statusDetailsLabel": "MCP Status",
-    "detailsLabel": "Details:"
+    "detailsLabel": "Details:",
+    "createdLabel": "Created:"
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
