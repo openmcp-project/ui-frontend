@@ -39,6 +39,21 @@ describe('ComponentInstallDialog', () => {
     crossplaneProviders: [],
   })) as () => UseManagedServicesQueryResult;
 
+  const fakeUseManagedServicesQueryNoVersions: typeof useManagedServicesQuery = (() => ({
+    managedServicesData: null,
+    isLoading: false,
+    error: null,
+    services: [
+      {
+        name: 'flux',
+        kind: 'Flux',
+        apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
+        versions: [],
+      },
+    ],
+    crossplaneProviders: [],
+  })) as () => UseManagedServicesQueryResult;
+
   const baseObject = {
     apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
     kind: 'Flux',
@@ -100,7 +115,7 @@ describe('ComponentInstallDialog', () => {
         serviceName="flux"
         useCreateMutation={fakeUseCreateMutation}
         useUpdateMutation={fakeUseUpdateMutation}
-        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        useManagedServicesQuery={fakeUseManagedServicesQueryNoVersions}
         onClose={onClose}
       />,
     );
@@ -109,6 +124,24 @@ describe('ComponentInstallDialog', () => {
 
     cy.then(() => cy.wrap(createPayload).should('be.null'));
     cy.wrap(onClose).should('not.have.been.called');
+  });
+
+  it('preselects the highest version in install mode', () => {
+    cy.mount(
+      <ComponentInstallDialog
+        open={true}
+        mcpName="test-mcp"
+        mcpNamespace="test-namespace"
+        componentName="Flux"
+        serviceName="flux"
+        useCreateMutation={fakeUseCreateMutation}
+        useUpdateMutation={fakeUseUpdateMutation}
+        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        onClose={cy.stub()}
+      />,
+    );
+
+    cy.get('[ui5-select][data-cy="component-version-select"]').should('contain.text', 'v2.18.2');
   });
 
   it('updates a component with pre-loaded initial version', () => {

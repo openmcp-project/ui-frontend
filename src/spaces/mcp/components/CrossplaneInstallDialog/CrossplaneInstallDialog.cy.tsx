@@ -44,7 +44,24 @@ describe('CrossplaneInstallDialog', () => {
     crossplaneProviders: [
       { name: 'provider-btp', versions: [{ version: '1.3.0' }] },
       { name: 'provider-helm', versions: [{ version: '1.0.1' }] },
+      { name: 'provider-vault', versions: [{ version: '1.0.0' }, { version: '2.2.1' }] },
+      { name: 'provider-no-versions', versions: [] },
     ],
+  })) as () => UseManagedServicesQueryResult;
+
+  const fakeUseManagedServicesQueryNoVersions: typeof useManagedServicesQuery = (() => ({
+    managedServicesData: null,
+    isLoading: false,
+    error: null,
+    services: [
+      {
+        name: 'crossplane',
+        kind: 'Crossplane',
+        apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
+        versions: [],
+      },
+    ],
+    crossplaneProviders: [],
   })) as () => UseManagedServicesQueryResult;
 
   const baseObject = {
@@ -114,7 +131,7 @@ describe('CrossplaneInstallDialog', () => {
         mcpNamespace="test-namespace"
         useCreateCrossplane={fakeUseCreateCrossplane}
         useUpdateCrossplane={fakeUseUpdateCrossplane}
-        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        useManagedServicesQuery={fakeUseManagedServicesQueryNoVersions}
         onClose={onClose}
       />,
     );
@@ -123,6 +140,77 @@ describe('CrossplaneInstallDialog', () => {
 
     cy.then(() => cy.wrap(createPayload).should('be.null'));
     cy.wrap(onClose).should('not.have.been.called');
+  });
+
+  it('preselects the highest crossplane version in install mode', () => {
+    cy.mount(
+      <CrossplaneInstallDialog
+        open={true}
+        mcpName="test-mcp"
+        mcpNamespace="test-namespace"
+        useCreateCrossplane={fakeUseCreateCrossplane}
+        useUpdateCrossplane={fakeUseUpdateCrossplane}
+        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        onClose={cy.stub()}
+      />,
+    );
+
+    cy.get('[ui5-select][data-cy="crossplane-version-select"]').should('contain.text', 'v2.0.2-1');
+  });
+
+  it('preselects the highest version for a provider when its checkbox is checked', () => {
+    cy.mount(
+      <CrossplaneInstallDialog
+        open={true}
+        mcpName="test-mcp"
+        mcpNamespace="test-namespace"
+        useCreateCrossplane={fakeUseCreateCrossplane}
+        useUpdateCrossplane={fakeUseUpdateCrossplane}
+        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        onClose={cy.stub()}
+      />,
+    );
+
+    cy.get('[ui5-select][data-cy="crossplane-version-select"]').openDropDownByClick();
+    cy.get('[ui5-select][data-cy="crossplane-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
+      'v2.0.2-1',
+    );
+
+    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+
+    cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '2.2.1');
+  });
+
+  it('keeps a manually selected provider version after unchecking and rechecking', () => {
+    cy.mount(
+      <CrossplaneInstallDialog
+        open={true}
+        mcpName="test-mcp"
+        mcpNamespace="test-namespace"
+        useCreateCrossplane={fakeUseCreateCrossplane}
+        useUpdateCrossplane={fakeUseUpdateCrossplane}
+        useManagedServicesQuery={fakeUseManagedServicesQuery}
+        onClose={cy.stub()}
+      />,
+    );
+
+    cy.get('[ui5-select][data-cy="crossplane-version-select"]').openDropDownByClick();
+    cy.get('[ui5-select][data-cy="crossplane-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
+      'v2.0.2-1',
+    );
+
+    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '2.2.1');
+
+    cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').openDropDownByClick();
+    cy.get(
+      '[ui5-select][data-cy="provider-version-select-provider-vault"]',
+    ).clickDropdownMenuItemByText<Cypress.TriggerOptions>('1.0.0');
+
+    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="provider-vault"]').toggleUi5Checkbox();
+
+    cy.get('[ui5-select][data-cy="provider-version-select-provider-vault"]').should('contain.text', '1.0.0');
   });
 
   it('installs Crossplane with multiple providers', () => {
@@ -308,11 +396,11 @@ describe('CrossplaneInstallDialog', () => {
       'v2.0.2-1',
     );
 
-    cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+    cy.get('[ui5-checkbox][text="provider-no-versions"]').toggleUi5Checkbox();
 
     cy.get('ui5-button').contains('Apply Changes').click();
 
-    cy.get('[ui5-select][data-cy="provider-version-select-provider-btp"]').should(
+    cy.get('[ui5-select][data-cy="provider-version-select-provider-no-versions"]').should(
       'have.attr',
       'value-state',
       'Negative',
