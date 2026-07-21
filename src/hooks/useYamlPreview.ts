@@ -15,6 +15,7 @@ export interface YamlPreviewFields {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  extraAnnotations?: Record<string, string>;
 }
 
 const buildMembers = (members: Member[]) =>
@@ -28,7 +29,7 @@ const buildMembers = (members: Member[]) =>
     }));
 
 export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, projectNamespace?: string) {
-  const { name, displayName, chargingTarget, chargingTargetType, members } = fields;
+  const { name, displayName, chargingTarget, chargingTargetType, members, extraAnnotations } = fields;
 
   return useMemo(() => {
     const resolvedMembers: Member[] = members ?? [];
@@ -38,6 +39,7 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     if (displayName) annotations[DISPLAY_NAME_ANNOTATION] = displayName;
     if (chargingTargetType) labels[CHARGING_TARGET_TYPE_LABEL] = chargingTargetType;
     if (chargingTarget) labels[CHARGING_TARGET_LABEL] = chargingTarget;
+    if (extraAnnotations) Object.assign(annotations, extraAnnotations);
 
     const resource = {
       apiVersion: 'core.openmcp.cloud/v1alpha1',
@@ -54,5 +56,5 @@ export function useYamlPreview(fields: YamlPreviewFields, type: ResourceType, pr
     };
 
     return stringify(resource);
-  }, [name, displayName, chargingTarget, chargingTargetType, members, type, projectNamespace]);
+  }, [name, displayName, chargingTarget, chargingTargetType, members, extraAnnotations, type, projectNamespace]);
 }

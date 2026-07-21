@@ -4,3 +4,4 @@ export const CHARGING_TARGET_TYPE_LABEL: string = 'openmcp.cloud.sap/charging-ta
 export const PROJECT_NAME_LABEL: string = 'openmcp.cloud/mcp-project';
 export const WORKSPACE_LABEL: string = 'openmcp.cloud/mcp-workspace';
 export const LAST_APPLIED_CONFIGURATION_ANNOTATION = 'kubectl.kubernetes.io/last-applied-configuration';
+export const GITHUB_APP_INSTALLATION_ANNOTATION = 'openmcp.cloud/github-app-installation-id';

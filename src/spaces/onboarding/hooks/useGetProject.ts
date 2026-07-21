@@ -3,6 +3,7 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
+  GITHUB_APP_INSTALLATION_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
 import { graphql } from '../../../types/__generated__/graphql';
@@ -37,6 +38,7 @@ export interface ProjectData {
   chargingTarget: string;
   chargingTargetType: string;
   members: Member[];
+  githubAppInstallationId?: string;
 }
 
 export function useGetProject(projectName: string | undefined) {
@@ -56,6 +58,7 @@ export function useGetProject(projectName: string | undefined) {
         displayName: annotations[DISPLAY_NAME_ANNOTATION] ?? '',
         chargingTarget: labels[CHARGING_TARGET_LABEL] ?? '',
         chargingTargetType: labels[CHARGING_TARGET_TYPE_LABEL] ?? '',
+        githubAppInstallationId: annotations[GITHUB_APP_INSTALLATION_ANNOTATION] ?? undefined,
         members: (project.spec?.members ?? []).flatMap((member) => {
           if (!member?.name || !member?.kind) return [];
           return [

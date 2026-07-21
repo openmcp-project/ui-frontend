@@ -15,6 +15,7 @@ export type TelemetryFeature =
   // Projects
   | Feature<'project.created'>
   | Feature<'project.deleted', { source: 'list' | 'detail' }>
+  | Feature<'project.connect-github-opened'>
   | Feature<'project.edited', { source: 'list' | 'detail' | 'metadata-popover' }>
   | Feature<'project.remembered', { source: 'list' | 'detail-header' }>
   | Feature<'project.remembered-cleared', { source: 'detail-header' | 'shellbar-menu' }>

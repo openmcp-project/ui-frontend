@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
+import { useGetProject as _useGetProject } from '../../../spaces/onboarding/hooks/useGetProject.ts';
+import { ConnectGitHubDialog } from '../../Dialogs/ConnectGitHubDialog.tsx';
 import { CreateWorkspaceDialogContainer } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
@@ -18,16 +20,19 @@ type ControlPlaneListToolbarProps = {
   projectName: string;
   useDeleteProject?: typeof _useDeleteProject;
   useNavigate?: typeof _useNavigate;
+  useGetProject?: typeof _useGetProject;
 };
 
 export function ControlPlaneListToolbar({
   projectName,
   useDeleteProject = _useDeleteProject,
   useNavigate = _useNavigate,
+  useGetProject = _useGetProject,
 }: ControlPlaneListToolbarProps) {
   const [dialogCreateProjectIsOpen, setDialogIsOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
   const [dialogEditProjectIsOpen, setDialogEditProjectIsOpen] = useState(false);
+  const [dialogConnectGitHubIsOpen, setDialogConnectGitHubIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonId = useId();
   const { t } = useTranslation();
@@ -35,6 +40,8 @@ export function ControlPlaneListToolbar({
   const telemetry = useTelemetry();
 
   const { deleteProject } = useDeleteProject(projectName);
+  const { projectData } = useGetProject(projectName);
+  const isGitHubConnected = !!projectData?.githubAppInstallationId;
 
   const handleDeleteProject = async () => {
     try {
@@ -55,6 +62,37 @@ export function ControlPlaneListToolbar({
           text={t('ControlPlaneListToolbar.buttonText')}
           onClick={() => setDialogIsOpen(true)}
         />
+        <Button
+          data-testid="connect-github-button"
+          design="Transparent"
+          style={{
+            alignItems: 'center',
+            background: isGitHubConnected ? 'var(--sapButton_Background)' : '#ffffff',
+            border: '1px solid var(--sapButton_BorderColor)',
+            borderRadius: '4px',
+            display: 'inline-flex',
+            height: '2.25rem',
+            justifyContent: 'center',
+            opacity: isGitHubConnected ? 1 : 0.45,
+            padding: '0',
+            width: '2.25rem',
+          }}
+          tooltip={
+            isGitHubConnected
+              ? t('ControlPlaneListToolbar.githubConnected')
+              : t('ControlPlaneListToolbar.connectGitHub')
+          }
+          onClick={() => {
+            telemetry.track({ name: 'project.connect-github-opened' });
+            setDialogConnectGitHubIsOpen(true);
+          }}
+        >
+          <img
+            alt="GitHub"
+            src="/github-dark.png"
+            style={{ display: 'block', height: '1.125rem', width: '1.125rem' }}
+          />
+        </Button>
         <Button
           id={menuButtonId}
           data-testid="project-overflow-menu"
@@ -82,6 +120,12 @@ export function ControlPlaneListToolbar({
         <MenuItem key="edit" text={t('ProjectsListView.editProject')} data-action="editProject" icon="edit" />
         <MenuItem key="delete" text={t('ProjectsListView.deleteProject')} data-action="deleteProject" icon="delete" />
       </Menu>
+
+      <ConnectGitHubDialog
+        isOpen={dialogConnectGitHubIsOpen}
+        projectName={projectName}
+        onClose={() => setDialogConnectGitHubIsOpen(false)}
+      />
 
       <EditProjectDialogContainer
         isOpen={dialogEditProjectIsOpen}
