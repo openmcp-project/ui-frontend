@@ -1,14 +1,19 @@
-import { ShellBarComponent } from './ShellBar.tsx';
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
+import { Routes } from '../../Routes.ts';
+import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
 import { ToastProvider } from '../../context/ToastContext.tsx';
+import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
 import { useAuthOnboarding } from '../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
+import { clearRememberedProject, setRememberedProject } from '../../utils/rememberedProject.ts';
+import { ShellBarComponent } from './ShellBar.tsx';
+import { FrontendConfigContext } from '../../context/FrontendConfigContext.tsx';
 
 describe('ShellBar', () => {
   let logoutCalled = false;
 
   const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
-    user: { email: 'test@example.com' },
+    user: { sub: 'test@example.com', email: 'test@example.com' },
     logout: async () => {
       logoutCalled = true;
     },
@@ -22,12 +27,25 @@ describe('ShellBar', () => {
     logoutCalled = false;
   });
 
-  const mountComponent = () => {
+  const mountComponent = ({ enableHeadlamp = true }: { enableHeadlamp?: boolean } = {}) => {
+    const fakeConfig = {
+      landscape: undefined,
+      documentationBaseUrl: '',
+      githubBaseUrl: '',
+      mcp2DocsUrl: '',
+      featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+    };
     cy.mount(
       <MemoryRouter>
-        <ToastProvider>
-          <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
-        </ToastProvider>
+        <FrontendConfigContext.Provider value={fakeConfig}>
+          <ToastProvider>
+            <ViewModeProvider>
+              <ShellBarMcpActionsProvider>
+                <ShellBarComponent useAuthOnboarding={fakeUseAuthOnboarding} />
+              </ShellBarMcpActionsProvider>
+            </ViewModeProvider>
+          </ToastProvider>
+        </FrontendConfigContext.Provider>
       </MemoryRouter>,
     );
   };
@@ -35,14 +53,20 @@ describe('ShellBar', () => {
   it('renders the ShellBar with logo and title', () => {
     mountComponent();
 
-    cy.contains('Control Plane UI').should('be.visible');
     cy.get('img[alt="SAP"]').should('be.visible');
+    cy.contains('OpenControlPlane UI').should('be.visible');
   });
 
-  it('renders beta badge', () => {
+  it('navigates home when the logo is clicked', () => {
     mountComponent();
 
-    cy.contains('Beta').should('be.visible');
+    cy.window().then((win) => {
+      win.location.hash = '#/projects/some-project';
+    });
+
+    cy.get('ui5-shellbar').shadow().find('[data-ui5-stable="logo"]').click({ force: true });
+
+    cy.window().its('location.hash').should('eq', `#${Routes.Home}`);
   });
 
   it('shows avatar with user initials', () => {
@@ -56,8 +80,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    // Wait for popover to open
-    cy.get('ui5-popover[header-text="Profile"]', { timeout: 5000 }).should('be.visible');
+    cy.get('ui5-popover[header-text="Hello, test"]', { timeout: 5000 }).should('be.visible');
   });
 
   it('shows sign out option in profile menu', () => {
@@ -65,8 +88,7 @@ describe('ShellBar', () => {
 
     cy.get('ui5-avatar').click();
 
-    // Check for Sign Out within the popover
-    cy.get('ui5-popover[header-text="Profile"]').within(() => {
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
       cy.contains('Sign Out').should('exist');
     });
   });
@@ -77,9 +99,42 @@ describe('ShellBar', () => {
     cy.get('ui5-avatar').click();
     cy.contains('Sign Out').click({ force: true });
 
-    // Verify logout was called
     cy.wrap(null).should(() => {
       expect(logoutCalled).to.equal(true);
+    });
+  });
+
+  it('does not show clear remembered project when no project is stored', () => {
+    cy.wrap(null).then(() => clearRememberedProject());
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
+      cy.contains('Clear remembered project').should('not.exist');
+    });
+  });
+
+  it('shows clear remembered project when a project is stored', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.get('ui5-popover[header-text="Hello, test"]').within(() => {
+      cy.contains('Clear remembered project').should('exist');
+    });
+
+    cy.wrap(null).then(() => clearRememberedProject());
+  });
+
+  it('clears remembered project when clear item is clicked', () => {
+    cy.wrap(null).then(() => setRememberedProject('my-project'));
+    mountComponent();
+
+    cy.get('ui5-avatar').click();
+    cy.contains('Clear remembered project').click({ force: true });
+
+    cy.wrap(null).should(() => {
+      expect(localStorage.getItem('rememberedProject')).to.equal(null);
     });
   });
 });

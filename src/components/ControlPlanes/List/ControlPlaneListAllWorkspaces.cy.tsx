@@ -13,7 +13,7 @@ const frontendConfig = {
   landscape: Landscape.Local,
   documentationBaseUrl: 'http://localhost:3000',
   githubBaseUrl: 'https://github.com/example/repo',
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false },
+  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
 };
 
 const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
@@ -21,36 +21,6 @@ const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   error: undefined,
   isPending: false,
 });
-
-const fakeForbiddenMcpsQuery: typeof useMcpsQuery = () => ({
-  data: [],
-  error: Object.assign(new Error('is forbidden'), {
-    graphQLErrors: [],
-    networkError: null,
-    clientErrors: [],
-    cause: undefined,
-    extraInfo: undefined,
-    protocolErrors: [],
-  }),
-  isPending: false,
-});
-
-const fakeUseMcpsQueryForWorkspace =
-  (forbiddenWorkspace: string): typeof useMcpsQuery =>
-  (workspaceNamespace) => ({
-    data: [],
-    error: workspaceNamespace?.includes(forbiddenWorkspace)
-      ? Object.assign(new Error('is forbidden'), {
-          graphQLErrors: [],
-          networkError: null,
-          clientErrors: [],
-          cause: undefined,
-          extraInfo: undefined,
-          protocolErrors: [],
-        })
-      : undefined,
-    isPending: false,
-  });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
   deleteWorkspace: async () => undefined,
@@ -64,7 +34,11 @@ const makeWorkspace = (name: string): Workspace => ({
 
 const workspaces = [makeWorkspace('alpha'), makeWorkspace('beta'), makeWorkspace('gamma')];
 
-function mountAllWorkspaces(ws: Workspace[], useMcpsQueryOverride: typeof useMcpsQuery = fakeUseMcpsQuery) {
+function mountAllWorkspaces(
+  ws: Workspace[],
+  expandedWorkspaces: Set<string> = new Set(),
+  onToggleWorkspace: (name: string) => void = cy.stub(),
+) {
   cy.mount(
     <FrontendConfigContext.Provider value={frontendConfig}>
       <MockedProvider mocks={[]}>
@@ -74,8 +48,10 @@ function mountAllWorkspaces(ws: Workspace[], useMcpsQueryOverride: typeof useMcp
               <ControlPlaneListAllWorkspaces
                 projectName="test"
                 workspaces={ws}
-                useMcpsQuery={useMcpsQueryOverride}
+                expandedWorkspaces={expandedWorkspaces}
+                useMcpsQuery={fakeUseMcpsQuery}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
+                onToggleWorkspace={onToggleWorkspace}
               />
             </SplitterProvider>
           </FeatureToggleProvider>
@@ -93,53 +69,58 @@ function togglePanel(name: string) {
   panel(name).then(($el: JQuery<HTMLElement>) => $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true })));
 }
 
-describe('ControlPlaneListAllWorkspaces — mutually exclusive expansion', () => {
-  it('expands only the first workspace by default', () => {
-    mountAllWorkspaces(workspaces);
+describe('ControlPlaneListAllWorkspaces — expansion via props', () => {
+  it('all workspaces start collapsed when expandedWorkspaces is empty', () => {
+    mountAllWorkspaces(workspaces, new Set());
+
+    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('beta').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+  });
+
+  it('expands workspaces that are in expandedWorkspaces', () => {
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'gamma']));
 
     panel('alpha').invoke('prop', 'collapsed').should('equal', false);
     panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
   });
 
-  it('skips forbidden workspaces when auto-expanding', () => {
-    mountAllWorkspaces(workspaces, fakeForbiddenMcpsQuery);
+  it('expands all when all names are in expandedWorkspaces', () => {
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'beta', 'gamma']));
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
-  });
-
-  it('auto-expands second workspace when first is forbidden', () => {
-    mountAllWorkspaces(workspaces, fakeUseMcpsQueryForWorkspace('alpha'));
-
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
+    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
     panel('beta').invoke('prop', 'collapsed').should('equal', false);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
   });
+});
 
-  it('expanding a second workspace collapses the first', () => {
-    mountAllWorkspaces(workspaces);
+describe('ControlPlaneListAllWorkspaces — toggle callback', () => {
+  it('calls onToggleWorkspace with workspace name when panel is toggled', () => {
+    const onToggle = cy.stub().as('onToggle');
+    mountAllWorkspaces(workspaces, new Set(), onToggle);
 
     togglePanel('beta');
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
-    panel('beta').invoke('prop', 'collapsed').should('equal', false);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    cy.get('@onToggle').should('have.been.calledOnceWith', 'beta');
   });
 
-  it('collapsing the expanded workspace leaves all panels collapsed', () => {
-    mountAllWorkspaces(workspaces);
+  it('calls onToggleWorkspace for each toggle independently', () => {
+    const onToggle = cy.stub().as('onToggle');
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'beta']), onToggle);
 
     togglePanel('alpha');
+    togglePanel('gamma');
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    cy.get('@onToggle').should('have.been.calledTwice');
+    cy.get('@onToggle').its('firstCall.args.0').should('equal', 'alpha');
+    cy.get('@onToggle').its('secondCall.args.0').should('equal', 'gamma');
   });
+});
 
+describe('ControlPlaneListAllWorkspaces — empty state', () => {
   it('renders empty state when there are no workspaces', () => {
-    mountAllWorkspaces([]);
+    mountAllWorkspaces([], new Set());
 
     cy.get('[data-testid^="workspace-panel-"]').should('not.exist');
     cy.get('ui5-illustrated-message').should('exist');

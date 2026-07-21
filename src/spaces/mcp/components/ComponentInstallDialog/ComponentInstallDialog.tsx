@@ -10,6 +10,7 @@ import { useToast } from '../../../../context/ToastContext.tsx';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import styles from './ComponentInstallDialog.module.css';
 import { createComponentInstallSchema, ComponentInstallFormValues } from './ComponentInstallDialog.schema.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 export interface UseCreateMutationResult {
   create: (variables: { namespace: string; object: unknown }) => Promise<unknown>;
@@ -50,6 +51,7 @@ export function ComponentInstallDialog({
 }: ComponentInstallDialogProps) {
   const { t } = useTranslation();
   const toast = useToast();
+  const telemetry = useTelemetry();
   const { services } = useManagedServicesQuery();
   const { create, loading: createLoading } = useCreateMutation();
   const { update, loading: updateLoading } = useUpdateMutation();
@@ -116,6 +118,10 @@ export function ComponentInstallDialog({
             ? t('ComponentInstallDialog.successMessageEdit', { component: componentName })
             : t('ComponentInstallDialog.successMessage', { component: componentName }),
         );
+        telemetry.track({
+          name: mode === 'edit' ? 'component.updated' : 'component.installed',
+          componentName,
+        });
         handleClose();
       } catch (error) {
         console.error(`${componentName} mutation failed`, error);
@@ -126,7 +132,7 @@ export function ComponentInstallDialog({
         );
       }
     },
-    [create, update, mode, mcpName, mcpNamespace, apiVersion, kind, componentName, t, toast, handleClose],
+    [create, update, mode, mcpName, mcpNamespace, apiVersion, kind, componentName, t, toast, handleClose, telemetry],
   );
 
   const handleApply = useCallback(() => {

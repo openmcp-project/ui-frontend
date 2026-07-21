@@ -1,16 +1,26 @@
-import { AnalyticalTable, AnalyticalTableColumnDefinition, Link } from '@ui5/webcomponents-react';
+import {
+  AnalyticalTable,
+  AnalyticalTableColumnDefinition,
+  BusyIndicator,
+  CheckBox,
+  Link,
+} from '@ui5/webcomponents-react';
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useMemo } from 'react';
-import { useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
+import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 import { ProjectMembersCell } from './ProjectMembersCell.tsx';
 import styles from './ProjectsList.module.css';
@@ -24,20 +34,131 @@ function getProjectName(instance: { cell: { row: { original: unknown } } }): str
   return (instance.cell.row.original as ProjectListRow).projectName;
 }
 
-function CreatedAtCell({ projectName }: { projectName: string }) {
+function CreatedAtCell({
+  projectName,
+  onTimestamp,
+  useProjectMembers,
+}: {
+  projectName: string;
+  onTimestamp: (name: string, ts: string) => void;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+
+  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
-  return <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>;
+  return (
+    <FadeIn>
+      <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>
+    </FadeIn>
+  );
 }
 
-export default function ProjectsList() {
+function ProjectDisplayNameCell({
+  projectName,
+  onDisplayName,
+  useProjectMembers,
+}: {
+  projectName: string;
+  onDisplayName: (name: string, displayName: string) => void;
+  useProjectMembers: typeof _useProjectMembers;
+}) {
+  const { displayName, isLoading } = useProjectMembers(projectName);
+  useEffect(() => {
+    if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  }, [isLoading, displayName, projectName, onDisplayName]);
+  if (isLoading) return <BusyIndicator active size="S" />;
+  return <FadeIn>{displayName ?? ''}</FadeIn>;
+}
+
+interface Props {
+  useProjectsQuery?: typeof _useProjectsQuery;
+  useProjectMembers?: typeof _useProjectMembers;
+  onProjectSelect?: (projectName: string) => void;
+}
+
+export default function ProjectsList({
+  useProjectsQuery = _useProjectsQuery,
+  useProjectMembers = _useProjectMembers,
+  onProjectSelect,
+}: Props = {}) {
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const timestampsRef = useRef<Map<string, string>>(new Map());
+  const displayNamesRef = useRef<Map<string, string>>(new Map());
+  const [search, setSearch] = useState('');
+  const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
 
-  const rows = useMemo<ProjectListRow[]>(
-    () =>
-      data?.map((projectName) => ({ projectName })).sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? [],
-    [data],
+  const telemetry = useTelemetry();
+  const { setRememberedProject } = useRememberedProject();
+  const [setAsDefault, setSetAsDefault] = useState(false);
+  const setAsDefaultRef = useRef(false);
+  useEffect(() => {
+    setAsDefaultRef.current = setAsDefault;
+  }, [setAsDefault]);
+
+  const hasFiredSearchedRef = useRef(false);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (value === '' && hasFiredSearchedRef.current) {
+        hasFiredSearchedRef.current = false;
+      } else if (value !== '' && !hasFiredSearchedRef.current) {
+        telemetry.track({ name: 'project-list.searched' });
+        hasFiredSearchedRef.current = true;
+      }
+      setSearch(value);
+    },
+    [telemetry],
+  );
+
+  const handleTimestamp = (name: string, ts: string) => {
+    timestampsRef.current.set(name, ts);
+  };
+
+  const handleDisplayName = (name: string, displayName: string) => {
+    if (displayNamesRef.current.get(name) === displayName) return;
+    displayNamesRef.current.set(name, displayName);
+    setDisplayNamesVersion((v) => v + 1);
+  };
+
+  const rows = useMemo<ProjectListRow[]>(() => {
+    const query = search.trim().toLowerCase();
+    return (
+      data
+        ?.map((projectName) => ({
+          projectName,
+        }))
+        // eslint-disable-next-line react-hooks/refs
+        .filter(({ projectName }) => {
+          if (!query) return true;
+          if (projectName.toLowerCase().includes(query)) return true;
+          const dn = displayNamesRef.current.get(projectName)?.toLowerCase() ?? '';
+          return dn.includes(query);
+        })
+        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? []
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, search, displayNamesVersion]);
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      if (rows.length === 1) {
+        const { projectName } = rows[0];
+        if (setAsDefaultRef.current) {
+          telemetry.track({ name: 'project-list.set-as-default', trigger: 'keyboard' });
+          setRememberedProject(projectName);
+        }
+        onProjectSelect?.(projectName);
+        navigate(`/projects/${projectName}`);
+      } else if (rows.length > 1) {
+        telemetry.track({ name: 'project-list.search-enter-pressed' });
+        tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
+      }
+    },
+    [rows, navigate, onProjectSelect, setRememberedProject, telemetry],
   );
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
@@ -52,36 +173,68 @@ export default function ProjectsList() {
               <Link
                 className={styles.nameLink}
                 design="Emphasized"
-                onClick={() => navigate(`/mcp/projects/${projectName}`)}
+                onClick={() => {
+                  if (setAsDefaultRef.current) {
+                    setRememberedProject(projectName);
+                    telemetry.track({ name: 'project.remembered', source: 'list' });
+                    telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
+                  }
+                  telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
+                  onProjectSelect?.(projectName);
+                  navigate(`/projects/${projectName}`);
+                }}
               >
                 {projectName}
               </Link>
-              <CopyButton collapsible text={projectnameToNamespace(projectName)} />
+              <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
             </div>
           );
         },
+      },
+      {
+        Header: t('ProjectsListView.displayNameHeader'),
+        accessor: 'displayName',
+        Cell: (instance) => (
+          <ProjectDisplayNameCell
+            projectName={getProjectName(instance)}
+            useProjectMembers={useProjectMembers}
+            onDisplayName={handleDisplayName}
+          />
+        ),
+      },
+      {
+        Header: t('ProjectsListView.createdHeader'),
+        accessor: 'creationTimestamp',
+        width: 120,
+        disableFilters: true,
+        responsiveMinWidth: 1200,
+        sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
+          const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
+          const b = timestampsRef.current.get(rowB.original.projectName) ?? '';
+          return a.localeCompare(b);
+        },
+        Cell: (instance) => (
+          <CreatedAtCell
+            projectName={getProjectName(instance)}
+            useProjectMembers={useProjectMembers}
+            onTimestamp={handleTimestamp}
+          />
+        ),
       },
       {
         Header: t('ProjectsListView.membersHeader'),
         accessor: 'members',
         width: 220,
         disableFilters: true,
+        disableSortBy: true,
         Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
-      },
-      {
-        Header: t('ProjectsListView.createdHeader'),
-        accessor: 'created',
-        width: 120,
-        disableFilters: true,
-        responsivePopIn: true,
-        responsiveMinWidth: 1200,
-        Cell: (instance) => <CreatedAtCell projectName={getProjectName(instance)} />,
       },
       {
         Header: t('yaml.YAML'),
         accessor: 'yaml',
         width: 70,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
@@ -94,6 +247,7 @@ export default function ProjectsList() {
         accessor: 'options',
         width: 55,
         disableFilters: true,
+        disableSortBy: true,
         hAlign: 'Center' as const,
         Cell: (instance) => (
           <div className={styles.centeredCell}>
@@ -102,7 +256,7 @@ export default function ProjectsList() {
         ),
       },
     ],
-    [navigate],
+    [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
   if (isLoading) {
@@ -112,5 +266,41 @@ export default function ProjectsList() {
     return <IllustratedError details={error.message} />;
   }
 
-  return <AnalyticalTable className={styles.table} columns={columns} data={rows} minRows={10} />;
+  return (
+    <FadeIn>
+      {data.length > 0 && (
+        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      )}
+      <div ref={tableContainerRef}>
+        <AnalyticalTable
+          style={{
+            maxWidth: '1280px',
+            margin: '10px auto 0px auto',
+            width: '100%',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}
+          sortable
+          className={styles.table}
+          columns={columns}
+          data={rows}
+          minRows={10}
+        />
+      </div>
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '10px auto 0px auto',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <CheckBox
+          checked={setAsDefault}
+          text={t('ProjectsListView.setDefaultProject')}
+          onChange={() => setSetAsDefault((v) => !v)}
+        />
+      </div>
+    </FadeIn>
+  );
 }

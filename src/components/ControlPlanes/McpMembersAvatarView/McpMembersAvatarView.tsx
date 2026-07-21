@@ -17,7 +17,13 @@ export function McpMembersAvatarView({ roleBindings, project, workspace }: Props
       <span className={styles.membersTitle}>
         {t('common.members')} ({members.length})
       </span>
-      <MembersAvatarView members={members} project={project} workspace={workspace} hideNamespaceColumn />
+      <MembersAvatarView
+        members={members}
+        project={project}
+        workspace={workspace}
+        hideNamespaceColumn
+        source="controlplane-detail"
+      />
     </div>
   );
 }

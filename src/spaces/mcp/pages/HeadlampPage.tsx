@@ -39,12 +39,14 @@ function HeadlampIframe() {
 
   if (error) {
     return (
-      <IllustratedBanner
-        illustrationName={IllustrationMessageType.SimpleError}
-        title={t('McpPage.headlampUnavailableTitle')}
-        subtitle={t('McpPage.headlampUnavailableSubtitle')}
-        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
-      />
+      <div className={`${styles.wrapper} ${styles['wrapper--centered']}`}>
+        <IllustratedBanner
+          illustrationName={IllustrationMessageType.SimpleError}
+          title={t('McpPage.headlampUnavailableTitle')}
+          subtitle={t('McpPage.headlampUnavailableSubtitle')}
+          help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+        />
+      </div>
     );
   }
 
