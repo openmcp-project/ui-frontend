@@ -25,6 +25,7 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { useMcpComponents } from './useMcpComponents.ts';
+import { useMcpV2Components } from './useMcpV2Components.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 
@@ -90,9 +91,35 @@ export const ControlPlaneCard = ({
   const namespace = controlPlane.metadata.namespace;
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
+  const isV2 = controlPlane.version === 'v2';
+
   const { components: mcpComponents, roleBindings } = useMcpComponents(projectName, workspace.metadata.name, name);
+  const { components: mcpV2Components } = useMcpV2Components(name, namespace, !isV2);
 
   const components = useMemo<ComponentInfo[]>(() => {
+    if (isV2) {
+      return [
+        {
+          name: 'Crossplane',
+          logo: LogoCrossplane,
+          installed: !!mcpV2Components?.crossplane,
+          version: mcpV2Components?.crossplane?.version ?? undefined,
+        },
+        {
+          name: 'Flux',
+          logo: LogoFlux,
+          installed: !!mcpV2Components?.flux,
+          version: mcpV2Components?.flux?.version ?? undefined,
+        },
+        { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpV2Components?.landscaper },
+        {
+          name: 'External Secrets Operator',
+          logo: LogoEso,
+          installed: !!mcpV2Components?.externalSecretsOperator,
+          version: mcpV2Components?.externalSecretsOperator?.version ?? undefined,
+        },
+      ];
+    }
     return [
       {
         name: 'Crossplane',
@@ -100,17 +127,8 @@ export const ControlPlaneCard = ({
         installed: !!mcpComponents?.crossplane,
         version: mcpComponents?.crossplane?.version,
       },
-      {
-        name: 'Flux',
-        logo: LogoFlux,
-        installed: !!mcpComponents?.flux,
-        version: mcpComponents?.flux?.version,
-      },
-      {
-        name: 'Landscaper',
-        logo: LogoLandscaper,
-        installed: !!mcpComponents?.landscaper,
-      },
+      { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux, version: mcpComponents?.flux?.version },
+      { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper },
       {
         name: 'Kyverno',
         logo: LogoKyverno,
@@ -124,7 +142,7 @@ export const ControlPlaneCard = ({
         version: mcpComponents?.externalSecretsOperator?.version,
       },
     ];
-  }, [mcpComponents]);
+  }, [isV2, mcpComponents, mcpV2Components]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
