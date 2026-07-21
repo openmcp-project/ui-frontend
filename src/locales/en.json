@@ -111,6 +111,16 @@
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete"
   },
+  "ServiceSelectionStep": {
+    "stepTitle": "Services",
+    "intro": "Select which services to install on this control plane.",
+    "versionPlaceholder": "latest",
+    "versionLabel": "Version",
+    "crossplane": "Crossplane",
+    "flux": "Flux",
+    "landscaper": "Landscaper",
+    "externalSecretsOperator": "External Secrets Operator"
+  },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
     "emptyListSubtitleMessage": "Create a workspace to get started",

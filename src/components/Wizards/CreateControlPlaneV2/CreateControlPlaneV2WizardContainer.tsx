@@ -39,11 +39,25 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
+import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useCrossplaneQuery.ts';
+import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
+import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
+import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery.ts';
+import { useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
+import { useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
+import { useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
+import { useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
+import { useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
+import { useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
+import { useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
+import { useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -62,7 +76,7 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
-const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'summarize', 'success'];
+const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
 
 const normalizeMcpV2Role = (roleInput?: string | null): string => {
   const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
@@ -208,6 +222,45 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { createMcp, loading: isCreatingMcp } = useCreateManagedControlPlaneV2GraphQL();
   const { updateMcp, loading: isUpdatingMcp } = useUpdateManagedControlPlaneV2GraphQL();
   const isSubmitting = isEditMode ? isUpdatingMcp : isCreatingMcp;
+
+  // Services state — selected + optional version per service
+  const [services, setServices] = useState<ServiceSelection>({});
+
+  // Edit-mode: query existing service state to pre-populate the step.
+  // Hooks are always called (rules of hooks) but skipped when not relevant.
+  const editNs = initialData?.metadata?.namespace ?? '';
+  const editName = initialData?.metadata?.name ?? '';
+  const skipKpi = !isEditMode || !editName || !editNs;
+  const { crossplaneData } = useCrossplaneQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { fluxData } = useFluxQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { landscaperData } = useLandscaperQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { esoData } = useEsoQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+
+  // Prefill services when entering the componentSelection step in edit mode.
+  useEffect(() => {
+    if (!isEditMode || selectedStep !== 'componentSelection') return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setServices({
+      crossplane: crossplaneData
+        ? { selected: crossplaneData.isInstalled, version: crossplaneData.version ?? '' }
+        : undefined,
+      flux: fluxData ? { selected: fluxData.isInstalled, version: fluxData.version ?? '' } : undefined,
+      landscaper: landscaperData
+        ? { selected: landscaperData.isInstalled, version: landscaperData.version ?? '' }
+        : undefined,
+      externalSecretsOperator: esoData ? { selected: esoData.isInstalled, version: esoData.version ?? '' } : undefined,
+    });
+  }, [isEditMode, selectedStep, crossplaneData, fluxData, landscaperData, esoData]);
+
+  // Service create/update hooks (always called per rules of hooks)
+  const { create: createCrossplane } = useCreateCrossplane();
+  const { create: createFlux } = useCreateFlux();
+  const { create: createLandscaper } = useCreateLandscaper();
+  const { create: createEso } = useCreateEso();
+  const { update: updateCrossplane } = useUpdateCrossplane();
+  const { update: updateFlux } = useUpdateFlux();
+  const { update: updateLandscaper } = useUpdateLandscaper();
+  const { update: updateEso } = useUpdateEso();
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
@@ -243,15 +296,95 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
+      const cpName = isEditMode ? (initialData?.metadata?.name ?? '') : rawInput.name;
+      const cpNamespace = isEditMode ? (initialData?.metadata?.namespace ?? '') : rawInput.namespace;
+
       if (isEditMode) {
         await updateMcp({
-          name: initialData?.metadata?.name ?? '',
-          namespace: initialData?.metadata?.namespace ?? '',
+          name: cpName,
+          namespace: cpNamespace,
           roleBindings: rawInput.roleBindings,
         });
       } else {
         await createMcp(rawInput);
       }
+
+      // Fire service create/update mutations in parallel for selected services.
+      // If not selected and currently installed, leave as-is (deletion out of scope).
+      const servicePromises: Promise<unknown>[] = [];
+
+      const makeServiceObject = (
+        serviceName: string,
+        version: string,
+        ns: string,
+        apiVersion: string,
+        kind: string,
+      ) => ({
+        namespace: ns,
+        object: {
+          apiVersion,
+          kind,
+          metadata: { name: serviceName, namespace: ns },
+          spec: { version: version || 'latest' },
+        },
+      });
+
+      if (services.crossplane?.selected) {
+        const vars = {
+          namespace: cpNamespace,
+          object: {
+            apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
+            kind: 'Crossplane',
+            metadata: { name: cpName, namespace: cpNamespace },
+            spec: { version: services.crossplane.version || 'latest', providers: [] },
+          },
+        };
+        servicePromises.push(
+          isEditMode && crossplaneData?.isInstalled
+            ? updateCrossplane({ ...vars, name: cpName })
+            : createCrossplane(vars),
+        );
+      }
+      if (services.flux?.selected) {
+        const vars = makeServiceObject(
+          cpName,
+          services.flux.version ?? '',
+          cpNamespace,
+          'flux.services.open-control-plane.io/v1alpha1',
+          'Flux',
+        );
+        servicePromises.push(
+          isEditMode && fluxData?.isInstalled ? updateFlux({ ...vars, name: cpName }) : createFlux(vars),
+        );
+      }
+      if (services.landscaper?.selected) {
+        const vars = makeServiceObject(
+          cpName,
+          services.landscaper.version ?? '',
+          cpNamespace,
+          'landscaper.services.open-control-plane.io/v1alpha2',
+          'Landscaper',
+        );
+        servicePromises.push(
+          isEditMode && landscaperData?.isInstalled
+            ? updateLandscaper({ ...vars, name: cpName })
+            : createLandscaper(vars),
+        );
+      }
+      if (services.externalSecretsOperator?.selected) {
+        const vars = makeServiceObject(
+          cpName,
+          services.externalSecretsOperator.version ?? '',
+          cpNamespace,
+          'external-secrets.services.open-control-plane.io/v1alpha1',
+          'ExternalSecretsOperator',
+        );
+        servicePromises.push(
+          isEditMode && esoData?.isInstalled ? updateEso({ ...vars, name: cpName }) : createEso(vars),
+        );
+      }
+      await Promise.all(servicePromises);
+
       telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
       setSelectedStep('success');
       return true;
@@ -264,7 +397,27 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       console.error(e);
       return false;
     }
-  }, [isEditMode, updateMcp, initialData, createMcp, rawInput, telemetry]);
+  }, [
+    isEditMode,
+    updateMcp,
+    initialData,
+    createMcp,
+    rawInput,
+    telemetry,
+    services,
+    crossplaneData,
+    fluxData,
+    landscaperData,
+    esoData,
+    createCrossplane,
+    createFlux,
+    createLandscaper,
+    createEso,
+    updateCrossplane,
+    updateFlux,
+    updateLandscaper,
+    updateEso,
+  ]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
     const step = (e.detail.step.dataset.step ?? '') as WizardStepType;
@@ -277,6 +430,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
+        setSelectedStep('componentSelection');
+        break;
+      case 'componentSelection':
         setSelectedStep('summarize');
         break;
       case 'summarize':
@@ -309,8 +465,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           return false;
         case 'members':
           return (selectedStep === 'metadata' && !isEditMode) || !isValid;
-        case 'summarize':
+        case 'componentSelection':
           return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
+        case 'summarize':
+          return (
+            ((selectedStep === 'metadata' || selectedStep === 'members' || selectedStep === 'componentSelection') &&
+              !isEditMode) ||
+            !isValid
+          );
         case 'success':
           return selectedStep !== 'success';
         default:
@@ -525,13 +687,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           </WizardStep>
 
           <WizardStep
+            icon="add-product"
+            titleText={t('ServiceSelectionStep.stepTitle')}
+            disabled={isStepDisabled('componentSelection')}
+            selected={selectedStep === 'componentSelection'}
+            data-step="componentSelection"
+          >
+            <ServiceSelectionStep services={services} onServicesChange={setServices} />
+          </WizardStep>
+
+          <WizardStep
             icon="activities"
             titleText={t('common.summarize')}
             disabled={isStepDisabled('summarize')}
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2 rawInput={rawInput} />
+            <SummarizeStepV2 rawInput={rawInput} services={services} />
           </WizardStep>
           <WizardStep
             icon="activities"
