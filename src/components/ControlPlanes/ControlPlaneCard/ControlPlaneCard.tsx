@@ -1,7 +1,8 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Card, FlexBox, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState, useMemo } from 'react';
@@ -205,13 +206,7 @@ export const ControlPlaneCard = ({
                         }
                       }}
                     >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        style={{ display: 'block', width: '100%', height: '100%' }}
-                      >
-                        <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z" />
-                      </svg>
+                      <Icon name="add" style={{ width: '100%', height: '100%' }} />
                     </button>
                   )}
                 </>
