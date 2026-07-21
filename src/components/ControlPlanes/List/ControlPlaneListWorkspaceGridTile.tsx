@@ -4,7 +4,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { Button, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
+import { Button, BusyIndicator, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
@@ -26,6 +26,7 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
+import { FadeIn } from '../../Ui/FadeIn/FadeIn.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -193,7 +194,9 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.workspaceBody}>
               {errorView ? (
                 errorView
-              ) : isPending ? null : managedControlPlanes?.length === 0 ? (
+              ) : isPending ? (
+                <BusyIndicator active delay={0} size="M" />
+              ) : managedControlPlanes?.length === 0 ? (
                 <IllustratedBanner
                   title={t('IllustratedBanner.titleMessage')}
                   subtitle={t('IllustratedBanner.subtitleMessage')}
@@ -231,18 +234,20 @@ export function ControlPlaneListWorkspaceGridTile({
                   }
                 />
               ) : (
-                <div className={styles.wrapper}>
-                  <div className={styles.grid}>
-                    {visibleMcps?.map((mcp) => (
-                      <ControlPlaneCard
-                        key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
-                        controlPlane={mcp}
-                        projectName={projectName}
-                        workspace={workspace}
-                      />
-                    ))}
+                <FadeIn>
+                  <div className={styles.wrapper}>
+                    <div className={styles.grid}>
+                      {visibleMcps?.map((mcp) => (
+                        <ControlPlaneCard
+                          key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
+                          controlPlane={mcp}
+                          projectName={projectName}
+                          workspace={workspace}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </FadeIn>
               )}
             </div>
           )}

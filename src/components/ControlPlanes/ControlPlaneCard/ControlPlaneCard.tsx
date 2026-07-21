@@ -93,7 +93,11 @@ export const ControlPlaneCard = ({
 
   const isV2 = controlPlane.version === 'v2';
 
-  const { components: mcpComponents, roleBindings } = useMcpComponents(projectName, workspace.metadata.name, name);
+  const {
+    components: mcpComponents,
+    roleBindings,
+    isLoading: isLoadingComponents,
+  } = useMcpComponents(projectName, workspace.metadata.name, name);
   const { components: mcpV2Components } = useMcpV2Components(name, namespace, !isV2);
 
   const components = useMemo<ComponentInfo[]>(() => {
@@ -146,28 +150,11 @@ export const ControlPlaneCard = ({
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
-  const getStatusColor = () => {
-    const status = controlPlane.status?.status ?? controlPlane.status?.phase;
-    switch (status) {
-      case ReadyStatus.Ready:
-        return 'success';
-      case ReadyStatus.NotReady:
-        return 'error';
-      case ReadyStatus.Progressing:
-        return 'warning';
-      case ReadyStatus.InDeletion:
-        return 'neutral';
-      default:
-        return 'neutral';
-    }
-  };
-
   return (
     <>
       <Card key={`${name}--${namespace}`} className={styles.card}>
         <div className={styles.cardHeader}>
           <div className={styles.titleSection}>
-            <div className={`${styles.statusIndicator} ${styles[getStatusColor()]}`} />
             <FlexBox direction="Column" className={styles.titleContent}>
               <Title level={TitleLevel.H5} className={styles.title}>
                 {displayName ? displayName : name}
@@ -191,21 +178,34 @@ export const ControlPlaneCard = ({
         </div>
 
         <div className={styles.cardBody}>
-          <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspace.metadata.name} />
-
           <div className={styles.componentsRow}>
-            <span className={styles.rowLabel}>
-              {t('ControlPlaneCard.installedComponents', {
-                count: installedComponents.length,
-                defaultValue: 'Content ({{count}})',
-              })}
-            </span>
             <div className={styles.componentIcons}>
               {installedComponents.map((component) => (
                 <div key={component.name} className={styles.componentIcon} title={component.name}>
                   <img src={component.logo} alt={component.name} className={styles.componentLogo} />
                 </div>
               ))}
+              {installedComponents.length === 0 && mcpComponents !== null && !isLoadingComponents && (
+                <button
+                  className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
+                  title={t('ControlPlaneCard.installComponents')}
+                  onClick={() => {
+                    if (controlPlane.version === 'v2') {
+                      setIsEditV2WizardOpen(true);
+                    } else {
+                      handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                    }
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    style={{ display: 'block', width: '100%', height: '100%' }}
+                  >
+                    <path d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2z" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
@@ -244,6 +244,12 @@ export const ControlPlaneCard = ({
               workspaceName={controlPlane.metadata.namespace}
               resourceName={controlPlane.metadata.name}
               resourceType={controlPlane.version === 'v2' ? 'controlplanes' : 'managedcontrolplanes'}
+            />
+            <McpMembersAvatarView
+              roleBindings={roleBindings}
+              project={projectName}
+              workspace={workspace.metadata.name}
+              compact
             />
           </div>
 

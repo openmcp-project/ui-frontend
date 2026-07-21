@@ -11,6 +11,7 @@ import ManagedControlPlanePage from './spaces/mcp/pages/ManagedControlPlanePage.
 import ControlPlanePageV2 from './spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx';
 import ProjectPage from './spaces/onboarding/pages/ProjectPage.tsx';
 import ProjectListView from './views/ProjectList';
+import CardDesignPreview from './views/CardDesignPreview.tsx';
 
 const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
@@ -31,6 +32,7 @@ function AppRouter() {
         <SplitterLayout>
           <Router>
             <SentryRoutes>
+              <Route path="design-preview" element={<CardDesignPreview />} />
               <Route element={<GlobalProviderOutlet />}>
                 <Route path="projects" element={<ProjectListView />} />
                 <Route path="projects/:projectName" element={<ProjectPage />} />

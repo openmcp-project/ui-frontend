@@ -1,5 +1,4 @@
 import { Button } from '@ui5/webcomponents-react';
-import styles from './YamlViewButton.module.css';
 import { useTranslation } from 'react-i18next';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 
@@ -12,6 +11,7 @@ import { JSX, useContext } from 'react';
 import { ApiConfigContext } from '../Shared/k8s';
 import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import styles from './YamlViewButton.module.css';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';

@@ -1,14 +1,10 @@
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-height: 3.5rem;
+.avatarScale {
+  transform: scale(0.75);
+  transform-origin: left center;
 }
 
-.membersTitle {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(0, 0, 0, 0.5);
+.avatarScaleCompact {
+  transform: scale(0.75);
+  transform-origin: left center;
+  margin-right: -1.25rem;
 }
