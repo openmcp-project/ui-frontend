@@ -307,7 +307,7 @@ export const ControlPlaneCard = ({
           }}
         />
       )}
-      <div data-testid={managedControlPlaneWizardState.isOpen ? 'v1-wizard-open' : undefined}>
+      <div data-testid={managedControlPlaneWizardState.isOpen ? 'v1-wizard-open' : undefined} className={styles.wizardAnchor}>
         <EditManagedControlPlaneWizardDataLoader
           isOpen={managedControlPlaneWizardState.isOpen}
           setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
@@ -317,7 +317,7 @@ export const ControlPlaneCard = ({
         />
       </div>
       {controlPlane.version === 'v2' && (
-        <div data-testid={isEditV2WizardOpen ? 'v2-wizard-open' : undefined}>
+        <div data-testid={isEditV2WizardOpen ? 'v2-wizard-open' : undefined} className={styles.wizardAnchor}>
           <EditControlPlaneV2WizardDataLoader
             isOpen={isEditV2WizardOpen}
             setIsOpen={setIsEditV2WizardOpen}

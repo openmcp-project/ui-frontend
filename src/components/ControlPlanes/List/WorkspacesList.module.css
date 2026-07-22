@@ -83,6 +83,7 @@
 }
 
 .wrapper {
+  container-type: inline-size;
   animation: fadeInDown 0.25s ease-out;
 }
 
