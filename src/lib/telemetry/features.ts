@@ -51,7 +51,10 @@ export type TelemetryFeature =
   // Status / readiness
   | Feature<'controlplane.status-viewed', { source: 'card' | 'detail' }>
   // Members
-  | Feature<'members.viewed', { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' | 'controlplane-card' }>
+  | Feature<
+      'members.viewed',
+      { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' | 'controlplane-card' }
+    >
   // Misc UI
   | Feature<
       'clipboard.copied',

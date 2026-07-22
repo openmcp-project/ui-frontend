@@ -33,7 +33,13 @@ export function McpMembersAvatarView({ roleBindings, project, workspace, compact
       <Text className={styles.membersTitle}>
         {t('common.members')} ({members.length}):
       </Text>
-      <MembersAvatarView members={members} project={project} workspace={workspace} hideNamespaceColumn source="controlplane-detail" />
+      <MembersAvatarView
+        members={members}
+        project={project}
+        workspace={workspace}
+        hideNamespaceColumn
+        source="controlplane-detail"
+      />
     </FlexBox>
   );
 }
