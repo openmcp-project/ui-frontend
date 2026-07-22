@@ -78,6 +78,7 @@ describe('CreateWorkspaceDialogContainer', () => {
     cy.get('#chargingTargetType').openDropDownByClick();
     cy.get('#chargingTargetType').clickDropdownMenuItemByText<Cypress.TriggerOptions>('BTP');
 
+    cy.get('#chargingTarget').should('not.have.attr', 'disabled');
     cy.get('#chargingTarget').typeIntoUi5Input('invalid-format').type('{enter}');
     cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
     cy.get('#chargingTarget').should('have.attr', 'value-state', 'Negative');
