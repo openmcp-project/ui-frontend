@@ -84,7 +84,7 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('[ui5-select][data-cy="component-version-select"]').openDropDownByClick();
     cy.get('[ui5-select][data-cy="component-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
-      'v2.18.2',
+      'v2.17.0',
     );
 
     cy.get('ui5-button').contains('Apply Changes').click();
@@ -94,7 +94,7 @@ describe('ComponentInstallDialog', () => {
         namespace: 'test-namespace',
         object: {
           ...baseObject,
-          spec: { version: 'v2.18.2' },
+          spec: { version: 'v2.17.0' },
         },
       }),
     );
@@ -225,7 +225,7 @@ describe('ComponentInstallDialog', () => {
 
     cy.get('[ui5-select][data-cy="component-version-select"]').openDropDownByClick();
     cy.get('[ui5-select][data-cy="component-version-select"]').clickDropdownMenuItemByText<Cypress.TriggerOptions>(
-      'v2.18.2',
+      'v2.17.0',
     );
 
     cy.get('ui5-button').contains('Apply Changes').click();
