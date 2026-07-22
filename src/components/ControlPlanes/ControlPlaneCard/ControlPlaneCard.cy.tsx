@@ -404,9 +404,8 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('[data-testid="component-icon"]').should('have.length', 2);
-      cy.get('[data-testid="component-icon"][title="Crossplane"]').should('exist');
-      cy.get('[data-testid="component-icon"][title="Flux"]').should('exist');
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[title="Flux"]').should('exist');
       cy.get('[data-testid="add-component-button"]').should('not.exist');
     });
 
@@ -431,10 +430,35 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('[data-testid="component-icon"]').should('have.length', 2);
-      cy.get('[data-testid="component-icon"][title="Crossplane"]').should('exist');
-      cy.get('[data-testid="component-icon"][title="Flux"]').should('exist');
+      cy.get('[title="Crossplane"]').should('exist');
+      cy.get('[title="Flux"]').should('exist');
       cy.get('[data-testid="add-component-button"]').should('not.exist');
+    });
+
+    it('clicking an installed component icon opens the edit wizard', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v1ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useMcpComponentsHook={fakeUseMcpComponentsWithData}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('[data-testid="v1-wizard-open"]').should('not.exist');
+      cy.get('[title="Crossplane"]').click();
+      cy.get('[data-testid="v1-wizard-open"]').should('exist');
     });
   });
 
