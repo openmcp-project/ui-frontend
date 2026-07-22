@@ -38,9 +38,9 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
   {
     version: 'v1',
     metadata: {
-      annotations: { 'openmcp.cloud/created-by': 'andreas.kienle@sap.com', 'openmcp.cloud/display-name': '' },
-      name: 'd056765-all',
-      namespace: 'project-webapp-playground--ws-d056765',
+      annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
+      name: 'test-cp-b',
+      namespace: 'project-test--ws-workspaceName',
       creationTimestamp: '2024-05-28T10:00:00Z',
     },
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
@@ -48,9 +48,9 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
   {
     version: 'v1',
     metadata: {
-      annotations: { 'openmcp.cloud/created-by': 'andreas.kienle@sap.com', 'openmcp.cloud/display-name': '' },
+      annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
       name: 'flux',
-      namespace: 'project-webapp-playground--ws-d056765',
+      namespace: 'project-test--ws-workspaceName',
       creationTimestamp: '2024-05-28T10:00:00Z',
     },
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
@@ -149,7 +149,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         .should('eq', 'false');
 
       cy.contains('mcp-a').should('not.exist');
-      cy.contains('d056765-all').should('not.exist');
+      cy.contains('test-cp-b').should('not.exist');
 
       cy.get('@mcpComponentsRest.all').should('have.length', 0);
       cy.then(() => expect(kpiRequestCount).to.equal(0));
