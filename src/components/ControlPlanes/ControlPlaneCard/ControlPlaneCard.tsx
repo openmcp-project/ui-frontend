@@ -160,9 +160,7 @@ export const ControlPlaneCard = ({
               <Title level={TitleLevel.H5} className={styles.title}>
                 {displayName ? displayName : name}
               </Title>
-              <span className={`${styles.kindLabel} mono-font`}>
-                {controlPlane.version === 'v2' ? 'ControlPlane' : 'ManagedControlPlane'}
-              </span>
+              <span className={`${styles.kindLabel} mono-font`}>{isV2 ? 'ControlPlane' : 'ManagedControlPlane'}</span>
             </FlexBox>
           </div>
 
@@ -199,7 +197,7 @@ export const ControlPlaneCard = ({
                       className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
-                        if (controlPlane.version === 'v2') {
+                        if (isV2) {
                           setIsEditV2WizardOpen(true);
                         } else {
                           handleIsManagedControlPlaneWizardOpen(true, 'edit');
@@ -214,7 +212,7 @@ export const ControlPlaneCard = ({
             </div>
           </div>
 
-          {markMcpV1asDeprecated && controlPlane.version !== 'v2' && (
+          {markMcpV1asDeprecated && !isV2 && (
             <div className={styles.deprecatedSection}>
               <DeprecatedLabel />
             </div>
@@ -223,7 +221,7 @@ export const ControlPlaneCard = ({
 
         <div className={styles.cardFooter}>
           <div className={styles.footerLeft}>
-            {controlPlane.version !== 'v2' && (
+            {!isV2 && (
               <ControlPlaneCardMenu
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
@@ -234,7 +232,7 @@ export const ControlPlaneCard = ({
                 secretKey={controlPlane.status?.access?.key ?? ''}
               />
             )}
-            {controlPlane.version === 'v2' && (
+            {isV2 && (
               <ControlPlaneCardMenuV2
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
                 isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
@@ -248,7 +246,7 @@ export const ControlPlaneCard = ({
               variant="loader"
               workspaceName={controlPlane.metadata.namespace}
               resourceName={controlPlane.metadata.name}
-              resourceType={controlPlane.version === 'v2' ? 'controlplanes' : 'managedcontrolplanes'}
+              resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
             <McpMembersAvatarView
               roleBindings={roleBindings}
@@ -259,7 +257,7 @@ export const ControlPlaneCard = ({
           </div>
 
           <div className={styles.footerRight}>
-            {controlPlane.version === 'v2' ? (
+            {isV2 ? (
               <ConnectButtonV2
                 controlPlaneName={name}
                 projectName={projectName}
@@ -280,7 +278,7 @@ export const ControlPlaneCard = ({
         </div>
       </Card>
 
-      {controlPlane.version !== 'v2' && (
+      {!isV2 && (
         <DeleteConfirmationDialog
           resourceName={controlPlane.metadata.name}
           kubectlDialog={({ isOpen, onClose }) => (
@@ -300,7 +298,7 @@ export const ControlPlaneCard = ({
           }}
         />
       )}
-      {controlPlane.version === 'v2' && (
+      {isV2 && (
         <DeleteConfirmationDialog
           resourceName={controlPlane.metadata.name}
           isOpen={dialogDeleteMcpIsOpen}
@@ -318,7 +316,7 @@ export const ControlPlaneCard = ({
         resourceName={name}
         mode={managedControlPlaneWizardState.mode}
       />
-      {controlPlane.version === 'v2' && (
+      {isV2 && (
         <EditControlPlaneV2WizardDataLoader
           isOpen={isEditV2WizardOpen}
           setIsOpen={setIsEditV2WizardOpen}

@@ -26,7 +26,6 @@ import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
-import { FadeIn } from '../../Ui/FadeIn/FadeIn.tsx';
 import styles from './WorkspacesList.module.css';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -167,12 +166,7 @@ export function ControlPlaneListWorkspaceGridTile({
             </button>
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <MembersAvatarView
-              members={uniqueMembers}
-              project={projectName}
-              workspace={workspaceName}
-              source="workspace-grid"
-            />
+            <MembersAvatarView members={uniqueMembers} project={projectName} workspace={workspaceName} />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               <YamlViewButton
                 variant="loader"
@@ -234,20 +228,18 @@ export function ControlPlaneListWorkspaceGridTile({
                   }
                 />
               ) : (
-                <FadeIn>
-                  <div className={styles.wrapper}>
-                    <div className={styles.grid}>
-                      {visibleMcps?.map((mcp) => (
-                        <ControlPlaneCard
-                          key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
-                          controlPlane={mcp}
-                          projectName={projectName}
-                          workspace={workspace}
-                        />
-                      ))}
-                    </div>
+                <div className={styles.wrapper}>
+                  <div className={styles.grid}>
+                    {visibleMcps?.map((mcp) => (
+                      <ControlPlaneCard
+                        key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
+                        controlPlane={mcp}
+                        projectName={projectName}
+                        workspace={workspace}
+                      />
+                    ))}
                   </div>
-                </FadeIn>
+                </div>
               )}
             </div>
           )}

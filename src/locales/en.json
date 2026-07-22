@@ -110,8 +110,6 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installedComponents_one": "Content ({{count}})",
-    "installedComponents_other": "Content ({{count}})",
     "installComponents": "Install components"
   },
   "ControlPlaneListAllWorkspaces": {

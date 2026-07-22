@@ -127,9 +127,20 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
   describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {
     it('does NOT render ControlPlaneCards when workspace is collapsed', () => {
+      cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
+      cy.intercept('POST', '**/graphql', (req) => {
+        const body = req.body as { operationName?: string };
+        if (
+          ['GetCrossplane', 'GetFlux', 'GetLandscaper', 'GetExternalSecretsOperator'].includes(body.operationName ?? '')
+        ) {
+          req.alias = 'kpiQuery';
+        } else {
+          req.continue();
+        }
+      });
+
       mountTile({ isExpanded: false });
 
-      // Header is always visible
       cy.get('[data-testid="workspace-panel-workspaceName"]').should('exist');
       cy.get('[data-testid="workspace-panel-workspaceName"]')
         .find('button')
@@ -137,12 +148,16 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         .invoke('attr', 'aria-expanded')
         .should('eq', 'false');
 
-      // Cards are not in the DOM — useMcpComponents / useMcpV2Components never fire
       cy.contains('mcp-a').should('not.exist');
       cy.contains('d056765-all').should('not.exist');
+
+      cy.get('@mcpComponentsRest.all').should('have.length', 0);
+      cy.get('@kpiQuery.all').should('have.length', 0);
     });
 
     it('renders ControlPlaneCards when workspace is expanded', () => {
+      cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
+
       mountTile({ isExpanded: true });
 
       cy.get('[data-testid="workspace-panel-workspaceName"]')
@@ -151,8 +166,9 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         .invoke('attr', 'aria-expanded')
         .should('eq', 'true');
 
-      // Cards are in the DOM — data-fetching hooks are active
       cy.contains('mcp-a').should('exist');
+
+      cy.get('@mcpComponentsRest.all').should('have.length.greaterThan', 0);
     });
 
     it('calls onToggleExpanded when the header button is clicked', () => {

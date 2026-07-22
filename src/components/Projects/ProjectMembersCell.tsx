@@ -17,7 +17,7 @@ export function ProjectMembersCell({ projectName, useProjectMembers = _useProjec
 
   return (
     <FadeIn>
-      <MembersAvatarView members={members} project={projectName} hideNamespaceColumn source="project-list" />
+      <MembersAvatarView members={members} project={projectName} hideNamespaceColumn />
     </FadeIn>
   );
 }

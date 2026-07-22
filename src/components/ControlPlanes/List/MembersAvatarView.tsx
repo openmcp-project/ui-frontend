@@ -11,7 +11,6 @@ interface Props {
   workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
-  source: string;
 }
 
 const MAX_VISIBLE = 3;

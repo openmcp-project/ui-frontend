@@ -13,13 +13,7 @@ export function McpMembersAvatarView({ roleBindings, project, workspace, compact
   const members = convertRoleBindingsToMembers(roleBindings);
   return (
     <div className={compact ? styles.avatarScaleCompact : styles.avatarScale}>
-      <MembersAvatarView
-        members={members}
-        project={project}
-        workspace={workspace}
-        hideNamespaceColumn
-        source="controlplane-detail"
-      />
+      <MembersAvatarView members={members} project={project} workspace={workspace} hideNamespaceColumn />
     </div>
   );
 }

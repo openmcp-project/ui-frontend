@@ -1,10 +1,9 @@
-.avatarScale {
+.avatarScale,
+.avatarScaleCompact {
   transform: scale(0.75);
   transform-origin: left center;
 }
 
 .avatarScaleCompact {
-  transform: scale(0.75);
-  transform-origin: left center;
   margin-right: -1.25rem;
 }

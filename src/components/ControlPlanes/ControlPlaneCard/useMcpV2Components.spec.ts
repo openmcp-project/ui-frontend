@@ -6,7 +6,6 @@ import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kp
 import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery';
 import { useMcpV2Components } from './useMcpV2Components';
 
-// Vitest hoists vi.mock() calls above imports automatically
 vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useCrossplaneQuery', () => ({
   useCrossplaneQuery: vi.fn(),
 }));

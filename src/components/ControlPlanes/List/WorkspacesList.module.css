@@ -2,8 +2,6 @@
   margin-bottom: 2rem;
 }
 
-/* Workspace section — flat & borderless, matching the redesign. The cards
-   below carry the visual weight; the section itself is just a labelled group. */
 .workspaceSection {
   max-width: 1280px;
   margin: 0 auto 0.125rem;
@@ -19,7 +17,6 @@
   margin-bottom: 0.5rem;
 }
 
-/* The name/toggle area; controls are pushed right by .headerSpacer. */
 .workspaceToggle {
   display: flex;
   align-items: center;
@@ -66,7 +63,6 @@
   height: 1rem;
 }
 
-/* "Workspace ·" eyebrow — mono, matching the workspace title size/weight. */
 .workspaceEyebrow {
   font-size: 0.9375rem;
   font-weight: 600;
