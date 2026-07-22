@@ -1,9 +1,5 @@
-.avatarScale,
-.avatarScaleCompact {
-  transform: scale(0.75);
-  transform-origin: left center;
-}
-
-.avatarScaleCompact {
-  margin-right: -1.25rem;
+.membersTitle {
+  margin-left: 5px;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }

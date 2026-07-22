@@ -85,6 +85,7 @@
 .wrapper {
   container-type: inline-size;
   animation: fadeInDown 0.25s ease-out;
+  padding-bottom: 1rem;
 }
 
 @keyframes fadeInDown {
