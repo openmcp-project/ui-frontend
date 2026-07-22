@@ -188,9 +188,20 @@ export const ControlPlaneCard = ({
               ) : (
                 <>
                   {installedComponents.map((component) => (
-                    <div key={component.name} className={styles.componentIcon} title={component.name}>
+                    <button
+                      key={component.name}
+                      className={styles.componentIcon}
+                      title={component.name}
+                      onClick={() => {
+                        if (isV2) {
+                          setIsEditV2WizardOpen(true);
+                        } else {
+                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                        }
+                      }}
+                    >
                       <img src={component.logo} alt={component.name} className={styles.componentLogo} />
-                    </div>
+                    </button>
                   ))}
                   {installedComponents.length === 0 && mcpComponents !== null && (
                     <button

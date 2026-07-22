@@ -127,16 +127,16 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
   describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {
     it('does NOT render ControlPlaneCards when workspace is collapsed', () => {
+      let kpiRequestCount = 0;
       cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
       cy.intercept('POST', '**/graphql', (req) => {
         const body = req.body as { operationName?: string };
         if (
           ['GetCrossplane', 'GetFlux', 'GetLandscaper', 'GetExternalSecretsOperator'].includes(body.operationName ?? '')
         ) {
-          req.alias = 'kpiQuery';
-        } else {
-          req.continue();
+          kpiRequestCount++;
         }
+        req.continue();
       });
 
       mountTile({ isExpanded: false });
@@ -152,7 +152,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       cy.contains('d056765-all').should('not.exist');
 
       cy.get('@mcpComponentsRest.all').should('have.length', 0);
-      cy.get('@kpiQuery.all').should('have.length', 0);
+      cy.then(() => expect(kpiRequestCount).to.equal(0));
     });
 
     it('renders ControlPlaneCards when workspace is expanded', () => {

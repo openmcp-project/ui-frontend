@@ -98,7 +98,9 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: help;
+  cursor: pointer;
+  appearance: none;
+  box-sizing: border-box;
 }
 
 .componentIcon:hover {
