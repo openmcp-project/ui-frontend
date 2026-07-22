@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { Routes } from '../../../Routes.ts';
 import { useDeleteProject as _useDeleteProject } from '../../../spaces/onboarding/hooks/useDeleteProject.ts';
-import { useGetProject as _useGetProject } from '../../../spaces/onboarding/hooks/useGetProject.ts';
 import { ConnectGitHubDialog } from '../../Dialogs/ConnectGitHubDialog.tsx';
 import { CreateWorkspaceDialogContainer } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
@@ -21,14 +20,12 @@ type ControlPlaneListToolbarProps = {
   projectName: string;
   useDeleteProject?: typeof _useDeleteProject;
   useNavigate?: typeof _useNavigate;
-  useGetProject?: typeof _useGetProject;
 };
 
 export function ControlPlaneListToolbar({
   projectName,
   useDeleteProject = _useDeleteProject,
   useNavigate = _useNavigate,
-  useGetProject = _useGetProject,
 }: ControlPlaneListToolbarProps) {
   const [dialogCreateProjectIsOpen, setDialogIsOpen] = useState(false);
   const [dialogDeleteProjectIsOpen, setDialogDeleteProjectIsOpen] = useState(false);
@@ -42,8 +39,6 @@ export function ControlPlaneListToolbar({
   const { enableGitHub } = useFeatureToggle();
 
   const { deleteProject } = useDeleteProject(projectName);
-  const { projectData } = useGetProject(projectName);
-  const isGitHubConnected = !!projectData?.githubAppInstallationId;
 
   const handleDeleteProject = async () => {
     try {
@@ -70,21 +65,16 @@ export function ControlPlaneListToolbar({
             design="Transparent"
             style={{
               alignItems: 'center',
-              background: isGitHubConnected ? 'var(--sapButton_Background)' : '#ffffff',
+              background: '#ffffff',
               border: '1px solid var(--sapButton_BorderColor)',
               borderRadius: '4px',
               display: 'inline-flex',
               height: '2.25rem',
               justifyContent: 'center',
-              opacity: isGitHubConnected ? 1 : 0.45,
               padding: '0',
               width: '2.25rem',
             }}
-            tooltip={
-              isGitHubConnected
-                ? t('ControlPlaneListToolbar.githubConnected')
-                : t('ControlPlaneListToolbar.connectGitHub')
-            }
+            tooltip={t('ControlPlaneListToolbar.connectGitHub')}
             onClick={() => {
               telemetry.track({ name: 'project.connect-github-opened' });
               setDialogConnectGitHubIsOpen(true);
