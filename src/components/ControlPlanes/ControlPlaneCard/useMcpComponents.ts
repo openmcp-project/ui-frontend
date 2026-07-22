@@ -10,6 +10,8 @@ interface McpComponents {
   externalSecretsOperator?: unknown;
 }
 
+type RoleBinding = { role: string; subjects: { kind: string; name: string }[] };
+
 export function useMcpComponents(projectName: string, workspaceName: string, controlPlaneName: string) {
   const { data: mcp, isLoading } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
 
@@ -18,11 +20,8 @@ export function useMcpComponents(projectName: string, workspaceName: string, con
     return mcp.spec.components as McpComponents;
   }, [mcp]);
 
-  const roleBindings = useMemo<{ role: string; subjects: { kind: string; name: string }[] }[] | undefined>(
-    () =>
-      mcp?.spec?.authorization?.roleBindings as
-        | { role: string; subjects: { kind: string; name: string }[] }[]
-        | undefined,
+  const roleBindings = useMemo<RoleBinding[] | undefined>(
+    () => mcp?.spec?.authorization?.roleBindings as RoleBinding[] | undefined,
     [mcp],
   );
 
