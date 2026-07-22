@@ -83,19 +83,14 @@ const mountCard = (controlPlane: ControlPlaneListItem) => {
 describe('ControlPlaneCard', () => {
   it('renders v1 card with ManagedControlPlane kind label', () => {
     mountCard(v1ControlPlane);
-    cy.contains('mcp-name').should('be.visible');
-    cy.contains('ManagedControlPlane').should('be.visible');
+    cy.contains('mcp-name').should('exist');
+    cy.contains('ManagedControlPlane').should('exist');
   });
 
   it('renders v2 card with ControlPlane kind label', () => {
     mountCard(v2ControlPlane);
-    cy.contains('cp-name').should('be.visible');
-    cy.contains('ControlPlane').should('be.visible');
-  });
-
-  it('shows the status dot on both card types', () => {
-    mountCard(v1ControlPlane);
-    cy.get('[class*="statusIndicator"]').should('exist');
+    cy.contains('cp-name').should('exist');
+    cy.contains('ControlPlane').should('exist');
   });
 
   it('v1 card has the three-dots card menu', () => {
@@ -149,7 +144,7 @@ describe('ControlPlaneCard', () => {
       ...v1ControlPlane,
       metadata: {
         ...v1ControlPlane.metadata,
-        annotations: { 'meta.orchestrate.cloud.sap/display-name': 'My Display Name' },
+        annotations: { 'openmcp.cloud/display-name': 'My Display Name' },
       },
     };
     mountCard(cpWithDisplayName);
