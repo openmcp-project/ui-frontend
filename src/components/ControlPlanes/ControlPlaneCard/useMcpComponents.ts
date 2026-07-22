@@ -2,21 +2,12 @@ import { useMemo } from 'react';
 import { useApiResource } from '../../../lib/api/useApiResource';
 import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes';
 
-interface ComponentVersion {
-  version?: string;
-}
-
 interface McpComponents {
-  crossplane?: ComponentVersion;
-  flux?: ComponentVersion;
+  crossplane?: unknown;
+  flux?: unknown;
   landscaper?: unknown;
-  kyverno?: ComponentVersion;
-  externalSecretsOperator?: ComponentVersion;
-}
-
-interface RoleBinding {
-  role: string;
-  subjects: { kind: string; name: string }[];
+  kyverno?: unknown;
+  externalSecretsOperator?: unknown;
 }
 
 export function useMcpComponents(projectName: string, workspaceName: string, controlPlaneName: string) {
@@ -27,8 +18,8 @@ export function useMcpComponents(projectName: string, workspaceName: string, con
     return mcp.spec.components as McpComponents;
   }, [mcp]);
 
-  const roleBindings = useMemo<RoleBinding[] | undefined>(() => {
-    return mcp?.spec?.authorization?.roleBindings as RoleBinding[] | undefined;
+  const roleBindings = useMemo<{ role: string; subjects: { kind: string; name: string }[] }[] | undefined>(() => {
+    return mcp?.spec?.authorization?.roleBindings as { role: string; subjects: { kind: string; name: string }[] }[] | undefined;
   }, [mcp]);
 
   return { components, roleBindings, isLoading };

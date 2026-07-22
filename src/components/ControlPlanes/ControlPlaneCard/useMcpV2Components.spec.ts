@@ -65,8 +65,8 @@ describe('useMcpV2Components', () => {
 
     const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
     await waitFor(() => {
-      expect(result.current.components?.crossplane?.version).toBe('1.14.0');
-      expect(result.current.components?.flux?.version).toBe('2.3.0');
+      expect(result.current.components?.crossplane).toBe(true);
+      expect(result.current.components?.flux).toBe(true);
       expect(result.current.components?.landscaper).toBeUndefined();
       expect(result.current.components?.externalSecretsOperator).toBeUndefined();
     });

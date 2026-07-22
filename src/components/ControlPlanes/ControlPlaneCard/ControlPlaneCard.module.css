@@ -141,6 +141,11 @@
   transform: translateY(-1px);
 }
 
+.addComponentIcon {
+  width: 100%;
+  height: 100%;
+}
+
 
 .cardFooter {
   padding: 0.625rem 1rem;

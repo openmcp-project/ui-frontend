@@ -4,24 +4,14 @@ import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useF
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery';
 import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery';
 
-interface ComponentVersion {
-  version?: string | null;
-}
-
 export interface McpV2Components {
-  crossplane?: ComponentVersion;
-  flux?: ComponentVersion;
-  landscaper?: ComponentVersion;
-  externalSecretsOperator?: ComponentVersion;
+  crossplane?: true;
+  flux?: true;
+  landscaper?: true;
+  externalSecretsOperator?: true;
 }
 
-/**
- * Returns installed-service data for a v2 ControlPlane card using the four
- * GraphQL queries the detail page already makes. `components` is `null` while
- * any query is still loading so callers can show a skeleton.
- *
- * Pass `skip = true` for v1 cards to avoid firing unnecessary requests.
- */
+/** `components` is `null` while loading; pass `skip = true` for v1 cards. */
 export function useMcpV2Components(name: string, namespace: string, skip = false) {
   const effectiveName = skip ? '' : name;
   const effectiveNs = skip ? '' : namespace;
@@ -36,10 +26,10 @@ export function useMcpV2Components(name: string, namespace: string, skip = false
   const components = useMemo<McpV2Components | null>(() => {
     if (isLoading) return null;
     return {
-      ...(crossplaneData?.isInstalled ? { crossplane: { version: crossplaneData.version } } : {}),
-      ...(fluxData?.isInstalled ? { flux: { version: fluxData.version } } : {}),
-      ...(landscaperData?.isInstalled ? { landscaper: { version: landscaperData.version } } : {}),
-      ...(esoData?.isInstalled ? { externalSecretsOperator: { version: esoData.version } } : {}),
+      ...(crossplaneData?.isInstalled ? { crossplane: true as const } : {}),
+      ...(fluxData?.isInstalled ? { flux: true as const } : {}),
+      ...(landscaperData?.isInstalled ? { landscaper: true as const } : {}),
+      ...(esoData?.isInstalled ? { externalSecretsOperator: true as const } : {}),
     };
   }, [isLoading, crossplaneData, fluxData, landscaperData, esoData]);
 

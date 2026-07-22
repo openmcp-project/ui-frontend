@@ -42,6 +42,8 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
+  useMcpComponentsHook?: typeof useMcpComponents;
+  useMcpV2ComponentsHook?: typeof useMcpV2Components;
 }
 
 type MCPWizardState = {
@@ -53,7 +55,6 @@ interface ComponentInfo {
   name: string;
   logo: string;
   installed: boolean;
-  version?: string;
 }
 
 export const ControlPlaneCard = ({
@@ -62,6 +63,8 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
+  useMcpComponentsHook = useMcpComponents,
+  useMcpV2ComponentsHook = useMcpV2Components,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -98,54 +101,28 @@ export const ControlPlaneCard = ({
     components: mcpComponents,
     roleBindings,
     isLoading: isLoadingComponents,
-  } = useMcpComponents(projectName, workspace.metadata.name, name);
-  const { components: mcpV2Components } = useMcpV2Components(name, namespace, !isV2);
+  } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
+  const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
+    name,
+    namespace,
+    !isV2,
+  );
 
   const components = useMemo<ComponentInfo[]>(() => {
     if (isV2) {
       return [
-        {
-          name: 'Crossplane',
-          logo: LogoCrossplane,
-          installed: !!mcpV2Components?.crossplane,
-          version: mcpV2Components?.crossplane?.version ?? undefined,
-        },
-        {
-          name: 'Flux',
-          logo: LogoFlux,
-          installed: !!mcpV2Components?.flux,
-          version: mcpV2Components?.flux?.version ?? undefined,
-        },
+        { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpV2Components?.crossplane },
+        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux },
         { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpV2Components?.landscaper },
-        {
-          name: 'External Secrets Operator',
-          logo: LogoEso,
-          installed: !!mcpV2Components?.externalSecretsOperator,
-          version: mcpV2Components?.externalSecretsOperator?.version ?? undefined,
-        },
+        { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpV2Components?.externalSecretsOperator },
       ];
     }
     return [
-      {
-        name: 'Crossplane',
-        logo: LogoCrossplane,
-        installed: !!mcpComponents?.crossplane,
-        version: mcpComponents?.crossplane?.version,
-      },
-      { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux, version: mcpComponents?.flux?.version },
+      { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpComponents?.crossplane },
+      { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux },
       { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper },
-      {
-        name: 'Kyverno',
-        logo: LogoKyverno,
-        installed: !!mcpComponents?.kyverno,
-        version: mcpComponents?.kyverno?.version,
-      },
-      {
-        name: 'External Secrets Operator',
-        logo: LogoEso,
-        installed: !!mcpComponents?.externalSecretsOperator,
-        version: mcpComponents?.externalSecretsOperator?.version,
-      },
+      { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
+      { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
     ];
   }, [isV2, mcpComponents, mcpV2Components]);
 
@@ -179,33 +156,37 @@ export const ControlPlaneCard = ({
         <div className={styles.cardBody}>
           <div className={styles.componentsRow}>
             <div className={styles.componentIcons}>
-              {isLoadingComponents ? (
+              {(isV2 ? isLoadingV2Components : isLoadingComponents) ? (
                 <>
-                  <div className={`${styles.componentIcon} ${styles.componentIconSkeleton}`} />
-                  <div className={`${styles.componentIcon} ${styles.componentIconSkeleton}`} />
-                  <div className={`${styles.componentIcon} ${styles.componentIconSkeleton}`} />
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
+                  />
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
+                  />
+                  <div
+                    className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
+                    data-testid="component-skeleton"
+                  />
                 </>
               ) : (
                 <>
                   {installedComponents.map((component) => (
-                    <button
+                    <div
                       key={component.name}
                       className={styles.componentIcon}
                       title={component.name}
-                      onClick={() => {
-                        if (isV2) {
-                          setIsEditV2WizardOpen(true);
-                        } else {
-                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
-                        }
-                      }}
+                      data-testid="component-icon"
                     >
                       <img src={component.logo} alt={component.name} className={styles.componentLogo} />
-                    </button>
+                    </div>
                   ))}
-                  {installedComponents.length === 0 && mcpComponents !== null && (
+                  {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
                     <button
                       className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
+                      data-testid="add-component-button"
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
@@ -215,7 +196,7 @@ export const ControlPlaneCard = ({
                         }
                       }}
                     >
-                      <Icon name="add" style={{ width: '100%', height: '100%' }} />
+                      <Icon name="add" className={styles.addComponentIcon} />
                     </button>
                   )}
                 </>
@@ -320,20 +301,24 @@ export const ControlPlaneCard = ({
           }}
         />
       )}
-      <EditManagedControlPlaneWizardDataLoader
-        isOpen={managedControlPlaneWizardState.isOpen}
-        setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
-        workspaceName={namespace}
-        resourceName={name}
-        mode={managedControlPlaneWizardState.mode}
-      />
-      {isV2 && (
-        <EditControlPlaneV2WizardDataLoader
-          isOpen={isEditV2WizardOpen}
-          setIsOpen={setIsEditV2WizardOpen}
-          namespace={namespace}
+      <div data-testid={managedControlPlaneWizardState.isOpen ? 'v1-wizard-open' : undefined}>
+        <EditManagedControlPlaneWizardDataLoader
+          isOpen={managedControlPlaneWizardState.isOpen}
+          setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
+          workspaceName={namespace}
           resourceName={name}
+          mode={managedControlPlaneWizardState.mode}
         />
+      </div>
+      {controlPlane.version === 'v2' && (
+        <div data-testid={isEditV2WizardOpen ? 'v2-wizard-open' : undefined}>
+          <EditControlPlaneV2WizardDataLoader
+            isOpen={isEditV2WizardOpen}
+            setIsOpen={setIsEditV2WizardOpen}
+            namespace={namespace}
+            resourceName={name}
+          />
+        </div>
       )}
     </>
   );
