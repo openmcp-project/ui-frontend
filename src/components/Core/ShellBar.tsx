@@ -97,6 +97,7 @@ export function ShellBarComponent({
                   project={project}
                   workspace={workspace}
                   hideNamespaceColumn
+                  source="controlplane-detail"
                 />
               </div>
             )}
