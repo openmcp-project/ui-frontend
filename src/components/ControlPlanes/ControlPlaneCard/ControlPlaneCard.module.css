@@ -127,7 +127,7 @@
 }
 
 .addComponentPlaceholder {
-  box-sizing: content-box;
+  box-sizing: border-box;
   appearance: none;
   border: 1.5px dashed var(--sapButton_Emphasized_Background, #0070f2);
   color: var(--sapButton_Emphasized_Background, #0070f2);
