@@ -18,11 +18,13 @@ export function useMcpComponents(projectName: string, workspaceName: string, con
     return mcp.spec.components as McpComponents;
   }, [mcp]);
 
-  const roleBindings = useMemo<{ role: string; subjects: { kind: string; name: string }[] }[] | undefined>(() => {
-    return mcp?.spec?.authorization?.roleBindings as
-      | { role: string; subjects: { kind: string; name: string }[] }[]
-      | undefined;
-  }, [mcp]);
+  const roleBindings = useMemo<{ role: string; subjects: { kind: string; name: string }[] }[] | undefined>(
+    () =>
+      mcp?.spec?.authorization?.roleBindings as
+        | { role: string; subjects: { kind: string; name: string }[] }[]
+        | undefined,
+    [mcp],
+  );
 
   return { components, roleBindings, isLoading };
 }
