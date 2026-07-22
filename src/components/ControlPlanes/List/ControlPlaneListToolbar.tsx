@@ -15,6 +15,7 @@ import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog
 import { EditProjectDialogContainer } from '../../Dialogs/EditProjectDialogContainer.tsx';
 import { KubectlDeleteProjectDialog } from '../../Dialogs/KubectlCommandInfo/KubectlDeleteProjectDialog.tsx';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 
 type ControlPlaneListToolbarProps = {
   projectName: string;
@@ -38,6 +39,7 @@ export function ControlPlaneListToolbar({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const telemetry = useTelemetry();
+  const { enableGitHub } = useFeatureToggle();
 
   const { deleteProject } = useDeleteProject(projectName);
   const { projectData } = useGetProject(projectName);
@@ -62,37 +64,39 @@ export function ControlPlaneListToolbar({
           text={t('ControlPlaneListToolbar.buttonText')}
           onClick={() => setDialogIsOpen(true)}
         />
-        <Button
-          data-testid="connect-github-button"
-          design="Transparent"
-          style={{
-            alignItems: 'center',
-            background: isGitHubConnected ? 'var(--sapButton_Background)' : '#ffffff',
-            border: '1px solid var(--sapButton_BorderColor)',
-            borderRadius: '4px',
-            display: 'inline-flex',
-            height: '2.25rem',
-            justifyContent: 'center',
-            opacity: isGitHubConnected ? 1 : 0.45,
-            padding: '0',
-            width: '2.25rem',
-          }}
-          tooltip={
-            isGitHubConnected
-              ? t('ControlPlaneListToolbar.githubConnected')
-              : t('ControlPlaneListToolbar.connectGitHub')
-          }
-          onClick={() => {
-            telemetry.track({ name: 'project.connect-github-opened' });
-            setDialogConnectGitHubIsOpen(true);
-          }}
-        >
-          <img
-            alt="GitHub"
-            src="/github-dark.png"
-            style={{ display: 'block', height: '1.125rem', width: '1.125rem' }}
-          />
-        </Button>
+        {enableGitHub && (
+          <Button
+            data-testid="connect-github-button"
+            design="Transparent"
+            style={{
+              alignItems: 'center',
+              background: isGitHubConnected ? 'var(--sapButton_Background)' : '#ffffff',
+              border: '1px solid var(--sapButton_BorderColor)',
+              borderRadius: '4px',
+              display: 'inline-flex',
+              height: '2.25rem',
+              justifyContent: 'center',
+              opacity: isGitHubConnected ? 1 : 0.45,
+              padding: '0',
+              width: '2.25rem',
+            }}
+            tooltip={
+              isGitHubConnected
+                ? t('ControlPlaneListToolbar.githubConnected')
+                : t('ControlPlaneListToolbar.connectGitHub')
+            }
+            onClick={() => {
+              telemetry.track({ name: 'project.connect-github-opened' });
+              setDialogConnectGitHubIsOpen(true);
+            }}
+          >
+            <img
+              alt="GitHub"
+              src="/github-dark.png"
+              style={{ display: 'block', height: '1.125rem', width: '1.125rem' }}
+            />
+          </Button>
+        )}
         <Button
           id={menuButtonId}
           data-testid="project-overflow-menu"

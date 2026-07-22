@@ -54,13 +54,24 @@ const FrontendConfigSchema = z.object({
   githubBaseUrl: z.string(),
   landscape: z.optional(z.nativeEnum(Landscape)),
   mcp2DocsUrl: z.string().optional(),
+  githubApps: z
+    .array(
+      z.object({
+        name: z.string(),
+        instanceRefName: z.string(),
+        installationLink: z.string(),
+      }),
+    )
+    .optional()
+    .default([]),
   featureToggles: z
     .object({
       markMcpV1asDeprecated: z.boolean().default(false),
       enableMcpV2: z.boolean().default(false),
       enableHeadlamp: z.boolean().default(false),
+      enableGitHub: z.boolean().default(false),
     })
-    .default({ markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false }),
+    .default({ markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false, enableGitHub: false }),
 });
 type FrontendConfig = z.infer<typeof FrontendConfigSchema>;
 

@@ -102,7 +102,13 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
             value={{
               documentationBaseUrl: '',
               githubBaseUrl: '',
-              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
+              githubApps: [],
+              featureToggles: {
+                markMcpV1asDeprecated: false,
+                enableMcpV2: false,
+                enableHeadlamp: false,
+                enableGitHub: false,
+              },
             }}
           >
             <SplitterProvider>

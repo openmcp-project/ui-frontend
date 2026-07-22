@@ -13,7 +13,8 @@ const frontendConfig = {
   landscape: Landscape.Local,
   documentationBaseUrl: 'http://localhost:3000',
   githubBaseUrl: 'https://github.com/example/repo',
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
+  githubApps: [],
+  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false, enableGitHub: false },
 };
 
 const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
