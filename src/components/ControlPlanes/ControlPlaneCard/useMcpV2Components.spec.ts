@@ -4,6 +4,8 @@ import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kp
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery';
 import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery';
+import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery';
+import { useKroQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useKroQuery';
 import { useMcpV2Components } from './useMcpV2Components';
 
 vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useCrossplaneQuery', () => ({
@@ -18,20 +20,30 @@ vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery', () =
 vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery', () => ({
   useEsoQuery: vi.fn(),
 }));
+vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery', () => ({
+  useOcmQuery: vi.fn(),
+}));
+vi.mock('../../../spaces/controlPlaneV2/components/Kpi/useKroQuery', () => ({
+  useKroQuery: vi.fn(),
+}));
 
 const setIdle = () => {
   vi.mocked(useCrossplaneQuery).mockReturnValue({ crossplaneData: null, isLoading: false, error: undefined });
   vi.mocked(useFluxQuery).mockReturnValue({ fluxData: null, isLoading: false, error: undefined });
   vi.mocked(useLandscaperQuery).mockReturnValue({ landscaperData: null, isLoading: false, error: undefined });
   vi.mocked(useEsoQuery).mockReturnValue({ esoData: null, isLoading: false, error: undefined });
+  vi.mocked(useOcmQuery).mockReturnValue({ ocmData: null, isLoading: false, error: undefined });
+  vi.mocked(useKroQuery).mockReturnValue({ kroData: null, isLoading: false, error: undefined });
 };
 
 describe('useMcpV2Components', () => {
-  it('returns null components + isLoading=true while any query is loading', async () => {
+  it('returns null components + isLoading=true while any core query is loading', async () => {
     vi.mocked(useCrossplaneQuery).mockReturnValue({ crossplaneData: null, isLoading: true, error: undefined });
     vi.mocked(useFluxQuery).mockReturnValue({ fluxData: null, isLoading: false, error: undefined });
     vi.mocked(useLandscaperQuery).mockReturnValue({ landscaperData: null, isLoading: false, error: undefined });
     vi.mocked(useEsoQuery).mockReturnValue({ esoData: null, isLoading: false, error: undefined });
+    vi.mocked(useOcmQuery).mockReturnValue({ ocmData: null, isLoading: false, error: undefined });
+    vi.mocked(useKroQuery).mockReturnValue({ kroData: null, isLoading: false, error: undefined });
 
     const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
     await waitFor(() => {
@@ -62,6 +74,8 @@ describe('useMcpV2Components', () => {
     });
     vi.mocked(useLandscaperQuery).mockReturnValue({ landscaperData: null, isLoading: false, error: undefined });
     vi.mocked(useEsoQuery).mockReturnValue({ esoData: null, isLoading: false, error: undefined });
+    vi.mocked(useOcmQuery).mockReturnValue({ ocmData: null, isLoading: false, error: undefined });
+    vi.mocked(useKroQuery).mockReturnValue({ kroData: null, isLoading: false, error: undefined });
 
     const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
     await waitFor(() => {
@@ -72,10 +86,45 @@ describe('useMcpV2Components', () => {
     });
   });
 
-  it('passes empty strings to queries when skip=true', () => {
+  it('populates ocm + kro when installed', async () => {
+    setIdle();
+    vi.mocked(useOcmQuery).mockReturnValue({
+      ocmData: { isInstalled: true, version: 'v0.3.0' },
+      isLoading: false,
+      error: undefined,
+    });
+    vi.mocked(useKroQuery).mockReturnValue({
+      kroData: { isInstalled: true, version: 'v0.3.0' },
+      isLoading: false,
+      error: undefined,
+    });
+
+    const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
+    await waitFor(() => {
+      expect(result.current.components?.ocm).toBe(true);
+      expect(result.current.components?.kro).toBe(true);
+      expect(result.current.components?.crossplane).toBeUndefined();
+    });
+  });
+
+  it('does not block on OCM/KRO loading — isLoading reflects only core services', async () => {
+    setIdle();
+    vi.mocked(useOcmQuery).mockReturnValue({ ocmData: null, isLoading: true, error: undefined });
+    vi.mocked(useKroQuery).mockReturnValue({ kroData: null, isLoading: true, error: undefined });
+
+    const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.components).toEqual({});
+    });
+  });
+
+  it('passes empty strings to all queries when skip=true', () => {
     setIdle();
     renderHook(() => useMcpV2Components('cp', 'ns', true));
     expect(vi.mocked(useCrossplaneQuery)).toHaveBeenCalledWith('', '');
     expect(vi.mocked(useFluxQuery)).toHaveBeenCalledWith('', '');
+    expect(vi.mocked(useOcmQuery)).toHaveBeenCalledWith('', '');
+    expect(vi.mocked(useKroQuery)).toHaveBeenCalledWith('', '');
   });
 });
