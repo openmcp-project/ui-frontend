@@ -1,6 +1,6 @@
 import { ApolloClient, ApolloLink, InMemoryCache, Observable, split } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
-import { BatchHttpLink } from '@apollo/client/link/batch-http';
+import { HttpLink } from '@apollo/client/link/http';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { ClientOptions, createClient } from 'graphql-sse';
 import { print, ExecutionResult, FormattedExecutionResult } from 'graphql';
@@ -37,10 +37,8 @@ class SSELink extends ApolloLink {
   }
 }
 
-const httpLink = new BatchHttpLink({
+const httpLink = new HttpLink({
   uri: graphqlUrl,
-  batchMax: 20,
-  batchInterval: 20,
 });
 
 const authLink = new ApolloLink((operation, forward) => {
