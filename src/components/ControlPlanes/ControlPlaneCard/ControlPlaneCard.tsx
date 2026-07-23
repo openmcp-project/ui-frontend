@@ -35,6 +35,8 @@ import LogoFlux from '../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
 import LogoKyverno from '../../../assets/images/logo-kyverno.png';
 import LogoEso from '../../../assets/images/logo-eso.svg';
+import LogoOcm from '../../../assets/images/logo-ocm.svg';
+import LogoKro from '../../../assets/images/logo-kro.svg';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -115,6 +117,8 @@ export const ControlPlaneCard = ({
         { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux },
         { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpV2Components?.landscaper },
         { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpV2Components?.externalSecretsOperator },
+        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm },
+        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro },
       ];
     }
     return [

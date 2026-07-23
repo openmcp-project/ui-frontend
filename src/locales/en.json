@@ -45,6 +45,12 @@
   "componentCardEso": {
     "description": "Manage and sync credentials from your secret store"
   },
+  "componentCardOcm": {
+    "description": "Open Component Model — transport and describe software components across environments"
+  },
+  "componentCardKro": {
+    "description": "Kubernetes Resource Orchestrator — compose and deploy complex resource topologies"
+  },
   "Kpi": {
     "installed": "Installed",
     "error": "There was a problem loading this data. Please try again later."
