@@ -20,6 +20,37 @@ const GET_MCPS_LIST_QUERY = graphql(`
               creationTimestamp
               annotations
             }
+            spec {
+              components {
+                crossplane {
+                  __typename
+                }
+                flux {
+                  __typename
+                }
+                landscaper {
+                  __typename
+                }
+                kyverno {
+                  __typename
+                }
+                externalSecretsOperator {
+                  __typename
+                }
+                btpServiceOperator {
+                  __typename
+                }
+              }
+              authorization {
+                roleBindings {
+                  role
+                  subjects {
+                    kind
+                    name
+                  }
+                }
+              }
+            }
             status {
               status
               conditions {
@@ -82,6 +113,12 @@ function toV1Input(item: V1Item) {
   return {
     version: 'v1' as const,
     metadata: item.metadata,
+    spec: item.spec
+      ? {
+          components: item.spec.components,
+          authorization: item.spec.authorization,
+        }
+      : null,
     status: item.status
       ? {
           status: item.status.status,

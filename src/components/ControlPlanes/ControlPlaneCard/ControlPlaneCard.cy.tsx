@@ -12,7 +12,6 @@ import { ControlPlaneListItem } from '../../../spaces/onboarding/types/ControlPl
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { SplitterProvider } from '../../Splitter/SplitterContext.tsx';
 import { ControlPlaneCard } from './ControlPlaneCard.tsx';
-import type { useMcpComponents } from './useMcpComponents.ts';
 import type { useMcpV2Components } from './useMcpV2Components.ts';
 
 TimeAgo.addDefaultLocale(en);
@@ -45,6 +44,30 @@ const v1ControlPlane: ControlPlaneListItem = {
     creationTimestamp: '2024-01-01T00:00:00Z',
     annotations: {},
   },
+  spec: null,
+  status: null,
+};
+
+const v1ControlPlaneWithComponents: ControlPlaneListItem = {
+  version: 'v1',
+  metadata: {
+    name: 'mcp-name',
+    namespace: 'test-namespace',
+    creationTimestamp: '2024-01-01T00:00:00Z',
+    annotations: {},
+  },
+  spec: {
+    components: {
+      crossplane: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane' },
+      flux: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux' },
+    },
+    authorization: {
+      roleBindings: [
+        { role: 'admin', subjects: [{ kind: 'User', name: 'alice@example.com' }] },
+        { role: 'viewer', subjects: [{ kind: 'User', name: 'bob@example.com' }] },
+      ],
+    },
+  },
   status: null,
 };
 
@@ -65,27 +88,6 @@ const fakeUseDeleteManagedControlPlane: typeof useDeleteManagedControlPlane = ()
 
 const fakeUseDeleteManagedControlPlaneV2GraphQL: typeof useDeleteControlPlaneV2GraphQL = () => ({
   deleteManagedControlPlaneV2: async (): Promise<void> => {},
-});
-
-const fakeUseMcpComponentsLoading: typeof useMcpComponents = () => ({
-  components: null,
-  roleBindings: undefined,
-  isLoading: true,
-});
-
-const fakeUseMcpComponentsEmpty: typeof useMcpComponents = () => ({
-  components: {},
-  roleBindings: undefined,
-  isLoading: false,
-});
-
-const fakeUseMcpComponentsWithData: typeof useMcpComponents = () => ({
-  components: { crossplane: { version: '1.0.0' }, flux: { version: '2.0.0' } },
-  roleBindings: [
-    { role: 'admin', subjects: [{ kind: 'User', name: 'alice@example.com' }] },
-    { role: 'viewer', subjects: [{ kind: 'User', name: 'bob@example.com' }] },
-  ],
-  isLoading: false,
 });
 
 const fakeUseMcpV2ComponentsLoading: typeof useMcpV2Components = () => ({
@@ -237,7 +239,6 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsLoading}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -289,7 +290,6 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsEmpty}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -339,7 +339,6 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsEmpty}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -402,12 +401,11 @@ describe('ControlPlaneCard', () => {
               <SplitterProvider>
                 <FeatureToggleProvider>
                   <ControlPlaneCard
-                    controlPlane={v1ControlPlane}
+                    controlPlane={v1ControlPlaneWithComponents}
                     workspace={workspace}
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsWithData}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -454,12 +452,11 @@ describe('ControlPlaneCard', () => {
               <SplitterProvider>
                 <FeatureToggleProvider>
                   <ControlPlaneCard
-                    controlPlane={v1ControlPlane}
+                    controlPlane={v1ControlPlaneWithComponents}
                     workspace={workspace}
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsWithData}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -482,12 +479,11 @@ describe('ControlPlaneCard', () => {
               <SplitterProvider>
                 <FeatureToggleProvider>
                   <ControlPlaneCard
-                    controlPlane={v1ControlPlane}
+                    controlPlane={v1ControlPlaneWithComponents}
                     workspace={workspace}
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsWithData}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>
@@ -512,7 +508,6 @@ describe('ControlPlaneCard', () => {
                     projectName="my-project"
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
-                    useMcpComponentsHook={fakeUseMcpComponentsEmpty}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>

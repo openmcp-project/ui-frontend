@@ -43,9 +43,39 @@ const MetadataSchema = z.object({
   annotations: z.record(z.string(), z.string()).catch({}),
 });
 
+const ComponentSchema = z.object({ __typename: z.string() }).nullish();
+
+const SpecComponentsSchema = z
+  .object({
+    crossplane: ComponentSchema,
+    flux: ComponentSchema,
+    landscaper: ComponentSchema,
+    kyverno: ComponentSchema,
+    externalSecretsOperator: ComponentSchema,
+    btpServiceOperator: ComponentSchema,
+  })
+  .nullish();
+
+const RoleBindingSchema = z.object({
+  role: z.string().nullish(),
+  subjects: z.array(z.object({ kind: z.string().nullish(), name: z.string().nullish() }).nullable()).nullish(),
+});
+
+const SpecSchema = z
+  .object({
+    components: SpecComponentsSchema,
+    authorization: z
+      .object({
+        roleBindings: z.array(RoleBindingSchema.nullable()).nullish(),
+      })
+      .nullish(),
+  })
+  .nullish();
+
 const ControlPlaneV1Schema = z.object({
   version: z.literal('v1'),
   metadata: MetadataSchema,
+  spec: SpecSchema,
   status: StatusSchema.nullish(),
 });
 

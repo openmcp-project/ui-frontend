@@ -1520,6 +1520,26 @@ export type GetMcPsListQuery = {
             creationTimestamp: string | null;
             annotations: unknown;
           } | null;
+          spec: {
+            components: {
+              crossplane: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane' } | null;
+              flux: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux' } | null;
+              landscaper: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper' } | null;
+              kyverno: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno' } | null;
+              externalSecretsOperator: {
+                __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator';
+              } | null;
+              btpServiceOperator: {
+                __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator';
+              } | null;
+            } | null;
+            authorization: {
+              roleBindings: Array<{
+                role: string | null;
+                subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+              } | null> | null;
+            } | null;
+          } | null;
           status: {
             status: string | null;
             conditions: Array<{
@@ -4519,6 +4539,114 @@ export const GetMcPsListDocument = {
                                         { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'components' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'crossplane' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'flux' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'landscaper' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'kyverno' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'externalSecretsOperator' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'btpServiceOperator' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'authorization' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'roleBindings' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'subjects' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
                                       ],
                                     },
                                   },

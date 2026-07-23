@@ -25,7 +25,6 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
-import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
@@ -44,7 +43,6 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
-  useMcpComponentsHook?: typeof useMcpComponents;
   useMcpV2ComponentsHook?: typeof useMcpV2Components;
 }
 
@@ -65,7 +63,6 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
-  useMcpComponentsHook = useMcpComponents,
   useMcpV2ComponentsHook = useMcpV2Components,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
@@ -100,11 +97,22 @@ export const ControlPlaneCard = ({
   const isV2 = controlPlane.version === 'v2';
   const navigate = useNavigate();
 
-  const {
-    components: mcpComponents,
-    roleBindings,
-    isLoading: isLoadingComponents,
-  } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
+  // v1: components and roleBindings come from the list query via the controlPlane prop
+  const mcpComponents = controlPlane.version === 'v1' ? controlPlane.spec?.components : undefined;
+  const roleBindings = useMemo(() => {
+    if (controlPlane.version !== 'v1') return undefined;
+    return (controlPlane.spec?.authorization?.roleBindings ?? []).flatMap((rb) => {
+      if (!rb?.role) return [];
+      return [
+        {
+          role: rb.role,
+          subjects: (rb.subjects ?? []).flatMap((s) => (s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [])),
+        },
+      ];
+    });
+  }, [controlPlane]);
+  const isLoadingComponents = false;
+
   const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
     name,
     namespace,
