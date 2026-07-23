@@ -13,6 +13,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useWorkspaceV2ComponentsQuery } from '../../../spaces/onboarding/hooks/useWorkspaceV2ComponentsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
@@ -69,6 +70,9 @@ export function ControlPlaneListWorkspaceGridTile({
     error: cpsError,
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+
+  const workspaceNamespace = `project-${projectName}--ws-${workspaceName}`;
+  const { componentsMap } = useWorkspaceV2ComponentsQuery(isExpanded ? workspaceNamespace : undefined);
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
@@ -241,6 +245,7 @@ export function ControlPlaneListWorkspaceGridTile({
                         controlPlane={mcp}
                         projectName={projectName}
                         workspace={workspace}
+                        v2ComponentsMap={componentsMap}
                       />
                     ))}
                   </div>

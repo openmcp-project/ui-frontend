@@ -26,6 +26,7 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { useMcpV2Components } from './useMcpV2Components.ts';
+import { V2ComponentsMap } from '../../../spaces/onboarding/hooks/useWorkspaceV2ComponentsQuery.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -44,6 +45,7 @@ interface Props {
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
   useMcpV2ComponentsHook?: typeof useMcpV2Components;
+  v2ComponentsMap?: V2ComponentsMap;
 }
 
 type MCPWizardState = {
@@ -64,6 +66,7 @@ export const ControlPlaneCard = ({
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
   useMcpV2ComponentsHook = useMcpV2Components,
+  v2ComponentsMap,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -113,10 +116,25 @@ export const ControlPlaneCard = ({
   }, [controlPlane]);
   const isLoadingComponents = false;
 
-  const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
+  // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)
+  const mapEntry = isV2 && v2ComponentsMap ? v2ComponentsMap[name] : undefined;
+  const skipHook = isV2 && v2ComponentsMap !== undefined;
+  const { components: mcpV2ComponentsFromHook, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
     name,
     namespace,
-    !isV2,
+    !isV2 || skipHook,
+  );
+  const mcpV2Components = useMemo(
+    () =>
+      mapEntry
+        ? {
+            crossplane: mapEntry.crossplane || undefined,
+            flux: mapEntry.flux || undefined,
+            landscaper: mapEntry.landscaper || undefined,
+            externalSecretsOperator: mapEntry.externalSecretsOperator || undefined,
+          }
+        : mcpV2ComponentsFromHook,
+    [mapEntry, mcpV2ComponentsFromHook],
   );
 
   const components = useMemo<ComponentInfo[]>(() => {
