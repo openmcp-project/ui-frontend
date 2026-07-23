@@ -14,111 +14,108 @@ import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGr
 
 TimeAgo.addDefaultLocale(en);
 
+const workspace: Workspace = {
+  metadata: {
+    name: 'workspaceName',
+    namespace: 'project-webapp-playground--ws-workspaceName',
+    annotations: {},
+  },
+  spec: { members: [] },
+  status: { namespace: 'project-webapp-playground--ws-workspaceName' },
+};
+
+const fakeManagedControlPlanes: ControlPlaneListItem[] = [
+  {
+    version: 'v1',
+    metadata: {
+      name: 'mcp-a',
+      namespace: 'project-webapp-playground--ws-workspaceName',
+      creationTimestamp: '2024-05-28T10:00:00Z',
+      annotations: {},
+    },
+    status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+  },
+  {
+    version: 'v1',
+    metadata: {
+      annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
+      name: 'test-cp-b',
+      namespace: 'project-test--ws-workspaceName',
+      creationTimestamp: '2024-05-28T10:00:00Z',
+    },
+    status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+  },
+  {
+    version: 'v1',
+    metadata: {
+      annotations: { 'openmcp.cloud/created-by': 'user@example.com', 'openmcp.cloud/display-name': '' },
+      name: 'flux',
+      namespace: 'project-test--ws-workspaceName',
+      creationTimestamp: '2024-05-28T10:00:00Z',
+    },
+    status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+  },
+];
+
+const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
+  data: fakeManagedControlPlanes,
+  error: undefined,
+  isPending: false,
+});
+
+const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
+  deleteWorkspace: async (): Promise<void> => {},
+});
+
+const frontendConfig = {
+  documentationBaseUrl: '',
+  githubBaseUrl: '',
+  githubApps: [],
+  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false, enableGitHub: false },
+};
+
+function mountTile({
+  isExpanded = false,
+  onToggle = cy.stub(),
+  deleteWorkspace = fakeUseDeleteWorkspace,
+}: {
+  isExpanded?: boolean;
+  onToggle?: () => void;
+  deleteWorkspace?: typeof fakeUseDeleteWorkspace;
+} = {}) {
+  cy.mount(
+    <MockedProvider mocks={[]}>
+      <MemoryRouter>
+        <FrontendConfigContext.Provider value={frontendConfig}>
+          <SplitterProvider>
+            <FeatureToggleProvider>
+              <ControlPlaneListWorkspaceGridTile
+                workspace={workspace}
+                projectName="some-project"
+                isExpanded={isExpanded}
+                useMcpsQuery={fakeUseMCPsListQuery}
+                useDeleteWorkspace={deleteWorkspace}
+                onToggleExpanded={onToggle}
+              />
+            </FeatureToggleProvider>
+          </SplitterProvider>
+        </FrontendConfigContext.Provider>
+      </MemoryRouter>
+    </MockedProvider>,
+  );
+}
+
 describe('ControlPlaneListWorkspaceGridTile', () => {
-  let deleteWorkspaceCalled = false;
-  const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
-    deleteWorkspace: async (): Promise<void> => {
-      deleteWorkspaceCalled = true;
-    },
-  });
-
-  const fakeManagedControlPlanes: ControlPlaneListItem[] = [
-    {
-      version: 'v1',
-      metadata: {
-        name: 'mcp-a',
-        namespace: 'project-webapp-playground--ws-workspaceName',
-        creationTimestamp: '2024-05-28T10:00:00Z',
-        annotations: {},
-      },
-      status: {
-        status: ReadyStatus.Ready,
-        conditions: [],
-        access: undefined,
-      },
-    },
-    {
-      version: 'v1',
-      metadata: {
-        annotations: {
-          'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
-          'openmcp.cloud/display-name': '',
-        },
-        name: 'd056765-all',
-        namespace: 'project-webapp-playground--ws-d056765',
-        creationTimestamp: '2024-05-28T10:00:00Z',
-      },
-      status: {
-        status: ReadyStatus.Ready,
-        conditions: [],
-        access: undefined,
-      },
-    },
-    {
-      version: 'v1',
-      metadata: {
-        annotations: {
-          'openmcp.cloud/created-by': 'andreas.kienle@sap.com',
-          'openmcp.cloud/display-name': '',
-        },
-        name: 'flux',
-        namespace: 'project-webapp-playground--ws-d056765',
-        creationTimestamp: '2024-05-28T10:00:00Z',
-      },
-      status: {
-        status: ReadyStatus.Ready,
-        conditions: [],
-        access: undefined,
-      },
-    },
-  ];
-
-  const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
-    data: fakeManagedControlPlanes,
-    error: undefined,
-    isPending: false,
-  });
-
-  beforeEach(() => {
-    deleteWorkspaceCalled = false;
-  });
-
   it('deletes the workspace', () => {
-    const workspace: Workspace = {
-      metadata: {
-        name: 'workspaceName',
-        namespace: 'project-webapp-playground--ws-workspaceName',
-        annotations: {},
-      },
-      spec: {
-        members: [],
-      },
-    };
-
-    cy.mount(
-      <MockedProvider mocks={[]}>
-        <MemoryRouter>
-          <FrontendConfigContext.Provider
-            value={{
-              documentationBaseUrl: '',
-              githubBaseUrl: '',
-              featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
-            }}
-          >
-            <SplitterProvider>
-              <FeatureToggleProvider>
-                <ControlPlaneListWorkspaceGridTile
-                  workspace={workspace}
-                  projectName="some-project"
-                  useMcpsQuery={fakeUseMCPsListQuery}
-                  useDeleteWorkspace={fakeUseDeleteWorkspace}
-                />
-              </FeatureToggleProvider>
-            </SplitterProvider>
-          </FrontendConfigContext.Provider>
-        </MemoryRouter>
-      </MockedProvider>,
-    );
+    let deleteWorkspaceCalled = false;
+    mountTile({
+      isExpanded: true,
+      deleteWorkspace: () => ({
+        deleteWorkspace: async () => {
+          deleteWorkspaceCalled = true;
+        },
+      }),
+    });
 
     cy.get("[data-testid='ControlPlanesListMenu-opener']").click();
     cy.contains('Delete workspace').click({ force: true });
@@ -126,5 +123,60 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', false));
     cy.get('ui5-dialog[open]').find('ui5-button').contains('Delete').click();
     cy.then(() => cy.wrap(deleteWorkspaceCalled).should('equal', true));
+  });
+
+  describe('lazy loading — ControlPlaneCards only mount when workspace is expanded', () => {
+    it('does NOT render ControlPlaneCards when workspace is collapsed', () => {
+      let kpiRequestCount = 0;
+      cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
+      cy.intercept('POST', '**/graphql', (req) => {
+        const body = req.body as { operationName?: string };
+        if (
+          ['GetCrossplane', 'GetFlux', 'GetLandscaper', 'GetExternalSecretsOperator'].includes(body.operationName ?? '')
+        ) {
+          kpiRequestCount++;
+        }
+        req.continue();
+      });
+
+      mountTile({ isExpanded: false });
+
+      cy.get('[data-testid="workspace-panel-workspaceName"]').should('exist');
+      cy.get('[data-testid="workspace-panel-workspaceName"]')
+        .find('button')
+        .first()
+        .invoke('attr', 'aria-expanded')
+        .should('eq', 'false');
+
+      cy.contains('mcp-a').should('not.exist');
+      cy.contains('test-cp-b').should('not.exist');
+
+      cy.get('@mcpComponentsRest.all').should('have.length', 0);
+      cy.then(() => expect(kpiRequestCount).to.equal(0));
+    });
+
+    it('renders ControlPlaneCards when workspace is expanded', () => {
+      cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
+
+      mountTile({ isExpanded: true });
+
+      cy.get('[data-testid="workspace-panel-workspaceName"]')
+        .find('button')
+        .first()
+        .invoke('attr', 'aria-expanded')
+        .should('eq', 'true');
+
+      cy.contains('mcp-a').should('exist');
+
+      cy.get('@mcpComponentsRest.all').should('have.length.greaterThan', 0);
+    });
+
+    it('calls onToggleExpanded when the header button is clicked', () => {
+      const onToggle = cy.stub().as('onToggle');
+      mountTile({ isExpanded: false, onToggle });
+
+      cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().click();
+      cy.get('@onToggle').should('have.been.calledOnce');
+    });
   });
 });

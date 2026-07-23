@@ -109,7 +109,8 @@
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
-    "deleteMCP": "Delete"
+    "deleteMCP": "Delete",
+    "installComponents": "Install components"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -136,7 +137,8 @@
     "supportTicketTitleDeletion": "MCP in Deletion",
     "supportTicketTitleIssues": "Issues with Control Plane",
     "statusDetailsLabel": "MCP Status",
-    "detailsLabel": "Details:"
+    "detailsLabel": "Details:",
+    "createdLabel": "Created:"
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
