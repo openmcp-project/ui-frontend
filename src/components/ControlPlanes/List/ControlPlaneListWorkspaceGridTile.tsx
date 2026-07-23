@@ -2,7 +2,9 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
-import { Button, FlexBox, ObjectPageSection, Panel, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/product';
+import '@ui5/webcomponents-icons/dist/slim-arrow-right';
+import { Button, BusyIndicator, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
@@ -143,110 +145,110 @@ export function ControlPlaneListWorkspaceGridTile({
         titleText={workspaceName}
         hideTitleText
       >
-        <Panel
-          headerLevel="H2"
-          style={{ maxWidth: '1280px', margin: '0px auto 0px auto', width: '100%' }}
-          collapsed={shouldCollapsePanel}
-          data-testid={`workspace-panel-${workspaceName}`}
-          noAnimation
-          header={
-            <div
-              style={{
-                width: '100%',
-                display: 'grid',
-                gridTemplateColumns: '1fr 0.24fr auto',
-                gap: '1rem',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
+        <section className={styles.workspaceSection} data-testid={`workspace-panel-${workspaceName}`}>
+          <div className={styles.workspaceHeader}>
+            <button
+              type="button"
+              className={styles.workspaceToggle}
+              aria-expanded={!shouldCollapsePanel}
+              onClick={onToggleExpanded}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 0 }}>
-                <Title level="H3">
-                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-                </Title>
-                <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
-              </div>
-
-              <MembersAvatarView
-                members={uniqueMembers}
-                project={projectName}
-                workspace={workspaceName}
-                source="workspace-grid"
+              <Icon
+                name="slim-arrow-right"
+                className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
               />
-              <FlexBox justifyContent={'SpaceBetween'} gap={10}>
-                <YamlViewButton
-                  variant="loader"
-                  workspaceName={workspace.metadata.namespace}
-                  resourceName={workspaceName}
-                  resourceType={'workspaces'}
-                />
-                <ControlPlanesListMenu
-                  setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
-                  setDialogEditWsIsOpen={setDialogEditWsIsOpen}
-                  setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
-                  setInitialTemplateName={setInitialTemplateName}
-                  setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
-                />
-              </FlexBox>
-            </div>
-          }
-          onToggle={onToggleExpanded}
-        >
-          {errorView ? (
-            errorView
-          ) : isPending ? null : managedControlPlanes?.length === 0 ? (
-            <IllustratedBanner
-              title={t('IllustratedBanner.titleMessage')}
-              subtitle={t('IllustratedBanner.subtitleMessage')}
-              illustrationName={IllustrationMessageType.NoData}
-              compact
-              help={{
-                link: mcpCreationGuide,
-                buttonText: t('IllustratedBanner.helpButton'),
-              }}
-              button={
-                <>
-                  <Button
-                    className={styles.createButton}
-                    icon={'add'}
-                    design={'Emphasized'}
-                    onClick={() => {
-                      setIsCreateManagedControlPlaneWizardOpen(true);
-                    }}
-                  >
-                    {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
-                  </Button>
-
-                  {enableMcpV2 && (
-                    <Button
-                      className={styles.createButton}
-                      icon={'add'}
-                      onClick={() => {
-                        setIsCreateManagedControlPlaneWizardOpenV2(true);
-                      }}
-                    >
-                      {t('ControlPlaneListToolbar.createNewControlPlane')}
-                    </Button>
-                  )}
-                </>
-              }
+              <Icon name="product" className={styles.workspaceIcon} />
+              <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+              <Title level="H3" className={styles.workspaceTitle}>
+                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+              </Title>
+            </button>
+            <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
+            <div className={styles.headerSpacer} />
+            <MembersAvatarView
+              members={uniqueMembers}
+              project={projectName}
+              workspace={workspaceName}
+              source="workspace-grid"
             />
-          ) : (
-            <div className={styles.wrapper}>
-              <div className={styles.grid}>
-                {visibleMcps?.map((mcp) => (
-                  <ControlPlaneCard
-                    key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
-                    controlPlane={mcp}
-                    projectName={projectName}
-                    workspace={workspace}
-                  />
-                ))}
-              </div>
+            <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              <YamlViewButton
+                variant="loader"
+                workspaceName={workspace.metadata.namespace}
+                resourceName={workspaceName}
+                resourceType={'workspaces'}
+              />
+              <ControlPlanesListMenu
+                setDialogDeleteWsIsOpen={setDialogDeleteWsIsOpen}
+                setDialogEditWsIsOpen={setDialogEditWsIsOpen}
+                setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
+                setInitialTemplateName={setInitialTemplateName}
+                setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
+              />
+            </FlexBox>
+          </div>
+
+          {!shouldCollapsePanel && (
+            <div className={styles.workspaceBody}>
+              {errorView ? (
+                errorView
+              ) : isPending ? (
+                <BusyIndicator active delay={0} size="M" />
+              ) : managedControlPlanes?.length === 0 ? (
+                <IllustratedBanner
+                  title={t('IllustratedBanner.titleMessage')}
+                  subtitle={t('IllustratedBanner.subtitleMessage')}
+                  illustrationName={IllustrationMessageType.NoData}
+                  compact
+                  help={{
+                    link: mcpCreationGuide,
+                    buttonText: t('IllustratedBanner.helpButton'),
+                  }}
+                  button={
+                    <>
+                      <Button
+                        className={styles.createButton}
+                        icon={'add'}
+                        design={'Emphasized'}
+                        onClick={() => {
+                          setIsCreateManagedControlPlaneWizardOpen(true);
+                        }}
+                      >
+                        {t('ControlPlaneListToolbar.createNewManagedControlPlane')}
+                      </Button>
+
+                      {enableMcpV2 && (
+                        <Button
+                          className={styles.createButton}
+                          icon={'add'}
+                          onClick={() => {
+                            setIsCreateManagedControlPlaneWizardOpenV2(true);
+                          }}
+                        >
+                          {t('ControlPlaneListToolbar.createNewControlPlane')}
+                        </Button>
+                      )}
+                    </>
+                  }
+                />
+              ) : (
+                <div className={styles.wrapper}>
+                  <div className={styles.grid}>
+                    {visibleMcps?.map((mcp) => (
+                      <ControlPlaneCard
+                        key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
+                        controlPlane={mcp}
+                        projectName={projectName}
+                        workspace={workspace}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
-        </Panel>
+        </section>
       </ObjectPageSection>
       <DeleteConfirmationDialog
         resourceName={workspaceName}

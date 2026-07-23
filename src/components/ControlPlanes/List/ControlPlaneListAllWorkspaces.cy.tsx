@@ -66,32 +66,37 @@ function panel(name: string) {
 }
 
 function togglePanel(name: string) {
-  panel(name).then(($el: JQuery<HTMLElement>) => $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true })));
+  // Click the toggle button inside the custom workspace section
+  panel(name).find('button').first().click();
+}
+
+function isExpanded(name: string) {
+  return panel(name).find('button').first().invoke('attr', 'aria-expanded');
 }
 
 describe('ControlPlaneListAllWorkspaces — expansion via props', () => {
   it('all workspaces start collapsed when expandedWorkspaces is empty', () => {
     mountAllWorkspaces(workspaces, new Set());
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', true);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', true);
+    isExpanded('alpha').should('eq', 'false');
+    isExpanded('beta').should('eq', 'false');
+    isExpanded('gamma').should('eq', 'false');
   });
 
   it('expands workspaces that are in expandedWorkspaces', () => {
     mountAllWorkspaces(workspaces, new Set(['alpha', 'gamma']));
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
-    panel('beta').invoke('prop', 'collapsed').should('equal', true);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
+    isExpanded('alpha').should('eq', 'true');
+    isExpanded('beta').should('eq', 'false');
+    isExpanded('gamma').should('eq', 'true');
   });
 
   it('expands all when all names are in expandedWorkspaces', () => {
     mountAllWorkspaces(workspaces, new Set(['alpha', 'beta', 'gamma']));
 
-    panel('alpha').invoke('prop', 'collapsed').should('equal', false);
-    panel('beta').invoke('prop', 'collapsed').should('equal', false);
-    panel('gamma').invoke('prop', 'collapsed').should('equal', false);
+    isExpanded('alpha').should('eq', 'true');
+    isExpanded('beta').should('eq', 'true');
+    isExpanded('gamma').should('eq', 'true');
   });
 });
 
