@@ -43,6 +43,7 @@ export type TelemetryFeature =
   | Feature<'component.installed', { componentName: string }>
   | Feature<'component.updated', { componentName: string }>
   | Feature<'component.uninstalled', { componentName: string }>
+  | Feature<'component.status-viewed', { componentName: string }>
   // Shell bar
   | Feature<'view-mode.toggled', { mode: 'headlamp' | 'legacy' }>
   | Feature<'feedback.opened'>
