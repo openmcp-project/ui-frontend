@@ -67,12 +67,10 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
-  refreshSignal,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
-  refreshSignal: number;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -174,16 +172,6 @@ function OpenSourceHeadlamp({
     };
   }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
 
-  // When the host bumps refreshSignal (edit wizard closed), tell the plugin inside
-  // the iframe to re-probe component status — same-origin, so origin is our own.
-  useEffect(() => {
-    if (refreshSignal === 0) return;
-    iframeRef.current?.contentWindow?.postMessage(
-      { source: 'ocp-host', action: 'componentsChanged' },
-      window.location.origin,
-    );
-  }, [refreshSignal]);
-
   if (error) {
     return (
       <IllustratedBanner
@@ -243,9 +231,6 @@ export default function ManagedControlPlanePage() {
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
   >(undefined);
-  // Bumped when the edit wizard closes, so the Headlamp iframe re-probes component
-  // status without a full page reload (the wizard may have installed a component).
-  const [headlampRefreshSignal, setHeadlampRefreshSignal] = useState(0);
   const selectedSectionId = useMemo(() => {
     const tab = searchParams.get('tab');
     if (tab && MCP_PAGE_SECTIONS.includes(tab as McpPageSectionId)) {
@@ -281,9 +266,6 @@ export default function ManagedControlPlanePage() {
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
     setEditManagedControlPlaneWizardSection(undefined);
-    // Tell the Headlamp iframe to re-probe component status (a component may have
-    // just been installed via the wizard). Cheap and idempotent even on cancel.
-    setHeadlampRefreshSignal((s) => s + 1);
   };
 
   // The embedded Headlamp plugin (same-origin iframe) cannot install a component
@@ -351,7 +333,6 @@ export default function ManagedControlPlanePage() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
-                refreshSignal={headlampRefreshSignal}
               />
               <EditManagedControlPlaneWizardDataLoader
                 isOpen={isEditManagedControlPlaneWizardOpen}
