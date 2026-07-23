@@ -42,7 +42,7 @@ import { useAuthOnboarding as _useAuthOnboarding } from '../../spaces/onboarding
 import { convertRoleBindingsToMembers } from '../../utils/convertRoleBindingsToMembers.ts';
 import { DownloadKubeconfig } from '../ControlPlanes/CopyKubeconfigButton.tsx';
 import { MembersAvatarView } from '../ControlPlanes/List/MembersAvatarView.tsx';
-import { generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
+import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../Helper/generateInitialsForEmail.ts';
 import { FeedbackPopover } from './FeedbackButton.tsx';
 import styles from './ShellBar.module.css';
 
@@ -75,7 +75,13 @@ export function ShellBarComponent({
         hidden={window.location.href.includes('compact-mode')}
         logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
         primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
-        profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
+        profile={
+          <Avatar
+            colorScheme={avatarColorSchemeForEmail(auth.user?.email)}
+            initials={generateInitialsForEmail(auth.user?.email)}
+            size="XS"
+          />
+        }
         startButton={
           navigateBack ? (
             <Button
