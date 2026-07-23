@@ -39,10 +39,8 @@ export interface YamlViewButtonMcpComponentProps {
   // When set, the panel renders this data directly instead of fetching it on click.
   preloadedResource?: Resource | null;
 }
-export type YamlViewButtonProps =
-  | YamlViewButtonResourceProps
-  | YamlViewButtonLoaderProps
-  | YamlViewButtonMcpComponentProps;
+// prettier-ignore
+export type YamlViewButtonProps = YamlViewButtonResourceProps | YamlViewButtonLoaderProps | YamlViewButtonMcpComponentProps;
 
 export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
