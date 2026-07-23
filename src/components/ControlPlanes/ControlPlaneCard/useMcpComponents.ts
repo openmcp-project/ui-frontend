@@ -13,17 +13,22 @@ interface McpComponents {
 type RoleBinding = { role: string; subjects: { kind: string; name: string }[] };
 
 export function useMcpComponents(projectName: string, workspaceName: string, controlPlaneName: string) {
-  const { data: mcp, isLoading } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  const {
+    data: mcp,
+    isLoading,
+    error,
+  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
 
   const components = useMemo<McpComponents | null>(() => {
+    if (error) return {};
     if (!mcp?.spec?.components) return null;
     return mcp.spec.components as McpComponents;
-  }, [mcp]);
+  }, [error, mcp]);
 
   const roleBindings = useMemo<RoleBinding[] | undefined>(
-    () => mcp?.spec?.authorization?.roleBindings as RoleBinding[] | undefined,
-    [mcp],
+    () => (error ? undefined : (mcp?.spec?.authorization?.roleBindings as RoleBinding[] | undefined)),
+    [error, mcp],
   );
 
-  return { components, roleBindings, isLoading };
+  return { components, roleBindings, isLoading: error ? false : isLoading, hasError: !!error };
 }
