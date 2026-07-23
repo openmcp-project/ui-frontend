@@ -2,7 +2,7 @@ import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import '@ui5/webcomponents-icons/dist/expand-all.js';
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
-import { Button, FlexBox, ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import { Button, FlexBox, ObjectPage, ObjectPageSection, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -160,7 +160,7 @@ export default function ProjectPage() {
                   alignItems: 'center',
                 }}
               >
-                <p style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</p>
+                <span style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</span>
                 <ProjectChooser currentProjectName={projectName ?? ''} />
                 <Button
                   data-testid="pin-button"
@@ -190,46 +190,48 @@ export default function ProjectPage() {
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        {workspaces.length > 0 && (
-          <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
-            <ResourceSearchBar
-              focusOnMount
-              value={search}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
-            />
-            {allExpanded ? (
-              <Button
-                className={styles.expandCollapseButton}
-                design="Transparent"
-                disabled={!!search}
-                icon="collapse-all"
-                tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
-                onClick={handleCollapseAll}
-              >
-                {t('ControlPlaneListAllWorkspaces.collapseAll')}
-              </Button>
-            ) : (
-              <Button
-                className={styles.expandCollapseButton}
-                design="Transparent"
-                disabled={!!search}
-                icon="expand-all"
-                tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
-                onClick={handleExpandAll}
-              >
-                {t('ControlPlaneListAllWorkspaces.expandAll')}
-              </Button>
-            )}
-          </FlexBox>
-        )}
-        <ControlPlaneListAllWorkspaces
-          projectName={projectName}
-          workspaces={workspaces}
-          search={search}
-          expandedWorkspaces={expandedWorkspaces}
-          onToggleWorkspace={handleToggleWorkspace}
-        />
+        <ObjectPageSection id="workspaces" titleText="Workspaces" hideTitleText>
+          {workspaces.length > 0 && (
+            <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
+              <ResourceSearchBar
+                focusOnMount
+                value={search}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
+              />
+              {allExpanded ? (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="collapse-all"
+                  tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
+                  onClick={handleCollapseAll}
+                >
+                  {t('ControlPlaneListAllWorkspaces.collapseAll')}
+                </Button>
+              ) : (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="expand-all"
+                  tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
+                  onClick={handleExpandAll}
+                >
+                  {t('ControlPlaneListAllWorkspaces.expandAll')}
+                </Button>
+              )}
+            </FlexBox>
+          )}
+          <ControlPlaneListAllWorkspaces
+            projectName={projectName}
+            workspaces={workspaces}
+            search={search}
+            expandedWorkspaces={expandedWorkspaces}
+            onToggleWorkspace={handleToggleWorkspace}
+          />
+        </ObjectPageSection>
       </ObjectPage>
     </>
   );
