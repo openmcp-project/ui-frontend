@@ -155,15 +155,15 @@ export function useMcpsQuery(workspaceNamespace?: string) {
   });
 
   useEffect(() => {
-    if (v1SubData?.core_openmcp_cloud_v1alpha1_managedcontrolplanes) {
-      refetch();
-    }
+    if (!v1SubData?.core_openmcp_cloud_v1alpha1_managedcontrolplanes) return;
+    const timer = setTimeout(() => refetch(), 300);
+    return () => clearTimeout(timer);
   }, [v1SubData, refetch]);
 
   useEffect(() => {
-    if (v2SubData?.core_open_control_plane_io_v2alpha1_controlplanes) {
-      refetch();
-    }
+    if (!v2SubData?.core_open_control_plane_io_v2alpha1_controlplanes) return;
+    const timer = setTimeout(() => refetch(), 300);
+    return () => clearTimeout(timer);
   }, [v2SubData, refetch]);
 
   const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;

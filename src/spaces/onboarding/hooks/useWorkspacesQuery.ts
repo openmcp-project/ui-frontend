@@ -60,11 +60,11 @@ export function useWorkspacesQuery(projectName?: string) {
 
   const { refetch } = query;
 
-  // Refetch when subscription receives any event
+  // Refetch when subscription receives any event, debounced to coalesce burst events
   useEffect(() => {
-    if (subscriptionData?.core_openmcp_cloud_v1alpha1_workspaces) {
-      refetch();
-    }
+    if (!subscriptionData?.core_openmcp_cloud_v1alpha1_workspaces) return;
+    const timer = setTimeout(() => refetch(), 300);
+    return () => clearTimeout(timer);
   }, [subscriptionData, refetch]);
 
   const workspaces = useMemo<Workspace[]>(() => {
