@@ -24,11 +24,12 @@ export function useMcpV2Components(name: string, namespace: string, skip = false
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(effectiveName, effectiveNs);
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(effectiveName, effectiveNs);
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(effectiveName, effectiveNs);
-  const { ocmData, isLoading: isLoadingOcm } = useOcmQuery(effectiveName, effectiveNs);
-  const { kroData, isLoading: isLoadingKro } = useKroQuery(effectiveName, effectiveNs);
+  // OCM and KRO are non-blocking: their queries only work once the GraphQL schema
+  // includes these root fields. Until then they resolve to null without blocking the card.
+  const { ocmData } = useOcmQuery(effectiveName, effectiveNs);
+  const { kroData } = useKroQuery(effectiveName, effectiveNs);
 
-  const isLoading =
-    isLoadingCrossplane || isLoadingFlux || isLoadingLandscaper || isLoadingEso || isLoadingOcm || isLoadingKro;
+  const isLoading = isLoadingCrossplane || isLoadingFlux || isLoadingLandscaper || isLoadingEso;
 
   const components = useMemo<McpV2Components | null>(() => {
     if (isLoading) return null;
