@@ -746,17 +746,7 @@ export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input = {
 
 /** status defines the observed state of Flux */
 export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input = {
-  /**
-   * conditions represent the current state of the Flux resource.
-   * Each condition has a unique type and reflects the status of a specific aspect of the resource.
-   *
-   * Standard condition types include:
-   * - "Available": the resource is fully functional
-   * - "Progressing": the resource is being created or updated
-   * - "Degraded": the resource failed to reach or maintain its desired state
-   *
-   * The status of each condition is one of True, False, or Unknown.
-   */
+  /** Conditions contains the conditions. */
   conditions?:
     Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
@@ -1574,6 +1564,22 @@ export type GetMcPsListQuery = {
       };
     } | null;
   } | null;
+};
+
+export type McpV1SubscriptionSubscriptionVariables = Exact<{
+  namespace: string;
+}>;
+
+export type McpV1SubscriptionSubscription = {
+  core_openmcp_cloud_v1alpha1_managedcontrolplanes: { type: WatchEventType } | null;
+};
+
+export type McpV2SubscriptionSubscriptionVariables = Exact<{
+  namespace: string;
+}>;
+
+export type McpV2SubscriptionSubscription = {
+  core_open_control_plane_io_v2alpha1_controlplanes: { type: WatchEventType } | null;
 };
 
 export type GetProjectMembersQueryVariables = Exact<{
@@ -4668,6 +4674,80 @@ export const GetMcPsListDocument = {
     },
   ],
 } as unknown as DocumentNode<GetMcPsListQuery, GetMcPsListQueryVariables>;
+export const McpV1SubscriptionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'McpV1Subscription' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud_v1alpha1_managedcontrolplanes' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'namespace' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'type' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpV1SubscriptionSubscription, McpV1SubscriptionSubscriptionVariables>;
+export const McpV2SubscriptionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'McpV2Subscription' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io_v2alpha1_controlplanes' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'namespace' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'type' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpV2SubscriptionSubscription, McpV2SubscriptionSubscriptionVariables>;
 export const GetProjectMembersDocument = {
   kind: 'Document',
   definitions: [

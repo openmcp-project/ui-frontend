@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { NetworkStatus } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useSubscription } from '@apollo/client/react';
 import { z } from 'zod';
 
 import { graphql } from '../../../types/__generated__/graphql';
@@ -117,15 +117,54 @@ function toV2Input(item: V2Item) {
   };
 }
 
+const MCP_V1_SUBSCRIPTION = graphql(`
+  subscription McpV1Subscription($namespace: String!) {
+    core_openmcp_cloud_v1alpha1_managedcontrolplanes(namespace: $namespace) {
+      type
+    }
+  }
+`);
+
+const MCP_V2_SUBSCRIPTION = graphql(`
+  subscription McpV2Subscription($namespace: String!) {
+    core_open_control_plane_io_v2alpha1_controlplanes(namespace: $namespace) {
+      type
+    }
+  }
+`);
+
 export function useMcpsQuery(workspaceNamespace?: string) {
   const { enableMcpV2 } = useFeatureToggle();
 
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
     skip: !workspaceNamespace,
-    // TODO: replace with a GraphQL subscription
     notifyOnNetworkStatusChange: true,
   });
+
+  const { refetch } = queryResult;
+
+  const { data: v1SubData } = useSubscription(MCP_V1_SUBSCRIPTION, {
+    variables: { namespace: workspaceNamespace ?? '' },
+    skip: !workspaceNamespace,
+  });
+
+  const { data: v2SubData } = useSubscription(MCP_V2_SUBSCRIPTION, {
+    variables: { namespace: workspaceNamespace ?? '' },
+    skip: !workspaceNamespace || !enableMcpV2,
+  });
+
+  useEffect(() => {
+    if (v1SubData?.core_openmcp_cloud_v1alpha1_managedcontrolplanes) {
+      refetch();
+    }
+  }, [v1SubData, refetch]);
+
+  useEffect(() => {
+    if (v2SubData?.core_open_control_plane_io_v2alpha1_controlplanes) {
+      refetch();
+    }
+  }, [v2SubData, refetch]);
 
   const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;
   const v2Items = queryResult.data?.core_open_control_plane_io?.v2alpha1?.ControlPlanes?.items;
