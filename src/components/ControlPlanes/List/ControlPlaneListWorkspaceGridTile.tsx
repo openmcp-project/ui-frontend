@@ -197,7 +197,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.workspaceBody}>
               {errorView ? (
                 errorView
-              ) : isPending ? (
+              ) : isPending && managedControlPlanes?.length === 0 ? (
                 <BusyIndicator active delay={0} size="M" />
               ) : managedControlPlanes?.length === 0 ? (
                 <IllustratedBanner
