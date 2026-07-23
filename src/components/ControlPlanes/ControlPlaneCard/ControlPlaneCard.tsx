@@ -29,6 +29,8 @@ import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { Routes } from '../../../Routes.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -96,6 +98,7 @@ export const ControlPlaneCard = ({
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   const isV2 = controlPlane.version === 'v2';
+  const navigate = useNavigate();
 
   const {
     components: mcpComponents,
@@ -196,7 +199,15 @@ export const ControlPlaneCard = ({
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
-                          setIsEditV2WizardOpen(true);
+                          // V2 edit doesn't support adding components yet — send the
+                          // user to the MCP page (same as view) so they can install there.
+                          navigate(
+                            generatePath(Routes.McpV2, {
+                              projectName,
+                              workspaceName: workspace.metadata.name ?? '',
+                              controlPlaneName: name,
+                            }),
+                          );
                         } else {
                           handleIsManagedControlPlaneWizardOpen(true, 'edit');
                         }
