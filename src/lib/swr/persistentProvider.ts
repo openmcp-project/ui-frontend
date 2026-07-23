@@ -1,0 +1,229 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Cache } from 'swr';
+
+/**
+ * SWR cache provider that persists entries to localStorage, scoped per MCP.
+ *
+ * Storage key shape: `mcp-ui:swr:v1:<project>:<workspace>:<mcpName>`.
+ * Each MCP gets its own bucket — switching MCPs never overwrites another's
+ * cache, and per-MCP wipe is a single `removeItem`.
+ *
+ * Persistence policy:
+ *  - Only entries that have `data` and no `error` are written. Failed requests
+ *    stay in the in-memory cache for the session but never hit localStorage,
+ *    so a transient 403 / 500 doesn't sticky into the next page load.
+ *  - Each persisted entry is timestamped; entries older than TTL_MS are
+ *    dropped on hydrate.
+ *  - On QuotaExceededError when writing, drop the *other* MCP bucket whose
+ *    most-recent write is oldest (LRU across MCPs) and retry. Active MCP's
+ *    bucket is never evicted to write itself out.
+ */
+
+const PREFIX = 'mcp-ui:swr:v1:';
+const MAX_BYTES_PER_BUCKET = 4 * 1024 * 1024; // 4 MB — under the 5 MB common quota
+const PERSIST_DEBOUNCE_MS = 200;
+const TTL_MS = 30 * 60 * 1000; // 30 minutes
+// Bump SCHEMA_VERSION when the on-disk shape changes (entry layout, jq filter
+// for cached endpoints, or SWR's internal State shape). Old buckets that
+// don't match are silently dropped on hydrate.
+const SCHEMA_VERSION = 1;
+
+type PersistedEntry = { ts: number; value: any };
+type Envelope = { schemaVersion: number; entries: [string, PersistedEntry][] };
+
+export function storageKeyForMcp(mcpId: string): string {
+  return `${PREFIX}${mcpId}`;
+}
+
+function hydrate(storageKey: string): Map<string, any> {
+  if (typeof window === 'undefined') return new Map();
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return new Map();
+    const parsed = JSON.parse(raw) as Envelope;
+    if (!parsed || parsed.schemaVersion !== SCHEMA_VERSION || !Array.isArray(parsed.entries)) {
+      return new Map();
+    }
+    const cutoff = Date.now() - TTL_MS;
+    const fresh = parsed.entries.filter(([, e]) => e && typeof e.ts === 'number' && e.ts >= cutoff);
+    return new Map(fresh.map(([k, e]) => [k, e.value]));
+  } catch {
+    return new Map();
+  }
+}
+
+function persist(storageKey: string, map: Map<string, any>): void {
+  if (typeof window === 'undefined') return;
+  const now = Date.now();
+  let entries: [string, PersistedEntry][] = [];
+  for (const [k, value] of map.entries()) {
+    if (!isPersistable(value)) continue;
+    entries.push([k, { ts: now, value }]);
+  }
+  const envelope = (e: [string, PersistedEntry][]): Envelope => ({ schemaVersion: SCHEMA_VERSION, entries: e });
+  let serialized = '';
+  try {
+    serialized = JSON.stringify(envelope(entries));
+  } catch {
+    return;
+  }
+  // Trim oldest entries until under the size cap.
+  while (serialized.length > MAX_BYTES_PER_BUCKET && entries.length > 1) {
+    entries = entries.slice(Math.ceil(entries.length / 8));
+    try {
+      serialized = JSON.stringify(envelope(entries));
+    } catch {
+      return;
+    }
+  }
+  if (writeWithQuotaRecovery(storageKey, serialized)) return;
+  // Final fallback: clear our other buckets entirely and try once more.
+  evictAllOtherBuckets(storageKey);
+  try {
+    window.localStorage.setItem(storageKey, serialized);
+  } catch {
+    // give up
+  }
+}
+
+/**
+ * Try `setItem`; on QuotaExceededError, evict the least-recently-touched
+ * `mcp-ui:swr:v1:*` bucket (other than `excludeKey`) and retry, up to a few
+ * times. Returns true if the write eventually succeeded.
+ */
+function writeWithQuotaRecovery(storageKey: string, serialized: string): boolean {
+  const MAX_EVICTIONS = 4;
+  for (let i = 0; i <= MAX_EVICTIONS; i++) {
+    try {
+      window.localStorage.setItem(storageKey, serialized);
+      return true;
+    } catch (e) {
+      if (!isQuotaError(e)) return false; // some other failure — don't loop
+      if (!evictOldestOtherBucket(storageKey)) return false; // nothing left to drop
+    }
+  }
+  return false;
+}
+
+function isQuotaError(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false;
+  // Browsers differ — check both name and code.
+  const name = (e as { name?: string }).name;
+  const code = (e as { code?: number }).code;
+  return name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED' || code === 22 || code === 1014;
+}
+
+/**
+ * Find the `mcp-ui:swr:v1:*` bucket (other than `excludeKey`) whose
+ * most-recent entry is the oldest, and remove it. Returns true if a bucket
+ * was removed.
+ */
+function evictOldestOtherBucket(excludeKey: string): boolean {
+  let oldestKey: string | null = null;
+  let oldestTs = Infinity;
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i);
+    if (!k || !k.startsWith(PREFIX) || k === excludeKey) continue;
+    const raw = window.localStorage.getItem(k);
+    if (!raw) continue;
+    let maxTs = 0;
+    try {
+      const parsed = JSON.parse(raw) as Envelope;
+      if (parsed && Array.isArray(parsed.entries)) {
+        for (const [, entry] of parsed.entries) {
+          if (entry && typeof entry.ts === 'number' && entry.ts > maxTs) maxTs = entry.ts;
+        }
+      }
+    } catch {
+      // unparseable bucket — treat as oldest (epoch) so it's dropped first.
+      maxTs = 0;
+    }
+    if (maxTs < oldestTs) {
+      oldestTs = maxTs;
+      oldestKey = k;
+    }
+  }
+  if (!oldestKey) return false;
+  try {
+    window.localStorage.removeItem(oldestKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function evictAllOtherBuckets(excludeKey: string): void {
+  const toRemove: string[] = [];
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(PREFIX) && k !== excludeKey) toRemove.push(k);
+    }
+    for (const k of toRemove) window.localStorage.removeItem(k);
+  } catch {
+    // ignore
+  }
+}
+
+// SWR stores State objects: { data, error, isLoading, isValidating, … }.
+// We only persist successful entries — keep failed and in-flight ones in
+// memory only so a transient 403 doesn't survive reload.
+function isPersistable(state: any): boolean {
+  if (state == null || typeof state !== 'object') return false;
+  if (state.error !== undefined) return false;
+  return state.data !== undefined;
+}
+
+/**
+ * Factory for an SWR `provider` callback. Returns a Map whose `set` is
+ * intercepted to debounce-persist to localStorage under the MCP-scoped key.
+ */
+export function createPersistentProvider(mcpId: string): () => Cache<any> {
+  return () => {
+    const storageKey = storageKeyForMcp(mcpId);
+    const map = hydrate(storageKey);
+    let pending: ReturnType<typeof setTimeout> | null = null;
+    const scheduleFlush = () => {
+      if (pending) return;
+      pending = setTimeout(() => {
+        pending = null;
+        persist(storageKey, map);
+      }, PERSIST_DEBOUNCE_MS);
+    };
+    const originalSet = map.set.bind(map);
+    map.set = (key, value) => {
+      originalSet(key, value);
+      if (isPersistable(value)) scheduleFlush();
+      return map;
+    };
+    const originalDelete = map.delete.bind(map);
+    map.delete = (key) => {
+      const r = originalDelete(key);
+      scheduleFlush();
+      return r;
+    };
+    return map;
+  };
+}
+
+/**
+ * Clear persisted SWR cache. With `mcpId`, wipes just that bucket; without,
+ * wipes every `mcp-ui:swr:v1:*` key — call this on full logout.
+ */
+export function clearPersistedSwrCache(mcpId?: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (mcpId) {
+      window.localStorage.removeItem(storageKeyForMcp(mcpId));
+      return;
+    }
+    const toRemove: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(PREFIX)) toRemove.push(k);
+    }
+    for (const k of toRemove) window.localStorage.removeItem(k);
+  } catch {
+    // ignore
+  }
+}
