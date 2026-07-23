@@ -38,12 +38,12 @@ export function MembersAvatarView({
       <AvatarGroup
         id={openerId}
         style={{ maxWidth }}
-        type={AvatarGroupType.Individual}
+        type={AvatarGroupType.Group}
         onClick={() => {
           if (!popoverIsOpen) {
             telemetry.track({ name: 'members.viewed', source });
+            setPopoverIsOpen(true);
           }
-          setPopoverIsOpen((v) => !v);
         }}
       >
         {members.map((member) => (
@@ -52,6 +52,7 @@ export function MembersAvatarView({
             colorScheme={avatarColorSchemeForEmail(member.name)}
             initials={generateInitialsForEmail(member.name)}
             accessibleName={member.name}
+            size="XS"
           />
         ))}
       </AvatarGroup>

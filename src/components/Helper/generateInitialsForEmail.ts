@@ -37,5 +37,6 @@ const ACCENT_SCHEMES = [
 
 export function avatarColorSchemeForEmail(email: string | undefined): AvatarColorScheme {
   if (!email) return AvatarColorScheme.Accent6;
-  return ACCENT_SCHEMES[hashEmail(email) % ACCENT_SCHEMES.length];
+  const normalized = email.includes(':') ? email.split(':')[1] : email;
+  return ACCENT_SCHEMES[hashEmail(normalized.toLowerCase()) % ACCENT_SCHEMES.length];
 }
