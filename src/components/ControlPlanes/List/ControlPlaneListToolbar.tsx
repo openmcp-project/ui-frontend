@@ -18,12 +18,14 @@ import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 
 type ControlPlaneListToolbarProps = {
   projectName: string;
+  controlPlanes?: { name: string; namespace: string }[];
   useDeleteProject?: typeof _useDeleteProject;
   useNavigate?: typeof _useNavigate;
 };
 
 export function ControlPlaneListToolbar({
   projectName,
+  controlPlanes = [],
   useDeleteProject = _useDeleteProject,
   useNavigate = _useNavigate,
 }: ControlPlaneListToolbarProps) {
@@ -118,6 +120,7 @@ export function ControlPlaneListToolbar({
       <ConnectGitHubDialog
         isOpen={dialogConnectGitHubIsOpen}
         projectName={projectName}
+        controlPlanes={controlPlanes}
         onClose={() => setDialogConnectGitHubIsOpen(false)}
       />
 

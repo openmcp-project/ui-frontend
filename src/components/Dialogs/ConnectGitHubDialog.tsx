@@ -65,12 +65,12 @@ interface GitRepository {
 interface PropagateEntry {
   kind: 'ControlPlane';
   name?: string;
+  namespace?: string;
   matchLabels?: Record<string, string>;
 }
 
 // Mock — replace with real queries when CRDs exist
 const MOCK_WORKSPACES = ['workspace-dev', 'workspace-staging', 'workspace-prod'];
-const MOCK_CONTROL_PLANES = ['mcp-dev', 'mcp-staging', 'mcp-prod', 'mcp-infra'];
 const PROJECT_SCOPE_KEY = '__project__';
 const INITIAL_INSTALLATIONS: AppInstallation[] = [
   { id: '1', name: 'github-cloud', instanceRefName: 'gh', org: 'my-org', status: 'ready' },
@@ -79,6 +79,7 @@ const INITIAL_INSTALLATIONS: AppInstallation[] = [
 interface ConnectGitHubDialogProps {
   isOpen: boolean;
   projectName: string;
+  controlPlanes?: { name: string; namespace: string }[];
   onClose: () => void;
 }
 
@@ -144,7 +145,7 @@ const panelStyle: React.CSSProperties = {
   width: '100%',
 };
 
-export function ConnectGitHubDialog({ isOpen, projectName, onClose }: ConnectGitHubDialogProps) {
+export function ConnectGitHubDialog({ isOpen, projectName, controlPlanes = [], onClose }: ConnectGitHubDialogProps) {
   const { t } = useTranslation();
   const { githubApps } = useFrontendConfig();
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
@@ -178,7 +179,7 @@ export function ConnectGitHubDialog({ isOpen, projectName, onClose }: ConnectGit
   const [selectedControlPlanes, setSelectedControlPlanes] = useState<string[]>([]);
   const [labelPairs, setLabelPairs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
 
-  const allCpsSelected = selectedControlPlanes.length === MOCK_CONTROL_PLANES.length;
+  const allCpsSelected = selectedControlPlanes.length === controlPlanes.length && controlPlanes.length > 0;
   const projectNamespace = projectnameToNamespace(projectName);
 
   const hasReadyInstallation = installations.some((i) => i.status === 'ready');
@@ -198,7 +199,10 @@ export function ConnectGitHubDialog({ isOpen, projectName, onClose }: ConnectGit
       : projectnameToNamespace((newRepo.scopeKeys ?? [])[0] ?? '');
 
   const propagateEntries: PropagateEntry[] = [
-    ...selectedControlPlanes.map((name) => ({ kind: 'ControlPlane' as const, name })),
+    ...selectedControlPlanes.map((name) => {
+      const cp = controlPlanes.find((c) => c.name === name);
+      return { kind: 'ControlPlane' as const, name, ...(cp?.namespace ? { namespace: cp.namespace } : {}) };
+    }),
     ...labelPairs
       .filter((p) => p.key.trim() && p.value.trim())
       .map((p) => ({ kind: 'ControlPlane' as const, matchLabels: { [p.key.trim()]: p.value.trim() } })),
@@ -907,13 +911,15 @@ export function ConnectGitHubDialog({ isOpen, projectName, onClose }: ConnectGit
                           setSelectedControlPlanes(e.detail.items.map((i) => i.value ?? '').filter(Boolean));
                         }}
                       >
-                        {MOCK_CONTROL_PLANES.map((cp) => (
-                          <MultiComboBoxItem key={cp} text={cp} value={cp} />
+                        {controlPlanes.map((cp) => (
+                          <MultiComboBoxItem key={cp.name} text={cp.name} value={cp.name} />
                         ))}
                       </MultiComboBox>
                       <Button
                         design={allCpsSelected ? 'Default' : 'Transparent'}
-                        onClick={() => setSelectedControlPlanes(allCpsSelected ? [] : [...MOCK_CONTROL_PLANES])}
+                        onClick={() =>
+                          setSelectedControlPlanes(allCpsSelected ? [] : controlPlanes.map((cp) => cp.name))
+                        }
                       >
                         {t('ConnectGitHubDialog.propagateSelectAll')}
                       </Button>

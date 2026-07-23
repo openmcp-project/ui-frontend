@@ -36,6 +36,7 @@ interface Props {
   isExpanded?: boolean;
   onToggleExpanded?: () => void;
   onVisibilityChange?: (isVisible: boolean) => void;
+  onControlPlanesLoaded?: (cps: { name: string; namespace: string }[]) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -47,6 +48,7 @@ export function ControlPlaneListWorkspaceGridTile({
   isExpanded,
   onToggleExpanded,
   onVisibilityChange,
+  onControlPlanesLoaded,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -90,6 +92,13 @@ export function ControlPlaneListWorkspaceGridTile({
   useEffect(() => {
     onVisibilityChange?.(!hidden);
   }, [hidden, onVisibilityChange]);
+
+  useEffect(() => {
+    if (!managedControlPlanes) return;
+    onControlPlanesLoaded?.(
+      managedControlPlanes.map((mcp) => ({ name: mcp.metadata.name, namespace: mcp.metadata.namespace })),
+    );
+  }, [managedControlPlanes, onControlPlanesLoaded]);
 
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const telemetry = useTelemetry();

@@ -30,6 +30,15 @@ export default function ProjectPage() {
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const [allControlPlanes, setAllControlPlanes] = useState<{ name: string; namespace: string }[]>([]);
+
+  const handleControlPlanesLoaded = useCallback((cps: { name: string; namespace: string }[]) => {
+    setAllControlPlanes((prev) => {
+      const existingKeys = new Set(prev.map((cp) => `${cp.namespace}/${cp.name}`));
+      const fresh = cps.filter((cp) => !existingKeys.has(`${cp.namespace}/${cp.name}`));
+      return fresh.length > 0 ? [...prev, ...fresh] : prev;
+    });
+  }, []);
   const navigate = useNavigate();
   const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
   const isProjectRemembered = rememberedProject === projectName;
@@ -183,7 +192,7 @@ export default function ProjectPage() {
             breadcrumbs={<BreadcrumbFeedbackHeader />}
             actionsBar={
               <FlexBox alignItems="Baseline" gap="0.5rem">
-                <ControlPlaneListToolbar projectName={projectName ?? ''} />
+                <ControlPlaneListToolbar projectName={projectName ?? ''} controlPlanes={allControlPlanes} />
               </FlexBox>
             }
           />
@@ -230,6 +239,7 @@ export default function ProjectPage() {
             search={search}
             expandedWorkspaces={expandedWorkspaces}
             onToggleWorkspace={handleToggleWorkspace}
+            onControlPlanesLoaded={handleControlPlanesLoaded}
           />
         </ObjectPageSection>
       </ObjectPage>

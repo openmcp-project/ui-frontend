@@ -17,6 +17,7 @@ interface Props {
   search?: string;
   expandedWorkspaces: Set<string>;
   onToggleWorkspace: (workspaceName: string) => void;
+  onControlPlanesLoaded?: (cps: { name: string; namespace: string }[]) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -27,6 +28,7 @@ export default function ControlPlaneListAllWorkspaces({
   search = '',
   expandedWorkspaces,
   onToggleWorkspace,
+  onControlPlanesLoaded,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -94,6 +96,7 @@ export default function ControlPlaneListAllWorkspaces({
           useDeleteWorkspace={useDeleteWorkspace}
           onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
           onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
+          onControlPlanesLoaded={onControlPlanesLoaded}
         />
       ))}
     </>

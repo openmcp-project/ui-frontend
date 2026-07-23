@@ -2,10 +2,11 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/add.js';
-import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
+import { Card, FlexBox, Icon, Popover, Title } from '@ui5/webcomponents-react';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
-import { useState, useMemo } from 'react';
+import { useId, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
@@ -40,6 +41,7 @@ interface Props {
   controlPlane: ControlPlaneListItem;
   workspace: Workspace;
   projectName: string;
+  propagatedRepos?: string[];
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
   useMcpComponentsHook?: typeof useMcpComponents;
@@ -61,6 +63,7 @@ export const ControlPlaneCard = ({
   controlPlane,
   workspace,
   projectName,
+  propagatedRepos = [],
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
   useMcpComponentsHook = useMcpComponents,
@@ -69,6 +72,8 @@ export const ControlPlaneCard = ({
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
+  const [githubPopoverOpen, setGithubPopoverOpen] = useState(false);
+  const githubButtonId = useId();
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
     isOpen: false,
     mode: undefined,
@@ -214,6 +219,37 @@ export const ControlPlaneCard = ({
             <div className={styles.deprecatedSection}>
               <DeprecatedLabel />
             </div>
+          )}
+
+          {propagatedRepos.length > 0 && (
+            <>
+              <button
+                id={githubButtonId}
+                className={styles.githubIndicator}
+                title="Propagated repositories"
+                onMouseEnter={() => setGithubPopoverOpen(true)}
+                onMouseLeave={() => setGithubPopoverOpen(false)}
+              >
+                <img src="/github-dark.png" alt="GitHub" className={styles.githubIcon} />
+              </button>
+              <Popover
+                opener={githubButtonId}
+                open={githubPopoverOpen}
+                placement={PopoverPlacement.Top}
+                onClose={() => setGithubPopoverOpen(false)}
+              >
+                <div style={{ padding: '0.5rem 0.75rem', minWidth: 160 }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)', marginBottom: '0.25rem' }}>
+                    {t('ControlPlaneCard.propagatedReposLabel')}
+                  </div>
+                  {propagatedRepos.map((repo) => (
+                    <div key={repo} style={{ fontSize: '0.8125rem', padding: '0.125rem 0' }}>
+                      {repo}
+                    </div>
+                  ))}
+                </div>
+              </Popover>
+            </>
           )}
         </div>
 

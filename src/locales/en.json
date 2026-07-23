@@ -173,7 +173,8 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installComponents": "Install components"
+    "installComponents": "Install components",
+    "propagatedReposLabel": "Propagated repos"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
