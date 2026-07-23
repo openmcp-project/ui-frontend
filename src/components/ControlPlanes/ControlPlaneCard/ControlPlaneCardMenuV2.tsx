@@ -29,7 +29,12 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
-  const { kubeconfigDecoded } = useKubeconfigQuery(oidcOpenmcpSecretName, mcpNamespace, 'kubeconfig');
+  // Only fetch once the menu is opened — avoids one GraphQL call per card on mount.
+  const { kubeconfigDecoded } = useKubeconfigQuery(
+    menuIsOpen ? oidcOpenmcpSecretName : undefined,
+    mcpNamespace,
+    'kubeconfig',
+  );
 
   return (
     <>
