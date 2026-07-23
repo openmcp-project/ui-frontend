@@ -2,7 +2,7 @@ import '@ui5/webcomponents-cypress-commands';
 import { MockedProvider } from '@apollo/client/testing/react';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteManagedControlPlane } from '../../../hooks/useDeleteManagedControlPlane.ts';
@@ -16,6 +16,12 @@ import type { useMcpComponents } from './useMcpComponents.ts';
 import type { useMcpV2Components } from './useMcpV2Components.ts';
 
 TimeAgo.addDefaultLocale(en);
+
+// Renders the current router path so tests can assert navigation.
+function LocationDisplay() {
+  const location = useLocation();
+  return <div data-testid="location-display">{location.pathname}</div>;
+}
 
 const mockFrontendConfig = {
   documentationBaseUrl: 'https://example.com',
@@ -346,7 +352,7 @@ describe('ControlPlaneCard', () => {
       cy.get('[data-testid="v1-wizard-open"]').should('exist');
     });
 
-    it('v2 + button opens the edit wizard', () => {
+    it('v2 + button navigates to the MCP page', () => {
       const loadingMock = {
         request: {
           query: GET_MCP_V2_QUERY,
@@ -369,16 +375,21 @@ describe('ControlPlaneCard', () => {
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
                     useMcpV2ComponentsHook={fakeUseMcpV2ComponentsEmpty}
                   />
+                  <LocationDisplay />
                 </FeatureToggleProvider>
               </SplitterProvider>
             </FrontendConfigContext.Provider>
           </MemoryRouter>
         </MockedProvider>,
       );
+      // V2 edit can't add components yet, so the button goes to the MCP page (like view).
       cy.get('[data-testid="v2-wizard-open"]').should('not.exist');
       cy.get('[data-testid="add-component-button"]').should('exist').click();
-      cy.get('[data-testid="v2-wizard-open"]').should('exist');
-      cy.get('ui5-busy-indicator').should('exist');
+      cy.get('[data-testid="location-display"]').should(
+        'have.text',
+        '/projects/my-project/workspaces/workspaceName/controlplane/cp-name',
+      );
+      cy.get('[data-testid="v2-wizard-open"]').should('not.exist');
     });
   });
 
