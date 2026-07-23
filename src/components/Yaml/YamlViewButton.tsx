@@ -40,7 +40,9 @@ export interface YamlViewButtonMcpComponentProps {
   preloadedResource?: Resource | null;
 }
 export type YamlViewButtonProps =
-  YamlViewButtonResourceProps | YamlViewButtonLoaderProps | YamlViewButtonMcpComponentProps;
+  | YamlViewButtonResourceProps
+  | YamlViewButtonLoaderProps
+  | YamlViewButtonMcpComponentProps;
 
 export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
   const { t } = useTranslation();
