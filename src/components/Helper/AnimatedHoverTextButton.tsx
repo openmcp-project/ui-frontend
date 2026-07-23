@@ -41,7 +41,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
 
     const content = (
       <FlexBox alignItems={FlexBoxAlignItems.Center}>
-        {hover || large || alwaysShowText ? (
+        {large || alwaysShowText ? (
           <span
             className={cx(styles.text, colorClassName, {
               [styles.large]: large,
