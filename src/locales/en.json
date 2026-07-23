@@ -99,20 +99,22 @@
     "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create Managed Control Plane",
     "createNewControlPlane": "Create Control Plane",
-    "recommendedBadge": "Recommended",
+    "defaultBadge": "Default",
+    "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
-    "permissionErrorMessage": "Not permitted to list mcps in workspace",
+    "permissionErrorMessage": "Not permitted to list control planes in workspace",
     "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
-    "loadingErrorMessage": "Failed to list mcps in workspace"
+    "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
-    "deleteMCP": "Delete"
+    "deleteMCP": "Delete",
+    "installComponents": "Install components"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -139,7 +141,8 @@
     "supportTicketTitleDeletion": "MCP in Deletion",
     "supportTicketTitleIssues": "Issues with Control Plane",
     "statusDetailsLabel": "MCP Status",
-    "detailsLabel": "Details:"
+    "detailsLabel": "Details:",
+    "createdLabel": "Created:"
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
@@ -182,10 +185,6 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
-    "betaButton": "Beta",
-    "betaButtonAriaLabel": "Beta – open information about this app's beta status",
-    "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
-    "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
     "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
@@ -201,7 +200,6 @@
     "modeOpenSource": "Open Source View",
     "hello": "Hello, {{name}}",
     "backButton": "Back",
-    "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
     "overflowViewYaml": "View YAML"
@@ -359,7 +357,7 @@
     "title": "Delete a Control Plane",
     "introSection1": "The below will help you delete the Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
-    "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
+    "annotateCommand": "First, annotate the control plane to confirm deletion:",
     "deleteCommand": "Run this command to delete the Control Plane:",
     "verificationCommandDescription": "To verify the control plane has been deleted, run:"
   },
@@ -639,6 +637,8 @@
     "sourceRefTitle": "Source Reference",
     "sourceRefNameTitle": "Name",
     "gitRepositoryTitle": "Git Repository",
+    "selectRepo": "Select a Git Repository",
+    "loadingRepos": "Loading repositories…",
     "pathTitle": "Path",
     "pruneTitle": "Prune",
     "targetNamespaceTitle": "Target Namespace",

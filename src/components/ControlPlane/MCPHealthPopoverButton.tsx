@@ -1,6 +1,7 @@
 import {
   ResponsivePopover,
   FlexBox,
+  FlexBoxAlignItems,
   FlexBoxJustifyContent,
   Button,
   PopoverDomRef,
@@ -10,6 +11,7 @@ import {
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
 import { useRef, useState } from 'react';
+import ReactTimeAgo from 'react-time-ago';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import type { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
 import { ControlPlaneCondition, ReadyStatus } from '../../spaces/onboarding/types/ControlPlane';
@@ -36,6 +38,7 @@ type MCPHealthPopoverButtonProps = {
   mcpName: string;
   large?: boolean;
   source: 'card' | 'detail';
+  creationTimestamp?: string;
 };
 
 const MCPHealthPopoverButton = ({
@@ -45,6 +48,7 @@ const MCPHealthPopoverButton = ({
   mcpName,
   large = false,
   source,
+  creationTimestamp,
 }: MCPHealthPopoverButtonProps) => {
   const popoverRef = useRef<PopoverDomRef>(null);
   const buttonRef = useRef<ButtonDomRef>(null);
@@ -120,7 +124,17 @@ const MCPHealthPopoverButton = ({
         ref={popoverRef}
         placement={PopoverPlacement.Top}
         footer={
-          <FlexBox justifyContent={FlexBoxJustifyContent.End} className={styles.footer}>
+          <FlexBox
+            justifyContent={creationTimestamp ? FlexBoxJustifyContent.SpaceBetween : FlexBoxJustifyContent.End}
+            alignItems={FlexBoxAlignItems.Center}
+            className={styles.footer}
+          >
+            {creationTimestamp && (
+              <span className={styles.createdRow}>
+                <span className={styles.createdLabel}>{t('MCPHealthPopoverButton.createdLabel')}</span>{' '}
+                <ReactTimeAgo date={new Date(creationTimestamp)} />
+              </span>
+            )}
             <a href={constructGithubIssuesLink()} target="_blank" rel="noreferrer">
               <Button icon="action">{t('MCPHealthPopoverButton.createSupportTicketButton')}</Button>
             </a>

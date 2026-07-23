@@ -81,7 +81,11 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
           text={t('ControlPlaneListToolbar.createNewManagedControlPlane')}
           data-action="newManagedControlPlane"
           icon="add"
-          additionalText={markMcpV1asDeprecated ? t('ControlPlaneListToolbar.deprecatedBadge') : undefined}
+          additionalText={
+            markMcpV1asDeprecated
+              ? t('ControlPlaneListToolbar.deprecatedBadge')
+              : t('ControlPlaneListToolbar.defaultBadge')
+          }
         />
         {enableMcpV2 && (
           <MenuItem
@@ -89,7 +93,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
             text={t('ControlPlaneListToolbar.createNewControlPlane')}
             data-action="newManagedControlPlaneV2"
             icon="add"
-            additionalText={t('ControlPlaneListToolbar.recommendedBadge')}
+            additionalText={t('ControlPlaneListToolbar.previewV2Badge')}
           />
         )}
         {allTemplates.map((tpl) => (
