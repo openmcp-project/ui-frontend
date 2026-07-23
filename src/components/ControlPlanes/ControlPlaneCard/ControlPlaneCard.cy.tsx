@@ -71,12 +71,14 @@ const fakeUseMcpComponentsLoading: typeof useMcpComponents = () => ({
   components: null,
   roleBindings: undefined,
   isLoading: true,
+  hasError: false,
 });
 
 const fakeUseMcpComponentsEmpty: typeof useMcpComponents = () => ({
   components: {},
   roleBindings: undefined,
   isLoading: false,
+  hasError: false,
 });
 
 const fakeUseMcpComponentsWithData: typeof useMcpComponents = () => ({
@@ -86,6 +88,7 @@ const fakeUseMcpComponentsWithData: typeof useMcpComponents = () => ({
     { role: 'viewer', subjects: [{ kind: 'User', name: 'bob@example.com' }] },
   ],
   isLoading: false,
+  hasError: false,
 });
 
 const fakeUseMcpV2ComponentsLoading: typeof useMcpV2Components = () => ({
