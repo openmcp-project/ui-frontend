@@ -197,7 +197,7 @@ export const ControlPlaneCard = ({
                         }
                       }}
                     >
-                      <img src={component.logo} alt={component.name} className={styles.componentLogo} />
+                      <img src={component.logo} alt={component.name} className={styles.componentLogo} loading="lazy" />
                     </button>
                   ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
