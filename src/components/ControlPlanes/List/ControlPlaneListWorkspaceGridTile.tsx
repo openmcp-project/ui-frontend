@@ -68,11 +68,18 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const [viewportRef, hasBeenVisible] = useInViewport();
 
+  // When searching, fetch all workspaces regardless of viewport position
+  // so results aren't missed for off-screen tiles
+  const shouldFetch = hasBeenVisible || !!search.trim();
+
   const {
     data: managedControlPlanes,
     error: cpsError,
-    isPending,
-  } = useMcpsQuery(hasBeenVisible ? `project-${projectName}--ws-${workspaceName}` : undefined);
+    isPending: isMcpsPending,
+  } = useMcpsQuery(shouldFetch ? `project-${projectName}--ws-${workspaceName}` : undefined);
+
+  // Treat "not yet entered viewport and not searching" the same as pending
+  const isPending = !shouldFetch || isMcpsPending;
 
   const workspaceNamespace = `project-${projectName}--ws-${workspaceName}`;
   const { componentsMap } = useWorkspaceV2ComponentsQuery(
