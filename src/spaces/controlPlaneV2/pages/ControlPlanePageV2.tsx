@@ -23,7 +23,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -59,6 +59,16 @@ import { useViewMode } from '../../../context/ViewModeContext.tsx';
 import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
 import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
 import { Routes } from '../../../Routes.ts';
+import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
+import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
+import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
+import { useUpdateFlux } from '../../mcp/hooks/useUpdateFlux.ts';
+import { useCreateEso } from '../../mcp/hooks/useCreateEso.ts';
+import { useUpdateEso } from '../../mcp/hooks/useUpdateEso.ts';
+import { useCreateLandscaper } from '../../mcp/hooks/useCreateLandscaper.ts';
+import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
+
+type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
 
 function OpenSourceHeadlamp({
   projectName,
@@ -89,6 +99,9 @@ function OpenSourceHeadlamp({
   const [error, setError] = useState(false);
   const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
   const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
+  const [installTarget, setInstallTarget] = useState<InstallTarget>(null);
+  const mcpName = mcp.name;
+  const mcpNamespace = `project-${mcp.project}--ws-${mcp.workspace}`;
 
   useEffect(() => {
     setMcpActions({
@@ -164,8 +177,77 @@ function OpenSourceHeadlamp({
     };
   }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
 
+  // The embedded Headlamp plugin cannot install a component itself; it posts a
+  // message asking us to open the matching V2 install dialog. Validate origin +
+  // source + action, then map the component name to the dialog to open.
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== 'ocp-headlamp-plugin' || data.action !== 'openInstallWizard') return;
+      const map: Record<string, InstallTarget> = {
+        crossplane: 'crossplane',
+        flux: 'flux',
+        externalSecretsOperator: 'eso',
+        landscaper: 'landscaper',
+      };
+      const target = map[data.component as string];
+      if (target) setInstallTarget(target);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // Install dialogs are always mounted (visibility driven by `open`) so they
+  // survive the loading/error early returns below.
+  const installDialogs = (
+    <>
+      <CrossplaneInstallDialog
+        open={installTarget === 'crossplane'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        mode="install"
+        onClose={() => setInstallTarget(null)}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'flux'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Flux"
+        serviceName="flux"
+        mode="install"
+        useCreateMutation={useCreateFlux}
+        useUpdateMutation={useUpdateFlux}
+        onClose={() => setInstallTarget(null)}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'eso'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="External Secrets Operator"
+        serviceName="external-secrets-operator"
+        mode="install"
+        useCreateMutation={useCreateEso}
+        useUpdateMutation={useUpdateEso}
+        onClose={() => setInstallTarget(null)}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'landscaper'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Landscaper"
+        serviceName="landscaper"
+        mode="install"
+        useCreateMutation={useCreateLandscaper}
+        useUpdateMutation={useUpdateLandscaper}
+        onClose={() => setInstallTarget(null)}
+      />
+    </>
+  );
+
+  let body: ReactNode;
   if (error) {
-    return (
+    body = (
       <IllustratedBanner
         illustrationName={IllustrationMessageType.SimpleError}
         title={t('McpPage.headlampUnavailableTitle')}
@@ -173,27 +255,34 @@ function OpenSourceHeadlamp({
         help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
       />
     );
+  } else if (!iframeSrc) {
+    body = null;
+  } else {
+    body = (
+      <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
+        {isUnsupportedPath && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
+            <MessageStrip design="Information" hideCloseButton>
+              {t('McpPage.headlampUnsupportedPlugin')}
+            </MessageStrip>
+          </div>
+        )}
+        <iframe
+          ref={iframeRef}
+          key={iframeSrc}
+          src={iframeSrc}
+          style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+          title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
+        />
+      </div>
+    );
   }
 
-  if (!iframeSrc) return null;
-
   return (
-    <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
-      {isUnsupportedPath && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
-          <MessageStrip design="Information" hideCloseButton>
-            {t('McpPage.headlampUnsupportedPlugin')}
-          </MessageStrip>
-        </div>
-      )}
-      <iframe
-        ref={iframeRef}
-        key={iframeSrc}
-        src={iframeSrc}
-        style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-        title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
-      />
-    </div>
+    <>
+      {body}
+      {installDialogs}
+    </>
   );
 }
 
