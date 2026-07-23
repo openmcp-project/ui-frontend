@@ -911,9 +911,17 @@ export function ConnectGitHubDialog({ isOpen, projectName, controlPlanes = [], o
                           setSelectedControlPlanes(e.detail.items.map((i) => i.value ?? '').filter(Boolean));
                         }}
                       >
-                        {controlPlanes.map((cp) => (
-                          <MultiComboBoxItem key={cp.name} text={cp.name} value={cp.name} />
-                        ))}
+                        {controlPlanes.map((cp) => {
+                          const workspaceName = cp.namespace.split('--ws-')[1] ?? cp.namespace;
+                          return (
+                            <MultiComboBoxItem
+                              key={cp.name}
+                              text={cp.name}
+                              value={cp.name}
+                              additionalText={workspaceName}
+                            />
+                          );
+                        })}
                       </MultiComboBox>
                       <Button
                         design={allCpsSelected ? 'Default' : 'Transparent'}
