@@ -104,6 +104,7 @@ export const ControlPlaneCard = ({
     components: mcpComponents,
     roleBindings,
     isLoading: isLoadingComponents,
+    hasError: hasComponentsError,
   } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
   const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
     name,
@@ -194,8 +195,9 @@ export const ControlPlaneCard = ({
                   ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
                     <button
-                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${!isV2 && hasComponentsError ? styles.addComponentPlaceholderDisabled : ''}`}
                       data-testid="add-component-button"
+                      disabled={!isV2 && hasComponentsError}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {

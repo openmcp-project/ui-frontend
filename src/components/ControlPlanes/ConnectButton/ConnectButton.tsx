@@ -38,11 +38,13 @@ export default function ConnectButton({
   const { t } = useTranslation();
   const telemetry = useTelemetry();
 
+  const skipFetch = !secretKey || !secretName || !namespace;
+
   const {
     data: kubeconfigResource,
     error,
     isLoading,
-  } = useApiResource(GetKubeconfig(secretKey, secretName, namespace));
+  } = useApiResource(GetKubeconfig(secretKey, secretName, namespace), undefined, undefined, skipFetch);
 
   const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
 
