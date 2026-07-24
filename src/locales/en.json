@@ -106,7 +106,7 @@
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "permissionErrorMessageSubtitle": "Ask a workspace or project admin to grant you access.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {

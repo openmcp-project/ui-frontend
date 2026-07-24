@@ -43,7 +43,7 @@ export const MemberSchema = z.object({
   kind: z.string(),
   name: z.string(),
   roles: z.array(z.string()),
-  namespace: z.string().optional(),
+  namespace: z.string().nullish().transform((v) => v ?? undefined),
 });
 
 export function areMembersEqual(a: Member, b?: Member): boolean {
