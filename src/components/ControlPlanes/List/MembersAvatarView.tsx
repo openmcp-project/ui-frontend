@@ -16,9 +16,17 @@ interface Props {
   members: Member[];
   hideNamespaceColumn?: boolean;
   source: MembersViewedSource;
+  maxWidth?: string;
 }
 
-export function MembersAvatarView({ members, project, workspace, hideNamespaceColumn = false, source }: Props) {
+export function MembersAvatarView({
+  members,
+  project,
+  workspace,
+  hideNamespaceColumn = false,
+  source,
+  maxWidth = '200px',
+}: Props) {
   const openerId = useId();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const telemetry = useTelemetry();
@@ -34,7 +42,7 @@ export function MembersAvatarView({ members, project, workspace, hideNamespaceCo
 
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup id={openerId} style={{ maxWidth: '200px' }} type={AvatarGroupType.Group} onClick={handleClick}>
+      <AvatarGroup id={openerId} style={{ maxWidth }} type={AvatarGroupType.Group} onClick={handleClick}>
         {members.map((member, index) => (
           <Avatar
             key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
