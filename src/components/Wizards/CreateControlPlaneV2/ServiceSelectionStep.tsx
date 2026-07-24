@@ -1,5 +1,5 @@
 import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CrossplaneProviderPicker,
@@ -7,6 +7,7 @@ import {
 } from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
+import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -42,11 +43,19 @@ interface ServiceSelectionStepProps {
 export function ServiceSelectionStep({ services, onServicesChange }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
+  const providerVersionMemory = useRef(new Map<string, string>());
 
   const toggle = (key: ServiceKey, checked: boolean) => {
+    const entry = services[key];
+    let version = entry?.version ?? '';
+    if (checked && !version) {
+      const serviceName = SERVICES.find((s) => s.key === key)?.serviceName;
+      const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+      version = getHighestVersion(versions.map((v) => v.version)) ?? '';
+    }
     onServicesChange({
       ...services,
-      [key]: { ...services[key], selected: checked, version: services[key]?.version ?? '' },
+      [key]: { ...entry, selected: checked, version },
     });
   };
 
@@ -74,7 +83,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     const currentProviders = services.crossplane?.providers ?? [];
     const nextProviders = currentProviders.some((p) => p.name === name)
       ? currentProviders.filter((p) => p.name !== name)
-      : [...currentProviders, { name, version: '' }];
+      : [...currentProviders, { name, version: providerVersionMemory.current.get(name) ?? '' }];
     onServicesChange({
       ...services,
       crossplane: {
@@ -86,6 +95,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
   };
 
   const setCrossplaneProviderVersion = (name: string, version: string) => {
+    providerVersionMemory.current.set(name, version);
     const nextProviders = (services.crossplane?.providers ?? []).map((p) => (p.name === name ? { ...p, version } : p));
     onServicesChange({
       ...services,
@@ -96,6 +106,35 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
       },
     });
   };
+
+  // Self-heals providers that are selected but versionless — either just toggled on with no
+  // remembered version, or prefilled from edit mode where the backend reported no version.
+  useEffect(() => {
+    const providers = services.crossplane?.providers;
+    if (!providers?.length) return;
+
+    let changed = false;
+    const nextProviders = providers.map((p) => {
+      if (p.version) return p;
+      const providerVersions = crossplaneProviders.find((cp) => cp.name === p.name)?.versions ?? [];
+      const highest = getHighestVersion(providerVersions.map((v) => v.version));
+      if (!highest) return p;
+      changed = true;
+      providerVersionMemory.current.set(p.name, highest);
+      return { ...p, version: highest };
+    });
+
+    if (changed) {
+      onServicesChange({
+        ...services,
+        crossplane: {
+          ...services.crossplane,
+          selected: services.crossplane?.selected ?? false,
+          providers: nextProviders,
+        },
+      });
+    }
+  }, [services, crossplaneProviders, onServicesChange]);
 
   return (
     <div className={styles.container}>
@@ -129,7 +168,6 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
                       setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
                     }
                   >
-                    <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
                     {versions.map(({ version: v }) => (
                       <Option key={v} value={v}>
                         {v}

@@ -55,7 +55,6 @@ export function CrossplaneProviderPicker({
                 onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
               }
             >
-              <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
               {providerVersions.map(({ version }) => (
                 <Option key={version} value={version}>
                   {version}
