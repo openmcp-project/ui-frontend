@@ -1,6 +1,12 @@
-import { CheckBox, FlexBox, Input, Label } from '@ui5/webcomponents-react';
+import { CheckBox, FlexBox, Label, Option, Select, SelectDomRef, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  CrossplaneProviderPicker,
+  ProviderRowState,
+} from '../../Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { useManagedServicesQuery } from '../../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -13,13 +19,19 @@ interface ServiceDef {
   key: ServiceKey;
   labelKey: string;
   logo: string;
+  serviceName: string;
 }
 
 const SERVICES: ServiceDef[] = [
-  { key: 'crossplane', labelKey: 'ServiceSelectionStep.crossplane', logo: LogoCrossplane },
-  { key: 'flux', labelKey: 'ServiceSelectionStep.flux', logo: LogoFlux },
-  { key: 'landscaper', labelKey: 'ServiceSelectionStep.landscaper', logo: LogoLandscaper },
-  { key: 'externalSecretsOperator', labelKey: 'ServiceSelectionStep.externalSecretsOperator', logo: LogoEso },
+  { key: 'crossplane', labelKey: 'ServiceSelectionStep.crossplane', logo: LogoCrossplane, serviceName: 'crossplane' },
+  { key: 'flux', labelKey: 'ServiceSelectionStep.flux', logo: LogoFlux, serviceName: 'flux' },
+  { key: 'landscaper', labelKey: 'ServiceSelectionStep.landscaper', logo: LogoLandscaper, serviceName: 'landscaper' },
+  {
+    key: 'externalSecretsOperator',
+    labelKey: 'ServiceSelectionStep.externalSecretsOperator',
+    logo: LogoEso,
+    serviceName: 'external-secrets-operator',
+  },
 ];
 
 interface ServiceSelectionStepProps {
@@ -29,18 +41,59 @@ interface ServiceSelectionStepProps {
 
 export function ServiceSelectionStep({ services, onServicesChange }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
+  const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     onServicesChange({
       ...services,
-      [key]: { selected: checked, version: services[key]?.version ?? '' },
+      [key]: { ...services[key], selected: checked, version: services[key]?.version ?? '' },
     });
   };
 
   const setVersion = (key: ServiceKey, version: string) => {
     onServicesChange({
       ...services,
-      [key]: { selected: services[key]?.selected ?? false, version },
+      [key]: { ...services[key], selected: services[key]?.selected ?? false, version },
+    });
+  };
+
+  const crossplaneProviderStates: ProviderRowState[] = useMemo(
+    () =>
+      crossplaneProviders.map((provider) => {
+        const selectedProvider = services.crossplane?.providers?.find((p) => p.name === provider.name);
+        return {
+          name: provider.name,
+          isSelected: !!selectedProvider,
+          selectedVersion: selectedProvider?.version ?? '',
+        };
+      }),
+    [crossplaneProviders, services.crossplane?.providers],
+  );
+
+  const toggleCrossplaneProvider = (name: string) => {
+    const currentProviders = services.crossplane?.providers ?? [];
+    const nextProviders = currentProviders.some((p) => p.name === name)
+      ? currentProviders.filter((p) => p.name !== name)
+      : [...currentProviders, { name, version: '' }];
+    onServicesChange({
+      ...services,
+      crossplane: {
+        ...services.crossplane,
+        selected: services.crossplane?.selected ?? false,
+        providers: nextProviders,
+      },
+    });
+  };
+
+  const setCrossplaneProviderVersion = (name: string, version: string) => {
+    const nextProviders = (services.crossplane?.providers ?? []).map((p) => (p.name === name ? { ...p, version } : p));
+    onServicesChange({
+      ...services,
+      crossplane: {
+        ...services.crossplane,
+        selected: services.crossplane?.selected ?? false,
+        providers: nextProviders,
+      },
     });
   };
 
@@ -48,9 +101,10 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
       <div className={styles.grid}>
-        {SERVICES.map(({ key, labelKey, logo }) => {
+        {SERVICES.map(({ key, labelKey, logo, serviceName }) => {
           const entry = services[key];
           const selected = entry?.selected ?? false;
+          const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
           return (
             <div key={key} className={styles.row}>
               <FlexBox alignItems="Center" gap={12}>
@@ -65,15 +119,36 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
               {selected && (
                 <FlexBox alignItems="Center" gap={8} className={styles.versionRow}>
                   <Label for={`service-${key}-version`}>{t('ServiceSelectionStep.versionLabel')}</Label>
-                  <Input
+                  <Select
                     id={`service-${key}-version`}
                     data-testid={`service-${key}-version`}
-                    placeholder={t('ServiceSelectionStep.versionPlaceholder')}
+                    accessibleName={t('ServiceSelectionStep.versionLabel')}
                     value={entry?.version ?? ''}
-                    className={styles.versionInput}
-                    onInput={(e) => setVersion(key, (e.target as unknown as { value: string }).value)}
-                  />
+                    className={styles.versionSelect}
+                    onChange={(e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) =>
+                      setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
+                    }
+                  >
+                    <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
+                    {versions.map(({ version: v }) => (
+                      <Option key={v} value={v}>
+                        {v}
+                      </Option>
+                    ))}
+                  </Select>
                 </FlexBox>
+              )}
+              {key === 'crossplane' && selected && (
+                <div className={styles.providersSection}>
+                  <Label>{t('ComponentInstallDialog.providers')}</Label>
+                  <CrossplaneProviderPicker
+                    providers={crossplaneProviderStates}
+                    catalog={crossplaneProviders}
+                    disabled={!entry?.version}
+                    onToggle={toggleCrossplaneProvider}
+                    onVersionChange={setCrossplaneProviderVersion}
+                  />
+                </div>
               )}
             </div>
           );

@@ -21,8 +21,17 @@ const ServiceEntrySchema = z.object({
   version: z.string().optional(),
 });
 
+const CrossplaneProviderSelectionSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+});
+
+const CrossplaneServiceEntrySchema = ServiceEntrySchema.extend({
+  providers: z.array(CrossplaneProviderSelectionSchema).optional(),
+});
+
 export const ServiceSelectionSchema = z.object({
-  crossplane: ServiceEntrySchema.optional(),
+  crossplane: CrossplaneServiceEntrySchema.optional(),
   flux: ServiceEntrySchema.optional(),
   landscaper: ServiceEntrySchema.optional(),
   externalSecretsOperator: ServiceEntrySchema.optional(),
@@ -30,6 +39,8 @@ export const ServiceSelectionSchema = z.object({
 
 export type ServiceSelection = z.infer<typeof ServiceSelectionSchema>;
 export type ServiceEntry = z.infer<typeof ServiceEntrySchema>;
+export type CrossplaneServiceEntry = z.infer<typeof CrossplaneServiceEntrySchema>;
+export type CrossplaneProviderSelection = z.infer<typeof CrossplaneProviderSelectionSchema>;
 
 export const McpV2InputSchema = z.object({
   name: z.string().min(1),

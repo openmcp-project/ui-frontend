@@ -32,6 +32,16 @@
   padding-left: 2.25rem;
 }
 
-.versionInput {
+.versionSelect {
   width: 200px;
+}
+
+.providersSection {
+  margin-top: 0.75rem;
+  padding-left: 2.25rem;
+}
+
+.providersSection > label {
+  display: block;
+  margin-bottom: 0.5rem;
 }

@@ -242,7 +242,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setServices({
       crossplane: crossplaneData
-        ? { selected: crossplaneData.isInstalled, version: crossplaneData.version ?? '' }
+        ? {
+            selected: crossplaneData.isInstalled,
+            version: crossplaneData.version ?? '',
+            providers: crossplaneData.providers
+              .filter((p): p is { name: string; version: string | null } => !!p.name)
+              .map((p) => ({ name: p.name, version: p.version ?? '' })),
+          }
         : undefined,
       flux: fluxData ? { selected: fluxData.isInstalled, version: fluxData.version ?? '' } : undefined,
       landscaper: landscaperData
@@ -336,7 +342,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
             kind: 'Crossplane',
             metadata: { name: cpName, namespace: cpNamespace },
-            spec: { version: services.crossplane.version || 'latest', providers: [] },
+            spec: {
+              version: services.crossplane.version || 'latest',
+              providers: (services.crossplane.providers ?? []).map((p) => ({
+                name: p.name,
+                version: p.version || 'latest',
+              })),
+            },
           },
         };
         servicePromises.push(

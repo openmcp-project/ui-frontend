@@ -76,6 +76,20 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
                   />
                 ))}
               </List>
+              {!!services?.crossplane?.selected && services.crossplane.providers?.length ? (
+                <>
+                  <br />
+                  <List headerText={t('ComponentInstallDialog.providers')}>
+                    {services.crossplane.providers.map((provider) => (
+                      <ListItemStandard
+                        key={provider.name}
+                        text={provider.name}
+                        additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                      />
+                    ))}
+                  </List>
+                </>
+              ) : null}
             </>
           )}
         </div>
