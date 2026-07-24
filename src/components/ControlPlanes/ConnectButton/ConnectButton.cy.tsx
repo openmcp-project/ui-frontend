@@ -52,6 +52,31 @@ function kubeconfigMock(contexts: { user: string }[], delay = 0) {
 }
 
 describe('ConnectButton', () => {
+  it('does NOT fire GetKubeconfig on mount — only fires after click', () => {
+    let requestCount = 0;
+    cy.intercept('POST', '**/graphql', (req) => {
+      const body = req.body as { operationName?: string };
+      if (body.operationName === 'GetKubeconfig') requestCount++;
+      req.continue();
+    }).as('graphql');
+
+    cy.mount(
+      <MockedProvider mocks={[kubeconfigMock([{ user: 'openmcp' }])]}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} useNavigate={() => cy.stub()} />
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    // Wait a tick to confirm no request was fired on mount
+    cy.wait(200);
+    cy.then(() => expect(requestCount).to.equal(0));
+
+    // Now click — expect exactly one request
+    cy.get('ui5-button[data-testid="connect-button"]').click();
+    cy.then(() => expect(requestCount).to.equal(1));
+  });
+
   it('renders enabled before any fetch', () => {
     cy.mount(
       <MockedProvider mocks={[]}>
