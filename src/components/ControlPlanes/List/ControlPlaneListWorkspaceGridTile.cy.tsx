@@ -180,4 +180,106 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       cy.get('@onToggle').should('have.been.calledOnce');
     });
   });
+
+  describe('fetch gating — GetMCPsList only fires when granted', () => {
+    it('does NOT call useMcpsQuery with a namespace when collapsed and no fetch slot granted', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        hasReceivedData: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={false}
+                    isFetchGranted={false}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      // querySpy is called but with undefined — meaning no actual query fires
+      cy.get('@querySpy').should('have.been.calledWith', undefined);
+    });
+
+    it('calls useMcpsQuery with the workspace namespace when isFetchGranted is true', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        hasReceivedData: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={false}
+                    isFetchGranted={true}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('@querySpy').should('have.been.calledWith', 'project-some-project--ws-workspaceName');
+    });
+
+    it('calls useMcpsQuery with the workspace namespace when expanded', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        hasReceivedData: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={true}
+                    isFetchGranted={false}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('@querySpy').should('have.been.calledWith', 'project-some-project--ws-workspaceName');
+    });
+  });
 });
