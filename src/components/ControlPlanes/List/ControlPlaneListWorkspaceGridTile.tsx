@@ -81,8 +81,7 @@ export function ControlPlaneListWorkspaceGridTile({
       ? null
       : (workspace.spec.members ?? []).some(
           (m) =>
-            m.kind.toLowerCase() === MemberKind.User.toLowerCase() &&
-            m.name.toLowerCase() === user.email.toLowerCase(),
+            m.kind.toLowerCase() === MemberKind.User.toLowerCase() && m.name.toLowerCase() === user.email.toLowerCase(),
         );
 
   // Only skip fetching when we're certain the user is not a member.
