@@ -12,6 +12,7 @@ import { useCreateCrossplane as _useCreateCrossplane } from '../../hooks/useCrea
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import { useUpdateCrossplane as _useUpdateCrossplane } from '../../hooks/useUpdateCrossplane.ts';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
+import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
 import styles from './CrossplaneInstallDialog.module.css';
 import { createCrossplaneInstallSchema, CrossplaneInstallFormValues } from './CrossplaneInstallDialog.schema.ts';
 
@@ -79,7 +80,7 @@ export function CrossplaneInstallDialog({
       });
     } else {
       reset({
-        crossplaneVersion: '',
+        crossplaneVersion: getHighestVersion(crossplaneVersions.map((v) => v.version)) ?? '',
         providerStates: crossplaneProviders.map((p) => ({ name: p.name, isSelected: false, selectedVersion: '' })),
       });
     }
@@ -107,11 +108,18 @@ export function CrossplaneInstallDialog({
     (name: string) => {
       setValue(
         'providerStates',
-        providerStates.map((p) => (p.name === name ? { ...p, isSelected: !p.isSelected } : p)),
+        providerStates.map((p) => {
+          if (p.name !== name) return p;
+          const isSelected = !p.isSelected;
+          if (!isSelected || p.selectedVersion) return { ...p, isSelected };
+          const providerVersions = crossplaneProviders.find((cp) => cp.name === name)?.versions ?? [];
+          const highestVersion = getHighestVersion(providerVersions.map((v) => v.version));
+          return { ...p, isSelected, selectedVersion: highestVersion ?? p.selectedVersion };
+        }),
         { shouldValidate: isSubmitted },
       );
     },
-    [setValue, providerStates, isSubmitted],
+    [setValue, providerStates, isSubmitted, crossplaneProviders],
   );
 
   const handleProviderVersionChange = useCallback(
@@ -244,7 +252,6 @@ export function CrossplaneInstallDialog({
             valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
             {crossplaneVersions.map(({ version }) => (
               <Option key={version} value={version}>
                 {version}

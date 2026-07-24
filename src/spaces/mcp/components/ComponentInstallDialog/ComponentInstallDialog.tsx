@@ -8,6 +8,7 @@ import { stringify } from 'yaml';
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
+import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
 import styles from './ComponentInstallDialog.module.css';
 import { createComponentInstallSchema, ComponentInstallFormValues } from './ComponentInstallDialog.schema.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
@@ -81,7 +82,7 @@ export function ComponentInstallDialog({
     if (mode === 'edit' && initialVersion) {
       reset({ version: initialVersion });
     } else {
-      reset({ version: '' });
+      reset({ version: getHighestVersion(versions.map((v) => v.version)) ?? '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -206,7 +207,6 @@ export function ComponentInstallDialog({
             valueStateMessage={errors.version ? <span>{errors.version.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
             {versions.map(({ version: v }) => (
               <Option key={v} value={v}>
                 {v}
