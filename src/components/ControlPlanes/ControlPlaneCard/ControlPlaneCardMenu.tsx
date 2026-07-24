@@ -31,11 +31,13 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const { t } = useTranslation();
   const telemetry = useTelemetry();
   const hasAccessInfo = !!(secretKey && secretName && namespace);
+  // Only fetch the kubeconfig once the menu is opened — avoids one REST call
+  // per card on mount for every control plane in the workspace grid.
   const { data: kubeconfigResource } = useApiResource(
     GetKubeconfig(secretKey, secretName, namespace),
     undefined,
     undefined,
-    !hasAccessInfo,
+    !hasAccessInfo || !menuIsOpen,
   );
 
   const handleOpenerClick = () => {
