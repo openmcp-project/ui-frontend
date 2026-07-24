@@ -25,8 +25,8 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
-import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
+import { V2ComponentsMap } from '../../../spaces/onboarding/hooks/useWorkspaceV2ComponentsQuery.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -44,8 +44,9 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
-  useMcpComponentsHook?: typeof useMcpComponents;
   useMcpV2ComponentsHook?: typeof useMcpV2Components;
+  v2ComponentsMap?: V2ComponentsMap;
+  isLoadingV2Components?: boolean;
 }
 
 type MCPWizardState = {
@@ -65,8 +66,9 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
-  useMcpComponentsHook = useMcpComponents,
   useMcpV2ComponentsHook = useMcpV2Components,
+  v2ComponentsMap,
+  isLoadingV2Components: isLoadingV2ComponentsFromTile,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -100,16 +102,28 @@ export const ControlPlaneCard = ({
   const isV2 = controlPlane.version === 'v2';
   const navigate = useNavigate();
 
-  const {
-    components: mcpComponents,
-    roleBindings,
-    isLoading: isLoadingComponents,
-    hasError: hasComponentsError,
-  } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
-  const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
+  // v1: components come from the list query via the controlPlane prop
+  const mcpComponents = controlPlane.version === 'v1' ? controlPlane.spec?.components : undefined;
+
+  // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)
+  const mapEntry = isV2 && v2ComponentsMap ? v2ComponentsMap[name] : undefined;
+  const { components: mcpV2ComponentsFromHook, isLoading: isLoadingV2ComponentsFromHook } = useMcpV2ComponentsHook(
     name,
     namespace,
-    !isV2,
+    true, // disabled — component icons load separately after list
+  );
+  const isLoadingV2Components = isLoadingV2ComponentsFromTile ?? isLoadingV2ComponentsFromHook;
+  const mcpV2Components = useMemo(
+    () =>
+      mapEntry
+        ? {
+            crossplane: mapEntry.crossplane || undefined,
+            flux: mapEntry.flux || undefined,
+            landscaper: mapEntry.landscaper || undefined,
+            externalSecretsOperator: mapEntry.externalSecretsOperator || undefined,
+          }
+        : mcpV2ComponentsFromHook,
+    [mapEntry, mcpV2ComponentsFromHook],
   );
 
   const components = useMemo<ComponentInfo[]>(() => {
@@ -160,7 +174,7 @@ export const ControlPlaneCard = ({
         <div className={styles.cardBody}>
           <div className={styles.componentsRow}>
             <div className={styles.componentIcons}>
-              {(isV2 ? isLoadingV2Components : isLoadingComponents) ? (
+              {isV2 && isLoadingV2Components ? (
                 <>
                   <div
                     className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
@@ -195,9 +209,8 @@ export const ControlPlaneCard = ({
                   ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
                     <button
-                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${!isV2 && hasComponentsError ? styles.addComponentPlaceholderDisabled : ''}`}
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
                       data-testid="add-component-button"
-                      disabled={!isV2 && hasComponentsError}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
@@ -259,12 +272,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView
-              roleBindings={roleBindings}
-              project={projectName}
-              workspace={workspace.metadata.name}
-              compact
-            />
+            <McpMembersAvatarView project={projectName} workspace={workspace.metadata.name} compact />
           </div>
 
           <div className={styles.footerRight}>
