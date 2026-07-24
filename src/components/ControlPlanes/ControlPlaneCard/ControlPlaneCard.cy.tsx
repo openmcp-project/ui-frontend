@@ -57,6 +57,36 @@ const v2ControlPlane: ControlPlaneListItem = {
     annotations: {},
   },
   status: null,
+  spec: null,
+};
+
+const v2ControlPlaneWithMembers: ControlPlaneListItem = {
+  version: 'v2',
+  metadata: {
+    name: 'cp-name',
+    namespace: 'project-my-project--ws-default',
+    creationTimestamp: '2024-06-01T12:00:00Z',
+    annotations: {},
+  },
+  status: null,
+  spec: {
+    iam: {
+      oidc: {
+        defaultProvider: {
+          roleBindings: [
+            {
+              roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
+              subjects: [
+                { kind: 'User', name: 'alice@example.com', apiGroup: null, namespace: null },
+                { kind: 'User', name: 'bob@example.com', apiGroup: null, namespace: null },
+              ],
+            },
+          ],
+        },
+        extraProviders: null,
+      },
+    },
+  },
 };
 
 const fakeUseDeleteManagedControlPlane: typeof useDeleteManagedControlPlane = () => ({
@@ -513,6 +543,53 @@ describe('ControlPlaneCard', () => {
                     useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
                     useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
                     useMcpComponentsHook={fakeUseMcpComponentsEmpty}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 0);
+    });
+
+    it('renders avatars for v2 members from spec.iam.oidc roleBindings', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlaneWithMembers}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+      cy.get('ui5-avatar-group').should('exist');
+      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 2);
+    });
+
+    it('renders no avatars for v2 when spec.iam is absent', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
                   />
                 </FeatureToggleProvider>
               </SplitterProvider>

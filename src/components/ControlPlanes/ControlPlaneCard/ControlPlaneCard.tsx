@@ -111,6 +111,23 @@ export const ControlPlaneCard = ({
     !isV2,
   );
 
+  // Flatten v2 IAM roleBindings (roleRefs[] + subjects[]) into the flat shape
+  // expected by McpMembersAvatarView: { role: string; subjects: { kind, name }[] }[]
+  const v2RoleBindings = useMemo(() => {
+    if (!isV2 || controlPlane.version !== 'v2') return undefined;
+    const oidc = controlPlane.spec?.iam?.oidc;
+    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
+    return allProviders.flatMap((provider) =>
+      (provider?.roleBindings ?? []).flatMap((binding) => {
+        if (!binding) return [];
+        const subjects = (binding.subjects ?? []).flatMap((s) =>
+          s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [],
+        );
+        return (binding.roleRefs ?? []).flatMap((ref) => (ref?.name ? [{ role: ref.name, subjects }] : []));
+      }),
+    );
+  }, [isV2, controlPlane]);
+
   const components = useMemo<ComponentInfo[]>(() => {
     if (isV2) {
       return [
@@ -258,7 +275,7 @@ export const ControlPlaneCard = ({
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
             <McpMembersAvatarView
-              roleBindings={roleBindings}
+              roleBindings={isV2 ? v2RoleBindings : roleBindings}
               project={projectName}
               workspace={workspace.metadata.name}
               compact
