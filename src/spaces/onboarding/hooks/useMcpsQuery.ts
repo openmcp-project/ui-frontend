@@ -41,15 +41,6 @@ const GET_MCPS_LIST_QUERY = graphql(`
                   __typename
                 }
               }
-              authorization {
-                roleBindings {
-                  role
-                  subjects {
-                    kind
-                    name
-                  }
-                }
-              }
             }
             status {
               status
@@ -116,7 +107,6 @@ function toV1Input(item: V1Item) {
     spec: item.spec
       ? {
           components: item.spec.components,
-          authorization: item.spec.authorization,
         }
       : null,
     status: item.status

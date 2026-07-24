@@ -102,20 +102,9 @@ export const ControlPlaneCard = ({
   const isV2 = controlPlane.version === 'v2';
   const navigate = useNavigate();
 
-  // v1: components and roleBindings come from the list query via the controlPlane prop
+  // v1: components come from the list query via the controlPlane prop
   const mcpComponents = controlPlane.version === 'v1' ? controlPlane.spec?.components : undefined;
-  const roleBindings = useMemo(() => {
-    if (controlPlane.version !== 'v1') return undefined;
-    return (controlPlane.spec?.authorization?.roleBindings ?? []).flatMap((rb) => {
-      if (!rb?.role) return [];
-      return [
-        {
-          role: rb.role,
-          subjects: (rb.subjects ?? []).flatMap((s) => (s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [])),
-        },
-      ];
-    });
-  }, [controlPlane]);
+  const roleBindings = undefined;
   const isLoadingComponents = false;
 
   // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)

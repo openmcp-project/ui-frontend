@@ -61,12 +61,6 @@ const v1ControlPlaneWithComponents: ControlPlaneListItem = {
       crossplane: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane' },
       flux: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux' },
     },
-    authorization: {
-      roleBindings: [
-        { role: 'admin', subjects: [{ kind: 'User', name: 'alice@example.com' }] },
-        { role: 'viewer', subjects: [{ kind: 'User', name: 'bob@example.com' }] },
-      ],
-    },
   },
   status: null,
 };
@@ -471,7 +465,7 @@ describe('ControlPlaneCard', () => {
   });
 
   describe('members avatars', () => {
-    it('renders an avatar for each member from roleBindings', () => {
+    it('renders no avatars (roleBindings no longer in list query)', () => {
       cy.mount(
         <MockedProvider mocks={[]}>
           <MemoryRouter>
@@ -491,8 +485,7 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('ui5-avatar-group').should('exist');
-      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 2);
+      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 0);
     });
 
     it('renders no avatars when there are no members', () => {

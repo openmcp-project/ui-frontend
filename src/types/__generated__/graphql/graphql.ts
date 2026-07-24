@@ -1533,12 +1533,6 @@ export type GetMcPsListQuery = {
                 __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator';
               } | null;
             } | null;
-            authorization: {
-              roleBindings: Array<{
-                role: string | null;
-                subjects: Array<{ kind: string | null; name: string | null } | null> | null;
-              } | null> | null;
-            } | null;
           } | null;
           status: {
             status: string | null;
@@ -4644,36 +4638,6 @@ export const GetMcPsListDocument = {
                                                   kind: 'SelectionSet',
                                                   selections: [
                                                     { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
-                                                  ],
-                                                },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'authorization' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'roleBindings' },
-                                                selectionSet: {
-                                                  kind: 'SelectionSet',
-                                                  selections: [
-                                                    { kind: 'Field', name: { kind: 'Name', value: 'role' } },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: { kind: 'Name', value: 'subjects' },
-                                                      selectionSet: {
-                                                        kind: 'SelectionSet',
-                                                        selections: [
-                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
-                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                                        ],
-                                                      },
-                                                    },
                                                   ],
                                                 },
                                               },

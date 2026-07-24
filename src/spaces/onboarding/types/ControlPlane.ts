@@ -56,19 +56,9 @@ const SpecComponentsSchema = z
   })
   .nullish();
 
-const RoleBindingSchema = z.object({
-  role: z.string().nullish(),
-  subjects: z.array(z.object({ kind: z.string().nullish(), name: z.string().nullish() }).nullable()).nullish(),
-});
-
 const SpecSchema = z
   .object({
     components: SpecComponentsSchema,
-    authorization: z
-      .object({
-        roleBindings: z.array(RoleBindingSchema.nullable()).nullish(),
-      })
-      .nullish(),
   })
   .nullish();
 
