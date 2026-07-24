@@ -1,22 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Bar,
-  Button,
-  CheckBox,
-  CheckBoxDomRef,
-  Dialog,
-  FlexBox,
-  Option,
-  Select,
-  SelectDomRef,
-  Title,
-  Ui5CustomEvent,
-} from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, Option, Select, SelectDomRef, Title, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
+import { CrossplaneProviderPicker } from '../../../../components/Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../hooks/useCreateCrossplane.ts';
@@ -116,8 +105,7 @@ export function CrossplaneInstallDialog({
   );
 
   const handleProviderToggle = useCallback(
-    (e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) => {
-      const name = e.target.id;
+    (name: string) => {
       setValue(
         'providerStates',
         providerStates.map((p) => {
@@ -135,10 +123,7 @@ export function CrossplaneInstallDialog({
   );
 
   const handleProviderVersionChange = useCallback(
-    (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
-      const select = e.target as HTMLElement;
-      const name = select.dataset.name ?? '';
-      const version = (e.detail.selectedOption as HTMLElement).getAttribute('value') ?? '';
+    (name: string, version: string) => {
       setValue(
         'providerStates',
         providerStates.map((p) => (p.name === name ? { ...p, selectedVersion: version } : p)),
@@ -146,6 +131,14 @@ export function CrossplaneInstallDialog({
       );
     },
     [setValue, providerStates, isSubmitted],
+  );
+
+  const getProviderVersionError = useCallback(
+    (name: string) => {
+      const index = providerStates.findIndex((p) => p.name === name);
+      return index === -1 ? undefined : errors.providerStates?.[index]?.selectedVersion?.message;
+    },
+    [providerStates, errors.providerStates],
   );
 
   const onSubmit = useCallback(
@@ -269,45 +262,14 @@ export function CrossplaneInstallDialog({
           <Title level="H5" className={styles.sectionTitle}>
             {t('ComponentInstallDialog.providers')}
           </Title>
-          <div className={styles.providerList}>
-            {providerStates.map((provider, index) => {
-              const providerVersions = crossplaneProviders.find((p) => p.name === provider.name)?.versions ?? [];
-              const versionError = errors.providerStates?.[index]?.selectedVersion;
-              return (
-                <FlexBox
-                  key={provider.name}
-                  justifyContent="SpaceBetween"
-                  alignItems="Center"
-                  className={styles.providerRow}
-                >
-                  <CheckBox
-                    id={provider.name}
-                    text={provider.name}
-                    checked={provider.isSelected}
-                    disabled={!crossplaneVersion}
-                    onChange={handleProviderToggle}
-                  />
-                  <Select
-                    data-cy={`provider-version-select-${provider.name}`}
-                    data-name={provider.name}
-                    className={styles.providerVersionSelect}
-                    accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.name })}
-                    disabled={!provider.isSelected}
-                    value={provider.selectedVersion}
-                    valueState={versionError ? 'Negative' : 'None'}
-                    valueStateMessage={versionError ? <span>{versionError.message}</span> : undefined}
-                    onChange={handleProviderVersionChange}
-                  >
-                    {providerVersions.map(({ version }) => (
-                      <Option key={version} value={version}>
-                        {version}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
-              );
-            })}
-          </div>
+          <CrossplaneProviderPicker
+            providers={providerStates}
+            catalog={crossplaneProviders}
+            disabled={!crossplaneVersion}
+            getError={getProviderVersionError}
+            onToggle={handleProviderToggle}
+            onVersionChange={handleProviderVersionChange}
+          />
         </div>
         <div className={styles.yamlColumn}>
           <Title level="H5" className={styles.sectionTitle}>
