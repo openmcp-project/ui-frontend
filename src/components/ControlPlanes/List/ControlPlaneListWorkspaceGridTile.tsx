@@ -66,14 +66,17 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
-  const [viewportRef] = useInViewport();
+  const [viewportRef, hasBeenVisible] = useInViewport();
+
+  // Only fetch for workspaces that are visible AND expanded, or when searching
+  const shouldFetch = (hasBeenVisible && !!isExpanded) || !!search.trim();
 
   const {
     data: managedControlPlanes,
     error: cpsError,
     isPending,
     hasReceivedData,
-  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+  } = useMcpsQuery(shouldFetch ? `project-${projectName}--ws-${workspaceName}` : undefined);
 
   const { componentsMap, isLoading: isLoadingV2Components } = useWorkspaceV2ComponentsQuery(undefined);
 
@@ -89,9 +92,9 @@ export function ControlPlaneListWorkspaceGridTile({
         )
       : managedControlPlanes;
 
-  const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
+  const hasMcpMatch = hasReceivedData && !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
   // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
-  const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
+  const hidden = hasReceivedData && !isPending && query && !workspaceMatches && !hasMcpMatch;
   const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
 
   useEffect(() => {
