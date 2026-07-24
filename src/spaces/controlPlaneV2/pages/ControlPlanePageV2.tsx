@@ -23,7 +23,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -67,6 +67,10 @@ import { useCreateEso } from '../../mcp/hooks/useCreateEso.ts';
 import { useUpdateEso } from '../../mcp/hooks/useUpdateEso.ts';
 import { useCreateLandscaper } from '../../mcp/hooks/useCreateLandscaper.ts';
 import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
+import { useCrossplaneYamlQuery } from '../../mcp/hooks/useCrossplaneYamlQuery.ts';
+import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
+import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
+import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
 
 type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
 
@@ -102,6 +106,40 @@ function OpenSourceHeadlamp({
   const [installTarget, setInstallTarget] = useState<InstallTarget>(null);
   const mcpName = mcp.name;
   const mcpNamespace = `project-${mcp.project}--ws-${mcp.workspace}`;
+
+  // status.phase for crossplane/flux/eso lives on GraphQL-only CRs the embedded
+  // plugin can't reach via ApiProxy; fetch here (Apollo) and push into the iframe.
+  // Query unconditionally (isInstalled=true): if a component isn't installed its
+  // CR won't exist → yaml null → phase null (harmless; the plugin only renders a
+  // phase when its own probe says installed). These hooks self-poll every 30s.
+  const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
+  const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
+  const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
+  const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
+  const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
+  const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
+  const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
+  const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
+  const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
+
+  // Snapshot keyed by the plugin's component names; kept in a ref (updated in an
+  // effect, not during render) so pushStatuses stays stable.
+  const statusesRef = useRef<Record<string, string | null>>({});
+  useEffect(() => {
+    statusesRef.current = {
+      crossplane: crossplanePhase,
+      flux: fluxPhase,
+      externalSecretsOperator: esoPhase,
+    };
+  }, [crossplanePhase, fluxPhase, esoPhase]);
+  const pushStatuses = useCallback(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
+    win.postMessage(
+      { source: 'ocp-host', action: 'componentStatus', statuses: statusesRef.current },
+      window.location.origin,
+    );
+  }, []);
 
   useEffect(() => {
     setMcpActions({
@@ -178,25 +216,38 @@ function OpenSourceHeadlamp({
   }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
 
   // The embedded Headlamp plugin cannot install a component itself; it posts a
-  // message asking us to open the matching V2 install dialog. Validate origin +
-  // source + action, then map the component name to the dialog to open.
+  // message asking us to open the matching V2 install dialog. It also announces
+  // itself (statusHandshake) so we can push the current component status snapshot.
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const data = event.data;
-      if (!data || data.source !== 'ocp-headlamp-plugin' || data.action !== 'openInstallWizard') return;
-      const map: Record<string, InstallTarget> = {
-        crossplane: 'crossplane',
-        flux: 'flux',
-        externalSecretsOperator: 'eso',
-        landscaper: 'landscaper',
-      };
-      const target = map[data.component as string];
-      if (target) setInstallTarget(target);
+      if (!data || data.source !== 'ocp-headlamp-plugin') return;
+
+      if (data.action === 'statusHandshake') {
+        pushStatuses();
+        return;
+      }
+
+      if (data.action === 'openInstallWizard') {
+        const map: Record<string, InstallTarget> = {
+          crossplane: 'crossplane',
+          flux: 'flux',
+          externalSecretsOperator: 'eso',
+          landscaper: 'landscaper',
+        };
+        const target = map[data.component as string];
+        if (target) setInstallTarget(target);
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [pushStatuses]);
+
+  // Push status to the iframe whenever a phase changes (the plugin renders it).
+  useEffect(() => {
+    pushStatuses();
+  }, [crossplanePhase, fluxPhase, esoPhase, pushStatuses]);
 
   // Install dialogs are always mounted (visibility driven by `open`) so they
   // survive the loading/error early returns below.
