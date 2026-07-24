@@ -36,18 +36,18 @@
     "progressCount": "Healthy: {{count}} of {{total}} resources"
   },
   "componentCardFlux": {
-    "description": "GitOps for Kubernetes automating continuous sync and delivery",
+    "description": "Synchronize resources from Git repositories",
     "progress": "Managed",
     "progressCount": "Managed: {{count}} of {{total}} resources"
   },
   "componentCardLandscaper": {
-    "description": "Automate cross‑dependent Kubernetes deployments"
+    "description": "Orchestrate cross-dependent deployments"
   },
   "componentCardKyverno": {
-    "description": "Kubernetes-native policy as code for secure and compliant infrastructure"
+    "description": "Enforce policies for secure and compliant resources"
   },
   "componentCardEso": {
-    "description": "Manage and sync credentials from your secret store"
+    "description": "Manage credentials from your secret store"
   },
   "Kpi": {
     "installed": "Installed",

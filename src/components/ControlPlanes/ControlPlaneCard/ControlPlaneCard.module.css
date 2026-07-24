@@ -133,12 +133,26 @@
   color: var(--sapButton_Emphasized_Background, #0070f2);
   cursor: pointer;
   background: none;
+  --sapContent_IconColor: var(--sapButton_Emphasized_Background, #0070f2);
 }
 
 .addComponentPlaceholder:hover {
   background: color-mix(in srgb, var(--sapButton_Emphasized_Background, #0070f2) 8%, transparent);
   border-color: var(--sapButton_Emphasized_Hover_Background, #0064d9);
   transform: translateY(-1px);
+}
+
+.addComponentPlaceholderDisabled {
+  border-color: var(--sapButton_Disabled_BorderColor, #d9d9d9);
+  color: var(--sapButton_Disabled_TextColor, #a9a9a9);
+  cursor: not-allowed;
+  --sapContent_IconColor: var(--sapButton_Disabled_TextColor, #a9a9a9);
+}
+
+.addComponentPlaceholderDisabled:hover {
+  background: none;
+  border-color: var(--sapButton_Disabled_BorderColor, #d9d9d9);
+  transform: none;
 }
 
 .addComponentIcon {
