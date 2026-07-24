@@ -46,6 +46,7 @@ interface Props {
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
   useMcpV2ComponentsHook?: typeof useMcpV2Components;
   v2ComponentsMap?: V2ComponentsMap;
+  isLoadingV2Components?: boolean;
 }
 
 type MCPWizardState = {
@@ -67,6 +68,7 @@ export const ControlPlaneCard = ({
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
   useMcpV2ComponentsHook = useMcpV2Components,
   v2ComponentsMap,
+  isLoadingV2Components: isLoadingV2ComponentsFromTile,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -119,11 +121,13 @@ export const ControlPlaneCard = ({
   // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)
   const mapEntry = isV2 && v2ComponentsMap ? v2ComponentsMap[name] : undefined;
   const skipHook = isV2 && v2ComponentsMap !== undefined;
-  const { components: mcpV2ComponentsFromHook, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
+  const { components: mcpV2ComponentsFromHook, isLoading: isLoadingV2ComponentsFromHook } = useMcpV2ComponentsHook(
     name,
     namespace,
     !isV2 || skipHook,
   );
+  // When the tile-level map is loading, show skeletons — don't let the empty map mislead the card
+  const isLoadingV2Components = isLoadingV2ComponentsFromTile ?? isLoadingV2ComponentsFromHook;
   const mcpV2Components = useMemo(
     () =>
       mapEntry
