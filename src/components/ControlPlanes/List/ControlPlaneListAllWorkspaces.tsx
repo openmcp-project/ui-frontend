@@ -3,7 +3,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoSearchResults.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -15,7 +15,7 @@ interface Props {
   projectName: string;
   workspaces: Workspace[];
   search?: string;
-  expandedWorkspaces: Set<string>;
+  expandedWorkspace: string | null;
   onToggleWorkspace: (workspaceName: string) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
@@ -25,7 +25,7 @@ export default function ControlPlaneListAllWorkspaces({
   projectName,
   workspaces,
   search = '',
-  expandedWorkspaces,
+  expandedWorkspace,
   onToggleWorkspace,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
@@ -53,6 +53,27 @@ export default function ControlPlaneListAllWorkspaces({
     });
   }
 
+  // Queue: fetch one collapsed workspace at a time, in order.
+  // grantedIndex tracks which collapsed workspace has the fetch slot.
+  // When it completes (onFetchComplete) we advance to the next.
+  const [grantedIndex, setGrantedIndex] = useState(0);
+  const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
+
+  const handleFetchComplete = useCallback(() => {
+    setGrantedIndex((prev) => prev + 1);
+  }, []);
+
+  const handleForbiddenDetected = useCallback((workspaceName: string) => {
+    setForbiddenWorkspaces((prev) => {
+      if (prev.has(workspaceName)) return prev;
+      const next = new Set(prev);
+      next.add(workspaceName);
+      return next;
+    });
+    // Also advance the queue — a forbidden workspace counts as complete.
+    setGrantedIndex((prev) => prev + 1);
+  }, []);
+
   if (workspaces.length === 0) {
     return (
       <FlexBox direction="Column" alignItems="Center">
@@ -72,6 +93,14 @@ export default function ControlPlaneListAllWorkspaces({
     );
   }
 
+  let collapsedSeen = 0;
+
+  // Forbidden workspaces sink to the bottom once detected; order is otherwise stable.
+  const sortedWorkspaces = [
+    ...workspaces.filter((ws) => !forbiddenWorkspaces.has(ws.metadata.name)),
+    ...workspaces.filter((ws) => forbiddenWorkspaces.has(ws.metadata.name)),
+  ];
+
   return (
     <>
       {showNoResults && (
@@ -83,19 +112,30 @@ export default function ControlPlaneListAllWorkspaces({
           />
         </FlexBox>
       )}
-      {workspaces.map((workspace) => (
-        <ControlPlaneListWorkspaceGridTile
-          key={`${projectName}-${workspace.metadata.name}`}
-          projectName={projectName}
-          workspace={workspace}
-          search={search}
-          isExpanded={expandedWorkspaces.has(workspace.metadata.name)}
-          useMcpsQuery={useMcpsQuery}
-          useDeleteWorkspace={useDeleteWorkspace}
-          onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
-          onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
-        />
-      ))}
+      {sortedWorkspaces.map((workspace) => {
+        const isExpanded = workspace.metadata.name === expandedWorkspace;
+        let isFetchGranted = false;
+        if (!isExpanded) {
+          isFetchGranted = collapsedSeen === grantedIndex;
+          collapsedSeen++;
+        }
+        return (
+          <ControlPlaneListWorkspaceGridTile
+            key={`${projectName}-${workspace.metadata.name}`}
+            projectName={projectName}
+            workspace={workspace}
+            search={search}
+            isExpanded={isExpanded}
+            isFetchGranted={isFetchGranted}
+            useMcpsQuery={useMcpsQuery}
+            useDeleteWorkspace={useDeleteWorkspace}
+            onFetchComplete={isFetchGranted ? handleFetchComplete : undefined}
+            onForbiddenDetected={() => handleForbiddenDetected(workspace.metadata.name)}
+            onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
+            onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
+          />
+        );
+      })}
     </>
   );
 }
