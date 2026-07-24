@@ -1,6 +1,8 @@
 import { ApolloClient, ApolloLink, InMemoryCache, Observable, split } from '@apollo/client';
+import { ServerError } from '@apollo/client/errors';
 import { ApolloProvider } from '@apollo/client/react';
 import { HttpLink } from '@apollo/client/link/http';
+import { ErrorLink } from '@apollo/client/link/error';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { ClientOptions, createClient } from 'graphql-sse';
 import { print, ExecutionResult, FormattedExecutionResult } from 'graphql';
@@ -108,8 +110,60 @@ const tokenRefreshLink = new ApolloLink((operation, forward) => {
   });
 });
 
+/**
+ * Reacts to a 401 that comes *back* from the server (token looked valid to the
+ * client but was rejected — clock skew, backgrounded tab, revoked session).
+ * Forces a token refresh and retries the operation once; if the forced refresh
+ * fails, redirects to sign-in. Guarded via operation context so a persistently
+ * 401ing server can't loop.
+ */
+const RETRIED_CONTEXT_KEY = 'auth401Retried';
+
+const errorLink = new ErrorLink(({ error, operation, forward }) => {
+  if (!ServerError.is(error) || error.statusCode !== 401) {
+    return;
+  }
+
+  if (operation.getContext()[RETRIED_CONTEXT_KEY]) {
+    // Already retried once and still 401 → the forced refresh didn't help.
+    redirectToLogin('onboarding');
+    return;
+  }
+
+  return new Observable<ExecutionResult | FormattedExecutionResult>((observer) => {
+    let subscription: { unsubscribe(): void } | null = null;
+    let isUnsubscribed = false;
+
+    refreshToken(true)
+      .then((valid) => {
+        if (isUnsubscribed) return;
+
+        if (!valid) {
+          redirectToLogin('onboarding');
+          observer.error(error);
+          return;
+        }
+
+        operation.setContext({ [RETRIED_CONTEXT_KEY]: true });
+        subscription = forward(operation).subscribe({
+          next: (value) => !isUnsubscribed && observer.next(value),
+          error: (err) => !isUnsubscribed && observer.error(err),
+          complete: () => !isUnsubscribed && observer.complete(),
+        });
+      })
+      .catch((err) => {
+        if (!isUnsubscribed) observer.error(err);
+      });
+
+    return () => {
+      isUnsubscribed = true;
+      subscription?.unsubscribe();
+    };
+  });
+});
+
 const client = new ApolloClient({
-  link: ApolloLink.from([tokenRefreshLink, splitLink]),
+  link: ApolloLink.from([errorLink, tokenRefreshLink, splitLink]),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
