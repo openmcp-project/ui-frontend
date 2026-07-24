@@ -25,6 +25,7 @@ import { useYamlPreview } from '../../hooks/useYamlPreview.ts';
 import { projectnameToNamespace } from '../../utils/index.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from './MetadataForm.tsx';
+import { SupportInfoForm } from './SupportInfoForm.tsx';
 
 const YamlViewer = lazy(() => import('../Yaml/YamlViewer.tsx').then((m) => ({ default: m.YamlViewer })));
 
@@ -34,6 +35,10 @@ export type OnCreatePayload = {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  supportServiceIds?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
 };
 
 export interface CreateProjectWorkspaceDialogProps {
@@ -53,9 +58,10 @@ export interface CreateProjectWorkspaceDialogProps {
   isMetadataValid?: boolean;
   isLoading?: boolean;
   isEditMode?: boolean;
+  initialStep?: Step;
 }
 
-type Step = 'metadata' | 'members';
+export type Step = 'metadata' | 'members' | 'supportInfo';
 
 export function CreateProjectWorkspaceDialog({
   isOpen,
@@ -74,9 +80,10 @@ export function CreateProjectWorkspaceDialog({
   isMetadataValid = true,
   isLoading = false,
   isEditMode = false,
+  initialStep = 'metadata',
 }: CreateProjectWorkspaceDialogProps) {
   const { t } = useTranslation();
-  const [step, setStep] = useState<Step>('metadata');
+  const [step, setStep] = useState<Step>(initialStep);
 
   const setMembers = (members: Member[]) => setValue('members', members);
 
@@ -85,8 +92,22 @@ export function CreateProjectWorkspaceDialog({
   const displayName = watch('displayName') ?? '';
   const chargingTarget = watch('chargingTarget') ?? '';
   const chargingTargetType = watch('chargingTargetType') ?? '';
+  const supportLandscape = watch('supportLandscape') ?? '';
+  const supportServiceIds = watch('supportServiceIds') ?? '';
+  const supportSecurityContacts = watch('supportSecurityContacts') ?? '';
+  const supportOpsContacts = watch('supportOpsContacts') ?? '';
   const yamlString = useYamlPreview(
-    { name, displayName, chargingTarget, chargingTargetType, members },
+    {
+      name,
+      displayName,
+      chargingTarget,
+      chargingTargetType,
+      members,
+      supportLandscape,
+      supportServiceIds,
+      supportSecurityContacts,
+      supportOpsContacts,
+    },
     type,
     projectNamespace,
   );
@@ -97,7 +118,7 @@ export function CreateProjectWorkspaceDialog({
   };
 
   const onClose = () => {
-    setStep('metadata');
+    setStep(initialStep);
     setIsOpen(false);
   };
 
@@ -126,9 +147,22 @@ export function CreateProjectWorkspaceDialog({
                   <Button design="Emphasized" disabled={!isMetadataValid} onClick={goToMembers}>
                     {t('buttons.next')}
                   </Button>
-                ) : (
+                ) : step === 'members' ? (
                   <>
                     <Button onClick={() => setStep('metadata')}>{t('buttons.back')}</Button>
+                    {type === 'project' ? (
+                      <Button design="Emphasized" onClick={() => setStep('supportInfo')}>
+                        {t('buttons.next')}
+                      </Button>
+                    ) : (
+                      <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
+                        {t('CreateProjectWorkspaceDialog.createButton')}
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={() => setStep('members')}>{t('buttons.back')}</Button>
                     <Button design="Emphasized" disabled={isLoading} onClick={() => onCreate()}>
                       {t('CreateProjectWorkspaceDialog.createButton')}
                     </Button>
@@ -175,6 +209,16 @@ export function CreateProjectWorkspaceDialog({
                   />
                 </FormGroup>
               </WizardStep>
+              {type === 'project' && (
+                <WizardStep
+                  data-step="supportInfo"
+                  icon="activities"
+                  selected={step === 'supportInfo'}
+                  titleText={t('SupportInfo.wizardStepTitle')}
+                >
+                  <SupportInfoForm register={register} watch={watch} setValue={setValue} />
+                </WizardStep>
+              )}
             </Wizard>
           </SplitterElement>
 

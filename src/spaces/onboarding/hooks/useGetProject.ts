@@ -5,6 +5,7 @@ import {
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { Member } from '../../../lib/api/types/shared/members';
+import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
 
 const GetProjectQuery = graphql(`
@@ -37,6 +38,10 @@ export interface ProjectData {
   chargingTarget: string;
   chargingTargetType: string;
   members: Member[];
+  supportServiceIds: string;
+  supportLandscape: string;
+  supportSecurityContacts: string;
+  supportOpsContacts: string;
 }
 
 export function useGetProject(projectName: string | undefined) {
@@ -49,6 +54,7 @@ export function useGetProject(projectName: string | undefined) {
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const labels = (project?.metadata?.labels as Record<string, string> | null | undefined) ?? {};
+  const support = extractSupportInfo(annotations);
 
   const projectData: ProjectData | undefined = project
     ? {
@@ -67,6 +73,10 @@ export function useGetProject(projectName: string | undefined) {
             },
           ];
         }),
+        supportServiceIds: support.supportServiceIds ?? '',
+        supportLandscape: support.supportLandscape ?? '',
+        supportSecurityContacts: support.supportSecurityContacts ?? '',
+        supportOpsContacts: support.supportOpsContacts ?? '',
       }
     : undefined;
 

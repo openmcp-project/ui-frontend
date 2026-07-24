@@ -295,7 +295,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -657,5 +658,28 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "testing": "Testing"
+    },
+    "serviceIds": "Service IDs",
+    "serviceIdsPlaceholder": "Enter an ID and press Enter",
+    "contacts": "Contacts",
+    "contactsPlaceholder": "Enter a contact and press Enter",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit"
   }
 }
