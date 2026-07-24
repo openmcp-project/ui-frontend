@@ -65,7 +65,7 @@ export default function ConnectButton({
     }
   };
 
-  if (!skipFetch && (isLoading || error || connectionTargets.length === 0)) {
+  if (isLoading || error || connectionTargets.length === 0) {
     return (
       <Button data-testid="connect-button" design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
         {t('ConnectButton.buttonText')}
