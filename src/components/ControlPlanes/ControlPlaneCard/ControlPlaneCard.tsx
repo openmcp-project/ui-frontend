@@ -104,8 +104,6 @@ export const ControlPlaneCard = ({
 
   // v1: components come from the list query via the controlPlane prop
   const mcpComponents = controlPlane.version === 'v1' ? controlPlane.spec?.components : undefined;
-  const roleBindings = undefined;
-  const isLoadingComponents = false;
 
   // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)
   const mapEntry = isV2 && v2ComponentsMap ? v2ComponentsMap[name] : undefined;
@@ -176,7 +174,7 @@ export const ControlPlaneCard = ({
         <div className={styles.cardBody}>
           <div className={styles.componentsRow}>
             <div className={styles.componentIcons}>
-              {(isV2 ? isLoadingV2Components : isLoadingComponents) ? (
+              {isV2 && isLoadingV2Components ? (
                 <>
                   <div
                     className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
@@ -275,7 +273,6 @@ export const ControlPlaneCard = ({
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
             <McpMembersAvatarView
-              roleBindings={roleBindings}
               project={projectName}
               workspace={workspace.metadata.name}
               compact

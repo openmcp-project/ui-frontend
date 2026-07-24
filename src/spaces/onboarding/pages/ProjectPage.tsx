@@ -1,5 +1,3 @@
-import '@ui5/webcomponents-icons/dist/collapse-all.js';
-import '@ui5/webcomponents-icons/dist/expand-all.js';
 import '@ui5/webcomponents-icons/dist/pushpin-off';
 import '@ui5/webcomponents-icons/dist/pushpin-on';
 import { Button, FlexBox, ObjectPage, ObjectPageSection, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
