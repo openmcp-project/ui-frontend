@@ -71,10 +71,22 @@ const splitLink = authLink.concat(
   ),
 );
 
+const isSubscription = (operation: Parameters<ApolloLink['request']>[0]) => {
+  const definition = getMainDefinition(operation.query);
+  return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+};
+
 /**
  * Token refresh link that ensures valid token before each GraphQL request.
+ * Skipped for subscriptions — the SSE connection is same-origin (cookie-based)
+ * and does not need per-operation token validation. Checking the token for
+ * every subscription mount serialises them through pendingRefresh, blocking queries.
  */
 const tokenRefreshLink = new ApolloLink((operation, forward) => {
+  if (isSubscription(operation)) {
+    return forward(operation);
+  }
+
   return new Observable<ExecutionResult | FormattedExecutionResult>((observer) => {
     let subscription: { unsubscribe(): void } | null = null;
     let isUnsubscribed = false;

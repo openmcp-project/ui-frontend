@@ -1566,13 +1566,7 @@ export type GetMcPsListQuery = {
           status: {
             phase: string | null;
             access: unknown;
-            conditions: Array<{
-              type: string | null;
-              status: string | null;
-              reason: string | null;
-              message: string | null;
-              lastTransitionTime: string | null;
-            } | null> | null;
+            conditions: Array<{ type: string | null; status: string | null } | null> | null;
           } | null;
         }>;
       };
@@ -4772,9 +4766,6 @@ export const GetMcPsListDocument = {
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                                               { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                                              { kind: 'Field', name: { kind: 'Name', value: 'lastTransitionTime' } },
                                             ],
                                           },
                                         },

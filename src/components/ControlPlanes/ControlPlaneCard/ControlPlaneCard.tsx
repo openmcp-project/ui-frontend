@@ -109,13 +109,11 @@ export const ControlPlaneCard = ({
 
   // v2: use pre-fetched workspace-level map if available, else fall back to per-card query (tests/detail page)
   const mapEntry = isV2 && v2ComponentsMap ? v2ComponentsMap[name] : undefined;
-  const skipHook = isV2 && v2ComponentsMap !== undefined;
   const { components: mcpV2ComponentsFromHook, isLoading: isLoadingV2ComponentsFromHook } = useMcpV2ComponentsHook(
     name,
     namespace,
-    !isV2 || skipHook,
+    true, // disabled — component icons load separately after list
   );
-  // When the tile-level map is loading, show skeletons — don't let the empty map mislead the card
   const isLoadingV2Components = isLoadingV2ComponentsFromTile ?? isLoadingV2ComponentsFromHook;
   const mcpV2Components = useMemo(
     () =>

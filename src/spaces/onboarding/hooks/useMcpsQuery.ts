@@ -80,9 +80,6 @@ const GET_MCPS_LIST_QUERY = graphql(`
               conditions {
                 type
                 status
-                reason
-                message
-                lastTransitionTime
               }
               access
             }
@@ -104,11 +101,7 @@ function toV1Input(item: V1Item) {
   return {
     version: 'v1' as const,
     metadata: item.metadata,
-    spec: item.spec
-      ? {
-          components: item.spec.components,
-        }
-      : null,
+    spec: item.spec ? { components: item.spec.components } : null,
     status: item.status
       ? {
           status: item.status.status,

@@ -66,7 +66,7 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
-  const [viewportRef, hasBeenVisible] = useInViewport();
+  const [viewportRef] = useInViewport();
 
   const {
     data: managedControlPlanes,
@@ -74,10 +74,7 @@ export function ControlPlaneListWorkspaceGridTile({
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
 
-  const workspaceNamespace = `project-${projectName}--ws-${workspaceName}`;
-  const { componentsMap, isLoading: isLoadingV2Components } = useWorkspaceV2ComponentsQuery(
-    hasBeenVisible && isExpanded ? workspaceNamespace : undefined,
-  );
+  const { componentsMap, isLoading: isLoadingV2Components } = useWorkspaceV2ComponentsQuery(undefined);
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
