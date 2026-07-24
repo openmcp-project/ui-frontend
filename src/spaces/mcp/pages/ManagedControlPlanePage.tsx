@@ -268,6 +268,24 @@ export default function ManagedControlPlanePage() {
     setEditManagedControlPlaneWizardSection(undefined);
   };
 
+  // The embedded Headlamp plugin (same-origin iframe) cannot install a component
+  // itself, so its "Install Service" action posts a message asking us to open the
+  // edit wizard on the component-selection step. Validate origin + source + action
+  // before acting, and only in open-source (Headlamp) mode where the trigger lives.
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (data?.source !== 'ocp-headlamp-plugin') return;
+      if (data?.action !== 'openInstallWizard') return;
+      if (mode !== 'open-source') return;
+      setEditManagedControlPlaneWizardSection('componentSelection');
+      setIsEditManagedControlPlaneWizardOpen(true);
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [mode]);
+
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
@@ -315,6 +333,13 @@ export default function ManagedControlPlanePage() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+              />
+              <EditManagedControlPlaneWizardDataLoader
+                isOpen={isEditManagedControlPlaneWizardOpen}
+                setIsOpen={handleEditManagedControlPlaneWizardClose}
+                workspaceName={mcp?.status?.access?.namespace}
+                resourceName={controlPlaneName}
+                initialSection={editManagedControlPlaneWizardSection}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>
