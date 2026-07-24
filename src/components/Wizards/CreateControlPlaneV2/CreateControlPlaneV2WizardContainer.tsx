@@ -43,14 +43,18 @@ import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kp
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
 import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery.ts';
-import { useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
-import { useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
-import { useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
-import { useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
-import { useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
-import { useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
-import { useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
-import { useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
+import { useCreateCrossplane as _useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
+import { useCreateFlux as _useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
+import { useCreateLandscaper as _useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
+import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
+import { useUpdateCrossplane as _useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
+import { useUpdateFlux as _useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
+import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
+import { useUpdateEso as _useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
+import { useDeleteCrossplane as _useDeleteCrossplane } from '../../../spaces/mcp/hooks/useDeleteCrossplane.ts';
+import { useDeleteFlux as _useDeleteFlux } from '../../../spaces/mcp/hooks/useDeleteFlux.ts';
+import { useDeleteLandscaper as _useDeleteLandscaper } from '../../../spaces/mcp/hooks/useDeleteLandscaper.ts';
+import { useDeleteEso as _useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
 import { EditMembers } from '../../Members/EditMembers.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
@@ -58,6 +62,7 @@ import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -72,6 +77,18 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useCreateManagedControlPlaneV2GraphQL?: typeof _useCreateManagedControlPlaneV2GraphQL;
   useUpdateManagedControlPlaneV2GraphQL?: typeof _useUpdateManagedControlPlaneV2GraphQL;
   useAuthOnboarding?: typeof _useAuthOnboarding;
+  useCreateCrossplane?: typeof _useCreateCrossplane;
+  useUpdateCrossplane?: typeof _useUpdateCrossplane;
+  useDeleteCrossplane?: typeof _useDeleteCrossplane;
+  useCreateFlux?: typeof _useCreateFlux;
+  useUpdateFlux?: typeof _useUpdateFlux;
+  useDeleteFlux?: typeof _useDeleteFlux;
+  useCreateLandscaper?: typeof _useCreateLandscaper;
+  useUpdateLandscaper?: typeof _useUpdateLandscaper;
+  useDeleteLandscaper?: typeof _useDeleteLandscaper;
+  useCreateEso?: typeof _useCreateEso;
+  useUpdateEso?: typeof _useUpdateEso;
+  useDeleteEso?: typeof _useDeleteEso;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -99,6 +116,18 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useCreateManagedControlPlaneV2GraphQL = _useCreateManagedControlPlaneV2GraphQL,
   useUpdateManagedControlPlaneV2GraphQL = _useUpdateManagedControlPlaneV2GraphQL,
   useAuthOnboarding = _useAuthOnboarding,
+  useCreateCrossplane = _useCreateCrossplane,
+  useUpdateCrossplane = _useUpdateCrossplane,
+  useDeleteCrossplane = _useDeleteCrossplane,
+  useCreateFlux = _useCreateFlux,
+  useUpdateFlux = _useUpdateFlux,
+  useDeleteFlux = _useDeleteFlux,
+  useCreateLandscaper = _useCreateLandscaper,
+  useUpdateLandscaper = _useUpdateLandscaper,
+  useDeleteLandscaper = _useDeleteLandscaper,
+  useCreateEso = _useCreateEso,
+  useUpdateEso = _useUpdateEso,
+  useDeleteEso = _useDeleteEso,
 }) => {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
@@ -258,7 +287,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     });
   }, [isEditMode, selectedStep, crossplaneData, fluxData, landscaperData, esoData]);
 
-  // Service create/update hooks (always called per rules of hooks)
+  // Service create/update/delete hooks (always called per rules of hooks)
   const { create: createCrossplane } = useCreateCrossplane();
   const { create: createFlux } = useCreateFlux();
   const { create: createLandscaper } = useCreateLandscaper();
@@ -267,6 +296,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { update: updateFlux } = useUpdateFlux();
   const { update: updateLandscaper } = useUpdateLandscaper();
   const { update: updateEso } = useUpdateEso();
+  const { deleteCrossplane } = useDeleteCrossplane();
+  const { deleteFlux } = useDeleteFlux();
+  const { deleteLandscaper } = useDeleteLandscaper();
+  const { deleteEso } = useDeleteEso();
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
@@ -315,8 +348,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         await createMcp(rawInput);
       }
 
-      // Fire service create/update mutations in parallel for selected services.
-      // If not selected and currently installed, leave as-is (deletion out of scope).
+      // Fire create/update/delete mutations in parallel based on whether each service was
+      // previously installed and whether it's currently selected.
       const servicePromises: Promise<unknown>[] = [];
 
       const makeServiceObject = (
@@ -335,7 +368,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         },
       });
 
-      if (services.crossplane?.selected) {
+      const crossplaneAction = resolveServiceMutationAction(
+        isEditMode,
+        !!crossplaneData?.isInstalled,
+        !!services.crossplane?.selected,
+      );
+      if (crossplaneAction === 'create' || crossplaneAction === 'update') {
         const vars = {
           namespace: cpNamespace,
           object: {
@@ -343,8 +381,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             kind: 'Crossplane',
             metadata: { name: cpName, namespace: cpNamespace },
             spec: {
-              version: services.crossplane.version || 'latest',
-              providers: (services.crossplane.providers ?? []).map((p) => ({
+              version: services.crossplane?.version || 'latest',
+              providers: (services.crossplane?.providers ?? []).map((p) => ({
                 name: p.name,
                 version: p.version || 'latest',
               })),
@@ -352,49 +390,64 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           },
         };
         servicePromises.push(
-          isEditMode && crossplaneData?.isInstalled
-            ? updateCrossplane({ ...vars, name: cpName })
-            : createCrossplane(vars),
+          crossplaneAction === 'update' ? updateCrossplane({ ...vars, name: cpName }) : createCrossplane(vars),
         );
+      } else if (crossplaneAction === 'delete') {
+        servicePromises.push(deleteCrossplane({ name: cpName, namespace: cpNamespace }));
       }
-      if (services.flux?.selected) {
+
+      const fluxAction = resolveServiceMutationAction(isEditMode, !!fluxData?.isInstalled, !!services.flux?.selected);
+      if (fluxAction === 'create' || fluxAction === 'update') {
         const vars = makeServiceObject(
           cpName,
-          services.flux.version ?? '',
+          services.flux?.version ?? '',
           cpNamespace,
           'flux.services.open-control-plane.io/v1alpha1',
           'Flux',
         );
-        servicePromises.push(
-          isEditMode && fluxData?.isInstalled ? updateFlux({ ...vars, name: cpName }) : createFlux(vars),
-        );
+        servicePromises.push(fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux(vars));
+      } else if (fluxAction === 'delete') {
+        servicePromises.push(deleteFlux({ name: cpName, namespace: cpNamespace }));
       }
-      if (services.landscaper?.selected) {
+
+      const landscaperAction = resolveServiceMutationAction(
+        isEditMode,
+        !!landscaperData?.isInstalled,
+        !!services.landscaper?.selected,
+      );
+      if (landscaperAction === 'create' || landscaperAction === 'update') {
         const vars = makeServiceObject(
           cpName,
-          services.landscaper.version ?? '',
+          services.landscaper?.version ?? '',
           cpNamespace,
           'landscaper.services.open-control-plane.io/v1alpha2',
           'Landscaper',
         );
         servicePromises.push(
-          isEditMode && landscaperData?.isInstalled
-            ? updateLandscaper({ ...vars, name: cpName })
-            : createLandscaper(vars),
+          landscaperAction === 'update' ? updateLandscaper({ ...vars, name: cpName }) : createLandscaper(vars),
         );
+      } else if (landscaperAction === 'delete') {
+        servicePromises.push(deleteLandscaper({ name: cpName, namespace: cpNamespace }));
       }
-      if (services.externalSecretsOperator?.selected) {
+
+      const esoAction = resolveServiceMutationAction(
+        isEditMode,
+        !!esoData?.isInstalled,
+        !!services.externalSecretsOperator?.selected,
+      );
+      if (esoAction === 'create' || esoAction === 'update') {
         const vars = makeServiceObject(
           cpName,
-          services.externalSecretsOperator.version ?? '',
+          services.externalSecretsOperator?.version ?? '',
           cpNamespace,
           'external-secrets.services.open-control-plane.io/v1alpha1',
           'ExternalSecretsOperator',
         );
-        servicePromises.push(
-          isEditMode && esoData?.isInstalled ? updateEso({ ...vars, name: cpName }) : createEso(vars),
-        );
+        servicePromises.push(esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso(vars));
+      } else if (esoAction === 'delete') {
+        servicePromises.push(deleteEso({ name: cpName, namespace: cpNamespace }));
       }
+
       await Promise.all(servicePromises);
 
       telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
@@ -429,6 +482,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     updateFlux,
     updateLandscaper,
     updateEso,
+    deleteCrossplane,
+    deleteFlux,
+    deleteLandscaper,
+    deleteEso,
   ]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
