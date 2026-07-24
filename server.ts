@@ -180,9 +180,9 @@ await fastify.register(FastifyVite, {
   dev: isLocalDev,
   spa: true,
   // Vite content-hashes all assets in /assets/ — safe to cache indefinitely
-  staticOptions: {
-    maxAge: isLocalDev ? 0 : 31_536_000,
-    immutable: !isLocalDev,
+  fastifyStaticOptions: isLocalDev ? undefined : {
+    maxAge: 31_536_000,
+    immutable: true,
   },
 });
 
