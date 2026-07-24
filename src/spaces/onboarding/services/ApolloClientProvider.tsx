@@ -10,24 +10,22 @@ import { redirectToLogin } from '../../../common/auth/redirectToLogin';
 
 const graphqlUrl = '/api/graphql';
 
-// SSE Link using graphql-sse library
+// SSE Link using graphql-sse library.
+// A single client is created per SSELink instance and reused across all
+// subscriptions so they multiplex over one persistent SSE connection.
 class SSELink extends ApolloLink {
-  private options: ClientOptions;
+  private client: ReturnType<typeof createClient>;
 
   constructor(options: ClientOptions) {
     super();
-    this.options = options;
+    this.client = createClient(options);
   }
 
   public override request(
     operation: Parameters<ApolloLink['request']>[0],
   ): Observable<ExecutionResult | FormattedExecutionResult> {
     return new Observable((sink) => {
-      const ctx = operation.getContext ? (operation.getContext() as { headers?: Record<string, string> }) : undefined;
-      const ctxHeaders = ctx?.headers ?? undefined;
-      const client = createClient({ ...this.options, headers: ctxHeaders ?? this.options.headers });
-
-      return client.subscribe(
+      return this.client.subscribe(
         { ...operation, query: print(operation.query) },
         {
           next: sink.next.bind(sink),
@@ -56,6 +54,7 @@ const authLink = new ApolloLink((operation, forward) => {
 
 const sseLink = new SSELink({
   url: graphqlUrl,
+  headers: { 'x-use-crate': 'true' },
 });
 
 // Split: SSE for subscriptions, HTTP for queries/mutations
@@ -72,10 +71,22 @@ const splitLink = authLink.concat(
   ),
 );
 
+const isSubscription = (operation: Parameters<ApolloLink['request']>[0]) => {
+  const definition = getMainDefinition(operation.query);
+  return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+};
+
 /**
  * Token refresh link that ensures valid token before each GraphQL request.
+ * Skipped for subscriptions — the SSE connection is same-origin (cookie-based)
+ * and does not need per-operation token validation. Checking the token for
+ * every subscription mount serialises them through pendingRefresh, blocking queries.
  */
 const tokenRefreshLink = new ApolloLink((operation, forward) => {
+  if (isSubscription(operation)) {
+    return forward(operation);
+  }
+
   return new Observable<ExecutionResult | FormattedExecutionResult>((observer) => {
     let subscription: { unsubscribe(): void } | null = null;
     let isUnsubscribed = false;
