@@ -4,8 +4,6 @@ import * as monaco from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
 import type { MonacoYaml, MonacoYamlOptions, SchemasSettings } from 'monaco-yaml';
 
-import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
-
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
