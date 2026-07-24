@@ -72,6 +72,7 @@ export function ControlPlaneListWorkspaceGridTile({
     data: managedControlPlanes,
     error: cpsError,
     isPending,
+    hasReceivedData,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
 
   const { componentsMap, isLoading: isLoadingV2Components } = useWorkspaceV2ComponentsQuery(undefined);
@@ -199,7 +200,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.workspaceBody}>
               {errorView ? (
                 errorView
-              ) : isPending && managedControlPlanes?.length === 0 ? (
+              ) : !hasReceivedData || (isPending && managedControlPlanes?.length === 0) ? (
                 <BusyIndicator active delay={0} size="M" />
               ) : managedControlPlanes?.length === 0 ? (
                 <IllustratedBanner

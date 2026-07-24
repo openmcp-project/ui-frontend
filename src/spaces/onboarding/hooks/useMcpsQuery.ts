@@ -204,6 +204,7 @@ export function useMcpsQuery(workspaceNamespace?: string) {
   }, [v1Items, v2Items, enableMcpV2]);
 
   const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
+  const hasReceivedData = queryResult.data !== undefined;
 
-  return { data: controlPlanes, error: queryResult.error, isPending };
+  return { data: controlPlanes, error: queryResult.error, isPending, hasReceivedData };
 }

@@ -20,6 +20,7 @@ const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   data: [],
   error: undefined,
   isPending: false,
+  hasReceivedData: true,
 });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
