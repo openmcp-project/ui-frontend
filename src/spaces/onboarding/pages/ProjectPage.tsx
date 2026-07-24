@@ -20,7 +20,7 @@ import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
-import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
+import { getExpandedWorkspace, setExpandedWorkspace } from '../../../utils/expandedWorkspace.ts';
 import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
 import styles from './ProjectPage.module.css';
@@ -35,8 +35,8 @@ export default function ProjectPage() {
   const isProjectRemembered = rememberedProject === projectName;
   const telemetry = useTelemetry();
 
-  const [expandedWorkspaces, setExpandedWorkspacesState] = useState<Set<string>>(() =>
-    getExpandedWorkspaces(projectName ?? ''),
+  const [expandedWorkspace, setExpandedWorkspaceState] = useState<string | null>(() =>
+    getExpandedWorkspace(projectName ?? ''),
   );
 
   const isInitialRender = useRef(true);
@@ -45,19 +45,11 @@ export default function ProjectPage() {
       isInitialRender.current = false;
       return;
     }
-    setExpandedWorkspaces(projectName ?? '', expandedWorkspaces);
-  }, [projectName, expandedWorkspaces]);
+    setExpandedWorkspace(projectName ?? '', expandedWorkspace);
+  }, [projectName, expandedWorkspace]);
 
   function handleToggleWorkspace(workspaceName: string) {
-    setExpandedWorkspacesState((prev) => {
-      const next = new Set(prev);
-      if (next.has(workspaceName)) {
-        next.delete(workspaceName);
-      } else {
-        next.add(workspaceName);
-      }
-      return next;
-    });
+    setExpandedWorkspaceState((prev) => (prev === workspaceName ? null : workspaceName));
   }
 
   // Fire `workspace-list.searched` only once per "search session" — from the
@@ -131,16 +123,6 @@ export default function ProjectPage() {
     );
   }
 
-  const allExpanded = workspaces.length > 0 && workspaces.every((ws) => expandedWorkspaces.has(ws.metadata.name));
-
-  function handleExpandAll() {
-    setExpandedWorkspacesState(new Set(workspaces!.map((ws) => ws.metadata.name)));
-  }
-
-  function handleCollapseAll() {
-    setExpandedWorkspacesState(new Set());
-  }
-
   return (
     <>
       <ObjectPage
@@ -199,36 +181,13 @@ export default function ProjectPage() {
                 onChange={handleSearchChange}
                 onKeyDown={handleSearchKeyDown}
               />
-              {allExpanded ? (
-                <Button
-                  className={styles.expandCollapseButton}
-                  design="Transparent"
-                  disabled={!!search}
-                  icon="collapse-all"
-                  tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
-                  onClick={handleCollapseAll}
-                >
-                  {t('ControlPlaneListAllWorkspaces.collapseAll')}
-                </Button>
-              ) : (
-                <Button
-                  className={styles.expandCollapseButton}
-                  design="Transparent"
-                  disabled={!!search}
-                  icon="expand-all"
-                  tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
-                  onClick={handleExpandAll}
-                >
-                  {t('ControlPlaneListAllWorkspaces.expandAll')}
-                </Button>
-              )}
             </FlexBox>
           )}
           <ControlPlaneListAllWorkspaces
             projectName={projectName}
             workspaces={workspaces}
             search={search}
-            expandedWorkspaces={expandedWorkspaces}
+            expandedWorkspace={expandedWorkspace}
             onToggleWorkspace={handleToggleWorkspace}
           />
         </ObjectPageSection>
