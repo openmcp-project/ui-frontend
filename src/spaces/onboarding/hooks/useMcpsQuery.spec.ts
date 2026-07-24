@@ -1,13 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { NetworkStatus } from '@apollo/client';
-import { useQuery } from '@apollo/client/react';
+import { useQuery, useSubscription } from '@apollo/client/react';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { useMcpsQuery } from './useMcpsQuery';
 import { ReadyStatus } from '../types/ControlPlane';
 
 vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
+  useSubscription: vi.fn(),
 }));
 
 vi.mock('../../../context/FeatureToggleContext', () => ({
@@ -15,6 +16,7 @@ vi.mock('../../../context/FeatureToggleContext', () => ({
 }));
 
 const useQueryMock = vi.mocked(useQuery);
+const useSubscriptionMock = vi.mocked(useSubscription);
 const useFeatureToggleMock = vi.mocked(useFeatureToggle);
 
 const baseQueryResult = {
@@ -27,6 +29,8 @@ const baseQueryResult = {
 describe('useMcpsQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
+    useSubscriptionMock.mockReset();
+    useSubscriptionMock.mockReturnValue({} as ReturnType<typeof useSubscription>);
     useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
   });
 
