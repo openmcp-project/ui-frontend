@@ -272,11 +272,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView
-              project={projectName}
-              workspace={workspace.metadata.name}
-              compact
-            />
+            <McpMembersAvatarView project={projectName} workspace={workspace.metadata.name} compact />
           </div>
 
           <div className={styles.footerRight}>

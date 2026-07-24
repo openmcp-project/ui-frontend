@@ -220,7 +220,7 @@ describe('ControlPlaneCard', () => {
   });
 
   describe('component skeletons while loading', () => {
-    it('v1 shows 3 skeletons while loading', () => {
+    it('v1 shows no skeletons (components come from list query spec inline)', () => {
       cy.mount(
         <MockedProvider mocks={[]}>
           <MemoryRouter>
@@ -240,8 +240,7 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('[data-testid="component-skeleton"]').should('have.length', 3);
-      cy.get('[data-testid="add-component-button"]').should('not.exist');
+      cy.get('[data-testid="component-skeleton"]').should('not.exist');
     });
 
     it('v2 shows 3 skeletons while loading', () => {

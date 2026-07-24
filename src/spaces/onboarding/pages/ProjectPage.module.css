@@ -1,4 +1,4 @@
 .searchBar {
   margin: 0 auto;
-  width: 1280px;
+  width: min(1280px, 100%);
 }
