@@ -107,11 +107,8 @@ function OpenSourceHeadlamp({
   const mcpName = mcp.name;
   const mcpNamespace = `project-${mcp.project}--ws-${mcp.workspace}`;
 
-  // status.phase for crossplane/flux/eso lives on GraphQL-only CRs the embedded
-  // plugin can't reach via ApiProxy; fetch here (Apollo) and push into the iframe.
-  // Query unconditionally (isInstalled=true): if a component isn't installed its
-  // CR won't exist → yaml null → phase null (harmless; the plugin only renders a
-  // phase when its own probe says installed). These hooks self-poll every 30s.
+  // status.phase lives on GraphQL-only CRs the plugin can't reach; fetch here and
+  // push to the iframe. Query unconditionally — an absent CR just yields phase null.
   const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
   const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
@@ -122,16 +119,30 @@ function OpenSourceHeadlamp({
   const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
   const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
 
-  // Snapshot keyed by the plugin's component names; kept in a ref (updated in an
-  // effect, not during render) so pushStatuses stays stable.
+  // Optimistic 'Initializing' shown right after a successful install, before the real
+  // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
+  const [optimistic, setOptimistic] = useState<Record<string, string | null>>({});
+  const effectivePhases: Record<string, string | null> = {
+    crossplane: crossplanePhase ?? optimistic.crossplane ?? null,
+    flux: fluxPhase ?? optimistic.flux ?? null,
+    externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
+  };
+
+  const markInitializing = useCallback((component: InstallTarget) => {
+    if (!component) return;
+    const key = component === 'eso' ? 'externalSecretsOperator' : component;
+    setOptimistic((prev) => ({ ...prev, [key]: 'Initializing' }));
+  }, []);
+
+  // Kept in a ref (updated in an effect, not during render) so pushStatuses stays stable.
   const statusesRef = useRef<Record<string, string | null>>({});
   useEffect(() => {
     statusesRef.current = {
-      crossplane: crossplanePhase,
-      flux: fluxPhase,
-      externalSecretsOperator: esoPhase,
+      crossplane: effectivePhases.crossplane,
+      flux: effectivePhases.flux,
+      externalSecretsOperator: effectivePhases.externalSecretsOperator,
     };
-  }, [crossplanePhase, fluxPhase, esoPhase]);
+  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator]);
   const pushStatuses = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
@@ -244,10 +255,10 @@ function OpenSourceHeadlamp({
     return () => window.removeEventListener('message', handleMessage);
   }, [pushStatuses]);
 
-  // Push status to the iframe whenever a phase changes (the plugin renders it).
+  // Push status to the iframe whenever an effective phase changes (real or optimistic).
   useEffect(() => {
     pushStatuses();
-  }, [crossplanePhase, fluxPhase, esoPhase, pushStatuses]);
+  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator, pushStatuses]);
 
   // Install dialogs are always mounted (visibility driven by `open`) so they
   // survive the loading/error early returns below.
@@ -259,6 +270,7 @@ function OpenSourceHeadlamp({
         mcpNamespace={mcpNamespace}
         mode="install"
         onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('crossplane')}
       />
       <ComponentInstallDialog
         open={installTarget === 'flux'}
@@ -270,6 +282,7 @@ function OpenSourceHeadlamp({
         useCreateMutation={useCreateFlux}
         useUpdateMutation={useUpdateFlux}
         onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('flux')}
       />
       <ComponentInstallDialog
         open={installTarget === 'eso'}
@@ -281,6 +294,7 @@ function OpenSourceHeadlamp({
         useCreateMutation={useCreateEso}
         useUpdateMutation={useUpdateEso}
         onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('eso')}
       />
       <ComponentInstallDialog
         open={installTarget === 'landscaper'}
@@ -292,6 +306,7 @@ function OpenSourceHeadlamp({
         useCreateMutation={useCreateLandscaper}
         useUpdateMutation={useUpdateLandscaper}
         onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('landscaper')}
       />
     </>
   );
