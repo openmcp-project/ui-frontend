@@ -25,6 +25,7 @@ export interface UseUpdateMutationResult {
 export interface ComponentInstallDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (mode: 'install' | 'edit') => void;
   mcpName: string;
   mcpNamespace: string;
   componentName: string;
@@ -39,6 +40,7 @@ export interface ComponentInstallDialogProps {
 export function ComponentInstallDialog({
   open,
   onClose,
+  onSuccess,
   mcpName,
   mcpNamespace,
   componentName,
@@ -122,6 +124,7 @@ export function ComponentInstallDialog({
           name: mode === 'edit' ? 'component.updated' : 'component.installed',
           componentName,
         });
+        onSuccess?.(mode);
         handleClose();
       } catch (error) {
         console.error(`${componentName} mutation failed`, error);
@@ -132,7 +135,21 @@ export function ComponentInstallDialog({
         );
       }
     },
-    [create, update, mode, mcpName, mcpNamespace, apiVersion, kind, componentName, t, toast, handleClose, telemetry],
+    [
+      create,
+      update,
+      mode,
+      mcpName,
+      mcpNamespace,
+      apiVersion,
+      kind,
+      componentName,
+      t,
+      toast,
+      onSuccess,
+      handleClose,
+      telemetry,
+    ],
   );
 
   const handleApply = useCallback(() => {

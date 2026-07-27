@@ -308,9 +308,7 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens_Input = {
     | undefined;
   /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
   roleRefs?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input | null | undefined> | null | undefined;
 };
 
 /** IAM contains the access management configuration for the ControlPlane. */
@@ -375,14 +373,10 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input = {
   access?: unknown;
   /** Conditions contains the conditions. */
   conditions?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input | null | undefined> | null | undefined;
   /** Endpoints is a list of exposed Cluster endpoints. */
   endpoints?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: number | null | undefined;
   /** Phase is the current phase of the resource. */
@@ -764,18 +758,14 @@ export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input = {
    * The status of each condition is one of True, False, or Unknown.
    */
   conditions?:
-    | Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined>
-    | null
-    | undefined;
+    Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: number | null | undefined;
   /** Phase is the current phase of the resource. */
   phase?: string | null | undefined;
   /** Resources managed by this Flux instance */
   resources?:
-    | Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input | null | undefined>
-    | null
-    | undefined;
+    Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input | null | undefined> | null | undefined;
 };
 
 export type FluxServicesOpenControlPlaneIoV1alpha1Flux_Input = {
@@ -813,9 +803,7 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec_Input = {
    * If not specified, the controller will use the default ProviderConfig in the cluster.
    */
   providerConfigRef?:
-    | LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input
-    | null
-    | undefined;
+    LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input | null | undefined;
   /** Version is the version of the Landscaper instance to deploy. */
   version?: string | null | undefined;
 };
@@ -876,9 +864,7 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input =
   phase?: string | null | undefined;
   /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
   providerConfigRef?:
-    | LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input
-    | null
-    | undefined;
+    LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input | null | undefined;
 };
 
 export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input = {
@@ -933,14 +919,10 @@ export type Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input = {
   incomplete?: boolean | null | undefined;
   /** NonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   nonResourceRules?:
-    | Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined>
-    | null
-    | undefined;
+    Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined> | null | undefined;
   /** ResourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   resourceRules?:
-    | Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined>
-    | null
-    | undefined;
+    Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined> | null | undefined;
 };
 
 /** ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to. */
@@ -1239,6 +1221,15 @@ export type CreateLandscaperMutation = {
   } | null;
 };
 
+export type GetCrossplaneYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetCrossplaneYamlQuery = {
+  crossplane_services_open_control_plane_io: { v1alpha1: { CrossplaneYaml: string } | null } | null;
+};
+
 export type DeleteCrossplaneMutationVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1275,6 +1266,33 @@ export type DeleteLandscaperMutationVariables = Exact<{
 
 export type DeleteLandscaperMutation = {
   landscaper_services_open_control_plane_io: { v1alpha2: { deleteLandscaper: boolean | null } | null } | null;
+};
+
+export type GetEsoYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetEsoYamlQuery = {
+  external_secrets_services_open_control_plane_io: { v1alpha1: { ExternalSecretsOperatorYaml: string } | null } | null;
+};
+
+export type GetFluxYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetFluxYamlQuery = {
+  flux_services_open_control_plane_io: { v1alpha1: { FluxYaml: string } | null } | null;
+};
+
+export type GetLandscaperYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetLandscaperYamlQuery = {
+  landscaper_services_open_control_plane_io: { v1alpha2: { LandscaperYaml: string } | null } | null;
 };
 
 export type UpdateCrossplaneMutationVariables = Exact<{
@@ -1577,14 +1595,6 @@ export type GetProjectMembersQuery = {
         } | null;
       };
     } | null;
-  } | null;
-};
-
-export type GetProjectsDisplayNamesQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetProjectsDisplayNamesQuery = {
-  core_openmcp_cloud: {
-    v1alpha1: { Projects: { items: Array<{ metadata: { name: string | null; annotations: unknown } | null }> } } | null;
   } | null;
 };
 
@@ -2732,6 +2742,67 @@ export const CreateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLandscaperMutation, CreateLandscaperMutationVariables>;
+export const GetCrossplaneYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetCrossplaneYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'CrossplaneYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetCrossplaneYamlQuery, GetCrossplaneYamlQueryVariables>;
 export const DeleteCrossplaneDocument = {
   kind: 'Document',
   definitions: [
@@ -2976,6 +3047,189 @@ export const DeleteLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLandscaperMutation, DeleteLandscaperMutationVariables>;
+export const GetEsoYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEsoYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ExternalSecretsOperatorYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEsoYamlQuery, GetEsoYamlQueryVariables>;
+export const GetFluxYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetFluxYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'FluxYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFluxYamlQuery, GetFluxYamlQueryVariables>;
+export const GetLandscaperYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLandscaperYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha2' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'LandscaperYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetLandscaperYamlQuery, GetLandscaperYamlQueryVariables>;
 export const UpdateCrossplaneDocument = {
   kind: 'Document',
   definitions: [
@@ -4503,68 +4757,6 @@ export const GetProjectMembersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetProjectMembersQuery, GetProjectMembersQueryVariables>;
-export const GetProjectsDisplayNamesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetProjectsDisplayNames' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Projects' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetProjectsDisplayNamesQuery, GetProjectsDisplayNamesQueryVariables>;
 export const CreateSelfSubjectRulesReviewDocument = {
   kind: 'Document',
   definitions: [

@@ -25,10 +25,14 @@ type Documents = {
   '\n  mutation CreateExternalSecretsOperator(\n    $namespace: String\n    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        createExternalSecretsOperator(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateExternalSecretsOperatorDocument;
   '\n  mutation CreateFlux($namespace: String, $object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input!) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        createFlux(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateFluxDocument;
   '\n  mutation CreateLandscaper(\n    $namespace: String\n    $object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input!\n  ) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        createLandscaper(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateLandscaperDocument;
+  '\n  query GetCrossplaneYaml($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        CrossplaneYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetCrossplaneYamlDocument;
   '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteCrossplaneDocument;
   '\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteExternalSecretsOperatorDocument;
   '\n  mutation DeleteFlux($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        deleteFlux(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteFluxDocument;
   '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteLandscaperDocument;
+  '\n  query GetEsoYaml($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperatorYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetEsoYamlDocument;
+  '\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetFluxYamlDocument;
+  '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetLandscaperYamlDocument;
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateCrossplaneDocument;
   '\n  mutation UpdateExternalSecretsOperator(\n    $namespace: String\n    $name: String!\n    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateExternalSecretsOperatorDocument;
   '\n  mutation UpdateFlux($namespace: String, $name: String!, $object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input!) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        updateFlux(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateFluxDocument;
@@ -43,7 +47,6 @@ type Documents = {
   '\n  query GetKubeconfig($kubeConfigName: String!, $namespaceName: String) {\n    v1 {\n      Secret(name: $kubeConfigName, namespace: $namespaceName) {\n        data\n      }\n    }\n  }\n': typeof types.GetKubeconfigDocument;
   '\n  query GetMCPsList($workspaceNamespace: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        ManagedControlPlanes(namespace: $workspaceNamespace) {\n          items {\n            metadata {\n              name\n              namespace\n              creationTimestamp\n              annotations\n            }\n            status {\n              status\n              conditions {\n                type\n                status\n                reason\n                message\n                lastTransitionTime\n              }\n              components {\n                authentication {\n                  access {\n                    key\n                    name\n                    namespace\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    core_open_control_plane_io {\n      v2alpha1 {\n        ControlPlanes(namespace: $workspaceNamespace) {\n          items {\n            metadata {\n              name\n              namespace\n              creationTimestamp\n              annotations\n            }\n            status {\n              phase\n              conditions {\n                type\n                status\n                reason\n                message\n                lastTransitionTime\n              }\n              access\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetMcPsListDocument;
   '\n  query GetProjectMembers($name: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Project(name: $name) {\n          metadata {\n            creationTimestamp\n            annotations\n          }\n          spec {\n            members {\n              kind\n              name\n              namespace\n              roles\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetProjectMembersDocument;
-  '\n  query GetProjectsDisplayNames {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Projects {\n          items {\n            metadata {\n              name\n              annotations\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetProjectsDisplayNamesDocument;
   '\n  mutation CreateSelfSubjectRulesReview($object: AuthorizationK8sIoV1SelfSubjectRulesReview_Input!) {\n    authorization_k8s_io {\n      v1 {\n        createSelfSubjectRulesReview(object: $object) {\n          status {\n            evaluationError\n            incomplete\n            resourceRules {\n              apiGroups\n              resources\n              verbs\n              resourceNames\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateSelfSubjectRulesReviewDocument;
   '\n  mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateProject(name: $name, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateProjectDocument;
   '\n  mutation UpdateWorkspace(\n    $name: String!\n    $namespace: String!\n    $object: CoreOpenmcpCloudV1alpha1Workspace_Input!\n    $dryRun: Boolean\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateWorkspace(name: $name, namespace: $namespace, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateWorkspaceDocument;
@@ -73,6 +76,8 @@ const documents: Documents = {
     types.CreateFluxDocument,
   '\n  mutation CreateLandscaper(\n    $namespace: String\n    $object: LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input!\n  ) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        createLandscaper(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
     types.CreateLandscaperDocument,
+  '\n  query GetCrossplaneYaml($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        CrossplaneYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetCrossplaneYamlDocument,
   '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
     types.DeleteCrossplaneDocument,
   '\n  mutation DeleteExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        deleteExternalSecretsOperator(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
@@ -81,6 +86,12 @@ const documents: Documents = {
     types.DeleteFluxDocument,
   '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
     types.DeleteLandscaperDocument,
+  '\n  query GetEsoYaml($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperatorYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetEsoYamlDocument,
+  '\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetFluxYamlDocument,
+  '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetLandscaperYamlDocument,
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
     types.UpdateCrossplaneDocument,
   '\n  mutation UpdateExternalSecretsOperator(\n    $namespace: String\n    $name: String!\n    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
@@ -109,8 +120,6 @@ const documents: Documents = {
     types.GetMcPsListDocument,
   '\n  query GetProjectMembers($name: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Project(name: $name) {\n          metadata {\n            creationTimestamp\n            annotations\n          }\n          spec {\n            members {\n              kind\n              name\n              namespace\n              roles\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.GetProjectMembersDocument,
-  '\n  query GetProjectsDisplayNames {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Projects {\n          items {\n            metadata {\n              name\n              annotations\n            }\n          }\n        }\n      }\n    }\n  }\n':
-    types.GetProjectsDisplayNamesDocument,
   '\n  mutation CreateSelfSubjectRulesReview($object: AuthorizationK8sIoV1SelfSubjectRulesReview_Input!) {\n    authorization_k8s_io {\n      v1 {\n        createSelfSubjectRulesReview(object: $object) {\n          status {\n            evaluationError\n            incomplete\n            resourceRules {\n              apiGroups\n              resources\n              verbs\n              resourceNames\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.CreateSelfSubjectRulesReviewDocument,
   '\n  mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateProject(name: $name, object: $object, dryRun: $dryRun) {\n          metadata {\n            name\n          }\n        }\n      }\n    }\n  }\n':
@@ -207,6 +216,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query GetCrossplaneYaml($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        CrossplaneYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetCrossplaneYaml($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        CrossplaneYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation DeleteCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        deleteCrossplane(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
 /**
@@ -227,6 +242,24 @@ export function graphql(
 export function graphql(
   source: '\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation DeleteLandscaper($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        deleteLandscaper(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetEsoYaml($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperatorYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetEsoYaml($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperatorYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -311,12 +344,6 @@ export function graphql(
 export function graphql(
   source: '\n  query GetProjectMembers($name: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Project(name: $name) {\n          metadata {\n            creationTimestamp\n            annotations\n          }\n          spec {\n            members {\n              kind\n              name\n              namespace\n              roles\n            }\n          }\n        }\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  query GetProjectMembers($name: String!) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Project(name: $name) {\n          metadata {\n            creationTimestamp\n            annotations\n          }\n          spec {\n            members {\n              kind\n              name\n              namespace\n              roles\n            }\n          }\n        }\n      }\n    }\n  }\n'];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  query GetProjectsDisplayNames {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Projects {\n          items {\n            metadata {\n              name\n              annotations\n            }\n          }\n        }\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query GetProjectsDisplayNames {\n    core_openmcp_cloud {\n      v1alpha1 {\n        Projects {\n          items {\n            metadata {\n              name\n              annotations\n            }\n          }\n        }\n      }\n    }\n  }\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
