@@ -542,4 +542,75 @@ describe('ControlPlaneCard', () => {
     );
     cy.contains('Deprecated').should('not.exist');
   });
+
+  describe('status icon and View button', () => {
+    const makeV1WithStatus = (status: string | null): ControlPlaneListItem => ({
+      ...v1ControlPlane,
+      status: status
+        ? {
+            status,
+            conditions: [
+              { type: 'APIServerHealthy', status: 'True', reason: '', message: '', lastTransitionTime: '' },
+              { type: 'AuthenticationHealthy', status: 'True', reason: '', message: '', lastTransitionTime: '' },
+              { type: 'AuthorizationHealthy', status: 'True', reason: '', message: '', lastTransitionTime: '' },
+            ],
+            access: { namespace: 'ns', name: 'secret', key: 'kubeconfig' },
+          }
+        : null,
+    });
+
+    const mountCardWithStatus = (controlPlane: ControlPlaneListItem) => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={controlPlane}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                    useMcpComponentsHook={fakeUseMcpComponentsEmpty}
+                    useMcpV2ComponentsHook={fakeUseMcpV2ComponentsEmpty}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+    };
+
+    it('shows status button when Ready', () => {
+      mountCardWithStatus(makeV1WithStatus('Ready'));
+      cy.get('[data-testid="mcp-health-button"]').should('exist');
+      cy.get('[data-testid="connect-button"]').should('exist');
+    });
+
+    it('shows status button when Not Ready and View is disabled', () => {
+      mountCardWithStatus(makeV1WithStatus('Not Ready'));
+      cy.get('[data-testid="mcp-health-button"]').should('exist');
+      cy.get('[data-testid="connect-button"]').should('have.attr', 'disabled');
+    });
+
+    it('shows status button when Progressing and View is disabled', () => {
+      mountCardWithStatus(makeV1WithStatus('Progressing'));
+      cy.get('[data-testid="mcp-health-button"]').should('exist');
+      cy.get('[data-testid="connect-button"]').should('have.attr', 'disabled');
+    });
+
+    it('shows status button when Deleting and View is disabled', () => {
+      mountCardWithStatus(makeV1WithStatus('Deleting'));
+      cy.get('[data-testid="mcp-health-button"]').should('exist');
+      cy.get('[data-testid="connect-button"]').should('have.attr', 'disabled');
+    });
+
+    it('shows pending icon when status is null (transitioning)', () => {
+      mountCardWithStatus(makeV1WithStatus(null));
+      cy.get('[data-testid="mcp-health-button"]').should('exist');
+      cy.get('[data-testid="mcp-health-button"]').find('ui5-icon').should('exist');
+    });
+  });
 });

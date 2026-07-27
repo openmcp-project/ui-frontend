@@ -162,6 +162,5 @@ const getIconForOverallStatus = (status: string | undefined): JSX.Element => {
     case ReadyStatus.InDeletion:
       return <Icon className={styles.iconInDeletion} name="sap-icon://delete" />;
     default:
-      return <></>;
-  }
+      return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;  }
 };

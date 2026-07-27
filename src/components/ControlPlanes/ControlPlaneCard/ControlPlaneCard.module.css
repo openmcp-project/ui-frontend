@@ -126,6 +126,16 @@
   object-fit: contain;
 }
 
+.componentIconDeleting {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.componentIconDeleting:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .addComponentPlaceholder {
   box-sizing: border-box;
   appearance: none;

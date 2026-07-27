@@ -96,6 +96,7 @@ export const ControlPlaneCard = ({
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   const isV2 = controlPlane.version === 'v2';
+  const isDeleting = controlPlane.status?.status === ReadyStatus.InDeletion;
 
   const {
     components: mcpComponents,
@@ -177,8 +178,9 @@ export const ControlPlaneCard = ({
                   {installedComponents.map((component) => (
                     <button
                       key={component.name}
-                      className={styles.componentIcon}
+                      className={`${styles.componentIcon} ${isDeleting ? styles.componentIconDeleting : ''}`}
                       title={component.name}
+                      disabled={isDeleting}
                       onClick={() => {
                         if (isV2) {
                           setIsEditV2WizardOpen(true);
@@ -192,9 +194,9 @@ export const ControlPlaneCard = ({
                   ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
                     <button
-                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${!isV2 && hasComponentsError ? styles.addComponentPlaceholderDisabled : ''}`}
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${(!isV2 && hasComponentsError) || isDeleting ? styles.addComponentPlaceholderDisabled : ''}`}
                       data-testid="add-component-button"
-                      disabled={!isV2 && hasComponentsError}
+                      disabled={(!isV2 && hasComponentsError) || isDeleting}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
@@ -224,7 +226,7 @@ export const ControlPlaneCard = ({
             {!isV2 && (
               <ControlPlaneCardMenu
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                isDeleteMcpButtonDisabled={isDeleting}
                 setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
                 controlPlaneName={name}
                 namespace={controlPlane.status?.access?.namespace ?? ''}
@@ -235,7 +237,7 @@ export const ControlPlaneCard = ({
             {isV2 && (
               <ControlPlaneCardMenuV2
                 setDialogDeleteMcpIsOpen={setDialogDeleteMcpIsOpen}
-                isDeleteMcpButtonDisabled={controlPlane.status?.status === ReadyStatus.InDeletion}
+                isDeleteMcpButtonDisabled={isDeleting}
                 setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
                 controlPlaneName={name}
                 mcpNamespace={controlPlane.metadata.namespace}
