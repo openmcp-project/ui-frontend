@@ -533,6 +533,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   }, []);
 
   const onNextClick = useCallback(() => {
+    // Block all forward navigation in edit mode until the KPI queries resolve, so the Services
+    // step can never be reached (or left) before it's been prefilled with the real installed
+    // state — otherwise a late-arriving prefill can silently re-select a service the user meant
+    // to leave unchecked, and it never gets deleted.
+    if (isEditMode && isKpiLoading) return;
     switch (selectedStep) {
       case 'metadata':
         handleSubmit(() => setSelectedStep('members'))();
@@ -544,7 +549,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        if (isSubmitting || isKpiLoading) {
+        if (isSubmitting) {
           return;
         }
         void handleCreateManagedControlPlane();
@@ -556,13 +561,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         break;
     }
   }, [
+    isEditMode,
+    isKpiLoading,
     selectedStep,
     handleSubmit,
     setSelectedStep,
     handleCreateManagedControlPlane,
     resetFormAndClose,
     isSubmitting,
-    isKpiLoading,
   ]);
 
   const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
@@ -728,7 +734,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   ))}
                 <Button
                   design="Emphasized"
-                  disabled={isSubmitting || (selectedStep === 'summarize' && isKpiLoading)}
+                  disabled={isSubmitting || (isEditMode && isKpiLoading)}
                   onClick={onNextClick}
                 >
                   {nextButtonText[selectedStep]}
