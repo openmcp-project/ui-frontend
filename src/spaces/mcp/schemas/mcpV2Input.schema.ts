@@ -46,7 +46,6 @@ export const McpV2InputSchema = z.object({
   name: z.string().min(1),
   namespace: z.string().min(1),
   roleBindings: z.array(RoleBindingSchema),
-  services: ServiceSelectionSchema.optional(),
 });
 
 export type McpV2Input = z.infer<typeof McpV2InputSchema>;

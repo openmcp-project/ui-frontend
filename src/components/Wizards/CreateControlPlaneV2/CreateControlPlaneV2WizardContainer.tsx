@@ -260,15 +260,27 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const editNs = initialData?.metadata?.namespace ?? '';
   const editName = initialData?.metadata?.name ?? '';
   const skipKpi = !isEditMode || !editName || !editNs;
-  const { crossplaneData } = useCrossplaneQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
-  const { fluxData } = useFluxQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
-  const { landscaperData } = useLandscaperQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
-  const { esoData } = useEsoQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { crossplaneData, isLoading: isCrossplaneKpiLoading } = useCrossplaneQuery(
+    skipKpi ? '' : editName,
+    skipKpi ? '' : editNs,
+  );
+  const { fluxData, isLoading: isFluxKpiLoading } = useFluxQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { landscaperData, isLoading: isLandscaperKpiLoading } = useLandscaperQuery(
+    skipKpi ? '' : editName,
+    skipKpi ? '' : editNs,
+  );
+  const { esoData, isLoading: isEsoKpiLoading } = useEsoQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
 
-  // Prefill services when entering the componentSelection step in edit mode.
+  // Gates submission so it never reads stale "was this installed" data.
+  const isKpiLoading =
+    !skipKpi && (isCrossplaneKpiLoading || isFluxKpiLoading || isLandscaperKpiLoading || isEsoKpiLoading);
+
+  // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward nav.
+  const hasPrefilledServicesRef = useRef(false);
   useEffect(() => {
-    if (!isEditMode || selectedStep !== 'componentSelection') return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServicesRef.current) return;
+    hasPrefilledServicesRef.current = true;
+
     setServices({
       crossplane: crossplaneData
         ? {
@@ -285,7 +297,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         : undefined,
       externalSecretsOperator: esoData ? { selected: esoData.isInstalled, version: esoData.version ?? '' } : undefined,
     });
-  }, [isEditMode, selectedStep, crossplaneData, fluxData, landscaperData, esoData]);
+  }, [isEditMode, skipKpi, isKpiLoading, crossplaneData, fluxData, landscaperData, esoData]);
 
   // Service create/update/delete hooks (always called per rules of hooks)
   const { create: createCrossplane } = useCreateCrossplane();
@@ -348,9 +360,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         await createMcp(rawInput);
       }
 
-      // Fire create/update/delete mutations in parallel based on whether each service was
-      // previously installed and whether it's currently selected.
-      const servicePromises: Promise<unknown>[] = [];
+      // Named so a partial failure below can report which service(s) failed.
+      const servicePromises: { name: string; promise: Promise<unknown> }[] = [];
 
       const makeServiceObject = (
         serviceName: string,
@@ -389,11 +400,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             },
           },
         };
-        servicePromises.push(
-          crossplaneAction === 'update' ? updateCrossplane({ ...vars, name: cpName }) : createCrossplane(vars),
-        );
+        servicePromises.push({
+          name: 'Crossplane',
+          promise: crossplaneAction === 'update' ? updateCrossplane({ ...vars, name: cpName }) : createCrossplane(vars),
+        });
       } else if (crossplaneAction === 'delete') {
-        servicePromises.push(deleteCrossplane({ name: cpName, namespace: cpNamespace }));
+        servicePromises.push({
+          name: 'Crossplane',
+          promise: deleteCrossplane({ name: cpName, namespace: cpNamespace }),
+        });
       }
 
       const fluxAction = resolveServiceMutationAction(isEditMode, !!fluxData?.isInstalled, !!services.flux?.selected);
@@ -405,9 +420,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           'flux.services.open-control-plane.io/v1alpha1',
           'Flux',
         );
-        servicePromises.push(fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux(vars));
+        servicePromises.push({
+          name: 'Flux',
+          promise: fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux(vars),
+        });
       } else if (fluxAction === 'delete') {
-        servicePromises.push(deleteFlux({ name: cpName, namespace: cpNamespace }));
+        servicePromises.push({ name: 'Flux', promise: deleteFlux({ name: cpName, namespace: cpNamespace }) });
       }
 
       const landscaperAction = resolveServiceMutationAction(
@@ -423,11 +441,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           'landscaper.services.open-control-plane.io/v1alpha2',
           'Landscaper',
         );
-        servicePromises.push(
-          landscaperAction === 'update' ? updateLandscaper({ ...vars, name: cpName }) : createLandscaper(vars),
-        );
+        servicePromises.push({
+          name: 'Landscaper',
+          promise: landscaperAction === 'update' ? updateLandscaper({ ...vars, name: cpName }) : createLandscaper(vars),
+        });
       } else if (landscaperAction === 'delete') {
-        servicePromises.push(deleteLandscaper({ name: cpName, namespace: cpNamespace }));
+        servicePromises.push({
+          name: 'Landscaper',
+          promise: deleteLandscaper({ name: cpName, namespace: cpNamespace }),
+        });
       }
 
       const esoAction = resolveServiceMutationAction(
@@ -443,12 +465,29 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           'external-secrets.services.open-control-plane.io/v1alpha1',
           'ExternalSecretsOperator',
         );
-        servicePromises.push(esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso(vars));
+        servicePromises.push({
+          name: 'ExternalSecretsOperator',
+          promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso(vars),
+        });
       } else if (esoAction === 'delete') {
-        servicePromises.push(deleteEso({ name: cpName, namespace: cpNamespace }));
+        servicePromises.push({
+          name: 'ExternalSecretsOperator',
+          promise: deleteEso({ name: cpName, namespace: cpNamespace }),
+        });
       }
 
-      await Promise.all(servicePromises);
+      const settledServices = await Promise.allSettled(servicePromises.map((s) => s.promise));
+      const failedServices = settledServices
+        .map((result, index) =>
+          result.status === 'rejected' ? { name: servicePromises[index].name, reason: result.reason } : null,
+        )
+        .filter((failure): failure is { name: string; reason: unknown } => failure !== null);
+      if (failedServices.length > 0) {
+        const details = failedServices
+          .map(({ name, reason }) => `${name}: ${reason instanceof Error ? reason.message : String(reason)}`)
+          .join('; ');
+        throw new Error(`Failed to apply changes for service(s): ${details}`);
+      }
 
       telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
       setSelectedStep('success');
@@ -505,7 +544,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        if (isSubmitting) {
+        if (isSubmitting || isKpiLoading) {
           return;
         }
         void handleCreateManagedControlPlane();
@@ -516,7 +555,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       default:
         break;
     }
-  }, [selectedStep, handleSubmit, setSelectedStep, handleCreateManagedControlPlane, resetFormAndClose, isSubmitting]);
+  }, [
+    selectedStep,
+    handleSubmit,
+    setSelectedStep,
+    handleCreateManagedControlPlane,
+    resetFormAndClose,
+    isSubmitting,
+    isKpiLoading,
+  ]);
 
   const normalizeMemberRole = useCallback((roleInput?: string | null): string => normalizeMcpV2Role(roleInput), []);
 
@@ -679,7 +726,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                       {t('buttons.back')}
                     </Button>
                   ))}
-                <Button design="Emphasized" disabled={isSubmitting} onClick={onNextClick}>
+                <Button
+                  design="Emphasized"
+                  disabled={isSubmitting || (selectedStep === 'summarize' && isKpiLoading)}
+                  onClick={onNextClick}
+                >
                   {nextButtonText[selectedStep]}
                 </Button>
               </div>
