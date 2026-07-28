@@ -51,7 +51,7 @@ describe('ComponentsDashboard', () => {
     cy.get('.ui5-card-header')
       .eq(2)
       .should('contain.text', 'Landscaper')
-      .and('contain.text', 'Automate cross‑dependent Kubernetes deployments');
+      .and('contain.text', 'Orchestrate cross-dependent deployments');
   });
 
   it('calls onInstallButtonClick when Install is clicked on each card', () => {
