@@ -99,43 +99,46 @@ export function AuthProviderMcp({ children }: { children: ReactNode }) {
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
-  const ensureFreshToken = useCallback(async () => {
-    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
-      return true; // Token still valid
-    }
-
-    const queryParams = new URLSearchParams();
-    if (projectName && workspaceName && controlPlaneName && idpName) {
-      // Custom identity provider
-      queryParams.set('namespace', namespace);
-      queryParams.set('mcp', controlPlaneName);
-      queryParams.set('idp', idpName);
-    }
-    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-
-    try {
-      const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
-      if (response.ok) {
-        await refreshAuthStatus(true);
-        return true;
+  const ensureFreshToken = useCallback(
+    async (force = false) => {
+      if (!force && (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS)) {
+        return true; // Token still valid
       }
 
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        setTokenExpiry(null);
+      const queryParams = new URLSearchParams();
+      if (projectName && workspaceName && controlPlaneName && idpName) {
+        // Custom identity provider
+        queryParams.set('namespace', namespace);
+        queryParams.set('mcp', controlPlaneName);
+        queryParams.set('idp', idpName);
       }
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
-      return false;
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Background token refresh failed',
-        level: 'warning',
-        ...(error instanceof Error && { data: { error: error.message } }),
-      });
-      return false;
-    }
-  }, [tokenExpiry, refreshAuthStatus, projectName, workspaceName, controlPlaneName, idpName, namespace]);
+      try {
+        const response = await fetch(`/api/auth/mcp/refresh${queryString}`, { method: 'POST' });
+        if (response.ok) {
+          await refreshAuthStatus(true);
+          return true;
+        }
+
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setTokenExpiry(null);
+        }
+
+        return false;
+      } catch (error) {
+        Sentry.addBreadcrumb({
+          category: 'auth',
+          message: 'Background token refresh failed',
+          level: 'warning',
+          ...(error instanceof Error && { data: { error: error.message } }),
+        });
+        return false;
+      }
+    },
+    [tokenExpiry, refreshAuthStatus, projectName, workspaceName, controlPlaneName, idpName, namespace],
+  );
 
   // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
   useEffect(() => {
