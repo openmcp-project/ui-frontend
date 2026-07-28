@@ -746,17 +746,7 @@ export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input = {
 
 /** status defines the observed state of Flux */
 export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input = {
-  /**
-   * conditions represent the current state of the Flux resource.
-   * Each condition has a unique type and reflects the status of a specific aspect of the resource.
-   *
-   * Standard condition types include:
-   * - "Available": the resource is fully functional
-   * - "Progressing": the resource is being created or updated
-   * - "Degraded": the resource failed to reach or maintain its desired state
-   *
-   * The status of each condition is one of True, False, or Unknown.
-   */
+  /** Conditions contains the conditions. */
   conditions?:
     Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
@@ -1569,6 +1559,24 @@ export type GetMcPsListQuery = {
               message: string | null;
               lastTransitionTime: string | null;
             } | null> | null;
+          } | null;
+          spec: {
+            iam: {
+              oidc: {
+                defaultProvider: {
+                  roleBindings: Array<{
+                    roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
+                    subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+                  } | null> | null;
+                } | null;
+                extraProviders: Array<{
+                  roleBindings: Array<{
+                    roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
+                    subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+                  } | null> | null;
+                } | null> | null;
+              } | null;
+            } | null;
           } | null;
         }>;
       };
@@ -4648,6 +4656,137 @@ export const GetMcPsListDocument = {
                                           },
                                         },
                                         { kind: 'Field', name: { kind: 'Name', value: 'access' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'iam' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'oidc' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'defaultProvider' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'roleBindings' },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'roleRefs' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'subjects' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'extraProviders' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'roleBindings' },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'roleRefs' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'subjects' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
                                       ],
                                     },
                                   },
