@@ -11,9 +11,10 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;
+  isDefaultProviderEnabled?: boolean;
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
+export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, isDefaultProviderEnabled = true }) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
@@ -24,6 +25,10 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
     };
   }, [rawInput]);
 
+  const defaultMembersHeaderText = isDefaultProviderEnabled
+    ? t('common.members')
+    : `${t('common.members')} ${t('IdentityProviders.disabledBadge')}`;
+
   return (
     <div className={styles.wrapper}>
       <Grid defaultSpan="XL6 L6 M6 S6">
@@ -33,7 +38,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
             <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
           </List>
           <br />
-          <List headerText={t('common.members')}>
+          <List headerText={defaultMembersHeaderText}>
             {rawInput.roleBindings
               .flatMap((rb) =>
                 rb.subjects.map((subject) => ({
@@ -49,6 +54,27 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput }) => {
                 />
               ))}
           </List>
+          {rawInput.extraProviders.map((provider) => (
+            <div key={provider.name}>
+              <br />
+              <List headerText={provider.name}>
+                {provider.roleBindings
+                  .flatMap((rb) =>
+                    rb.subjects.map((subject) => ({
+                      ...subject,
+                      role: rb.roleRefs[0]?.name ?? '',
+                    })),
+                  )
+                  .map((subject) => (
+                    <ListItemStandard
+                      key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
+                      text={subject.name}
+                      additionalText={`${subject.kind} · ${subject.role}`}
+                    />
+                  ))}
+              </List>
+            </div>
+          ))}
         </div>
         <div>
           <YamlSummarize

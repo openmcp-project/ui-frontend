@@ -308,9 +308,7 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokens_Input = {
     | undefined;
   /** RoleRefs are references to existing (Cluster)Roles that should be bound to the created serviceaccount. */
   roleRefs?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneSpecIamTokensRoleRefs_Input | null | undefined> | null | undefined;
 };
 
 /** IAM contains the access management configuration for the ControlPlane. */
@@ -375,14 +373,10 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input = {
   access?: unknown;
   /** Conditions contains the conditions. */
   conditions?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusConditions_Input | null | undefined> | null | undefined;
   /** Endpoints is a list of exposed Cluster endpoints. */
   endpoints?:
-    | Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input | null | undefined>
-    | null
-    | undefined;
+    Array<CoreOpenControlPlaneIoV2alpha1ControlPlaneStatusEndpoints_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: number | null | undefined;
   /** Phase is the current phase of the resource. */
@@ -752,30 +746,16 @@ export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input = {
 
 /** status defines the observed state of Flux */
 export type FluxServicesOpenControlPlaneIoV1alpha1FluxStatus_Input = {
-  /**
-   * conditions represent the current state of the Flux resource.
-   * Each condition has a unique type and reflects the status of a specific aspect of the resource.
-   *
-   * Standard condition types include:
-   * - "Available": the resource is fully functional
-   * - "Progressing": the resource is being created or updated
-   * - "Degraded": the resource failed to reach or maintain its desired state
-   *
-   * The status of each condition is one of True, False, or Unknown.
-   */
+  /** Conditions contains the conditions. */
   conditions?:
-    | Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined>
-    | null
-    | undefined;
+    Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusConditions_Input | null | undefined> | null | undefined;
   /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
   observedGeneration?: number | null | undefined;
   /** Phase is the current phase of the resource. */
   phase?: string | null | undefined;
   /** Resources managed by this Flux instance */
   resources?:
-    | Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input | null | undefined>
-    | null
-    | undefined;
+    Array<FluxServicesOpenControlPlaneIoV1alpha1FluxStatusResources_Input | null | undefined> | null | undefined;
 };
 
 export type FluxServicesOpenControlPlaneIoV1alpha1Flux_Input = {
@@ -813,9 +793,7 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpec_Input = {
    * If not specified, the controller will use the default ProviderConfig in the cluster.
    */
   providerConfigRef?:
-    | LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input
-    | null
-    | undefined;
+    LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperSpecProviderConfigRef_Input | null | undefined;
   /** Version is the version of the Landscaper instance to deploy. */
   version?: string | null | undefined;
 };
@@ -876,9 +854,7 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input =
   phase?: string | null | undefined;
   /** ProviderConfigRef is a reference to the ProviderConfig that this Landscaper instance uses. */
   providerConfigRef?:
-    | LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input
-    | null
-    | undefined;
+    LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatusProviderConfigRef_Input | null | undefined;
 };
 
 export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input = {
@@ -933,14 +909,10 @@ export type Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input = {
   incomplete?: boolean | null | undefined;
   /** NonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   nonResourceRules?:
-    | Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined>
-    | null
-    | undefined;
+    Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined> | null | undefined;
   /** ResourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   resourceRules?:
-    | Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined>
-    | null
-    | undefined;
+    Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined> | null | undefined;
 };
 
 /** ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to. */
@@ -1362,6 +1334,14 @@ export type GetMcPv2Query = {
                 } | null> | null;
               } | null;
               extraProviders: Array<{
+                name: string | null;
+                issuer: string | null;
+                clientID: string | null;
+                usernameClaim: string | null;
+                usernamePrefix: string | null;
+                groupsClaim: string | null;
+                groupsPrefix: string | null;
+                extraScopes: Array<string | null> | null;
                 roleBindings: Array<{
                   roleRefs: Array<{ kind: string | null; name: string | null; namespace: string | null } | null> | null;
                   subjects: Array<{
@@ -1577,14 +1557,6 @@ export type GetProjectMembersQuery = {
         } | null;
       };
     } | null;
-  } | null;
-};
-
-export type GetProjectsDisplayNamesQueryVariables = Exact<{ [key: string]: never }>;
-
-export type GetProjectsDisplayNamesQuery = {
-  core_openmcp_cloud: {
-    v1alpha1: { Projects: { items: Array<{ metadata: { name: string | null; annotations: unknown } | null }> } } | null;
   } | null;
 };
 
@@ -3505,6 +3477,14 @@ export const GetMcPv2Document = {
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'issuer' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'clientID' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernameClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernamePrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsPrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'extraScopes' } },
                                                     {
                                                       kind: 'Field',
                                                       name: { kind: 'Name', value: 'roleBindings' },
@@ -4503,68 +4483,6 @@ export const GetProjectMembersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetProjectMembersQuery, GetProjectMembersQueryVariables>;
-export const GetProjectsDisplayNamesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetProjectsDisplayNames' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'core_openmcp_cloud' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Projects' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetProjectsDisplayNamesQuery, GetProjectsDisplayNamesQueryVariables>;
 export const CreateSelfSubjectRulesReviewDocument = {
   kind: 'Document',
   definitions: [

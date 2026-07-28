@@ -270,6 +270,36 @@
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
   },
+  "IdentityProviders": {
+    "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
+    "defaultProviderGroupTitle": "Default identity provider",
+    "enableDefaultProviderCheckbox": "Enabled",
+    "defaultProviderDisabledHint": "The default identity provider is disabled. Its members are kept locally but will not be submitted.",
+    "defaultProviderLockedHint": "Add at least one custom identity provider before you can disable the default provider.",
+    "defaultProviderReenabledToast": "The default identity provider was re-enabled because it was the only remaining provider.",
+    "addProviderButton": "Add Identity Provider",
+    "editProviderButtonTooltip": "Edit identity provider",
+    "deleteProviderButtonTooltip": "Delete identity provider",
+    "addDialogTitle": "Add Identity Provider",
+    "editDialogTitle": "Edit Identity Provider",
+    "issuerLabel": "Issuer URL",
+    "clientIdLabel": "Client ID",
+    "advancedSettings": "Advanced settings",
+    "usernameClaimLabel": "Username Claim",
+    "usernamePrefixLabel": "Username Prefix",
+    "disableUsernamePrefixCheckbox": "Disable username prefix",
+    "groupsClaimLabel": "Groups Claim",
+    "groupsPrefixLabel": "Groups Prefix",
+    "disableGroupsPrefixCheckbox": "Disable groups prefix",
+    "extraScopesLabel": "Extra Scopes",
+    "addScopeButton": "Add scope",
+    "renameWarning": "Renaming this provider changes the effective identity of its {{count}} existing member(s), unless a custom prefix is set.",
+    "deleteConfirmTitle": "Delete Identity Provider",
+    "deleteConfirmMessageNoMembers": "Are you sure you want to delete the identity provider '{{providerName}}'? It has no members.",
+    "deleteConfirmMessage1": "Are you sure you want to delete the identity provider '{{providerName}}'? Its 1 member will also be removed.",
+    "deleteConfirmMessageN": "Are you sure you want to delete the identity provider '{{providerName}}'? Its {{count}} members will also be removed.",
+    "disabledBadge": "(disabled)"
+  },
   "ProjectPage": {
     "backToProjects": "Go to all projects"
   },
@@ -447,7 +477,11 @@
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    "urlFormat": "Must be a valid HTTPS URL"
+    "urlFormat": "Must be a valid HTTPS URL",
+    "issuerUrlFormat": "Must be a valid URL (e.g. https://example.com)",
+    "reservedProviderName": "'system' is a reserved identity provider name.",
+    "duplicateProviderName": "An identity provider with this name already exists.",
+    "invalidProviderName": "Use lowercase letters, numbers, hyphens (-), and dots (.); must start and end with a letter or number."
   },
   "common": {
     "or": "or",

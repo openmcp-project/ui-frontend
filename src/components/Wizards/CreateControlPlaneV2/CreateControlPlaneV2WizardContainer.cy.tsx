@@ -247,4 +247,179 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.contains('Network error').should('exist');
     cy.get('ui5-button').contains('Update').should('exist');
   });
+
+  // ── Custom identity providers ────────────────────────────────────────────
+
+  const existingMcpWithExtraProvider: ManagedControlPlaneV2 = {
+    metadata: {
+      name: 'existing-mcp-with-idp',
+      namespace: 'project-my-project--ws-my-workspace',
+      creationTimestamp: '2024-01-01T00:00:00Z',
+      annotations: {
+        'openmcp.cloud/display-name': 'Existing MCP with custom IdP',
+      },
+    },
+    spec: {
+      iam: {
+        oidc: {
+          defaultProvider: {
+            roleBindings: [
+              {
+                roleRefs: [{ kind: 'ClusterRole', name: 'admin', namespace: null }],
+                subjects: [{ kind: 'User', name: 'admin@example.com', apiGroup: null, namespace: null }],
+              },
+            ],
+          },
+          extraProviders: [
+            {
+              name: 'custom',
+              issuer: 'https://openmcp.accounts.ondemand.com',
+              clientID: 'client-id-1',
+              usernameClaim: 'email',
+              usernamePrefix: null,
+              groupsClaim: null,
+              groupsPrefix: null,
+              extraScopes: null,
+              roleBindings: [
+                {
+                  roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin', namespace: null }],
+                  subjects: [{ kind: 'User', name: 'custom:bob@example.com', apiGroup: null, namespace: null }],
+                },
+              ],
+            },
+          ],
+        },
+        tokens: null,
+      },
+    },
+    status: null,
+  };
+
+  it('pre-fills extra-provider members from initialData in edit mode (regression: previously dropped)', () => {
+    cy.mount(
+      <CreateControlPlaneV2WizardContainer
+        isOpen={true}
+        setIsOpen={() => {}}
+        isEditMode={true}
+        initialData={existingMcpWithExtraProvider}
+        useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+        useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+      />,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.contains('admin@example.com').should('exist');
+    cy.contains('custom').should('exist');
+    cy.contains('bob@example.com').should('exist');
+  });
+
+  it('includes extraProviders in the update payload on submit (regression: previously dropped)', () => {
+    cy.mount(
+      <CreateControlPlaneV2WizardContainer
+        isOpen={true}
+        setIsOpen={() => {}}
+        isEditMode={true}
+        initialData={existingMcpWithExtraProvider}
+        useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+        useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+      />,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → summarize
+    cy.get('ui5-button').contains('Update').click();
+
+    cy.then(() => {
+      cy.wrap(updatePayload).should('not.be.null');
+      cy.wrap(updatePayload!.extraProviders).should('have.length', 1);
+      cy.wrap(updatePayload!.extraProviders[0].name).should('eq', 'custom');
+      cy.wrap(updatePayload!.extraProviders[0].roleBindings).should('have.length', 1);
+      cy.wrap(updatePayload!.extraProviders[0].roleBindings[0].subjects[0].name).should('eq', 'bob@example.com');
+    });
+  });
+
+  it('default-provider checkbox is locked (disabled) when there are zero extra providers', () => {
+    cy.mount(
+      <CreateControlPlaneV2WizardContainer
+        isOpen={true}
+        setIsOpen={() => {}}
+        projectName="my-project"
+        workspaceName="my-workspace"
+        useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+        useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+      />,
+    );
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
+  });
+
+  it('adding a new identity provider via the wizard includes it in the create payload', () => {
+    cy.mount(
+      <CreateControlPlaneV2WizardContainer
+        isOpen={true}
+        setIsOpen={() => {}}
+        projectName="my-project"
+        workspaceName="my-workspace"
+        useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+        useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+      />,
+    );
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="add-provider-button"]').click();
+    cy.get('ui5-dialog[open]').should('exist');
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
+    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
+    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add Identity Provider').click();
+
+    cy.contains('custom').should('exist');
+
+    cy.get('ui5-button').contains('Next').click(); // members → summarize
+    cy.get('ui5-button').contains('Create').click();
+
+    cy.then(() => {
+      cy.wrap(createPayload).should('not.be.null');
+      cy.wrap(createPayload!.extraProviders).should('have.length', 1);
+      cy.wrap(createPayload!.extraProviders[0].name).should('eq', 'custom');
+      cy.wrap(createPayload!.extraProviders[0].issuer).should('eq', 'https://example.com');
+    });
+  });
+
+  it('deleting a provider with members shows a cascade-delete confirmation and removes both on confirm', () => {
+    cy.mount(
+      <CreateControlPlaneV2WizardContainer
+        isOpen={true}
+        setIsOpen={() => {}}
+        isEditMode={true}
+        initialData={existingMcpWithExtraProvider}
+        useCreateManagedControlPlaneV2GraphQL={fakeUseCreateMcp}
+        useUpdateManagedControlPlaneV2GraphQL={fakeUseUpdateMcp}
+        useAuthOnboarding={fakeUseAuthOnboarding}
+      />,
+    );
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.contains('custom').should('exist');
+    cy.contains('bob@example.com').should('exist');
+
+    cy.get('[data-testid="confirm-delete-provider-button"]').should('not.exist');
+    cy.get('[data-testid="delete-provider-custom"]').click();
+    cy.contains('Its 1 member will also be removed').should('exist');
+    cy.get('[data-testid="confirm-delete-provider-button"]').click();
+
+    cy.contains('custom').should('not.exist');
+    cy.contains('bob@example.com').should('not.exist');
+  });
 });

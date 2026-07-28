@@ -1,0 +1,48 @@
+.providerGroupPanel {
+  /* Recolor the panel's own shadow-DOM background (both header and content
+     areas consume these custom properties) instead of the default white/
+     title-bar split, so the whole group reads as one light-gray card. */
+  --sapGroup_ContentBackground: var(--sapBackgroundColor, #fafafa);
+  --sapGroup_TitleBackground: var(--sapBackgroundColor, #fafafa);
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.providerGroupHeader {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.providerGroupHeaderTitle {
+  font-weight: 600;
+}
+
+.providerGroupContent {
+  padding: 1rem;
+}
+
+.docsLink {
+  margin-bottom: 1rem;
+}
+
+.hiddenProviderHint {
+  color: var(--sapContent_LabelColor);
+}
+
+.extraScopeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.advancedField {
+  margin-bottom: 1rem;
+}
+
+.input {
+  width: 100%;
+}

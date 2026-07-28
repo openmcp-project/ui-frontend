@@ -25,6 +25,7 @@ export interface EditMembersProps {
   workspaceName?: string;
   type: 'workspace' | 'project' | 'mcp';
   isV2?: boolean;
+  showImportButton?: boolean;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -56,6 +57,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   projectName,
   type,
   isV2 = false,
+  showImportButton = true,
 }) => {
   const { t } = useTranslation();
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
@@ -183,7 +185,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         >
           {t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
         </Button>
-        {type !== 'project' && (
+        {type !== 'project' && showImportButton && (
           <Button
             className={styles.narrowButton}
             data-testid="import-members-button"
@@ -204,7 +206,7 @@ export const EditMembers: FC<EditMembersProps> = ({
         onSave={handleSaveMember}
       />
 
-      {computedProjectName && (
+      {computedProjectName && showImportButton && (
         <ImportMembersDialog
           isOpen={isImportDialogOpen}
           workspaceName={workspaceName}

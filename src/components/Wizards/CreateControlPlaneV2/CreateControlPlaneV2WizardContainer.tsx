@@ -39,7 +39,9 @@ import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.
 
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
-import { EditMembers } from '../../Members/EditMembers.tsx';
+import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
+import { ExtraProviderMetadata, McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
@@ -92,6 +94,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
+  const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
+  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(true);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -199,6 +203,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useEffect(() => {
     if (!isEditMode && user?.email && isOpen) {
       setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setExtraProviders([]);
+      setIsDefaultProviderEnabled(true);
     }
     if (!isOpen) {
       clearFormFields();
@@ -211,15 +218,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
-  const rawInput = useMemo(() => {
-    const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
+
+  const buildRoleBindingsForProviderMembers = useCallback((providerMembers: Member[]) => {
     const normalizeKind = (kind: string): 'User' | 'Group' => {
       const lower = kind.trim().toLowerCase();
       if (lower === 'group') return 'Group';
       return 'User';
     };
     const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
-    (members ?? [])
+    providerMembers
       .filter((m) => !!m.name)
       .forEach((m) => {
         const kind = normalizeKind(m.kind);
@@ -230,16 +237,37 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           name: m.name,
         });
       });
-    const roleBindings = Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
+    return Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
       roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
       subjects,
+    }));
+  }, []);
+
+  const rawInput = useMemo<McpV2Input>(() => {
+    const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
+    const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
+    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const extraProvidersInput = extraProviders.map((p) => ({
+      ...p,
+      roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
     }));
     return {
       name: finalName,
       namespace: `${projectName}--ws-${workspaceName}`,
       roleBindings,
+      extraProviders: extraProvidersInput,
     };
-  }, [name, displayName, templateAffixes, projectName, workspaceName, members]);
+  }, [
+    name,
+    displayName,
+    templateAffixes,
+    projectName,
+    workspaceName,
+    members,
+    extraProviders,
+    isDefaultProviderEnabled,
+    buildRoleBindingsForProviderMembers,
+  ]);
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -248,6 +276,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           name: initialData?.metadata?.name ?? '',
           namespace: initialData?.metadata?.namespace ?? '',
           roleBindings: rawInput.roleBindings,
+          extraProviders: rawInput.extraProviders,
         });
       } else {
         await createMcp(rawInput);
@@ -330,26 +359,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !initialData) return;
-    const roleBindings = initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings ?? [];
-    const normalizeMemberKind = (kindInput?: string | null): 'User' | 'Group' => {
-      const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
-      return normalizedKind === 'group' ? 'Group' : 'User';
-    };
-    const members: Member[] = roleBindings
-      .filter(Boolean)
-      .flatMap((rb) => {
-        const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
-        return (rb?.subjects ?? []).filter(Boolean).map((s) => {
-          const kind = normalizeMemberKind(s?.kind);
-          const rawName = s?.name ?? '';
-          return {
-            kind,
-            name: kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName,
-            roles: [roleName],
-          };
-        });
-      })
-      .filter((m) => !!m.name);
+    const {
+      members,
+      extraProviders: prefilledProviders,
+      isDefaultProviderEnabled: prefilledEnabled,
+    } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
     reset({
@@ -360,6 +374,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       members,
       componentsList: [],
     });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExtraProviders(prefilledProviders);
+    setIsDefaultProviderEnabled(prefilledEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -510,15 +527,16 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           >
             <Form>
               <FormGroup>
-                <EditMembers
+                <IdentityProvidersStep
                   members={members}
+                  providers={extraProviders}
+                  isDefaultProviderEnabled={isDefaultProviderEnabled}
                   isValidationError={!!errors.members}
-                  requireAtLeastOneMember={false}
                   workspaceName={workspaceName}
                   projectName={projectName}
-                  type={'mcp'}
-                  isV2
-                  onMemberChanged={setMembers}
+                  onMembersChange={setMembers}
+                  onProvidersChange={setExtraProviders}
+                  onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
                 />
               </FormGroup>
             </Form>
@@ -531,7 +549,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2 rawInput={rawInput} />
+            <SummarizeStepV2 rawInput={rawInput} isDefaultProviderEnabled={isDefaultProviderEnabled} />
           </WizardStep>
           <WizardStep
             icon="activities"
