@@ -1,19 +1,17 @@
 import { ControlPlaneStatusCondition } from '../../lib/api/types/crate/controlPlanes';
 import { ManagedResourceItem } from '../../lib/shared/types';
 
-export type ColorBy = 'provider' | 'source' | 'flux';
+export type ColorBy = 'provider' | 'source' | 'flux' | 'label';
 
-export interface NodeData {
-  [key: string]: unknown;
+export interface NodeData extends Record<string, unknown> {
   id: string;
   label: string;
   type?: string;
   providerConfigName: string;
   providerType: string;
   status: string;
-  transitionTime?: string;
-  statusMessage?: string;
   fluxName?: string;
+  labels?: Record<string, string>;
   parentId?: string;
   extraRefs: string[];
   item: ManagedResourceItem;

@@ -30,6 +30,7 @@ export function McpStatusSection({ mcpStatus, projectName, workspaceName, mcpNam
         workspaceName={workspaceName}
         mcpName={mcpName}
         large
+        source="detail"
       />
     </FlexBox>
   );

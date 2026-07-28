@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 import { z } from 'zod';
 
 const KubeContextSchema = z.object({
@@ -45,7 +45,7 @@ export function useConnectOptions(
     }
 
     try {
-      const parsedYaml = yaml.load(kubeconfigYaml);
+      const parsedYaml = load(kubeconfigYaml);
       const result = KubeConfigSchema.safeParse(parsedYaml);
       if (!result.success) {
         console.error('Invalid Kubeconfig structure:', result.error);

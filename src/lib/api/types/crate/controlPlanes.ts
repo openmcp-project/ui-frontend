@@ -58,7 +58,7 @@ export interface ControlPlaneComponentsSpecType {
 }
 
 export interface ControlPlaneStatusType {
-  status: ReadyStatus;
+  status: string;
   conditions: ControlPlaneStatusCondition[];
   access:
     | {
@@ -77,12 +77,6 @@ export interface ControlPlaneStatusCondition {
   reason: string;
   message: string;
   lastTransitionTime: string;
-}
-
-export enum ReadyStatus {
-  Ready = 'Ready',
-  NotReady = 'Not Ready',
-  InDeletion = 'Deleting',
 }
 
 export const ControlPlane = (

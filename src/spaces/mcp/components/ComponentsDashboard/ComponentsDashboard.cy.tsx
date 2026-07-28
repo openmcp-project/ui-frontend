@@ -31,17 +31,17 @@ describe('ComponentsDashboard', () => {
     cy.get('.ui5-card-header')
       .eq(1)
       .should('contain.text', 'Flux')
-      .and('contain.text', 'GitOps for Kubernetes automating continuous sync and delivery');
+      .and('contain.text', 'Synchronize resources from Git repositories');
 
     cy.get('.ui5-card-header')
       .eq(2)
       .should('contain.text', 'Kyverno')
-      .and('contain.text', 'Kubernetes-native policy as code for secure and compliant infrastructure');
+      .and('contain.text', 'Enforce policies for secure and compliant resources');
 
     cy.get('.ui5-card-header')
       .eq(3)
       .should('contain.text', 'External Secrets Operator')
-      .and('contain.text', 'Manage and sync credentials from your secret store');
+      .and('contain.text', 'Manage credentials from your secret store');
   });
 
   it('renders the Landscaper card when the feature toggle is on', () => {

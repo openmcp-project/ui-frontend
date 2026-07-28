@@ -9,17 +9,23 @@ import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useUpdateProject as _useUpdateProject } from '../../spaces/onboarding/hooks/useUpdateProject.ts';
 import { useGetProject as _useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
+
+type ProjectEditedSource = Extract<TelemetryFeature, { name: 'project.edited' }>['source'];
 
 export function EditProjectDialogContainer({
   isOpen,
   setIsOpen,
   projectName,
+  source,
   useUpdateProject = _useUpdateProject,
   useGetProject = _useGetProject,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName: string;
+  source: ProjectEditedSource;
   useUpdateProject?: typeof _useUpdateProject;
   useGetProject?: typeof _useGetProject;
 }) {
@@ -45,6 +51,7 @@ export function EditProjectDialogContainer({
   });
   const members = useWatch({ control, name: 'members' });
   const { updateProject } = useUpdateProject();
+  const telemetry = useTelemetry();
   const { projectData, isLoading, error: fetchError } = useGetProject(isOpen ? projectName : undefined);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const hasPopulated = useRef(false);
@@ -86,6 +93,7 @@ export function EditProjectDialogContainer({
         chargingTargetType,
         members,
       });
+      telemetry.track({ name: 'project.edited', source });
       setIsOpen(false);
       return true;
     } catch (e) {

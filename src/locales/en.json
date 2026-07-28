@@ -26,24 +26,28 @@
     "installButton": "Install {{component}}",
     "notInstalledLabel": "not installed"
   },
+  "ComponentHealthPopoverButton": {
+    "pendingStatus": "Pending",
+    "unknownStatus": "Unknown"
+  },
   "componentCardCrossplane": {
     "description": "Compose cloud infrastructure",
     "progress": "Healthy",
     "progressCount": "Healthy: {{count}} of {{total}} resources"
   },
   "componentCardFlux": {
-    "description": "GitOps for Kubernetes automating continuous sync and delivery",
+    "description": "Synchronize resources from Git repositories",
     "progress": "Managed",
     "progressCount": "Managed: {{count}} of {{total}} resources"
   },
   "componentCardLandscaper": {
-    "description": "Automate cross‑dependent Kubernetes deployments"
+    "description": "Orchestrate cross-dependent deployments"
   },
   "componentCardKyverno": {
-    "description": "Kubernetes-native policy as code for secure and compliant infrastructure"
+    "description": "Enforce policies for secure and compliant resources"
   },
   "componentCardEso": {
-    "description": "Manage and sync credentials from your secret store"
+    "description": "Manage credentials from your secret store"
   },
   "Kpi": {
     "installed": "Installed",
@@ -95,28 +99,45 @@
     "editWorkspace": "Edit workspace",
     "createNewManagedControlPlane": "Create Managed Control Plane",
     "createNewControlPlane": "Create Control Plane",
-    "recommendedBadge": "Recommended",
+    "defaultBadge": "Default",
+    "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
   },
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
-    "permissionErrorMessage": "Not permitted to list mcps in workspace",
+    "permissionErrorMessage": "Not permitted to list control planes in workspace",
     "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
-    "loadingErrorMessage": "Failed to list mcps in workspace"
+    "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
     "deleteConfirmationDialog": "Control plane deletion triggered. The list will refresh automatically once completed.",
-    "editMCP": "Edit Control Plane",
-    "duplicateMCP": "Duplicate Control Plane",
-    "deleteMCP": "Delete Control Plane"
+    "editMCP": "Edit",
+    "duplicateMCP": "Duplicate",
+    "deleteMCP": "Delete",
+    "installComponents": "Install components"
+  },
+  "ServiceSelectionStep": {
+    "stepTitle": "Services",
+    "intro": "Select which services to install on this control plane.",
+    "versionPlaceholder": "latest",
+    "versionLabel": "Version",
+    "crossplane": "Crossplane",
+    "flux": "Flux",
+    "landscaper": "Landscaper",
+    "externalSecretsOperator": "External Secrets Operator"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
-    "emptyListSubtitleMessage": "Create a workspace to get started"
+    "emptyListSubtitleMessage": "Create a workspace to get started",
+    "noSearchResultsTitle": "No results found",
+    "noSearchResultsSubtitle": "Try a different search term",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all"
   },
   "ConnectButton": {
-    "buttonText": "Connect",
+    "buttonText": "View",
     "defaultIdP": "default IdP",
+    "customIdP": "custom IdP",
     "downloadKubeconfig": "Download Kubeconfig"
   },
   "MCPHealthPopoverButton": {
@@ -130,7 +151,8 @@
     "supportTicketTitleDeletion": "MCP in Deletion",
     "supportTicketTitleIssues": "Issues with Control Plane",
     "statusDetailsLabel": "MCP Status",
-    "detailsLabel": "Details:"
+    "detailsLabel": "Details:",
+    "createdLabel": "Created:"
   },
   "CopyKubeconfigButton": {
     "kubeconfigButton": "Kubeconfig",
@@ -173,10 +195,6 @@
     "subtitleMessage": "Looks like this page is not opened inside of the Hyperspace Portal. Contact admins for help."
   },
   "ShellBar": {
-    "betaButton": "Beta",
-    "betaButtonAriaLabel": "Beta – open information about this app's beta status",
-    "betaButtonDescription": "This web app is currently in Beta, and may not be ready for productive use. We're actively improving the experience and would love your feedback — your input helps shape the future of the app!",
-    "contributeButton": "Contribute",
     "signOutButton": "Sign Out",
     "clearRememberedProject": "Clear remembered project",
     "feedbackMessageLabel": "Message",
@@ -190,8 +208,8 @@
     "feedbackThanks": "Thank you for your feedback!",
     "feedbackError": "Failed to send feedback. Please try again later.",
     "modeOpenSource": "Open Source View",
+    "hello": "Hello, {{name}}",
     "backButton": "Back",
-    "copyNamespace": "Copy namespace",
     "membersLabel": "Members:",
     "overflowEditMcp": "Edit control plane",
     "overflowViewYaml": "View YAML"
@@ -289,6 +307,9 @@
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
     "setDefaultProject": "Set selected project as default"
   },
+  "ResourceSearchBar": {
+    "placeholder": "Search"
+  },
   "McpPage": {
     "accessError": "Control Plane does not have access information yet",
     "overviewTitle": "Overview",
@@ -346,7 +367,7 @@
     "title": "Delete a Control Plane",
     "introSection1": "The below will help you delete the Control Plane \"{{mcpName}}\" from workspace \"{{workspaceNamespace}}\" using kubectl.",
     "introSection2": "Remember that this action is <bold1>irreversible</bold1> and all resources managed by this control plane will be <bold2>permanently deleted</bold2>.",
-    "annotateCommand": "First, annotate the ManagedControlPlane to confirm deletion:",
+    "annotateCommand": "First, annotate the control plane to confirm deletion:",
     "deleteCommand": "Run this command to delete the Control Plane:",
     "verificationCommandDescription": "To verify the control plane has been deleted, run:"
   },
@@ -420,6 +441,12 @@
     "colorsProviderConfig": "Provider Config",
     "colorBy": "Color by",
     "colorsFlux": "Flux",
+    "colorsLabel": "Common Label",
+    "layoutDirection": "Layout direction",
+    "layoutTB": "Top → Bottom",
+    "layoutLR": "Left → Right",
+    "enterFullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
     "loadingError": "Error loading graph data",
     "loadingGraph": "Loading graph data...",
     "noResources": "No resources to display"
@@ -620,6 +647,8 @@
     "sourceRefTitle": "Source Reference",
     "sourceRefNameTitle": "Name",
     "gitRepositoryTitle": "Git Repository",
+    "selectRepo": "Select a Git Repository",
+    "loadingRepos": "Loading repositories…",
     "pathTitle": "Path",
     "pruneTitle": "Prune",
     "targetNamespaceTitle": "Target Namespace",

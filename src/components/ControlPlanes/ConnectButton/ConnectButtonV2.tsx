@@ -24,6 +24,8 @@ export default function ConnectButtonV2({
 
   return (
     <Button
+      data-testid="connect-button"
+      design="Emphasized"
       endIcon="navigation-right-arrow"
       onClick={() => navigate(generatePath(Routes.McpV2, { projectName, workspaceName, controlPlaneName }))}
     >

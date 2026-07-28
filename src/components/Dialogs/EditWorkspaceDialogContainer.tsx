@@ -9,6 +9,7 @@ import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useUpdateWorkspace as _useUpdateWorkspace } from '../../spaces/onboarding/hooks/useUpdateWorkspace.ts';
 import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export function EditWorkspaceDialogContainer({
   isOpen,
@@ -47,6 +48,7 @@ export function EditWorkspaceDialogContainer({
   });
   const members = useWatch({ control, name: 'members' });
   const { updateWorkspace } = useUpdateWorkspace();
+  const telemetry = useTelemetry();
   const {
     workspaceData,
     isLoading,
@@ -92,6 +94,7 @@ export function EditWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
+      telemetry.track({ name: 'workspace.edited' });
       setIsOpen(false);
       return true;
     } catch (e) {

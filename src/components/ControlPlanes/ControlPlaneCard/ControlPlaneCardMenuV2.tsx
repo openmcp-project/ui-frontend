@@ -1,23 +1,35 @@
-import { Button, Menu, MenuItem } from '@ui5/webcomponents-react';
+import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/download';
 import '@ui5/webcomponents-icons/dist/edit';
 import { Dispatch, FC, SetStateAction, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useKubeconfigQuery } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
+import { DownloadKubeconfig } from '../CopyKubeconfigButton.tsx';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 type ControlPlaneCardMenuV2Props = {
   setDialogDeleteMcpIsOpen: Dispatch<SetStateAction<boolean>>;
   isDeleteMcpButtonDisabled: boolean;
   setIsEditManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
+  controlPlaneName: string;
+  mcpNamespace: string;
+  oidcOpenmcpSecretName: string | undefined;
 };
 
 export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   setDialogDeleteMcpIsOpen,
   isDeleteMcpButtonDisabled,
   setIsEditManagedControlPlaneWizardOpen,
+  controlPlaneName,
+  mcpNamespace,
+  oidcOpenmcpSecretName,
 }) => {
   const openerId = useId();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
+  const { kubeconfigDecoded } = useKubeconfigQuery(oidcOpenmcpSecretName, mcpNamespace, 'kubeconfig');
 
   return (
     <>
@@ -33,11 +45,16 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         open={menuIsOpen}
         opener={openerId}
         onItemClick={(event) => {
-          if ((event.detail.item as HTMLElement).dataset.action === 'editMcp') {
+          const action = (event.detail.item as HTMLElement).dataset.action;
+          if (action === 'editMcp') {
             setIsEditManagedControlPlaneWizardOpen(true);
           }
-          if ((event.detail.item as HTMLElement).dataset.action === 'deleteMcp') {
+          if (action === 'deleteMcp') {
             setDialogDeleteMcpIsOpen(true);
+          }
+          if (action === 'downloadKubeconfig') {
+            DownloadKubeconfig(kubeconfigDecoded, controlPlaneName);
+            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
           }
           setMenuIsOpen(false);
         }}
@@ -50,6 +67,8 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
           icon="delete"
           disabled={isDeleteMcpButtonDisabled}
         />
+        <MenuSeparator />
+        <MenuItem data-action="downloadKubeconfig" icon="download" text={t('ConnectButton.downloadKubeconfig')} />
       </Menu>
     </>
   );

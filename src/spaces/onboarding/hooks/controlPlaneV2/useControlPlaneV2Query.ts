@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { graphql } from '../../../../types/__generated__/graphql';
 import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../../types/ControlPlane.ts';
 
-const GET_MCP_V2_QUERY = graphql(`
+export const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
     core_open_control_plane_io {
       v2alpha1 {
