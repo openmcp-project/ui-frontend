@@ -64,6 +64,36 @@ const GET_MCPS_LIST_QUERY = graphql(`
               }
               access
             }
+            spec {
+              iam {
+                oidc {
+                  defaultProvider {
+                    roleBindings {
+                      roleRefs {
+                        kind
+                        name
+                      }
+                      subjects {
+                        kind
+                        name
+                      }
+                    }
+                  }
+                  extraProviders {
+                    roleBindings {
+                      roleRefs {
+                        kind
+                        name
+                      }
+                      subjects {
+                        kind
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -114,6 +144,7 @@ function toV2Input(item: V2Item) {
           access: parseAccess(item.status.access),
         }
       : null,
+    spec: item.spec ?? null,
   };
 }
 

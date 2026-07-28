@@ -17,7 +17,8 @@ import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
 import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
-import { isNotFoundError } from '../../../lib/api/error.ts';
+import { isNotFoundError, isUnauthorizedError } from '../../../lib/api/error.ts';
+import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { Routes } from '../../../Routes.ts';
 import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
@@ -117,6 +118,12 @@ export default function ProjectPage() {
   }
 
   if (error || !workspaces || !projectName) {
+    // Backstop: a 401 that slipped past the Apollo error link / REST retry
+    // should send the user to re-auth, not a dead-end error screen.
+    if (isUnauthorizedError(error)) {
+      redirectToLogin('onboarding');
+      return <Loading />;
+    }
     return (
       <Center>
         <IllustratedError
