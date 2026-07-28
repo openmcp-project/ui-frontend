@@ -1,5 +1,6 @@
 import '@ui5/webcomponents-cypress-commands';
 import { MemoryRouter } from 'react-router-dom';
+import { Routes } from '../../Routes.ts';
 import { ShellBarMcpActionsProvider } from '../../context/ShellBarMcpActionsContext.tsx';
 import { ToastProvider } from '../../context/ToastContext.tsx';
 import { ViewModeProvider } from '../../context/ViewModeContext.tsx';
@@ -54,6 +55,18 @@ describe('ShellBar', () => {
 
     cy.get('img[alt="SAP"]').should('be.visible');
     cy.contains('OpenControlPlane UI').should('be.visible');
+  });
+
+  it('navigates home when the logo is clicked', () => {
+    mountComponent();
+
+    cy.window().then((win) => {
+      win.location.hash = '#/projects/some-project';
+    });
+
+    cy.get('ui5-shellbar').shadow().find('[data-ui5-stable="logo"]').click({ force: true });
+
+    cy.window().its('location.hash').should('eq', `#${Routes.Home}`);
   });
 
   it('shows avatar with user initials', () => {

@@ -31,6 +31,7 @@ import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js'
 import { RefObject, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SapLogo from '../../assets/images/sap-logo.svg';
+import { Routes } from '../../Routes.ts';
 import { useShellBarMcpActions } from '../../context/ShellBarMcpActionsContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { useViewMode } from '../../context/ViewModeContext.tsx';
@@ -56,9 +57,11 @@ export function ShellBarComponent({
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
   const telemetry = useTelemetry();
-  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName, namespace } =
-    useShellBarMcpActions();
-  const { copyToClipboard } = useCopyToClipboard();
+  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName } = useShellBarMcpActions();
+
+  const onLogoClick = () => {
+    window.location.hash = Routes.Home;
+  };
 
   const onProfileClick = (e: Ui5CustomEvent<ShellBarDomRef, ShellBarProfileClickEventDetail>) => {
     if (!profilePopoverRef.current) return;
@@ -69,37 +72,19 @@ export function ShellBarComponent({
   return (
     <>
       <ShellBar
-        className={styles.shellBar}
         hidden={window.location.href.includes('compact-mode')}
+        logo={<img src={SapLogo} alt="SAP" className={styles.logo} />}
+        primaryTitle={mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}
         profile={<Avatar initials={generateInitialsForEmail(auth.user?.email)} size="XS" />}
         startButton={
-          <div className={styles.container}>
-            {navigateBack && (
-              <Button
-                icon="nav-back"
-                design="Transparent"
-                className={styles.backButton}
-                title={t('ShellBar.backButton')}
-                onClick={navigateBack}
-              />
-            )}
-            <div className={styles.logoWrapper}>
-              <img src={SapLogo} alt="SAP" className={styles.logo} />
-              <span className={styles.logoText}>{mcpDisplayName ?? mcpName ?? 'OpenControlPlane UI'}</span>
-              {namespace && (
-                <Button
-                  design="Transparent"
-                  icon="copy"
-                  tooltip={t('ShellBar.copyNamespace')}
-                  className={styles.copyNamespaceButton}
-                  onClick={() => {
-                    void copyToClipboard(namespace);
-                    telemetry.track({ name: 'clipboard.copied', source: 'controlplane-namespace' });
-                  }}
-                />
-              )}
-            </div>
-          </div>
+          navigateBack ? (
+            <Button
+              icon="nav-back"
+              accessibleName={t('ShellBar.backButton')}
+              tooltip={t('ShellBar.backButton')}
+              onClick={navigateBack}
+            />
+          ) : undefined
         }
         content={[
           <ShellBarSpacer key="spacer" />,
@@ -137,6 +122,7 @@ export function ShellBarComponent({
             )}
           </div>,
         ]}
+        onLogoClick={onLogoClick}
         onProfileClick={onProfileClick}
       />
 
@@ -151,7 +137,7 @@ export function ShellBarComponent({
 }
 
 function KubeconfigShellBarButton() {
-  const { kubeconfig, mcpName, namespace } = useShellBarMcpActions();
+  const { kubeconfig, mcpName } = useShellBarMcpActions();
   const { mode } = useViewMode();
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyToClipboard();
@@ -161,9 +147,8 @@ function KubeconfigShellBarButton() {
   const [kubeconfigMenuOpen, setKubeconfigMenuOpen] = useState(false);
 
   const hasKubeconfig = mode === 'open-source' && !!kubeconfig && !!mcpName;
-  const hasActions = hasKubeconfig || !!namespace;
 
-  if (!hasActions) return null;
+  if (!hasKubeconfig) return null;
 
   const handleButtonClick = () => {
     if (kubeconfigMenuRef.current && buttonRef.current) {

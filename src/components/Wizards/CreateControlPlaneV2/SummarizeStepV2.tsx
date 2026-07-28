@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
-import { McpV2Input } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
@@ -12,9 +12,14 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 interface SummarizeStepProps {
   rawInput: McpV2Input;
   isDefaultProviderEnabled?: boolean;
+  services?: ServiceSelection;
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, isDefaultProviderEnabled = true }) => {
+export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
+  rawInput,
+  isDefaultProviderEnabled = true,
+  services,
+}) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
@@ -28,6 +33,20 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, isDefa
   const defaultMembersHeaderText = isDefaultProviderEnabled
     ? t('common.members')
     : `${t('common.members')} ${t('IdentityProviders.disabledBadge')}`;
+
+  const selectedServices = useMemo(() => {
+    if (!services) return [];
+    return [
+      { key: 'crossplane', label: t('ServiceSelectionStep.crossplane'), entry: services.crossplane },
+      { key: 'flux', label: t('ServiceSelectionStep.flux'), entry: services.flux },
+      { key: 'landscaper', label: t('ServiceSelectionStep.landscaper'), entry: services.landscaper },
+      {
+        key: 'externalSecretsOperator',
+        label: t('ServiceSelectionStep.externalSecretsOperator'),
+        entry: services.externalSecretsOperator,
+      },
+    ].filter((s) => s.entry?.selected);
+  }, [services, t]);
 
   return (
     <div className={styles.wrapper}>
@@ -75,6 +94,34 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, isDefa
               </List>
             </div>
           ))}
+          {selectedServices.length > 0 && (
+            <>
+              <br />
+              <List headerText={t('ServiceSelectionStep.stepTitle')}>
+                {selectedServices.map(({ key, label, entry }) => (
+                  <ListItemStandard
+                    key={key}
+                    text={label}
+                    additionalText={entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
+                  />
+                ))}
+              </List>
+              {!!services?.crossplane?.selected && services.crossplane.providers?.length ? (
+                <>
+                  <br />
+                  <List headerText={t('ComponentInstallDialog.providers')}>
+                    {services.crossplane.providers.map((provider) => (
+                      <ListItemStandard
+                        key={provider.name}
+                        text={provider.name}
+                        additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                      />
+                    ))}
+                  </List>
+                </>
+              ) : null}
+            </>
+          )}
         </div>
         <div>
           <YamlSummarize

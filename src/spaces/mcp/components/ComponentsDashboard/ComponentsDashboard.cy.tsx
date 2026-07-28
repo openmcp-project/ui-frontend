@@ -28,22 +28,22 @@ describe('ComponentsDashboard', () => {
     cy.get('.ui5-card-header')
       .eq(1)
       .should('contain.text', 'Flux')
-      .and('contain.text', 'GitOps for Kubernetes automating continuous sync and delivery');
+      .and('contain.text', 'Synchronize resources from Git repositories');
 
     cy.get('.ui5-card-header')
       .eq(2)
       .should('contain.text', 'Landscaper')
-      .and('contain.text', 'Automate cross‑dependent Kubernetes deployments');
+      .and('contain.text', 'Orchestrate cross-dependent deployments');
 
     cy.get('.ui5-card-header')
       .eq(3)
       .should('contain.text', 'Kyverno')
-      .and('contain.text', 'Kubernetes-native policy as code for secure and compliant infrastructure');
+      .and('contain.text', 'Enforce policies for secure and compliant resources');
 
     cy.get('.ui5-card-header')
       .eq(4)
       .should('contain.text', 'External Secrets Operator')
-      .and('contain.text', 'Manage and sync credentials from your secret store');
+      .and('contain.text', 'Manage credentials from your secret store');
   });
 
   it('calls onInstallButtonClick when Install is clicked on each card', () => {

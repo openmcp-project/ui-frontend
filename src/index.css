@@ -127,3 +127,7 @@ ui5-toast {
   margin: 1rem auto;
   max-width: 80%;
 }
+
+ui5-shellbar {
+  --_ui5-shellbar_separator-color: transparent;
+}

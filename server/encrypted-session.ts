@@ -1,7 +1,7 @@
-import secureSession from '@fastify/secure-session';
-import fp from 'fastify-plugin';
 import fastifyCookie from '@fastify/cookie';
+import secureSession from '@fastify/secure-session';
 import fastifySession from '@fastify/session';
+import fp from 'fastify-plugin';
 import crypto from 'node:crypto';
 
 const isLocalDev = process.argv.includes('--local-dev');
