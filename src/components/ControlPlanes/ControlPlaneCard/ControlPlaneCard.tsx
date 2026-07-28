@@ -114,7 +114,7 @@ export const ControlPlaneCard = ({
   // Flatten v2 IAM roleBindings (roleRefs[] + subjects[]) into the flat shape
   // expected by McpMembersAvatarView: { role: string; subjects: { kind, name }[] }[]
   const v2RoleBindings = useMemo(() => {
-    if (!isV2 || controlPlane.version !== 'v2') return undefined;
+    if (!isV2) return undefined;
     const oidc = controlPlane.spec?.iam?.oidc;
     const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
     return allProviders.flatMap((provider) =>
