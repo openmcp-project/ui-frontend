@@ -1,5 +1,4 @@
 import {
-  Icon,
   ResponsivePopover,
   FlexBox,
   FlexBoxAlignItems,
@@ -11,7 +10,7 @@ import {
 } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import '@ui5/webcomponents-icons/dist/copy';
-import { JSX, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import type { LinkClickEventDetail } from '@ui5/webcomponents/dist/Link.js';
@@ -23,6 +22,7 @@ import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import styles from './MCPHealthPopoverButton.module.css';
 import { ConditionsMessageListView } from './ConditionsMessageListView';
+import { getIconForOverallStatus } from './statusUtils.tsx';
 
 type MCPHealthPopoverButtonProps = {
   mcpStatus:
@@ -150,18 +150,3 @@ const MCPHealthPopoverButton = ({
 };
 
 export default MCPHealthPopoverButton;
-
-const getIconForOverallStatus = (status: string | undefined): JSX.Element => {
-  switch (status) {
-    case ReadyStatus.Ready:
-      return <Icon className={styles.iconReady} name="sap-icon://sys-enter" />;
-    case ReadyStatus.NotReady:
-      return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;
-    case ReadyStatus.Progressing:
-      return <Icon className={styles.iconNotReady} name="sap-icon://pending" />;
-    case ReadyStatus.InDeletion:
-      return <Icon className={styles.iconInDeletion} name="sap-icon://delete" />;
-    default:
-      return <></>;
-  }
-};

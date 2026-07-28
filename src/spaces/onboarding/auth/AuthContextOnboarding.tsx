@@ -89,35 +89,38 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
   }, [user, telemetry]);
 
-  const ensureFreshToken = useCallback(async () => {
-    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
-      return true; // Token still valid
-    }
-
-    try {
-      const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
-      if (response.ok) {
-        await refreshAuthStatus(true);
-        return true;
+  const ensureFreshToken = useCallback(
+    async (force = false) => {
+      if (!force && (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS)) {
+        return true; // Token still valid
       }
 
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        setUser(null);
-        setTokenExpiry(null);
-      }
+      try {
+        const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
+        if (response.ok) {
+          await refreshAuthStatus(true);
+          return true;
+        }
 
-      return false;
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Background token refresh failed',
-        level: 'warning',
-        ...(error instanceof Error && { data: { error: error.message } }),
-      });
-      return false;
-    }
-  }, [tokenExpiry, refreshAuthStatus]);
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setUser(null);
+          setTokenExpiry(null);
+        }
+
+        return false;
+      } catch (error) {
+        Sentry.addBreadcrumb({
+          category: 'auth',
+          message: 'Background token refresh failed',
+          level: 'warning',
+          ...(error instanceof Error && { data: { error: error.message } }),
+        });
+        return false;
+      }
+    },
+    [tokenExpiry, refreshAuthStatus],
+  );
 
   // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
   useEffect(() => {

@@ -29,6 +29,8 @@ import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { Routes } from '../../../Routes.ts';
 
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
@@ -96,17 +98,36 @@ export const ControlPlaneCard = ({
   const isConnectButtonEnabled = canConnectToMCP(controlPlane);
 
   const isV2 = controlPlane.version === 'v2';
+  const navigate = useNavigate();
 
   const {
     components: mcpComponents,
     roleBindings,
     isLoading: isLoadingComponents,
+    hasError: hasComponentsError,
   } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
   const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
     name,
     namespace,
     !isV2,
   );
+
+  // Flatten v2 IAM roleBindings (roleRefs[] + subjects[]) into the flat shape
+  // expected by McpMembersAvatarView: { role: string; subjects: { kind, name }[] }[]
+  const v2RoleBindings = useMemo(() => {
+    if (!isV2) return undefined;
+    const oidc = controlPlane.spec?.iam?.oidc;
+    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
+    return allProviders.flatMap((provider) =>
+      (provider?.roleBindings ?? []).flatMap((binding) => {
+        if (!binding) return [];
+        const subjects = (binding.subjects ?? []).flatMap((s) =>
+          s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [],
+        );
+        return (binding.roleRefs ?? []).flatMap((ref) => (ref?.name ? [{ role: ref.name, subjects }] : []));
+      }),
+    );
+  }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
     if (isV2) {
@@ -191,12 +212,21 @@ export const ControlPlaneCard = ({
                   ))}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
                     <button
-                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${!isV2 && hasComponentsError ? styles.addComponentPlaceholderDisabled : ''}`}
                       data-testid="add-component-button"
+                      disabled={!isV2 && hasComponentsError}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
-                          setIsEditV2WizardOpen(true);
+                          // V2 edit doesn't support adding components yet — send the
+                          // user to the MCP page (same as view) so they can install there.
+                          navigate(
+                            generatePath(Routes.McpV2, {
+                              projectName,
+                              workspaceName: workspace.metadata.name ?? '',
+                              controlPlaneName: name,
+                            }),
+                          );
                         } else {
                           handleIsManagedControlPlaneWizardOpen(true, 'edit');
                         }
@@ -247,7 +277,7 @@ export const ControlPlaneCard = ({
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
             <McpMembersAvatarView
-              roleBindings={roleBindings}
+              roleBindings={isV2 ? v2RoleBindings : roleBindings}
               project={projectName}
               workspace={workspace.metadata.name}
               compact
