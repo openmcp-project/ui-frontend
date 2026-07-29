@@ -1,4 +1,5 @@
 import { Button, FlexBox } from '@ui5/webcomponents-react';
+import { clsx } from 'clsx';
 import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ export interface EditMembersProps {
   type: 'workspace' | 'project' | 'mcp';
   isV2?: boolean;
   showImportButton?: boolean;
+  fitContentAddButton?: boolean;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -58,6 +60,7 @@ export const EditMembers: FC<EditMembersProps> = ({
   type,
   isV2 = false,
   showImportButton = true,
+  fitContentAddButton = false,
 }) => {
   const { t } = useTranslation();
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
@@ -177,7 +180,7 @@ export const EditMembers: FC<EditMembersProps> = ({
     <FlexBox direction="Column" gap={8}>
       <FlexBox gap={8} justifyContent="SpaceBetween">
         <Button
-          className={styles.addButton}
+          className={clsx(styles.addButton, fitContentAddButton && styles.addButtonFitContent)}
           data-testid="add-member-button"
           design="Emphasized"
           icon={'sap-icon://add-employee'}

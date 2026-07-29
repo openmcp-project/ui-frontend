@@ -131,81 +131,96 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   );
 
   return (
-    <FlexBox direction="Column" gap={16}>
-      <Text className={styles.docsLink}>
-        <Trans
-          i18nKey="IdentityProviders.docsLinkInfo"
-          components={{ link1: <Link href={identityProviderGuide} target="_blank" /> }}
-        />
-      </Text>
-      <Button icon="add" design="Emphasized" data-testid="add-provider-button" onClick={handleOpenAddProviderDialog}>
-        {t('IdentityProviders.addProviderButton')}
-      </Button>
-      <ProviderGroup
-        headerText={t('IdentityProviders.defaultProviderGroupTitle')}
-        headerActions={
-          <CheckBox
-            checked={isDefaultProviderEnabled}
-            disabled={isDefaultCheckboxDisabled}
-            text={t('IdentityProviders.enableDefaultProviderCheckbox')}
-            data-testid="default-provider-enabled-checkbox"
-            onChange={(e) => onDefaultProviderEnabledChange(e.target.checked)}
-          />
-        }
-      >
-        {isDefaultProviderEnabled ? (
-          <EditMembers
-            members={defaultProviderMembers}
-            isValidationError={isValidationError}
-            requireAtLeastOneMember={false}
-            workspaceName={workspaceName}
-            projectName={projectName}
-            type="mcp"
-            isV2
-            onMemberChanged={handleDefaultMembersChange}
-          />
-        ) : (
-          <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderDisabledHint')}</Text>
-        )}
-        {isDefaultCheckboxDisabled && (
-          <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderLockedHint')}</Text>
-        )}
-      </ProviderGroup>
+    <>
+      <div className={styles.layout}>
+        <FlexBox direction="Column" gap={16} className={styles.providerGroupsColumn}>
+          <ProviderGroup
+            headerText={t('IdentityProviders.defaultProviderGroupTitle')}
+            headerActions={
+              <CheckBox
+                checked={isDefaultProviderEnabled}
+                disabled={isDefaultCheckboxDisabled}
+                text={t('IdentityProviders.enableDefaultProviderCheckbox')}
+                data-testid="default-provider-enabled-checkbox"
+                onChange={(e) => onDefaultProviderEnabledChange(e.target.checked)}
+              />
+            }
+          >
+            {isDefaultProviderEnabled ? (
+              <EditMembers
+                members={defaultProviderMembers}
+                isValidationError={isValidationError}
+                requireAtLeastOneMember={false}
+                workspaceName={workspaceName}
+                projectName={projectName}
+                type="mcp"
+                isV2
+                fitContentAddButton
+                onMemberChanged={handleDefaultMembersChange}
+              />
+            ) : (
+              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderDisabledHint')}</Text>
+            )}
+            {isDefaultCheckboxDisabled && (
+              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderLockedHint')}</Text>
+            )}
+          </ProviderGroup>
 
-      {providers.map((provider) => (
-        <ProviderGroup
-          key={provider.name}
-          headerText={provider.name}
-          headerActions={
-            <>
-              <Button
-                icon="edit"
-                design="Transparent"
-                accessibleName={t('IdentityProviders.editProviderButtonTooltip')}
-                data-testid={`edit-provider-${provider.name}`}
-                onClick={() => handleOpenEditProviderDialog(provider)}
+          {providers.map((provider) => (
+            <ProviderGroup
+              key={provider.name}
+              headerText={provider.name}
+              headerActions={
+                <>
+                  <Button
+                    icon="edit"
+                    design="Transparent"
+                    accessibleName={t('IdentityProviders.editProviderButtonTooltip')}
+                    data-testid={`edit-provider-${provider.name}`}
+                    onClick={() => handleOpenEditProviderDialog(provider)}
+                  />
+                  <Button
+                    icon="delete"
+                    design="Transparent"
+                    accessibleName={t('IdentityProviders.deleteProviderButtonTooltip')}
+                    data-testid={`delete-provider-${provider.name}`}
+                    onClick={() => handleOpenDeleteDialog(provider)}
+                  />
+                </>
+              }
+            >
+              <EditMembers
+                members={members.filter((m) => m.provider === provider.name)}
+                isValidationError={isValidationError}
+                requireAtLeastOneMember={false}
+                type="mcp"
+                isV2
+                showImportButton={false}
+                fitContentAddButton
+                onMemberChanged={(updatedSlice) => handleProviderMembersChange(provider.name, updatedSlice)}
               />
-              <Button
-                icon="delete"
-                design="Transparent"
-                accessibleName={t('IdentityProviders.deleteProviderButtonTooltip')}
-                data-testid={`delete-provider-${provider.name}`}
-                onClick={() => handleOpenDeleteDialog(provider)}
-              />
-            </>
-          }
-        >
-          <EditMembers
-            members={members.filter((m) => m.provider === provider.name)}
-            isValidationError={isValidationError}
-            requireAtLeastOneMember={false}
-            type="mcp"
-            isV2
-            showImportButton={false}
-            onMemberChanged={(updatedSlice) => handleProviderMembersChange(provider.name, updatedSlice)}
-          />
-        </ProviderGroup>
-      ))}
+            </ProviderGroup>
+          ))}
+        </FlexBox>
+
+        <FlexBox direction="Column" gap={16} className={styles.addProviderColumn}>
+          <Text>
+            <Trans
+              i18nKey="IdentityProviders.docsLinkInfo"
+              components={{ link1: <Link href={identityProviderGuide} target="_blank" /> }}
+            />
+          </Text>
+          <Button
+            icon="add"
+            design="Emphasized"
+            className={styles.addProviderButton}
+            data-testid="add-provider-button"
+            onClick={handleOpenAddProviderDialog}
+          >
+            {t('IdentityProviders.addProviderButton')}
+          </Button>
+        </FlexBox>
+      </div>
 
       <AddEditProviderDialog
         open={isProviderDialogOpen}
@@ -223,6 +238,6 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
         onCancel={handleCancelDelete}
         onConfirm={handleConfirmDelete}
       />
-    </FlexBox>
+    </>
   );
 };

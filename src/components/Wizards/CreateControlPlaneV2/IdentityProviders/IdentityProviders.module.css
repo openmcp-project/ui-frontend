@@ -1,3 +1,18 @@
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+  gap: 2rem;
+}
+
+.providerGroupsColumn {
+  min-width: 0;
+}
+
+.addProviderColumn {
+  min-width: 0;
+}
+
 .providerGroupPanel {
   /* Recolor the panel's own shadow-DOM background (both header and content
      areas consume these custom properties) instead of the default white/
@@ -24,8 +39,8 @@
   padding: 1rem;
 }
 
-.docsLink {
-  margin-bottom: 1rem;
+.addProviderButton {
+  align-self: flex-start;
 }
 
 .hiddenProviderHint {
