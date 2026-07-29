@@ -12,7 +12,7 @@ export const ProviderGroup: FC<ProviderGroupProps> = ({ headerText, headerAction
   return (
     <Panel
       className={styles.providerGroupPanel}
-      fixed
+      collapsed={false}
       header={
         <FlexBox alignItems="Center" justifyContent="SpaceBetween" className={styles.providerGroupHeader}>
           <Title level="H5" className={styles.providerGroupHeaderTitle}>
