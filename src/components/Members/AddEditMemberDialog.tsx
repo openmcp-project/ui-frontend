@@ -140,6 +140,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       name: trimmedName,
       roles: [data.role],
       kind: data.accountType,
+      ...(memberToEdit?.provider !== undefined && { provider: memberToEdit.provider }),
       ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
     };
 
