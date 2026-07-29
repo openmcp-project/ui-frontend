@@ -286,7 +286,7 @@
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
     "defaultProviderGroupTitle": "Default identity provider",
     "enableDefaultProviderCheckbox": "Enabled",
-    "defaultProviderDisabledHint": "The default identity provider is disabled. Its members are kept locally but will not be submitted.",
+    "defaultProviderDisabledHint": "The default identity provider is disabled. Its members are kept here for now, but won't be saved unless you re-enable the provider before submitting.",
     "defaultProviderLockedHint": "Add at least one custom identity provider before you can disable the default provider.",
     "defaultProviderReenabledToast": "The default identity provider was re-enabled because it was the only remaining provider.",
     "addProviderButton": "Add Identity Provider",
