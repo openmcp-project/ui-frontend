@@ -1,12 +1,13 @@
 import '@ui5/webcomponents-icons/dist/add';
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/edit';
-import { Button, CheckBox, FlexBox, Link, Text } from '@ui5/webcomponents-react';
+import { Button, CheckBox, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../../lib/shared/useLink.ts';
+import { hasAssignedIamMember } from '../../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { ExtraProviderMetadata } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { EditMembers } from '../../../Members/EditMembers.tsx';
 import { AddEditProviderDialog } from './AddEditProviderDialog.tsx';
@@ -47,6 +48,10 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
 
   const defaultProviderMembers = useMemo(() => members.filter((m) => !m.provider), [members]);
   const isDefaultCheckboxDisabled = providers.length === 0;
+  const hasNoAssignedMembers = useMemo(
+    () => !hasAssignedIamMember(members, providers, isDefaultProviderEnabled),
+    [members, providers, isDefaultProviderEnabled],
+  );
 
   const handleDefaultMembersChange = useCallback(
     (updatedSlice: Member[]) => {
@@ -132,6 +137,16 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
 
   return (
     <>
+      {hasNoAssignedMembers && (
+        <MessageStrip
+          design="Negative"
+          hideCloseButton
+          className={styles.noMembersError}
+          data-testid="no-members-error"
+        >
+          {t('IdentityProviders.noMembersError')}
+        </MessageStrip>
+      )}
       <div className={styles.layout}>
         <FlexBox direction="Column" gap={16} className={styles.providerGroupsColumn}>
           <ProviderGroup

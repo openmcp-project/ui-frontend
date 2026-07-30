@@ -108,6 +108,47 @@ describe('IdentityProvidersStep', () => {
     cy.contains('ui5-panel', 'Default identity provider').should('not.contain', 'bob@example.com');
   });
 
+  it('renaming a provider re-tags its existing members onto the new name', () => {
+    const providers: ExtraProviderMetadata[] = [
+      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
+    ];
+    const members: Member[] = [{ kind: 'User', name: 'bob@example.com', roles: ['cluster-admin'], provider: 'custom' }];
+
+    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialMembers={members} />);
+
+    cy.get('[data-testid="edit-provider-custom"]').click();
+    cy.get('[data-testid="provider-name-input"]').clear().typeIntoUi5Input('renamed');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Save changes').click();
+
+    cy.contains('ui5-panel', 'renamed').should('contain', 'bob@example.com');
+    cy.contains('custom').should('not.exist');
+  });
+
+  it('shows a validation error when no member is assigned anywhere and blocks once one is added', () => {
+    cy.mount(<StatefulIdentityProvidersStep initialMembers={[]} />);
+
+    cy.get('[data-testid="no-members-error"]').should('exist');
+
+    cy.get('[data-testid="default-provider-add-member-button"]').click();
+    cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
+
+    cy.get('[data-testid="no-members-error"]').should('not.exist');
+  });
+
+  it('shows the validation error again after disabling the default provider drops its only members', () => {
+    const providers: ExtraProviderMetadata[] = [
+      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
+    ];
+    const members: Member[] = [{ kind: 'User', name: 'alice@example.com', roles: ['cluster-admin'] }];
+
+    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialMembers={members} />);
+
+    cy.get('[data-testid="no-members-error"]').should('not.exist');
+    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
+    cy.get('[data-testid="no-members-error"]').should('exist');
+  });
+
   it('hides the default-provider members table when it is disabled', () => {
     const providers: ExtraProviderMetadata[] = [
       { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },

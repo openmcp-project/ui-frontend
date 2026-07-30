@@ -430,6 +430,24 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
   });
 
+  it('blocks Next when the default provider is disabled and no extra provider has a member (regression: zero-member submission)', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="add-provider-button"]').click();
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
+    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
+    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add Identity Provider').click();
+
+    // Disabling the default provider drops the auto-added creator member; "custom" has none of its own.
+    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
+    cy.get('[data-testid="no-members-error"]').should('exist');
+    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
+  });
+
   it('adding a new identity provider via the wizard includes it in the create payload', () => {
     mountWizard();
 

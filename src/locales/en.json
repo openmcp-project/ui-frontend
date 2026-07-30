@@ -289,6 +289,7 @@
     "defaultProviderDisabledHint": "The default identity provider is disabled. Its members are kept here for now, but won't be saved unless you re-enable the provider before submitting.",
     "defaultProviderLockedHint": "Add at least one custom identity provider before you can disable the default provider.",
     "defaultProviderReenabledToast": "The default identity provider was re-enabled because it was the only remaining provider.",
+    "noMembersError": "At least one member must be assigned to the default identity provider or to a custom identity provider before you can continue.",
     "addProviderButton": "Add Identity Provider",
     "editProviderButtonTooltip": "Edit identity provider",
     "deleteProviderButtonTooltip": "Delete identity provider",

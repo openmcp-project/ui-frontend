@@ -53,6 +53,10 @@
   color: var(--sapContent_LabelColor);
 }
 
+.noMembersError {
+  margin-bottom: 1rem;
+}
+
 .extraScopeRow {
   display: flex;
   align-items: center;

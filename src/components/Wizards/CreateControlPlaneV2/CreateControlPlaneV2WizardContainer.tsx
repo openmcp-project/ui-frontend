@@ -45,6 +45,7 @@ import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEs
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
+import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
 import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
@@ -324,6 +325,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
 
+  const hasNoAssignedMembers = useMemo(
+    () => !hasAssignedIamMember(members ?? [], extraProviders, isDefaultProviderEnabled),
+    [members, extraProviders, isDefaultProviderEnabled],
+  );
+
   const buildRoleBindingsForProviderMembers = useCallback(
     (providerMembers: Member[], extraProvider?: { name: string; usernamePrefix?: string; groupsPrefix?: string }) => {
       const normalizeKind = (kind: string): 'User' | 'Group' => {
@@ -587,6 +593,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     // state — otherwise a late-arriving prefill can silently re-select a service the user meant
     // to leave unchecked, and it never gets deleted.
     if (isEditMode && isKpiLoading) return;
+    // Mirrors the Next button's disabled state: no RBAC subject may end up assigned nowhere.
+    if (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers) return;
     switch (selectedStep) {
       case 'metadata':
         handleSubmit(() => setSelectedStep('members'))();
@@ -613,6 +621,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isEditMode,
     isKpiLoading,
     selectedStep,
+    hasNoAssignedMembers,
     handleSubmit,
     setSelectedStep,
     handleCreateManagedControlPlane,
@@ -637,12 +646,17 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         case 'members':
           return (selectedStep === 'metadata' && !isEditMode) || !isValid;
         case 'componentSelection':
-          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
+          return (
+            ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) ||
+            !isValid ||
+            hasNoAssignedMembers
+          );
         case 'summarize':
           return (
             ((selectedStep === 'metadata' || selectedStep === 'members' || selectedStep === 'componentSelection') &&
               !isEditMode) ||
-            !isValid
+            !isValid ||
+            hasNoAssignedMembers
           );
         case 'success':
           return selectedStep !== 'success';
@@ -650,7 +664,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           return false;
       }
     },
-    [selectedStep, isValid, isEditMode],
+    [selectedStep, isValid, isEditMode, hasNoAssignedMembers],
   );
 
   const onBackClick = useCallback(() => {
@@ -771,7 +785,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   ))}
                 <Button
                   design="Emphasized"
-                  disabled={isSubmitting || (isEditMode && isKpiLoading)}
+                  disabled={
+                    isSubmitting ||
+                    (isEditMode && isKpiLoading) ||
+                    (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
+                  }
                   onClick={onNextClick}
                 >
                   {nextButtonText[selectedStep]}

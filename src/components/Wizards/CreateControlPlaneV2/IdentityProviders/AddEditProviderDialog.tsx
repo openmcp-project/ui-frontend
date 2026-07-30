@@ -196,6 +196,8 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
   };
 
   const showRenameWarning = isEdit && memberCountForEditedProvider > 0 && name?.trim() !== providerToEdit?.name;
+  // Mirrors resolveExtraProviderUsernamePrefix/resolveExtraProviderGroupsPrefix's "unset" default.
+  const defaultPrefixPlaceholder = `${name?.trim() || 'provider-name'}:`;
 
   return (
     <Dialog
@@ -301,7 +303,13 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
             name="usernameClaim"
             control={control}
             render={({ field }) => (
-              <Input {...field} id={usernameClaimId} className={styles.input} placeholder="email" />
+              <Input
+                {...field}
+                id={usernameClaimId}
+                className={styles.input}
+                placeholder="email"
+                data-testid="provider-username-claim-input"
+              />
             )}
           />
         </div>
@@ -312,7 +320,14 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
             name="usernamePrefix"
             control={control}
             render={({ field }) => (
-              <Input {...field} id={usernamePrefixId} className={styles.input} disabled={disableUsernamePrefix} />
+              <Input
+                {...field}
+                id={usernamePrefixId}
+                className={styles.input}
+                disabled={disableUsernamePrefix}
+                placeholder={defaultPrefixPlaceholder}
+                data-testid="provider-username-prefix-input"
+              />
             )}
           />
           <Controller
@@ -323,6 +338,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
                 name={field.name}
                 checked={field.value}
                 text={t('IdentityProviders.disableUsernamePrefixCheckbox')}
+                data-testid="provider-disable-username-prefix-checkbox"
                 onChange={(e) => field.onChange(e.target.checked)}
               />
             )}
@@ -335,7 +351,13 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
             name="groupsClaim"
             control={control}
             render={({ field }) => (
-              <Input {...field} id={groupsClaimId} className={styles.input} placeholder="groups" />
+              <Input
+                {...field}
+                id={groupsClaimId}
+                className={styles.input}
+                placeholder="groups"
+                data-testid="provider-groups-claim-input"
+              />
             )}
           />
         </div>
@@ -346,7 +368,14 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
             name="groupsPrefix"
             control={control}
             render={({ field }) => (
-              <Input {...field} id={groupsPrefixId} className={styles.input} disabled={disableGroupsPrefix} />
+              <Input
+                {...field}
+                id={groupsPrefixId}
+                className={styles.input}
+                disabled={disableGroupsPrefix}
+                placeholder={defaultPrefixPlaceholder}
+                data-testid="provider-groups-prefix-input"
+              />
             )}
           />
           <Controller
@@ -357,6 +386,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
                 name={field.name}
                 checked={field.value}
                 text={t('IdentityProviders.disableGroupsPrefixCheckbox')}
+                data-testid="provider-disable-groups-prefix-checkbox"
                 onChange={(e) => field.onChange(e.target.checked)}
               />
             )}
@@ -370,12 +400,24 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
               <Controller
                 name={`extraScopes.${index}.value`}
                 control={control}
-                render={({ field }) => <Input {...field} className={styles.input} />}
+                render={({ field }) => (
+                  <Input {...field} className={styles.input} data-testid={`provider-extra-scope-input-${index}`} />
+                )}
               />
-              <Button icon="delete" design="Transparent" onClick={() => remove(index)} />
+              <Button
+                icon="delete"
+                design="Transparent"
+                data-testid={`provider-remove-scope-button-${index}`}
+                onClick={() => remove(index)}
+              />
             </div>
           ))}
-          <Button icon="add" design="Transparent" onClick={() => append({ value: '' })}>
+          <Button
+            icon="add"
+            design="Transparent"
+            data-testid="provider-add-scope-button"
+            onClick={() => append({ value: '' })}
+          >
             {t('IdentityProviders.addScopeButton')}
           </Button>
         </div>
