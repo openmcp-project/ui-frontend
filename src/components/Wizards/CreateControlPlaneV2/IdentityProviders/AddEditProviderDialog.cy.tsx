@@ -135,7 +135,8 @@ describe('AddEditProviderDialog', () => {
     );
 
     cy.contains('Renaming this provider').should('not.exist');
-    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input();
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('renamed');
     cy.contains('Renaming this provider changes the effective identity of its 2 existing member(s)').should('exist');
   });
 
@@ -163,7 +164,8 @@ describe('AddEditProviderDialog', () => {
       />,
     );
 
-    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input();
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('renamed');
     cy.get('[data-testid="save-provider-button"]').click();
 
     cy.then(() => {

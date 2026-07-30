@@ -117,7 +117,8 @@ describe('IdentityProvidersStep', () => {
     cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialMembers={members} />);
 
     cy.get('[data-testid="edit-provider-custom"]').click();
-    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input();
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('renamed');
     cy.get('[data-testid="save-provider-button"]').click();
 
     cy.contains('ui5-panel', 'renamed').should('contain', 'bob@example.com');
