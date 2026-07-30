@@ -135,7 +135,7 @@ describe('AddEditProviderDialog', () => {
     );
 
     cy.contains('Renaming this provider').should('not.exist');
-    cy.get('[data-testid="provider-name-input"]').clear().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
     cy.contains('Renaming this provider changes the effective identity of its 2 existing member(s)').should('exist');
   });
 
@@ -163,8 +163,8 @@ describe('AddEditProviderDialog', () => {
       />,
     );
 
-    cy.get('[data-testid="provider-name-input"]').clear().typeIntoUi5Input('renamed');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Save changes').click();
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="save-provider-button"]').click();
 
     cy.then(() => {
       cy.wrap(savedProvider).should('not.be.null');
@@ -192,7 +192,7 @@ describe('AddEditProviderDialog', () => {
     cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
     cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
 
-    cy.contains('ui5-panel', 'Advanced settings').click();
+    cy.get('[data-testid="advanced-settings-panel"]').click();
     cy.get('[data-testid="provider-username-claim-input"]').typeIntoUi5Input('email');
     cy.get('[data-testid="provider-groups-claim-input"]').typeIntoUi5Input('groups');
     cy.get('[data-testid="provider-add-scope-button"]').click();
@@ -226,7 +226,7 @@ describe('AddEditProviderDialog', () => {
     cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
     cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
 
-    cy.contains('ui5-panel', 'Advanced settings').click();
+    cy.get('[data-testid="advanced-settings-panel"]').click();
     cy.get('[data-testid="provider-disable-username-prefix-checkbox"]').click();
     cy.get('[data-testid="provider-disable-groups-prefix-checkbox"]').click();
 
@@ -243,7 +243,7 @@ describe('AddEditProviderDialog', () => {
     cy.mount(<AddEditProviderDialog open={true} existingProviders={[]} onClose={() => {}} onSave={() => {}} />);
 
     cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
-    cy.contains('ui5-panel', 'Advanced settings').click();
+    cy.get('[data-testid="advanced-settings-panel"]').click();
 
     cy.get('[data-testid="provider-username-prefix-input"]').should('have.attr', 'placeholder', 'custom:');
     cy.get('[data-testid="provider-groups-prefix-input"]').should('have.attr', 'placeholder', 'custom:');

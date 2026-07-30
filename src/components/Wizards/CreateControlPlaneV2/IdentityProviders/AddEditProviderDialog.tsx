@@ -211,7 +211,11 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
               <Button design="Transparent" onClick={onClose}>
                 {t('buttons.cancel')}
               </Button>
-              <Button design="Emphasized" onClick={() => handleSubmit(onFormSubmit)()}>
+              <Button
+                design="Emphasized"
+                data-testid="save-provider-button"
+                onClick={() => handleSubmit(onFormSubmit)()}
+              >
                 {isEdit ? t('EditMembers.saveButton') : t('IdentityProviders.addProviderButton')}
               </Button>
             </>
@@ -295,6 +299,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
       <Panel
         headerText={t('IdentityProviders.advancedSettings')}
         collapsed={isAdvancedCollapsed}
+        data-testid="advanced-settings-panel"
         onToggle={() => setIsAdvancedCollapsed((v) => !v)}
       >
         <div className={styles.advancedField}>

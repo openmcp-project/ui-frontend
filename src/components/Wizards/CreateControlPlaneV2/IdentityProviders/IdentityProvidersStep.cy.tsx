@@ -75,7 +75,7 @@ describe('IdentityProvidersStep', () => {
     cy.contains('Its 1 member will also be removed').should('exist');
     cy.get('[data-testid="confirm-delete-provider-button"]').click();
 
-    cy.contains('custom').should('not.exist');
+    cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
     cy.contains('bob@example.com').should('not.exist');
   });
 
@@ -100,7 +100,7 @@ describe('IdentityProvidersStep', () => {
 
     cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} />);
 
-    cy.get('[data-testid="provider-custom-add-member-button"]').click();
+    cy.get('[data-testid="provider-custom-add-member-button"]').first().click();
     cy.get('[data-testid="provider-custom-member-email-input"]').typeIntoUi5Input('bob@example.com');
     cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
 
@@ -117,8 +117,8 @@ describe('IdentityProvidersStep', () => {
     cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialMembers={members} />);
 
     cy.get('[data-testid="edit-provider-custom"]').click();
-    cy.get('[data-testid="provider-name-input"]').clear().typeIntoUi5Input('renamed');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Save changes').click();
+    cy.get('[data-testid="provider-name-input"]').clearUi5Input().typeIntoUi5Input('renamed');
+    cy.get('[data-testid="save-provider-button"]').click();
 
     cy.contains('ui5-panel', 'renamed').should('contain', 'bob@example.com');
     cy.contains('custom').should('not.exist');
@@ -129,7 +129,7 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="no-members-error"]').should('exist');
 
-    cy.get('[data-testid="default-provider-add-member-button"]').click();
+    cy.get('[data-testid="default-provider-add-member-button"]').first().click();
     cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
     cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
 

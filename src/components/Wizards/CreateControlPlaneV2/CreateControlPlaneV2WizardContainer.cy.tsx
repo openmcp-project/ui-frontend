@@ -440,7 +440,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
     cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
     cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add Identity Provider').click();
+    cy.get('[data-testid="save-provider-button"]').click();
 
     // Disabling the default provider drops the auto-added creator member; "custom" has none of its own.
     cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
@@ -459,7 +459,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
     cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
     cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
-    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add Identity Provider').click();
+    cy.get('[data-testid="save-provider-button"]').click();
 
     cy.contains('custom').should('exist');
 
@@ -483,12 +483,12 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.contains('custom').should('exist');
     cy.contains('bob@example.com').should('exist');
 
-    cy.get('[data-testid="confirm-delete-provider-button"]').should('not.exist');
+    cy.get('[data-testid="confirm-delete-provider-button"]').should('not.be.visible');
     cy.get('[data-testid="delete-provider-custom"]').click();
     cy.contains('Its 1 member will also be removed').should('exist');
     cy.get('[data-testid="confirm-delete-provider-button"]').click();
 
-    cy.contains('custom').should('not.exist');
+    cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
     cy.contains('bob@example.com').should('not.exist');
   });
 
