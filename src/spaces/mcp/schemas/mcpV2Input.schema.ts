@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { oidcIssuerUrlRegex, oidcProviderNameRegex } from '../../../lib/api/validations/regex.ts';
+import { oidcIssuerUrlSchema, oidcProviderNameRegex } from '../../../lib/api/validations/regex.ts';
 
 const RoleRefSchema = z.object({
   kind: z.enum(['ClusterRole', 'Role']),
@@ -18,6 +18,8 @@ const RoleBindingSchema = z.object({
 });
 
 export const OIDC_RESERVED_PROVIDER_NAMES = ['system'] as const;
+// k8s object name limit
+export const OIDC_PROVIDER_NAME_MAX_LENGTH = 253;
 
 // Metadata-only fields (no roleBindings) — used both as the local UI form-state shape for the
 // wizard's "extraProviders" list and embedded into ExtraProviderInputSchema below.
@@ -25,12 +27,12 @@ export const ExtraProviderMetadataSchema = z.object({
   name: z
     .string()
     .min(1)
-    .max(253)
+    .max(OIDC_PROVIDER_NAME_MAX_LENGTH)
     .regex(oidcProviderNameRegex)
     .refine((n) => !(OIDC_RESERVED_PROVIDER_NAMES as readonly string[]).includes(n), {
       message: "'system' is a reserved OIDC provider name",
     }),
-  issuer: z.string().min(1).regex(oidcIssuerUrlRegex),
+  issuer: oidcIssuerUrlSchema,
   clientID: z.string().min(1),
   usernameClaim: z.string().optional(),
   // '' (explicit) vs undefined (use CRD default '<name>:') must be preserved distinctly.

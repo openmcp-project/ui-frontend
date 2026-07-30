@@ -19,6 +19,7 @@ interface AddEditMemberDialogProps {
   accountTypeOptions?: RadioButtonsSelectOption[];
   roleOptions?: RadioButtonsSelectOption[];
   defaultRole?: string;
+  testIdPrefix?: string;
 }
 
 type MemberFormData = {
@@ -37,6 +38,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   accountTypeOptions,
   roleOptions,
   defaultRole,
+  testIdPrefix,
 }) => {
   const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
   const allowedAccountTypes = useMemo(
@@ -52,6 +54,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
   const { serviceAccoutsGuide } = useLink();
+  const withTestId = (testId: string) => (testIdPrefix ? `${testIdPrefix}-${testId}` : testId);
   const memberFormSchema = useMemo(
     () =>
       z
@@ -140,7 +143,6 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
       name: trimmedName,
       roles: [data.role],
       kind: data.accountType,
-      ...(memberToEdit?.provider !== undefined && { provider: memberToEdit.provider }),
       ...(data.accountType === 'ServiceAccount' && data.namespace && { namespace: data.namespace }),
     };
 
@@ -166,6 +168,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
           </FlexBox>
         </FlexBox>
         <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
+          {/* id kept static: an existing cy test selects #member-email-input directly. */}
           <Label for="member-email-input">{t('common.name')}</Label>
           <Input
             className={styles.input}
@@ -174,7 +177,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
             {...register('name')}
             valueState={errors.name ? 'Negative' : 'None'}
             valueStateMessage={<span>{errors.name?.message}</span>}
-            data-testid="member-email-input"
+            data-testid={withTestId('member-email-input')}
           />
         </FlexBox>
         <FlexBox alignItems="Stretch" direction={'Column'}>
@@ -198,7 +201,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
                     type="Text"
                     {...register('namespace')}
                     className={styles.input}
-                    data-testid="namespace-input"
+                    data-testid={withTestId('namespace-input')}
                     id="namespace-input"
                   />
                 </FlexBox>
@@ -225,7 +228,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
           <Button
             className={styles.addButton}
-            data-testid="add-member-button"
+            data-testid={withTestId('add-member-button')}
             design={'Emphasized'}
             icon={'sap-icon://add-employee'}
             onClick={() => {

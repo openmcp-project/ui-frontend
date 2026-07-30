@@ -5,6 +5,12 @@
   gap: 2rem;
 }
 
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .providerGroupsColumn {
   min-width: 0;
 }

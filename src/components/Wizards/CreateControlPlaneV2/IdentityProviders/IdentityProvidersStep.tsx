@@ -156,6 +156,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 type="mcp"
                 isV2
                 fitContentAddButton
+                testIdPrefix="default-provider"
                 onMemberChanged={handleDefaultMembersChange}
               />
             ) : (
@@ -197,6 +198,8 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 isV2
                 showImportButton={false}
                 fitContentAddButton
+                providerName={provider.name}
+                testIdPrefix={`provider-${provider.name}`}
                 onMemberChanged={(updatedSlice) => handleProviderMembersChange(provider.name, updatedSlice)}
               />
             </ProviderGroup>

@@ -40,7 +40,7 @@ export const DeleteProviderConfirmationDialog: FC<DeleteProviderConfirmationDial
                 {t('buttons.cancel')}
               </Button>
               <Button design={ButtonDesign.Negative} data-testid="confirm-delete-provider-button" onClick={onConfirm}>
-                {t('DeleteConfirmationDialog.deleteButton')}
+                {t('IdentityProviders.deleteConfirmButton')}
               </Button>
             </>
           }

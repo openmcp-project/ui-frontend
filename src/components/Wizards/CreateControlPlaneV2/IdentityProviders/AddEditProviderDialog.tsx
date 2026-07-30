@@ -15,9 +15,10 @@ import { FC, useEffect, useId, useMemo, useState } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { oidcIssuerUrlRegex, oidcProviderNameRegex } from '../../../../lib/api/validations/regex.ts';
+import { oidcIssuerUrlSchema, oidcProviderNameRegex } from '../../../../lib/api/validations/regex.ts';
 import {
   ExtraProviderMetadata,
+  OIDC_PROVIDER_NAME_MAX_LENGTH,
   OIDC_RESERVED_PROVIDER_NAMES,
 } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import styles from './IdentityProviders.module.css';
@@ -104,7 +105,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
               path: ['name'],
               message: t('validationErrors.reservedProviderName'),
             });
-          } else if (!oidcProviderNameRegex.test(trimmedName) || trimmedName.length > 253) {
+          } else if (!oidcProviderNameRegex.test(trimmedName) || trimmedName.length > OIDC_PROVIDER_NAME_MAX_LENGTH) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['name'],
@@ -125,7 +126,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
           const trimmedIssuer = data.issuer.trim();
           if (!trimmedIssuer) {
             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['issuer'], message: t('validationErrors.required') });
-          } else if (!oidcIssuerUrlRegex.test(trimmedIssuer)) {
+          } else if (!oidcIssuerUrlSchema.safeParse(trimmedIssuer).success) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ['issuer'],

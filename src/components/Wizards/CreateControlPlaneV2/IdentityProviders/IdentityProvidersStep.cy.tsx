@@ -93,6 +93,21 @@ describe('IdentityProvidersStep', () => {
     cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'checked');
   });
 
+  it('adding a member from inside a custom provider panel keeps it scoped to that provider (regression)', () => {
+    const providers: ExtraProviderMetadata[] = [
+      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
+    ];
+
+    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} />);
+
+    cy.get('[data-testid="provider-custom-add-member-button"]').click();
+    cy.get('[data-testid="provider-custom-member-email-input"]').typeIntoUi5Input('bob@example.com');
+    cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
+
+    cy.contains('ui5-panel', 'custom').should('contain', 'bob@example.com');
+    cy.contains('ui5-panel', 'Default identity provider').should('not.contain', 'bob@example.com');
+  });
+
   it('hides the default-provider members table when it is disabled', () => {
     const providers: ExtraProviderMetadata[] = [
       { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },

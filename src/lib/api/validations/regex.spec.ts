@@ -3,7 +3,7 @@ import {
   projectWorkspaceNameRegex,
   managedControlPlaneNameRegex,
   oidcProviderNameRegex,
-  oidcIssuerUrlRegex,
+  oidcIssuerUrlSchema,
 } from './regex';
 
 describe('projectWorkspaceNameRegex', () => {
@@ -90,19 +90,19 @@ describe('oidcProviderNameRegex', () => {
   });
 });
 
-describe('oidcIssuerUrlRegex', () => {
+describe('oidcIssuerUrlSchema', () => {
   const valid = ['https://openmcp.accounts.ondemand.com', 'http://example.com/issuer', 'https://example.com:8443/path'];
   const invalid = ['ftp://example.com', 'example.com', 'https://', 'not-a-url', ''];
 
   it('matches valid issuer URLs', () => {
     for (const url of valid) {
-      expect(oidcIssuerUrlRegex.test(url)).toBe(true);
+      expect(oidcIssuerUrlSchema.safeParse(url).success).toBe(true);
     }
   });
 
   it('does not match invalid issuer URLs', () => {
     for (const url of invalid) {
-      expect(oidcIssuerUrlRegex.test(url)).toBe(false);
+      expect(oidcIssuerUrlSchema.safeParse(url).success).toBe(false);
     }
   });
 });

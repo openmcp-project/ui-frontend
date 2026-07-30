@@ -25,6 +25,10 @@ import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/ap
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
+import {
+  resolveExtraProviderGroupsPrefix,
+  resolveExtraProviderUsernamePrefix,
+} from '../../../utils/extraProviderPrefix.ts';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
@@ -320,29 +324,41 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
 
-  const buildRoleBindingsForProviderMembers = useCallback((providerMembers: Member[]) => {
-    const normalizeKind = (kind: string): 'User' | 'Group' => {
-      const lower = kind.trim().toLowerCase();
-      if (lower === 'group') return 'Group';
-      return 'User';
-    };
-    const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
-    providerMembers
-      .filter((m) => !!m.name)
-      .forEach((m) => {
-        const kind = normalizeKind(m.kind);
-        const roleName = normalizeMcpV2Role(m.roles?.[0]);
-        if (!roleMap.has(roleName)) roleMap.set(roleName, []);
-        roleMap.get(roleName)!.push({
-          kind,
-          name: m.name,
+  const buildRoleBindingsForProviderMembers = useCallback(
+    (providerMembers: Member[], extraProvider?: { name: string; usernamePrefix?: string; groupsPrefix?: string }) => {
+      const normalizeKind = (kind: string): 'User' | 'Group' => {
+        const lower = kind.trim().toLowerCase();
+        if (lower === 'group') return 'Group';
+        return 'User';
+      };
+      // Re-adds the prefix extractMcpV2FormState.ts strips on read; default provider is unprefixed either way.
+      const applyPrefix = (rawName: string, kind: 'User' | 'Group'): string => {
+        if (!extraProvider) return rawName;
+        const resolvedPrefix =
+          kind === 'Group'
+            ? resolveExtraProviderGroupsPrefix(extraProvider)
+            : resolveExtraProviderUsernamePrefix(extraProvider);
+        return `${resolvedPrefix}${rawName}`;
+      };
+      const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
+      providerMembers
+        .filter((m) => !!m.name)
+        .forEach((m) => {
+          const kind = normalizeKind(m.kind);
+          const roleName = normalizeMcpV2Role(m.roles?.[0]);
+          if (!roleMap.has(roleName)) roleMap.set(roleName, []);
+          roleMap.get(roleName)!.push({
+            kind,
+            name: applyPrefix(m.name, kind),
+          });
         });
-      });
-    return Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
-      roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
-      subjects,
-    }));
-  }, []);
+      return Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
+        roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
+        subjects,
+      }));
+    },
+    [],
+  );
 
   const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
@@ -350,7 +366,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
     const extraProvidersInput = extraProviders.map((p) => ({
       ...p,
-      roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
+      roleBindings: buildRoleBindingsForProviderMembers(
+        (members ?? []).filter((m) => m.provider === p.name),
+        {
+          name: p.name,
+          usernamePrefix: p.usernamePrefix,
+          groupsPrefix: p.groupsPrefix,
+        },
+      ),
     }));
     return {
       name: finalName,

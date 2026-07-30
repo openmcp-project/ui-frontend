@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // Matches project or workspace names: 1-63 chars per segment, alphanum/dash, dot-separated, no leading/trailing dash, allows uppercase.
 export const projectWorkspaceNameRegex = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))*$/;
 
@@ -10,4 +12,4 @@ export const btpChargingTargetRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 export const oidcProviderNameRegex = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
 
 // Matches OIDC issuer URLs allowed by the ControlPlane v2alpha1 CRD.
-export const oidcIssuerUrlRegex = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+export const oidcIssuerUrlSchema = z.url({ protocol: /^https?$/ });
