@@ -7,9 +7,11 @@ import {
   Form,
   FormGroup,
   Input,
+  InputDomRef,
   Label,
   MessageStrip,
   Panel,
+  Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { FC, useEffect, useId, useMemo, useState } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
@@ -247,6 +249,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
                   valueState={errors.name ? 'Negative' : 'None'}
                   valueStateMessage={<span>{errors.name?.message}</span>}
                   data-testid="provider-name-input"
+                  onInput={(e: Ui5CustomEvent<InputDomRef, never>) => field.onChange(e.target.value)}
                 />
               )}
             />
