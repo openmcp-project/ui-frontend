@@ -1,11 +1,25 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 
+import { FrontendConfigContext, Landscape } from '../../../../context/FrontendConfigContext.tsx';
+import { FeatureToggleProvider } from '../../../../context/FeatureToggleContext.tsx';
 import { ToastProvider } from '../../../../context/ToastContext.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
 import { ComponentsDashboardV2, ComponentsDashboardV2Props } from './ComponentsDashboardV2.tsx';
+
+const frontendConfig = {
+  landscape: Landscape.Local,
+  documentationBaseUrl: '',
+  githubBaseUrl: '',
+  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: true, enableHeadlamp: false, showLandscaperCard: false },
+};
+
+const frontendConfigWithLandscaper = {
+  ...frontendConfig,
+  featureToggles: { ...frontendConfig.featureToggles, showLandscaperCard: true },
+};
 
 describe('ComponentsDashboardV2', () => {
   const crossplaneInstalled: CrossplaneData = { isInstalled: true, version: '1.2.3', providers: [] };
@@ -15,26 +29,54 @@ describe('ComponentsDashboardV2', () => {
 
   const mount = (props?: Partial<ComponentsDashboardV2Props>) => {
     cy.mount(
-      <MockedProvider mocks={[]}>
-        <ToastProvider>
-          <ComponentsDashboardV2
-            crossplaneData={null}
-            landscaperData={null}
-            fluxData={null}
-            esoData={null}
-            mcpName="my-mcp"
-            mcpNamespace="project-foo--ws-bar"
-            onNavigateToMcpSection={() => {}}
-            {...props}
-          />
-        </ToastProvider>
-      </MockedProvider>,
+      <FrontendConfigContext.Provider value={frontendConfig}>
+        <MockedProvider mocks={[]}>
+          <FeatureToggleProvider>
+            <ToastProvider>
+              <ComponentsDashboardV2
+                crossplaneData={null}
+                landscaperData={null}
+                fluxData={null}
+                esoData={null}
+                mcpName="my-mcp"
+                mcpNamespace="project-foo--ws-bar"
+                onNavigateToMcpSection={() => {}}
+                {...props}
+              />
+            </ToastProvider>
+          </FeatureToggleProvider>
+        </MockedProvider>
+      </FrontendConfigContext.Provider>,
+      {},
+    );
+  };
+
+  const mountWithLandscaper = (props?: Partial<ComponentsDashboardV2Props>) => {
+    cy.mount(
+      <FrontendConfigContext.Provider value={frontendConfigWithLandscaper}>
+        <MockedProvider mocks={[]}>
+          <FeatureToggleProvider>
+            <ToastProvider>
+              <ComponentsDashboardV2
+                crossplaneData={null}
+                landscaperData={null}
+                fluxData={null}
+                esoData={null}
+                mcpName="my-mcp"
+                mcpNamespace="project-foo--ws-bar"
+                onNavigateToMcpSection={() => {}}
+                {...props}
+              />
+            </ToastProvider>
+          </FeatureToggleProvider>
+        </MockedProvider>
+      </FrontendConfigContext.Provider>,
       {},
     );
   };
 
   it('renders all four component cards with names, descriptions, and versions', () => {
-    mount({
+    mountWithLandscaper({
       crossplaneData: crossplaneInstalled,
       fluxData: fluxInstalled,
       landscaperData: landscaperInstalled,
@@ -77,7 +119,7 @@ describe('ComponentsDashboardV2', () => {
   });
 
   it('opens the Landscaper edit dialog from the actions menu when installed', () => {
-    mount({ landscaperData: landscaperInstalled });
+    mountWithLandscaper({ landscaperData: landscaperInstalled });
 
     cy.get('[data-cy="component-card-landscaper"]').within(() => {
       cy.get('[data-cy="actions-menu-button"]').click();
