@@ -33,7 +33,12 @@ describe('ShellBar', () => {
       documentationBaseUrl: '',
       githubBaseUrl: '',
       mcp2DocsUrl: '',
-      featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp },
+      featureToggles: {
+        markMcpV1asDeprecated: false,
+        enableMcpV2: false,
+        enableHeadlamp,
+        showLandscaperCard: false,
+      },
     };
     cy.mount(
       <MemoryRouter>

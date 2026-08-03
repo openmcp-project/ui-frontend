@@ -553,7 +553,7 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 0);
+      cy.get('ui5-avatar-group').should('not.exist');
     });
 
     it('renders avatars for v2 members from spec.iam.oidc roleBindings', () => {
@@ -600,7 +600,7 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 0);
+      cy.get('ui5-avatar-group').should('not.exist');
     });
   });
 

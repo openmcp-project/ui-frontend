@@ -27,7 +27,11 @@ const baseQueryResult = {
 describe('useMcpsQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
+    useFeatureToggleMock.mockReturnValue({
+      enableMcpV2: false,
+      markMcpV1asDeprecated: false,
+      showLandscaperCard: false,
+    });
   });
 
   it('passes namespace as a variable and skips the query when namespace is undefined', () => {
@@ -130,7 +134,11 @@ describe('useMcpsQuery', () => {
   });
 
   it('maps a v2 ManagedControlPlaneV2 to the expected shape when enableMcpV2 is true', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false });
+    useFeatureToggleMock.mockReturnValue({
+      enableMcpV2: true,
+      markMcpV1asDeprecated: false,
+      showLandscaperCard: false,
+    });
     const accessObj = { key: 'k2', name: 'n2', namespace: 'ns2' };
 
     useQueryMock.mockReturnValue({
@@ -182,7 +190,11 @@ describe('useMcpsQuery', () => {
   });
 
   it('excludes v2 items when enableMcpV2 feature flag is off', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: false, markMcpV1asDeprecated: false });
+    useFeatureToggleMock.mockReturnValue({
+      enableMcpV2: false,
+      markMcpV1asDeprecated: false,
+      showLandscaperCard: false,
+    });
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
@@ -220,7 +232,11 @@ describe('useMcpsQuery', () => {
   });
 
   it('merges v1 and v2 items when enableMcpV2 feature flag is on', () => {
-    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false });
+    useFeatureToggleMock.mockReturnValue({
+      enableMcpV2: true,
+      markMcpV1asDeprecated: false,
+      showLandscaperCard: false,
+    });
     useQueryMock.mockReturnValue({
       ...baseQueryResult,
       data: {
