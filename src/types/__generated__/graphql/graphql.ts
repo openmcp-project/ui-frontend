@@ -504,6 +504,14 @@ export type CoreOpenmcpCloudV1alpha1Workspace_Input = {
   status?: CoreOpenmcpCloudV1alpha1WorkspaceStatus_Input | null | undefined;
 };
 
+/** CrossplaneFunctionConfig represents configuration for Crossplane functions in a Crossplane instance. */
+export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecFunctions_Input = {
+  /** Name of the function. */
+  name?: string | null | undefined;
+  /** Version of the function to install. */
+  version?: string | null | undefined;
+};
+
 /** CrossplaneProviderConfig represents configuration for Crossplane providers in a Crossplane instance. */
 export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input = {
   /** Name of the provider. */
@@ -514,6 +522,11 @@ export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_
 
 /** spec defines the desired state of Crossplane */
 export type CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpec_Input = {
+  /** List of Crossplane functions to be installed. */
+  functions?:
+    | Array<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecFunctions_Input | null | undefined>
+    | null
+    | undefined;
   /** List of Crossplane providers to be installed. */
   providers?:
     | Array<CrossplaneServicesOpenControlPlaneIoV1alpha1CrossplaneSpecProviders_Input | null | undefined>
@@ -1568,6 +1581,24 @@ export type GetMcPsListQuery = {
             access: unknown;
             conditions: Array<{ type: string | null; status: string | null } | null> | null;
           } | null;
+          spec: {
+            iam: {
+              oidc: {
+                defaultProvider: {
+                  roleBindings: Array<{
+                    roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
+                    subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+                  } | null> | null;
+                } | null;
+                extraProviders: Array<{
+                  roleBindings: Array<{
+                    roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
+                    subjects: Array<{ kind: string | null; name: string | null } | null> | null;
+                  } | null> | null;
+                } | null> | null;
+              } | null;
+            } | null;
+          } | null;
         }>;
       };
     } | null;
@@ -1657,39 +1688,6 @@ export type UpdateWorkspaceMutationVariables = Exact<{
 export type UpdateWorkspaceMutation = {
   core_openmcp_cloud: {
     v1alpha1: { updateWorkspace: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
-  } | null;
-};
-
-export type GetWorkspaceV2ComponentsQueryVariables = Exact<{
-  namespace: string;
-}>;
-
-export type GetWorkspaceV2ComponentsQuery = {
-  crossplane_services_open_control_plane_io: {
-    v1alpha1: {
-      Crossplanes: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
-      };
-    } | null;
-  } | null;
-  flux_services_open_control_plane_io: {
-    v1alpha1: {
-      Fluxes: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
-    } | null;
-  } | null;
-  landscaper_services_open_control_plane_io: {
-    v1alpha2: {
-      Landscapers: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
-      };
-    } | null;
-  } | null;
-  external_secrets_services_open_control_plane_io: {
-    v1alpha1: {
-      ExternalSecretsOperators: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
-      };
-    } | null;
   } | null;
 };
 
@@ -4773,6 +4771,137 @@ export const GetMcPsListDocument = {
                                       ],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'spec' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'iam' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'oidc' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'defaultProvider' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'roleBindings' },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'roleRefs' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'subjects' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'extraProviders' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'roleBindings' },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'roleRefs' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: { kind: 'Name', value: 'subjects' },
+                                                                  selectionSet: {
+                                                                    kind: 'SelectionSet',
+                                                                    selections: [
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'kind' },
+                                                                      },
+                                                                      {
+                                                                        kind: 'Field',
+                                                                        name: { kind: 'Name', value: 'name' },
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -5226,264 +5355,6 @@ export const UpdateWorkspaceDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateWorkspaceMutation, UpdateWorkspaceMutationVariables>;
-export const GetWorkspaceV2ComponentsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetWorkspaceV2Components' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'crossplane_services_open_control_plane_io' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Crossplanes' },
-                        arguments: [
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'namespace' },
-                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
-                          },
-                        ],
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'spec' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'flux_services_open_control_plane_io' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Fluxes' },
-                        arguments: [
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'namespace' },
-                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
-                          },
-                        ],
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'spec' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'landscaper_services_open_control_plane_io' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha2' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'Landscapers' },
-                        arguments: [
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'namespace' },
-                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
-                          },
-                        ],
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'spec' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'external_secrets_services_open_control_plane_io' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'v1alpha1' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'ExternalSecretsOperators' },
-                        arguments: [
-                          {
-                            kind: 'Argument',
-                            name: { kind: 'Name', value: 'namespace' },
-                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
-                          },
-                        ],
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'items' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'metadata' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'spec' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetWorkspaceV2ComponentsQuery, GetWorkspaceV2ComponentsQueryVariables>;
 export const GetWorkspacesDocument = {
   kind: 'Document',
   definitions: [

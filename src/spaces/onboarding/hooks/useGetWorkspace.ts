@@ -45,7 +45,7 @@ export function useGetWorkspace(workspaceName: string | undefined, namespace: st
   const { data, loading, error } = useQuery(GetWorkspaceQuery, {
     variables: { name: workspaceName ?? '', namespace: namespace ?? '' },
     skip: !workspaceName || !namespace,
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
 
   const workspace = data?.core_openmcp_cloud?.v1alpha1?.Workspace;

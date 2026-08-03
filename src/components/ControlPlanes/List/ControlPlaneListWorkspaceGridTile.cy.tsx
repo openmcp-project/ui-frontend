@@ -72,7 +72,13 @@ const frontendConfig = {
   documentationBaseUrl: '',
   githubBaseUrl: '',
   githubApps: [],
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false, enableGitHub: false },
+  featureToggles: {
+    markMcpV1asDeprecated: false,
+    enableMcpV2: false,
+    enableHeadlamp: false,
+    enableGitHub: false,
+    showLandscaperCard: false,
+  },
 };
 
 function mountTile({

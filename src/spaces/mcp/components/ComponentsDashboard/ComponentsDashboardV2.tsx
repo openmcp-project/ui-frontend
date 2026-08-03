@@ -25,6 +25,7 @@ import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneIn
 
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../../../components/Dialogs/DeleteConfirmationDialog.tsx';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
@@ -70,6 +71,7 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
   const toast = useToast();
+  const { showLandscaperCard } = useFeatureToggle();
   const telemetry = useTelemetry();
 
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
@@ -259,43 +261,45 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isFluxInstalled ? () => setDeleteTarget('flux') : undefined}
         />
-        <ComponentCardV2
-          data-cy="component-card-landscaper"
-          name="Landscaper"
-          description={t('componentCardLandscaper.description')}
-          logoImgSrc={LogoLandscaper}
-          status={landscaperStatus}
-          version={landscaperVersion}
-          yamlViewButton={
-            isLandscaperInstalled && landscaperResource ? (
-              <YamlViewButton
-                variant="mcp-component"
-                component="landscaper"
-                mcpName={mcpName}
-                mcpNamespace={mcpNamespace}
-                preloadedResource={landscaperResource}
-              />
-            ) : undefined
-          }
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
-          onInstallButtonClick={
-            !isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('install');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onEditButtonClick={
-            isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('edit');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
-        />
+        {showLandscaperCard && (
+          <ComponentCardV2
+            data-cy="component-card-landscaper"
+            name="Landscaper"
+            description={t('componentCardLandscaper.description')}
+            logoImgSrc={LogoLandscaper}
+            status={landscaperStatus}
+            version={landscaperVersion}
+            yamlViewButton={
+              isLandscaperInstalled && landscaperResource ? (
+                <YamlViewButton
+                  variant="mcp-component"
+                  component="landscaper"
+                  mcpName={mcpName}
+                  mcpNamespace={mcpNamespace}
+                  preloadedResource={landscaperResource}
+                />
+              ) : undefined
+            }
+            onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
+            onInstallButtonClick={
+              !isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('install');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onEditButtonClick={
+              isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('edit');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
+          />
+        )}
         <ComponentCardV2
           data-cy="component-card-eso"
           name="External Secrets Operator"

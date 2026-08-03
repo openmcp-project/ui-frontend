@@ -69,22 +69,7 @@ const ControlPlaneV1Schema = z.object({
   status: StatusSchema.nullish(),
 });
 
-const ControlPlaneV2Schema = z.object({
-  version: z.literal('v2'),
-  metadata: MetadataSchema,
-  status: StatusSchema.nullish(),
-});
-
-export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema]);
-
-export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
-export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
-export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
-export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
-export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
-
-// ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
-
+// Shared IAM schemas used by both list and detail types
 const SubjectSchema = z.object({
   apiGroup: z.string().nullish(),
   kind: z.string().nullish(),
@@ -106,6 +91,36 @@ const IamRoleBindingSchema = z.object({
 const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
+
+const ControlPlaneV2Schema = z.object({
+  version: z.literal('v2'),
+  metadata: MetadataSchema,
+  status: StatusSchema.nullish(),
+  spec: z
+    .object({
+      iam: z
+        .object({
+          oidc: z
+            .object({
+              defaultProvider: OidcProviderSchema.nullish(),
+              extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+            })
+            .nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
+});
+
+export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema]);
+
+export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
+export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
+export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
+export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
+export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
+
+// ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
 
 const AccessV2Schema = z.preprocess(
   (val) => {
