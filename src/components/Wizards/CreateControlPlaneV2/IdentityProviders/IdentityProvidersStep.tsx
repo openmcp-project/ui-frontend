@@ -1,15 +1,21 @@
 import '@ui5/webcomponents-icons/dist/add';
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/edit';
+import '@ui5/webcomponents-icons/dist/copy';
 import { Button, CheckBox, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
 import { useToast } from '../../../../context/ToastContext.tsx';
+import { useCopyToClipboard } from '../../../../hooks/useCopyToClipboard.ts';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../../lib/shared/useLink.ts';
+import { buildRoleBindingsForProviderMembers } from '../../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildMcpV2GraphQLInput } from '../../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { hasAssignedIamMember } from '../../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { ExtraProviderMetadata } from '../../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { EditMembers } from '../../../Members/EditMembers.tsx';
+import { YamlViewer } from '../../../Yaml/YamlViewer.tsx';
 import { AddEditProviderDialog } from './AddEditProviderDialog.tsx';
 import { DeleteProviderConfirmationDialog } from './DeleteProviderConfirmationDialog.tsx';
 import styles from './IdentityProviders.module.css';
@@ -41,17 +47,46 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   const { t } = useTranslation();
   const toast = useToast();
   const { identityProviderGuide } = useLink();
+  const { copyToClipboard } = useCopyToClipboard();
 
   const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
   const [providerToEdit, setProviderToEdit] = useState<ExtraProviderMetadata | undefined>(undefined);
   const [providerToDelete, setProviderToDelete] = useState<ExtraProviderMetadata | undefined>(undefined);
 
-  const defaultProviderMembers = useMemo(() => members.filter((m) => !m.provider), [members]);
+  const membersByProvider = useMemo(() => {
+    const grouped = new Map<string, Member[]>();
+    for (const member of members) {
+      const key = member.provider ?? '';
+      grouped.set(key, [...(grouped.get(key) ?? []), member]);
+    }
+    return grouped;
+  }, [members]);
+
+  const defaultProviderMembers = useMemo(() => membersByProvider.get('') ?? [], [membersByProvider]);
   const isDefaultCheckboxDisabled = providers.length === 0;
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members, providers, isDefaultProviderEnabled),
     [members, providers, isDefaultProviderEnabled],
   );
+
+  const oidcYaml = useMemo(() => {
+    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const extraProvidersInput = providers.map((provider) => ({
+      ...provider,
+      roleBindings: buildRoleBindingsForProviderMembers(membersByProvider.get(provider.name) ?? [], {
+        name: provider.name,
+        usernamePrefix: provider.usernamePrefix,
+        groupsPrefix: provider.groupsPrefix,
+      }),
+    }));
+    const { spec } = buildMcpV2GraphQLInput({
+      name: '',
+      namespace: '',
+      roleBindings,
+      extraProviders: extraProvidersInput,
+    });
+    return stringify(spec?.iam?.oidc ?? {});
+  }, [defaultProviderMembers, isDefaultProviderEnabled, membersByProvider, providers]);
 
   const handleDefaultMembersChange = useCallback(
     (updatedSlice: Member[]) => {
@@ -125,15 +160,11 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
     t,
   ]);
 
-  const providerToDeleteMemberCount = useMemo(
-    () => (providerToDelete ? members.filter((m) => m.provider === providerToDelete.name).length : 0),
-    [providerToDelete, members],
-  );
+  const providerToDeleteMemberCount = providerToDelete
+    ? (membersByProvider.get(providerToDelete.name)?.length ?? 0)
+    : 0;
 
-  const providerToEditMemberCount = useMemo(
-    () => (providerToEdit ? members.filter((m) => m.provider === providerToEdit.name).length : 0),
-    [providerToEdit, members],
-  );
+  const providerToEditMemberCount = providerToEdit ? (membersByProvider.get(providerToEdit.name)?.length ?? 0) : 0;
 
   return (
     <>
@@ -206,7 +237,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
               }
             >
               <EditMembers
-                members={members.filter((m) => m.provider === provider.name)}
+                members={membersByProvider.get(provider.name) ?? []}
                 isValidationError={isValidationError}
                 requireAtLeastOneMember={false}
                 type="mcp"
@@ -219,9 +250,6 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
               />
             </ProviderGroup>
           ))}
-        </FlexBox>
-
-        <FlexBox direction="Column" gap={16} className={styles.addProviderColumn}>
           <Text>
             <Trans
               i18nKey="IdentityProviders.docsLinkInfo"
@@ -230,13 +258,23 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
           </Text>
           <Button
             icon="add"
-            design="Emphasized"
+            design={'Transparent'}
             className={styles.addProviderButton}
             data-testid="add-provider-button"
             onClick={handleOpenAddProviderDialog}
           >
             {t('IdentityProviders.addProviderButton')}
           </Button>
+        </FlexBox>
+
+        <FlexBox direction="Column" gap={16} className={styles.yaml}>
+          <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center">
+            <Text className={styles.yamlPreviewTitle}>{t('IdentityProviders.yamlPreviewTitle')}</Text>
+            <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(oidcYaml)}>
+              {t('buttons.copy')}
+            </Button>
+          </FlexBox>
+          <YamlViewer yamlString={oidcYaml} filename="identity-providers" />
         </FlexBox>
       </div>
 

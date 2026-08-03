@@ -312,7 +312,8 @@
     "deleteConfirmMessage1": "Are you sure you want to delete the identity provider '{{providerName}}'? Its 1 member will also be removed.",
     "deleteConfirmMessageN": "Are you sure you want to delete the identity provider '{{providerName}}'? Its {{count}} members will also be removed.",
     "deleteConfirmButton": "Delete",
-    "disabledBadge": "(disabled)"
+    "disabledBadge": "(disabled)",
+    "yamlPreviewTitle": "YAML preview"
   },
   "ProjectPage": {
     "backToProjects": "Go to all projects"

@@ -21,14 +21,10 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
+import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
-import {
-  resolveExtraProviderGroupsPrefix,
-  resolveExtraProviderUsernamePrefix,
-} from '../../../utils/extraProviderPrefix.ts';
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { MetadataForm } from '../../Dialogs/MetadataForm.tsx';
 import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx';
@@ -44,6 +40,10 @@ import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kp
 import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
+import {
+  buildRoleBindingsForProviderMembers,
+  normalizeMcpV2Role,
+} from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -98,14 +98,6 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
 const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
-
-const normalizeMcpV2Role = (roleInput?: string | null): string => {
-  const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-  if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
-    return MCP_V2_VIEWER_ROLE;
-  }
-  return MCP_V2_DEFAULT_ROLE;
-};
 
 export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
@@ -330,42 +322,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     [members, extraProviders, isDefaultProviderEnabled],
   );
 
-  const buildRoleBindingsForProviderMembers = useCallback(
-    (providerMembers: Member[], extraProvider?: { name: string; usernamePrefix?: string; groupsPrefix?: string }) => {
-      const normalizeKind = (kind: string): 'User' | 'Group' => {
-        const lower = kind.trim().toLowerCase();
-        if (lower === 'group') return 'Group';
-        return 'User';
-      };
-      // Re-adds the prefix extractMcpV2FormState.ts strips on read; default provider is unprefixed either way.
-      const applyPrefix = (rawName: string, kind: 'User' | 'Group'): string => {
-        if (!extraProvider) return rawName;
-        const resolvedPrefix =
-          kind === 'Group'
-            ? resolveExtraProviderGroupsPrefix(extraProvider)
-            : resolveExtraProviderUsernamePrefix(extraProvider);
-        return `${resolvedPrefix}${rawName}`;
-      };
-      const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
-      providerMembers
-        .filter((m) => !!m.name)
-        .forEach((m) => {
-          const kind = normalizeKind(m.kind);
-          const roleName = normalizeMcpV2Role(m.roles?.[0]);
-          if (!roleMap.has(roleName)) roleMap.set(roleName, []);
-          roleMap.get(roleName)!.push({
-            kind,
-            name: applyPrefix(m.name, kind),
-          });
-        });
-      return Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
-        roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
-        subjects,
-      }));
-    },
-    [],
-  );
-
   const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
@@ -396,7 +352,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     members,
     extraProviders,
     isDefaultProviderEnabled,
-    buildRoleBindingsForProviderMembers,
   ]);
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {

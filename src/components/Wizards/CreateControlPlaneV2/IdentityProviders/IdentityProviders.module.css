@@ -1,8 +1,8 @@
 .layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: start;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -15,8 +15,12 @@
   min-width: 0;
 }
 
-.addProviderColumn {
+.yaml {
   min-width: 0;
+}
+
+.yamlPreviewTitle {
+  font-weight: 600;
 }
 
 .providerGroupPanel {
