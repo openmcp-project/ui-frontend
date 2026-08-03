@@ -266,9 +266,7 @@ export default function ControlPlanePageV2() {
         const subjects = (binding.subjects ?? []).flatMap((subject) =>
           subject?.kind && subject?.name ? [{ kind: subject.kind, name: subject.name }] : [],
         );
-        return (binding.roleRefs ?? []).flatMap((roleRef) =>
-          roleRef?.name ? [{ role: roleRef.name, subjects }] : [],
-        );
+        return (binding.roleRefs ?? []).flatMap((roleRef) => (roleRef?.name ? [{ role: roleRef.name, subjects }] : []));
       }),
     );
   }, [mcp?.spec?.iam?.oidc]);
