@@ -164,20 +164,20 @@ export function useMcpsQuery(workspaceNamespace?: string) {
 
   const { refetch } = queryResult;
 
-  // Gate subscriptions on hasReceivedData to avoid SSE streams exhausting the
+  // Gate subscriptions on isReadyForSubscriptions to avoid SSE streams exhausting the
   // HTTP/1.1 connection pool before the initial query can get a connection.
   // All workspaces expanding simultaneously would open 16+ SSE streams (8 × 2),
   // blocking GetMCPsList queries for ~30 s until streams timeout.
-  const hasReceivedData = queryResult.data !== undefined;
+  const isReadyForSubscriptions = queryResult.data !== undefined;
 
   const { data: v1SubData } = useSubscription(MCP_V1_SUBSCRIPTION, {
     variables: { namespace: workspaceNamespace ?? '' },
-    skip: !workspaceNamespace || !hasReceivedData,
+    skip: !workspaceNamespace || !isReadyForSubscriptions,
   });
 
   const { data: v2SubData } = useSubscription(MCP_V2_SUBSCRIPTION, {
     variables: { namespace: workspaceNamespace ?? '' },
-    skip: !workspaceNamespace || !enableMcpV2 || !hasReceivedData,
+    skip: !workspaceNamespace || !enableMcpV2 || !isReadyForSubscriptions,
   });
 
   useEffect(() => {
@@ -211,5 +211,5 @@ export function useMcpsQuery(workspaceNamespace?: string) {
 
   const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
 
-  return { data: controlPlanes, error: queryResult.error, isPending, hasReceivedData };
+  return { data: controlPlanes, error: queryResult.error, isPending, isReadyForSubscriptions };
 }

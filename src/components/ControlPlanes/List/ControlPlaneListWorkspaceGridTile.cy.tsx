@@ -5,6 +5,7 @@ import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
@@ -61,7 +62,7 @@ const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
   data: fakeManagedControlPlanes,
   error: undefined,
   isPending: false,
-  hasReceivedData: true,
+  isReadyForSubscriptions: true,
 });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
@@ -178,6 +179,256 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
       cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().click();
       cy.get('@onToggle').should('have.been.calledOnce');
+    });
+  });
+
+  describe('fetch gating — GetMCPsList only fires when granted', () => {
+    it('does NOT call useMcpsQuery with a namespace when collapsed and no fetch slot granted', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        isReadyForSubscriptions: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={false}
+                    isFetchGranted={false}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      // querySpy is called but with undefined — meaning no actual query fires
+      cy.get('@querySpy').should('have.been.calledWith', undefined);
+    });
+
+    it('calls useMcpsQuery with the workspace namespace when isFetchGranted is true', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        isReadyForSubscriptions: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={false}
+                    isFetchGranted={true}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('@querySpy').should('have.been.calledWith', 'project-some-project--ws-workspaceName');
+    });
+
+    it('calls useMcpsQuery with the workspace namespace when expanded', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        isReadyForSubscriptions: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={true}
+                    isFetchGranted={false}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('@querySpy').should('have.been.calledWith', 'project-some-project--ws-workspaceName');
+    });
+  });
+
+  describe('access control — workspace membership via spec.members', () => {
+    const memberUser: typeof useAuthOnboarding = () => ({
+      user: { sub: 'u1', email: 'member@example.com' },
+      isPending: false,
+      isAuthenticated: true,
+      error: null,
+      login: cy.stub() as never,
+      logout: cy.stub() as never,
+    });
+
+    const nonMemberUser: typeof useAuthOnboarding = () => ({
+      user: { sub: 'u2', email: 'outsider@example.com' },
+      isPending: false,
+      isAuthenticated: true,
+      error: null,
+      login: cy.stub() as never,
+      logout: cy.stub() as never,
+    });
+
+    const workspaceWithMember: Workspace = {
+      metadata: { name: 'workspaceName', namespace: 'project-webapp-playground--ws-workspaceName', annotations: {} },
+      spec: { members: [{ kind: 'User', name: 'member@example.com', roles: ['admin'] }] },
+      status: { namespace: 'project-webapp-playground--ws-workspaceName' },
+    };
+
+    it('shows expand toggle when user is a member', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspaceWithMember}
+                    projectName="some-project"
+                    isExpanded={false}
+                    useMcpsQuery={fakeUseMCPsListQuery}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    useAuthOnboardingHook={memberUser}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('[data-testid="workspace-panel-workspaceName"]')
+        .find('button')
+        .first()
+        .should('have.attr', 'aria-expanded');
+      cy.get('[id^="forbidden-btn"]').should('not.exist');
+    });
+
+    it('shows locked icon and no expand toggle when user is not a member', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspaceWithMember}
+                    projectName="some-project"
+                    isExpanded={false}
+                    useMcpsQuery={fakeUseMCPsListQuery}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    useAuthOnboardingHook={nonMemberUser}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('[id^="forbidden-btn"]').should('exist');
+      cy.get('[data-testid="workspace-panel-workspaceName"]')
+        .find('button')
+        .first()
+        .should('not.have.attr', 'aria-expanded');
+    });
+
+    it('opens a popover with the permission error message when locked icon is clicked', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspaceWithMember}
+                    projectName="some-project"
+                    isExpanded={false}
+                    useMcpsQuery={fakeUseMCPsListQuery}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    useAuthOnboardingHook={nonMemberUser}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      cy.get('[id^="forbidden-btn"]').click();
+      cy.get('ui5-popover[open]').should('exist');
+    });
+
+    it('does not fire GetMCPsList for non-members', () => {
+      const querySpy = cy.stub().as('querySpy').returns({
+        data: [],
+        error: undefined,
+        isPending: false,
+        isReadyForSubscriptions: false,
+      });
+
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspaceWithMember}
+                    projectName="some-project"
+                    isExpanded={true}
+                    isFetchGranted={true}
+                    useMcpsQuery={querySpy}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    useAuthOnboardingHook={nonMemberUser}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
+
+      // Even though isExpanded and isFetchGranted are true, non-member skips the fetch
+      cy.get('@querySpy').should('have.been.calledWith', undefined);
     });
   });
 });
