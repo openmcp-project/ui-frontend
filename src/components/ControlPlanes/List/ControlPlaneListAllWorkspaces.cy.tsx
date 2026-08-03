@@ -37,7 +37,7 @@ const workspaces = [makeWorkspace('alpha'), makeWorkspace('beta'), makeWorkspace
 
 function mountAllWorkspaces(
   ws: Workspace[],
-  expandedWorkspace: string | null = null,
+  expandedWorkspaces: Set<string> = new Set(),
   onToggleWorkspace: (name: string) => void = cy.stub(),
 ) {
   cy.mount(
@@ -49,7 +49,7 @@ function mountAllWorkspaces(
               <ControlPlaneListAllWorkspaces
                 projectName="test"
                 workspaces={ws}
-                expandedWorkspace={expandedWorkspace}
+                expandedWorkspaces={expandedWorkspaces}
                 useMcpsQuery={fakeUseMcpsQuery}
                 useDeleteWorkspace={fakeUseDeleteWorkspace}
                 onToggleWorkspace={onToggleWorkspace}
@@ -67,6 +67,7 @@ function panel(name: string) {
 }
 
 function togglePanel(name: string) {
+  // Click the toggle button inside the custom workspace section
   panel(name).find('button').first().click();
 }
 
@@ -75,27 +76,27 @@ function isExpanded(name: string) {
 }
 
 describe('ControlPlaneListAllWorkspaces — expansion via props', () => {
-  it('all workspaces start collapsed when expandedWorkspace is null', () => {
-    mountAllWorkspaces(workspaces, null);
+  it('all workspaces start collapsed when expandedWorkspaces is empty', () => {
+    mountAllWorkspaces(workspaces, new Set());
 
     isExpanded('alpha').should('eq', 'false');
     isExpanded('beta').should('eq', 'false');
     isExpanded('gamma').should('eq', 'false');
   });
 
-  it('expands only the specified workspace', () => {
-    mountAllWorkspaces(workspaces, 'alpha');
+  it('expands workspaces that are in expandedWorkspaces', () => {
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'gamma']));
 
     isExpanded('alpha').should('eq', 'true');
     isExpanded('beta').should('eq', 'false');
-    isExpanded('gamma').should('eq', 'false');
+    isExpanded('gamma').should('eq', 'true');
   });
 
-  it('expands a different workspace when specified', () => {
-    mountAllWorkspaces(workspaces, 'gamma');
+  it('expands all when all names are in expandedWorkspaces', () => {
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'beta', 'gamma']));
 
-    isExpanded('alpha').should('eq', 'false');
-    isExpanded('beta').should('eq', 'false');
+    isExpanded('alpha').should('eq', 'true');
+    isExpanded('beta').should('eq', 'true');
     isExpanded('gamma').should('eq', 'true');
   });
 });
@@ -103,7 +104,7 @@ describe('ControlPlaneListAllWorkspaces — expansion via props', () => {
 describe('ControlPlaneListAllWorkspaces — toggle callback', () => {
   it('calls onToggleWorkspace with workspace name when panel is toggled', () => {
     const onToggle = cy.stub().as('onToggle');
-    mountAllWorkspaces(workspaces, null, onToggle);
+    mountAllWorkspaces(workspaces, new Set(), onToggle);
 
     togglePanel('beta');
 
@@ -112,7 +113,7 @@ describe('ControlPlaneListAllWorkspaces — toggle callback', () => {
 
   it('calls onToggleWorkspace for each toggle independently', () => {
     const onToggle = cy.stub().as('onToggle');
-    mountAllWorkspaces(workspaces, 'alpha', onToggle);
+    mountAllWorkspaces(workspaces, new Set(['alpha', 'beta']), onToggle);
 
     togglePanel('alpha');
     togglePanel('gamma');
@@ -125,7 +126,7 @@ describe('ControlPlaneListAllWorkspaces — toggle callback', () => {
 
 describe('ControlPlaneListAllWorkspaces — empty state', () => {
   it('renders empty state when there are no workspaces', () => {
-    mountAllWorkspaces([], null);
+    mountAllWorkspaces([], new Set());
 
     cy.get('[data-testid^="workspace-panel-"]').should('not.exist');
     cy.get('ui5-illustrated-message').should('exist');

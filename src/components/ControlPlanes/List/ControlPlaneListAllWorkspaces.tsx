@@ -15,7 +15,7 @@ interface Props {
   projectName: string;
   workspaces: Workspace[];
   search?: string;
-  expandedWorkspace: string | null;
+  expandedWorkspaces: Set<string>;
   onToggleWorkspace: (workspaceName: string) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
@@ -25,7 +25,7 @@ export default function ControlPlaneListAllWorkspaces({
   projectName,
   workspaces,
   search = '',
-  expandedWorkspace,
+  expandedWorkspaces,
   onToggleWorkspace,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
@@ -54,8 +54,6 @@ export default function ControlPlaneListAllWorkspaces({
   }
 
   // Queue: fetch one collapsed workspace at a time, in order.
-  // grantedIndex tracks which collapsed workspace has the fetch slot.
-  // When it completes (onFetchComplete) we advance to the next.
   const [grantedIndex, setGrantedIndex] = useState(0);
   const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
 
@@ -70,7 +68,6 @@ export default function ControlPlaneListAllWorkspaces({
       next.add(workspaceName);
       return next;
     });
-    // Also advance the queue — a forbidden workspace counts as complete.
     setGrantedIndex((prev) => prev + 1);
   }, []);
 
@@ -113,7 +110,7 @@ export default function ControlPlaneListAllWorkspaces({
         </FlexBox>
       )}
       {sortedWorkspaces.map((workspace) => {
-        const isExpanded = workspace.metadata.name === expandedWorkspace;
+        const isExpanded = expandedWorkspaces.has(workspace.metadata.name);
         let isFetchGranted = false;
         if (!isExpanded) {
           isFetchGranted = collapsedSeen === grantedIndex;
