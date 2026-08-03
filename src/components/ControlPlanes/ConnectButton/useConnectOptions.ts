@@ -33,51 +33,55 @@ export interface ConnectOption {
   url: string;
 }
 
+export function buildConnectOptions(
+  kubeconfigYaml: string | undefined,
+  projectName: string,
+  workspaceName: string,
+  controlPlaneName: string,
+): ConnectOption[] {
+  if (!kubeconfigYaml) return [];
+  try {
+    const parsedYaml = load(kubeconfigYaml);
+    const result = KubeConfigSchema.safeParse(parsedYaml);
+    if (!result.success) {
+      console.error('Invalid Kubeconfig structure:', result.error);
+      return [];
+    }
+    const { contexts } = result.data;
+    const systemContext = contexts.find((ctx) => ctx.context.user === KUBE_CONTEXT_USER_SYSTEM_IDP);
+    const otherIdps = contexts.filter((ctx) => ctx.context.user !== KUBE_CONTEXT_USER_SYSTEM_IDP);
+    return [
+      ...(systemContext
+        ? [
+            {
+              name: systemContext.name,
+              user: systemContext.context.user,
+              url: buildMcpUrl(projectName, workspaceName, controlPlaneName),
+              isSystemIdP: true as const,
+            },
+          ]
+        : []),
+      ...otherIdps.map((ctx) => ({
+        name: ctx.name,
+        user: ctx.context.user,
+        url: buildMcpUrl(projectName, workspaceName, controlPlaneName, ctx.context.user),
+        isSystemIdP: false as const,
+      })),
+    ];
+  } catch (e) {
+    console.error('Failed to parse kubeconfig', e);
+    return [];
+  }
+}
+
 export function useConnectOptions(
   kubeconfigYaml: string | undefined,
   projectName: string,
   workspaceName: string,
   controlPlaneName: string,
 ): ConnectOption[] {
-  return useMemo(() => {
-    if (!kubeconfigYaml) {
-      return [];
-    }
-
-    try {
-      const parsedYaml = load(kubeconfigYaml);
-      const result = KubeConfigSchema.safeParse(parsedYaml);
-      if (!result.success) {
-        console.error('Invalid Kubeconfig structure:', result.error);
-        return [];
-      }
-
-      const { contexts } = result.data;
-
-      const systemContext = contexts.find((ctx) => ctx.context.user === KUBE_CONTEXT_USER_SYSTEM_IDP);
-      const otherIdps = contexts.filter((ctx) => ctx.context.user !== KUBE_CONTEXT_USER_SYSTEM_IDP);
-
-      return [
-        ...(systemContext
-          ? [
-              {
-                name: systemContext.name,
-                user: systemContext.context.user,
-                url: buildMcpUrl(projectName, workspaceName, controlPlaneName),
-                isSystemIdP: true,
-              },
-            ]
-          : []),
-        ...otherIdps.map((ctx) => ({
-          name: ctx.name,
-          user: ctx.context.user,
-          url: buildMcpUrl(projectName, workspaceName, controlPlaneName, ctx.context.user),
-          isSystemIdP: false,
-        })),
-      ];
-    } catch (e) {
-      console.error('Failed to parse kubeconfig', e);
-      return [];
-    }
-  }, [kubeconfigYaml, projectName, workspaceName, controlPlaneName]);
+  return useMemo(
+    () => buildConnectOptions(kubeconfigYaml, projectName, workspaceName, controlPlaneName),
+    [kubeconfigYaml, projectName, workspaceName, controlPlaneName],
+  );
 }
