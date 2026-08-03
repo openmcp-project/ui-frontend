@@ -257,18 +257,21 @@ export default function ControlPlanePageV2() {
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
 
-  const roleBindings = useMemo(
-    () =>
-      mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings
-        ?.filter((roleBinding) => roleBinding !== null)
-        .map((roleBinding) => ({
-          role: roleBinding.roleRefs?.find((roleRef) => roleRef !== null)?.name ?? '',
-          subjects: (roleBinding.subjects ?? [])
-            .filter((subject) => subject !== null)
-            .map((subject) => ({ kind: subject.kind ?? '', name: subject.name ?? '' })),
-        })),
-    [mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings],
-  );
+  const roleBindings = useMemo(() => {
+    const oidc = mcp?.spec?.iam?.oidc;
+    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
+    return allProviders.flatMap((provider) =>
+      (provider?.roleBindings ?? []).flatMap((binding) => {
+        if (!binding) return [];
+        const subjects = (binding.subjects ?? []).flatMap((subject) =>
+          subject?.kind && subject?.name ? [{ kind: subject.kind, name: subject.name }] : [],
+        );
+        return (binding.roleRefs ?? []).flatMap((roleRef) =>
+          roleRef?.name ? [{ role: roleRef.name, subjects }] : [],
+        );
+      }),
+    );
+  }, [mcp?.spec?.iam?.oidc]);
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
