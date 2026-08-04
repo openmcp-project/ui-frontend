@@ -21,13 +21,20 @@ const ConditionsSchema = z
   .default([])
   .transform((items) => (items ?? []).flatMap((item) => (item ? [item] : [])));
 
-const AccessSchema = z.object({
-  key: z.string().optional(),
-  name: z.string().optional(),
-  namespace: z.string().optional(),
-  kubeconfig: z.string().optional(),
-  oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
-});
+const AccessEntrySchema = z.object({ name: z.string().optional() });
+
+// `.catchall` captures dynamic `oidc_<providerName>` keys (V2). `.catch(undefined)` on the
+// catchall value tolerates non-object siblings (e.g. GraphQL `__typename`) instead of failing
+// the whole parse — otherwise every control plane carrying such a key would be dropped.
+const AccessSchema = z
+  .object({
+    key: z.string().optional(),
+    name: z.string().optional(),
+    namespace: z.string().optional(),
+    kubeconfig: z.string().optional(),
+    oidc_openmcp: AccessEntrySchema.optional(),
+  })
+  .catchall(AccessEntrySchema.optional().catch(undefined));
 
 const StatusSchema = z.object({
   status: z.string(),
@@ -119,8 +126,9 @@ const AccessV2Schema = z.preprocess(
       name: z.string().optional(),
       namespace: z.string().optional(),
       kubeconfig: z.string().optional(),
-      oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
+      oidc_openmcp: AccessEntrySchema.optional(),
     })
+    .catchall(AccessEntrySchema.optional().catch(undefined))
     .optional(),
 );
 
