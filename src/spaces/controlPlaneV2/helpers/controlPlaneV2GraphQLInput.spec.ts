@@ -22,7 +22,7 @@ describe('buildMcpV2GraphQLInput', () => {
     expect(result.metadata).toEqual({ name: 'my-mcp', namespace: 'project-x--ws-y' });
   });
 
-  it('builds defaultProvider roleBindings with subjects sent unprefixed and trimmed', () => {
+  it('builds defaultProvider roleBindings with subject names trimmed and no apiGroup set', () => {
     const result = buildMcpV2GraphQLInput({
       ...baseInput,
       roleBindings: [
@@ -35,7 +35,7 @@ describe('buildMcpV2GraphQLInput', () => {
     expect(result.spec?.iam?.oidc?.defaultProvider?.roleBindings).toEqual([
       {
         roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-        subjects: [{ kind: 'User', name: 'alice', apiGroup: 'rbac.authorization.k8s.io' }],
+        subjects: [{ kind: 'User', name: 'alice' }],
       },
     ]);
   });
@@ -77,7 +77,7 @@ describe('buildMcpV2GraphQLInput', () => {
         roleBindings: [
           {
             roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-            subjects: [{ kind: 'User', name: 'bob', apiGroup: 'rbac.authorization.k8s.io' }],
+            subjects: [{ kind: 'User', name: 'bob' }],
           },
         ],
       },

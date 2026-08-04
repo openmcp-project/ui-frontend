@@ -2,10 +2,6 @@ import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/ap
 import { ManagedControlPlaneV2 } from '../../onboarding/types/ControlPlane.ts';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
-import {
-  resolveExtraProviderGroupsPrefix,
-  resolveExtraProviderUsernamePrefix,
-} from '../../../utils/extraProviderPrefix.ts';
 import { ExtraProviderMetadata } from '../../mcp/schemas/mcpV2Input.schema.ts';
 
 export interface McpV2FormState {
@@ -25,15 +21,6 @@ function normalizeMcpV2Role(roleInput?: string | null): string {
 function normalizeMemberKind(kindInput?: string | null): 'User' | 'Group' {
   const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
   return normalizedKind === 'group' ? 'Group' : 'User';
-}
-
-// Strips a resolved prefix (already including its own separator, e.g. "custom:") from a raw
-// subject name. An explicitly disabled prefix ('') means the backend never added one, so the raw
-// name must be returned unchanged rather than falling through to stripIdpPrefix's
-// strip-up-to-first-colon heuristic (which exists for the "prefix unknown" case, not this one).
-function stripByResolvedPrefix(rawName: string, resolvedPrefix: string): string {
-  if (resolvedPrefix === '') return rawName;
-  return stripIdpPrefix(rawName, resolvedPrefix, false);
 }
 
 export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2FormState {
@@ -77,14 +64,9 @@ export function extractMcpV2FormState(initialData: ManagedControlPlaneV2): McpV2
         const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
         return (rb?.subjects ?? []).filter(Boolean).map((s) => {
           const kind = normalizeMemberKind(s?.kind);
-          const rawName = s?.name ?? '';
-          const resolvedPrefix =
-            kind === 'Group'
-              ? resolveExtraProviderGroupsPrefix({ name: providerName, groupsPrefix: p!.groupsPrefix })
-              : resolveExtraProviderUsernamePrefix({ name: providerName, usernamePrefix: p!.usernamePrefix });
           return {
             kind,
-            name: stripByResolvedPrefix(rawName, resolvedPrefix),
+            name: s?.name ?? '',
             roles: [roleName],
             provider: providerName,
           };

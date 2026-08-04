@@ -7,7 +7,6 @@ function toRoleBindingsInput(roleBindings: McpV2Input['roleBindings']) {
     subjects: rb.subjects.map((s) => ({
       kind: s.kind,
       name: s.name.trim(),
-      apiGroup: 'rbac.authorization.k8s.io',
     })),
   }));
 }

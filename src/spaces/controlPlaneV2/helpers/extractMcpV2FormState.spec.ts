@@ -48,7 +48,7 @@ describe('extractMcpV2FormState', () => {
     expect(state.isDefaultProviderEnabled).toBe(false);
   });
 
-  it('extracts an extra provider using its CRD-default username prefix ("<name>:")', () => {
+  it('extracts an extra provider, reading subject names verbatim (the CRD adds the prefix automatically, not stored in spec)', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({
         iam: {
@@ -63,7 +63,7 @@ describe('extractMcpV2FormState', () => {
                 roleBindings: [
                   {
                     roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                    subjects: [{ kind: 'User', name: 'custom:bob' }],
+                    subjects: [{ kind: 'User', name: 'bob' }],
                   },
                 ],
               },
@@ -87,7 +87,7 @@ describe('extractMcpV2FormState', () => {
     expect(state.members).toEqual([{ kind: 'User', name: 'bob', roles: ['cluster-admin'], provider: 'custom' }]);
   });
 
-  it('strips using an explicit custom usernamePrefix when set', () => {
+  it('reads subject names verbatim regardless of the provider usernamePrefix/groupsPrefix setting', () => {
     const state = extractMcpV2FormState(
       makeControlPlane({
         iam: {
@@ -99,66 +99,14 @@ describe('extractMcpV2FormState', () => {
                 issuer: 'https://example.com',
                 clientID: 'client-id-1',
                 usernamePrefix: 'other-',
-                roleBindings: [
-                  {
-                    roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                    subjects: [{ kind: 'User', name: 'other-bob' }],
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      }),
-    );
-    expect(state.members).toEqual([{ kind: 'User', name: 'bob', roles: ['cluster-admin'], provider: 'custom' }]);
-  });
-
-  it('preserves the raw name unchanged when usernamePrefix is explicitly disabled ("")', () => {
-    const state = extractMcpV2FormState(
-      makeControlPlane({
-        iam: {
-          oidc: {
-            defaultProvider: null,
-            extraProviders: [
-              {
-                name: 'custom',
-                issuer: 'https://example.com',
-                clientID: 'client-id-1',
-                usernamePrefix: '',
-                roleBindings: [
-                  {
-                    roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                    subjects: [{ kind: 'User', name: 'bob' }],
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      }),
-    );
-    expect(state.members).toEqual([{ kind: 'User', name: 'bob', roles: ['cluster-admin'], provider: 'custom' }]);
-    expect(state.extraProviders[0].usernamePrefix).toBe('');
-  });
-
-  it('strips Group-kind subjects using groupsPrefix, not usernamePrefix', () => {
-    const state = extractMcpV2FormState(
-      makeControlPlane({
-        iam: {
-          oidc: {
-            defaultProvider: null,
-            extraProviders: [
-              {
-                name: 'custom',
-                issuer: 'https://example.com',
-                clientID: 'client-id-1',
-                usernamePrefix: 'user-',
                 groupsPrefix: 'group-',
                 roleBindings: [
                   {
                     roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                    subjects: [{ kind: 'Group', name: 'group-admins' }],
+                    subjects: [
+                      { kind: 'User', name: 'bob' },
+                      { kind: 'Group', name: 'admins' },
+                    ],
                   },
                 ],
               },
@@ -167,7 +115,11 @@ describe('extractMcpV2FormState', () => {
         },
       }),
     );
-    expect(state.members).toEqual([{ kind: 'Group', name: 'admins', roles: ['cluster-admin'], provider: 'custom' }]);
+    expect(state.members).toEqual([
+      { kind: 'User', name: 'bob', roles: ['cluster-admin'], provider: 'custom' },
+      { kind: 'Group', name: 'admins', roles: ['cluster-admin'], provider: 'custom' },
+    ]);
+    expect(state.extraProviders[0].usernamePrefix).toBe('other-');
   });
 
   it('combines default-provider and extra-provider members into a single list', () => {
@@ -191,7 +143,7 @@ describe('extractMcpV2FormState', () => {
                 roleBindings: [
                   {
                     roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
-                    subjects: [{ kind: 'User', name: 'custom:bob' }],
+                    subjects: [{ kind: 'User', name: 'bob' }],
                   },
                 ],
               },

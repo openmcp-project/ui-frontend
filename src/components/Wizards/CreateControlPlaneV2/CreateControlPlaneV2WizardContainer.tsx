@@ -328,14 +328,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
     const extraProvidersInput = extraProviders.map((p) => ({
       ...p,
-      roleBindings: buildRoleBindingsForProviderMembers(
-        (members ?? []).filter((m) => m.provider === p.name),
-        {
-          name: p.name,
-          usernamePrefix: p.usernamePrefix,
-          groupsPrefix: p.groupsPrefix,
-        },
-      ),
+      roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
     }));
     return {
       name: finalName,

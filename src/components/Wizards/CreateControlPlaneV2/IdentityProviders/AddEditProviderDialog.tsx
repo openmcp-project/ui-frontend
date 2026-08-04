@@ -198,7 +198,7 @@ export const AddEditProviderDialog: FC<AddEditProviderDialogProps> = ({
   };
 
   const showRenameWarning = isEdit && memberCountForEditedProvider > 0 && name?.trim() !== providerToEdit?.name;
-  // Mirrors resolveExtraProviderUsernamePrefix/resolveExtraProviderGroupsPrefix's "unset" default.
+  // Mirrors the CRD's own "unset prefix" default of `<name>:`.
   const defaultPrefixPlaceholder = `${name?.trim() || 'provider-name'}:`;
 
   return (

@@ -165,6 +165,17 @@ describe('IdentityProvidersStep', () => {
     );
 
     cy.contains('alice@example.com').should('not.exist');
+    cy.contains("Its members are kept here for now, but won't be saved").should('exist');
+  });
+
+  it('shows a plain disabled hint (no confusing "kept members" text) when the default provider never had members', () => {
+    const providers: ExtraProviderMetadata[] = [
+      { name: 'custom', issuer: 'https://example.com', clientID: 'client-id-1' },
+    ];
+
+    cy.mount(<StatefulIdentityProvidersStep initialProviders={providers} initialDefaultProviderEnabled={false} />);
+
     cy.contains('The default identity provider is disabled').should('exist');
+    cy.contains('Its members are kept here for now').should('not.exist');
   });
 });

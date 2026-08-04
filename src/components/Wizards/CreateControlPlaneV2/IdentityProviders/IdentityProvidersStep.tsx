@@ -73,11 +73,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
     const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
     const extraProvidersInput = providers.map((provider) => ({
       ...provider,
-      roleBindings: buildRoleBindingsForProviderMembers(membersByProvider.get(provider.name) ?? [], {
-        name: provider.name,
-        usernamePrefix: provider.usernamePrefix,
-        groupsPrefix: provider.groupsPrefix,
-      }),
+      roleBindings: buildRoleBindingsForProviderMembers(membersByProvider.get(provider.name) ?? []),
     }));
     const { spec } = buildMcpV2GraphQLInput({
       name: '',
@@ -206,7 +202,13 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 onMemberChanged={handleDefaultMembersChange}
               />
             ) : (
-              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderDisabledHint')}</Text>
+              <Text className={styles.hiddenProviderHint}>
+                {t(
+                  defaultProviderMembers.length > 0
+                    ? 'IdentityProviders.defaultProviderDisabledWithMembersHint'
+                    : 'IdentityProviders.defaultProviderDisabledHint',
+                )}
+              </Text>
             )}
             {isDefaultCheckboxDisabled && (
               <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderLockedHint')}</Text>

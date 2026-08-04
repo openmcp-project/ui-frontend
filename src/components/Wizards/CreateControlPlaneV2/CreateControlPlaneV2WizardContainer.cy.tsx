@@ -354,7 +354,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
               roleBindings: [
                 {
                   roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin', namespace: null }],
-                  subjects: [{ kind: 'User', name: 'custom:bob@example.com', apiGroup: null, namespace: null }],
+                  subjects: [{ kind: 'User', name: 'bob@example.com', apiGroup: null, namespace: null }],
                 },
               ],
             },
@@ -416,8 +416,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.wrap(updatePayload!.extraProviders).should('have.length', 1);
       cy.wrap(updatePayload!.extraProviders[0].name).should('eq', 'custom');
       cy.wrap(updatePayload!.extraProviders[0].roleBindings).should('have.length', 1);
-      // unset usernamePrefix defaults to `${name}:` and must round-trip onto submit
-      cy.wrap(updatePayload!.extraProviders[0].roleBindings[0].subjects[0].name).should('eq', 'custom:bob@example.com');
+      // subject names round-trip unprefixed — the CRD adds the username prefix automatically
+      cy.wrap(updatePayload!.extraProviders[0].roleBindings[0].subjects[0].name).should('eq', 'bob@example.com');
     });
   });
 
