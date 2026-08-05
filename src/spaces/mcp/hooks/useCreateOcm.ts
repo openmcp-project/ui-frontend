@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 
 const CreateOcmMutation = gql`
-  mutation CreateOCM($namespace: String, $object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input!) {
+  mutation CreateOCM($namespace: String, $object: OcmServicesOpenControlPlaneIoV1alpha1OCM_Input!) {
     ocm_services_open_control_plane_io {
       v1alpha1 {
         createOCM(namespace: $namespace, object: $object) {

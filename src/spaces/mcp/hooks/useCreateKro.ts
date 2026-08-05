@@ -6,7 +6,7 @@ const CreateKroMutation = gql`
   mutation CreateKRO($namespace: String, $object: KroServicesOpenControlPlaneIoV1alpha1Kro_Input!) {
     kro_services_open_control_plane_io {
       v1alpha1 {
-        createKRO(namespace: $namespace, object: $object) {
+        createKro(namespace: $namespace, object: $object) {
           metadata {
             name
             namespace

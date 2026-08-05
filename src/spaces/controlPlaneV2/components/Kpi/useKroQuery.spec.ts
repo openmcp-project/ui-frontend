@@ -23,7 +23,7 @@ function makeQueryResult(raw: unknown) {
     data: {
       kro_services_open_control_plane_io: {
         v1alpha1: {
-          KRO: raw,
+          Kro: raw,
         },
       },
     },

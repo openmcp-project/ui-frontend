@@ -6,7 +6,7 @@ const DeleteKroMutation = gql`
   mutation DeleteKRO($name: String!, $namespace: String) {
     kro_services_open_control_plane_io {
       v1alpha1 {
-        deleteKRO(name: $name, namespace: $namespace)
+        deleteKro(name: $name, namespace: $namespace)
       }
     }
   }

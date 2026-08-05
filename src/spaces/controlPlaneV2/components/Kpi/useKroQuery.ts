@@ -9,7 +9,7 @@ const GET_KRO_QUERY = gql`
   query GetKRO($name: String!, $namespace: String) {
     kro_services_open_control_plane_io {
       v1alpha1 {
-        KRO(name: $name, namespace: $namespace) {
+        Kro(name: $name, namespace: $namespace) {
           metadata {
             name
             namespace
@@ -39,7 +39,7 @@ export function useKroQuery(name?: string, namespace?: string) {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawKro = (queryResult.data as any)?.kro_services_open_control_plane_io?.v1alpha1?.KRO;
+  const rawKro = (queryResult.data as any)?.kro_services_open_control_plane_io?.v1alpha1?.Kro;
 
   const kroData = useMemo<KroData | null>(() => {
     if (!rawKro) return null;
