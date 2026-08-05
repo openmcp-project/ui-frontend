@@ -38,7 +38,9 @@ type Documents = {
   '\n  mutation DeleteOCM($name: String!, $namespace: String) {\n    ocm_services_open_control_plane_io {\n      v1alpha1 {\n        deleteOCM(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.DeleteOcmDocument;
   '\n  query GetEsoYaml($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperatorYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetEsoYamlDocument;
   '\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetFluxYamlDocument;
+  '\n  query GetKroYaml($name: String!, $namespace: String) {\n    kro_services_open_control_plane_io {\n      v1alpha1 {\n        KroYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetKroYamlDocument;
   '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetLandscaperYamlDocument;
+  '\n  query GetOcmYaml($name: String!, $namespace: String) {\n    ocm_services_open_control_plane_io {\n      v1alpha1 {\n        OCMYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n': typeof types.GetOcmYamlDocument;
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateCrossplaneDocument;
   '\n  mutation UpdateExternalSecretsOperator(\n    $namespace: String\n    $name: String!\n    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateExternalSecretsOperatorDocument;
   '\n  mutation UpdateFlux($namespace: String, $name: String!, $object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input!) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        updateFlux(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateFluxDocument;
@@ -110,8 +112,12 @@ const documents: Documents = {
     types.GetEsoYamlDocument,
   '\n  query GetFluxYaml($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        FluxYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
     types.GetFluxYamlDocument,
+  '\n  query GetKroYaml($name: String!, $namespace: String) {\n    kro_services_open_control_plane_io {\n      v1alpha1 {\n        KroYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetKroYamlDocument,
   '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
     types.GetLandscaperYamlDocument,
+  '\n  query GetOcmYaml($name: String!, $namespace: String) {\n    ocm_services_open_control_plane_io {\n      v1alpha1 {\n        OCMYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n':
+    types.GetOcmYamlDocument,
   '\n  mutation UpdateCrossplane(\n    $namespace: String\n    $name: String!\n    $object: CrossplaneServicesOpenControlPlaneIoV1alpha1Crossplane_Input!\n  ) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        updateCrossplane(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
     types.UpdateCrossplaneDocument,
   '\n  mutation UpdateExternalSecretsOperator(\n    $namespace: String\n    $name: String!\n    $object: ExternalSecretsServicesOpenControlPlaneIoV1alpha1ExternalSecretsOperator_Input!\n  ) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        updateExternalSecretsOperator(namespace: $namespace, name: $name, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
@@ -318,8 +324,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query GetKroYaml($name: String!, $namespace: String) {\n    kro_services_open_control_plane_io {\n      v1alpha1 {\n        KroYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetKroYaml($name: String!, $namespace: String) {\n    kro_services_open_control_plane_io {\n      v1alpha1 {\n        KroYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  query GetLandscaperYaml($name: String!, $namespace: String) {\n    landscaper_services_open_control_plane_io {\n      v1alpha2 {\n        LandscaperYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetOcmYaml($name: String!, $namespace: String) {\n    ocm_services_open_control_plane_io {\n      v1alpha1 {\n        OCMYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetOcmYaml($name: String!, $namespace: String) {\n    ocm_services_open_control_plane_io {\n      v1alpha1 {\n        OCMYaml(name: $name, namespace: $namespace)\n      }\n    }\n  }\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

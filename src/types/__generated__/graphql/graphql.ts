@@ -1567,6 +1567,13 @@ export type GetFluxYamlQuery = {
   flux_services_open_control_plane_io: { v1alpha1: { FluxYaml: string } | null } | null;
 };
 
+export type GetKroYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetKroYamlQuery = { kro_services_open_control_plane_io: { v1alpha1: { KroYaml: string } | null } | null };
+
 export type GetLandscaperYamlQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1575,6 +1582,13 @@ export type GetLandscaperYamlQueryVariables = Exact<{
 export type GetLandscaperYamlQuery = {
   landscaper_services_open_control_plane_io: { v1alpha2: { LandscaperYaml: string } | null } | null;
 };
+
+export type GetOcmYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetOcmYamlQuery = { ocm_services_open_control_plane_io: { v1alpha1: { OCMYaml: string } | null } | null };
 
 export type UpdateCrossplaneMutationVariables = Exact<{
   namespace?: string | null | undefined;
@@ -3994,6 +4008,67 @@ export const GetFluxYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetFluxYamlQuery, GetFluxYamlQueryVariables>;
+export const GetKroYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetKroYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'kro_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'KroYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetKroYamlQuery, GetKroYamlQueryVariables>;
 export const GetLandscaperYamlDocument = {
   kind: 'Document',
   definitions: [
@@ -4055,6 +4130,67 @@ export const GetLandscaperYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperYamlQuery, GetLandscaperYamlQueryVariables>;
+export const GetOcmYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetOcmYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ocm_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'OCMYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetOcmYamlQuery, GetOcmYamlQueryVariables>;
 export const UpdateCrossplaneDocument = {
   kind: 'Document',
   definitions: [

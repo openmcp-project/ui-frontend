@@ -13,11 +13,18 @@ import { useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscap
 import { useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
 import { useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
 import { useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
+import { useCreateOcm } from '../../../spaces/mcp/hooks/useCreateOcm.ts';
+import { useDeleteOcm } from '../../../spaces/mcp/hooks/useDeleteOcm.ts';
+import { useCreateKro } from '../../../spaces/mcp/hooks/useCreateKro.ts';
+import { useUpdateKro } from '../../../spaces/mcp/hooks/useUpdateKro.ts';
+import { useDeleteKro } from '../../../spaces/mcp/hooks/useDeleteKro.ts';
 import {
   GetCrossplaneDocument,
   GetFluxDocument,
   GetLandscaperDocument,
   GetExternalSecretsOperatorDocument,
+  GetOcmDocument,
+  GetKroDocument,
 } from '../../../types/__generated__/graphql/graphql.ts';
 import { CreateControlPlaneV2WizardContainer } from './CreateControlPlaneV2WizardContainer.tsx';
 
@@ -174,6 +181,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       data: { external_secrets_services_open_control_plane_io: { v1alpha1: { ExternalSecretsOperator: null } } },
     },
   };
+  const notInstalledOcmMock: MockedResponse = {
+    request: { query: GetOcmDocument, variables: kpiVariables },
+    result: { data: { ocm_services_open_control_plane_io: { v1alpha1: { OCM: null } } } },
+  };
+  const notInstalledKroMock: MockedResponse = {
+    request: { query: GetKroDocument, variables: kpiVariables },
+    result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
+  };
 
   const installedCrossplaneMock = (version: string, providers: { name: string; version: string }[] = []) =>
     ({
@@ -230,12 +245,50 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       },
     }) satisfies MockedResponse;
 
+  const installedOcmMock = (version: string) =>
+    ({
+      request: { query: GetOcmDocument, variables: kpiVariables },
+      result: {
+        data: {
+          ocm_services_open_control_plane_io: {
+            v1alpha1: {
+              OCM: {
+                metadata: { name: existingMcp.metadata.name, namespace: existingMcp.metadata.namespace },
+                spec: { version },
+                status: { conditions: [] },
+              },
+            },
+          },
+        },
+      },
+    }) satisfies MockedResponse;
+
+  const installedKroMock = (version: string) =>
+    ({
+      request: { query: GetKroDocument, variables: kpiVariables },
+      result: {
+        data: {
+          kro_services_open_control_plane_io: {
+            v1alpha1: {
+              Kro: {
+                metadata: { name: existingMcp.metadata.name, namespace: existingMcp.metadata.namespace },
+                spec: { version },
+                status: { conditions: [] },
+              },
+            },
+          },
+        },
+      },
+    }) satisfies MockedResponse;
+
   it('pre-fills the name field from initialData in edit mode', () => {
     mountWizard({ isEditMode: true, initialData: existingMcp }, [
       notInstalledCrossplaneMock,
       notInstalledFluxMock,
       notInstalledLandscaperMock,
       notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
     ]);
 
     cy.get('#name').should('have.value', 'existing-mcp');
@@ -247,6 +300,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledFluxMock,
       notInstalledLandscaperMock,
       notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
     ]);
 
     // navigate to members step
@@ -262,6 +317,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledFluxMock,
       notInstalledLandscaperMock,
       notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click(); // metadata → members
@@ -285,6 +342,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       notInstalledFluxMock,
       notInstalledLandscaperMock,
       notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
     ]);
 
     cy.get('ui5-button').contains('Next').click();
@@ -306,7 +365,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     mountWizard(
       { isEditMode: true, initialData: existingMcp, useUpdateManagedControlPlaneV2GraphQL: fakeFailingUpdate },
-      [notInstalledCrossplaneMock, notInstalledFluxMock, notInstalledLandscaperMock, notInstalledEsoMock],
+      [
+        notInstalledCrossplaneMock,
+        notInstalledFluxMock,
+        notInstalledLandscaperMock,
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+      ],
     );
 
     cy.get('ui5-button').contains('Next').click();
@@ -326,16 +392,26 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     let updateLandscaperPayload: { namespace: string; name: string; object: unknown } | null = null;
     let updateCrossplanePayload: { namespace: string; name: string; object: unknown } | null = null;
     let createEsoPayload: { namespace: string; object: unknown } | null = null;
+    let deleteOcmPayload: { name: string; namespace: string } | null = null;
+    let createKroPayload: { namespace: string; object: unknown } | null = null;
+    let updateKroPayload: { namespace: string; name: string; object: unknown } | null = null;
     let createLandscaperCalled = false;
+    let createKroCalled = false;
     let deleteEsoCalled = false;
+    let deleteKroCalled = false;
 
     beforeEach(() => {
       deleteFluxPayload = null;
       updateLandscaperPayload = null;
       updateCrossplanePayload = null;
       createEsoPayload = null;
+      deleteOcmPayload = null;
+      createKroPayload = null;
+      updateKroPayload = null;
       createLandscaperCalled = false;
+      createKroCalled = false;
       deleteEsoCalled = false;
+      deleteKroCalled = false;
     });
 
     const fakeUseDeleteFlux: typeof useDeleteFlux = () => ({
@@ -392,6 +468,51 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       error: undefined,
     });
 
+    const fakeUseDeleteOcm: typeof useDeleteOcm = () => ({
+      deleteOcm: async (variables) => {
+        deleteOcmPayload = variables;
+        return { data: undefined };
+      },
+      loading: false,
+      error: undefined,
+    });
+
+    const fakeUseCreateKro: typeof useCreateKro = () => ({
+      create: async (variables) => {
+        createKroPayload = variables;
+        return { data: undefined };
+      },
+      loading: false,
+      error: undefined,
+    });
+
+    const fakeUseUpdateKro: typeof useUpdateKro = () => ({
+      update: async (variables) => {
+        updateKroPayload = variables;
+        return { data: undefined };
+      },
+      loading: false,
+      error: undefined,
+    });
+
+    const fakeUseCreateKroCalled: typeof useCreateKro = () => ({
+      create: async () => {
+        createKroCalled = true;
+        return { data: undefined };
+      },
+      loading: false,
+      error: undefined,
+    });
+
+    const fakeUseDeleteKro: typeof useDeleteKro = () => ({
+      deleteKro: async () => {
+        deleteKroCalled = true;
+        return { data: undefined };
+      },
+      loading: false,
+      error: undefined,
+    });
+
     it('deletes a previously installed service when deselected before submit', () => {
       mountWizard(
         {
@@ -406,7 +527,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
             error: undefined,
           })) as typeof useCreateFlux,
         },
-        [notInstalledCrossplaneMock, installedFluxMock('v2.18.2'), notInstalledLandscaperMock, notInstalledEsoMock],
+        [
+          notInstalledCrossplaneMock,
+          installedFluxMock('v2.18.2'),
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+        ],
       );
 
       cy.get('ui5-button').contains('Next').click(); // metadata → members
@@ -435,7 +563,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           useUpdateLandscaper: fakeUseUpdateLandscaper,
           useCreateLandscaper: fakeUseCreateLandscaper,
         },
-        [notInstalledCrossplaneMock, notInstalledFluxMock, installedLandscaperMock('v1.0.5'), notInstalledEsoMock],
+        [
+          notInstalledCrossplaneMock,
+          notInstalledFluxMock,
+          installedLandscaperMock('v1.0.5'),
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+        ],
       );
 
       cy.get('ui5-button').contains('Next').click();
@@ -469,6 +604,8 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           notInstalledFluxMock,
           notInstalledLandscaperMock,
           notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
         ],
       );
 
@@ -499,7 +636,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
           useCreateEso: fakeUseCreateEso,
           useDeleteEso: fakeUseDeleteEso,
         },
-        [notInstalledCrossplaneMock, notInstalledFluxMock, notInstalledLandscaperMock, notInstalledEsoMock],
+        [
+          notInstalledCrossplaneMock,
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+        ],
       );
 
       cy.get('ui5-button').contains('Next').click();
@@ -514,6 +658,115 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.then(() => {
         cy.wrap(deleteEsoCalled).should('equal', false);
         cy.wrap(createEsoPayload).should('not.be.null');
+      });
+    });
+
+    it('deletes a previously installed OCM service when deselected before submit', () => {
+      mountWizard(
+        {
+          isEditMode: true,
+          initialData: existingMcp,
+          useDeleteOcm: fakeUseDeleteOcm,
+          useCreateOcm: (() => ({
+            create: async () => {
+              throw new Error('createOcm should not be called for a deselected, previously installed service');
+            },
+            loading: false,
+            error: undefined,
+          })) as typeof useCreateOcm,
+        },
+        [
+          notInstalledCrossplaneMock,
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          installedOcmMock('v0.3.0'),
+          notInstalledKroMock,
+        ],
+      );
+
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+      // OCM comes back pre-selected because it was reported as installed.
+      cy.get('[data-testid="service-ocm-checkbox"]').should('have.attr', 'checked');
+      cy.get('[data-testid="service-ocm-checkbox"]').toggleUi5Checkbox();
+
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+      cy.get('ui5-button').contains('Update').click();
+
+      cy.then(() => {
+        cy.wrap(deleteOcmPayload).should('deep.equal', {
+          name: existingMcp.metadata.name,
+          namespace: existingMcp.metadata.namespace,
+        });
+      });
+    });
+
+    it('creates a not-previously-installed KRO service that gets newly selected', () => {
+      mountWizard(
+        {
+          isEditMode: true,
+          initialData: existingMcp,
+          useCreateKro: fakeUseCreateKro,
+          useDeleteKro: fakeUseDeleteKro,
+        },
+        [
+          notInstalledCrossplaneMock,
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+        ],
+      );
+
+      cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Next').click();
+
+      cy.get('[data-testid="service-kro-checkbox"]').should('not.have.attr', 'checked');
+      cy.get('[data-testid="service-kro-checkbox"]').toggleUi5Checkbox();
+
+      cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Update').click();
+
+      cy.then(() => {
+        cy.wrap(deleteKroCalled).should('equal', false);
+        cy.wrap(createKroPayload).should('not.be.null');
+      });
+    });
+
+    it('updates (not creates) a previously installed KRO service that stays selected', () => {
+      mountWizard(
+        {
+          isEditMode: true,
+          initialData: existingMcp,
+          useUpdateKro: fakeUseUpdateKro,
+          useCreateKro: fakeUseCreateKroCalled,
+        },
+        [
+          notInstalledCrossplaneMock,
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          installedKroMock('v0.3.0'),
+        ],
+      );
+
+      cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Next').click();
+
+      // KRO comes back pre-selected because it was reported as installed.
+      cy.get('[data-testid="service-kro-checkbox"]').should('have.attr', 'checked');
+
+      cy.get('ui5-button').contains('Next').click();
+      cy.get('ui5-button').contains('Update').click();
+
+      cy.then(() => {
+        cy.wrap(createKroCalled).should('equal', false);
+        cy.wrap(updateKroPayload).should('not.be.null');
+        cy.wrap((updateKroPayload!.object as { spec: { version: string } }).spec.version).should('eq', 'v0.3.0');
       });
     });
   });

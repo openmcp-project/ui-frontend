@@ -1,4 +1,3 @@
-import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
 import { ComponentCardV2 } from '../ComponentCard/ComponentCardV2.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
@@ -24,7 +23,9 @@ import { useDeleteOcm } from '../../hooks/useDeleteOcm.ts';
 import { useDeleteKro } from '../../hooks/useDeleteKro.ts';
 import { useEsoYamlQuery } from '../../hooks/useEsoYamlQuery.ts';
 import { useFluxYamlQuery } from '../../hooks/useFluxYamlQuery.ts';
+import { useKroYamlQuery } from '../../hooks/useKroYamlQuery.ts';
 import { useLandscaperYamlQuery } from '../../hooks/useLandscaperYamlQuery.ts';
+import { useOcmYamlQuery } from '../../hooks/useOcmYamlQuery.ts';
 import { useUpdateEso } from '../../hooks/useUpdateEso.ts';
 import { useUpdateFlux } from '../../hooks/useUpdateFlux.ts';
 import { useUpdateLandscaper } from '../../hooks/useUpdateLandscaper.ts';
@@ -174,6 +175,12 @@ export function ComponentsDashboardV2({
   const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace, !isEsoInstalled);
   const { resource: esoResource, status: esoStatus } = useComponentCardStatus(isEsoInstalled, esoYaml);
 
+  const ocmYaml = useOcmYamlQuery(mcpName, mcpNamespace, !isOcmInstalled);
+  const { resource: ocmResource, status: ocmStatus } = useComponentCardStatus(isOcmInstalled, ocmYaml);
+
+  const kroYaml = useKroYamlQuery(mcpName, mcpNamespace, !isKroInstalled);
+  const { resource: kroResource, status: kroStatus } = useComponentCardStatus(isKroInstalled, kroYaml);
+
   const handleDeleteConfirmed = useCallback(async () => {
     if (!deleteTarget) return;
     const componentName = DELETE_TARGET_COMPONENT_NAME[deleteTarget];
@@ -192,8 +199,10 @@ export function ComponentsDashboardV2({
         scheduleRefetch(esoYaml.refetch);
       } else if (deleteTarget === 'ocm') {
         await deleteOcm({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(ocmYaml.refetch);
       } else if (deleteTarget === 'kro') {
         await deleteKro({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(kroYaml.refetch);
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
       telemetry.track({ name: 'component.uninstalled', componentName });
@@ -214,6 +223,8 @@ export function ComponentsDashboardV2({
     fluxYaml.refetch,
     landscaperYaml.refetch,
     esoYaml.refetch,
+    ocmYaml.refetch,
+    kroYaml.refetch,
     mcpName,
     mcpNamespace,
     toast,
@@ -374,13 +385,24 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isEsoInstalled ? () => setDeleteTarget('eso') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
+          data-cy="component-card-ocm"
           name="OCM"
           description={t('componentCardOcm.description')}
           logoImgSrc={LogoOcm}
-          isInstalled={isOcmInstalled}
+          status={ocmStatus}
           version={ocmVersion}
-          kpiType="enabled"
+          yamlViewButton={
+            isOcmInstalled && ocmResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="ocm"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={ocmResource}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={
             !isOcmInstalled
@@ -400,13 +422,24 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isOcmInstalled ? () => setDeleteTarget('ocm') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
+          data-cy="component-card-kro"
           name="KRO"
           description={t('componentCardKro.description')}
           logoImgSrc={LogoKro}
-          isInstalled={isKroInstalled}
+          status={kroStatus}
           version={kroVersion}
-          kpiType="enabled"
+          yamlViewButton={
+            isKroInstalled && kroResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="kro"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={kroResource}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={
             !isKroInstalled
@@ -494,6 +527,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateOcm}
         useUpdateMutation={useUpdateOcm}
         onClose={() => setIsOcmDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(ocmYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isKroDialogOpen}
@@ -506,6 +542,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateKro}
         useUpdateMutation={useUpdateKro}
         onClose={() => setIsKroDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(kroYaml.refetch);
+        }}
       />
       {deleteTarget && (
         <DeleteConfirmationDialog
