@@ -1,8 +1,8 @@
-import '@ui5/webcomponents-icons/dist/add';
-import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/copy';
-import { Button, CheckBox, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/delete.js';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import '@ui5/webcomponents-icons/dist/copy.js';
+import { Button, CheckBox, Dialog, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
@@ -52,6 +52,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
   const [providerToEdit, setProviderToEdit] = useState<ExtraProviderMetadata | undefined>(undefined);
   const [providerToDelete, setProviderToDelete] = useState<ExtraProviderMetadata | undefined>(undefined);
+  const [showDisableDefaultConfirm, setShowDisableDefaultConfirm] = useState(false);
 
   const membersByProvider = useMemo(() => {
     const grouped = new Map<string, Member[]>();
@@ -63,7 +64,6 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   }, [members]);
 
   const defaultProviderMembers = useMemo(() => membersByProvider.get('') ?? [], [membersByProvider]);
-  const isDefaultCheckboxDisabled = providers.length === 0;
   const hasNoAssignedMembers = useMemo(
     () => !hasAssignedIamMember(members, providers, isDefaultProviderEnabled),
     [members, providers, isDefaultProviderEnabled],
@@ -178,13 +178,21 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
         <FlexBox direction="Column" gap={16} className={styles.providerGroupsColumn}>
           <ProviderGroup
             headerText={t('IdentityProviders.defaultProviderGroupTitle')}
+            collapsed={!isDefaultProviderEnabled}
+            dimmed={!isDefaultProviderEnabled}
             headerActions={
               <CheckBox
                 checked={isDefaultProviderEnabled}
-                disabled={isDefaultCheckboxDisabled}
                 text={t('IdentityProviders.enableDefaultProviderCheckbox')}
                 data-testid="default-provider-enabled-checkbox"
-                onChange={(e) => onDefaultProviderEnabledChange(e.target.checked)}
+                onChange={(e) => {
+                  const enabling = e.target.checked;
+                  if (!enabling && defaultProviderMembers.length > 0) {
+                    setShowDisableDefaultConfirm(true);
+                  } else {
+                    onDefaultProviderEnabledChange(enabling);
+                  }
+                }}
               />
             }
           >
@@ -202,16 +210,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 onMemberChanged={handleDefaultMembersChange}
               />
             ) : (
-              <Text className={styles.hiddenProviderHint}>
-                {t(
-                  defaultProviderMembers.length > 0
-                    ? 'IdentityProviders.defaultProviderDisabledWithMembersHint'
-                    : 'IdentityProviders.defaultProviderDisabledHint',
-                )}
-              </Text>
-            )}
-            {isDefaultCheckboxDisabled && (
-              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderLockedHint')}</Text>
+              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderDisabledHint')}</Text>
             )}
           </ProviderGroup>
 
@@ -219,6 +218,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
             <ProviderGroup
               key={provider.name}
               headerText={provider.name}
+              accentName={provider.name}
               headerActions={
                 <>
                   <Button
@@ -271,7 +271,6 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
 
         <FlexBox direction="Column" gap={16} className={styles.yaml}>
           <FlexBox direction="Row" justifyContent="SpaceBetween" alignItems="Center">
-            <Text className={styles.yamlPreviewTitle}>{t('IdentityProviders.yamlPreviewTitle')}</Text>
             <Button icon="copy" design="Transparent" onClick={() => copyToClipboard(oidcYaml)}>
               {t('buttons.copy')}
             </Button>
@@ -296,6 +295,29 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
         onCancel={handleCancelDelete}
         onConfirm={handleConfirmDelete}
       />
+      <Dialog
+        open={showDisableDefaultConfirm}
+        headerText={t('IdentityProviders.disableDefaultConfirmTitle')}
+        footer={
+          <FlexBox justifyContent="End" gap={8} style={{ padding: '0.5rem' }}>
+            <Button design="Transparent" onClick={() => setShowDisableDefaultConfirm(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              design="Emphasized"
+              onClick={() => {
+                onMembersChange(members.filter((m) => !!m.provider));
+                onDefaultProviderEnabledChange(false);
+                setShowDisableDefaultConfirm(false);
+              }}
+            >
+              {t('IdentityProviders.disableDefaultConfirmButton')}
+            </Button>
+          </FlexBox>
+        }
+      >
+        <Text style={{ padding: '1rem' }}>{t('IdentityProviders.disableDefaultConfirmMessage')}</Text>
+      </Dialog>
     </>
   );
 };
