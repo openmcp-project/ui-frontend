@@ -79,6 +79,18 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
+const ExtraOidcProviderSchema = z.object({
+  name: z.string().nullish(),
+  issuer: z.string().nullish(),
+  clientID: z.string().nullish(),
+  usernameClaim: z.string().nullish(),
+  usernamePrefix: z.string().nullish(),
+  groupsClaim: z.string().nullish(),
+  groupsPrefix: z.string().nullish(),
+  extraScopes: z.array(z.string().nullable()).nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
 const ControlPlaneV2Schema = z.object({
   version: z.literal('v2'),
   metadata: MetadataSchema,
@@ -144,7 +156,7 @@ const SpecV2Schema = z.object({
       oidc: z
         .object({
           defaultProvider: OidcProviderSchema.nullish(),
-          extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+          extraProviders: z.array(ExtraOidcProviderSchema.nullable()).nullish(),
         })
         .nullish(),
       tokens: z
@@ -199,3 +211,4 @@ export type ManagedControlPlaneV2 = z.infer<typeof ManagedControlPlaneV2Schema>;
 export type ManagedControlPlaneV2Status = z.infer<typeof StatusV2Schema>;
 export type ManagedControlPlaneV2Condition = z.infer<typeof ConditionSchema>;
 export type IamRoleBinding = z.infer<typeof IamRoleBindingSchema>;
+export type ExtraOidcProvider = z.infer<typeof ExtraOidcProviderSchema>;

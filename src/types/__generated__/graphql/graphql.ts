@@ -1699,6 +1699,14 @@ export type GetMcPv2Query = {
                 } | null> | null;
               } | null;
               extraProviders: Array<{
+                name: string | null;
+                issuer: string | null;
+                clientID: string | null;
+                usernameClaim: string | null;
+                usernamePrefix: string | null;
+                groupsClaim: string | null;
+                groupsPrefix: string | null;
+                extraScopes: Array<string | null> | null;
                 roleBindings: Array<{
                   roleRefs: Array<{ kind: string | null; name: string | null; namespace: string | null } | null> | null;
                   subjects: Array<{
@@ -4906,6 +4914,14 @@ export const GetMcPv2Document = {
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'issuer' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'clientID' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernameClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'usernamePrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsClaim' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'groupsPrefix' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'extraScopes' } },
                                                     {
                                                       kind: 'Field',
                                                       name: { kind: 'Name', value: 'roleBindings' },
