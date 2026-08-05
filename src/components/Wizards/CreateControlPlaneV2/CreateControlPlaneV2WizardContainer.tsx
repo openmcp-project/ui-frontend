@@ -11,8 +11,6 @@ import {
   Button,
   Dialog,
   FlexBox,
-  Form,
-  FormGroup,
   Text,
   Ui5CustomEvent,
   Wizard,
@@ -23,7 +21,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { MCP_V2_DEFAULT_ROLE, MCP_V2_VIEWER_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
+import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { useAuthOnboarding as _useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { idpPrefix } from '../../../utils/idpPrefix.ts';
@@ -37,32 +35,38 @@ import { buildNameWithPrefixesAndSuffixes } from '../../../utils/buildNameWithPr
 import { stripIdpPrefix } from '../../../utils/stripIdpPrefix.ts';
 import { IllustratedBanner } from '../../Ui/IllustratedBanner/IllustratedBanner.tsx';
 
-import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
-import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useCrossplaneQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useCrossplaneQuery.ts';
+import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
-import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEsoQuery.ts';
+import {
+  buildRoleBindingsForProviderMembers,
+  normalizeMcpV2Role,
+} from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
+import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
+import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
+import { useUpdateControlPlaneV2GraphQL as _useUpdateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useUpdateControlPlaneV2GraphQL.ts';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../../spaces/mcp/hooks/useCreateCrossplane.ts';
+import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
 import { useCreateFlux as _useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
 import { useCreateLandscaper as _useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
-import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCreateEso.ts';
-import { useUpdateCrossplane as _useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
-import { useUpdateFlux as _useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
-import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
-import { useUpdateEso as _useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
 import { useDeleteCrossplane as _useDeleteCrossplane } from '../../../spaces/mcp/hooks/useDeleteCrossplane.ts';
+import { useDeleteEso as _useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
 import { useDeleteFlux as _useDeleteFlux } from '../../../spaces/mcp/hooks/useDeleteFlux.ts';
 import { useDeleteLandscaper as _useDeleteLandscaper } from '../../../spaces/mcp/hooks/useDeleteLandscaper.ts';
-import { useDeleteEso as _useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
-import { EditMembers } from '../../Members/EditMembers.tsx';
+import { useUpdateCrossplane as _useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
+import { useUpdateEso as _useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
+import { useUpdateFlux as _useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
+import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
+import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
-import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
-import { ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
-import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -94,14 +98,6 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
 
 const wizardStepOrder: WizardStepType[] = ['metadata', 'members', 'componentSelection', 'summarize', 'success'];
-
-const normalizeMcpV2Role = (roleInput?: string | null): string => {
-  const normalizedRole = (roleInput ?? '').toString().trim().toLowerCase();
-  if (normalizedRole === MCP_V2_VIEWER_ROLE || normalizedRole === 'view') {
-    return MCP_V2_VIEWER_ROLE;
-  }
-  return MCP_V2_DEFAULT_ROLE;
-};
 
 export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
   isOpen,
@@ -135,6 +131,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
+  const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
+  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(true);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -242,6 +240,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useEffect(() => {
     if (!isEditMode && user?.email && isOpen) {
       setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setExtraProviders([]);
+      setIsDefaultProviderEnabled(true);
     }
     if (!isOpen) {
       clearFormFields();
@@ -315,35 +316,36 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
-  const rawInput = useMemo(() => {
+
+  const hasNoAssignedMembers = useMemo(
+    () => !hasAssignedIamMember(members ?? [], extraProviders, isDefaultProviderEnabled),
+    [members, extraProviders, isDefaultProviderEnabled],
+  );
+
+  const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
-    const normalizeKind = (kind: string): 'User' | 'Group' => {
-      const lower = kind.trim().toLowerCase();
-      if (lower === 'group') return 'Group';
-      return 'User';
-    };
-    const roleMap = new Map<string, { kind: 'User' | 'Group'; name: string }[]>();
-    (members ?? [])
-      .filter((m) => !!m.name)
-      .forEach((m) => {
-        const kind = normalizeKind(m.kind);
-        const roleName = normalizeMcpV2Role(m.roles?.[0]);
-        if (!roleMap.has(roleName)) roleMap.set(roleName, []);
-        roleMap.get(roleName)!.push({
-          kind,
-          name: m.name,
-        });
-      });
-    const roleBindings = Array.from(roleMap.entries()).map(([roleName, subjects]) => ({
-      roleRefs: [{ kind: 'ClusterRole' as const, name: roleName }],
-      subjects,
+    const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
+    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const extraProvidersInput = extraProviders.map((p) => ({
+      ...p,
+      roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
     }));
     return {
       name: finalName,
       namespace: `${projectName}--ws-${workspaceName}`,
       roleBindings,
+      extraProviders: extraProvidersInput,
     };
-  }, [name, displayName, templateAffixes, projectName, workspaceName, members]);
+  }, [
+    name,
+    displayName,
+    templateAffixes,
+    projectName,
+    workspaceName,
+    members,
+    extraProviders,
+    isDefaultProviderEnabled,
+  ]);
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -355,6 +357,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           name: cpName,
           namespace: cpNamespace,
           roleBindings: rawInput.roleBindings,
+          extraProviders: rawInput.extraProviders,
         });
       } else {
         await createMcp(rawInput);
@@ -538,6 +541,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     // state — otherwise a late-arriving prefill can silently re-select a service the user meant
     // to leave unchecked, and it never gets deleted.
     if (isEditMode && isKpiLoading) return;
+    // Mirrors the Next button's disabled state: no RBAC subject may end up assigned nowhere.
+    if (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers) return;
     switch (selectedStep) {
       case 'metadata':
         handleSubmit(() => setSelectedStep('members'))();
@@ -564,6 +569,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isEditMode,
     isKpiLoading,
     selectedStep,
+    hasNoAssignedMembers,
     handleSubmit,
     setSelectedStep,
     handleCreateManagedControlPlane,
@@ -588,12 +594,17 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         case 'members':
           return (selectedStep === 'metadata' && !isEditMode) || !isValid;
         case 'componentSelection':
-          return ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) || !isValid;
+          return (
+            ((selectedStep === 'metadata' || selectedStep === 'members') && !isEditMode) ||
+            !isValid ||
+            hasNoAssignedMembers
+          );
         case 'summarize':
           return (
             ((selectedStep === 'metadata' || selectedStep === 'members' || selectedStep === 'componentSelection') &&
               !isEditMode) ||
-            !isValid
+            !isValid ||
+            hasNoAssignedMembers
           );
         case 'success':
           return selectedStep !== 'success';
@@ -601,7 +612,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           return false;
       }
     },
-    [selectedStep, isValid, isEditMode],
+    [selectedStep, isValid, isEditMode, hasNoAssignedMembers],
   );
 
   const onBackClick = useCallback(() => {
@@ -614,26 +625,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !initialData) return;
-    const roleBindings = initialData.spec?.iam?.oidc?.defaultProvider?.roleBindings ?? [];
-    const normalizeMemberKind = (kindInput?: string | null): 'User' | 'Group' => {
-      const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
-      return normalizedKind === 'group' ? 'Group' : 'User';
-    };
-    const members: Member[] = roleBindings
-      .filter(Boolean)
-      .flatMap((rb) => {
-        const roleName = normalizeMcpV2Role(rb?.roleRefs?.filter(Boolean)?.[0]?.name);
-        return (rb?.subjects ?? []).filter(Boolean).map((s) => {
-          const kind = normalizeMemberKind(s?.kind);
-          const rawName = s?.name ?? '';
-          return {
-            kind,
-            name: kind === 'User' ? stripIdpPrefix(rawName, idpPrefix) : rawName,
-            roles: [roleName],
-          };
-        });
-      })
-      .filter((m) => !!m.name);
+    const {
+      members,
+      extraProviders: prefilledProviders,
+      isDefaultProviderEnabled: prefilledEnabled,
+    } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
     reset({
@@ -644,6 +640,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       members,
       componentsList: [],
     });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExtraProviders(prefilledProviders);
+    setIsDefaultProviderEnabled(prefilledEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -734,7 +733,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   ))}
                 <Button
                   design="Emphasized"
-                  disabled={isSubmitting || (isEditMode && isKpiLoading)}
+                  disabled={
+                    isSubmitting ||
+                    (isEditMode && isKpiLoading) ||
+                    (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
+                  }
                   onClick={onNextClick}
                 >
                   {nextButtonText[selectedStep]}
@@ -796,20 +799,17 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             data-step="members"
             disabled={isStepDisabled('members')}
           >
-            <Form>
-              <FormGroup>
-                <EditMembers
-                  members={members}
-                  isValidationError={!!errors.members}
-                  requireAtLeastOneMember={false}
-                  workspaceName={workspaceName}
-                  projectName={projectName}
-                  type={'mcp'}
-                  isV2
-                  onMemberChanged={setMembers}
-                />
-              </FormGroup>
-            </Form>
+            <IdentityProvidersStep
+              members={members}
+              providers={extraProviders}
+              isDefaultProviderEnabled={isDefaultProviderEnabled}
+              isValidationError={!!errors.members}
+              workspaceName={workspaceName}
+              projectName={projectName}
+              onMembersChange={setMembers}
+              onProvidersChange={setExtraProviders}
+              onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
+            />
           </WizardStep>
 
           <WizardStep
@@ -829,7 +829,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2 rawInput={rawInput} services={services} />
+            <SummarizeStepV2
+              rawInput={rawInput}
+              isDefaultProviderEnabled={isDefaultProviderEnabled}
+              services={services}
+            />
           </WizardStep>
           <WizardStep
             icon="activities"

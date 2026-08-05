@@ -319,6 +319,179 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     cy.get('ui5-button').contains('Update').should('exist');
   });
 
+  // ── Custom identity providers ────────────────────────────────────────────
+
+  const existingMcpWithExtraProvider: ManagedControlPlaneV2 = {
+    metadata: {
+      name: 'existing-mcp-with-idp',
+      namespace: 'project-my-project--ws-my-workspace',
+      creationTimestamp: '2024-01-01T00:00:00Z',
+      annotations: {
+        'openmcp.cloud/display-name': 'Existing MCP with custom IdP',
+      },
+    },
+    spec: {
+      iam: {
+        oidc: {
+          defaultProvider: {
+            roleBindings: [
+              {
+                roleRefs: [{ kind: 'ClusterRole', name: 'admin', namespace: null }],
+                subjects: [{ kind: 'User', name: 'admin@example.com', apiGroup: null, namespace: null }],
+              },
+            ],
+          },
+          extraProviders: [
+            {
+              name: 'custom',
+              issuer: 'https://openmcp.accounts.ondemand.com',
+              clientID: 'client-id-1',
+              usernameClaim: 'email',
+              usernamePrefix: null,
+              groupsClaim: null,
+              groupsPrefix: null,
+              extraScopes: null,
+              roleBindings: [
+                {
+                  roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin', namespace: null }],
+                  subjects: [{ kind: 'User', name: 'bob@example.com', apiGroup: null, namespace: null }],
+                },
+              ],
+            },
+          ],
+        },
+        tokens: null,
+      },
+    },
+    status: null,
+  };
+
+  // The IdP fixture above has its own name/namespace, so it needs its own set of
+  // not-installed KPI mocks (Apollo mock matching is keyed on query variables).
+  const idpKpiVariables = {
+    name: existingMcpWithExtraProvider.metadata.name,
+    namespace: existingMcpWithExtraProvider.metadata.namespace,
+  };
+  const idpKpiMocks: MockedResponse[] = [
+    {
+      request: { query: GetCrossplaneDocument, variables: idpKpiVariables },
+      result: { data: { crossplane_services_open_control_plane_io: { v1alpha1: { Crossplane: null } } } },
+    },
+    {
+      request: { query: GetFluxDocument, variables: idpKpiVariables },
+      result: { data: { flux_services_open_control_plane_io: { v1alpha1: { Flux: null } } } },
+    },
+    {
+      request: { query: GetLandscaperDocument, variables: idpKpiVariables },
+      result: { data: { landscaper_services_open_control_plane_io: { v1alpha2: { Landscaper: null } } } },
+    },
+    {
+      request: { query: GetExternalSecretsOperatorDocument, variables: idpKpiVariables },
+      result: {
+        data: { external_secrets_services_open_control_plane_io: { v1alpha1: { ExternalSecretsOperator: null } } },
+      },
+    },
+  ];
+
+  it('pre-fills extra-provider members from initialData in edit mode (regression: previously dropped)', () => {
+    mountWizard({ isEditMode: true, initialData: existingMcpWithExtraProvider }, idpKpiMocks);
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.contains('admin@example.com').should('exist');
+    cy.contains('custom').should('exist');
+    cy.contains('bob@example.com').should('exist');
+  });
+
+  it('includes extraProviders in the update payload on submit (regression: previously dropped)', () => {
+    mountWizard({ isEditMode: true, initialData: existingMcpWithExtraProvider }, idpKpiMocks);
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Update').click();
+
+    cy.then(() => {
+      cy.wrap(updatePayload).should('not.be.null');
+      cy.wrap(updatePayload!.extraProviders).should('have.length', 1);
+      cy.wrap(updatePayload!.extraProviders[0].name).should('eq', 'custom');
+      cy.wrap(updatePayload!.extraProviders[0].roleBindings).should('have.length', 1);
+      // subject names round-trip unprefixed — the CRD adds the username prefix automatically
+      cy.wrap(updatePayload!.extraProviders[0].roleBindings[0].subjects[0].name).should('eq', 'bob@example.com');
+    });
+  });
+
+  it('default-provider checkbox is locked (disabled) when there are zero extra providers', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
+  });
+
+  it('blocks Next when the default provider is disabled and no extra provider has a member (regression: zero-member submission)', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="add-provider-button"]').click();
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
+    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
+    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
+    cy.get('[data-testid="save-provider-button"]').click();
+
+    // Disabling the default provider drops the auto-added creator member; "custom" has none of its own.
+    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
+    cy.get('[data-testid="no-members-error"]').should('exist');
+    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
+  });
+
+  it('adding a new identity provider via the wizard includes it in the create payload', () => {
+    mountWizard();
+
+    cy.get('#name').typeIntoUi5Input('my-new-mcp');
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.get('[data-testid="add-provider-button"]').click();
+    cy.get('ui5-dialog[open]').should('exist');
+    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
+    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
+    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
+    cy.get('[data-testid="save-provider-button"]').click();
+
+    cy.contains('custom').should('exist');
+
+    cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+    cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    cy.get('ui5-button').contains('Create').click();
+
+    cy.then(() => {
+      cy.wrap(createPayload).should('not.be.null');
+      cy.wrap(createPayload!.extraProviders).should('have.length', 1);
+      cy.wrap(createPayload!.extraProviders[0].name).should('eq', 'custom');
+      cy.wrap(createPayload!.extraProviders[0].issuer).should('eq', 'https://example.com');
+    });
+  });
+
+  it('deleting a provider with members shows a cascade-delete confirmation and removes both on confirm', () => {
+    mountWizard({ isEditMode: true, initialData: existingMcpWithExtraProvider }, idpKpiMocks);
+
+    cy.get('ui5-button').contains('Next').click(); // metadata → members
+
+    cy.contains('custom').should('exist');
+    cy.contains('bob@example.com').should('exist');
+
+    cy.get('[data-testid="confirm-delete-provider-button"]').should('not.be.visible');
+    cy.get('[data-testid="delete-provider-custom"]').click();
+    cy.contains('Its 1 member will also be removed').should('exist');
+    cy.get('[data-testid="confirm-delete-provider-button"]').click();
+
+    cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
+    cy.contains('bob@example.com').should('not.exist');
+  });
+
   // ── Edit mode — per-service create/update/delete mutations ─────────────────
 
   describe('service mutations based on previously-installed state', () => {
