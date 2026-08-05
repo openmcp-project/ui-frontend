@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import '@ui5/webcomponents-icons/dist/accept';
 
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 
@@ -6,19 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
 import { useForm, useWatch } from 'react-hook-form';
 
-import {
-  Bar,
-  Button,
-  Dialog,
-  FlexBox,
-  Text,
-  Ui5CustomEvent,
-  Wizard,
-  WizardDomRef,
-  WizardStep,
-} from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, Text, Ui5CustomEvent, Wizard, WizardDomRef, WizardStep } from '@ui5/webcomponents-react';
 
 import { Trans, useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
@@ -44,6 +36,7 @@ import {
   buildRoleBindingsForProviderMembers,
   normalizeMcpV2Role,
 } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -67,6 +60,7 @@ import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizard
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
 import { SummarizeStepV2 } from './SummarizeStepV2.tsx';
+import { WizardYamlPreview } from './WizardYamlPreview.tsx';
 
 type CreateManagedControlPlaneV2WizardContainerProps = {
   isOpen: boolean;
@@ -346,6 +340,51 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     extraProviders,
     isDefaultProviderEnabled,
   ]);
+
+  const wizardYamlString = useMemo(() => stringify(buildMcpV2GraphQLInput(rawInput)), [rawInput]);
+
+  const servicesYamlString = useMemo(() => {
+    const cpName = rawInput.name || '<name>';
+    const cpNamespace = rawInput.namespace || '<namespace>';
+    const docs: object[] = [buildMcpV2GraphQLInput(rawInput)];
+    if (services?.crossplane?.selected) {
+      docs.push({
+        apiVersion: 'crossplane.services.open-control-plane.io/v1alpha1',
+        kind: 'Crossplane',
+        metadata: { name: cpName, namespace: cpNamespace },
+        spec: {
+          version: services.crossplane.version || 'latest',
+          ...(services.crossplane.providers?.length
+            ? {
+                providers: services.crossplane.providers.map((p) => ({ name: p.name, version: p.version || 'latest' })),
+              }
+            : {}),
+        },
+      });
+    }
+    if (services?.flux?.selected)
+      docs.push({
+        apiVersion: 'flux.services.open-control-plane.io/v1alpha1',
+        kind: 'Flux',
+        metadata: { name: cpName, namespace: cpNamespace },
+        spec: { version: services.flux.version || 'latest' },
+      });
+    if (services?.landscaper?.selected)
+      docs.push({
+        apiVersion: 'landscaper.services.open-control-plane.io/v1alpha2',
+        kind: 'Landscaper',
+        metadata: { name: cpName, namespace: cpNamespace },
+        spec: { version: services.landscaper.version || 'latest' },
+      });
+    if (services?.externalSecretsOperator?.selected)
+      docs.push({
+        apiVersion: 'externalsecrets.services.open-control-plane.io/v1alpha1',
+        kind: 'ExternalSecretsOperator',
+        metadata: { name: cpName, namespace: cpNamespace },
+        spec: { version: services.externalSecretsOperator.version || 'latest' },
+      });
+    return docs.map((d) => stringify(d)).join('---\n');
+  }, [rawInput, services]);
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -758,8 +797,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'metadata'}
             data-step="metadata"
           >
-            <FlexBox direction={'Row'} justifyContent={'SpaceBetween'} gap={16}>
-              <div className={styles.metadataForm}>
+            <div className={styles.yamlSplitLayout}>
+              <div className={styles.metadataFormColumn}>
                 <MetadataForm
                   key={metadataFormKey}
                   watch={watch}
@@ -774,23 +813,27 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   displayNameSuffix={templateAffixes.displayNameSuffix}
                   isV2
                 />
+                {isDuplicateMode && (
+                  <div className={styles.infoboxContainer}>
+                    <Infobox size={'sm'}>
+                      <Text>
+                        <Trans
+                          i18nKey="editMCP.duplicatingMCPInfo1"
+                          components={{ span: <span className="mono-font" /> }}
+                        />
+                      </Text>
+                      <Text>
+                        <Trans i18nKey="editMCP.duplicatingMCPInfo2" components={{ b: <b /> }} />
+                      </Text>
+                    </Infobox>
+                  </div>
+                )}
               </div>
-              {isDuplicateMode && (
-                <div className={styles.infoboxContainer}>
-                  <Infobox size={'sm'}>
-                    <Text>
-                      <Trans
-                        i18nKey="editMCP.duplicatingMCPInfo1"
-                        components={{ span: <span className="mono-font" /> }}
-                      />
-                    </Text>
-                    <Text>
-                      <Trans i18nKey="editMCP.duplicatingMCPInfo2" components={{ b: <b /> }} />
-                    </Text>
-                  </Infobox>
-                </div>
-              )}
-            </FlexBox>
+              <WizardYamlPreview
+                yamlString={wizardYamlString}
+                filename={`mcp_${rawInput.namespace}_${rawInput.name || 'new'}`}
+              />
+            </div>
           </WizardStep>
           <WizardStep
             icon="user-edit"
@@ -819,7 +862,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'componentSelection'}
             data-step="componentSelection"
           >
-            <ServiceSelectionStep services={services} onServicesChange={setServices} />
+            <div className={styles.yamlSplitLayout}>
+              <ServiceSelectionStep services={services} onServicesChange={setServices} />
+              <WizardYamlPreview
+                yamlString={servicesYamlString}
+                filename={`mcp_${rawInput.namespace}_${rawInput.name || 'new'}`}
+              />
+            </div>
           </WizardStep>
 
           <WizardStep
@@ -833,10 +882,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
               rawInput={rawInput}
               isDefaultProviderEnabled={isDefaultProviderEnabled}
               services={services}
+              servicesYamlString={servicesYamlString}
             />
           </WizardStep>
           <WizardStep
-            icon="activities"
+            icon="accept"
             titleText={t('common.success')}
             disabled={isStepDisabled('success')}
             selected={selectedStep === 'success'}

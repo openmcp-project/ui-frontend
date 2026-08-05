@@ -314,7 +314,11 @@
     "deleteConfirmMessageN": "Are you sure you want to delete the identity provider '{{providerName}}'? Its {{count}} members will also be removed.",
     "deleteConfirmButton": "Delete",
     "disabledBadge": "(disabled)",
-    "yamlPreviewTitle": "YAML preview"
+    "yamlPreviewTitle": "YAML preview",
+    "customIdp": "Custom IdP",
+    "disableDefaultConfirmTitle": "Disable Default Identity Provider",
+    "disableDefaultConfirmMessage": "Disabling the default identity provider will remove all its members. Are you sure?",
+    "disableDefaultConfirmButton": "Disable and remove members"
   },
   "ProjectPage": {
     "backToProjects": "Go to all projects"

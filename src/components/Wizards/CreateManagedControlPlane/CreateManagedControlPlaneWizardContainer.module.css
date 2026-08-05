@@ -9,9 +9,22 @@
   max-width: 480px;
 }
 
-.infoboxContainer {
-  flex: 1;
-  padding-left: 2rem;
-  padding-top: 0.5rem;
-  max-width: 400px;
+.metadataFormColumn {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.yamlSplitLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  height: min(calc(100vh - 16rem), 640px);
+}
+
+@media (max-width: 768px) {
+  .yamlSplitLayout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
 }
