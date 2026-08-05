@@ -215,9 +215,6 @@ export function ComponentInstallDialog({
           </Select>
         </div>
         <div className={styles.yamlColumn}>
-          <Title level="H5" className={styles.sectionTitle}>
-            {t('ComponentInstallDialog.yamlPreview')}
-          </Title>
           <div className={styles.yamlViewer}>
             <YamlViewer yamlString={yamlPreview} filename={mcpName} />
           </div>
