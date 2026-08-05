@@ -19,10 +19,6 @@
   min-width: 0;
 }
 
-.yamlPreviewTitle {
-  font-weight: 600;
-}
-
 .providerGroupPanel {
   /* Recolor the panel's own shadow-DOM background (both header and content
      areas consume these custom properties) instead of the default white/
@@ -33,6 +29,12 @@
   width: 100%;
   margin-bottom: 1.5rem;
   border-radius: 0.5rem;
+}
+
+/* Applied when default provider is disabled — grays out title text only,
+   leaving the checkbox interactive */
+.providerGroupPanelDimmed .providerGroupHeaderTitle {
+  color: var(--sapContent_DisabledTextColor, #8c8c8c);
 }
 
 .providerGroupHeader {
