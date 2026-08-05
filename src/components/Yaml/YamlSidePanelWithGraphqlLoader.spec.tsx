@@ -6,6 +6,8 @@ import { useCrossplaneYamlQuery } from '../../spaces/mcp/hooks/useCrossplaneYaml
 import { useFluxYamlQuery } from '../../spaces/mcp/hooks/useFluxYamlQuery.ts';
 import { useLandscaperYamlQuery } from '../../spaces/mcp/hooks/useLandscaperYamlQuery.ts';
 import { useEsoYamlQuery } from '../../spaces/mcp/hooks/useEsoYamlQuery.ts';
+import { useOcmYamlQuery } from '../../spaces/mcp/hooks/useOcmYamlQuery.ts';
+import { useKroYamlQuery } from '../../spaces/mcp/hooks/useKroYamlQuery.ts';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -14,6 +16,8 @@ vi.mock('../../spaces/mcp/hooks/useCrossplaneYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useFluxYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useLandscaperYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useEsoYamlQuery.ts');
+vi.mock('../../spaces/mcp/hooks/useOcmYamlQuery.ts');
+vi.mock('../../spaces/mcp/hooks/useKroYamlQuery.ts');
 vi.mock('../Shared/Loading.tsx', () => ({
   default: () => <div data-testid="loading" />,
 }));
@@ -34,6 +38,8 @@ const useCrossplaneYamlQueryMock = vi.mocked(useCrossplaneYamlQuery);
 const useFluxYamlQueryMock = vi.mocked(useFluxYamlQuery);
 const useLandscaperYamlQueryMock = vi.mocked(useLandscaperYamlQuery);
 const useEsoYamlQueryMock = vi.mocked(useEsoYamlQuery);
+const useOcmYamlQueryMock = vi.mocked(useOcmYamlQuery);
+const useKroYamlQueryMock = vi.mocked(useKroYamlQuery);
 
 describe('YamlSidePanelWithGraphqlLoader', () => {
   beforeEach(() => {
@@ -41,19 +47,23 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
     useFluxYamlQueryMock.mockReturnValue(idle);
     useLandscaperYamlQueryMock.mockReturnValue(idle);
     useEsoYamlQueryMock.mockReturnValue(idle);
+    useOcmYamlQueryMock.mockReturnValue(idle);
+    useKroYamlQueryMock.mockReturnValue(idle);
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  it('skips the three non-matching hooks for the selected component', () => {
+  it('skips the five non-matching hooks for the selected component', () => {
     render(<YamlSidePanelWithGraphqlLoader component="crossplane" mcpName="my-mcp" mcpNamespace="my-ns" />);
 
     expect(useCrossplaneYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', false);
     expect(useFluxYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
     expect(useLandscaperYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
     expect(useEsoYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
+    expect(useOcmYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
+    expect(useKroYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
   });
 
   it('renders a loading state while the query is in flight', () => {
