@@ -34,7 +34,7 @@ import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 import { AuthProviderMcp } from '../auth/AuthContextMcp.tsx';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { registerKubeconfigWithBff } from './headlampKubeconfig.ts';
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -67,10 +67,12 @@ function OpenSourceHeadlamp({
   projectName,
   workspaceName,
   controlPlaneName,
+  requestedStatuses,
 }: {
   projectName: string;
   workspaceName: string;
   controlPlaneName: string;
+  requestedStatuses: Record<string, string | null>;
 }) {
   const mcp = useMcp();
   const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
@@ -93,6 +95,34 @@ function OpenSourceHeadlamp({
   const [error, setError] = useState(false);
   const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
   const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
+
+  // Relay component install status ('Requested' for keys in spec.components) to the
+  // plugin, which can't read spec.components itself. The parent passes it down.
+  const statusesRef = useRef<Record<string, string | null>>({});
+  useEffect(() => {
+    statusesRef.current = requestedStatuses;
+  }, [requestedStatuses]);
+  const pushStatuses = useCallback(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
+    win.postMessage(
+      { source: 'ocp-host', action: 'componentStatus', statuses: statusesRef.current },
+      window.location.origin,
+    );
+  }, []);
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== 'ocp-headlamp-plugin') return;
+      if (data.action === 'statusHandshake') pushStatuses();
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [pushStatuses]);
+  useEffect(() => {
+    pushStatuses();
+  }, [requestedStatuses, pushStatuses]);
 
   // Register ShellBar actions only in open-source mode
   useEffect(() => {
@@ -268,10 +298,42 @@ export default function ManagedControlPlanePage() {
     setEditManagedControlPlaneWizardSection(undefined);
   };
 
+  // The embedded Headlamp plugin (same-origin iframe) cannot install a component
+  // itself, so its "Install Service" action posts a message asking us to open the
+  // edit wizard on the component-selection step. Validate origin + source + action
+  // before acting, and only in open-source (Headlamp) mode where the trigger lives.
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (data?.source !== 'ocp-headlamp-plugin') return;
+      if (data?.action !== 'openInstallWizard') return;
+      if (mode !== 'open-source') return;
+      setEditManagedControlPlaneWizardSection('componentSelection');
+      setIsEditManagedControlPlaneWizardOpen(true);
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [mode]);
+
   const handleSectionChange = (e: { detail: { selectedSectionId: string } }) => {
     const newSectionId = e.detail.selectedSectionId as McpPageSectionId;
     setTabFromSection(newSectionId);
   };
+
+  // V1 has no per-component status.phase; a key present in spec.components means
+  // "requested". Push that to the plugin so it shows 'Requested' until its probe confirms.
+  const requestedStatuses = useMemo<Record<string, string | null>>(() => {
+    const components = mcp?.spec?.components;
+    if (!components) return {};
+    const result: Record<string, string | null> = {};
+    if (components.crossplane) result.crossplane = 'Requested';
+    if (components.flux) result.flux = 'Requested';
+    if (components.externalSecretsOperator) result.externalSecretsOperator = 'Requested';
+    if (components.kyverno) result.kyverno = 'Requested';
+    if (components.btpServiceOperator) result.btpServiceOperator = 'Requested';
+    return result;
+  }, [mcp?.spec?.components]);
 
   if (isLoading) {
     return (
@@ -315,6 +377,14 @@ export default function ManagedControlPlanePage() {
                 projectName={projectName}
                 workspaceName={workspaceName}
                 controlPlaneName={controlPlaneName}
+                requestedStatuses={requestedStatuses}
+              />
+              <EditManagedControlPlaneWizardDataLoader
+                isOpen={isEditManagedControlPlaneWizardOpen}
+                setIsOpen={handleEditManagedControlPlaneWizardClose}
+                workspaceName={mcp?.status?.access?.namespace}
+                resourceName={controlPlaneName}
+                initialSection={editManagedControlPlaneWizardSection}
               />
             </ManagedControlPlaneAuthorization>
           </WithinManagedControlPlane>

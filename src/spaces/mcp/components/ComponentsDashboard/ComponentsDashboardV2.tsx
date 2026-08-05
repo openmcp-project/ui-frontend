@@ -1,24 +1,30 @@
 import { ComponentCard } from '../ComponentCard/ComponentCard.tsx';
+import { ComponentCardV2 } from '../ComponentCard/ComponentCardV2.tsx';
 
 import { Panel } from '@ui5/webcomponents-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import LogoCrossplane from '../../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import LogoOcm from '../../../../assets/images/logo-ocm.svg';
 import LogoKro from '../../../../assets/images/logo-kro.svg';
+import { useComponentCardStatus } from '../../hooks/useComponentCardStatus.ts';
 import { useCreateEso } from '../../hooks/useCreateEso.ts';
 import { useCreateFlux } from '../../hooks/useCreateFlux.ts';
 import { useCreateLandscaper } from '../../hooks/useCreateLandscaper.ts';
 import { useCreateOcm } from '../../hooks/useCreateOcm.ts';
 import { useCreateKro } from '../../hooks/useCreateKro.ts';
+import { useCrossplaneYamlQuery } from '../../hooks/useCrossplaneYamlQuery.ts';
 import { useDeleteCrossplane } from '../../hooks/useDeleteCrossplane.ts';
 import { useDeleteEso } from '../../hooks/useDeleteEso.ts';
 import { useDeleteFlux } from '../../hooks/useDeleteFlux.ts';
 import { useDeleteLandscaper } from '../../hooks/useDeleteLandscaper.ts';
 import { useDeleteOcm } from '../../hooks/useDeleteOcm.ts';
 import { useDeleteKro } from '../../hooks/useDeleteKro.ts';
+import { useEsoYamlQuery } from '../../hooks/useEsoYamlQuery.ts';
+import { useFluxYamlQuery } from '../../hooks/useFluxYamlQuery.ts';
+import { useLandscaperYamlQuery } from '../../hooks/useLandscaperYamlQuery.ts';
 import { useUpdateEso } from '../../hooks/useUpdateEso.ts';
 import { useUpdateFlux } from '../../hooks/useUpdateFlux.ts';
 import { useUpdateLandscaper } from '../../hooks/useUpdateLandscaper.ts';
@@ -28,6 +34,7 @@ import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneIn
 
 import { useTranslation } from 'react-i18next';
 import { DeleteConfirmationDialog } from '../../../../components/Dialogs/DeleteConfirmationDialog.tsx';
+import { useFeatureToggle } from '../../../../context/FeatureToggleContext.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 import type { McpPageSectionId } from '../../pages/ManagedControlPlanePage.tsx';
@@ -38,9 +45,14 @@ import type { LandscaperData } from '../../types/Landscaper.ts';
 import type { OcmData } from '../../types/Ocm.ts';
 import type { KroData } from '../../types/Kro.ts';
 import { ComponentInstallDialog } from '../ComponentInstallDialog/ComponentInstallDialog.tsx';
+import { YamlViewButton } from '../../../../components/Yaml/YamlViewButton.tsx';
 import styles from './ComponentsDashboard.module.css';
 
 type DeleteTarget = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro' | null;
+
+// Backend reconciliation after an edit/delete isn't instant; refetching immediately would usually
+// just re-read the pre-mutation state. Waiting a beat gives it a chance to catch up.
+const REFETCH_DELAY_MS = 3_000;
 
 const DELETE_TARGET_COMPONENT_NAME: Record<NonNullable<DeleteTarget>, string> = {
   crossplane: 'Crossplane',
@@ -76,6 +88,7 @@ export function ComponentsDashboardV2({
 }: ComponentsDashboardV2Props) {
   const { t } = useTranslation();
   const toast = useToast();
+  const { showLandscaperCard } = useFeatureToggle();
   const telemetry = useTelemetry();
 
   const [isCrossplaneDialogOpen, setIsCrossplaneDialogOpen] = useState(false);
@@ -97,6 +110,26 @@ export function ComponentsDashboardV2({
   const [kroDialogMode, setKroDialogMode] = useState<'install' | 'edit'>('install');
 
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+
+  // Known limitation, accepted as-is: if this dashboard unmounts within REFETCH_DELAY_MS of a
+  // delete/edit, the scheduled refetch below is cleared on unmount and never re-armed (the
+  // underlying Apollo query instance is torn down with the component, so there's nothing to
+  // refetch into). The existing 30s poll interval on each useXYamlQuery eventually catches up
+  // with a stale card, so this isn't fixed here.
+  const pendingRefetchTimeouts = useRef(new Set<ReturnType<typeof setTimeout>>());
+  useEffect(() => {
+    const timeouts = pendingRefetchTimeouts.current;
+    return () => {
+      timeouts.forEach(clearTimeout);
+    };
+  }, []);
+  const scheduleRefetch = useCallback((refetch: () => void) => {
+    const timeoutId = setTimeout(() => {
+      pendingRefetchTimeouts.current.delete(timeoutId);
+      refetch();
+    }, REFETCH_DELAY_MS);
+    pendingRefetchTimeouts.current.add(timeoutId);
+  }, []);
 
   const { deleteCrossplane } = useDeleteCrossplane();
   const { deleteFlux } = useDeleteFlux();
@@ -123,18 +156,40 @@ export function ComponentsDashboardV2({
   const isKroInstalled = !!kroData?.version;
   const kroVersion = kroData?.version ?? undefined;
 
+  const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace, !isCrossplaneInstalled);
+  const { resource: crossplaneResource, status: crossplaneStatus } = useComponentCardStatus(
+    isCrossplaneInstalled,
+    crossplaneYaml,
+  );
+
+  const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace, !isFluxInstalled);
+  const { resource: fluxResource, status: fluxStatus } = useComponentCardStatus(isFluxInstalled, fluxYaml);
+
+  const landscaperYaml = useLandscaperYamlQuery(mcpName, mcpNamespace, !isLandscaperInstalled);
+  const { resource: landscaperResource, status: landscaperStatus } = useComponentCardStatus(
+    isLandscaperInstalled,
+    landscaperYaml,
+  );
+
+  const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace, !isEsoInstalled);
+  const { resource: esoResource, status: esoStatus } = useComponentCardStatus(isEsoInstalled, esoYaml);
+
   const handleDeleteConfirmed = useCallback(async () => {
     if (!deleteTarget) return;
     const componentName = DELETE_TARGET_COMPONENT_NAME[deleteTarget];
     try {
       if (deleteTarget === 'crossplane') {
         await deleteCrossplane({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(crossplaneYaml.refetch);
       } else if (deleteTarget === 'flux') {
         await deleteFlux({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(fluxYaml.refetch);
       } else if (deleteTarget === 'landscaper') {
         await deleteLandscaper({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(landscaperYaml.refetch);
       } else if (deleteTarget === 'eso') {
         await deleteEso({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(esoYaml.refetch);
       } else if (deleteTarget === 'ocm') {
         await deleteOcm({ name: mcpName, namespace: mcpNamespace });
       } else if (deleteTarget === 'kro') {
@@ -154,6 +209,11 @@ export function ComponentsDashboardV2({
     deleteEso,
     deleteOcm,
     deleteKro,
+    scheduleRefetch,
+    crossplaneYaml.refetch,
+    fluxYaml.refetch,
+    landscaperYaml.refetch,
+    esoYaml.refetch,
     mcpName,
     mcpNamespace,
     toast,
@@ -164,13 +224,24 @@ export function ComponentsDashboardV2({
   return (
     <Panel fixed>
       <div className={styles['container']}>
-        <ComponentCard
+        <ComponentCardV2
+          data-cy="component-card-crossplane"
           name="Crossplane"
           description={t('componentCardCrossplane.description')}
           logoImgSrc={LogoCrossplane}
-          kpiType="enabled"
-          isInstalled={isCrossplaneInstalled}
+          status={crossplaneStatus}
           version={crossplaneVersion}
+          yamlViewButton={
+            isCrossplaneInstalled && crossplaneResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="crossplane"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={crossplaneResource}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={() => onNavigateToMcpSection('crossplane')}
           onInstallButtonClick={
             !isCrossplaneInstalled
@@ -190,13 +261,24 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isCrossplaneInstalled ? () => setDeleteTarget('crossplane') : undefined}
         />
-        <ComponentCard
+        <ComponentCardV2
+          data-cy="component-card-flux"
           name="Flux"
           description={t('componentCardFlux.description')}
           logoImgSrc={LogoFlux}
-          kpiType="enabled"
-          isInstalled={isFluxInstalled}
+          status={fluxStatus}
           version={fluxVersion}
+          yamlViewButton={
+            isFluxInstalled && fluxResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="flux"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={fluxResource}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={() => onNavigateToMcpSection('flux')}
           onInstallButtonClick={
             !isFluxInstalled
@@ -216,39 +298,63 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isFluxInstalled ? () => setDeleteTarget('flux') : undefined}
         />
-        <ComponentCard
-          name="Landscaper"
-          description={t('componentCardLandscaper.description')}
-          logoImgSrc={LogoLandscaper}
-          isInstalled={isLandscaperInstalled}
-          version={landscaperVersion}
-          kpiType="enabled"
-          onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
-          onInstallButtonClick={
-            !isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('install');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onEditButtonClick={
-            isLandscaperInstalled
-              ? () => {
-                  setLandscaperDialogMode('edit');
-                  setIsLandscaperDialogOpen(true);
-                }
-              : undefined
-          }
-          onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
-        />
-        <ComponentCard
+        {showLandscaperCard && (
+          <ComponentCardV2
+            data-cy="component-card-landscaper"
+            name="Landscaper"
+            description={t('componentCardLandscaper.description')}
+            logoImgSrc={LogoLandscaper}
+            status={landscaperStatus}
+            version={landscaperVersion}
+            yamlViewButton={
+              isLandscaperInstalled && landscaperResource ? (
+                <YamlViewButton
+                  variant="mcp-component"
+                  component="landscaper"
+                  mcpName={mcpName}
+                  mcpNamespace={mcpNamespace}
+                  preloadedResource={landscaperResource}
+                />
+              ) : undefined
+            }
+            onNavigateToComponentSection={() => onNavigateToMcpSection('landscaper')}
+            onInstallButtonClick={
+              !isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('install');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onEditButtonClick={
+              isLandscaperInstalled
+                ? () => {
+                    setLandscaperDialogMode('edit');
+                    setIsLandscaperDialogOpen(true);
+                  }
+                : undefined
+            }
+            onDeleteButtonClick={isLandscaperInstalled ? () => setDeleteTarget('landscaper') : undefined}
+          />
+        )}
+        <ComponentCardV2
+          data-cy="component-card-eso"
           name="External Secrets Operator"
           description={t('componentCardEso.description')}
           logoImgSrc={LogoEso}
-          isInstalled={isEsoInstalled}
+          status={esoStatus}
           version={esoVersion}
-          kpiType="enabled"
+          yamlViewButton={
+            isEsoInstalled && esoResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="eso"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={esoResource}
+              />
+            ) : undefined
+          }
           onNavigateToComponentSection={undefined}
           onInstallButtonClick={
             !isEsoInstalled
@@ -328,6 +434,9 @@ export function ComponentsDashboardV2({
         mode={crossplaneDialogMode}
         initialData={crossplaneData ?? undefined}
         onClose={() => setIsCrossplaneDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(crossplaneYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isFluxDialogOpen}
@@ -340,6 +449,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateFlux}
         useUpdateMutation={useUpdateFlux}
         onClose={() => setIsFluxDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(fluxYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isLandscaperDialogOpen}
@@ -352,6 +464,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateLandscaper}
         useUpdateMutation={useUpdateLandscaper}
         onClose={() => setIsLandscaperDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(landscaperYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isEsoDialogOpen}
@@ -364,6 +479,9 @@ export function ComponentsDashboardV2({
         useCreateMutation={useCreateEso}
         useUpdateMutation={useUpdateEso}
         onClose={() => setIsEsoDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(esoYaml.refetch);
+        }}
       />
       <ComponentInstallDialog
         open={isOcmDialogOpen}

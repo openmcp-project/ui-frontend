@@ -5,7 +5,7 @@ import { useId, useState } from 'react';
 import { Member } from '../../../lib/api/types/shared/members';
 import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
-import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
+import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
 import { MemberTable } from '../../Members/MemberTable.tsx';
 
 type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
@@ -28,30 +28,40 @@ export function MembersAvatarView({
   maxWidth = '200px',
 }: Props) {
   const openerId = useId();
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
 
-  const handleClick = () => {
-    setIsPopoverOpen(true);
-    telemetry.track({ name: 'members.viewed', source });
-  };
-
-  const handleClose = () => {
-    setIsPopoverOpen(false);
-  };
+  if (members.length === 0) return null;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup id={openerId} style={{ maxWidth }} type={AvatarGroupType.Group} onClick={handleClick}>
-        {members.map((member, index) => (
+    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+      <AvatarGroup
+        id={openerId}
+        style={{ maxWidth }}
+        type={AvatarGroupType.Group}
+        onClick={() => {
+          if (!popoverIsOpen) {
+            telemetry.track({ name: 'members.viewed', source });
+            setPopoverIsOpen(true);
+          }
+        }}
+      >
+        {members.map((member) => (
           <Avatar
-            key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
+            key={`${project}-${workspace}-${member.name}`}
+            colorScheme={avatarColorSchemeForEmail(member.name)}
             initials={generateInitialsForEmail(member.name)}
+            accessibleName={member.name}
             size="XS"
           />
         ))}
       </AvatarGroup>
-      <Popover opener={openerId} placement={PopoverPlacement.Bottom} open={isPopoverOpen} onClose={handleClose}>
+      <Popover
+        opener={openerId}
+        open={popoverIsOpen}
+        placement={PopoverPlacement.Bottom}
+        onClose={() => setPopoverIsOpen(false)}
+      >
         <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
       </Popover>
     </div>

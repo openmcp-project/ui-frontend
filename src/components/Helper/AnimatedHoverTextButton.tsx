@@ -13,23 +13,43 @@ type HoverTextButtonProps = {
   icon: JSX.Element;
   onClick: (event: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => void;
   large?: boolean;
+  alwaysShowText?: boolean;
+  // Overrides the default ReadyStatus-based text color (e.g. for callers with their own
+  // status vocabulary/palette that the icon they pass is already colored with).
+  textClassName?: string;
   'data-testid'?: string;
 };
 
 export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonProps>(
-  ({ id, text, icon, onClick, large = false, 'data-testid': dataTestId }: HoverTextButtonProps, ref) => {
+  (
+    {
+      id,
+      text,
+      icon,
+      onClick,
+      large = false,
+      alwaysShowText = false,
+      textClassName,
+      'data-testid': dataTestId,
+    }: HoverTextButtonProps,
+    ref,
+  ) => {
     const generatedId = useId();
     id ??= generatedId;
 
+    const colorClassName = textClassName ?? styles[getClassNameForOverallStatus(text)];
+
     const content = (
       <FlexBox alignItems={FlexBoxAlignItems.Center}>
-        <span
-          className={cx(styles.text, styles[getClassNameForOverallStatus(text)], {
-            [styles.large]: large,
-          })}
-        >
-          {text}
-        </span>
+        {large || alwaysShowText ? (
+          <span
+            className={cx(styles.text, colorClassName, {
+              [styles.large]: large,
+            })}
+          >
+            {text}
+          </span>
+        ) : null}
         {icon}
       </FlexBox>
     );
@@ -41,7 +61,7 @@ export const AnimatedHoverTextButton = forwardRef<ButtonDomRef, HoverTextButtonP
           id={id}
           data-testid={dataTestId}
           design={'Transparent'}
-          className={cx(styles.link, styles[getClassNameForOverallStatus(text)])}
+          className={cx(styles.link, colorClassName)}
           onClick={onClick}
         >
           {content}
