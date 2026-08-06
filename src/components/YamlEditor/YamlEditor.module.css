@@ -28,3 +28,36 @@
   list-style: disc;
   font-family: monospace;
 }
+
+/* Hides the tail of a long value — text is invisible but still in the model */
+:global(.monaco-editor) :global(.yaml-value-tail) {
+  opacity: 0;
+  font-size: 0;
+  letter-spacing: 0;
+}
+
+/* "… more" injected label */
+:global(.monaco-editor) :global(.yaml-inject-more) {
+  color: var(--sapLinkColor);
+  cursor: pointer;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+:global(.monaco-editor) :global(.yaml-inject-more:hover) {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* "↑ less" injected label */
+:global(.monaco-editor) :global(.yaml-inject-less) {
+  color: var(--sapLinkColor);
+  cursor: pointer;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+:global(.monaco-editor) :global(.yaml-inject-less:hover) {
+  opacity: 1;
+  text-decoration: underline;
+}
