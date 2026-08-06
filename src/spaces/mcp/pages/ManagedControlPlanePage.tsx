@@ -256,7 +256,7 @@ export default function ManagedControlPlanePage() {
   const { projectName, workspaceName, controlPlaneName } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const { mode } = useViewMode();
+  const { mode, setMode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -268,6 +268,28 @@ export default function ManagedControlPlanePage() {
     }
     return 'overview' as McpPageSectionId;
   }, [searchParams]);
+
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'open-source') setMode('open-source');
+    else if (viewParam === 'beginner') setMode('beginner');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'open-source') {
+          next.set('view', 'open-source');
+        } else {
+          next.delete('view');
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  }, [mode, setSearchParams]);
 
   const setTabFromSection = (sectionId: McpPageSectionId) => {
     setSearchParams((prev) => {
