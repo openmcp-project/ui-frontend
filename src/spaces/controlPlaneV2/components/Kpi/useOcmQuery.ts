@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 import { z } from 'zod';
 
+import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { OcmData, OcmSchema } from '../../../mcp/types/Ocm.ts';
 
-const GET_OCM_QUERY = gql`
+const GET_OCM_QUERY = graphql(`
   query GetOCM($name: String!, $namespace: String) {
     ocm_services_open_control_plane_io {
       v1alpha1 {
@@ -29,7 +29,7 @@ const GET_OCM_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export function useOcmQuery(name?: string, namespace?: string) {
   const queryResult = useQuery(GET_OCM_QUERY, {
@@ -38,8 +38,7 @@ export function useOcmQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawOcm = (queryResult.data as any)?.ocm_services_open_control_plane_io?.v1alpha1?.OCM;
+  const rawOcm = queryResult.data?.ocm_services_open_control_plane_io?.v1alpha1?.OCM;
 
   const ocmData = useMemo<OcmData | null>(() => {
     if (!rawOcm) return null;

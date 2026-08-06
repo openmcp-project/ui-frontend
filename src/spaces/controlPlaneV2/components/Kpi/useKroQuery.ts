@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 import { z } from 'zod';
 
+import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { KroData, KroSchema } from '../../../mcp/types/Kro.ts';
 
-const GET_KRO_QUERY = gql`
+const GET_KRO_QUERY = graphql(`
   query GetKRO($name: String!, $namespace: String) {
     kro_services_open_control_plane_io {
       v1alpha1 {
@@ -29,7 +29,7 @@ const GET_KRO_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 export function useKroQuery(name?: string, namespace?: string) {
   const queryResult = useQuery(GET_KRO_QUERY, {
@@ -38,8 +38,7 @@ export function useKroQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawKro = (queryResult.data as any)?.kro_services_open_control_plane_io?.v1alpha1?.Kro;
+  const rawKro = queryResult.data?.kro_services_open_control_plane_io?.v1alpha1?.Kro;
 
   const kroData = useMemo<KroData | null>(() => {
     if (!rawKro) return null;

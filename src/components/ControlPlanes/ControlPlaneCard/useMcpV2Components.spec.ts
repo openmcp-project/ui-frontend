@@ -107,15 +107,15 @@ describe('useMcpV2Components', () => {
     });
   });
 
-  it('does not block on OCM/KRO loading — isLoading reflects only core services', async () => {
+  it('blocks on OCM/KRO loading like the other core services', async () => {
     setIdle();
     vi.mocked(useOcmQuery).mockReturnValue({ ocmData: null, isLoading: true, error: undefined });
     vi.mocked(useKroQuery).mockReturnValue({ kroData: null, isLoading: true, error: undefined });
 
     const { result } = renderHook(() => useMcpV2Components('cp', 'ns'));
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.components).toEqual({});
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.components).toBeNull();
     });
   });
 

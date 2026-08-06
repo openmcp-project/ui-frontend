@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client';
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
 
-const DeleteKroMutation = gql`
+const DeleteKroMutation = graphql(`
   mutation DeleteKRO($name: String!, $namespace: String) {
     kro_services_open_control_plane_io {
       v1alpha1 {
@@ -10,7 +10,7 @@ const DeleteKroMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useDeleteKro() {
   const [deleteMutation, { loading, error }] = useMutation(DeleteKroMutation, {
