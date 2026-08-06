@@ -45,6 +45,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
         label: t('ServiceSelectionStep.externalSecretsOperator'),
         entry: services.externalSecretsOperator,
       },
+      { key: 'ocm', label: t('ServiceSelectionStep.ocm'), entry: services.ocm },
+      { key: 'kro', label: t('ServiceSelectionStep.kro'), entry: services.kro },
     ].filter((s) => s.entry?.selected);
   }, [services, t]);
 

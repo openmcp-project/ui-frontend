@@ -67,6 +67,8 @@ export const ServiceSelectionSchema = z.object({
   flux: ServiceEntrySchema.optional(),
   landscaper: ServiceEntrySchema.optional(),
   externalSecretsOperator: ServiceEntrySchema.optional(),
+  ocm: ServiceEntrySchema.optional(),
+  kro: ServiceEntrySchema.optional(),
 });
 
 export type ServiceSelection = z.infer<typeof ServiceSelectionSchema>;
