@@ -125,6 +125,94 @@ Hooks are invoked as `node .claude/hooks/*.mjs` (cross-platform). But `/bin/sh` 
   env var (`$env:GRAPHQL_TOKEN` on PowerShell, `$GRAPHQL_TOKEN` on bash),
   that is acceptable. Never echo the token value back, even partially.
 
+## Patterns
+
+### Injectable hooks — the testability convention
+
+Every component that calls a hook making a network request must accept it as an optional prop so tests can inject a fake:
+
+```tsx
+// real hook aliased with underscore prefix
+import { useMcpsQuery as _useMcpsQuery } from '…/useMcpsQuery';
+
+interface Props {
+  useMcpsQuery?: typeof _useMcpsQuery;   // optional, typed from the real hook
+}
+
+export function MyComponent({ useMcpsQuery = _useMcpsQuery }: Props) { … }
+```
+
+In tests pass a fake: `<MyComponent useMcpsQuery={fakeUseMcpsQuery} />`. See `ControlPlaneListWorkspaceGridTile.tsx` for a full example. Don't `vi.mock()` modules in Cypress tests — inject instead.
+
+### Forms: RHF + Zod + UI5 inputs
+
+UI5 web components don't fire native DOM `change` events that RHF listens for. The pattern:
+
+1. Always use `mode: 'onChange'` on `useForm` so `isValid` stays reactive.
+2. For `<Input>` / `<Select>` / `<ComboBox>`: use an `onInput` / `onChange` handler that calls `setValue(field, value, { shouldValidate: true, shouldDirty: true })` — do **not** spread `{...register()}` on a UI5 element.
+3. For programmatic `setValue` calls (e.g. populating a field from a side effect): always pass `{ shouldValidate: true }` or the field won't revalidate.
+4. Keep RHF registration alive via a hidden native input when the visible input is a UI5 component:
+   ```tsx
+   <input type="hidden" {...register('name')} value={currentValue} readOnly />
+   <Input value={currentValue} onInput={onNameInput} />
+   ```
+5. Define Zod schemas as functions that accept `t: TFunction` so validation messages are translated. Use `superRefine` for cross-field validation.
+
+See `src/components/Dialogs/MetadataForm.tsx` and `src/lib/api/validations/schemas.ts`.
+
+### Cypress component tests with UI5
+
+UI5 web components render in shadow DOM. Rules that prevent hours of debugging:
+
+- **Use `data-testid` on the React/UI5 element**, then query with `cy.get('[data-testid="…"]')`. Never traverse shadow DOM to find internal buttons or icons — class names change and visibility rules cause flakiness.
+- **Assert boolean web component state** with `invoke('prop', 'collapsed').should('equal', false)` — not `should('have.attr', 'collapsed')`. Boolean reflected attributes are unreliable.
+- **Trigger web component events** by dispatching a `CustomEvent` directly on the element instead of clicking inside shadow DOM:
+  ```ts
+  cy.get('[data-testid="my-panel"]').then(($el) =>
+    $el[0].dispatchEvent(new CustomEvent('toggle', { bubbles: true }))
+  );
+  ```
+- **Always provide `FrontendConfigContext.Provider` explicitly** inside the `cy.mount` call — don't rely on the support file's outer wrapper. React 19's `use()` (used by `FeatureToggleProvider`) can lose context during re-renders otherwise. Mirror the pattern in `ControlPlaneListWorkspaceGridTile.cy.tsx`.
+- **Type into UI5 inputs** with `cy.get('ui5-input').typeIntoUi5Input('value')` from `@ui5/webcomponents-cypress-commands`.
+
+### Vitest unit tests for hooks
+
+```ts
+import { act, renderHook } from '@testing-library/react';
+
+it('shows toast and rethrows on failure', async () => {
+  mutateMock.mockRejectedValue(new Error('API Error'));
+  const { result } = renderHook(() => useDeleteProject('test'));
+  await act(async () => {
+    await expect(result.current.deleteProject()).rejects.toThrow('API Error');
+  });
+  expect(toastShowMock).toHaveBeenCalledWith('API Error');
+});
+```
+
+Hooks that show a toast on error **must also rethrow** so callers (dialogs) can stay open on failure. Test with `rejects.toThrow()`, not `resolves.toBeUndefined()`.
+
+### Error handling
+
+- Use `isForbiddenError(error)` / `isNotFoundError(error)` from `src/lib/api/error.ts` — don't compare status codes inline.
+- Mutations in hooks: catch, show toast, rethrow. The dialog/caller decides whether to close.
+- Use `<ErrorDialog ref={…} />` with `errorDialogRef.current?.showErrorDialog(message)` for errors that need a blocking dialog (not just a toast). See `CreateProjectDialogContainer.tsx`.
+
+### `javascript-time-ago` setup
+
+`TimeAgo.addDefaultLocale(en)` is initialised once in `src/utils/i18n/timeAgo.ts` — import that module before any component using `ReactTimeAgo` mounts. The call must appear **after all imports** in any file that hosts it (ESLint `import/first` rule).
+
+### CSS modules and theming
+
+Support both OS-level dark mode and SAP Horizon dark theme:
+
+```css
+@media (prefers-color-scheme: dark) { … }
+[data-ui5-theme*="dark"] .myClass { … }
+```
+
+Use `ThemingParameters` from `@ui5/webcomponents-react-base` for colours — never hardcode hex values that won't respond to theme changes.
+
 ## Commands cheatsheet
 
 ```
