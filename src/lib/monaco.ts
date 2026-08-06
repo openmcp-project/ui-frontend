@@ -1,6 +1,8 @@
 /* eslint-disable import/default */
 import { loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { configureMonacoYaml } from 'monaco-yaml';
+import type { MonacoYaml, MonacoYamlOptions, SchemasSettings } from 'monaco-yaml';
 
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
 
@@ -10,6 +12,23 @@ import YamlWorker from 'monaco-yaml/yaml.worker?worker';
 
 // Use ESM monaco to avoid loading AMD loader from CDN
 loader.config({ monaco });
+
+export type { SchemasSettings };
+
+const BASE_YAML_OPTIONS: MonacoYamlOptions = {
+  isKubernetes: true,
+  enableSchemaRequest: true,
+  hover: true,
+  completion: true,
+  validate: true,
+  format: { enable: true },
+};
+
+let monacoYamlInstance: MonacoYaml | undefined;
+
+export const updateYamlSchemas = (schemas: SchemasSettings[]): void => {
+  monacoYamlInstance?.update({ ...BASE_YAML_OPTIONS, schemas });
+};
 
 export const GITHUB_LIGHT_DEFAULT = 'github-light-default';
 export const GITHUB_DARK_DEFAULT = 'github-dark-default';
@@ -74,6 +93,31 @@ export const configureMonaco = () => {
       },
     };
   }
+
+  // monaco-worker-manager calls createWebWorker with the pre-0.55 shape (label/moduleId/createData).
+  // Monaco 0.55+ only accepts { worker: Worker }. We intercept yaml calls, spawn the worker
+  // ourselves, and prime it with createData before Monaco sends its own '-please-ignore-' message
+  // so the compat shim in monaco-worker-manager-compat.ts can read it.
+  type LegacyWebWorkerOptions = monaco.editor.IInternalWebWorkerOptions & {
+    label?: string;
+    moduleId?: string;
+    createData?: unknown;
+  };
+  type CreateWebWorker = <T extends object>(opts: LegacyWebWorkerOptions) => monaco.editor.MonacoWebWorker<T>;
+  const originalCreateWebWorker = monaco.editor.createWebWorker.bind(monaco.editor) as CreateWebWorker;
+  (monaco.editor as unknown as { createWebWorker: CreateWebWorker }).createWebWorker = (opts) => {
+    if (opts.label === 'yaml') {
+      const worker = new YamlWorker();
+      worker.postMessage(opts.createData ?? {});
+      return originalCreateWebWorker({ worker });
+    }
+    return originalCreateWebWorker(opts);
+  };
+
+  // Initialize the YAML language service before any editor mounts.
+  // monaco-yaml only supports one instance at a time; editors call updateYamlSchemas()
+  // to change the active schema without recreating the service.
+  monacoYamlInstance = configureMonacoYaml(monaco, BASE_YAML_OPTIONS);
 
   monaco.editor.defineTheme(GITHUB_LIGHT_DEFAULT, {
     base: 'vs',

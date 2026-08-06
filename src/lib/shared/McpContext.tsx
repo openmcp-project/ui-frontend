@@ -1,5 +1,6 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
 import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
@@ -16,6 +17,7 @@ interface Mcp {
   kubeconfig?: string;
   roleBindings?: RoleBinding[];
   isV2?: boolean;
+  idp?: string;
 }
 
 interface McpContextProviderResult {
@@ -38,22 +40,32 @@ export const useMcp = () => {
 };
 
 export const McpContextProvider = ({ children, context, isV2 = false, onState }: Props) => {
+  const [searchParams] = useSearchParams();
+  const idpName = searchParams.get('idp');
   const mcp = useApiResource(ManagedControlPlaneResource(context.project, context.workspace, context.name, isV2));
+
+  // V2 exposes one access entry per IdP, keyed `oidc_<providerName>`. The system IdP is
+  // `oidc_openmcp` (used when no `idp` query param is present); a custom IdP is `oidc_<idp>`.
+  const accessKey: `oidc_${string}` = idpName ? `oidc_${idpName}` : 'oidc_openmcp';
   const secretNamespace = isV2 ? mcp.data?.metadata?.namespace : mcp.data?.status?.access?.namespace;
-  const secretName = isV2 ? mcp.data?.status?.access?.oidc_openmcp?.name : mcp.data?.status?.access?.name;
+  const secretName = isV2 ? mcp.data?.status?.access?.[accessKey]?.name : mcp.data?.status?.access?.name;
   const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
 
   const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace, secretKey);
+
+  // Both the secret name and key are required to load a kubeconfig. In V2 `secretKey` is a
+  // constant, so `secretName` is the meaningful signal for whether the chosen IdP has access.
+  const hasAccessInfo = !!secretName && !!secretKey;
 
   const loading = mcp.isLoading || kubeconfigQuery.isPending;
   const error: Error | string | null = useMemo(
     () =>
       mcp.error ??
       kubeconfigQuery.error ??
-      (!secretKey && !loading ? new Error('Control plane has no kubeconfig access information yet') : null),
-    [mcp.error, kubeconfigQuery.error, secretKey, loading],
+      (!hasAccessInfo && !loading ? new Error('Control plane has no kubeconfig access information yet') : null),
+    [mcp.error, kubeconfigQuery.error, hasAccessInfo, loading],
   );
-  const ready = !loading && !error && !!secretKey;
+  const ready = !loading && !error && hasAccessInfo;
 
   useEffect(() => {
     onState?.({ loading, error, ready });
@@ -67,13 +79,14 @@ export const McpContextProvider = ({ children, context, isV2 = false, onState }:
     return <></>;
   }
 
-  if (!secretKey) {
+  if (!hasAccessInfo) {
     return <></>;
   }
 
   const enrichedContext: Mcp = {
     ...context,
     isV2,
+    idp: idpName ?? undefined,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
     roleBindings: mcp.data?.spec?.authorization?.roleBindings,
   };
@@ -90,9 +103,10 @@ function RequireDownstreamLogin(props: { children?: ReactNode }) {
         workspaceName: mcp.workspace,
         controlPlaneName: mcp.name,
         isV2: mcp.isV2,
+        idp: mcp.idp,
       },
     }),
-    [mcp.project, mcp.workspace, mcp.name, mcp.isV2],
+    [mcp.project, mcp.workspace, mcp.name, mcp.isV2, mcp.idp],
   );
 
   return (

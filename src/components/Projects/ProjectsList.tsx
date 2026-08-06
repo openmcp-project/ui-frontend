@@ -10,9 +10,9 @@ import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
@@ -44,6 +44,7 @@ function CreatedAtCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { creationTimestamp, isLoading } = useProjectMembers(projectName);
+
   if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
   if (isLoading || !creationTimestamp) return null;
   return (
@@ -63,7 +64,9 @@ function ProjectDisplayNameCell({
   useProjectMembers: typeof _useProjectMembers;
 }) {
   const { displayName, isLoading } = useProjectMembers(projectName);
-  if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  useEffect(() => {
+    if (!isLoading && displayName) onDisplayName(projectName, displayName);
+  }, [isLoading, displayName, projectName, onDisplayName]);
   if (isLoading) return <BusyIndicator active size="S" />;
   return <FadeIn>{displayName ?? ''}</FadeIn>;
 }
@@ -94,9 +97,6 @@ export default function ProjectsList({
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
 
-  // Fire `project-list.searched` only once per "search session" — from the
-  // first non-empty character until the user clears the field — so we
-  // measure adoption, not keystrokes.
   const hasFiredSearchedRef = useRef(false);
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -207,7 +207,6 @@ export default function ProjectsList({
         accessor: 'creationTimestamp',
         width: 120,
         disableFilters: true,
-        responsivePopIn: true,
         responsiveMinWidth: 1200,
         sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
           const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
@@ -269,7 +268,9 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      {data.length > 0 && (
+        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+      )}
       <div ref={tableContainerRef}>
         <AnalyticalTable
           style={{

@@ -1,16 +1,19 @@
+import { FeatureToggleContext } from '../../../../context/FeatureToggleContext.tsx';
 import { ComponentsDashboard, ComponentsDashboardProps } from './ComponentsDashboard.tsx';
 
 describe('ComponentsDashboard', () => {
-  const mount = (props?: Partial<ComponentsDashboardProps>) => {
+  const mount = (props?: Partial<ComponentsDashboardProps>, showLandscaperCard = false) => {
     const components = {} as unknown as ComponentsDashboardProps['components'];
 
     cy.mount(
-      <ComponentsDashboard
-        components={components}
-        onInstallButtonClick={() => {}}
-        onNavigateToMcpSection={() => {}}
-        {...props}
-      />,
+      <FeatureToggleContext.Provider value={{ markMcpV1asDeprecated: false, enableMcpV2: false, showLandscaperCard }}>
+        <ComponentsDashboard
+          components={components}
+          onInstallButtonClick={() => {}}
+          onNavigateToMcpSection={() => {}}
+          {...props}
+        />
+      </FeatureToggleContext.Provider>,
       {},
     );
   };
@@ -18,7 +21,7 @@ describe('ComponentsDashboard', () => {
   it('renders all component cards with names, descriptions, and versions', () => {
     mount();
 
-    cy.get('.ui5-card-header').should('have.length', 5);
+    cy.get('.ui5-card-header').should('have.length', 4);
 
     cy.get('.ui5-card-header')
       .eq(0)
@@ -28,22 +31,27 @@ describe('ComponentsDashboard', () => {
     cy.get('.ui5-card-header')
       .eq(1)
       .should('contain.text', 'Flux')
-      .and('contain.text', 'GitOps for Kubernetes automating continuous sync and delivery');
+      .and('contain.text', 'Synchronize resources from Git repositories');
 
     cy.get('.ui5-card-header')
       .eq(2)
-      .should('contain.text', 'Landscaper')
-      .and('contain.text', 'Automate cross‑dependent Kubernetes deployments');
+      .should('contain.text', 'Kyverno')
+      .and('contain.text', 'Enforce policies for secure and compliant resources');
 
     cy.get('.ui5-card-header')
       .eq(3)
-      .should('contain.text', 'Kyverno')
-      .and('contain.text', 'Kubernetes-native policy as code for secure and compliant infrastructure');
-
-    cy.get('.ui5-card-header')
-      .eq(4)
       .should('contain.text', 'External Secrets Operator')
-      .and('contain.text', 'Manage and sync credentials from your secret store');
+      .and('contain.text', 'Manage credentials from your secret store');
+  });
+
+  it('renders the Landscaper card when the feature toggle is on', () => {
+    mount(undefined, true);
+
+    cy.get('.ui5-card-header').should('have.length', 5);
+    cy.get('.ui5-card-header')
+      .eq(2)
+      .should('contain.text', 'Landscaper')
+      .and('contain.text', 'Orchestrate cross-dependent deployments');
   });
 
   it('calls onInstallButtonClick when Install is clicked on each card', () => {

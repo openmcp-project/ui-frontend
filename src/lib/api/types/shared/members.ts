@@ -44,6 +44,8 @@ export const MemberSchema = z.object({
   name: z.string(),
   roles: z.array(z.string()),
   namespace: z.string().optional(),
+  // V2-only. Name of the extraProviders[] entry this member belongs to; undefined = default/system provider.
+  provider: z.string().optional(),
 });
 
 export function areMembersEqual(a: Member, b?: Member): boolean {
@@ -52,6 +54,7 @@ export function areMembersEqual(a: Member, b?: Member): boolean {
     a.kind === b.kind &&
     a.name === b.name &&
     a.namespace === b.namespace &&
+    a.provider === b.provider &&
     a.roles.length === b.roles.length &&
     a.roles.every((r) => b.roles.includes(r))
   );
