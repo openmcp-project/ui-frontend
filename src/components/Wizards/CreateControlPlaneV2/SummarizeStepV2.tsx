@@ -47,6 +47,11 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
       },
       { key: 'ocm', label: t('ServiceSelectionStep.ocm'), entry: services.ocm },
       { key: 'kro', label: t('ServiceSelectionStep.kro'), entry: services.kro },
+      {
+        key: 'metricsOperator',
+        label: t('ServiceSelectionStep.metricsOperator'),
+        entry: services.metricsOperator,
+      },
     ].filter((s) => s.entry?.selected);
   }, [services, t]);
 

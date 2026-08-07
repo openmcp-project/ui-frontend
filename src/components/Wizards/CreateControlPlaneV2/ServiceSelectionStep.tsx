@@ -37,6 +37,12 @@ const SERVICES: ServiceDef[] = [
   },
   { key: 'ocm', labelKey: 'ServiceSelectionStep.ocm', logo: LogoOcm, serviceName: 'ocm' },
   { key: 'kro', labelKey: 'ServiceSelectionStep.kro', logo: LogoKro, serviceName: 'kro' },
+  {
+    key: 'metricsOperator',
+    labelKey: 'ServiceSelectionStep.metricsOperator',
+    logo: LogoKro, // placeholder — replace with logo-metrics-operator.svg once available
+    serviceName: 'metrics-operator',
+  },
 ];
 
 interface ServiceSelectionStepProps {

@@ -31,6 +31,10 @@ import { useUpdateFlux } from '../../hooks/useUpdateFlux.ts';
 import { useUpdateLandscaper } from '../../hooks/useUpdateLandscaper.ts';
 import { useUpdateOcm } from '../../hooks/useUpdateOcm.ts';
 import { useUpdateKro } from '../../hooks/useUpdateKro.ts';
+import { useCreateMetricsOperator } from '../../hooks/useCreateMetricsOperator.ts';
+import { useDeleteMetricsOperator } from '../../hooks/useDeleteMetricsOperator.ts';
+import { useMetricsOperatorYamlQuery } from '../../hooks/useMetricsOperatorYamlQuery.ts';
+import { useUpdateMetricsOperator } from '../../hooks/useUpdateMetricsOperator.ts';
 import { CrossplaneInstallDialog } from '../CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
 
 import { useTranslation } from 'react-i18next';
@@ -45,11 +49,12 @@ import type { FluxData } from '../../types/Flux.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
 import type { OcmData } from '../../types/Ocm.ts';
 import type { KroData } from '../../types/Kro.ts';
+import type { MetricsOperatorData } from '../../types/MetricsOperator.ts';
 import { ComponentInstallDialog } from '../ComponentInstallDialog/ComponentInstallDialog.tsx';
 import { YamlViewButton } from '../../../../components/Yaml/YamlViewButton.tsx';
 import styles from './ComponentsDashboard.module.css';
 
-type DeleteTarget = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro' | null;
+type DeleteTarget = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro' | 'metricsOperator' | null;
 
 // Backend reconciliation after an edit/delete isn't instant; refetching immediately would usually
 // just re-read the pre-mutation state. Waiting a beat gives it a chance to catch up.
@@ -62,6 +67,7 @@ const DELETE_TARGET_COMPONENT_NAME: Record<NonNullable<DeleteTarget>, string> = 
   eso: 'External Secrets Operator',
   ocm: 'OCM',
   kro: 'KRO',
+  metricsOperator: 'Metrics Operator',
 };
 
 export interface ComponentsDashboardV2Props {
@@ -72,6 +78,7 @@ export interface ComponentsDashboardV2Props {
   esoData: EsoData | null;
   ocmData: OcmData | null;
   kroData: KroData | null;
+  metricsOperatorData: MetricsOperatorData | null;
   mcpName: string;
   mcpNamespace: string;
 }
@@ -84,6 +91,7 @@ export function ComponentsDashboardV2({
   esoData,
   ocmData,
   kroData,
+  metricsOperatorData,
   mcpName,
   mcpNamespace,
 }: ComponentsDashboardV2Props) {
@@ -109,6 +117,9 @@ export function ComponentsDashboardV2({
 
   const [isKroDialogOpen, setIsKroDialogOpen] = useState(false);
   const [kroDialogMode, setKroDialogMode] = useState<'install' | 'edit'>('install');
+
+  const [isMetricsOperatorDialogOpen, setIsMetricsOperatorDialogOpen] = useState(false);
+  const [metricsOperatorDialogMode, setMetricsOperatorDialogMode] = useState<'install' | 'edit'>('install');
 
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 
@@ -138,6 +149,7 @@ export function ComponentsDashboardV2({
   const { deleteEso } = useDeleteEso();
   const { deleteOcm } = useDeleteOcm();
   const { deleteKro } = useDeleteKro();
+  const { deleteMetricsOperator } = useDeleteMetricsOperator();
 
   const isCrossplaneInstalled = !!crossplaneData?.version;
   const crossplaneVersion = crossplaneData?.version ?? undefined;
@@ -156,6 +168,9 @@ export function ComponentsDashboardV2({
 
   const isKroInstalled = !!kroData?.version;
   const kroVersion = kroData?.version ?? undefined;
+
+  const isMetricsOperatorInstalled = !!metricsOperatorData?.version;
+  const metricsOperatorVersion = metricsOperatorData?.version ?? undefined;
 
   const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace, !isCrossplaneInstalled);
   const { resource: crossplaneResource, status: crossplaneStatus } = useComponentCardStatus(
@@ -181,6 +196,12 @@ export function ComponentsDashboardV2({
   const kroYaml = useKroYamlQuery(mcpName, mcpNamespace, !isKroInstalled);
   const { resource: kroResource, status: kroStatus } = useComponentCardStatus(isKroInstalled, kroYaml);
 
+  const metricsOperatorYaml = useMetricsOperatorYamlQuery(mcpName, mcpNamespace, !isMetricsOperatorInstalled);
+  const { resource: metricsOperatorResource, status: metricsOperatorStatus } = useComponentCardStatus(
+    isMetricsOperatorInstalled,
+    metricsOperatorYaml,
+  );
+
   const handleDeleteConfirmed = useCallback(async () => {
     if (!deleteTarget) return;
     const componentName = DELETE_TARGET_COMPONENT_NAME[deleteTarget];
@@ -203,6 +224,9 @@ export function ComponentsDashboardV2({
       } else if (deleteTarget === 'kro') {
         await deleteKro({ name: mcpName, namespace: mcpNamespace });
         scheduleRefetch(kroYaml.refetch);
+      } else if (deleteTarget === 'metricsOperator') {
+        await deleteMetricsOperator({ name: mcpName, namespace: mcpNamespace });
+        scheduleRefetch(metricsOperatorYaml.refetch);
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
       telemetry.track({ name: 'component.uninstalled', componentName });
@@ -218,6 +242,7 @@ export function ComponentsDashboardV2({
     deleteEso,
     deleteOcm,
     deleteKro,
+    deleteMetricsOperator,
     scheduleRefetch,
     crossplaneYaml.refetch,
     fluxYaml.refetch,
@@ -225,6 +250,7 @@ export function ComponentsDashboardV2({
     esoYaml.refetch,
     ocmYaml.refetch,
     kroYaml.refetch,
+    metricsOperatorYaml.refetch,
     mcpName,
     mcpNamespace,
     toast,
@@ -459,6 +485,43 @@ export function ComponentsDashboardV2({
           }
           onDeleteButtonClick={isKroInstalled ? () => setDeleteTarget('kro') : undefined}
         />
+        <ComponentCardV2
+          data-cy="component-card-metrics-operator"
+          name="Metrics Operator"
+          description={t('componentCardMetricsOperator.description')}
+          logoImgSrc={LogoKro}
+          status={metricsOperatorStatus}
+          version={metricsOperatorVersion}
+          yamlViewButton={
+            isMetricsOperatorInstalled && metricsOperatorResource ? (
+              <YamlViewButton
+                variant="mcp-component"
+                component="metrics-operator"
+                mcpName={mcpName}
+                mcpNamespace={mcpNamespace}
+                preloadedResource={metricsOperatorResource}
+              />
+            ) : undefined
+          }
+          onNavigateToComponentSection={undefined}
+          onInstallButtonClick={
+            !isMetricsOperatorInstalled
+              ? () => {
+                  setMetricsOperatorDialogMode('install');
+                  setIsMetricsOperatorDialogOpen(true);
+                }
+              : undefined
+          }
+          onEditButtonClick={
+            isMetricsOperatorInstalled
+              ? () => {
+                  setMetricsOperatorDialogMode('edit');
+                  setIsMetricsOperatorDialogOpen(true);
+                }
+              : undefined
+          }
+          onDeleteButtonClick={isMetricsOperatorInstalled ? () => setDeleteTarget('metricsOperator') : undefined}
+        />
       </div>
       <CrossplaneInstallDialog
         open={isCrossplaneDialogOpen}
@@ -544,6 +607,21 @@ export function ComponentsDashboardV2({
         onClose={() => setIsKroDialogOpen(false)}
         onSuccess={(mode) => {
           if (mode === 'edit') scheduleRefetch(kroYaml.refetch);
+        }}
+      />
+      <ComponentInstallDialog
+        open={isMetricsOperatorDialogOpen}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Metrics Operator"
+        serviceName="metrics-operator"
+        mode={metricsOperatorDialogMode}
+        initialVersion={metricsOperatorVersion}
+        useCreateMutation={useCreateMetricsOperator}
+        useUpdateMutation={useUpdateMetricsOperator}
+        onClose={() => setIsMetricsOperatorDialogOpen(false)}
+        onSuccess={(mode) => {
+          if (mode === 'edit') scheduleRefetch(metricsOperatorYaml.refetch);
         }}
       />
       {deleteTarget && (

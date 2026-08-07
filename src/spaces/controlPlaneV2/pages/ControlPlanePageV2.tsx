@@ -53,6 +53,7 @@ import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
 import { useOcmQuery } from '../components/Kpi/useOcmQuery.ts';
 import { useKroQuery } from '../components/Kpi/useKroQuery.ts';
+import { useMetricsOperatorQuery } from '../components/Kpi/useMetricsOperatorQuery.ts';
 import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
@@ -392,6 +393,7 @@ export default function ControlPlanePageV2() {
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
   const { ocmData } = useOcmQuery(controlPlaneName, namespace);
   const { kroData } = useKroQuery(controlPlaneName, namespace);
+  const { metricsOperatorData } = useMetricsOperatorQuery(controlPlaneName, namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
   // Hold graph mount until the cards' 0.3s height transition (index.css) has
   // settled — otherwise the graph layout fights with concurrent card animations.
@@ -560,6 +562,7 @@ export default function ControlPlanePageV2() {
                     esoData={esoData}
                     ocmData={ocmData}
                     kroData={kroData}
+                    metricsOperatorData={metricsOperatorData}
                     mcpName={controlPlaneName ?? ''}
                     mcpNamespace={namespace ?? ''}
                     onNavigateToMcpSection={setTabFromSection}
