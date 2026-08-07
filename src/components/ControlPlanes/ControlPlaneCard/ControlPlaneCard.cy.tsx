@@ -89,6 +89,44 @@ const v2ControlPlaneWithMembers: ControlPlaneListItem = {
   },
 };
 
+const v2ControlPlaneWithExtraProviderMembers: ControlPlaneListItem = {
+  version: 'v2',
+  metadata: {
+    name: 'cp-name',
+    namespace: 'project-my-project--ws-default',
+    creationTimestamp: '2024-06-01T12:00:00Z',
+    annotations: {},
+  },
+  status: null,
+  spec: {
+    iam: {
+      oidc: {
+        defaultProvider: {
+          roleBindings: [
+            {
+              roleRefs: [{ kind: 'ClusterRole', name: 'cluster-admin' }],
+              subjects: [{ kind: 'User', name: 'alice@example.com', apiGroup: null, namespace: null }],
+            },
+          ],
+        },
+        extraProviders: [
+          {
+            name: 'okta',
+            roleBindings: [
+              {
+                roleRefs: [{ kind: 'ClusterRole', name: 'viewer' }],
+                // Same email as the default provider member above, but a distinct identity:
+                // it must be counted as a separate member, not merged with it.
+                subjects: [{ kind: 'User', name: 'alice@example.com', apiGroup: null, namespace: null }],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+};
+
 const fakeUseDeleteManagedControlPlane: typeof useDeleteManagedControlPlane = () => ({
   deleteManagedControlPlane: async (): Promise<void> => {},
 });
@@ -577,6 +615,29 @@ describe('ControlPlaneCard', () => {
         </MockedProvider>,
       );
       cy.get('ui5-avatar-group').should('exist');
+      cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 2);
+    });
+
+    it('counts a member present in both the default and an extra provider as two distinct members', () => {
+      cy.mount(
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={mockFrontendConfig as never}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneCard
+                    controlPlane={v2ControlPlaneWithExtraProviderMembers}
+                    workspace={workspace}
+                    projectName="my-project"
+                    useDeleteManagedControlPlane={fakeUseDeleteManagedControlPlane}
+                    useDeleteManagedControlPlaneV2GraphQL={fakeUseDeleteManagedControlPlaneV2GraphQL}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>,
+      );
       cy.get('ui5-avatar-group').find('ui5-avatar').should('have.length', 2);
     });
 

@@ -252,6 +252,8 @@
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
     "columnNamespaceHeader": "Namespace",
+    "defaultProviderValue": "Default",
+    "customProviderValue": "Custom",
     "searchPlaceholder": "Search members"
   },
   "IllustratedError": {

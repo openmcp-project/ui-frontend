@@ -79,6 +79,13 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
+// Only `name` and `roleBindings` are queried for list items — the rest of the provider config
+// (issuer, claims, etc.) is only needed on the detail page.
+const ExtraOidcProviderListSchema = z.object({
+  name: z.string().nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
 const ExtraOidcProviderSchema = z.object({
   name: z.string().nullish(),
   issuer: z.string().nullish(),
@@ -102,7 +109,7 @@ const ControlPlaneV2Schema = z.object({
           oidc: z
             .object({
               defaultProvider: OidcProviderSchema.nullish(),
-              extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+              extraProviders: z.array(ExtraOidcProviderListSchema.nullable()).nullish(),
             })
             .nullish(),
         })

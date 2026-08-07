@@ -48,6 +48,16 @@ export const MemberSchema = z.object({
   provider: z.string().optional(),
 });
 
+// Sentinel prefix for display-only member lists built from a GraphQL query that doesn't fetch
+// extraProviders[].name (e.g. the ControlPlane list query used by the card view). Keeps members
+// from different, unnamed extra providers from colliding with each other or with the default
+// provider when deduplicating by (provider, kind, name) — see convertRoleBindingsToMembers.
+export const UNNAMED_PROVIDER_PREFIX = '__unnamed-provider-';
+
+export function isUnnamedProvider(provider?: string): boolean {
+  return !!provider?.startsWith(UNNAMED_PROVIDER_PREFIX);
+}
+
 export function areMembersEqual(a: Member, b?: Member): boolean {
   return (
     !!b &&

@@ -1,7 +1,7 @@
 import { Member } from '../lib/api/types/shared/members.ts';
 
 export function convertRoleBindingsToMembers(
-  roleBindings?: { role: string; subjects: { kind: string; name: string }[] }[],
+  roleBindings?: { role: string; subjects: { kind: string; name: string }[]; provider?: string }[],
 ): Member[] {
   if (!roleBindings) return [];
 
@@ -9,7 +9,8 @@ export function convertRoleBindingsToMembers(
 
   for (const binding of roleBindings) {
     for (const subject of binding.subjects) {
-      const key = `${subject.kind}-${subject.name}`;
+      // Keyed by provider too: the same kind+name can be a distinct identity in each identity provider.
+      const key = `${binding.provider ?? ''}-${subject.kind}-${subject.name}`;
       if (memberMap.has(key)) {
         // Add role to existing member
         const member = memberMap.get(key)!;
@@ -22,6 +23,7 @@ export function convertRoleBindingsToMembers(
           kind: subject.kind,
           name: subject.name,
           roles: [binding.role],
+          provider: binding.provider,
         });
       }
     }
