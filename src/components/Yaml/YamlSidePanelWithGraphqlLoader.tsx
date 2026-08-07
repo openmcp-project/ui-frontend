@@ -36,11 +36,7 @@ export function YamlSidePanelWithGraphqlLoader({
   const eso = useEsoYamlQuery(mcpName, mcpNamespace, component !== 'eso');
   const ocm = useOcmYamlQuery(mcpName, mcpNamespace, component !== 'ocm');
   const kro = useKroYamlQuery(mcpName, mcpNamespace, component !== 'kro');
-  const metricsOperator = useMetricsOperatorYamlQuery(
-    mcpName,
-    mcpNamespace,
-    component !== 'metrics-operator',
-  );
+  const metricsOperator = useMetricsOperatorYamlQuery(mcpName, mcpNamespace, component !== 'metrics-operator');
 
   const { yaml, isLoading, error } = {
     crossplane,

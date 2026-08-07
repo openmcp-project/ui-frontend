@@ -13,6 +13,7 @@ import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
 import LogoKro from '../../../assets/images/logo-kro.svg';
 import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
+import LogoMetricsOperator from '../../../assets/images/logo-metrics.svg';
 import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
 
@@ -40,7 +41,7 @@ const SERVICES: ServiceDef[] = [
   {
     key: 'metricsOperator',
     labelKey: 'ServiceSelectionStep.metricsOperator',
-    logo: LogoKro, // placeholder — replace with logo-metrics-operator.svg once available
+    logo: LogoMetricsOperator,
     serviceName: 'metrics-operator',
   },
 ];

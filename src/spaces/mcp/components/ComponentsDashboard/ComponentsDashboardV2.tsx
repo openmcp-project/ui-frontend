@@ -8,6 +8,7 @@ import LogoFlux from '../../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../../assets/images/logo-landscaper.svg';
 import LogoOcm from '../../../../assets/images/logo-ocm.svg';
 import LogoKro from '../../../../assets/images/logo-kro.svg';
+import LogoMetricsOperator from '../../../../assets/images/logo-metrics.svg';
 import { useComponentCardStatus } from '../../hooks/useComponentCardStatus.ts';
 import { useCreateEso } from '../../hooks/useCreateEso.ts';
 import { useCreateFlux } from '../../hooks/useCreateFlux.ts';
@@ -489,7 +490,7 @@ export function ComponentsDashboardV2({
           data-cy="component-card-metrics-operator"
           name="Metrics Operator"
           description={t('componentCardMetricsOperator.description')}
-          logoImgSrc={LogoKro}
+          logoImgSrc={LogoMetricsOperator}
           status={metricsOperatorStatus}
           version={metricsOperatorVersion}
           yamlViewButton={

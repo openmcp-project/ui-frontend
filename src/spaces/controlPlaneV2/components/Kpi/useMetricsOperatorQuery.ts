@@ -38,8 +38,7 @@ export function useMetricsOperatorQuery(name?: string, namespace?: string) {
     notifyOnNetworkStatusChange: true,
   });
 
-  const rawMetricsOperator =
-    queryResult.data?.metrics_services_open_control_plane_io?.v1alpha1?.MetricsOperator;
+  const rawMetricsOperator = queryResult.data?.metrics_services_open_control_plane_io?.v1alpha1?.MetricsOperator;
 
   const metricsOperatorData = useMemo<MetricsOperatorData | null>(() => {
     if (!rawMetricsOperator) return null;
