@@ -79,6 +79,12 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
+// List items only query `name` and `roleBindings`; the rest is detail-page only.
+const ExtraOidcProviderListSchema = z.object({
+  name: z.string().nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
 const ExtraOidcProviderSchema = z.object({
   name: z.string().nullish(),
   issuer: z.string().nullish(),
@@ -102,7 +108,7 @@ const ControlPlaneV2Schema = z.object({
           oidc: z
             .object({
               defaultProvider: OidcProviderSchema.nullish(),
-              extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+              extraProviders: z.array(ExtraOidcProviderListSchema.nullable()).nullish(),
             })
             .nullish(),
         })

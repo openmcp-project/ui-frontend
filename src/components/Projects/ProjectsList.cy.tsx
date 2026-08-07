@@ -53,7 +53,7 @@ describe('ProjectsList search', () => {
 
   it('filters by project name', () => {
     mount();
-    cy.get('ui5-input').typeIntoUi5Input('alpha');
+    cy.get('[data-testid="resource-search-input"]').typeIntoUi5Input('alpha');
     cy.contains('alpha-project').should('exist');
     cy.contains('beta-project').should('not.exist');
     cy.contains('gamma-project').should('not.exist');
@@ -61,7 +61,7 @@ describe('ProjectsList search', () => {
 
   it('filters by display name', () => {
     mount();
-    cy.get('ui5-input').typeIntoUi5Input('Beta Display');
+    cy.get('[data-testid="resource-search-input"]').typeIntoUi5Input('Beta Display');
     cy.contains('beta-project').should('exist');
     cy.contains('alpha-project').should('not.exist');
     cy.contains('gamma-project').should('not.exist');
@@ -69,14 +69,14 @@ describe('ProjectsList search', () => {
 
   it('is case-insensitive', () => {
     mount();
-    cy.get('ui5-input').typeIntoUi5Input('GAMMA');
+    cy.get('[data-testid="resource-search-input"]').typeIntoUi5Input('GAMMA');
     cy.contains('gamma-project').should('exist');
     cy.contains('alpha-project').should('not.exist');
   });
 
   it('shows no results for unmatched query', () => {
     mount();
-    cy.get('ui5-input').typeIntoUi5Input('zzznomatch');
+    cy.get('[data-testid="resource-search-input"]').typeIntoUi5Input('zzznomatch');
     cy.contains('alpha-project').should('not.exist');
     cy.contains('beta-project').should('not.exist');
     cy.contains('gamma-project').should('not.exist');

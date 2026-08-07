@@ -1907,6 +1907,7 @@ export type GetMcPsListQuery = {
                   } | null> | null;
                 } | null;
                 extraProviders: Array<{
+                  name: string | null;
                   roleBindings: Array<{
                     roleRefs: Array<{ kind: string | null; name: string | null } | null> | null;
                     subjects: Array<{ kind: string | null; name: string | null } | null> | null;
@@ -5890,6 +5891,7 @@ export const GetMcPsListDocument = {
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
                                                             name: { kind: 'Name', value: 'roleBindings' },
