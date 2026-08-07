@@ -424,8 +424,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    // Two elements share `add-member-button`; `.last()` is the dialog's submit button.
-    cy.get('[data-testid="add-member-button"]').last().click();
+    cy.get('[data-testid="add-member-submit-button"]').click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
 
@@ -692,8 +691,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    // Two elements share `add-member-button`; `.last()` is the dialog's submit button.
-    cy.get('[data-testid="add-member-button"]').last().click();
+    cy.get('[data-testid="add-member-submit-button"]').click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
 

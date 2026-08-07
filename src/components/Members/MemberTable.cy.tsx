@@ -121,4 +121,31 @@ describe('MemberTable', () => {
     cy.contains('okta (1)').should('exist');
     cy.contains('bob@example.com').should('exist');
   });
+
+  it('filters members by role', () => {
+    mount();
+    cy.get('ui5-input').typeIntoUi5Input('Administrator');
+    cy.contains('alice@example.com').should('exist');
+    cy.contains('bob@example.com').should('not.exist');
+    cy.contains('carol@example.com').should('not.exist');
+  });
+
+  it('filters members by kind', () => {
+    mount();
+    cy.get('ui5-input').typeIntoUi5Input('Group');
+    cy.contains('carol@example.com').should('exist');
+    cy.contains('alice@example.com').should('not.exist');
+    cy.contains('bob@example.com').should('not.exist');
+  });
+
+  it('filters members by provider', () => {
+    const mixedMembers = [
+      { name: 'alice@example.com', kind: 'User', roles: [MemberRoles.admin] },
+      { name: 'bob@example.com', kind: 'User', roles: [MemberRoles.view], provider: 'okta' },
+    ];
+    mount(mixedMembers);
+    cy.get('ui5-input').typeIntoUi5Input('okta');
+    cy.contains('bob@example.com').should('exist');
+    cy.contains('alice@example.com').should('not.exist');
+  });
 });

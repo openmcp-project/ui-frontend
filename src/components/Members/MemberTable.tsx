@@ -15,7 +15,7 @@ import {
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
-import { FC, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   isUnnamedProvider,
@@ -79,7 +79,10 @@ const toRow = (m: Member): MemberTableRow => {
 
 // AnalyticalTable defaults to a padded 15-row/min-5 viewport; pin rows to actual data count
 // instead, so the table's height always matches its content (min 1, for the "No data" row).
-const rowCount = (count: number) => Math.max(count, 1);
+// Capped at MAX_VISIBLE_ROWS so a very large provider group (e.g. a big OIDC group binding)
+// scrolls internally instead of growing the table/popover without bound.
+const MAX_VISIBLE_ROWS = 10;
+const rowCount = (count: number) => Math.min(Math.max(count, 1), MAX_VISIBLE_ROWS);
 
 export const MemberTable: FC<MemberTableProps> = ({
   members,
@@ -168,14 +171,28 @@ export const MemberTable: FC<MemberTableProps> = ({
     return cols;
   }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember]);
 
+  const providerLabel = useCallback(
+    (provider?: string): string => {
+      if (!provider) return t('MemberTable.defaultProviderValue');
+      if (isUnnamedProvider(provider)) return t('MemberTable.customProviderValue');
+      return provider;
+    },
+    [t],
+  );
+
   // Group by provider so distinct identity providers don't get merged into one table.
   const groupedRows = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const filteredMembers = query ? members.filter((m) => m.name.toLowerCase().includes(query)) : members;
+    const matchesQuery = (row: MemberTableRow) =>
+      !query ||
+      [row.email, row.role, row.kind, providerLabel(row._member.provider)].some((value) =>
+        value.toLowerCase().includes(query),
+      );
 
     const groups = new Map<string | undefined, MemberTableRow[]>();
-    for (const m of filteredMembers) {
+    for (const m of members) {
       const row = toRow(m);
+      if (!matchesQuery(row)) continue;
       if (!groups.has(m.provider)) groups.set(m.provider, []);
       groups.get(m.provider)!.push(row);
     }
@@ -184,7 +201,7 @@ export const MemberTable: FC<MemberTableProps> = ({
       groups.set(undefined, []);
     }
     return [...groups.entries()].map(([provider, rows]) => ({ provider, rows }));
-  }, [members, search]);
+  }, [members, search, providerLabel]);
   const isGrouped = groupedRows.length > 1;
 
   if (requireAtLeastOneMember && members.length === 0) {
@@ -194,12 +211,6 @@ export const MemberTable: FC<MemberTableProps> = ({
       </Infobox>
     );
   }
-
-  const providerLabel = (provider?: string): string => {
-    if (!provider) return t('MemberTable.defaultProviderValue');
-    if (isUnnamedProvider(provider)) return t('MemberTable.customProviderValue');
-    return provider;
-  };
 
   return (
     <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
@@ -214,7 +225,7 @@ export const MemberTable: FC<MemberTableProps> = ({
         />
       </FlexBox>
       {groupedRows.map(({ provider, rows }) => (
-        <FlexBox key={provider ?? ''} direction="Column" style={{ gap: '0.25rem' }}>
+        <FlexBox key={provider ?? ''} className={styles.group} direction="Column" style={{ gap: '0.25rem' }}>
           {isGrouped && (
             <Text className={styles.groupTitle}>
               {providerLabel(provider)} ({rows.length})
@@ -223,7 +234,6 @@ export const MemberTable: FC<MemberTableProps> = ({
           <AnalyticalTable
             sortable
             scaleWidthMode="Smart"
-            className={styles.table}
             columns={columns}
             data={rows}
             visibleRows={rowCount(rows.length)}
