@@ -94,6 +94,21 @@ describe('MemberTable', () => {
     cy.contains('okta').should('not.exist');
   });
 
+  it('hides the Namespace column when no member has a namespace, even if hideNamespaceColumn is unset', () => {
+    cy.mount(<MemberTable members={members} requireAtLeastOneMember={false} />);
+    cy.contains('Namespace').should('not.exist');
+  });
+
+  it('shows the Namespace column when at least one member has a namespace', () => {
+    const membersWithNamespace = [
+      { name: 'alice@example.com', kind: 'User', roles: [MemberRoles.admin] },
+      { name: 'bob@example.com', kind: 'Group', roles: [MemberRoles.view], namespace: 'my-namespace' },
+    ];
+    cy.mount(<MemberTable members={membersWithNamespace} requireAtLeastOneMember={false} />);
+    cy.contains('Namespace').should('exist');
+    cy.contains('my-namespace').should('exist');
+  });
+
   it('filters members across all provider tables using the single shared search bar', () => {
     const mixedMembers = [
       { name: 'alice@example.com', kind: 'User', roles: [MemberRoles.admin] },

@@ -1,3 +1,8 @@
+import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
+import '@ui5/webcomponents-icons/dist/badge';
+import '@ui5/webcomponents-icons/dist/search';
+import '@ui5/webcomponents-icons/dist/shield';
+import '@ui5/webcomponents-icons/dist/show';
 import {
   AnalyticalTable,
   Button,
@@ -9,17 +14,12 @@ import {
   Text,
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-icons/dist/search';
-import '@ui5/webcomponents-icons/dist/show';
-import '@ui5/webcomponents-icons/dist/shield';
-import '@ui5/webcomponents-icons/dist/badge';
-import { isUnnamedProvider, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
-import { useTranslation } from 'react-i18next';
 import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { isUnnamedProvider, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
-import ValueState from '@ui5/webcomponents-base/dist/types/ValueState.js';
 import styles from './MemberTable.module.css';
 
 type MemberTableRow = {
@@ -84,7 +84,7 @@ export const MemberTable: FC<MemberTableProps> = ({
     {
       Header: t('MemberTable.columnRoleHeader'),
       accessor: 'role',
-      width: 155,
+      width: 125,
       Cell: (instance) => {
         const role = instance.cell.value as string;
         return (
@@ -96,7 +96,8 @@ export const MemberTable: FC<MemberTableProps> = ({
     },
   ];
 
-  if (!hideNamespaceColumn) {
+  const hasNamespaceData = members.some((m) => !!m.namespace);
+  if (!hideNamespaceColumn && hasNamespaceData) {
     columns.push({
       Header: t('MemberTable.columnNamespaceHeader'),
       accessor: 'namespace',
