@@ -96,6 +96,9 @@ export const MemberTable: FC<MemberTableProps> = ({
   const [search, setSearch] = useState('');
 
   const hasNamespaceData = useMemo(() => members.some((m) => !!m.namespace), [members]);
+  // Based on the unfiltered member set — otherwise searching down to a single remaining
+  // provider's rows would hide that provider's group title even though grouping is still active.
+  const isGrouped = useMemo(() => new Set(members.map((m) => m.provider)).size > 1, [members]);
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(() => {
     const cols: AnalyticalTableColumnDefinition[] = [
@@ -202,7 +205,6 @@ export const MemberTable: FC<MemberTableProps> = ({
     }
     return [...groups.entries()].map(([provider, rows]) => ({ provider, rows }));
   }, [members, search, providerLabel]);
-  const isGrouped = groupedRows.length > 1;
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (
