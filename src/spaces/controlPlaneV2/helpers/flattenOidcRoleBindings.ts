@@ -17,16 +17,12 @@ export interface OidcSource {
 export interface MemberRoleBinding {
   role: string;
   subjects: { kind: string; name: string }[];
-  // Name of the extraProviders[] entry this binding belongs to; undefined = default provider.
-  // Callers whose query doesn't fetch extraProviders[].name (see UNNAMED_PROVIDER_PREFIX) get a
-  // synthetic per-entry value here instead — never undefined, so an extra provider's members are
-  // never mistaken for default-provider members.
+  // extraProviders[] entry name; undefined = default provider. Never undefined for an extra
+  // provider without a name (see UNNAMED_PROVIDER_PREFIX).
   provider?: string;
 }
 
-// Flattens a ControlPlane's IAM oidc config (roleRefs[] + subjects[] per provider) into the flat
-// shape expected by convertRoleBindingsToMembers, tagging each binding with the provider it came
-// from so members granted access via different identity providers aren't conflated.
+// Flattens oidc roleRefs/subjects per provider into convertRoleBindingsToMembers' input shape.
 export function flattenOidcRoleBindings(oidc?: OidcSource | null): MemberRoleBinding[] {
   const providers: { provider?: string; data?: OidcProviderRoleBindingsSource | null }[] = [
     { provider: undefined, data: oidc?.defaultProvider },

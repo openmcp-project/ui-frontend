@@ -21,18 +21,9 @@ export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
 
 export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {
   [MemberRoles.view]: { value: MemberRoles.view, displayValue: 'Viewer' },
-  [MemberRoles.admin]: {
-    value: MemberRoles.admin,
-    displayValue: 'Administrator',
-  },
-  [MCP_V2_DEFAULT_ROLE]: {
-    value: MCP_V2_DEFAULT_ROLE,
-    displayValue: 'Cluster Admin',
-  },
-  [MCP_V2_VIEWER_ROLE]: {
-    value: MCP_V2_VIEWER_ROLE,
-    displayValue: 'Viewer',
-  },
+  [MemberRoles.admin]: { value: MemberRoles.admin, displayValue: 'Administrator' },
+  [MCP_V2_DEFAULT_ROLE]: { value: MCP_V2_DEFAULT_ROLE, displayValue: 'Cluster Admin' },
+  [MCP_V2_VIEWER_ROLE]: { value: MCP_V2_VIEWER_ROLE, displayValue: 'Viewer' },
 };
 
 export enum MemberKind {
@@ -44,14 +35,12 @@ export const MemberSchema = z.object({
   name: z.string(),
   roles: z.array(z.string()),
   namespace: z.string().optional(),
-  // V2-only. Name of the extraProviders[] entry this member belongs to; undefined = default/system provider.
+  // V2-only: extraProviders[] entry name; undefined = default provider.
   provider: z.string().optional(),
 });
 
-// Sentinel prefix for display-only member lists built from a GraphQL query that doesn't fetch
-// extraProviders[].name (e.g. the ControlPlane list query used by the card view). Keeps members
-// from different, unnamed extra providers from colliding with each other or with the default
-// provider when deduplicating by (provider, kind, name) — see convertRoleBindingsToMembers.
+// Marks members from an unnamed extra provider so dedup doesn't merge them with each other
+// or the default provider — see convertRoleBindingsToMembers.
 export const UNNAMED_PROVIDER_PREFIX = '__unnamed-provider-';
 
 export function isUnnamedProvider(provider?: string): boolean {

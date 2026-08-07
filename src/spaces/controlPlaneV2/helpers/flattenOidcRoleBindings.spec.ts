@@ -63,8 +63,7 @@ describe('flattenOidcRoleBindings', () => {
   });
 
   it('gives extraProviders entries without a name a distinct synthetic provider tag, never undefined', () => {
-    // Simulates callers whose GraphQL query doesn't fetch extraProviders[].name (e.g. the
-    // ControlPlane list query used by the card view) — the raw provider object has no `name` key.
+    // Simulates a query that doesn't fetch extraProviders[].name.
     const result = flattenOidcRoleBindings({
       defaultProvider: {
         roleBindings: [

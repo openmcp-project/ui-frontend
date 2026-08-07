@@ -84,8 +84,7 @@ describe('MemberTable', () => {
   });
 
   it('does not group when every member shares the same single provider', () => {
-    // Mirrors the wizard's per-provider EditMembers table, where the provider is already
-    // shown once in the surrounding group header — a repeated group-of-one would be noise.
+    // Single shared provider — grouping would be redundant.
     const singleProviderMembers = [
       { name: 'alice@example.com', kind: 'User', roles: [MemberRoles.admin], provider: 'okta' },
       { name: 'bob@example.com', kind: 'User', roles: [MemberRoles.view], provider: 'okta' },
@@ -117,7 +116,7 @@ describe('MemberTable', () => {
     mount(mixedMembers);
     cy.get('ui5-input').typeIntoUi5Input('bob');
     cy.contains('alice@example.com').should('not.exist');
-    // The default provider group has no remaining matches, so it disappears entirely.
+    // Default group has no matches left, so it's gone.
     cy.contains('Default').should('not.exist');
     cy.contains('okta (1)').should('exist');
     cy.contains('bob@example.com').should('exist');

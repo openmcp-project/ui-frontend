@@ -15,9 +15,17 @@ import {
   Ui5CustomEvent,
 } from '@ui5/webcomponents-react';
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isUnnamedProvider, Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import {
+  isUnnamedProvider,
+  MCP_V2_DEFAULT_ROLE,
+  Member,
+  memberRolesOptions,
+  MemberRoles,
+  MemberRolesDetailed,
+  mcpV2RoleOptions,
+} from '../../lib/api/types/shared/members';
 import { Infobox } from '../Ui/Infobox/Infobox.tsx';
 import { ACCOUNT_TYPES } from './EditMembers.tsx';
 import styles from './MemberTable.module.css';
@@ -25,6 +33,7 @@ import styles from './MemberTable.module.css';
 type MemberTableRow = {
   email: string;
   role: string;
+  roleValue: string;
   kind: string;
   namespace: string;
   _member: Member;
@@ -39,17 +48,38 @@ type MemberTableProps = {
   hideNamespaceColumn?: boolean;
 };
 
-function roleState(role: string): ValueState {
-  if (role === 'Cluster Admin') return ValueState.Negative;
-  if (role === 'Administrator') return ValueState.Critical;
-  return ValueState.None;
-}
+// Icon per role value, reusing the same options arrays the role-picker dropdowns use — one
+// source of truth instead of a badge-only copy that could drift from them.
+const ROLE_ICON_BY_VALUE: Record<string, string> = Object.fromEntries(
+  [...memberRolesOptions, ...mcpV2RoleOptions].map(({ value, icon }) => [value, icon ?? 'show']),
+);
 
-function roleIcon(role: string): string {
-  if (role === 'Cluster Admin') return 'badge';
-  if (role === 'Administrator') return 'shield';
-  return 'show';
-}
+// Badge severity has no other owner in the codebase — it's purely a table presentation choice.
+const ROLE_STATE_BY_VALUE: Record<string, ValueState> = {
+  [MemberRoles.admin]: ValueState.Critical,
+  [MCP_V2_DEFAULT_ROLE]: ValueState.Negative,
+};
+
+const roleMeta = (roleValue: string): { icon: string; state: ValueState } => ({
+  icon: ROLE_ICON_BY_VALUE[roleValue] ?? 'show',
+  state: ROLE_STATE_BY_VALUE[roleValue] ?? ValueState.None,
+});
+
+const toRow = (m: Member): MemberTableRow => {
+  const roleValue = m.roles?.[0] ?? '';
+  return {
+    email: m.name,
+    role: MemberRolesDetailed[roleValue]?.displayValue ?? m.roles?.toString(),
+    roleValue,
+    kind: m.kind,
+    namespace: m.namespace ?? '',
+    _member: m,
+  };
+};
+
+// AnalyticalTable defaults to a padded 15-row/min-5 viewport; pin rows to actual data count
+// instead, so the table's height always matches its content (min 1, for the "No data" row).
+const rowCount = (count: number) => Math.max(count, 1);
 
 export const MemberTable: FC<MemberTableProps> = ({
   members,
@@ -62,75 +92,100 @@ export const MemberTable: FC<MemberTableProps> = ({
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
 
-  const columns: AnalyticalTableColumnDefinition[] = [
-    {
-      Header: t('MemberTable.columnNameHeader'),
-      accessor: 'email',
-      minWidth: 200,
-    },
-    {
-      Header: t('MemberTable.columnTypeHeader'),
-      accessor: 'kind',
-      width: 78,
-      Cell: (instance) => {
-        const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
-        return (
-          <ObjectStatus icon={<Icon name={kind?.icon ?? 'employee'} />} inverted>
-            {kind?.label}
-          </ObjectStatus>
-        );
-      },
-    },
-    {
-      Header: t('MemberTable.columnRoleHeader'),
-      accessor: 'role',
-      width: 125,
-      Cell: (instance) => {
-        const role = instance.cell.value as string;
-        return (
-          <ObjectStatus state={roleState(role)} icon={<Icon name={roleIcon(role)} />} inverted>
-            {role}
-          </ObjectStatus>
-        );
-      },
-    },
-  ];
+  const hasNamespaceData = useMemo(() => members.some((m) => !!m.namespace), [members]);
 
-  const hasNamespaceData = members.some((m) => !!m.namespace);
-  if (!hideNamespaceColumn && hasNamespaceData) {
-    columns.push({
-      Header: t('MemberTable.columnNamespaceHeader'),
-      accessor: 'namespace',
-    });
-  }
+  const columns: AnalyticalTableColumnDefinition[] = useMemo(() => {
+    const cols: AnalyticalTableColumnDefinition[] = [
+      {
+        Header: t('MemberTable.columnNameHeader'),
+        accessor: 'email',
+        minWidth: 200,
+      },
+      {
+        Header: t('MemberTable.columnTypeHeader'),
+        accessor: 'kind',
+        width: 78,
+        Cell: (instance) => {
+          const kind = ACCOUNT_TYPES.find(({ value }) => value === instance.cell.row.original.kind);
+          return (
+            <ObjectStatus icon={<Icon name={kind?.icon ?? 'employee'} />} inverted>
+              {kind?.label}
+            </ObjectStatus>
+          );
+        },
+      },
+      {
+        Header: t('MemberTable.columnRoleHeader'),
+        accessor: 'role',
+        width: 125,
+        Cell: (instance) => {
+          const row = instance.cell.row.original as MemberTableRow;
+          const meta = roleMeta(row.roleValue);
+          return (
+            <ObjectStatus state={meta.state} icon={<Icon name={meta.icon} />} inverted>
+              {row.role}
+            </ObjectStatus>
+          );
+        },
+      },
+    ];
 
-  if (onEditMember && onDeleteMember) {
-    columns.push({
-      Header: '',
-      id: 'edit',
-      width: 100,
-      Cell: (instance) => (
-        <FlexBox gap={'0.5rem'} justifyContent={'SpaceBetween'}>
-          <Button
-            icon="edit"
-            design="Transparent"
-            onClick={() => {
-              const selectedMember = instance.cell.row.original._member as Member;
-              onEditMember(selectedMember);
-            }}
-          />
-          <Button
-            design="Transparent"
-            icon="delete"
-            onClick={() => {
-              const selectedMemberEmail = instance.cell.row.original.email as string;
-              onDeleteMember(selectedMemberEmail);
-            }}
-          />
-        </FlexBox>
-      ),
-    });
-  }
+    if (!hideNamespaceColumn && hasNamespaceData) {
+      cols.push({
+        Header: t('MemberTable.columnNamespaceHeader'),
+        accessor: 'namespace',
+      });
+    }
+
+    if (onEditMember && onDeleteMember) {
+      cols.push({
+        Header: '',
+        id: 'edit',
+        width: 100,
+        Cell: (instance) => (
+          <FlexBox gap={'0.5rem'} justifyContent={'SpaceBetween'}>
+            <Button
+              icon="edit"
+              design="Transparent"
+              onClick={() => {
+                const selectedMember = instance.cell.row.original._member as Member;
+                onEditMember(selectedMember);
+              }}
+            />
+            <Button
+              design="Transparent"
+              icon="delete"
+              onClick={() => {
+                const selectedMemberEmail = instance.cell.row.original.email as string;
+                onDeleteMember(selectedMemberEmail);
+              }}
+            />
+          </FlexBox>
+        ),
+      });
+    }
+
+    return cols;
+  }, [t, hideNamespaceColumn, hasNamespaceData, onEditMember, onDeleteMember]);
+
+  // Group by provider so distinct identity providers don't get merged into one table.
+  const groupedRows = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filteredMembers = query ? members.filter((m) => m.name.toLowerCase().includes(query)) : members;
+
+    const groups = new Map<string | undefined, MemberTableRow[]>();
+    for (const m of filteredMembers) {
+      const row = toRow(m);
+      if (!groups.has(m.provider)) groups.set(m.provider, []);
+      groups.get(m.provider)!.push(row);
+    }
+    // Keep at least one empty group so a no-match search still renders the "No data" table.
+    if (groups.size === 0) {
+      groups.set(undefined, []);
+    }
+    return [...groups.entries()].map(([provider, rows]) => ({ provider, rows }));
+  }, [members, search]);
+  const isGrouped = groupedRows.length > 1;
 
   if (requireAtLeastOneMember && members.length === 0) {
     return (
@@ -140,43 +195,11 @@ export const MemberTable: FC<MemberTableProps> = ({
     );
   }
 
-  const query = search.trim().toLowerCase();
-  const filteredMembers = query ? members.filter((m) => m.name.toLowerCase().includes(query)) : members;
-
-  const toRow = (m: Member): MemberTableRow => ({
-    email: m.name,
-    role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.toString(),
-    kind: m.kind,
-    namespace: m.namespace ?? '',
-    _member: m,
-  });
-
-  // AnalyticalTable defaults to a fixed 15-row viewport padded with empty rows down to a minimum
-  // of 5, regardless of the actual data size. Pin both to the row count instead, so the table's
-  // height always matches its content — no dead space, no internal scrollbar. minRows must be
-  // >=1, so an empty result still renders (as a single "No data" row) instead of collapsing.
-  const rowCount = (count: number) => Math.max(count, 1);
-
   const providerLabel = (provider?: string): string => {
     if (!provider) return t('MemberTable.defaultProviderValue');
     if (isUnnamedProvider(provider)) return t('MemberTable.customProviderValue');
     return provider;
   };
-
-  // Group by provider so a V2 control plane with a default + one or more custom identity
-  // providers gets one table per provider instead of merging distinct identities together.
-  // V1 members and the wizard's already-per-provider EditMembers slices never carry more than one
-  // distinct provider, so they fall through to the plain single-table rendering below.
-  const providerOrder: (string | undefined)[] = [];
-  const groupedMembers = new Map<string | undefined, Member[]>();
-  for (const m of filteredMembers) {
-    if (!groupedMembers.has(m.provider)) {
-      groupedMembers.set(m.provider, []);
-      providerOrder.push(m.provider);
-    }
-    groupedMembers.get(m.provider)!.push(m);
-  }
-  const isGrouped = providerOrder.length > 1;
 
   return (
     <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
@@ -190,37 +213,24 @@ export const MemberTable: FC<MemberTableProps> = ({
           onInput={(e: Ui5CustomEvent<InputDomRef, never>) => setSearch(e.target.value)}
         />
       </FlexBox>
-      {isGrouped ? (
-        providerOrder.map((provider) => {
-          const providerMembers = groupedMembers.get(provider)!;
-          return (
-            <FlexBox key={provider ?? ''} direction="Column" style={{ gap: '0.25rem' }}>
-              <Text className={styles.groupTitle}>
-                {providerLabel(provider)} ({providerMembers.length})
-              </Text>
-              <AnalyticalTable
-                sortable
-                scaleWidthMode="Smart"
-                className={styles.table}
-                columns={columns}
-                data={providerMembers.map(toRow)}
-                visibleRows={rowCount(providerMembers.length)}
-                minRows={rowCount(providerMembers.length)}
-              />
-            </FlexBox>
-          );
-        })
-      ) : (
-        <AnalyticalTable
-          sortable
-          scaleWidthMode="Smart"
-          className={styles.table}
-          columns={columns}
-          data={filteredMembers.map(toRow)}
-          visibleRows={rowCount(filteredMembers.length)}
-          minRows={rowCount(filteredMembers.length)}
-        />
-      )}
+      {groupedRows.map(({ provider, rows }) => (
+        <FlexBox key={provider ?? ''} direction="Column" style={{ gap: '0.25rem' }}>
+          {isGrouped && (
+            <Text className={styles.groupTitle}>
+              {providerLabel(provider)} ({rows.length})
+            </Text>
+          )}
+          <AnalyticalTable
+            sortable
+            scaleWidthMode="Smart"
+            className={styles.table}
+            columns={columns}
+            data={rows}
+            visibleRows={rowCount(rows.length)}
+            minRows={rowCount(rows.length)}
+          />
+        </FlexBox>
+      ))}
     </FlexBox>
   );
 };

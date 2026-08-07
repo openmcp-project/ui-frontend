@@ -79,8 +79,7 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
-// Only `name` and `roleBindings` are queried for list items — the rest of the provider config
-// (issuer, claims, etc.) is only needed on the detail page.
+// List items only query `name` and `roleBindings`; the rest is detail-page only.
 const ExtraOidcProviderListSchema = z.object({
   name: z.string().nullish(),
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),

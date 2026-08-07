@@ -424,9 +424,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    // Submit the Add Member dialog. Two elements share `add-member-button`:
-    // the outer trigger (which opened the dialog) and the inner submit — grab
-    // the last one. Default role is 'view' so no radio interaction needed.
+    // Two elements share `add-member-button`; `.last()` is the dialog's submit button.
     cy.get('[data-testid="add-member-button"]').last().click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
@@ -694,9 +692,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    // Submit the Add Member dialog. Two elements share `add-member-button`:
-    // the outer trigger (which opened the dialog) and the inner submit — grab
-    // the last one. Default role is 'view' so no radio interaction needed.
+    // Two elements share `add-member-button`; `.last()` is the dialog's submit button.
     cy.get('[data-testid="add-member-button"]').last().click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection

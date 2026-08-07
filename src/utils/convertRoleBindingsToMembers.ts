@@ -9,16 +9,14 @@ export function convertRoleBindingsToMembers(
 
   for (const binding of roleBindings) {
     for (const subject of binding.subjects) {
-      // Keyed by provider too: the same kind+name can be a distinct identity in each identity provider.
+      // Provider is part of the key: same kind+name can differ per identity provider.
       const key = `${binding.provider ?? ''}-${subject.kind}-${subject.name}`;
       if (memberMap.has(key)) {
-        // Add role to existing member
         const member = memberMap.get(key)!;
         if (!member.roles.includes(binding.role)) {
           member.roles.push(binding.role);
         }
       } else {
-        // Create new member
         memberMap.set(key, {
           kind: subject.kind,
           name: subject.name,

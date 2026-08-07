@@ -115,8 +115,7 @@ const v2ControlPlaneWithExtraProviderMembers: ControlPlaneListItem = {
             roleBindings: [
               {
                 roleRefs: [{ kind: 'ClusterRole', name: 'viewer' }],
-                // Same email as the default provider member above, but a distinct identity:
-                // it must be counted as a separate member, not merged with it.
+                // Same email, different provider — must count as a distinct member.
                 subjects: [{ kind: 'User', name: 'alice@example.com', apiGroup: null, namespace: null }],
               },
             ],
