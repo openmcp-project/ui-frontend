@@ -5,7 +5,6 @@ export interface McpActions {
   kubeconfig?: string;
   mcpName?: string;
   mcpDisplayName?: string;
-  namespace?: string;
   roleBindings?: RoleBinding[];
   project?: string;
   workspace?: string;

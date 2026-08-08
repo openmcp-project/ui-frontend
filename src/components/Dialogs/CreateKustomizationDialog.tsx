@@ -1,5 +1,5 @@
-import { Dialog, Bar, Label, Input, Button, Form, FormGroup, CheckBox } from '@ui5/webcomponents-react';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { Dialog, Bar, Label, Input, Button, Form, FormGroup, CheckBox, Select, Option } from '@ui5/webcomponents-react';
+import { useForm, Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useId } from 'react';
 import { z } from 'zod';
@@ -8,6 +8,8 @@ import {
   useCreateKustomization as _useCreateKustomization,
   CreateKustomizationParams,
 } from '../../hooks/useCreateKustomization';
+import { useApiResource as _useApiResource } from '../../lib/api/useApiResource';
+import { FluxRequest } from '../../lib/api/types/flux/listGitRepo';
 import styles from './CreateKustomizationDialog.module.css';
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/add';
@@ -16,15 +18,25 @@ interface CreateKustomizationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   useCreateKustomization?: typeof _useCreateKustomization;
+  useListGitRepositories?: typeof _useApiResource;
 }
 
 export function CreateKustomizationDialog({
   isOpen,
   onClose,
   useCreateKustomization = _useCreateKustomization,
+  useListGitRepositories = _useApiResource,
 }: CreateKustomizationDialogProps) {
   const { t } = useTranslation();
   const { createKustomization, isLoading } = useCreateKustomization();
+
+  const { data: gitRepoData, isLoading: isLoadingRepos } = useListGitRepositories(
+    FluxRequest,
+    undefined,
+    undefined,
+    !isOpen,
+  );
+  const gitRepoNames = (gitRepoData?.items ?? []).map((item) => item.metadata.name);
 
   const namespaceId = useId();
   const nameId = useId();
@@ -58,6 +70,7 @@ export function CreateKustomizationDialog({
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormSchema>({
     defaultValues: {
@@ -72,6 +85,8 @@ export function CreateKustomizationDialog({
     },
     resolver: zodResolver(validationSchema),
   });
+
+  const sourceRefName = useWatch({ control, name: 'sourceRefName' }) ?? '';
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -212,20 +227,31 @@ export function CreateKustomizationDialog({
                 <Label required for={sourceRefNameId}>
                   {t('CreateKustomizationDialog.gitRepositoryTitle')}
                 </Label>
-                <Controller
-                  name="sourceRefName"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      id={sourceRefNameId}
-                      placeholder={t('CreateKustomizationDialog.sourceRefNameTitle')}
-                      valueState={errors.sourceRefName ? 'Negative' : 'None'}
-                      valueStateMessage={<span>{errors.sourceRefName?.message}</span>}
-                      className={styles.input}
-                    />
-                  )}
-                />
+                <Select
+                  id={sourceRefNameId}
+                  data-testid="sourceRefName-select"
+                  data-cy="sourceRefName-select"
+                  className={styles.input}
+                  disabled={isLoadingRepos}
+                  value={sourceRefName}
+                  valueState={errors.sourceRefName ? 'Negative' : 'None'}
+                  valueStateMessage={<span>{errors.sourceRefName?.message}</span>}
+                  onChange={(e) => {
+                    const selected = (e.detail.selectedOption as HTMLElement).dataset.value ?? '';
+                    setValue('sourceRefName', selected, { shouldValidate: true });
+                  }}
+                >
+                  <Option data-value="" selected={!sourceRefName}>
+                    {isLoadingRepos
+                      ? t('CreateKustomizationDialog.loadingRepos')
+                      : t('CreateKustomizationDialog.selectRepo')}
+                  </Option>
+                  {gitRepoNames.map((name) => (
+                    <Option key={name} data-value={name} selected={sourceRefName === name}>
+                      {name}
+                    </Option>
+                  ))}
+                </Select>
               </div>
 
               <div className={styles.formField}>

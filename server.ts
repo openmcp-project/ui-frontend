@@ -179,6 +179,11 @@ await fastify.register(FastifyVite, {
   root: __dirname,
   dev: isLocalDev,
   spa: true,
+  // Vite content-hashes all assets in /assets/ — safe to cache indefinitely
+  fastifyStaticOptions: isLocalDev ? undefined : {
+    maxAge: '1y',
+    immutable: true,
+  },
 });
 
 fastify.get('/sentry', function (req, reply) {

@@ -43,6 +43,7 @@ export type TelemetryFeature =
   | Feature<'component.installed', { componentName: string }>
   | Feature<'component.updated', { componentName: string }>
   | Feature<'component.uninstalled', { componentName: string }>
+  | Feature<'component.status-viewed', { componentName: string }>
   // Shell bar
   | Feature<'view-mode.toggled', { mode: 'headlamp' | 'legacy' }>
   | Feature<'feedback.opened'>
@@ -51,7 +52,10 @@ export type TelemetryFeature =
   // Status / readiness
   | Feature<'controlplane.status-viewed', { source: 'card' | 'detail' }>
   // Members
-  | Feature<'members.viewed', { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' }>
+  | Feature<
+      'members.viewed',
+      { source: 'project-list' | 'workspace-grid' | 'controlplane-detail' | 'controlplane-card' }
+    >
   // Misc UI
   | Feature<
       'clipboard.copied',

@@ -10,6 +10,7 @@ const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
 const mcpVersionHeader = 'X-mcp-version';
+const mcpIdpHeader = 'X-mcp-idp';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
@@ -76,6 +77,9 @@ export const fetchApiServer = async (
     if (config.mcpConfig.isV2) {
       headers[mcpVersionHeader] = 'v2';
     }
+    if (config.mcpConfig.idp) {
+      headers[mcpIdpHeader] = config.mcpConfig.idp;
+    }
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
@@ -97,10 +101,37 @@ export const fetchApiServer = async (
     throw error;
   }
 
-  if (!res.ok) {
+  // The client thought the token was valid but the server rejected it (clock
+  // skew, backgrounded tab, revoked session). Force a refresh and retry once
+  // before giving up and redirecting to sign-in.
+  if (res.status === 401) {
+    const refreshed = isMcpRequest ? await refreshMcpToken(true) : await refreshOnboardingToken(true);
+    if (refreshed) {
+      try {
+        res = await fetch(`/api/onboarding${path}`, {
+          headers,
+          method: httpMethod,
+          body,
+        });
+      } catch (error) {
+        telemetry().report(error, {
+          context: {
+            method: httpMethod,
+            path: `/api/onboarding${path}`,
+          },
+        });
+        throw error;
+      }
+    }
+
     if (res.status === 401) {
       redirectToLogin(isMcpRequest ? 'mcp' : 'onboarding');
+      const error = new APIError('Session expired', 401);
+      throw error;
     }
+  }
+
+  if (!res.ok) {
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
 

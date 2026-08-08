@@ -3,13 +3,14 @@ import '@ui5/webcomponents-fiori/dist/illustrations/SimpleError';
 import {
   BusyIndicator,
   FlexBox,
+  MessageStrip,
   ObjectPage,
   ObjectPageHeader,
   ObjectPageSection,
   ObjectPageSubSection,
   ObjectPageTitle,
 } from '@ui5/webcomponents-react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CopyKubeconfigButton from '../../../components/ControlPlanes/CopyKubeconfigButton.tsx';
 import styles from './ControlPlanePageV2.module.css';
 // throws error sometimes if not imported
@@ -22,7 +23,7 @@ import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBa
 import { YamlViewButton } from '../../../components/Yaml/YamlViewButton.tsx';
 import { isNotFoundError } from '../../../lib/api/error.ts';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { McpStatusSection } from '../../../components/ControlPlane/McpStatusSection.tsx';
 
 import { McpMembersAvatarView } from '../../../components/ControlPlanes/McpMembersAvatarView/McpMembersAvatarView.tsx';
@@ -31,7 +32,7 @@ import { ControlPlanePageMenu } from '../../../components/ControlPlanes/ControlP
 import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
 import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
-import { McpContextProvider, WithinManagedControlPlane } from '../../../lib/shared/McpContext.tsx';
+import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
@@ -50,7 +51,319 @@ import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
 import { useEsoQuery } from '../components/Kpi/useEsoQuery.ts';
 import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
 import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
+import { useOcmQuery } from '../components/Kpi/useOcmQuery.ts';
+import { useKroQuery } from '../components/Kpi/useKroQuery.ts';
 import { McpHeader } from '../../mcp/components/McpHeader/McpHeader.tsx';
+import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
+import { IllustratedBanner } from '../../../components/Ui/IllustratedBanner/IllustratedBanner.tsx';
+import { useFrontendConfig } from '../../../context/FrontendConfigContext.tsx';
+import { useViewMode } from '../../../context/ViewModeContext.tsx';
+import { useShellBarMcpActions } from '../../../context/ShellBarMcpActionsContext.tsx';
+import { registerKubeconfigWithBff } from '../../mcp/pages/headlampKubeconfig.ts';
+import { Routes } from '../../../Routes.ts';
+import { CrossplaneInstallDialog } from '../../mcp/components/CrossplaneInstallDialog/CrossplaneInstallDialog.tsx';
+import { ComponentInstallDialog } from '../../mcp/components/ComponentInstallDialog/ComponentInstallDialog.tsx';
+import { useCreateFlux } from '../../mcp/hooks/useCreateFlux.ts';
+import { useUpdateFlux } from '../../mcp/hooks/useUpdateFlux.ts';
+import { useCreateEso } from '../../mcp/hooks/useCreateEso.ts';
+import { useUpdateEso } from '../../mcp/hooks/useUpdateEso.ts';
+import { useCreateLandscaper } from '../../mcp/hooks/useCreateLandscaper.ts';
+import { useUpdateLandscaper } from '../../mcp/hooks/useUpdateLandscaper.ts';
+import { useCrossplaneYamlQuery } from '../../mcp/hooks/useCrossplaneYamlQuery.ts';
+import { useFluxYamlQuery } from '../../mcp/hooks/useFluxYamlQuery.ts';
+import { useEsoYamlQuery } from '../../mcp/hooks/useEsoYamlQuery.ts';
+import { useComponentCardStatus } from '../../mcp/hooks/useComponentCardStatus.ts';
+
+type InstallTarget = 'crossplane' | 'flux' | 'eso' | 'landscaper' | null;
+
+function OpenSourceHeadlamp({
+  projectName,
+  workspaceName,
+  controlPlaneName,
+}: {
+  projectName: string;
+  workspaceName: string;
+  controlPlaneName: string;
+}) {
+  const mcp = useMcp();
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { documentationBaseUrl } = useFrontendConfig();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const clusterAlias = `${mcp.project}--${mcp.workspace}--${mcp.name}`;
+  const baseSrcPrefix = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+
+  const rawInitialPath = searchParams.get('headlampPath') ?? '';
+  const sanitisedInitialPath = rawInitialPath.startsWith(baseSrcPrefix)
+    ? rawInitialPath.slice(baseSrcPrefix.length) || '/'
+    : rawInitialPath;
+
+  const backPath = generatePath(Routes.Project, { projectName });
+  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
+  const isUnsupportedPath = headlampPath.includes('/settings') || headlampPath.includes('/plugins');
+  const [installTarget, setInstallTarget] = useState<InstallTarget>(null);
+  const mcpName = mcp.name;
+  const mcpNamespace = `project-${mcp.project}--ws-${mcp.workspace}`;
+
+  // status.phase lives on GraphQL-only CRs the plugin can't reach; fetch here and
+  // push to the iframe. Query unconditionally — an absent CR just yields phase null.
+  const crossplaneYaml = useCrossplaneYamlQuery(mcpName, mcpNamespace);
+  const fluxYaml = useFluxYamlQuery(mcpName, mcpNamespace);
+  const esoYaml = useEsoYamlQuery(mcpName, mcpNamespace);
+  const { status: crossplaneStatus } = useComponentCardStatus(true, crossplaneYaml);
+  const { status: fluxStatus } = useComponentCardStatus(true, fluxYaml);
+  const { status: esoStatus } = useComponentCardStatus(true, esoYaml);
+  const crossplanePhase = crossplaneStatus.kind === 'installed' ? crossplaneStatus.phase : null;
+  const fluxPhase = fluxStatus.kind === 'installed' ? fluxStatus.phase : null;
+  const esoPhase = esoStatus.kind === 'installed' ? esoStatus.phase : null;
+
+  // Optimistic 'Initializing' shown right after a successful install, before the real
+  // phase is fetched. A real (non-null) phase supersedes it via the `??` fallback below.
+  const [optimistic, setOptimistic] = useState<Record<string, string | null>>({});
+  const effectivePhases: Record<string, string | null> = {
+    crossplane: crossplanePhase ?? optimistic.crossplane ?? null,
+    flux: fluxPhase ?? optimistic.flux ?? null,
+    externalSecretsOperator: esoPhase ?? optimistic.externalSecretsOperator ?? null,
+  };
+
+  const markInitializing = useCallback((component: InstallTarget) => {
+    if (!component) return;
+    const key = component === 'eso' ? 'externalSecretsOperator' : component;
+    setOptimistic((prev) => ({ ...prev, [key]: 'Initializing' }));
+  }, []);
+
+  // Kept in a ref (updated in an effect, not during render) so pushStatuses stays stable.
+  const statusesRef = useRef<Record<string, string | null>>({});
+  useEffect(() => {
+    statusesRef.current = {
+      crossplane: effectivePhases.crossplane,
+      flux: effectivePhases.flux,
+      externalSecretsOperator: effectivePhases.externalSecretsOperator,
+    };
+  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator]);
+  const pushStatuses = useCallback(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return; // iframe not ready — the plugin's handshake will re-trigger this
+    win.postMessage(
+      { source: 'ocp-host', action: 'componentStatus', statuses: statusesRef.current },
+      window.location.origin,
+    );
+  }, []);
+
+  useEffect(() => {
+    setMcpActions({
+      kubeconfig: mcp.kubeconfig,
+      mcpName: mcp.name,
+      roleBindings: mcp.roleBindings,
+      project: projectName,
+      workspace: workspaceName,
+      navigateBack: () => navigate(backPath),
+    });
+    return () => {
+      clearMcpActions();
+    };
+  }, [
+    mcp.kubeconfig,
+    mcp.name,
+    mcp.roleBindings,
+    projectName,
+    workspaceName,
+    backPath,
+    navigate,
+    setMcpActions,
+    clearMcpActions,
+  ]);
+
+  useEffect(() => {
+    if (!mcp.kubeconfig) return;
+    const controller = new AbortController();
+    const baseSrc = `/api/headlamp/c/${encodeURIComponent(clusterAlias)}`;
+    registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
+      .then(() => {
+        if (!controller.signal.aborted)
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) setError(true);
+        else if (err instanceof Error && err.name !== 'AbortError') setError(true);
+      });
+    return () => {
+      controller.abort();
+      setIframeSrc(null);
+      setError(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mcp.kubeconfig, clusterAlias]);
+
+  useEffect(() => {
+    if (!iframeSrc) return;
+    const intervalId = setInterval(() => {
+      try {
+        const fullPathname = iframeRef.current?.contentWindow?.location?.pathname ?? '';
+        if (!fullPathname) return;
+        const internalPath = fullPathname.startsWith(baseSrcPrefix)
+          ? fullPathname.slice(baseSrcPrefix.length) || '/'
+          : fullPathname;
+        if (internalPath !== headlampPath) {
+          setHeadlampPath(internalPath);
+          setSearchParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              next.set('headlampPath', internalPath);
+              return next;
+            },
+            { replace: true },
+          );
+        }
+      } catch {
+        // cross-origin access blocked — ignore
+      }
+    }, 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [iframeSrc, headlampPath, baseSrcPrefix, setSearchParams]);
+
+  // The embedded Headlamp plugin cannot install a component itself; it posts a
+  // message asking us to open the matching V2 install dialog. It also announces
+  // itself (statusHandshake) so we can push the current component status snapshot.
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== 'ocp-headlamp-plugin') return;
+
+      if (data.action === 'statusHandshake') {
+        pushStatuses();
+        return;
+      }
+
+      if (data.action === 'openInstallWizard') {
+        const map: Record<string, InstallTarget> = {
+          crossplane: 'crossplane',
+          flux: 'flux',
+          externalSecretsOperator: 'eso',
+          landscaper: 'landscaper',
+        };
+        const target = map[data.component as string];
+        if (target) setInstallTarget(target);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [pushStatuses]);
+
+  // Push status to the iframe whenever an effective phase changes (real or optimistic).
+  useEffect(() => {
+    pushStatuses();
+  }, [effectivePhases.crossplane, effectivePhases.flux, effectivePhases.externalSecretsOperator, pushStatuses]);
+
+  // Install dialogs are always mounted (visibility driven by `open`) so they
+  // survive the loading/error early returns below.
+  const installDialogs = (
+    <>
+      <CrossplaneInstallDialog
+        open={installTarget === 'crossplane'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        mode="install"
+        onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('crossplane')}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'flux'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Flux"
+        serviceName="flux"
+        mode="install"
+        useCreateMutation={useCreateFlux}
+        useUpdateMutation={useUpdateFlux}
+        onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('flux')}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'eso'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="External Secrets Operator"
+        serviceName="external-secrets-operator"
+        mode="install"
+        useCreateMutation={useCreateEso}
+        useUpdateMutation={useUpdateEso}
+        onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('eso')}
+      />
+      <ComponentInstallDialog
+        open={installTarget === 'landscaper'}
+        mcpName={mcpName}
+        mcpNamespace={mcpNamespace}
+        componentName="Landscaper"
+        serviceName="landscaper"
+        mode="install"
+        useCreateMutation={useCreateLandscaper}
+        useUpdateMutation={useUpdateLandscaper}
+        onClose={() => setInstallTarget(null)}
+        onSuccess={(mode) => mode === 'install' && markInitializing('landscaper')}
+      />
+    </>
+  );
+
+  let body: ReactNode;
+  if (error) {
+    body = (
+      <IllustratedBanner
+        illustrationName={IllustrationMessageType.SimpleError}
+        title={t('McpPage.headlampUnavailableTitle')}
+        subtitle={t('McpPage.headlampUnavailableSubtitle')}
+        help={{ link: `${documentationBaseUrl}/docs/help`, buttonText: t('McpPage.headlampGetSupport') }}
+      />
+    );
+  } else if (!iframeSrc) {
+    body = null;
+  } else {
+    body = (
+      <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 3rem)' }}>
+        {isUnsupportedPath && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0.5rem' }}>
+            <MessageStrip design="Information" hideCloseButton>
+              {t('McpPage.headlampUnsupportedPlugin')}
+            </MessageStrip>
+          </div>
+        )}
+        <iframe
+          ref={iframeRef}
+          key={iframeSrc}
+          src={iframeSrc}
+          style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+          title={`${t('McpPage.headlampTitle')} — ${projectName}/${workspaceName}/${controlPlaneName}`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {body}
+      {installDialogs}
+    </>
+  );
+}
+
+function LegacyModeShellBarSync({ controlPlaneName }: { controlPlaneName: string }) {
+  const { setMcpActions, clearMcpActions } = useShellBarMcpActions();
+  useEffect(() => {
+    setMcpActions({ mcpName: controlPlaneName });
+    return () => {
+      clearMcpActions();
+    };
+  }, [controlPlaneName, setMcpActions, clearMcpActions]);
+  return null;
+}
 
 const MCP_PAGE_SECTIONS = ['overview', 'crossplane', 'flux', 'landscaper'] as const;
 export type McpPageSectionId = (typeof MCP_PAGE_SECTIONS)[number];
@@ -60,6 +373,7 @@ export default function ControlPlanePageV2() {
   const namespace = projectName && workspaceName ? `project-${projectName}--ws-${workspaceName}` : undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { mode } = useViewMode();
   const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
   const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
     undefined | WizardStepType
@@ -76,6 +390,8 @@ export default function ControlPlanePageV2() {
   const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
   const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
   const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
+  const { ocmData } = useOcmQuery(controlPlaneName, namespace);
+  const { kroData } = useKroQuery(controlPlaneName, namespace);
   const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
   // Hold graph mount until the cards' 0.3s height transition (index.css) has
   // settled — otherwise the graph layout fights with concurrent card animations.
@@ -100,18 +416,19 @@ export default function ControlPlanePageV2() {
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
 
-  const roleBindings = useMemo(
-    () =>
-      mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings
-        ?.filter((roleBinding) => roleBinding !== null)
-        .map((roleBinding) => ({
-          role: roleBinding.roleRefs?.find((roleRef) => roleRef !== null)?.name ?? '',
-          subjects: (roleBinding.subjects ?? [])
-            .filter((subject) => subject !== null)
-            .map((subject) => ({ kind: subject.kind ?? '', name: subject.name ?? '' })),
-        })),
-    [mcp?.spec?.iam?.oidc?.defaultProvider?.roleBindings],
-  );
+  const roleBindings = useMemo(() => {
+    const oidc = mcp?.spec?.iam?.oidc;
+    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
+    return allProviders.flatMap((provider) =>
+      (provider?.roleBindings ?? []).flatMap((binding) => {
+        if (!binding) return [];
+        const subjects = (binding.subjects ?? []).flatMap((subject) =>
+          subject?.kind && subject?.name ? [{ kind: subject.kind, name: subject.name }] : [],
+        );
+        return (binding.roleRefs ?? []).flatMap((roleRef) => (roleRef?.name ? [{ role: roleRef.name, subjects }] : []));
+      }),
+    );
+  }, [mcp?.spec?.iam?.oidc]);
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
@@ -146,6 +463,32 @@ export default function ControlPlanePageV2() {
   const isComponentInstalledFlux = !!fluxData?.isInstalled;
   const isComponentInstalledLandscaper = !!landscaperData?.isInstalled;
 
+  if (mode === 'open-source') {
+    return (
+      <McpContextProvider
+        context={{
+          project: projectName,
+          workspace: workspaceName,
+          name: controlPlaneName,
+        }}
+        isV2
+      >
+        <AuthProviderMcp>
+          <WithinManagedControlPlane>
+            <ManagedControlPlaneAuthorization>
+              <OpenSourceHeadlamp
+                key={`${projectName}/${workspaceName}/${controlPlaneName}`}
+                projectName={projectName}
+                workspaceName={workspaceName}
+                controlPlaneName={controlPlaneName}
+              />
+            </ManagedControlPlaneAuthorization>
+          </WithinManagedControlPlane>
+        </AuthProviderMcp>
+      </McpContextProvider>
+    );
+  }
+
   return (
     <McpContextProvider
       context={{
@@ -158,6 +501,7 @@ export default function ControlPlanePageV2() {
       <AuthProviderMcp>
         <WithinManagedControlPlane>
           <ManagedControlPlaneAuthorization>
+            <LegacyModeShellBarSync controlPlaneName={controlPlaneName} />
             <ObjectPage
               mode="IconTabBar"
               titleArea={
@@ -214,6 +558,8 @@ export default function ControlPlanePageV2() {
                     fluxData={fluxData}
                     landscaperData={landscaperData}
                     esoData={esoData}
+                    ocmData={ocmData}
+                    kroData={kroData}
                     mcpName={controlPlaneName ?? ''}
                     mcpNamespace={namespace ?? ''}
                     onNavigateToMcpSection={setTabFromSection}
