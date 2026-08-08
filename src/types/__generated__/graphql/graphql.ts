@@ -973,6 +973,100 @@ export type LandscaperServicesOpenControlPlaneIoV1alpha2Landscaper_Input = {
   status?: LandscaperServicesOpenControlPlaneIoV1alpha2LandscaperStatus_Input | null | undefined;
 };
 
+/** spec defines the desired state of MetricsOperator */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorSpec_Input = {
+  /** Version is the metrics-operator Helm chart version to install. */
+  version?: string | null | undefined;
+};
+
+/** Condition contains details for one aspect of the current state of this API Resource. */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusConditions_Input = {
+  /**
+   * lastTransitionTime is the last time the condition transitioned from one status to another.
+   * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+   */
+  lastTransitionTime?: string | null | undefined;
+  /**
+   * message is a human readable message indicating details about the transition.
+   * This may be an empty string.
+   */
+  message?: string | null | undefined;
+  /**
+   * observedGeneration represents the .metadata.generation that the condition was set based upon.
+   * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+   * with respect to the current state of the instance.
+   */
+  observedGeneration?: number | null | undefined;
+  /**
+   * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+   * Producers of specific condition types may define expected values and meanings for this field,
+   * and whether the values are considered a guaranteed API.
+   * The value should be a CamelCase string.
+   * This field may not be empty.
+   */
+  reason?: string | null | undefined;
+  /** status of the condition, one of True, False, Unknown. */
+  status?: string | null | undefined;
+  /** type of condition in CamelCase or in foo.example.com/CamelCase. */
+  type?: string | null | undefined;
+};
+
+/** ManagedResource defines a kubernetes object with its lifecycle phase */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusResources_Input = {
+  /**
+   * APIGroup is the group for the resource being referenced.
+   * If APIGroup is not specified, the specified Kind must be in the core API group.
+   * For any other third-party types, APIGroup is required.
+   */
+  apiGroup?: string | null | undefined;
+  /** Kind is the type of resource being referenced */
+  kind?: string | null | undefined;
+  /** ResourceLocation is a custom type representing the location of a resource. */
+  location?: string | null | undefined;
+  message?: string | null | undefined;
+  /** Name is the name of resource being referenced */
+  name?: string | null | undefined;
+  /**
+   * Namespace is the namespace of resource being referenced
+   * Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+   * (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+   */
+  namespace?: string | null | undefined;
+  /** InstancePhase is a custom type representing the phase of a service instance. */
+  phase?: string | null | undefined;
+};
+
+/** status defines the observed state of MetricsOperator */
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatus_Input = {
+  /** Conditions contains the conditions. */
+  conditions?:
+    | Array<MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusConditions_Input | null | undefined>
+    | null
+    | undefined;
+  /** ObservedGeneration is the generation of this resource that was last reconciled by the controller. */
+  observedGeneration?: number | null | undefined;
+  /** Phase is the current phase of the resource. */
+  phase?: string | null | undefined;
+  /** Resources managed by this MetricsOperator instance */
+  resources?:
+    | Array<MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatusResources_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+export type MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** spec defines the desired state of MetricsOperator */
+  spec?: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorSpec_Input | null | undefined;
+  /** status defines the observed state of MetricsOperator */
+  status?: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperatorStatus_Input | null | undefined;
+};
+
 /** spec defines the desired state of OCM */
 export type OcmServicesOpenControlPlaneIoV1alpha1OcmSpec_Input = {
   /** Version is the version of the controller to install. */
@@ -1343,6 +1437,30 @@ export type GetLandscaperQuery = {
   } | null;
 };
 
+export type GetMetricsOperatorQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetMetricsOperatorQuery = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      MetricsOperator: {
+        metadata: { name: string | null; namespace: string | null } | null;
+        spec: { version: string | null } | null;
+        status: {
+          conditions: Array<{
+            type: string | null;
+            status: string | null;
+            reason: string | null;
+            message: string | null;
+          } | null> | null;
+        } | null;
+      };
+    } | null;
+  } | null;
+};
+
 export type GetOcmQueryVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1473,6 +1591,19 @@ export type CreateLandscaperMutation = {
   } | null;
 };
 
+export type CreateMetricsOperatorMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input;
+}>;
+
+export type CreateMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      createMetricsOperator: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
+};
+
 export type CreateOcmMutationVariables = Exact<{
   namespace?: string | null | undefined;
   object: OcmServicesOpenControlPlaneIoV1alpha1Ocm_Input;
@@ -1540,6 +1671,15 @@ export type DeleteLandscaperMutation = {
   landscaper_services_open_control_plane_io: { v1alpha2: { deleteLandscaper: boolean | null } | null } | null;
 };
 
+export type DeleteMetricsOperatorMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type DeleteMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: { v1alpha1: { deleteMetricsOperator: boolean | null } | null } | null;
+};
+
 export type DeleteOcmMutationVariables = Exact<{
   name: string;
   namespace?: string | null | undefined;
@@ -1581,6 +1721,15 @@ export type GetLandscaperYamlQueryVariables = Exact<{
 
 export type GetLandscaperYamlQuery = {
   landscaper_services_open_control_plane_io: { v1alpha2: { LandscaperYaml: string } | null } | null;
+};
+
+export type GetMetricsOperatorYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type GetMetricsOperatorYamlQuery = {
+  metrics_services_open_control_plane_io: { v1alpha1: { MetricsOperatorYaml: string } | null } | null;
 };
 
 export type GetOcmYamlQueryVariables = Exact<{
@@ -1652,6 +1801,20 @@ export type UpdateLandscaperMutation = {
   landscaper_services_open_control_plane_io: {
     v1alpha2: {
       updateLandscaper: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateMetricsOperatorMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  name: string;
+  object: MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input;
+}>;
+
+export type UpdateMetricsOperatorMutation = {
+  metrics_services_open_control_plane_io: {
+    v1alpha1: {
+      updateMetricsOperator: { metadata: { name: string | null; namespace: string | null } | null } | null;
     } | null;
   } | null;
 };
@@ -2576,6 +2739,113 @@ export const GetLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperQuery, GetLandscaperQueryVariables>;
+export const GetMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'MetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'spec' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'status' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'conditions' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMetricsOperatorQuery, GetMetricsOperatorQueryVariables>;
 export const GetOcmDocument = {
   kind: 'Document',
   definitions: [
@@ -3384,6 +3654,89 @@ export const CreateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLandscaperMutation, CreateLandscaperMutationVariables>;
+export const CreateMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateMetricsOperatorMutation, CreateMetricsOperatorMutationVariables>;
 export const CreateOcmDocument = {
   kind: 'Document',
   definitions: [
@@ -3833,6 +4186,67 @@ export const DeleteLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteLandscaperMutation, DeleteLandscaperMutationVariables>;
+export const DeleteMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'deleteMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteMetricsOperatorMutation, DeleteMetricsOperatorMutationVariables>;
 export const DeleteOcmDocument = {
   kind: 'Document',
   definitions: [
@@ -4138,6 +4552,67 @@ export const GetLandscaperYamlDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLandscaperYamlQuery, GetLandscaperYamlQueryVariables>;
+export const GetMetricsOperatorYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetMetricsOperatorYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'MetricsOperatorYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetMetricsOperatorYamlQuery, GetMetricsOperatorYamlQueryVariables>;
 export const GetOcmYamlDocument = {
   kind: 'Document',
   definitions: [
@@ -4667,6 +5142,99 @@ export const UpdateLandscaperDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLandscaperMutation, UpdateLandscaperMutationVariables>;
+export const UpdateMetricsOperatorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateMetricsOperator' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'MetricsServicesOpenControlPlaneIoV1alpha1MetricsOperator_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'metrics_services_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateMetricsOperator' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateMetricsOperatorMutation, UpdateMetricsOperatorMutationVariables>;
 export const UpdateOcmDocument = {
   kind: 'Document',
   definitions: [

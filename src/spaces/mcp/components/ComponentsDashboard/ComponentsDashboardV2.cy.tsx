@@ -44,6 +44,7 @@ describe('ComponentsDashboardV2', () => {
                 esoData={null}
                 ocmData={null}
                 kroData={null}
+                metricsOperatorData={null}
                 mcpName="my-mcp"
                 mcpNamespace="project-foo--ws-bar"
                 onNavigateToMcpSection={() => {}}
@@ -70,6 +71,7 @@ describe('ComponentsDashboardV2', () => {
                 esoData={null}
                 ocmData={null}
                 kroData={null}
+                metricsOperatorData={null}
                 mcpName="my-mcp"
                 mcpNamespace="project-foo--ws-bar"
                 onNavigateToMcpSection={() => {}}

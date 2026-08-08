@@ -55,6 +55,9 @@
   "componentCardKro": {
     "description": "Kubernetes Resource Orchestrator — compose and deploy complex resource topologies"
   },
+  "componentCardMetricsOperator": {
+    "description": "Metrics Operator — collect and expose metrics around ressources running in control plane"
+  },
   "Kpi": {
     "installed": "Installed",
     "error": "There was a problem loading this data. Please try again later."
@@ -132,7 +135,8 @@
     "landscaper": "Landscaper",
     "externalSecretsOperator": "External Secrets Operator",
     "ocm": "OCM",
-    "kro": "KRO"
+    "kro": "KRO",
+    "metricsOperator": "Metrics Operator"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
