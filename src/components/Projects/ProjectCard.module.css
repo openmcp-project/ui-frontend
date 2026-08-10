@@ -21,7 +21,7 @@
   transform: translateY(-2px);
 }
 
-/* Diagonal corner ribbon — only visible when --ribbon-bg is set (purpose known) */
+/* Solid ribbon triangle (purpose set) */
 .card::before {
   content: '';
   position: absolute;
@@ -37,7 +37,7 @@
   pointer-events: none;
 }
 
-/* Solid ribbon clickable area (purpose set) */
+/* Solid ribbon clickable area */
 .ribbonButton {
   position: absolute;
   top: 0;
@@ -52,7 +52,28 @@
   clip-path: polygon(100% 0, 0 0, 100% 100%);
 }
 
-/* Dashed ghost ribbon — invisible by default, appears on card hover when no purpose set */
+/* Label centered on the diagonal midpoint */
+.ribbonLabel {
+  position: absolute;
+  top: 0.875rem;
+  right: 0;
+  font-size: 0.4375rem;
+  font-weight: 700;
+  color: var(--ribbon-text, #fff);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  transform: rotate(45deg);
+  transform-origin: center;
+  white-space: normal;
+  word-break: break-word;
+  pointer-events: none;
+  z-index: 3;
+  width: 3rem;
+  text-align: center;
+}
+
+/* Dashed SVG ribbon (purpose unset) — hidden, fades in on card hover */
 .ribbonButtonUnset {
   position: absolute;
   top: 0;
@@ -69,66 +90,39 @@
   transition: opacity 0.2s ease;
 }
 
-/* Rotated square clipped by card overflow:hidden → dashed corner triangle */
-.ribbonButtonUnset::before {
-  content: '';
-  position: absolute;
-  width: 2.875rem; /* 4rem / √2 */
-  height: 2.875rem;
-  top: -1.4375rem;
-  right: -1.4375rem;
-  transform: rotate(45deg);
-  background: transparent;
-  border: 1.5px dashed var(--sapButton_Emphasized_Background);
-  pointer-events: none;
-}
-
 .card:hover .ribbonButtonUnset {
   opacity: 1;
 }
 
-/* "Set purpose" rotated label for unset state */
+/* SVG covers the button area; only the diagonal path is drawn */
+.ribbonSvg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4rem;
+  height: 4rem;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Same centering as .ribbonLabel */
 .ribbonLabelUnset {
   position: absolute;
-  top: 0.75rem;
-  right: -0.5rem;
-  font-size: 0.5rem;
-  font-weight: 600;
+  top: 0.875rem;
+  right: 0;
+  font-size: 0.4375rem;
+  font-weight: 700;
   color: var(--sapButton_Emphasized_Background);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
   transform: rotate(45deg);
   transform-origin: center;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
   pointer-events: none;
   z-index: 3;
-  width: 3.5rem;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.card:hover .ribbonLabelUnset {
-  opacity: 1;
-}
-
-.ribbonLabel {
-  position: absolute;
-  top: 0.75rem;
-  right: -0.5rem;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  color: var(--ribbon-text, #fff);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  transform: rotate(45deg);
-  transform-origin: center;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 3;
-  width: 3.5rem;
+  width: 3rem;
   text-align: center;
 }
 
@@ -197,7 +191,6 @@
   }
 }
 
-/* Single compact footer — members left, actions right */
 .cardFooter {
   padding: 0.375rem 0.5rem 0.375rem 1rem;
   border-top: 1px solid rgba(0, 0, 0, 0.05);

@@ -98,25 +98,31 @@ export function ProjectCard({
 
   const handleFooterClick = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
   const handleFooterKeyDown = useCallback((e: React.KeyboardEvent) => e.stopPropagation(), []);
-  const handleRibbonClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (hasPurpose) {
-      setSupportPopoverOpen(true);
-    } else {
-      setEditOpen(true);
-    }
-  }, [hasPurpose]);
-  const handleRibbonKeyDown = useCallback((e: React.KeyboardEvent) => {
-    e.stopPropagation();
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
+  const handleRibbonClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
       if (hasPurpose) {
         setSupportPopoverOpen(true);
       } else {
         setEditOpen(true);
       }
-    }
-  }, [hasPurpose]);
+    },
+    [hasPurpose],
+  );
+  const handleRibbonKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      e.stopPropagation();
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (hasPurpose) {
+          setSupportPopoverOpen(true);
+        } else {
+          setEditOpen(true);
+        }
+      }
+    },
+    [hasPurpose],
+  );
 
   return (
     <>
@@ -124,29 +130,61 @@ export function ProjectCard({
         aria-label={t('ProjectCard.openProject', { name: displayName ?? projectName })}
         className={styles.card}
         role="button"
-        style={hasPurpose ? ({ '--ribbon-bg': ribbonBg, '--ribbon-text': ribbonText } as React.CSSProperties) : undefined}
+        style={
+          hasPurpose ? ({ '--ribbon-bg': ribbonBg, '--ribbon-text': ribbonText } as React.CSSProperties) : undefined
+        }
         tabIndex={0}
         onClick={handleNavigate}
         onKeyDown={handleKeyDown}
       >
-        {/* Ribbon: solid when purpose is set, dashed "Set Purpose" ghost on hover when unset */}
-        <button
-          aria-label={hasPurpose ? purposeLabel(t, supportLandscape) : t('ProjectCard.setPurpose')}
-          className={hasPurpose ? styles.ribbonButton : styles.ribbonButtonUnset}
-          id={ribbonId}
-          tabIndex={-1}
-          title={hasPurpose ? purposeLabel(t, supportLandscape) : t('ProjectCard.setPurpose')}
-          onClick={handleRibbonClick}
-          onKeyDown={handleRibbonKeyDown}
-        />
-        {hasPurpose ? (
-          <span aria-hidden className={styles.ribbonLabel}>
-            {purposeLabel(t, supportLandscape)}
-          </span>
-        ) : (
-          <span aria-hidden className={styles.ribbonLabelUnset}>
-            {t('ProjectCard.setPurpose')}
-          </span>
+        {/* Solid ribbon triangle (purpose set) — clickable */}
+        {hasPurpose && (
+          <>
+            <button
+              aria-label={purposeLabel(t, supportLandscape)}
+              className={styles.ribbonButton}
+              id={ribbonId}
+              tabIndex={-1}
+              title={purposeLabel(t, supportLandscape)}
+              onClick={handleRibbonClick}
+              onKeyDown={handleRibbonKeyDown}
+            />
+            <span aria-hidden className={styles.ribbonLabel}>
+              {purposeLabel(t, supportLandscape)}
+            </span>
+          </>
+        )}
+
+        {/* Dashed ribbon triangle (purpose unset) — SVG so dashes actually work */}
+        {!hasPurpose && (
+          <button
+            aria-label={t('ProjectCard.setPurpose')}
+            className={styles.ribbonButtonUnset}
+            id={ribbonId}
+            tabIndex={-1}
+            title={t('ProjectCard.setPurpose')}
+            onClick={handleRibbonClick}
+            onKeyDown={handleRibbonKeyDown}
+          >
+            <svg
+              aria-hidden
+              className={styles.ribbonSvg}
+              fill="none"
+              viewBox="0 0 80 80"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0 0 L80 80"
+                stroke="var(--sapButton_Emphasized_Background)"
+                strokeDasharray="6 4"
+                strokeLinecap="round"
+                strokeWidth="2"
+              />
+            </svg>
+            <span aria-hidden className={styles.ribbonLabelUnset}>
+              {t('ProjectCard.setPurpose')}
+            </span>
+          </button>
         )}
 
         <div className={styles.cardHeader}>
