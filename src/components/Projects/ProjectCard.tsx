@@ -137,25 +137,24 @@ export function ProjectCard({
         onClick={handleNavigate}
         onKeyDown={handleKeyDown}
       >
-        {/* Solid ribbon triangle (purpose set) — clickable */}
+        {/* Solid ribbon triangle (purpose set) */}
         {hasPurpose && (
-          <>
-            <button
-              aria-label={purposeLabel(t, supportLandscape)}
-              className={styles.ribbonButton}
-              id={ribbonId}
-              tabIndex={-1}
-              title={purposeLabel(t, supportLandscape)}
-              onClick={handleRibbonClick}
-              onKeyDown={handleRibbonKeyDown}
-            />
+          <button
+            aria-label={purposeLabel(t, supportLandscape)}
+            className={styles.ribbonButton}
+            id={ribbonId}
+            tabIndex={-1}
+            title={purposeLabel(t, supportLandscape)}
+            onClick={handleRibbonClick}
+            onKeyDown={handleRibbonKeyDown}
+          >
             <span aria-hidden className={styles.ribbonLabel}>
               {purposeShortLabel(t, supportLandscape)}
             </span>
-          </>
+          </button>
         )}
 
-        {/* Dashed ribbon triangle (purpose unset) — SVG so dashes actually work */}
+        {/* Dashed SVG ribbon (purpose unset) */}
         {!hasPurpose && (
           <button
             aria-label={t('ProjectCard.setPurpose')}
@@ -184,8 +183,8 @@ export function ProjectCard({
                 y2="64"
               />
             </svg>
-            <span aria-hidden className={styles.ribbonLabelUnset}>
-              {t('ProjectCard.setPurpose')}
+            <span aria-hidden className={styles.ribbonLabel}>
+              {purposeShortLabel(t, undefined)}
             </span>
           </button>
         )}

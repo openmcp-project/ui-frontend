@@ -50,13 +50,13 @@
   cursor: pointer;
   z-index: 2;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Label centered on the diagonal midpoint (2rem from right, 2rem from top) */
+/* Label inside both ribbon buttons — rotated, centered by flexbox */
 .ribbonLabel {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   font-size: 0.4375rem;
   font-weight: 700;
   color: var(--ribbon-text, #fff);
@@ -64,7 +64,6 @@
   letter-spacing: 0.03em;
   line-height: 1.2;
   transform: rotate(45deg);
-  transform-origin: center;
   white-space: normal;
   word-break: break-word;
   pointer-events: none;
@@ -86,6 +85,9 @@
   cursor: pointer;
   z-index: 2;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -102,28 +104,11 @@
   width: 4rem;
   height: 4rem;
   pointer-events: none;
-  overflow: visible;
 }
 
-/* Same centering as .ribbonLabel */
-.ribbonLabelUnset {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 0.4375rem;
-  font-weight: 700;
+/* Unset label uses blue instead of white — same layout via .ribbonLabel */
+.ribbonButtonUnset .ribbonLabel {
   color: var(--sapButton_Emphasized_Background);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-  transform: rotate(45deg);
-  transform-origin: center;
-  white-space: normal;
-  word-break: break-word;
-  pointer-events: none;
-  z-index: 3;
-  width: 2.5rem;
-  text-align: center;
 }
 
 .cardHeader {
