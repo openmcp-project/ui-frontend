@@ -24,8 +24,13 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
       : projectName === 'beta-project'
         ? 'Beta Display'
         : 'Gamma Display',
+  createdBy: undefined,
   creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
+  supportLandscape: undefined,
+  supportServiceIds: undefined,
+  supportSecurityContacts: undefined,
+  supportOpsContacts: undefined,
 });
 
 const mount = (onProjectSelect?: (name: string) => void) =>

@@ -361,7 +361,8 @@
   "ProjectCard": {
     "openProject": "Open project {{name}}",
     "infoButton": "Project info",
-    "createdAt": "Created"
+    "createdAt": "Created",
+    "createdBy": "Created by"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"

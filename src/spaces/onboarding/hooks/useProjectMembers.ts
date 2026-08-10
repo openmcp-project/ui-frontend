@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client/react';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames';
+import { CREATED_BY_ANNOTATION, DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
 import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
@@ -37,6 +37,7 @@ export function useProjectMembers(projectName: string) {
   const creationTimestamp: string | undefined = project?.metadata?.creationTimestamp ?? undefined;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const displayName: string | undefined = annotations[DISPLAY_NAME_ANNOTATION] || undefined;
+  const createdBy: string | undefined = annotations[CREATED_BY_ANNOTATION] || undefined;
   const support = extractSupportInfo(annotations);
 
   const members: Member[] = rawMembers.flatMap((m) => {
@@ -54,6 +55,7 @@ export function useProjectMembers(projectName: string) {
   return {
     members,
     displayName,
+    createdBy,
     creationTimestamp,
     ...support,
     isLoading: loading,

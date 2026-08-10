@@ -173,6 +173,12 @@
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
+.infoButton {
+  --sapContent_IconColor: var(--sapButton_Emphasized_Background);
+  border: 1px solid var(--sapButton_Emphasized_Background) !important;
+  border-radius: 0.375rem;
+}
+
 .infoPopover {
   padding: 0.75rem 1rem;
   min-width: 14rem;

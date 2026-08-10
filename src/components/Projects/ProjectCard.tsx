@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import '@ui5/webcomponents-icons/dist/information.js';
+import '@ui5/webcomponents-icons/dist/hint.js';
 import { Button, Popover } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
@@ -47,6 +47,7 @@ export function ProjectCard({
   const {
     members,
     displayName,
+    createdBy,
     creationTimestamp,
     supportLandscape,
     supportServiceIds,
@@ -166,8 +167,9 @@ export function ProjectCard({
           </div>
           <div className={styles.footerActions}>
             <Button
+              className={styles.infoButton}
               design="Transparent"
-              icon="information"
+              icon="hint"
               id={infoButtonId}
               tooltip={t('ProjectCard.infoButton')}
               onClick={() => setInfoPopoverOpen(true)}
@@ -192,6 +194,12 @@ export function ProjectCard({
               <span className={styles.infoValue} title={new Date(creationTimestamp).toLocaleString()}>
                 {formatDateAsTimeAgo(creationTimestamp)}
               </span>
+            </div>
+          )}
+          {createdBy && (
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>{t('ProjectCard.createdBy')}</span>
+              <span className={styles.infoValue}>{createdBy}</span>
             </div>
           )}
         </div>

@@ -7,6 +7,7 @@ import { MemberRoles } from '../../lib/api/types/shared/members';
 const fakeUseProjectMembersLoading: typeof useProjectMembers = () => ({
   members: [],
   creationTimestamp: undefined,
+  createdBy: undefined,
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
@@ -21,6 +22,7 @@ const fakeUseProjectMembersLoaded: typeof useProjectMembers = () => ({
     { name: 'bob@example.com', kind: 'User', roles: [MemberRoles.view] },
   ],
   creationTimestamp: '2024-01-15T10:00:00Z',
+  createdBy: undefined,
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
@@ -32,6 +34,7 @@ const fakeUseProjectMembersLoaded: typeof useProjectMembers = () => ({
 const fakeUseProjectMembersEmpty: typeof useProjectMembers = () => ({
   members: [],
   creationTimestamp: '2024-01-15T10:00:00Z',
+  createdBy: undefined,
   displayName: undefined,
   supportLandscape: undefined,
   supportSecurityContacts: undefined,
