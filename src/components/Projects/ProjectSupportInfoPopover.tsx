@@ -1,6 +1,7 @@
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/headset';
 import '@ui5/webcomponents-icons/dist/world';
+import '@ui5/webcomponents-icons/dist/badge.js';
 import { Bar, Button, ResponsivePopover, Tag } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useTranslation } from 'react-i18next';
@@ -55,8 +56,8 @@ export function ProjectSupportInfoPopover({
     >
       <div className={styles.body}>
         <p className={styles.intro}>{t('SupportInfo.popoverIntro')}</p>
+        <SupportInfoSectionHeader icon="badge" label={t('SupportInfo.purposeLabel')} />
         <div className={styles.purposeRow}>
-          <span className={styles.purposeLabel}>{t('SupportInfo.purposeLabel')}:</span>
           <Tag design="Set2" colorScheme={purposeColorScheme(supportLandscape)}>
             {purposeLabel(t, supportLandscape)}
           </Tag>
