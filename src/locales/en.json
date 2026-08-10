@@ -367,8 +367,10 @@
   "ProjectCard": {
     "openProject": "Open project {{name}}",
     "infoButton": "Project info",
+    "inDeletion": "Project is being deleted",
     "createdAt": "Created",
     "createdBy": "by",
+    "deletionTimestamp": "Deletion set",
     "setPurpose": "Set purpose"
   },
   "ResourceSearchBar": {

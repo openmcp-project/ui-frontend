@@ -56,6 +56,7 @@ export function ProjectCard({
     chargingTarget,
     chargingTargetType,
     creationTimestamp,
+    deletionTimestamp,
     supportLandscape,
     supportServiceIds,
     supportSecurityContacts,
@@ -230,11 +231,11 @@ export function ProjectCard({
           onKeyDown={handleFooterKeyDown}
         >
           <Button
-            className={styles.infoButton}
+            className={deletionTimestamp ? styles.infoButtonDanger : styles.infoButton}
             design="Transparent"
             icon="hint"
             id={infoButtonId}
-            tooltip={t('ProjectCard.infoButton')}
+            tooltip={deletionTimestamp ? t('ProjectCard.inDeletion') : t('ProjectCard.infoButton')}
             onClick={() => setInfoPopoverOpen(true)}
           />
           <div className={styles.footerMembers}>
@@ -262,6 +263,14 @@ export function ProjectCard({
         onClose={() => setInfoPopoverOpen(false)}
       >
         <div className={styles.infoPopover}>
+          {deletionTimestamp && (
+            <div className={`${styles.infoRow} ${styles.infoRowDanger}`}>
+              <span className={styles.infoLabelDanger}>{t('ProjectCard.deletionTimestamp')}</span>
+              <span className={styles.infoValueDanger} title={new Date(deletionTimestamp).toLocaleString()}>
+                {formatDateAsTimeAgo(deletionTimestamp)}
+              </span>
+            </div>
+          )}
           {creationTimestamp && (
             <div className={styles.infoRow}>
               <span className={styles.infoLabel}>{t('ProjectCard.createdAt')}</span>

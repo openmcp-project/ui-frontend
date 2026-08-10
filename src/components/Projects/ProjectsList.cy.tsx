@@ -27,6 +27,7 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
   supportLandscape: undefined,
@@ -99,7 +100,12 @@ describe('ProjectsList', () => {
     mount();
 
     // Cards show displayName as title when set; mock returns 'Alpha Display', 'Beta Display', etc.
-    cy.get('[class*="titleRow"]').first().find('span').first().should('be.visible').and('contain.text', 'Alpha Display');
+    cy.get('[class*="titleRow"]')
+      .first()
+      .find('span')
+      .first()
+      .should('be.visible')
+      .and('contain.text', 'Alpha Display');
     cy.get('[class*="titleRow"]').eq(1).find('span').first().should('be.visible').and('contain.text', 'Beta Display');
   });
 

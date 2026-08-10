@@ -13,6 +13,7 @@ const fakeUseProjectMembers: typeof _useProjectMembers = () => ({
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: undefined,
   isLoading: false,
   supportLandscape: undefined,
@@ -27,6 +28,7 @@ const fakeUseProjectMembersLoading: typeof _useProjectMembers = () => ({
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: undefined,
   isLoading: true,
   supportLandscape: undefined,
@@ -44,6 +46,7 @@ const fakeUseProjectMembersWithMembers: typeof _useProjectMembers = () => ({
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: '2024-03-01T10:00:00Z',
   isLoading: false,
   supportLandscape: undefined,
@@ -58,7 +61,23 @@ const fakeUseProjectMembersWithDisplayName: typeof _useProjectMembers = () => ({
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: undefined,
+  isLoading: false,
+  supportLandscape: undefined,
+  supportServiceIds: undefined,
+  supportSecurityContacts: undefined,
+  supportOpsContacts: undefined,
+});
+
+const fakeUseProjectMembersInDeletion: typeof _useProjectMembers = () => ({
+  members: [],
+  displayName: undefined,
+  createdBy: undefined,
+  chargingTarget: undefined,
+  chargingTargetType: undefined,
+  deletionTimestamp: '2024-06-01T12:00:00Z',
+  creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
   supportLandscape: undefined,
   supportServiceIds: undefined,
@@ -72,6 +91,7 @@ const fakeUseProjectMembersProduction: typeof _useProjectMembers = () => ({
   createdBy: undefined,
   chargingTarget: undefined,
   chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: undefined,
   isLoading: false,
   supportLandscape: 'production',
@@ -155,8 +175,20 @@ describe('ProjectCard', () => {
 
   it('info button opens info popover', () => {
     mount();
-    // The info Button has icon="hint"
     cy.get('ui5-button[icon="hint"]').click();
     cy.get('ui5-popover').should('have.attr', 'open');
+  });
+
+  it('shows red info button and deletion timestamp in popover when project is being deleted', () => {
+    mount(fakeUseProjectMembersInDeletion);
+    // Button should have the danger CSS class (CSS module name contains 'infoButtonDanger')
+    cy.get('ui5-button[icon="hint"]')
+      .invoke('attr', 'class')
+      .should('match', /infoButtonDanger/);
+    // Open the popover and verify deletion row appears
+    cy.get('ui5-button[icon="hint"]').click();
+    cy.get('ui5-popover').should('have.attr', 'open');
+    cy.get('[class*="infoLabelDanger"]').should('exist');
+    cy.get('[class*="infoValueDanger"]').should('exist');
   });
 });

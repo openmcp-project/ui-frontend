@@ -16,6 +16,7 @@ const GetProjectMembersQuery = graphql(`
         Project(name: $name) {
           metadata {
             creationTimestamp
+            deletionTimestamp
             annotations
             labels
           }
@@ -41,6 +42,9 @@ export function useProjectMembers(projectName: string) {
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
   const rawMembers = project?.spec?.members ?? [];
   const creationTimestamp: string | undefined = project?.metadata?.creationTimestamp ?? undefined;
+  const deletionTimestamp: string | undefined =
+    ((project?.metadata as Record<string, unknown> | null | undefined)?.['deletionTimestamp'] as string | undefined) ||
+    undefined;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
   const labels =
     ((project?.metadata as Record<string, unknown> | null | undefined)?.['labels'] as
@@ -70,6 +74,7 @@ export function useProjectMembers(projectName: string) {
     chargingTarget,
     chargingTargetType,
     creationTimestamp,
+    deletionTimestamp,
     ...support,
     isLoading: loading,
   };
