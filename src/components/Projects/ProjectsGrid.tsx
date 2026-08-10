@@ -125,9 +125,7 @@ export function ProjectsGrid({
     const byDate = new Map<string, string[]>();
     for (const name of filteredNames) {
       const ts = timestampMap.get(name);
-      const key = ts
-        ? new Date(ts).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
-        : 'unknown';
+      const key = ts ? new Date(ts).toLocaleDateString(undefined, { year: 'numeric', month: 'long' }) : 'unknown';
       if (!byDate.has(key)) byDate.set(key, []);
       byDate.get(key)!.push(name);
     }
@@ -173,16 +171,16 @@ export function ProjectsGrid({
 
   if (groupMode === 'none' || !canGroup || groups.length <= 1) {
     return (
-      <section className={workspaceStyles.workspaceSection}>
+      <div className={styles.outerWrapper}>
         <div className={workspaceStyles.wrapper}>
           <div className={workspaceStyles.grid}>{filteredNames.map(renderCard)}</div>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className={workspaceStyles.workspaceSection}>
+    <div className={styles.outerWrapper}>
       {groups.map((group) => {
         const isExpanded = expandedGroups === null || expandedGroups.has(group.key);
         return (
@@ -210,6 +208,6 @@ export function ProjectsGrid({
           </div>
         );
       })}
-    </section>
+    </div>
   );
 }

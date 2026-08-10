@@ -359,7 +359,9 @@
     "collapseAll": "Collapse all"
   },
   "ProjectCard": {
-    "openProject": "Open project {{name}}"
+    "openProject": "Open project {{name}}",
+    "infoButton": "Project info",
+    "createdAt": "Created"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"

@@ -1,5 +1,12 @@
+.outerWrapper {
+  margin: 0 auto;
+  max-width: 1280px;
+  width: 100%;
+}
+
+/* Matches ObjectPageSection top padding on workspace page */
 .groupSection {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .groupCount {

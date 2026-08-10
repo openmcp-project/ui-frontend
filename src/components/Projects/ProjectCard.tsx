@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import '@ui5/webcomponents-icons/dist/information.js';
+import { Button, Popover } from '@ui5/webcomponents-react';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { purposeIndicationVars, purposeLabel } from '../../lib/supportInfo.ts';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
@@ -39,6 +42,7 @@ export function ProjectCard({
   const telemetry = useTelemetry();
   const { setRememberedProject } = useRememberedProject();
   const ribbonId = useId();
+  const infoButtonId = useId();
 
   const {
     members,
@@ -51,25 +55,20 @@ export function ProjectCard({
     isLoading,
   } = useProjectMembers(projectName);
 
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [supportPopoverOpen, setSupportPopoverOpen] = useState(false);
+  const [infoPopoverOpen, setInfoPopoverOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading) {
-      onPurposeResolved?.(projectName, supportLandscape);
-    }
+    if (!isLoading) onPurposeResolved?.(projectName, supportLandscape);
   }, [isLoading, supportLandscape, projectName, onPurposeResolved]);
 
   useEffect(() => {
-    if (!isLoading) {
-      onDisplayNameResolved?.(projectName, displayName);
-    }
+    if (!isLoading) onDisplayNameResolved?.(projectName, displayName);
   }, [isLoading, displayName, projectName, onDisplayNameResolved]);
 
   useEffect(() => {
-    if (!isLoading) {
-      onTimestampResolved?.(projectName, creationTimestamp);
-    }
+    if (!isLoading) onTimestampResolved?.(projectName, creationTimestamp);
   }, [isLoading, creationTimestamp, projectName, onTimestampResolved]);
 
   const { bg: ribbonBg, text: ribbonText } = purposeIndicationVars(supportLandscape);
@@ -99,13 +98,13 @@ export function ProjectCard({
   const handleFooterKeyDown = useCallback((e: React.KeyboardEvent) => e.stopPropagation(), []);
   const handleRibbonClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setPopoverOpen(true);
+    setSupportPopoverOpen(true);
   }, []);
   const handleRibbonKeyDown = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      setPopoverOpen(true);
+      setSupportPopoverOpen(true);
     }
   }, []);
 
@@ -120,7 +119,7 @@ export function ProjectCard({
         onClick={handleNavigate}
         onKeyDown={handleKeyDown}
       >
-        {/* Clickable area over the ribbon corner — no clip, just covers the triangle zone */}
+        {/* Clickable area over the ribbon corner */}
         <button
           aria-label={purposeLabel(t, supportLandscape)}
           className={styles.ribbonButton}
@@ -130,7 +129,6 @@ export function ProjectCard({
           onClick={handleRibbonClick}
           onKeyDown={handleRibbonKeyDown}
         />
-        {/* Rotated label rendered on the card, outside the clipped button */}
         <span aria-hidden className={styles.ribbonLabel}>
           {purposeLabel(t, supportLandscape)}
         </span>
@@ -149,11 +147,16 @@ export function ProjectCard({
           </div>
         </div>
 
-        <div className={styles.cardBody}>
-          <div className={styles.membersRow}>
+        {/* Single compact footer: members · spacer · info · yaml · menu */}
+        <div
+          className={styles.cardFooter}
+          role="presentation"
+          onClick={handleFooterClick}
+          onKeyDown={handleFooterKeyDown}
+        >
+          <div className={styles.footerMembers}>
             {isLoading ? (
               <div className={styles.membersSkeleton}>
-                <div className={styles.avatarSkeleton} />
                 <div className={styles.avatarSkeleton} />
                 <div className={styles.avatarSkeleton} />
               </div>
@@ -161,35 +164,48 @@ export function ProjectCard({
               <MembersAvatarView hideNamespaceColumn members={members} project={projectName} source="project-list" />
             )}
           </div>
-        </div>
-
-        <div
-          className={styles.cardFooter}
-          role="presentation"
-          onClick={handleFooterClick}
-          onKeyDown={handleFooterKeyDown}
-        >
-          <div className={styles.footerLeft}>
+          <div className={styles.footerActions}>
+            <Button
+              design="Transparent"
+              icon="information"
+              id={infoButtonId}
+              tooltip={t('ProjectCard.infoButton')}
+              onClick={() => setInfoPopoverOpen(true)}
+            />
             <YamlViewButton resourceName={projectName} resourceType="projects" variant="loader" />
             <ProjectsListItemMenu projectName={projectName} />
           </div>
-          {creationTimestamp && (
-            <span className={styles.footerRight} title={new Date(creationTimestamp).toLocaleString()}>
-              {formatDateAsTimeAgo(creationTimestamp)}
-            </span>
-          )}
         </div>
       </div>
 
-      {popoverOpen && (
+      {/* Info popover: created at + created by */}
+      <Popover
+        opener={infoButtonId}
+        open={infoPopoverOpen}
+        placement={PopoverPlacement.Bottom}
+        onClose={() => setInfoPopoverOpen(false)}
+      >
+        <div className={styles.infoPopover}>
+          {creationTimestamp && (
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>{t('ProjectCard.createdAt')}</span>
+              <span className={styles.infoValue} title={new Date(creationTimestamp).toLocaleString()}>
+                {formatDateAsTimeAgo(creationTimestamp)}
+              </span>
+            </div>
+          )}
+        </div>
+      </Popover>
+
+      {supportPopoverOpen && (
         <ProjectSupportInfoPopover
           opener={ribbonId}
-          open={popoverOpen}
+          open={supportPopoverOpen}
           supportLandscape={supportLandscape}
           supportOpsContacts={supportOpsContacts}
           supportSecurityContacts={supportSecurityContacts}
           supportServiceIds={supportServiceIds}
-          onClose={() => setPopoverOpen(false)}
+          onClose={() => setSupportPopoverOpen(false)}
           onEditClick={() => setEditOpen(true)}
         />
       )}
