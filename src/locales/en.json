@@ -351,12 +351,18 @@
     "metadataHeader": "Support",
     "groupUnset": "Unset",
     "groupUnknownYear": "Unknown",
-    "groupNone": "All",
+    "groupNone": "None",
     "groupBy": "Group by",
     "groupByPurpose": "Purpose",
     "groupByCreated": "Creation date",
+    "groupByChargingTarget": "Charging target",
     "expandAll": "Expand all",
-    "collapseAll": "Collapse all"
+    "collapseAll": "Collapse all",
+    "sortBy": "Sort",
+    "sortNameAsc": "A → Z",
+    "sortNameDesc": "Z → A",
+    "sortCreatedNewest": "Newest first",
+    "sortCreatedOldest": "Oldest first"
   },
   "ProjectCard": {
     "openProject": "Open project {{name}}",

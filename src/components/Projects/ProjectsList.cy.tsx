@@ -25,6 +25,7 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
         ? 'Beta Display'
         : 'Gamma Display',
   createdBy: undefined,
+  chargingTarget: undefined,
   creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
   supportLandscape: undefined,

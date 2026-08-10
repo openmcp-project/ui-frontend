@@ -23,6 +23,7 @@ interface Props {
   projectName: string;
   setAsDefaultRef: React.RefObject<boolean>;
   useProjectMembers?: typeof _useProjectMembers;
+  onChargingTargetResolved?: (projectName: string, target: string | undefined) => void;
   onDisplayNameResolved?: (projectName: string, displayName: string | undefined) => void;
   onProjectSelect?: (projectName: string) => void;
   onPurposeResolved?: (projectName: string, landscape: string | undefined) => void;
@@ -33,6 +34,7 @@ export function ProjectCard({
   projectName,
   setAsDefaultRef,
   useProjectMembers = _useProjectMembers,
+  onChargingTargetResolved,
   onDisplayNameResolved,
   onProjectSelect,
   onPurposeResolved,
@@ -49,6 +51,7 @@ export function ProjectCard({
     members,
     displayName,
     createdBy,
+    chargingTarget,
     creationTimestamp,
     supportLandscape,
     supportServiceIds,
@@ -72,6 +75,10 @@ export function ProjectCard({
   useEffect(() => {
     if (!isLoading) onTimestampResolved?.(projectName, creationTimestamp);
   }, [isLoading, creationTimestamp, projectName, onTimestampResolved]);
+
+  useEffect(() => {
+    if (!isLoading) onChargingTargetResolved?.(projectName, chargingTarget);
+  }, [isLoading, chargingTarget, projectName, onChargingTargetResolved]);
 
   const hasPurpose = isKnownLandscape(supportLandscape);
   const { bg: ribbonBg, text: ribbonText, hoverBg: ribbonHoverBg } = purposeIndicationVars(supportLandscape);

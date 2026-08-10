@@ -4,13 +4,25 @@ import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
+import '@ui5/webcomponents-icons/dist/accept.js';
+import '@ui5/webcomponents-icons/dist/account.js';
+import '@ui5/webcomponents-icons/dist/badge.js';
+import '@ui5/webcomponents-icons/dist/calendar.js';
 import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import '@ui5/webcomponents-icons/dist/expand-all.js';
 import '@ui5/webcomponents-icons/dist/group-2.js';
-import '@ui5/webcomponents-icons/dist/badge.js';
-import '@ui5/webcomponents-icons/dist/accept.js';
-import '@ui5/webcomponents-icons/dist/calendar.js';
-import { Button, ButtonDomRef, CheckBox, FlexBox, Menu, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/sort-ascending.js';
+import '@ui5/webcomponents-icons/dist/sort.js';
+import {
+  Button,
+  ButtonDomRef,
+  CheckBox,
+  FlexBox,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
 import type { MenuDomRef } from '@ui5/webcomponents-react';
 import { t } from 'i18next';
@@ -19,7 +31,7 @@ import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
-import { GroupMode, ProjectsGrid } from './ProjectsGrid.tsx';
+import { GroupMode, ProjectsGrid, SortMode } from './ProjectsGrid.tsx';
 import styles from './ProjectsList.module.css';
 
 interface Props {
@@ -40,9 +52,12 @@ export default function ProjectsList({
   const [setAsDefault, setSetAsDefault] = useState(false);
   const setAsDefaultRef = useRef(false);
   const [groupMode, setGroupMode] = useState<GroupMode>('none');
+  const [sortMode, setSortMode] = useState<SortMode>('name-asc');
   const [expandedGroups, setExpandedGroups] = useState<Set<string> | null>(null);
   const [groupMenuOpen, setGroupMenuOpen] = useState(false);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const groupMenuRef = useRef<MenuDomRef>(null);
+  const sortMenuRef = useRef<MenuDomRef>(null);
 
   const telemetry = useTelemetry();
   const { setRememberedProject } = useRememberedProject();
@@ -119,10 +134,11 @@ export default function ProjectsList({
     }
   }, []);
 
-  const handleGroupMenuItemClick = useCallback((mode: GroupMode) => {
-    setGroupMode(mode);
-    setExpandedGroups(null);
-    setGroupMenuOpen(false);
+  const handleSortButtonClick = useCallback((e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    if (sortMenuRef.current && e.currentTarget) {
+      sortMenuRef.current.opener = e.currentTarget as HTMLElement;
+      setSortMenuOpen((prev) => !prev);
+    }
   }, []);
 
   if (isLoading) {
@@ -134,6 +150,18 @@ export default function ProjectsList({
 
   const isGrouped = groupMode !== 'none';
   const allExpanded = expandedGroups === null;
+  const sortLabel = {
+    'name-asc': tHook('ProjectsListView.sortNameAsc'),
+    'name-desc': tHook('ProjectsListView.sortNameDesc'),
+    'created-desc': tHook('ProjectsListView.sortCreatedNewest'),
+    'created-asc': tHook('ProjectsListView.sortCreatedOldest'),
+  }[sortMode];
+  const groupLabel = {
+    none: tHook('ProjectsListView.groupNone'),
+    purpose: tHook('ProjectsListView.groupByPurpose'),
+    chargingTarget: tHook('ProjectsListView.groupByChargingTarget'),
+    created: tHook('ProjectsListView.groupByCreated'),
+  }[groupMode];
 
   return (
     <FadeIn>
@@ -167,21 +195,68 @@ export default function ProjectsList({
               ))}
             <Button
               className={styles.expandCollapseButton}
+              design="Transparent"
+              icon="sort"
+              tooltip={tHook('ProjectsListView.sortBy')}
+              onClick={handleSortButtonClick}
+            >
+              {`${tHook('ProjectsListView.sortBy')}: ${sortLabel}`}
+            </Button>
+            <Menu
+              ref={sortMenuRef}
+              open={sortMenuOpen}
+              onClose={() => setSortMenuOpen(false)}
+              onItemClick={(e) => {
+                const mode = (e.detail.item as HTMLElement).dataset['mode'] as SortMode | undefined;
+                if (mode) {
+                  setSortMode(mode);
+                  setSortMenuOpen(false);
+                }
+              }}
+            >
+              <MenuItem
+                data-mode="name-asc"
+                icon={sortMode === 'name-asc' ? 'accept' : 'sort-ascending'}
+                text={tHook('ProjectsListView.sortNameAsc')}
+              />
+              <MenuItem
+                data-mode="name-desc"
+                icon={sortMode === 'name-desc' ? 'accept' : 'sort-ascending'}
+                text={tHook('ProjectsListView.sortNameDesc')}
+              />
+              <MenuSeparator />
+              <MenuItem
+                data-mode="created-desc"
+                icon={sortMode === 'created-desc' ? 'accept' : 'calendar'}
+                text={tHook('ProjectsListView.sortCreatedNewest')}
+              />
+              <MenuItem
+                data-mode="created-asc"
+                icon={sortMode === 'created-asc' ? 'accept' : 'calendar'}
+                text={tHook('ProjectsListView.sortCreatedOldest')}
+              />
+            </Menu>
+            <Button
+              className={styles.expandCollapseButton}
               design={isGrouped ? 'Emphasized' : 'Transparent'}
               icon="group-2"
               tooltip={tHook('ProjectsListView.groupBy')}
               onClick={handleGroupButtonClick}
             >
-              {tHook('ProjectsListView.groupBy')}
+              {`${tHook('ProjectsListView.groupBy')}: ${groupLabel}`}
             </Button>
             <Menu
               ref={groupMenuRef}
               open={groupMenuOpen}
+              onClose={() => setGroupMenuOpen(false)}
               onItemClick={(e) => {
                 const mode = (e.detail.item as HTMLElement).dataset['mode'] as GroupMode | undefined;
-                if (mode) handleGroupMenuItemClick(mode);
+                if (mode) {
+                  setGroupMode(mode);
+                  setExpandedGroups(null);
+                  setGroupMenuOpen(false);
+                }
               }}
-              onClose={() => setGroupMenuOpen(false)}
             >
               <MenuItem
                 data-mode="none"
@@ -192,6 +267,11 @@ export default function ProjectsList({
                 data-mode="purpose"
                 icon={groupMode === 'purpose' ? 'accept' : 'badge'}
                 text={tHook('ProjectsListView.groupByPurpose')}
+              />
+              <MenuItem
+                data-mode="chargingTarget"
+                icon={groupMode === 'chargingTarget' ? 'accept' : 'account'}
+                text={tHook('ProjectsListView.groupByChargingTarget')}
               />
               <MenuItem
                 data-mode="created"
@@ -208,6 +288,7 @@ export default function ProjectsList({
         projectNames={data ?? []}
         search={search}
         setAsDefaultRef={setAsDefaultRef}
+        sortMode={sortMode}
         useProjectMembers={useProjectMembers}
         onGroupKeysChanged={handleGroupKeysChanged}
         onProjectSelect={onProjectSelect}

@@ -8,9 +8,10 @@ import { ProjectCard } from './ProjectCard.tsx';
 import workspaceStyles from '../ControlPlanes/List/WorkspacesList.module.css';
 import styles from './ProjectsGrid.module.css';
 
-const PURPOSE_ORDER = ['production', 'validation', 'testing'] as const;
+const PURPOSE_ORDER = ['production', 'validation', 'testing', 'experimental'] as const;
 
-export type GroupMode = 'none' | 'purpose' | 'created';
+export type GroupMode = 'none' | 'purpose' | 'created' | 'chargingTarget';
+export type SortMode = 'name-asc' | 'name-desc' | 'created-asc' | 'created-desc';
 
 interface GroupEntry {
   key: string;
@@ -22,11 +23,13 @@ interface Props {
   projectNames: string[];
   search: string;
   groupMode: GroupMode;
-  expandedGroups: Set<string> | null; // null = all expanded
+  sortMode: SortMode;
+  expandedGroups: Set<string> | null;
   setAsDefaultRef: React.RefObject<boolean>;
   useProjectMembers?: typeof _useProjectMembers;
   onGroupKeysChanged?: (keys: string[]) => void;
   onProjectSelect?: (projectName: string) => void;
+  onTimestampResolved?: (name: string, ts: string | undefined) => void;
   onToggleGroup?: (groupKey: string) => void;
 }
 
@@ -34,11 +37,13 @@ export function ProjectsGrid({
   projectNames,
   search,
   groupMode,
+  sortMode,
   expandedGroups,
   setAsDefaultRef,
   useProjectMembers,
   onGroupKeysChanged,
   onProjectSelect,
+  onTimestampResolved: onTimestampResolvedProp,
   onToggleGroup,
 }: Props) {
   const { t } = useTranslation();
@@ -46,6 +51,7 @@ export function ProjectsGrid({
   const [purposeMap, setPurposeMap] = useState<Map<string, string | undefined>>(() => new Map());
   const [displayNameMap, setDisplayNameMap] = useState<Map<string, string | undefined>>(() => new Map());
   const [timestampMap, setTimestampMap] = useState<Map<string, string | undefined>>(() => new Map());
+  const [chargingTargetMap, setChargingTargetMap] = useState<Map<string, string | undefined>>(() => new Map());
 
   const handlePurposeResolved = useCallback((name: string, landscape: string | undefined) => {
     setPurposeMap((prev) => {
@@ -65,11 +71,24 @@ export function ProjectsGrid({
     });
   }, []);
 
-  const handleTimestampResolved = useCallback((name: string, ts: string | undefined) => {
-    setTimestampMap((prev) => {
-      if (prev.get(name) === ts) return prev;
+  const handleTimestampResolved = useCallback(
+    (name: string, ts: string | undefined) => {
+      setTimestampMap((prev) => {
+        if (prev.get(name) === ts) return prev;
+        const next = new Map(prev);
+        next.set(name, ts);
+        return next;
+      });
+      onTimestampResolvedProp?.(name, ts);
+    },
+    [onTimestampResolvedProp],
+  );
+
+  const handleChargingTargetResolved = useCallback((name: string, target: string | undefined) => {
+    setChargingTargetMap((prev) => {
+      if (prev.get(name) === target) return prev;
       const next = new Map(prev);
-      next.set(name, ts);
+      next.set(name, target);
       return next;
     });
   }, []);
@@ -85,54 +104,87 @@ export function ProjectsGrid({
     });
   }, [projectNames, query, displayNameMap]);
 
-  const sortByDisplayName = useCallback(
-    (names: string[]) =>
-      [...names].sort((a, b) => {
-        const da = displayNameMap.get(a) ?? a;
-        const db = displayNameMap.get(b) ?? b;
-        return da.localeCompare(db);
-      }),
-    [displayNameMap],
-  );
+  // Apply sort
+  const sortedNames = useMemo(() => {
+    return [...filteredNames].sort((a, b) => {
+      switch (sortMode) {
+        case 'name-asc': {
+          const da = displayNameMap.get(a) ?? a;
+          const db = displayNameMap.get(b) ?? b;
+          return da.localeCompare(db);
+        }
+        case 'name-desc': {
+          const da = displayNameMap.get(a) ?? a;
+          const db = displayNameMap.get(b) ?? b;
+          return db.localeCompare(da);
+        }
+        case 'created-asc': {
+          const ta = timestampMap.get(a) ?? '';
+          const tb = timestampMap.get(b) ?? '';
+          return ta.localeCompare(tb);
+        }
+        case 'created-desc': {
+          const ta = timestampMap.get(a) ?? '';
+          const tb = timestampMap.get(b) ?? '';
+          return tb.localeCompare(ta);
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [filteredNames, sortMode, displayNameMap, timestampMap]);
 
   const groups = useMemo<GroupEntry[]>(() => {
     if (groupMode === 'none') return [];
 
     if (groupMode === 'purpose') {
       const byPurpose = new Map<string, string[]>();
-      for (const name of filteredNames) {
+      for (const name of sortedNames) {
         const landscape = purposeMap.get(name);
         const key = landscape && isKnownLandscape(landscape) ? landscape : '';
         if (!byPurpose.has(key)) byPurpose.set(key, []);
         byPurpose.get(key)!.push(name);
       }
-
       const result: GroupEntry[] = [];
       for (const purpose of PURPOSE_ORDER) {
         const names = byPurpose.get(purpose);
         if (names && names.length > 0) {
-          result.push({ key: purpose, label: t(`SupportInfo.landscape.${purpose}`), names: sortByDisplayName(names) });
+          result.push({ key: purpose, label: t(`SupportInfo.landscape.${purpose}`), names });
         }
       }
       const unset = byPurpose.get('');
       if (unset && unset.length > 0) {
-        result.push({ key: 'unset', label: t('ProjectsListView.groupUnset'), names: sortByDisplayName(unset) });
+        result.push({ key: 'unset', label: t('ProjectsListView.groupUnset'), names: unset });
       }
       return result;
     }
 
-    // groupMode === 'created': group by "Month YYYY", newest first
+    if (groupMode === 'chargingTarget') {
+      const byTarget = new Map<string, string[]>();
+      for (const name of sortedNames) {
+        const key = chargingTargetMap.get(name) ?? '';
+        if (!byTarget.has(key)) byTarget.set(key, []);
+        byTarget.get(key)!.push(name);
+      }
+      const keys = [...byTarget.keys()].sort((a, b) => a.localeCompare(b));
+      return keys.map((key) => ({
+        key: key || 'unset',
+        label: key || t('ProjectsListView.groupUnset'),
+        names: byTarget.get(key)!,
+      }));
+    }
+
+    // groupMode === 'created': group by "Month YYYY"
     const byDate = new Map<string, string[]>();
-    for (const name of filteredNames) {
+    for (const name of sortedNames) {
       const ts = timestampMap.get(name);
       const key = ts ? new Date(ts).toLocaleDateString(undefined, { year: 'numeric', month: 'long' }) : 'unknown';
       if (!byDate.has(key)) byDate.set(key, []);
       byDate.get(key)!.push(name);
     }
-    // Sort by actual date descending — derive a sortable value from the first item's ts
     const dateKeys = [...byDate.keys()].sort((a, b) => {
-      const tsA = filteredNames.find((n) => byDate.get(a)?.includes(n));
-      const tsB = filteredNames.find((n) => byDate.get(b)?.includes(n));
+      const tsA = sortedNames.find((n) => byDate.get(a)?.includes(n));
+      const tsB = sortedNames.find((n) => byDate.get(b)?.includes(n));
       const dA = tsA ? (timestampMap.get(tsA) ?? '') : '';
       const dB = tsB ? (timestampMap.get(tsB) ?? '') : '';
       return dB.localeCompare(dA);
@@ -140,21 +192,17 @@ export function ProjectsGrid({
     return dateKeys.map((key) => ({
       key,
       label: key === 'unknown' ? t('ProjectsListView.groupUnknownYear') : key,
-      names: sortByDisplayName(byDate.get(key)!),
+      names: byDate.get(key)!,
     }));
-  }, [groupMode, filteredNames, purposeMap, timestampMap, sortByDisplayName, t]);
+  }, [groupMode, sortedNames, purposeMap, timestampMap, chargingTargetMap, t]);
 
   const groupKeys = useMemo(() => groups.map((g) => g.key), [groups]);
   useEffect(() => {
     onGroupKeysChanged?.(groupKeys);
   }, [groupKeys, onGroupKeysChanged]);
 
-  const hasPurposeData = purposeMap.size > 0;
-  const hasTimestampData = timestampMap.size > 0;
-  const canGroup =
-    groupMode === 'none' ||
-    (groupMode === 'purpose' && hasPurposeData && groups.length > 1) ||
-    (groupMode === 'created' && hasTimestampData && groups.length > 1);
+  const hasData = purposeMap.size > 0 || timestampMap.size > 0 || chargingTargetMap.size > 0 || displayNameMap.size > 0;
+  const canGroup = groupMode === 'none' || (hasData && groups.length > 1);
 
   const renderCard = (name: string) => (
     <ProjectCard
@@ -162,6 +210,7 @@ export function ProjectsGrid({
       projectName={name}
       setAsDefaultRef={setAsDefaultRef}
       useProjectMembers={useProjectMembers}
+      onChargingTargetResolved={handleChargingTargetResolved}
       onDisplayNameResolved={handleDisplayNameResolved}
       onProjectSelect={onProjectSelect}
       onPurposeResolved={handlePurposeResolved}
@@ -173,7 +222,7 @@ export function ProjectsGrid({
     return (
       <div className={styles.outerWrapper}>
         <div className={workspaceStyles.wrapper}>
-          <div className={workspaceStyles.grid}>{filteredNames.map(renderCard)}</div>
+          <div className={workspaceStyles.grid}>{sortedNames.map(renderCard)}</div>
         </div>
       </div>
     );
