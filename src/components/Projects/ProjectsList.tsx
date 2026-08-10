@@ -6,6 +6,7 @@ import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import '@ui5/webcomponents-icons/dist/expand-all.js';
+import '@ui5/webcomponents-icons/dist/group-2.js';
 import '@ui5/webcomponents-icons/dist/badge.js';
 import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/calendar.js';
@@ -167,7 +168,7 @@ export default function ProjectsList({
             <Button
               className={styles.expandCollapseButton}
               design={isGrouped ? 'Emphasized' : 'Transparent'}
-              icon="badge"
+              icon="group-2"
               tooltip={tHook('ProjectsListView.groupBy')}
               onClick={handleGroupButtonClick}
             >
@@ -189,7 +190,7 @@ export default function ProjectsList({
               />
               <MenuItem
                 data-mode="purpose"
-                icon={groupMode === 'purpose' ? 'accept' : 'group-2'}
+                icon={groupMode === 'purpose' ? 'accept' : 'badge'}
                 text={tHook('ProjectsListView.groupByPurpose')}
               />
               <MenuItem
