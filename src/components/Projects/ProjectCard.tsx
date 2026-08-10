@@ -4,7 +4,7 @@ import '@ui5/webcomponents-icons/dist/hint.js';
 import { Button, Popover } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { purposeIndicationVars, purposeLabel } from '../../lib/supportInfo.ts';
+import { isKnownLandscape, purposeIndicationVars, purposeLabel } from '../../lib/supportInfo.ts';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { projectnameToNamespace } from '../../utils/index.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
@@ -72,6 +72,7 @@ export function ProjectCard({
     if (!isLoading) onTimestampResolved?.(projectName, creationTimestamp);
   }, [isLoading, creationTimestamp, projectName, onTimestampResolved]);
 
+  const hasPurpose = isKnownLandscape(supportLandscape);
   const { bg: ribbonBg, text: ribbonText } = purposeIndicationVars(supportLandscape);
 
   const handleNavigate = useCallback(() => {
@@ -99,15 +100,23 @@ export function ProjectCard({
   const handleFooterKeyDown = useCallback((e: React.KeyboardEvent) => e.stopPropagation(), []);
   const handleRibbonClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setSupportPopoverOpen(true);
-  }, []);
+    if (hasPurpose) {
+      setSupportPopoverOpen(true);
+    } else {
+      setEditOpen(true);
+    }
+  }, [hasPurpose]);
   const handleRibbonKeyDown = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      setSupportPopoverOpen(true);
+      if (hasPurpose) {
+        setSupportPopoverOpen(true);
+      } else {
+        setEditOpen(true);
+      }
     }
-  }, []);
+  }, [hasPurpose]);
 
   return (
     <>
@@ -115,24 +124,30 @@ export function ProjectCard({
         aria-label={t('ProjectCard.openProject', { name: displayName ?? projectName })}
         className={styles.card}
         role="button"
-        style={{ '--ribbon-bg': ribbonBg, '--ribbon-text': ribbonText } as React.CSSProperties}
+        style={hasPurpose ? ({ '--ribbon-bg': ribbonBg, '--ribbon-text': ribbonText } as React.CSSProperties) : undefined}
         tabIndex={0}
         onClick={handleNavigate}
         onKeyDown={handleKeyDown}
       >
-        {/* Clickable area over the ribbon corner */}
+        {/* Ribbon: solid when purpose is set, dashed "Set Purpose" ghost on hover when unset */}
         <button
-          aria-label={purposeLabel(t, supportLandscape)}
-          className={styles.ribbonButton}
+          aria-label={hasPurpose ? purposeLabel(t, supportLandscape) : t('ProjectCard.setPurpose')}
+          className={hasPurpose ? styles.ribbonButton : styles.ribbonButtonUnset}
           id={ribbonId}
           tabIndex={-1}
-          title={purposeLabel(t, supportLandscape)}
+          title={hasPurpose ? purposeLabel(t, supportLandscape) : t('ProjectCard.setPurpose')}
           onClick={handleRibbonClick}
           onKeyDown={handleRibbonKeyDown}
         />
-        <span aria-hidden className={styles.ribbonLabel}>
-          {purposeLabel(t, supportLandscape)}
-        </span>
+        {hasPurpose ? (
+          <span aria-hidden className={styles.ribbonLabel}>
+            {purposeLabel(t, supportLandscape)}
+          </span>
+        ) : (
+          <span aria-hidden className={styles.ribbonLabelUnset}>
+            {t('ProjectCard.setPurpose')}
+          </span>
+        )}
 
         <div className={styles.cardHeader}>
           <div className={styles.titleSection}>
