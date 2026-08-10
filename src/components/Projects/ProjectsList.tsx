@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
@@ -48,11 +49,45 @@ export default function ProjectsList({
   const { t: tHook } = useTranslation();
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [setAsDefault, setSetAsDefault] = useState(false);
   const setAsDefaultRef = useRef(false);
-  const [groupMode, setGroupMode] = useState<GroupMode>('none');
-  const [sortMode, setSortMode] = useState<SortMode>('name-asc');
+
+  const VALID_GROUP_MODES: GroupMode[] = ['none', 'purpose', 'chargingTarget', 'created'];
+  const VALID_SORT_MODES: SortMode[] = ['name-asc', 'name-desc', 'created-asc', 'created-desc'];
+
+  const groupMode: GroupMode = VALID_GROUP_MODES.includes(searchParams.get('group') as GroupMode)
+    ? (searchParams.get('group') as GroupMode)
+    : 'none';
+  const sortMode: SortMode = VALID_SORT_MODES.includes(searchParams.get('sort') as SortMode)
+    ? (searchParams.get('sort') as SortMode)
+    : 'name-asc';
+
+  const setGroupMode = useCallback(
+    (mode: GroupMode) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'none') next.delete('group');
+        else next.set('group', mode);
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
+
+  const setSortMode = useCallback(
+    (mode: SortMode) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (mode === 'name-asc') next.delete('sort');
+        else next.set('sort', mode);
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
+
   const [expandedGroups, setExpandedGroups] = useState<Set<string> | null>(null);
   const [groupMenuOpen, setGroupMenuOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
