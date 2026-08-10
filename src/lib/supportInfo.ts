@@ -59,3 +59,9 @@ export function isKnownLandscape(value?: string): value is SupportLandscape {
 export function purposeLabel(t: TFunction, landscape?: string): string {
   return landscape ? t(`SupportInfo.landscape.${landscape}`, { defaultValue: landscape }) : t('SupportInfo.pleaseSet');
 }
+
+/** Short label for ribbon (constrained space): Prod, Val, Test, or "Set purpose". */
+export function purposeShortLabel(t: TFunction, landscape?: string): string {
+  if (!landscape) return t('ProjectCard.setPurpose');
+  return t(`SupportInfo.shortLabel.${landscape}`, { defaultValue: purposeLabel(t, landscape) });
+}

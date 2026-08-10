@@ -4,7 +4,7 @@ import '@ui5/webcomponents-icons/dist/hint.js';
 import { Button, Popover } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
-import { isKnownLandscape, purposeIndicationVars, purposeLabel } from '../../lib/supportInfo.ts';
+import { isKnownLandscape, purposeIndicationVars, purposeLabel, purposeShortLabel } from '../../lib/supportInfo.ts';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { projectnameToNamespace } from '../../utils/index.ts';
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
@@ -150,7 +150,7 @@ export function ProjectCard({
               onKeyDown={handleRibbonKeyDown}
             />
             <span aria-hidden className={styles.ribbonLabel}>
-              {purposeLabel(t, supportLandscape)}
+              {purposeShortLabel(t, supportLandscape)}
             </span>
           </>
         )}
@@ -170,15 +170,18 @@ export function ProjectCard({
               aria-hidden
               className={styles.ribbonSvg}
               fill="none"
-              viewBox="0 0 80 80"
+              viewBox="0 0 64 64"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path
-                d="M0 0 L80 80"
+              <line
                 stroke="var(--sapButton_Emphasized_Background)"
                 strokeDasharray="6 4"
                 strokeLinecap="round"
-                strokeWidth="2"
+                strokeWidth="2.5"
+                x1="0"
+                x2="64"
+                y1="0"
+                y2="64"
               />
             </svg>
             <span aria-hidden className={styles.ribbonLabelUnset}>

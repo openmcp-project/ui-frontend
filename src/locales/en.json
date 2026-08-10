@@ -744,6 +744,11 @@
       "validation": "Validation",
       "testing": "Testing"
     },
+    "shortLabel": {
+      "production": "Prod",
+      "validation": "Val",
+      "testing": "Test"
+    },
     "serviceIds": "Service Reference",
     "serviceIdsPlaceholder": "Enter IDs/names of services/apps/landscapes this project powers",
     "contacts": "Contacts",
