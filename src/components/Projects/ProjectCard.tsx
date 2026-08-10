@@ -229,6 +229,14 @@ export function ProjectCard({
           onClick={handleFooterClick}
           onKeyDown={handleFooterKeyDown}
         >
+          <Button
+            className={styles.infoButton}
+            design="Transparent"
+            icon="hint"
+            id={infoButtonId}
+            tooltip={t('ProjectCard.infoButton')}
+            onClick={() => setInfoPopoverOpen(true)}
+          />
           <div className={styles.footerMembers}>
             {isLoading ? (
               <div className={styles.membersSkeleton}>
@@ -240,14 +248,6 @@ export function ProjectCard({
             )}
           </div>
           <div className={styles.footerActions}>
-            <Button
-              className={styles.infoButton}
-              design="Transparent"
-              icon="hint"
-              id={infoButtonId}
-              tooltip={t('ProjectCard.infoButton')}
-              onClick={() => setInfoPopoverOpen(true)}
-            />
             <YamlViewButton resourceName={projectName} resourceType="projects" variant="loader" />
             <ProjectsListItemMenu projectName={projectName} />
           </div>
