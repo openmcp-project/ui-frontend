@@ -1929,7 +1929,12 @@ export type GetProjectMembersQuery = {
   core_openmcp_cloud: {
     v1alpha1: {
       Project: {
-        metadata: { creationTimestamp: string | null; annotations: unknown; labels: unknown } | null;
+        metadata: {
+          creationTimestamp: string | null;
+          deletionTimestamp: string | null;
+          annotations: unknown;
+          labels: unknown;
+        } | null;
         spec: {
           members: Array<{
             kind: string | null;
@@ -6011,6 +6016,7 @@ export const GetProjectMembersDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'deletionTimestamp' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'labels' } },
                                 ],
