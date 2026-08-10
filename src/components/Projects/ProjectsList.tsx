@@ -6,7 +6,7 @@ import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
 import '@ui5/webcomponents-icons/dist/collapse-all.js';
 import '@ui5/webcomponents-icons/dist/expand-all.js';
-import '@ui5/webcomponents-icons/dist/group-2.js';
+import '@ui5/webcomponents-icons/dist/badge.js';
 import '@ui5/webcomponents-icons/dist/accept.js';
 import '@ui5/webcomponents-icons/dist/calendar.js';
 import { Button, ButtonDomRef, CheckBox, FlexBox, Menu, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
@@ -167,7 +167,7 @@ export default function ProjectsList({
             <Button
               className={styles.expandCollapseButton}
               design={isGrouped ? 'Emphasized' : 'Transparent'}
-              icon="group-2"
+              icon="badge"
               tooltip={tHook('ProjectsListView.groupBy')}
               onClick={handleGroupButtonClick}
             >
