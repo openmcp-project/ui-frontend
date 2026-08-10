@@ -1,4 +1,5 @@
 import type { WizardStepChangeEventDetail } from '@ui5/webcomponents-fiori/dist/Wizard.js';
+import '@ui5/webcomponents-icons/dist/badge.js';
 import {
   Bar,
   BusyIndicator,
@@ -212,7 +213,7 @@ export function CreateProjectWorkspaceDialog({
               {type === 'project' && (
                 <WizardStep
                   data-step="supportInfo"
-                  icon="activities"
+                  icon="badge"
                   selected={step === 'supportInfo'}
                   titleText={t('SupportInfo.wizardStepTitle')}
                 >

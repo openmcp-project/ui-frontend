@@ -1,5 +1,10 @@
 import { useQuery } from '@apollo/client/react';
-import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames';
+import {
+  CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
+  CREATED_BY_ANNOTATION,
+  DISPLAY_NAME_ANNOTATION,
+} from '../../../lib/api/types/shared/keyNames';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members';
 import { extractSupportInfo } from '../../../lib/supportInfo';
 import { graphql } from '../../../types/__generated__/graphql';
@@ -11,7 +16,9 @@ const GetProjectMembersQuery = graphql(`
         Project(name: $name) {
           metadata {
             creationTimestamp
+            deletionTimestamp
             annotations
+            labels
           }
           spec {
             members {
@@ -35,8 +42,17 @@ export function useProjectMembers(projectName: string) {
   const project = data?.core_openmcp_cloud?.v1alpha1?.Project;
   const rawMembers = project?.spec?.members ?? [];
   const creationTimestamp: string | undefined = project?.metadata?.creationTimestamp ?? undefined;
+  const deletionTimestamp: string | undefined =
+    ((project?.metadata as Record<string, unknown> | null | undefined)?.['deletionTimestamp'] as string | undefined) ||
+    undefined;
   const annotations = (project?.metadata?.annotations as Record<string, string> | null | undefined) ?? {};
+  const labels =
+    ((project?.metadata as Record<string, unknown> | null | undefined)?.['labels'] as
+      Record<string, string> | null | undefined) ?? {};
   const displayName: string | undefined = annotations[DISPLAY_NAME_ANNOTATION] || undefined;
+  const createdBy: string | undefined = annotations[CREATED_BY_ANNOTATION] || undefined;
+  const chargingTarget: string | undefined = labels[CHARGING_TARGET_LABEL] || undefined;
+  const chargingTargetType: string | undefined = labels[CHARGING_TARGET_TYPE_LABEL] || undefined;
   const support = extractSupportInfo(annotations);
 
   const members: Member[] = rawMembers.flatMap((m) => {
@@ -54,7 +70,11 @@ export function useProjectMembers(projectName: string) {
   return {
     members,
     displayName,
+    createdBy,
+    chargingTarget,
+    chargingTargetType,
     creationTimestamp,
+    deletionTimestamp,
     ...support,
     isLoading: loading,
   };

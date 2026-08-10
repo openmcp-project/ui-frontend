@@ -29,21 +29,42 @@ export function extractSupportInfo(annotations: Record<string, string> | null | 
 export function purposeColorScheme(landscape?: string): string {
   switch (landscape) {
     case 'production':
-      return '8';
+      return '1';
     case 'validation':
-      return '6';
+      return '3';
     case 'testing':
-      return '5';
+      return '4';
+    case 'experimental':
+      return '10';
     default:
       return '10';
   }
 }
 
+/**
+ * Returns the exact CSS custom property pair that SAP UI5 Tag Set2 uses internally.
+ * Use this for non-Tag elements (e.g. ribbon) so colors are identical to the tags.
+ */
+export function purposeIndicationVars(landscape?: string): { bg: string; text: string; hoverBg: string } {
+  const n = purposeColorScheme(landscape);
+  return {
+    bg: `var(--sapIndicationColor_${n}b_Background)`,
+    text: `var(--sapIndicationColor_${n}b_TextColor)`,
+    hoverBg: `var(--sapIndicationColor_${n}b_Hover_Background)`,
+  };
+}
+
 export function isKnownLandscape(value?: string): value is SupportLandscape {
-  return value === 'production' || value === 'validation' || value === 'testing';
+  return value === 'production' || value === 'validation' || value === 'testing' || value === 'experimental';
 }
 
 /** Translated label for the landscape, or the "please set" placeholder. */
 export function purposeLabel(t: TFunction, landscape?: string): string {
   return landscape ? t(`SupportInfo.landscape.${landscape}`, { defaultValue: landscape }) : t('SupportInfo.pleaseSet');
+}
+
+/** Short label for ribbon (constrained space): Prod, Val, Test, or "Set purpose". */
+export function purposeShortLabel(t: TFunction, landscape?: string): string {
+  if (!landscape) return t('ProjectCard.setPurpose');
+  return t(`SupportInfo.shortLabel.${landscape}`, { defaultValue: purposeLabel(t, landscape) });
 }

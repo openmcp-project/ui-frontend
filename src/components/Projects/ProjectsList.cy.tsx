@@ -24,8 +24,16 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
       : projectName === 'beta-project'
         ? 'Beta Display'
         : 'Gamma Display',
+  createdBy: undefined,
+  chargingTarget: undefined,
+  chargingTargetType: undefined,
+  deletionTimestamp: undefined,
   creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
+  supportLandscape: undefined,
+  supportServiceIds: undefined,
+  supportSecurityContacts: undefined,
+  supportOpsContacts: undefined,
 });
 
 const mount = (onProjectSelect?: (name: string) => void) =>
@@ -91,8 +99,14 @@ describe('ProjectsList', () => {
   it('renders project names from the query', () => {
     mount();
 
-    cy.contains('alpha-project').should('be.visible');
-    cy.contains('beta-project').should('be.visible');
+    // Cards show displayName as title when set; mock returns 'Alpha Display', 'Beta Display', etc.
+    cy.get('[class*="titleRow"]')
+      .first()
+      .find('span')
+      .first()
+      .should('be.visible')
+      .and('contain.text', 'Alpha Display');
+    cy.get('[class*="titleRow"]').eq(1).find('span').first().should('be.visible').and('contain.text', 'Beta Display');
   });
 
   it('calls onProjectSelect with the project name when a row is clicked', () => {
@@ -121,5 +135,42 @@ describe('ProjectsList', () => {
     cy.wrap(null).should(() => {
       expect(getRememberedProject()).to.equal('beta-project');
     });
+  });
+});
+
+const mountWithParams = (search: string, onProjectSelect?: (name: string) => void) =>
+  cy.mount(
+    <MockedProvider mocks={[]}>
+      <MemoryRouter initialEntries={[search]}>
+        <SplitterProvider>
+          <ProjectsList
+            useProjectsQuery={fakeUseProjectsQuery}
+            useProjectMembers={fakeUseProjectMembers}
+            onProjectSelect={onProjectSelect}
+          />
+        </SplitterProvider>
+      </MemoryRouter>
+    </MockedProvider>,
+  );
+
+describe('ProjectsList URL params', () => {
+  it('?sort=name-desc renders projects with sort button label "Z to A"', () => {
+    mountWithParams('/?sort=name-desc');
+    cy.get('ui5-button').contains('Z to A').should('exist');
+  });
+
+  it('?group=purpose activates grouped view with group button label "Purpose"', () => {
+    mountWithParams('/?group=purpose');
+    cy.get('ui5-button').contains('Purpose').should('exist');
+  });
+
+  it('unknown ?sort param falls back to default "A to Z"', () => {
+    mountWithParams('/?sort=bogus');
+    cy.get('ui5-button').contains('A to Z').should('exist');
+  });
+
+  it('unknown ?group param falls back to none "All"', () => {
+    mountWithParams('/?group=bogus');
+    cy.get('ui5-button').contains('All').should('exist');
   });
 });

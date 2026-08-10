@@ -1,4 +1,5 @@
 export const DISPLAY_NAME_ANNOTATION: string = 'openmcp.cloud/display-name';
+export const CREATED_BY_ANNOTATION: string = 'core.openmcp.cloud/created-by';
 export const CHARGING_TARGET_LABEL: string = 'openmcp.cloud.sap/charging-target';
 export const CHARGING_TARGET_TYPE_LABEL: string = 'openmcp.cloud.sap/charging-target-type';
 export const PROJECT_NAME_LABEL: string = 'openmcp.cloud/mcp-project';
@@ -10,5 +11,5 @@ export const SUPPORT_LANDSCAPE_ANNOTATION = 'meta.orchestrate.cloud.sap/landscap
 export const SUPPORT_SECURITY_CONTACTS_ANNOTATION = 'meta.orchestrate.cloud.sap/security-contacts';
 export const SUPPORT_OPS_CONTACTS_ANNOTATION = 'meta.orchestrate.cloud.sap/ops-contacts';
 
-export const SUPPORT_LANDSCAPE_VALUES = ['production', 'validation', 'testing'] as const;
+export const SUPPORT_LANDSCAPE_VALUES = ['production', 'validation', 'testing', 'experimental'] as const;
 export type SupportLandscape = (typeof SUPPORT_LANDSCAPE_VALUES)[number];

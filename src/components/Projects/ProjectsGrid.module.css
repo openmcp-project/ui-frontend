@@ -1,0 +1,16 @@
+.outerWrapper {
+  margin: 0 auto;
+  max-width: 1280px;
+  width: 100%;
+}
+
+/* Matches ObjectPageSection top padding on workspace page */
+.groupSection {
+  margin-bottom: 1.5rem;
+}
+
+.groupCount {
+  color: var(--sapContent_LabelColor);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
