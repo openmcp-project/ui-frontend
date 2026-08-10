@@ -26,17 +26,14 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 3.5rem;
+  height: 3.5rem;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   z-index: 2;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Solid colored triangle bg */
@@ -47,27 +44,37 @@
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 0 2.8rem 2.8rem 0;
+  border-width: 0 3.5rem 3.5rem 0;
   border-color: transparent var(--ribbon-bg, transparent) transparent transparent;
   pointer-events: none;
+  transition: border-color 0.15s ease;
 }
 
-/* Label centered in the clip-path square — rotated 45° so text aligns with diagonal */
+.ribbonWrap:hover .ribbonBg {
+  border-color: transparent var(--ribbon-hover-bg, transparent) transparent transparent;
+}
+
+/* Full-square overlay rotated 45° — flex centers text at diagonal midpoint */
+.ribbonLabelContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .ribbonLabel {
-  position: relative;
-  font-size: 0.5rem;
+  margin-top: -24px;
+  font-size: 0.55rem;
   font-weight: 700;
   color: var(--ribbon-text, #fff);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-  transform: rotate(45deg);
-  white-space: normal;
-  word-break: break-word;
-  pointer-events: none;
-  z-index: 1;
-  width: 1.8rem;
-  text-align: center;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Dashed SVG ribbon (purpose unset) — fades in on card hover */
@@ -75,17 +82,14 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 3.5rem;
+  height: 3.5rem;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   z-index: 2;
   clip-path: polygon(100% 0, 0 0, 100% 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -98,18 +102,35 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 3.5rem;
+  height: 3.5rem;
   pointer-events: none;
 }
 
-/* Badge icon centered in the unset ribbon */
+/* Badge icon at 0° — readable, positioned in upper triangle area */
 .ribbonIcon {
-  position: relative;
-  z-index: 1;
-  transform: rotate(45deg);
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
   font-size: 0.75rem;
+  pointer-events: none;
   --sapContent_IconColor: var(--sapButton_Emphasized_Background);
+  transition: --sapContent_IconColor 0.15s ease;
+}
+
+.ribbonWrapUnset:hover .ribbonIcon {
+  --sapContent_IconColor: #fff;
+}
+
+.ribbonWrapUnset:hover {
+  background: var(--sapButton_Emphasized_Background);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  opacity: 1;
+}
+
+.ribbonWrapUnset:hover .ribbonSvg line,
+.ribbonWrapUnset:hover .ribbonSvg path {
+  stroke: #fff;
 }
 
 .cardHeader {

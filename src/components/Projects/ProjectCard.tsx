@@ -74,7 +74,7 @@ export function ProjectCard({
   }, [isLoading, creationTimestamp, projectName, onTimestampResolved]);
 
   const hasPurpose = isKnownLandscape(supportLandscape);
-  const { bg: ribbonBg, text: ribbonText } = purposeIndicationVars(supportLandscape);
+  const { bg: ribbonBg, text: ribbonText, hoverBg: ribbonHoverBg } = purposeIndicationVars(supportLandscape);
 
   const handleNavigate = useCallback(() => {
     if (setAsDefaultRef.current) {
@@ -132,7 +132,13 @@ export function ProjectCard({
         className={styles.card}
         role="button"
         style={
-          hasPurpose ? ({ '--ribbon-bg': ribbonBg, '--ribbon-text': ribbonText } as React.CSSProperties) : undefined
+          hasPurpose
+            ? ({
+                '--ribbon-bg': ribbonBg,
+                '--ribbon-hover-bg': ribbonHoverBg,
+                '--ribbon-text': ribbonText,
+              } as React.CSSProperties)
+            : undefined
         }
         tabIndex={0}
         onClick={handleNavigate}
@@ -150,8 +156,8 @@ export function ProjectCard({
             onKeyDown={handleRibbonKeyDown}
           >
             <span aria-hidden className={styles.ribbonBg} />
-            <span aria-hidden className={styles.ribbonLabel}>
-              {purposeShortLabel(t, supportLandscape)}
+            <span aria-hidden className={styles.ribbonLabelContainer}>
+              <span className={styles.ribbonLabel}>{purposeShortLabel(t, supportLandscape)}</span>
             </span>
           </button>
         )}
@@ -170,7 +176,7 @@ export function ProjectCard({
               aria-hidden
               className={styles.ribbonSvg}
               fill="none"
-              viewBox="0 0 45 45"
+              viewBox="0 0 56 56"
               xmlns="http://www.w3.org/2000/svg"
             >
               <line
@@ -179,9 +185,9 @@ export function ProjectCard({
                 strokeLinecap="round"
                 strokeWidth="2"
                 x1="0"
-                x2="45"
+                x2="56"
                 y1="0"
-                y2="45"
+                y2="56"
               />
             </svg>
             <Icon aria-hidden className={styles.ribbonIcon} name="badge" />

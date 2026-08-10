@@ -742,12 +742,14 @@
     "landscape": {
       "production": "Production",
       "validation": "Validation",
-      "testing": "Testing"
+      "testing": "Testing",
+      "experimental": "Experimental"
     },
     "shortLabel": {
       "production": "Prod",
       "validation": "Val",
-      "testing": "Test"
+      "testing": "Test",
+      "experimental": "Exp"
     },
     "serviceIds": "Service Reference",
     "serviceIdsPlaceholder": "Enter IDs/names of services/apps/landscapes this project powers",

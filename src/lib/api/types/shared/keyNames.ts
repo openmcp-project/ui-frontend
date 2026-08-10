@@ -11,5 +11,5 @@ export const SUPPORT_LANDSCAPE_ANNOTATION = 'meta.orchestrate.cloud.sap/landscap
 export const SUPPORT_SECURITY_CONTACTS_ANNOTATION = 'meta.orchestrate.cloud.sap/security-contacts';
 export const SUPPORT_OPS_CONTACTS_ANNOTATION = 'meta.orchestrate.cloud.sap/ops-contacts';
 
-export const SUPPORT_LANDSCAPE_VALUES = ['production', 'validation', 'testing'] as const;
+export const SUPPORT_LANDSCAPE_VALUES = ['production', 'validation', 'testing', 'experimental'] as const;
 export type SupportLandscape = (typeof SUPPORT_LANDSCAPE_VALUES)[number];
