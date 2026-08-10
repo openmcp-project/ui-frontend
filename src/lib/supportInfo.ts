@@ -39,6 +39,18 @@ export function purposeColorScheme(landscape?: string): string {
   }
 }
 
+/**
+ * Returns the exact CSS custom property pair that SAP UI5 Tag Set2 uses internally.
+ * Use this for non-Tag elements (e.g. ribbon) so colors are identical to the tags.
+ */
+export function purposeIndicationVars(landscape?: string): { bg: string; text: string } {
+  const n = purposeColorScheme(landscape);
+  return {
+    bg: `var(--sapIndicationColor_${n}b_Background)`,
+    text: `var(--sapIndicationColor_${n}b_TextColor)`,
+  };
+}
+
 export function isKnownLandscape(value?: string): value is SupportLandscape {
   return value === 'production' || value === 'validation' || value === 'testing';
 }

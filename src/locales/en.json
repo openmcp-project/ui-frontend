@@ -348,7 +348,18 @@
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
     "setDefaultProject": "Set selected project as default",
-    "metadataHeader": "Support"
+    "metadataHeader": "Support",
+    "groupUnset": "Unset",
+    "groupUnknownYear": "Unknown",
+    "groupNone": "All",
+    "groupBy": "Group by",
+    "groupByPurpose": "Purpose",
+    "groupByCreated": "Creation date",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all"
+  },
+  "ProjectCard": {
+    "openProject": "Open project {{name}}"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -730,9 +741,9 @@
       "testing": "Testing"
     },
     "serviceIds": "Service Reference",
-    "serviceIdsPlaceholder": "Enter an ID or name of service(s)/app(s)/landscape(s) this project empowers",
+    "serviceIdsPlaceholder": "Enter IDs/names of services/apps/landscapes this project powers",
     "contacts": "Contacts",
-    "contactsPlaceholder": "Enter e-mail address(es) of responsible contact(s)",
+    "contactsPlaceholder": "Enter e-mails of responsibles",
     "contextSection": "Region & Service",
     "securityContacts": "Security Contacts",
     "opsContacts": "Ops Contacts",

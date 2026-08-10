@@ -1,0 +1,9 @@
+.groupSection {
+  margin-bottom: 0.5rem;
+}
+
+.groupCount {
+  color: var(--sapContent_LabelColor);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}

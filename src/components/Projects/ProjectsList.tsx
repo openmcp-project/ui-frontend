@@ -1,125 +1,25 @@
-import {
-  AnalyticalTable,
-  AnalyticalTableColumnDefinition,
-  BusyIndicator,
-  CheckBox,
-  Link,
-  Tag,
-} from '@ui5/webcomponents-react';
-
-import '@ui5/webcomponents-icons/dist/copy';
-import { t } from 'i18next';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery';
-import { purposeColorScheme, purposeLabel } from '../../lib/supportInfo.ts';
-import { projectnameToNamespace } from '../../utils';
-import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
-import { EditProjectDialogContainer } from '../Dialogs/EditProjectDialogContainer.tsx';
-import { CopyButton } from '../Shared/CopyButton.tsx';
+import '@ui5/webcomponents-icons/dist/collapse-all.js';
+import '@ui5/webcomponents-icons/dist/expand-all.js';
+import '@ui5/webcomponents-icons/dist/group-2.js';
+import '@ui5/webcomponents-icons/dist/accept.js';
+import '@ui5/webcomponents-icons/dist/calendar.js';
+import { Button, ButtonDomRef, CheckBox, FlexBox, Menu, MenuItem, Ui5CustomEvent } from '@ui5/webcomponents-react';
+import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';
+import type { MenuDomRef } from '@ui5/webcomponents-react';
+import { t } from 'i18next';
+import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import Loading from '../Shared/Loading.tsx';
-import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
-import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
-import { ProjectMembersCell } from './ProjectMembersCell.tsx';
+import { GroupMode, ProjectsGrid } from './ProjectsGrid.tsx';
 import styles from './ProjectsList.module.css';
-import { ProjectsListItemMenu } from './ProjectsListItemMenu.tsx';
-import { ProjectSupportInfoPopover } from './ProjectSupportInfoPopover.tsx';
-
-type ProjectListRow = {
-  projectName: string;
-};
-
-function getProjectName(instance: { cell: { row: { original: unknown } } }): string {
-  return (instance.cell.row.original as ProjectListRow).projectName;
-}
-
-function CreatedAtCell({
-  projectName,
-  onTimestamp,
-  useProjectMembers,
-}: {
-  projectName: string;
-  onTimestamp: (name: string, ts: string) => void;
-  useProjectMembers: typeof _useProjectMembers;
-}) {
-  const { creationTimestamp, isLoading } = useProjectMembers(projectName);
-
-  if (!isLoading && creationTimestamp) onTimestamp(projectName, creationTimestamp);
-  if (isLoading || !creationTimestamp) return null;
-  return (
-    <FadeIn>
-      <span title={new Date(creationTimestamp).toLocaleString()}>{formatDateAsTimeAgo(creationTimestamp)}</span>
-    </FadeIn>
-  );
-}
-
-function ProjectDisplayNameCell({
-  projectName,
-  onDisplayName,
-  useProjectMembers,
-}: {
-  projectName: string;
-  onDisplayName: (name: string, displayName: string) => void;
-  useProjectMembers: typeof _useProjectMembers;
-}) {
-  const { displayName, isLoading } = useProjectMembers(projectName);
-  useEffect(() => {
-    if (!isLoading && displayName) onDisplayName(projectName, displayName);
-  }, [isLoading, displayName, projectName, onDisplayName]);
-  if (isLoading) return <BusyIndicator active size="S" />;
-  return <FadeIn>{displayName ?? ''}</FadeIn>;
-}
-
-function MetadataCell({ projectName }: { projectName: string }) {
-  const { supportLandscape, supportServiceIds, supportSecurityContacts, supportOpsContacts, isLoading } =
-    _useProjectMembers(projectName);
-  const openerId = `metadata-${projectName}`;
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-
-  if (isLoading) return <BusyIndicator active size="S" />;
-
-  return (
-    <FadeIn>
-      <Tag
-        id={openerId}
-        interactive
-        design="Set2"
-        colorScheme={purposeColorScheme(supportLandscape)}
-        className={styles.metadataTag}
-        onClick={() => setPopoverOpen(true)}
-      >
-        {purposeLabel(t, supportLandscape)}
-      </Tag>
-      {popoverOpen && (
-        <ProjectSupportInfoPopover
-          opener={openerId}
-          open={popoverOpen}
-          supportLandscape={supportLandscape}
-          supportServiceIds={supportServiceIds}
-          supportSecurityContacts={supportSecurityContacts}
-          supportOpsContacts={supportOpsContacts}
-          onClose={() => setPopoverOpen(false)}
-          onEditClick={() => setEditOpen(true)}
-        />
-      )}
-      {editOpen && (
-        <EditProjectDialogContainer
-          isOpen={editOpen}
-          setIsOpen={setEditOpen}
-          projectName={projectName}
-          initialStep="supportInfo"
-          source="metadata-popover"
-        />
-      )}
-    </FadeIn>
-  );
-}
 
 interface Props {
   useProjectsQuery?: typeof _useProjectsQuery;
@@ -132,17 +32,20 @@ export default function ProjectsList({
   useProjectMembers = _useProjectMembers,
   onProjectSelect,
 }: Props = {}) {
+  const { t: tHook } = useTranslation();
   const navigate = useLuigiNavigate();
   const { data, error, isLoading } = useProjectsQuery();
-  const timestampsRef = useRef<Map<string, string>>(new Map());
-  const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
-  const [displayNamesVersion, setDisplayNamesVersion] = useState(0);
+  const [setAsDefault, setSetAsDefault] = useState(false);
+  const setAsDefaultRef = useRef(false);
+  const [groupMode, setGroupMode] = useState<GroupMode>('none');
+  const [expandedGroups, setExpandedGroups] = useState<Set<string> | null>(null);
+  const [groupMenuOpen, setGroupMenuOpen] = useState(false);
+  const groupMenuRef = useRef<MenuDomRef>(null);
 
   const telemetry = useTelemetry();
   const { setRememberedProject } = useRememberedProject();
-  const [setAsDefault, setSetAsDefault] = useState(false);
-  const setAsDefaultRef = useRef(false);
+
   useEffect(() => {
     setAsDefaultRef.current = setAsDefault;
   }, [setAsDefault]);
@@ -161,161 +64,65 @@ export default function ProjectsList({
     [telemetry],
   );
 
-  const handleTimestamp = (name: string, ts: string) => {
-    timestampsRef.current.set(name, ts);
-  };
-
-  const handleDisplayName = (name: string, displayName: string) => {
-    if (displayNamesRef.current.get(name) === displayName) return;
-    displayNamesRef.current.set(name, displayName);
-    setDisplayNamesVersion((v) => v + 1);
-  };
-
-  const rows = useMemo<ProjectListRow[]>(() => {
-    const query = search.trim().toLowerCase();
-    return (
-      data
-        ?.map((projectName) => ({
-          projectName,
-        }))
-        // eslint-disable-next-line react-hooks/refs
-        .filter(({ projectName }) => {
-          if (!query) return true;
-          if (projectName.toLowerCase().includes(query)) return true;
-          const dn = displayNamesRef.current.get(projectName)?.toLowerCase() ?? '';
-          return dn.includes(query);
-        })
-        .sort((a, b) => a.projectName.localeCompare(b.projectName)) ?? []
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, search, displayNamesVersion]);
-
-  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const filteredNames = useMemo(
+    () => data?.filter((name) => !search || name.toLowerCase().includes(search.toLowerCase())) ?? [],
+    [data, search],
+  );
 
   const handleSearchKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key !== 'Enter') return;
-      if (rows.length === 1) {
-        const { projectName } = rows[0];
+      if (filteredNames.length === 1) {
+        const projectName = filteredNames[0];
         if (setAsDefaultRef.current) {
           telemetry.track({ name: 'project-list.set-as-default', trigger: 'keyboard' });
           setRememberedProject(projectName);
         }
         onProjectSelect?.(projectName);
         navigate(`/projects/${projectName}`);
-      } else if (rows.length > 1) {
+      } else if (filteredNames.length > 1) {
         telemetry.track({ name: 'project-list.search-enter-pressed' });
-        tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
       }
     },
-    [rows, navigate, onProjectSelect, setRememberedProject, telemetry],
+    [filteredNames, navigate, onProjectSelect, setRememberedProject, telemetry],
   );
 
-  const columns: AnalyticalTableColumnDefinition[] = useMemo(
-    () => [
-      {
-        Header: t('ProjectsListView.title'),
-        accessor: 'projectName',
-        Cell: (instance) => {
-          const projectName = getProjectName(instance);
-          return (
-            <div className={styles.nameCell}>
-              <Link
-                className={styles.nameLink}
-                design="Emphasized"
-                onClick={() => {
-                  if (setAsDefaultRef.current) {
-                    setRememberedProject(projectName);
-                    telemetry.track({ name: 'project.remembered', source: 'list' });
-                    telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
-                  }
-                  telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
-                  onProjectSelect?.(projectName);
-                  navigate(`/projects/${projectName}`);
-                }}
-              >
-                {projectName}
-              </Link>
-              <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
-            </div>
-          );
-        },
-      },
-      {
-        Header: t('ProjectsListView.displayNameHeader'),
-        accessor: 'displayName',
-        Cell: (instance) => (
-          <ProjectDisplayNameCell
-            projectName={getProjectName(instance)}
-            useProjectMembers={useProjectMembers}
-            onDisplayName={handleDisplayName}
-          />
-        ),
-      },
-      {
-        Header: t('ProjectsListView.createdHeader'),
-        accessor: 'creationTimestamp',
-        width: 120,
-        disableFilters: true,
-        responsiveMinWidth: 1200,
-        sortType: (rowA: { original: ProjectListRow }, rowB: { original: ProjectListRow }) => {
-          const a = timestampsRef.current.get(rowA.original.projectName) ?? '';
-          const b = timestampsRef.current.get(rowB.original.projectName) ?? '';
-          return a.localeCompare(b);
-        },
-        Cell: (instance) => (
-          <CreatedAtCell
-            projectName={getProjectName(instance)}
-            useProjectMembers={useProjectMembers}
-            onTimestamp={handleTimestamp}
-          />
-        ),
-      },
-      {
-        Header: t('ProjectsListView.membersHeader'),
-        accessor: 'members',
-        width: 220,
-        disableFilters: true,
-        disableSortBy: true,
-        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
-      },
-      {
-        Header: t('ProjectsListView.metadataHeader'),
-        accessor: 'metadata',
-        width: 120,
-        disableFilters: true,
-        disableSortBy: true,
-        Cell: (instance) => <MetadataCell projectName={getProjectName(instance)} />,
-      },
-      {
-        Header: t('yaml.YAML'),
-        accessor: 'yaml',
-        width: 70,
-        disableFilters: true,
-        disableSortBy: true,
-        hAlign: 'Center' as const,
-        Cell: (instance) => (
-          <div className={styles.centeredCell}>
-            <YamlViewButton variant="loader" resourceType="projects" resourceName={getProjectName(instance)} />
-          </div>
-        ),
-      },
-      {
-        Header: '',
-        accessor: 'options',
-        width: 55,
-        disableFilters: true,
-        disableSortBy: true,
-        hAlign: 'Center' as const,
-        Cell: (instance) => (
-          <div className={styles.centeredCell}>
-            <ProjectsListItemMenu projectName={getProjectName(instance)} />
-          </div>
-        ),
-      },
-    ],
-    [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
-  );
+  const groupKeysRef = useRef<string[]>([]);
+  const handleGroupKeysChanged = useCallback((keys: string[]) => {
+    groupKeysRef.current = keys;
+  }, []);
+
+  const handleExpandAll = useCallback(() => setExpandedGroups(null), []);
+  const handleCollapseAll = useCallback(() => setExpandedGroups(new Set()), []);
+
+  const handleToggleGroup = useCallback((groupKey: string) => {
+    setExpandedGroups((prev) => {
+      const allKeys = groupKeysRef.current;
+      const currentExpanded = prev === null ? new Set(allKeys) : new Set(prev);
+      if (currentExpanded.has(groupKey)) {
+        currentExpanded.delete(groupKey);
+      } else {
+        currentExpanded.add(groupKey);
+      }
+      if (allKeys.length > 0 && allKeys.every((k) => currentExpanded.has(k))) {
+        return null;
+      }
+      return currentExpanded;
+    });
+  }, []);
+
+  const handleGroupButtonClick = useCallback((e: Ui5CustomEvent<ButtonDomRef, ButtonClickEventDetail>) => {
+    if (groupMenuRef.current && e.currentTarget) {
+      groupMenuRef.current.opener = e.currentTarget as HTMLElement;
+      setGroupMenuOpen((prev) => !prev);
+    }
+  }, []);
+
+  const handleGroupMenuItemClick = useCallback((mode: GroupMode) => {
+    setGroupMode(mode);
+    setExpandedGroups(null);
+    setGroupMenuOpen(false);
+  }, []);
 
   if (isLoading) {
     return <Loading />;
@@ -324,41 +131,92 @@ export default function ProjectsList({
     return <IllustratedError details={error.message} />;
   }
 
+  const isGrouped = groupMode !== 'none';
+  const allExpanded = expandedGroups === null;
+
   return (
     <FadeIn>
       {data.length > 0 && (
-        <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+        <FlexBox alignItems="Center" className={styles.searchBar} gap="0.5rem" justifyContent="SpaceBetween">
+          <ResourceSearchBar value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
+          <FlexBox alignItems="Center" gap="0.5rem">
+            {isGrouped &&
+              (allExpanded ? (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="collapse-all"
+                  tooltip={tHook('ProjectsListView.collapseAll')}
+                  onClick={handleCollapseAll}
+                >
+                  {tHook('ProjectsListView.collapseAll')}
+                </Button>
+              ) : (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="expand-all"
+                  tooltip={tHook('ProjectsListView.expandAll')}
+                  onClick={handleExpandAll}
+                >
+                  {tHook('ProjectsListView.expandAll')}
+                </Button>
+              ))}
+            <Button
+              className={styles.expandCollapseButton}
+              design={isGrouped ? 'Emphasized' : 'Transparent'}
+              icon="group-2"
+              tooltip={tHook('ProjectsListView.groupBy')}
+              onClick={handleGroupButtonClick}
+            >
+              {tHook('ProjectsListView.groupBy')}
+            </Button>
+            <Menu
+              ref={groupMenuRef}
+              open={groupMenuOpen}
+              onItemClick={(e) => {
+                const mode = (e.detail.item as HTMLElement).dataset['mode'] as GroupMode | undefined;
+                if (mode) handleGroupMenuItemClick(mode);
+              }}
+              onClose={() => setGroupMenuOpen(false)}
+            >
+              <MenuItem
+                data-mode="none"
+                icon={groupMode === 'none' ? 'accept' : ''}
+                text={tHook('ProjectsListView.groupNone')}
+              />
+              <MenuItem
+                data-mode="purpose"
+                icon={groupMode === 'purpose' ? 'accept' : 'group-2'}
+                text={tHook('ProjectsListView.groupByPurpose')}
+              />
+              <MenuItem
+                data-mode="created"
+                icon={groupMode === 'created' ? 'accept' : 'calendar'}
+                text={tHook('ProjectsListView.groupByCreated')}
+              />
+            </Menu>
+          </FlexBox>
+        </FlexBox>
       )}
-      <div ref={tableContainerRef}>
-        <AnalyticalTable
-          style={{
-            maxWidth: '1280px',
-            margin: '10px auto 0px auto',
-            width: '100%',
-            borderRadius: '12px',
-            overflow: 'hidden',
-          }}
-          sortable
-          className={styles.table}
-          columns={columns}
-          data={rows}
-          minRows={10}
-        />
-      </div>
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '10px auto 0px auto',
-          width: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        <CheckBox
-          checked={setAsDefault}
-          text={t('ProjectsListView.setDefaultProject')}
-          onChange={() => setSetAsDefault((v) => !v)}
-        />
-      </div>
+      <ProjectsGrid
+        expandedGroups={expandedGroups}
+        groupMode={groupMode}
+        projectNames={data ?? []}
+        search={search}
+        setAsDefaultRef={setAsDefaultRef}
+        useProjectMembers={useProjectMembers}
+        onGroupKeysChanged={handleGroupKeysChanged}
+        onProjectSelect={onProjectSelect}
+        onToggleGroup={handleToggleGroup}
+      />
+      <CheckBox
+        checked={setAsDefault}
+        text={t('ProjectsListView.setDefaultProject')}
+        onChange={() => setSetAsDefault((v) => !v)}
+      />
     </FadeIn>
   );
 }
