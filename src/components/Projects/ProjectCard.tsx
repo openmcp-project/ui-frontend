@@ -24,6 +24,7 @@ interface Props {
   setAsDefaultRef: React.RefObject<boolean>;
   useProjectMembers?: typeof _useProjectMembers;
   onChargingTargetResolved?: (projectName: string, target: string | undefined) => void;
+  onChargingTargetTypeResolved?: (projectName: string, type: string | undefined) => void;
   onDisplayNameResolved?: (projectName: string, displayName: string | undefined) => void;
   onProjectSelect?: (projectName: string) => void;
   onPurposeResolved?: (projectName: string, landscape: string | undefined) => void;
@@ -35,6 +36,7 @@ export function ProjectCard({
   setAsDefaultRef,
   useProjectMembers = _useProjectMembers,
   onChargingTargetResolved,
+  onChargingTargetTypeResolved,
   onDisplayNameResolved,
   onProjectSelect,
   onPurposeResolved,
@@ -52,6 +54,7 @@ export function ProjectCard({
     displayName,
     createdBy,
     chargingTarget,
+    chargingTargetType,
     creationTimestamp,
     supportLandscape,
     supportServiceIds,
@@ -79,6 +82,10 @@ export function ProjectCard({
   useEffect(() => {
     if (!isLoading) onChargingTargetResolved?.(projectName, chargingTarget);
   }, [isLoading, chargingTarget, projectName, onChargingTargetResolved]);
+
+  useEffect(() => {
+    if (!isLoading) onChargingTargetTypeResolved?.(projectName, chargingTargetType);
+  }, [isLoading, chargingTargetType, projectName, onChargingTargetTypeResolved]);
 
   const hasPurpose = isKnownLandscape(supportLandscape);
   const { bg: ribbonBg, text: ribbonText, hoverBg: ribbonHoverBg } = purposeIndicationVars(supportLandscape);

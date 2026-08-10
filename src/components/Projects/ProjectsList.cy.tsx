@@ -26,6 +26,7 @@ const fakeUseProjectMembers: typeof _useProjectMembers = (projectName: string) =
         : 'Gamma Display',
   createdBy: undefined,
   chargingTarget: undefined,
+  chargingTargetType: undefined,
   creationTimestamp: '2024-01-01T00:00:00Z',
   isLoading: false,
   supportLandscape: undefined,

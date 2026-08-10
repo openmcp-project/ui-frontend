@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right.js';
+import '@ui5/webcomponents-icons/dist/sap-logo-shape.js';
+import '@ui5/webcomponents-icons/dist/paid-leave.js';
 import { Icon } from '@ui5/webcomponents-react';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { isKnownLandscape } from '../../lib/supportInfo.ts';
@@ -17,6 +19,7 @@ interface GroupEntry {
   key: string;
   label: string;
   names: string[];
+  icon?: string;
 }
 
 interface Props {
@@ -52,6 +55,7 @@ export function ProjectsGrid({
   const [displayNameMap, setDisplayNameMap] = useState<Map<string, string | undefined>>(() => new Map());
   const [timestampMap, setTimestampMap] = useState<Map<string, string | undefined>>(() => new Map());
   const [chargingTargetMap, setChargingTargetMap] = useState<Map<string, string | undefined>>(() => new Map());
+  const [chargingTargetTypeMap, setChargingTargetTypeMap] = useState<Map<string, string | undefined>>(() => new Map());
 
   const handlePurposeResolved = useCallback((name: string, landscape: string | undefined) => {
     setPurposeMap((prev) => {
@@ -89,6 +93,15 @@ export function ProjectsGrid({
       if (prev.get(name) === target) return prev;
       const next = new Map(prev);
       next.set(name, target);
+      return next;
+    });
+  }, []);
+
+  const handleChargingTargetTypeResolved = useCallback((name: string, type: string | undefined) => {
+    setChargingTargetTypeMap((prev) => {
+      if (prev.get(name) === type) return prev;
+      const next = new Map(prev);
+      next.set(name, type);
       return next;
     });
   }, []);
@@ -167,11 +180,18 @@ export function ProjectsGrid({
         byTarget.get(key)!.push(name);
       }
       const keys = [...byTarget.keys()].sort((a, b) => a.localeCompare(b));
-      return keys.map((key) => ({
-        key: key || 'unset',
-        label: key || t('ProjectsListView.groupUnset'),
-        names: byTarget.get(key)!,
-      }));
+      return keys.map((key) => {
+        const names = byTarget.get(key)!;
+        // Derive icon from the first project's charging target type
+        const firstType = names.map((n) => chargingTargetTypeMap.get(n)).find(Boolean);
+        const icon = !firstType || firstType.toLowerCase() === 'btp' ? 'sap-logo-shape' : 'paid-leave';
+        return {
+          key: key || 'unset',
+          label: key || t('ProjectsListView.groupUnset'),
+          names,
+          icon,
+        };
+      });
     }
 
     // groupMode === 'created': group by "Month YYYY"
@@ -187,14 +207,14 @@ export function ProjectsGrid({
       const tsB = sortedNames.find((n) => byDate.get(b)?.includes(n));
       const dA = tsA ? (timestampMap.get(tsA) ?? '') : '';
       const dB = tsB ? (timestampMap.get(tsB) ?? '') : '';
-      return dB.localeCompare(dA);
+      return sortMode === 'created-asc' ? dA.localeCompare(dB) : dB.localeCompare(dA);
     });
     return dateKeys.map((key) => ({
       key,
       label: key === 'unknown' ? t('ProjectsListView.groupUnknownYear') : key,
       names: byDate.get(key)!,
     }));
-  }, [groupMode, sortedNames, purposeMap, timestampMap, chargingTargetMap, t]);
+  }, [groupMode, sortMode, sortedNames, purposeMap, timestampMap, chargingTargetMap, chargingTargetTypeMap, t]);
 
   const groupKeys = useMemo(() => groups.map((g) => g.key), [groups]);
   useEffect(() => {
@@ -202,7 +222,11 @@ export function ProjectsGrid({
   }, [groupKeys, onGroupKeysChanged]);
 
   const hasData = purposeMap.size > 0 || timestampMap.size > 0 || chargingTargetMap.size > 0 || displayNameMap.size > 0;
-  const canGroup = groupMode === 'none' || (hasData && groups.length > 1);
+  // chargingTarget always shows groups once data loads (even 1 group is useful as a label)
+  const canGroup =
+    groupMode === 'none' ||
+    (groupMode === 'chargingTarget' && chargingTargetMap.size > 0 && groups.length > 0) ||
+    (hasData && groups.length > 1);
 
   const renderCard = (name: string) => (
     <ProjectCard
@@ -211,6 +235,7 @@ export function ProjectsGrid({
       setAsDefaultRef={setAsDefaultRef}
       useProjectMembers={useProjectMembers}
       onChargingTargetResolved={handleChargingTargetResolved}
+      onChargingTargetTypeResolved={handleChargingTargetTypeResolved}
       onDisplayNameResolved={handleDisplayNameResolved}
       onProjectSelect={onProjectSelect}
       onPurposeResolved={handlePurposeResolved}
@@ -218,7 +243,7 @@ export function ProjectsGrid({
     />
   );
 
-  if (groupMode === 'none' || !canGroup || groups.length <= 1) {
+  if (groupMode === 'none' || !canGroup || groups.length === 0) {
     return (
       <div className={styles.outerWrapper}>
         <div className={workspaceStyles.wrapper}>
@@ -245,6 +270,7 @@ export function ProjectsGrid({
                   className={`${workspaceStyles.chevron} ${isExpanded ? workspaceStyles.chevronOpen : ''}`}
                   name="slim-arrow-right"
                 />
+                {group.icon && <Icon className={workspaceStyles.workspaceIcon} name={group.icon} />}
                 <span className={workspaceStyles.workspaceEyebrow}>{group.label}</span>
                 <span className={styles.groupCount}>({group.names.length})</span>
               </button>

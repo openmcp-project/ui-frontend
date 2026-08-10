@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client/react';
 import {
   CHARGING_TARGET_LABEL,
+  CHARGING_TARGET_TYPE_LABEL,
   CREATED_BY_ANNOTATION,
   DISPLAY_NAME_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
@@ -16,6 +17,7 @@ const GetProjectMembersQuery = graphql(`
           metadata {
             creationTimestamp
             annotations
+            labels
           }
           spec {
             members {
@@ -46,6 +48,7 @@ export function useProjectMembers(projectName: string) {
   const displayName: string | undefined = annotations[DISPLAY_NAME_ANNOTATION] || undefined;
   const createdBy: string | undefined = annotations[CREATED_BY_ANNOTATION] || undefined;
   const chargingTarget: string | undefined = labels[CHARGING_TARGET_LABEL] || undefined;
+  const chargingTargetType: string | undefined = labels[CHARGING_TARGET_TYPE_LABEL] || undefined;
   const support = extractSupportInfo(annotations);
 
   const members: Member[] = rawMembers.flatMap((m) => {
@@ -65,6 +68,7 @@ export function useProjectMembers(projectName: string) {
     displayName,
     createdBy,
     chargingTarget,
+    chargingTargetType,
     creationTimestamp,
     ...support,
     isLoading: loading,
