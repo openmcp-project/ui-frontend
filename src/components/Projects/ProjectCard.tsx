@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import '@ui5/webcomponents-icons/dist/badge.js';
 import '@ui5/webcomponents-icons/dist/hint.js';
-import { Button, Popover } from '@ui5/webcomponents-react';
+import { Button, Icon, Popover } from '@ui5/webcomponents-react';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
 import { isKnownLandscape, purposeIndicationVars, purposeLabel, purposeShortLabel } from '../../lib/supportInfo.ts';
@@ -137,28 +138,28 @@ export function ProjectCard({
         onClick={handleNavigate}
         onKeyDown={handleKeyDown}
       >
-        {/* Solid ribbon triangle (purpose set) */}
+        {/* Ribbon wrapper — clip-path clips children including rotated text */}
         {hasPurpose && (
           <button
             aria-label={purposeLabel(t, supportLandscape)}
-            className={styles.ribbonButton}
+            className={styles.ribbonWrap}
             id={ribbonId}
             tabIndex={-1}
             title={purposeLabel(t, supportLandscape)}
             onClick={handleRibbonClick}
             onKeyDown={handleRibbonKeyDown}
           >
+            <span aria-hidden className={styles.ribbonBg} />
             <span aria-hidden className={styles.ribbonLabel}>
               {purposeShortLabel(t, supportLandscape)}
             </span>
           </button>
         )}
 
-        {/* Dashed SVG ribbon (purpose unset) */}
         {!hasPurpose && (
           <button
             aria-label={t('ProjectCard.setPurpose')}
-            className={styles.ribbonButtonUnset}
+            className={styles.ribbonWrapUnset}
             id={ribbonId}
             tabIndex={-1}
             title={t('ProjectCard.setPurpose')}
@@ -169,23 +170,21 @@ export function ProjectCard({
               aria-hidden
               className={styles.ribbonSvg}
               fill="none"
-              viewBox="0 0 64 64"
+              viewBox="0 0 45 45"
               xmlns="http://www.w3.org/2000/svg"
             >
               <line
                 stroke="var(--sapButton_Emphasized_Background)"
-                strokeDasharray="6 4"
+                strokeDasharray="5 3"
                 strokeLinecap="round"
-                strokeWidth="2.5"
+                strokeWidth="2"
                 x1="0"
-                x2="64"
+                x2="45"
                 y1="0"
-                y2="64"
+                y2="45"
               />
             </svg>
-            <span aria-hidden className={styles.ribbonLabel}>
-              {purposeShortLabel(t, undefined)}
-            </span>
+            <Icon aria-hidden className={styles.ribbonIcon} name="badge" />
           </button>
         )}
 

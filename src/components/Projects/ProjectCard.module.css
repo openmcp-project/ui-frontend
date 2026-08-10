@@ -21,29 +21,13 @@
   transform: translateY(-2px);
 }
 
-/* Solid ribbon triangle (purpose set) */
-.card::before {
-  content: '';
+/* Ribbon wrapper — clip-path triangle, contains bg + label */
+.ribbonWrap {
   position: absolute;
   top: 0;
   right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 4rem 4rem 0;
-  border-color: transparent var(--ribbon-bg, transparent) transparent transparent;
-  border-radius: 0 0.75rem 0 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Solid ribbon clickable area */
-.ribbonButton {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4rem;
-  height: 4rem;
+  width: 2.8rem;
+  height: 2.8rem;
   background: none;
   border: none;
   padding: 0;
@@ -55,9 +39,23 @@
   justify-content: center;
 }
 
-/* Label inside both ribbon buttons — rotated, centered by flexbox */
+/* Solid colored triangle bg */
+.ribbonBg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 2.8rem 2.8rem 0;
+  border-color: transparent var(--ribbon-bg, transparent) transparent transparent;
+  pointer-events: none;
+}
+
+/* Label centered in the clip-path square — rotated 45° so text aligns with diagonal */
 .ribbonLabel {
-  font-size: 0.4375rem;
+  position: relative;
+  font-size: 0.5rem;
   font-weight: 700;
   color: var(--ribbon-text, #fff);
   text-transform: uppercase;
@@ -67,18 +65,18 @@
   white-space: normal;
   word-break: break-word;
   pointer-events: none;
-  z-index: 3;
-  width: 2.5rem;
+  z-index: 1;
+  width: 1.8rem;
   text-align: center;
 }
 
-/* Dashed SVG ribbon (purpose unset) — hidden, fades in on card hover */
-.ribbonButtonUnset {
+/* Dashed SVG ribbon (purpose unset) — fades in on card hover */
+.ribbonWrapUnset {
   position: absolute;
   top: 0;
   right: 0;
-  width: 4rem;
-  height: 4rem;
+  width: 2.8rem;
+  height: 2.8rem;
   background: none;
   border: none;
   padding: 0;
@@ -92,23 +90,26 @@
   transition: opacity 0.2s ease;
 }
 
-.card:hover .ribbonButtonUnset {
+.card:hover .ribbonWrapUnset {
   opacity: 1;
 }
 
-/* SVG covers the button area; only the diagonal path is drawn */
 .ribbonSvg {
   position: absolute;
   top: 0;
   right: 0;
-  width: 4rem;
-  height: 4rem;
+  width: 2.8rem;
+  height: 2.8rem;
   pointer-events: none;
 }
 
-/* Unset label uses blue instead of white — same layout via .ribbonLabel */
-.ribbonButtonUnset .ribbonLabel {
-  color: var(--sapButton_Emphasized_Background);
+/* Badge icon centered in the unset ribbon */
+.ribbonIcon {
+  position: relative;
+  z-index: 1;
+  transform: rotate(45deg);
+  font-size: 0.75rem;
+  --sapContent_IconColor: var(--sapButton_Emphasized_Background);
 }
 
 .cardHeader {
@@ -123,7 +124,7 @@
   gap: 0.125rem;
   flex: 1;
   min-width: 0;
-  padding-right: 1.75rem;
+  padding-right: 1.25rem;
 }
 
 .titleRow {

@@ -362,7 +362,7 @@
     "openProject": "Open project {{name}}",
     "infoButton": "Project info",
     "createdAt": "Created",
-    "createdBy": "Created by",
+    "createdBy": "by",
     "setPurpose": "Set purpose"
   },
   "ResourceSearchBar": {
