@@ -11,7 +11,7 @@ export function useLink() {
     gettingStartedGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp'),
     workspaceCreationGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace'),
     mcpCreationGuide: createLink(
-      '/docs/managed-control-planes/get-started/get-started-mcp#5-create-managedcontrolplane',
+      '/docs/managed-control-planes/get-started/onboard/get-started-mcp',
     ),
     serviceAccoutsGuide: createLink(
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
