@@ -2,3 +2,11 @@
   position: relative;
   height: 100%;
 }
+
+.addedItem {
+  --_ui5-listitem-background-color: var(--sapSuccessBackground);
+}
+
+.removedItem {
+  --_ui5-listitem-background-color: var(--sapErrorBackground);
+}

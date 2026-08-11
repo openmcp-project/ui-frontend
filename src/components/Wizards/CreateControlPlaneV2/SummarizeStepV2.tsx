@@ -1,4 +1,6 @@
 import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/decline.js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
@@ -38,6 +40,18 @@ function actionToState(action: ServiceMutationAction): ValueState {
   if (action === 'create') return 'Positive';
   if (action === 'delete') return 'Negative';
   return 'None';
+}
+
+function actionToClassName(action: ServiceMutationAction): string | undefined {
+  if (action === 'create') return styles.addedItem;
+  if (action === 'delete') return styles.removedItem;
+  return undefined;
+}
+
+function actionToIcon(action: ServiceMutationAction): string | undefined {
+  if (action === 'create') return 'add';
+  if (action === 'delete') return 'decline';
+  return undefined;
 }
 
 export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
@@ -145,6 +159,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
                 {serviceEntries.map(({ key, label, entry, action }) => (
                   <ListItemStandard
                     key={key}
+                    className={actionToClassName(action)}
+                    icon={actionToIcon(action)}
                     text={label}
                     additionalText={entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
                     additionalTextState={actionToState(action)}
@@ -161,6 +177,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
                       return (
                         <ListItemStandard
                           key={provider.name}
+                          className={actionToClassName(action)}
+                          icon={actionToIcon(action)}
                           text={provider.name}
                           additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
                           additionalTextState={actionToState(action)}
@@ -170,6 +188,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
                     {removedProviders.map((name) => (
                       <ListItemStandard
                         key={`removed-${name}`}
+                        className={styles.removedItem}
+                        icon="decline"
                         text={name}
                         additionalText={t('ServiceSelectionStep.versionPlaceholder')}
                         additionalTextState="Negative"
