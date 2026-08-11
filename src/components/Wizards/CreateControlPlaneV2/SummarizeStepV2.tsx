@@ -4,17 +4,50 @@ import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import {
+  resolveServiceMutationAction,
+  ServiceMutationAction,
+} from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import { YamlDiff } from '../CreateManagedControlPlane/YamlDiff.tsx';
 import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
+
+interface InitialServiceState {
+  crossplane: boolean;
+  flux: boolean;
+  landscaper: boolean;
+  externalSecretsOperator: boolean;
+  ocm: boolean;
+  kro: boolean;
+}
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;
   services?: ServiceSelection;
+  isEditMode?: boolean;
+  originalYamlString?: string;
+  initialServices?: InitialServiceState;
+  initialCrossplaneProviders?: string[];
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, services }) => {
+type ValueState = 'Positive' | 'Negative' | 'None';
+
+function actionToState(action: ServiceMutationAction): ValueState {
+  if (action === 'create') return 'Positive';
+  if (action === 'delete') return 'Negative';
+  return 'None';
+}
+
+export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
+  rawInput,
+  services,
+  isEditMode = false,
+  originalYamlString = '',
+  initialServices,
+  initialCrossplaneProviders,
+}) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
@@ -27,21 +60,37 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
 
   const defaultMembersHeaderText = t('common.members');
 
-  const selectedServices = useMemo(() => {
+  const serviceEntries = useMemo(() => {
     if (!services) return [];
-    return [
-      { key: 'crossplane', label: t('ServiceSelectionStep.crossplane'), entry: services.crossplane },
-      { key: 'flux', label: t('ServiceSelectionStep.flux'), entry: services.flux },
-      { key: 'landscaper', label: t('ServiceSelectionStep.landscaper'), entry: services.landscaper },
-      {
-        key: 'externalSecretsOperator',
-        label: t('ServiceSelectionStep.externalSecretsOperator'),
-        entry: services.externalSecretsOperator,
-      },
-      { key: 'ocm', label: t('ServiceSelectionStep.ocm'), entry: services.ocm },
-      { key: 'kro', label: t('ServiceSelectionStep.kro'), entry: services.kro },
-    ].filter((s) => s.entry?.selected);
-  }, [services, t]);
+
+    const defs = [
+      { key: 'crossplane' as const, label: t('ServiceSelectionStep.crossplane') },
+      { key: 'flux' as const, label: t('ServiceSelectionStep.flux') },
+      { key: 'landscaper' as const, label: t('ServiceSelectionStep.landscaper') },
+      { key: 'externalSecretsOperator' as const, label: t('ServiceSelectionStep.externalSecretsOperator') },
+      { key: 'ocm' as const, label: t('ServiceSelectionStep.ocm') },
+      { key: 'kro' as const, label: t('ServiceSelectionStep.kro') },
+    ];
+
+    return defs
+      .map(({ key, label }) => {
+        const entry = services[key];
+        const wasInstalled = initialServices?.[key] ?? false;
+        const isSelected = entry?.selected ?? false;
+        const action = resolveServiceMutationAction(isEditMode, wasInstalled, isSelected);
+        if (action === 'skip') return null;
+        return { key, label, entry, action };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
+  }, [services, initialServices, isEditMode, t]);
+
+  const showProviders = !!services?.crossplane?.selected && !!services.crossplane.providers?.length;
+
+  const removedProviders = useMemo(() => {
+    if (!isEditMode || !initialCrossplaneProviders) return [];
+    const currentNames = new Set((services?.crossplane?.providers ?? []).map((p) => p.name));
+    return initialCrossplaneProviders.filter((name) => !currentNames.has(name));
+  }, [isEditMode, initialCrossplaneProviders, services?.crossplane?.providers]);
 
   return (
     <div className={styles.wrapper}>
@@ -89,42 +138,60 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
               </List>
             </div>
           ))}
-          {selectedServices.length > 0 && (
+          {serviceEntries.length > 0 && (
             <>
               <br />
               <List headerText={t('ServiceSelectionStep.stepTitle')}>
-                {selectedServices.map(({ key, label, entry }) => (
+                {serviceEntries.map(({ key, label, entry, action }) => (
                   <ListItemStandard
                     key={key}
                     text={label}
                     additionalText={entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
+                    additionalTextState={actionToState(action)}
                   />
                 ))}
               </List>
-              {!!services?.crossplane?.selected && services.crossplane.providers?.length ? (
+              {(showProviders || removedProviders.length > 0) && (
                 <>
                   <br />
                   <List headerText={t('ComponentInstallDialog.providers')}>
-                    {services.crossplane.providers.map((provider) => (
+                    {(services?.crossplane?.providers ?? []).map((provider) => {
+                      const wasInstalled = initialCrossplaneProviders?.includes(provider.name) ?? false;
+                      const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
+                      return (
+                        <ListItemStandard
+                          key={provider.name}
+                          text={provider.name}
+                          additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                          additionalTextState={actionToState(action)}
+                        />
+                      );
+                    })}
+                    {removedProviders.map((name) => (
                       <ListItemStandard
-                        key={provider.name}
-                        text={provider.name}
-                        additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                        key={`removed-${name}`}
+                        text={name}
+                        additionalText={t('ServiceSelectionStep.versionPlaceholder')}
+                        additionalTextState="Negative"
                       />
                     ))}
                   </List>
                 </>
-              ) : null}
+              )}
             </>
           )}
         </div>
         <div>
-          <YamlSummarize
-            yamlString={yamlString}
-            filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
-            apiVersion={apiVersion}
-            apiGroupName={apiGroupName}
-          />
+          {isEditMode ? (
+            <YamlDiff originalYaml={originalYamlString} modifiedYaml={yamlString} absolutePosition />
+          ) : (
+            <YamlSummarize
+              yamlString={yamlString}
+              filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
+              apiVersion={apiVersion}
+              apiGroupName={apiGroupName}
+            />
+          )}
         </div>
       </Grid>
     </div>

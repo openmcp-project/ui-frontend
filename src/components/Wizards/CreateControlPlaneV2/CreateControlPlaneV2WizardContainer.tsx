@@ -19,6 +19,7 @@ import {
 } from '@ui5/webcomponents-react';
 
 import { Trans, useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
@@ -46,6 +47,7 @@ import {
   buildRoleBindingsForProviderMembers,
   normalizeMcpV2Role,
 } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -371,6 +373,42 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       extraProviders: extraProvidersInput,
     };
   }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
+
+  const originalYamlString = useMemo(() => {
+    if (!isEditMode || !initialData) return '';
+    const { members: initMembers, extraProviders: initExtraProviders } = extractMcpV2FormState(initialData);
+    const initDefaultMembers = initMembers.filter((m) => !m.provider);
+    const originalInput: McpV2Input = {
+      name: initialData.metadata.name,
+      namespace: initialData.metadata.namespace,
+      roleBindings: buildRoleBindingsForProviderMembers(initDefaultMembers),
+      extraProviders: initExtraProviders.map((p) => ({
+        ...p,
+        roleBindings: buildRoleBindingsForProviderMembers(initMembers.filter((m) => m.provider === p.name)),
+      })),
+    };
+    return stringify(buildMcpV2GraphQLInput(originalInput));
+  }, [isEditMode, initialData]);
+
+  const initialServices = useMemo(
+    () => ({
+      crossplane: !!crossplaneData?.isInstalled,
+      flux: !!fluxData?.isInstalled,
+      landscaper: !!landscaperData?.isInstalled,
+      externalSecretsOperator: !!esoData?.isInstalled,
+      ocm: !!ocmData?.isInstalled,
+      kro: !!kroData?.isInstalled,
+    }),
+    [crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData],
+  );
+
+  const initialCrossplaneProviders = useMemo(
+    () =>
+      (crossplaneData?.providers ?? [])
+        .filter((p): p is { name: string; version: string | null } => !!p.name)
+        .map((p) => p.name),
+    [crossplaneData],
+  );
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -889,7 +927,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2 rawInput={rawInput} services={services} />
+            <SummarizeStepV2
+              rawInput={rawInput}
+              services={services}
+              isEditMode={isEditMode}
+              originalYamlString={originalYamlString}
+              initialServices={isEditMode ? initialServices : undefined}
+              initialCrossplaneProviders={isEditMode ? initialCrossplaneProviders : undefined}
+            />
           </WizardStep>
           <WizardStep
             icon="activities"
