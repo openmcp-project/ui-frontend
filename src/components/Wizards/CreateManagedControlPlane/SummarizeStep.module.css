@@ -3,10 +3,51 @@
   height: 100%;
 }
 
+.coloredList {
+  border: 1px solid var(--sapList_BorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+  overflow: hidden;
+}
+
+.coloredListHeader {
+  background: var(--sapList_HeaderBackground);
+  color: var(--sapList_HeaderTextColor);
+  font-family: var(--sapFontHeaderFamily);
+  font-size: var(--sapFontSmallSize);
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.coloredListItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
+  background: var(--sapList_Background);
+  border-bottom: 1px solid var(--sapList_BorderColor);
+}
+
+.coloredListItem:last-child {
+  border-bottom: none;
+}
+
+.coloredListItemText {
+  flex: 1;
+  color: var(--sapTextColor);
+}
+
+.coloredListItemVersion {
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
+}
+
 .addedItem {
-  --_ui5-listitem-background-color: var(--sapSuccessBackground);
+  background: var(--sapSuccessBackground);
 }
 
 .removedItem {
-  --_ui5-listitem-background-color: var(--sapErrorBackground);
+  background: var(--sapErrorBackground);
 }

@@ -1,4 +1,4 @@
-import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
+import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/add.js';
 import '@ui5/webcomponents-icons/dist/decline.js';
 import { useMemo } from 'react';
@@ -32,14 +32,6 @@ interface SummarizeStepProps {
   originalYamlString?: string;
   initialServices?: InitialServiceState;
   initialCrossplaneProviders?: string[];
-}
-
-type ValueState = 'Positive' | 'Negative' | 'None';
-
-function actionToState(action: ServiceMutationAction): ValueState {
-  if (action === 'create') return 'Positive';
-  if (action === 'delete') return 'Negative';
-  return 'None';
 }
 
 function actionToClassName(action: ServiceMutationAction): string | undefined {
@@ -155,47 +147,49 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
           {serviceEntries.length > 0 && (
             <>
               <br />
-              <List headerText={t('ServiceSelectionStep.stepTitle')}>
+              <div className={styles.coloredList}>
+                <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
                 {serviceEntries.map(({ key, label, entry, action }) => (
-                  <ListItemStandard
-                    key={key}
-                    className={actionToClassName(action)}
-                    icon={actionToIcon(action)}
-                    text={label}
-                    additionalText={entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
-                    additionalTextState={actionToState(action)}
-                  />
+                  <div key={key} className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`}>
+                    <Icon name={actionToIcon(action) ?? ''} />
+                    <span className={styles.coloredListItemText}>{label}</span>
+                    <span className={styles.coloredListItemVersion}>
+                      {entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
+                    </span>
+                  </div>
                 ))}
-              </List>
+              </div>
               {(showProviders || removedProviders.length > 0) && (
                 <>
                   <br />
-                  <List headerText={t('ComponentInstallDialog.providers')}>
+                  <div className={styles.coloredList}>
+                    <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
                     {(services?.crossplane?.providers ?? []).map((provider) => {
                       const wasInstalled = initialCrossplaneProviders?.includes(provider.name) ?? false;
                       const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
                       return (
-                        <ListItemStandard
+                        <div
                           key={provider.name}
-                          className={actionToClassName(action)}
-                          icon={actionToIcon(action)}
-                          text={provider.name}
-                          additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
-                          additionalTextState={actionToState(action)}
-                        />
+                          className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`}
+                        >
+                          <Icon name={actionToIcon(action) ?? ''} />
+                          <span className={styles.coloredListItemText}>{provider.name}</span>
+                          <span className={styles.coloredListItemVersion}>
+                            {provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                          </span>
+                        </div>
                       );
                     })}
                     {removedProviders.map((name) => (
-                      <ListItemStandard
-                        key={`removed-${name}`}
-                        className={styles.removedItem}
-                        icon="decline"
-                        text={name}
-                        additionalText={t('ServiceSelectionStep.versionPlaceholder')}
-                        additionalTextState="Negative"
-                      />
+                      <div key={`removed-${name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
+                        <Icon name="decline" />
+                        <span className={styles.coloredListItemText}>{name}</span>
+                        <span className={styles.coloredListItemVersion}>
+                          {t('ServiceSelectionStep.versionPlaceholder')}
+                        </span>
+                      </div>
                     ))}
-                  </List>
+                  </div>
                 </>
               )}
             </>
