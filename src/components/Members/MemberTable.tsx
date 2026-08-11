@@ -153,6 +153,8 @@ export const MemberTable: FC<MemberTableProps> = ({
             <Button
               icon="edit"
               design="Transparent"
+              accessibleName={t('MemberTable.editMemberButton')}
+              tooltip={t('MemberTable.editMemberButton')}
               onClick={() => {
                 const selectedMember = instance.cell.row.original._member as Member;
                 onEditMember(selectedMember);
@@ -161,6 +163,8 @@ export const MemberTable: FC<MemberTableProps> = ({
             <Button
               design="Transparent"
               icon="delete"
+              accessibleName={t('MemberTable.deleteMemberButton')}
+              tooltip={t('MemberTable.deleteMemberButton')}
               onClick={() => {
                 const selectedMemberEmail = instance.cell.row.original.email as string;
                 onDeleteMember(selectedMemberEmail);
@@ -227,8 +231,8 @@ export const MemberTable: FC<MemberTableProps> = ({
         />
       </FlexBox>
       {groupedRows.map(({ provider, rows }) => (
-        <FlexBox key={provider ?? ''} className={styles.group} direction="Column" style={{ gap: '0.25rem' }}>
-          {isGrouped && (
+        <FlexBox key={provider ?? '__default__'} className={styles.group} direction="Column" style={{ gap: '0.25rem' }}>
+          {isGrouped && rows.length > 0 && (
             <Text className={styles.groupTitle}>
               {providerLabel(provider)} ({rows.length})
             </Text>

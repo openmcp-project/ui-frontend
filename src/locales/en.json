@@ -254,7 +254,9 @@
     "columnNamespaceHeader": "Namespace",
     "defaultProviderValue": "Default",
     "customProviderValue": "Custom",
-    "searchPlaceholder": "Search members"
+    "searchPlaceholder": "Search members",
+    "editMemberButton": "Edit member",
+    "deleteMemberButton": "Delete member"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",

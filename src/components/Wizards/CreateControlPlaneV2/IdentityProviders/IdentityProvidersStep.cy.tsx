@@ -103,7 +103,7 @@ describe('IdentityProvidersStep', () => {
 
     cy.get('[data-testid="no-members-error"]').should('exist');
 
-    cy.get('[data-testid="default-provider-add-member-button"]').first().click();
+    cy.get('[data-testid="default-provider-add-member-button"]').click();
     cy.get('[data-testid="default-provider-member-email-input"]').typeIntoUi5Input('alice@example.com');
     cy.get('ui5-dialog[open]').contains('ui5-button', 'Add User or Group').click();
 

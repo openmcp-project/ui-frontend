@@ -1,7 +1,8 @@
 import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/add.js';
 import '@ui5/webcomponents-icons/dist/decline.js';
-import { useMemo } from 'react';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
@@ -40,13 +41,13 @@ function actionToClassName(action: ServiceMutationAction): string | undefined {
   return undefined;
 }
 
-function actionToIcon(action: ServiceMutationAction): string | undefined {
+function actionToIcon(action: ServiceMutationAction): string {
   if (action === 'create') return 'add';
   if (action === 'delete') return 'decline';
-  return undefined;
+  return 'edit';
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
+export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   rawInput,
   services,
   isEditMode = false,
@@ -63,8 +64,6 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);
-
-  const defaultMembersHeaderText = t('common.members');
 
   const serviceEntries = useMemo(() => {
     if (!services) return [];
@@ -107,7 +106,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
             <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
           </List>
           <br />
-          <List headerText={defaultMembersHeaderText}>
+          <List headerText={t('common.members')}>
             {rawInput.roleBindings
               .flatMap((rb) =>
                 rb.subjects.map((subject) => ({
@@ -150,8 +149,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
               <div className={styles.coloredList}>
                 <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
                 {serviceEntries.map(({ key, label, entry, action }) => (
-                  <div key={key} className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`}>
-                    <Icon name={actionToIcon(action) ?? ''} />
+                  <div key={key} className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}>
+                    <Icon name={actionToIcon(action)} />
                     <span className={styles.coloredListItemText}>{label}</span>
                     <span className={styles.coloredListItemVersion}>
                       {entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
@@ -170,9 +169,9 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
                       return (
                         <div
                           key={provider.name}
-                          className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`}
+                          className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
                         >
-                          <Icon name={actionToIcon(action) ?? ''} />
+                          <Icon name={actionToIcon(action)} />
                           <span className={styles.coloredListItemText}>{provider.name}</span>
                           <span className={styles.coloredListItemVersion}>
                             {provider.version || t('ServiceSelectionStep.versionPlaceholder')}
