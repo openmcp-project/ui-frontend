@@ -1,8 +1,7 @@
 import { Member } from '../lib/api/types/shared/members.ts';
+import { MemberRoleBinding } from '../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 
-export function convertRoleBindingsToMembers(
-  roleBindings?: { role: string; subjects: { kind: string; name: string }[]; provider?: string }[],
-): Member[] {
+export function convertRoleBindingsToMembers(roleBindings?: MemberRoleBinding[]): Member[] {
   if (!roleBindings) return [];
 
   const memberMap = new Map<string, Member>();

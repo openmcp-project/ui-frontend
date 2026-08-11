@@ -154,8 +154,31 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     ? t(usesUserGroupAccountTypes ? 'EditMembers.editHeaderUserGroup' : 'EditMembers.editHeader')
     : t(usesUserGroupAccountTypes ? 'EditMembers.addHeaderUserGroup' : 'EditMembers.addHeader');
 
+  const footer = (
+    <Bar
+      design="Footer"
+      endContent={
+        <>
+          <Button design="Transparent" onClick={onClose}>
+            {t('buttons.cancel')}
+          </Button>
+          <Button
+            data-testid={withTestId('add-member-submit-button')}
+            design="Emphasized"
+            icon={'sap-icon://add-employee'}
+            onClick={() => handleSubmit(onFormSubmit)()}
+          >
+            {memberToEdit
+              ? t('EditMembers.saveButton')
+              : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
+          </Button>
+        </>
+      }
+    />
+  );
+
   return (
-    <Dialog open={open} headerText={dialogHeader} onClose={onClose}>
+    <Dialog footer={footer} open={open} headerText={dialogHeader} onClose={onClose}>
       <div className={styles.container}>
         <FlexBox alignItems={'Baseline'} direction={'Column'} className={styles.wrapper}>
           <FlexBox alignItems={'Baseline'} justifyContent={'SpaceBetween'}>
@@ -225,27 +248,6 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               </div>
             </Activity>
           </div>
-
-          <Bar
-            design="Footer"
-            endContent={
-              <>
-                <Button design="Transparent" onClick={onClose}>
-                  {t('buttons.cancel')}
-                </Button>
-                <Button
-                  data-testid={withTestId('add-member-submit-button')}
-                  design="Emphasized"
-                  icon={'sap-icon://add-employee'}
-                  onClick={() => handleSubmit(onFormSubmit)()}
-                >
-                  {memberToEdit
-                    ? t('EditMembers.saveButton')
-                    : t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
-                </Button>
-              </>
-            }
-          />
         </FlexBox>
       </div>
     </Dialog>
