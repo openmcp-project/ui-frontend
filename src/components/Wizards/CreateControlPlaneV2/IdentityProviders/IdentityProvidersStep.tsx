@@ -2,11 +2,10 @@ import '@ui5/webcomponents-icons/dist/add';
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/edit';
 import '@ui5/webcomponents-icons/dist/copy';
-import { Button, CheckBox, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
+import { Button, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-import { useToast } from '../../../../context/ToastContext.tsx';
 import { useCopyToClipboard } from '../../../../hooks/useCopyToClipboard.ts';
 import { Member } from '../../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../../lib/shared/useLink.ts';
@@ -26,8 +25,6 @@ export interface IdentityProvidersStepProps {
   onMembersChange: (members: Member[]) => void;
   providers: ExtraProviderMetadata[];
   onProvidersChange: (providers: ExtraProviderMetadata[]) => void;
-  isDefaultProviderEnabled: boolean;
-  onDefaultProviderEnabledChange: (enabled: boolean) => void;
   isValidationError?: boolean;
   workspaceName?: string;
   projectName?: string;
@@ -38,14 +35,11 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   onMembersChange,
   providers,
   onProvidersChange,
-  isDefaultProviderEnabled,
-  onDefaultProviderEnabledChange,
   isValidationError = false,
   workspaceName,
   projectName,
 }) => {
   const { t } = useTranslation();
-  const toast = useToast();
   const { identityProviderGuide } = useLink();
   const { copyToClipboard } = useCopyToClipboard();
 
@@ -63,14 +57,10 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
   }, [members]);
 
   const defaultProviderMembers = useMemo(() => membersByProvider.get('') ?? [], [membersByProvider]);
-  const isDefaultCheckboxDisabled = providers.length === 0;
-  const hasNoAssignedMembers = useMemo(
-    () => !hasAssignedIamMember(members, providers, isDefaultProviderEnabled),
-    [members, providers, isDefaultProviderEnabled],
-  );
+  const hasNoAssignedMembers = useMemo(() => !hasAssignedIamMember(members, providers), [members, providers]);
 
   const oidcYaml = useMemo(() => {
-    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const roleBindings = buildRoleBindingsForProviderMembers(defaultProviderMembers);
     const extraProvidersInput = providers.map((provider) => ({
       ...provider,
       roleBindings: buildRoleBindingsForProviderMembers(membersByProvider.get(provider.name) ?? []),
@@ -82,7 +72,7 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
       extraProviders: extraProvidersInput,
     });
     return stringify(spec?.iam?.oidc ?? {});
-  }, [defaultProviderMembers, isDefaultProviderEnabled, membersByProvider, providers]);
+  }, [defaultProviderMembers, membersByProvider, providers]);
 
   const handleDefaultMembersChange = useCallback(
     (updatedSlice: Member[]) => {
@@ -136,25 +126,10 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
 
   const handleConfirmDelete = useCallback(() => {
     if (!providerToDelete) return;
-    const remainingProviders = providers.filter((p) => p.name !== providerToDelete.name);
-    onProvidersChange(remainingProviders);
+    onProvidersChange(providers.filter((p) => p.name !== providerToDelete.name));
     onMembersChange(members.filter((m) => m.provider !== providerToDelete.name));
-    if (remainingProviders.length === 0 && !isDefaultProviderEnabled) {
-      onDefaultProviderEnabledChange(true);
-      toast.show(t('IdentityProviders.defaultProviderReenabledToast'));
-    }
     setProviderToDelete(undefined);
-  }, [
-    providerToDelete,
-    providers,
-    members,
-    isDefaultProviderEnabled,
-    onProvidersChange,
-    onMembersChange,
-    onDefaultProviderEnabledChange,
-    toast,
-    t,
-  ]);
+  }, [providerToDelete, providers, members, onProvidersChange, onMembersChange]);
 
   const providerToDeleteMemberCount = providerToDelete
     ? (membersByProvider.get(providerToDelete.name)?.length ?? 0)
@@ -176,43 +151,19 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
       )}
       <div className={styles.layout}>
         <FlexBox direction="Column" gap={16} className={styles.providerGroupsColumn}>
-          <ProviderGroup
-            headerText={t('IdentityProviders.defaultProviderGroupTitle')}
-            headerActions={
-              <CheckBox
-                checked={isDefaultProviderEnabled}
-                disabled={isDefaultCheckboxDisabled}
-                text={t('IdentityProviders.enableDefaultProviderCheckbox')}
-                data-testid="default-provider-enabled-checkbox"
-                onChange={(e) => onDefaultProviderEnabledChange(e.target.checked)}
-              />
-            }
-          >
-            {isDefaultProviderEnabled ? (
-              <EditMembers
-                members={defaultProviderMembers}
-                isValidationError={isValidationError}
-                requireAtLeastOneMember={false}
-                workspaceName={workspaceName}
-                projectName={projectName}
-                type="mcp"
-                isV2
-                fitContentAddButton
-                testIdPrefix="default-provider"
-                onMemberChanged={handleDefaultMembersChange}
-              />
-            ) : (
-              <Text className={styles.hiddenProviderHint}>
-                {t(
-                  defaultProviderMembers.length > 0
-                    ? 'IdentityProviders.defaultProviderDisabledWithMembersHint'
-                    : 'IdentityProviders.defaultProviderDisabledHint',
-                )}
-              </Text>
-            )}
-            {isDefaultCheckboxDisabled && (
-              <Text className={styles.hiddenProviderHint}>{t('IdentityProviders.defaultProviderLockedHint')}</Text>
-            )}
+          <ProviderGroup headerText={t('IdentityProviders.defaultProviderGroupTitle')}>
+            <EditMembers
+              members={defaultProviderMembers}
+              isValidationError={isValidationError}
+              requireAtLeastOneMember={false}
+              workspaceName={workspaceName}
+              projectName={projectName}
+              type="mcp"
+              isV2
+              fitContentAddButton
+              testIdPrefix="default-provider"
+              onMemberChanged={handleDefaultMembersChange}
+            />
           </ProviderGroup>
 
           {providers.map((provider) => (

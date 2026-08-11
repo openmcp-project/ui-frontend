@@ -152,7 +152,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
   const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
-  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(true);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -262,7 +261,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setExtraProviders([]);
-      setIsDefaultProviderEnabled(true);
     }
     if (!isOpen) {
       clearFormFields();
@@ -354,14 +352,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const members = useWatch({ control, name: 'members' });
 
   const hasNoAssignedMembers = useMemo(
-    () => !hasAssignedIamMember(members ?? [], extraProviders, isDefaultProviderEnabled),
-    [members, extraProviders, isDefaultProviderEnabled],
+    () => !hasAssignedIamMember(members ?? [], extraProviders),
+    [members, extraProviders],
   );
 
   const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
-    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const roleBindings = buildRoleBindingsForProviderMembers(defaultProviderMembers);
     const extraProvidersInput = extraProviders.map((p) => ({
       ...p,
       roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
@@ -372,16 +370,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       roleBindings,
       extraProviders: extraProvidersInput,
     };
-  }, [
-    name,
-    displayName,
-    templateAffixes,
-    projectName,
-    workspaceName,
-    members,
-    extraProviders,
-    isDefaultProviderEnabled,
-  ]);
+  }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -703,11 +692,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !initialData) return;
-    const {
-      members,
-      extraProviders: prefilledProviders,
-      isDefaultProviderEnabled: prefilledEnabled,
-    } = extractMcpV2FormState(initialData);
+    const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
     reset({
@@ -720,7 +705,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setExtraProviders(prefilledProviders);
-    setIsDefaultProviderEnabled(prefilledEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -880,13 +864,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             <IdentityProvidersStep
               members={members}
               providers={extraProviders}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
-              onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
             />
           </WizardStep>
 
@@ -907,11 +889,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'summarize'}
             data-step="summarize"
           >
-            <SummarizeStepV2
-              rawInput={rawInput}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
-              services={services}
-            />
+            <SummarizeStepV2 rawInput={rawInput} services={services} />
           </WizardStep>
           <WizardStep
             icon="activities"

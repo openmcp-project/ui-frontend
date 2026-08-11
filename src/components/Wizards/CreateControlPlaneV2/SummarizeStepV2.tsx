@@ -11,15 +11,10 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;
-  isDefaultProviderEnabled?: boolean;
   services?: ServiceSelection;
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
-  rawInput,
-  isDefaultProviderEnabled = true,
-  services,
-}) => {
+export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, services }) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
@@ -30,9 +25,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
     };
   }, [rawInput]);
 
-  const defaultMembersHeaderText = isDefaultProviderEnabled
-    ? t('common.members')
-    : `${t('common.members')} ${t('IdentityProviders.disabledBadge')}`;
+  const defaultMembersHeaderText = t('common.members');
 
   const selectedServices = useMemo(() => {
     if (!services) return [];
