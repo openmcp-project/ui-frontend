@@ -1,7 +1,3 @@
-import '@ui5/webcomponents-icons/dist/add';
-import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/edit';
-import '@ui5/webcomponents-icons/dist/copy';
 import { Button, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
