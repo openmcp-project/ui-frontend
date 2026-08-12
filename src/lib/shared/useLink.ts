@@ -10,9 +10,7 @@ export function useLink() {
     documentationHomepage: createLink('/'),
     gettingStartedGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp'),
     workspaceCreationGuide: createLink('/docs/managed-control-planes/get-started/get-started-mcp#4-create-workspace'),
-    mcpCreationGuide: createLink(
-      '/docs/managed-control-planes/get-started/onboard/get-started-mcp',
-    ),
+    mcpCreationGuide: createLink('/docs/managed-control-planes/get-started/onboard/get-started-mcp'),
     serviceAccoutsGuide: createLink(
       '/docs/managed-control-planes/access/service-accounts#create-and-list-serviceaccounts',
     ),
