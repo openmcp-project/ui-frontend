@@ -7,6 +7,14 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 CONTEXT="kind-headlamp-dev"
 NAMESPACE="headlamp"
 
+# @kinvolk/headlamp-plugin build tooling requires Node 22 (Node 26 breaks yargs ESM).
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [[ -f "$NVM_DIR/nvm.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$NVM_DIR/nvm.sh"
+  nvm use 22 --silent 2>/dev/null || { echo "error: Node 22 not installed — run: nvm install 22" >&2; exit 1; }
+fi
+
 POD=$(kubectl --context "$CONTEXT" get pod -n "$NAMESPACE" -l app.kubernetes.io/name=headlamp -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 if [[ -z "$POD" ]]; then
   echo "error: no headlamp pod found in namespace '${NAMESPACE}' (context: ${CONTEXT})" >&2
@@ -33,4 +41,4 @@ kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../opencontrolplane-headlamp-plugin
 echo "✓ ocp plugin deployed"
 
 echo ""
-echo "✓ Plugins synced. Hard-refresh the browser to pick up changes."
+echo "✓ Plugins synced. Hard-refresh the browser (Cmd+Shift+R) to pick up changes."
