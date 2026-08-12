@@ -148,6 +148,11 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
           const entry = services[key];
           const selected = entry?.selected ?? false;
           const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+          const currentVersion = entry?.version ?? '';
+          const versionOptions =
+            currentVersion && !versions.some((v) => v.version === currentVersion)
+              ? [{ version: currentVersion }, ...versions]
+              : versions;
           return (
             <div key={key} className={styles.row}>
               <FlexBox alignItems="Center" gap={12}>
@@ -172,7 +177,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
                       setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
                     }
                   >
-                    {versions.map(({ version: v }) => (
+                    {versionOptions.map(({ version: v }) => (
                       <Option key={v} value={v}>
                         {v}
                       </Option>

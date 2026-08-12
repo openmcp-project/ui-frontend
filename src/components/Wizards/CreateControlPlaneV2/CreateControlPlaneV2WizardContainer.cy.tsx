@@ -457,6 +457,14 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
         data: { external_secrets_services_open_control_plane_io: { v1alpha1: { ExternalSecretsOperator: null } } },
       },
     },
+    {
+      request: { query: GetOcmDocument, variables: idpKpiVariables },
+      result: { data: { ocm_services_open_control_plane_io: { v1alpha1: { OCM: null } } } },
+    },
+    {
+      request: { query: GetKroDocument, variables: idpKpiVariables },
+      result: { data: { kro_services_open_control_plane_io: { v1alpha1: { Kro: null } } } },
+    },
   ];
 
   it('pre-fills extra-provider members from initialData in edit mode (regression: previously dropped)', () => {

@@ -16,7 +16,8 @@ export const MCP_V2_VIEWER_ROLE = 'viewer';
 
 export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
   { value: 'cluster-admin', label: 'Cluster Admin', icon: 'badge' },
-  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
+  // disabled for now
+  // { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
 ];
 
 export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {
