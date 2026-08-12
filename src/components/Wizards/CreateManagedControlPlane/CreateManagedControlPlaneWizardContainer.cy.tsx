@@ -424,10 +424,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.SPACE); // close Add Member dialog
+    cy.get('[data-testid="add-member-submit-button"]').click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
 
@@ -694,10 +691,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.get('ui5-button').contains('Add User or ServiceAccount').click();
     cy.get('#member-email-input').typeIntoUi5Input('additionalUser');
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.TAB);
-    cy.press(Cypress.Keyboard.Keys.SPACE); // close Add Member dialog
+    cy.get('[data-testid="add-member-submit-button"]').click();
 
     cy.get('ui5-button').contains('Next').click(); // navigate to Component Selection
 
