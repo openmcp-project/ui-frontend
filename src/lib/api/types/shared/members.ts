@@ -16,7 +16,7 @@ export const MCP_V2_VIEWER_ROLE = 'viewer';
 
 export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
   { value: 'cluster-admin', label: 'Cluster Admin', icon: 'badge' },
-  // disabled for now
+  // TODO: re-enable once the viewer ClusterRole is provisioned on all managed clusters.
   // { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
 ];
 

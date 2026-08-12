@@ -406,7 +406,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     () =>
       (crossplaneData?.providers ?? [])
         .filter((p): p is { name: string; version: string | null } => !!p.name)
-        .map((p) => p.name),
+        .map((p) => ({ name: p.name, version: p.version ?? null })),
     [crossplaneData],
   );
 

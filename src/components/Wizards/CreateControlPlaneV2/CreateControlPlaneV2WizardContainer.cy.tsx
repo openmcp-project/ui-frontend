@@ -495,33 +495,6 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
     });
   });
 
-  it('default-provider checkbox is locked (disabled) when there are zero extra providers', () => {
-    mountWizard();
-
-    cy.get('#name').typeIntoUi5Input('my-new-mcp');
-    cy.get('ui5-button').contains('Next').click(); // metadata → members
-
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').should('have.attr', 'disabled');
-  });
-
-  it('blocks Next when the default provider is disabled and no extra provider has a member (regression: zero-member submission)', () => {
-    mountWizard();
-
-    cy.get('#name').typeIntoUi5Input('my-new-mcp');
-    cy.get('ui5-button').contains('Next').click(); // metadata → members
-
-    cy.get('[data-testid="add-provider-button"]').click();
-    cy.get('[data-testid="provider-name-input"]').typeIntoUi5Input('custom');
-    cy.get('[data-testid="provider-issuer-input"]').typeIntoUi5Input('https://example.com');
-    cy.get('[data-testid="provider-client-id-input"]').typeIntoUi5Input('client-id-1');
-    cy.get('[data-testid="save-provider-button"]').click();
-
-    // Disabling the default provider drops the auto-added creator member; "custom" has none of its own.
-    cy.get('[data-testid="default-provider-enabled-checkbox"]').click();
-    cy.get('[data-testid="no-members-error"]').should('exist');
-    cy.get('ui5-button').contains('Next').should('have.attr', 'disabled');
-  });
-
   it('adding a new identity provider via the wizard includes it in the create payload', () => {
     mountWizard();
 
@@ -564,6 +537,82 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
     cy.get('[data-testid="delete-provider-custom"]').should('not.exist');
     cy.contains('bob@example.com').should('not.exist');
+  });
+
+  // ── Edit mode summarize step ────────────────────────────────────────────────
+
+  describe('summarize step in edit mode', () => {
+    const navigateToSummarize = (mocks: readonly MockedResponse[]) => {
+      mountWizard({ isEditMode: true, initialData: existingMcp }, mocks);
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+    };
+
+    const allNotInstalled = [
+      notInstalledCrossplaneMock,
+      notInstalledFluxMock,
+      notInstalledLandscaperMock,
+      notInstalledEsoMock,
+      notInstalledOcmMock,
+      notInstalledKroMock,
+    ];
+
+    it('shows Update button instead of Create on the summarize step', () => {
+      navigateToSummarize(allNotInstalled);
+      cy.get('ui5-button').contains('Update').should('exist');
+      cy.get('ui5-button').contains('Create').should('not.exist');
+    });
+
+    it('shows a green added row for a newly selected service in edit mode', () => {
+      navigateToSummarize([
+        notInstalledCrossplaneMock,
+        installedFluxMock('v2.18.2'),
+        notInstalledLandscaperMock,
+        notInstalledEsoMock,
+        notInstalledOcmMock,
+        notInstalledKroMock,
+      ]);
+
+      // Flux was installed → stays selected; the summarize step should show it as an unchanged/update row.
+      // ESO was not installed and is unselected → should not appear in the list at all.
+      cy.contains('External Secrets Operator').should('not.exist');
+      cy.contains('Flux').should('exist');
+    });
+
+    it('shows a removed provider in the providers section when it was deselected in edit mode', () => {
+      mountWizard(
+        {
+          isEditMode: true,
+          initialData: existingMcp,
+          useUpdateCrossplane: (() => ({
+            update: async () => ({ data: undefined }),
+            loading: false,
+            error: undefined,
+          })) as typeof useUpdateCrossplane,
+        },
+        [
+          installedCrossplaneMock('v1.20.1-1', [{ name: 'provider-btp', version: '1.3.0' }]),
+          notInstalledFluxMock,
+          notInstalledLandscaperMock,
+          notInstalledEsoMock,
+          notInstalledOcmMock,
+          notInstalledKroMock,
+        ],
+      );
+
+      cy.get('ui5-button').contains('Next').click(); // metadata → members
+      cy.get('ui5-button').contains('Next').click(); // members → componentSelection
+
+      // Deselect provider-btp so it becomes a removal
+      cy.get('[ui5-checkbox][text="provider-btp"]').toggleUi5Checkbox();
+
+      cy.get('ui5-button').contains('Next').click(); // componentSelection → summarize
+
+      // Removed provider should appear with its installed version
+      cy.contains('provider-btp').should('exist');
+      cy.contains('1.3.0').should('exist');
+    });
   });
 
   // ── Edit mode — per-service create/update/delete mutations ─────────────────

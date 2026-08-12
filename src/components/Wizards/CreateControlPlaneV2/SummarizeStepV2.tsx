@@ -26,13 +26,18 @@ interface InitialServiceState {
   kro: boolean;
 }
 
+interface CrossplaneProviderSnapshot {
+  name: string;
+  version: string | null;
+}
+
 interface SummarizeStepProps {
   rawInput: McpV2Input;
   services?: ServiceSelection;
   isEditMode?: boolean;
   originalYamlString?: string;
   initialServices?: InitialServiceState;
-  initialCrossplaneProviders?: string[];
+  initialCrossplaneProviders?: CrossplaneProviderSnapshot[];
 }
 
 function actionToClassName(action: ServiceMutationAction): string | undefined {
@@ -94,7 +99,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   const removedProviders = useMemo(() => {
     if (!isEditMode || !initialCrossplaneProviders) return [];
     const currentNames = new Set((services?.crossplane?.providers ?? []).map((p) => p.name));
-    return initialCrossplaneProviders.filter((name) => !currentNames.has(name));
+    return initialCrossplaneProviders.filter((p) => !currentNames.has(p.name));
   }, [isEditMode, initialCrossplaneProviders, services?.crossplane?.providers]);
 
   return (
@@ -164,7 +169,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                   <div className={styles.coloredList}>
                     <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
                     {(services?.crossplane?.providers ?? []).map((provider) => {
-                      const wasInstalled = initialCrossplaneProviders?.includes(provider.name) ?? false;
+                      const wasInstalled = initialCrossplaneProviders?.some((p) => p.name === provider.name) ?? false;
                       const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
                       return (
                         <div
@@ -179,12 +184,12 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
                         </div>
                       );
                     })}
-                    {removedProviders.map((name) => (
-                      <div key={`removed-${name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
+                    {removedProviders.map((p) => (
+                      <div key={`removed-${p.name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
                         <Icon name="decline" />
-                        <span className={styles.coloredListItemText}>{name}</span>
+                        <span className={styles.coloredListItemText}>{p.name}</span>
                         <span className={styles.coloredListItemVersion}>
-                          {t('ServiceSelectionStep.versionPlaceholder')}
+                          {p.version || t('ServiceSelectionStep.versionPlaceholder')}
                         </span>
                       </div>
                     ))}
