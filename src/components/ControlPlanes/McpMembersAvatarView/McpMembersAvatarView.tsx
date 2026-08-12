@@ -7,7 +7,7 @@ import styles from './McpMembersAvatarView.module.css';
 interface Props {
   project?: string;
   workspace?: string;
-  roleBindings?: { role: string; subjects: { kind: string; name: string }[] }[];
+  roleBindings?: { role: string; subjects: { kind: string; name: string }[]; provider?: string }[];
   compact?: boolean;
 }
 

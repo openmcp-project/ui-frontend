@@ -27,6 +27,7 @@ import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
+import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -114,21 +115,9 @@ export const ControlPlaneCard = ({
     !isV2,
   );
 
-  // Flatten v2 IAM roleBindings (roleRefs[] + subjects[]) into the flat shape
-  // expected by McpMembersAvatarView: { role: string; subjects: { kind, name }[] }[]
   const v2RoleBindings = useMemo(() => {
     if (!isV2) return undefined;
-    const oidc = controlPlane.spec?.iam?.oidc;
-    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
-    return allProviders.flatMap((provider) =>
-      (provider?.roleBindings ?? []).flatMap((binding) => {
-        if (!binding) return [];
-        const subjects = (binding.subjects ?? []).flatMap((s) =>
-          s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [],
-        );
-        return (binding.roleRefs ?? []).flatMap((ref) => (ref?.name ? [{ role: ref.name, subjects }] : []));
-      }),
-    );
+    return flattenOidcRoleBindings(controlPlane.spec?.iam?.oidc);
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
