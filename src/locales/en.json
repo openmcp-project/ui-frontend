@@ -19,7 +19,7 @@
   },
   "ComponentCard": {
     "actionsMenu": "Actions",
-    "deleteButton": "Delete",
+    "deleteButton": "Uninstall",
     "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
@@ -251,7 +251,12 @@
     "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
-    "columnNamespaceHeader": "Namespace"
+    "columnNamespaceHeader": "Namespace",
+    "defaultProviderValue": "Default",
+    "customProviderValue": "Custom",
+    "searchPlaceholder": "Search members",
+    "editMemberButton": "Edit member",
+    "deleteMemberButton": "Delete member"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -278,7 +283,7 @@
     "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",
-    "addHeader": "Add User or ServiceAccount",
+    "addHeader": "Add Member",
     "addHeaderUserGroup": "Add User or Group",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
@@ -293,11 +298,6 @@
   "IdentityProviders": {
     "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
     "defaultProviderGroupTitle": "Default identity provider",
-    "enableDefaultProviderCheckbox": "Enabled",
-    "defaultProviderDisabledHint": "The default identity provider is disabled and won't be saved unless you re-enable it before submitting.",
-    "defaultProviderDisabledWithMembersHint": "The default identity provider is disabled. Its members are kept here for now, but won't be saved unless you re-enable the provider before submitting.",
-    "defaultProviderLockedHint": "Add at least one custom identity provider before you can disable the default provider.",
-    "defaultProviderReenabledToast": "The default identity provider was re-enabled because it was the only remaining provider.",
     "noMembersError": "At least one member must be assigned to the default identity provider or to a custom identity provider before you can continue.",
     "addProviderButton": "Add Identity Provider",
     "editProviderButtonTooltip": "Edit identity provider",
@@ -321,7 +321,6 @@
     "deleteConfirmMessage1": "Are you sure you want to delete the identity provider '{{providerName}}'? Its 1 member will also be removed.",
     "deleteConfirmMessageN": "Are you sure you want to delete the identity provider '{{providerName}}'? Its {{count}} members will also be removed.",
     "deleteConfirmButton": "Delete",
-    "disabledBadge": "(disabled)",
     "yamlPreviewTitle": "YAML preview"
   },
   "ProjectPage": {

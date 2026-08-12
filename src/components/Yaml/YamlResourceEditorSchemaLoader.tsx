@@ -3,8 +3,6 @@ import { FC, useEffect, useRef } from 'react';
 import { YamlViewer, YamlViewerProps } from './YamlViewer.tsx';
 import Loading from '../Shared/Loading.tsx';
 import { useCustomResourceDefinitionQuery } from '../../hooks/useCustomResourceDefinitionQuery.ts';
-import { useToast } from '../../context/ToastContext.tsx';
-import { useTranslation } from 'react-i18next';
 
 interface YamlViewerSchemaLoaderProps extends YamlViewerProps {
   apiVersion: string;
@@ -31,16 +29,12 @@ export const YamlResourceEditorSchemaLoader: FC<YamlViewerSchemaLoaderProps> = (
     apiVersion,
   });
 
-  const { show } = useToast();
-
-  const { t } = useTranslation();
-
   useEffect(() => {
     if (!hasShownErrorRef.current && error) {
-      show(t('errors.cannotLoadSchema'));
+      console.warn('Cannot load schema for this resource', { apiGroupName, apiVersion, kind, error });
       hasShownErrorRef.current = true;
     }
-  }, [error, show, t]);
+  }, [error, apiGroupName, apiVersion, kind]);
 
   if (kind && isLoading) {
     return <Loading />;
