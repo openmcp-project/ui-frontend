@@ -36,7 +36,7 @@
     "@fastify/secure-session": "8.3.0",
     "@fastify/sensible": "6.0.5",
     "@fastify/session": "11.1.2",
-    "@fastify/vite": "9.2.0",
+    "@fastify/vite": "10.0.0",
     "@hookform/resolvers": "5.7.1",
     "@monaco-editor/react": "4.7.0",
     "@openapi-contrib/openapi-schema-to-json-schema": "5.1.0",
