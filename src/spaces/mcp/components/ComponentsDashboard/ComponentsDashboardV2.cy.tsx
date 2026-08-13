@@ -8,6 +8,7 @@ import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
 import type { KroData } from '../../types/Kro.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
+import type { MetricsOperatorData } from '../../types/MetricsOperator.ts';
 import type { OcmData } from '../../types/Ocm.ts';
 import { ComponentsDashboardV2, ComponentsDashboardV2Props } from './ComponentsDashboardV2.tsx';
 
@@ -30,6 +31,7 @@ describe('ComponentsDashboardV2', () => {
   const esoInstalled: EsoData = { isInstalled: true, version: '4.0.0' };
   const ocmInstalled: OcmData = { isInstalled: true, version: '5.0.0' };
   const kroInstalled: KroData = { isInstalled: true, version: '6.0.0' };
+  const metricsOperatorInstalled: MetricsOperatorData = { isInstalled: true, version: '7.0.0' };
 
   const mount = (props?: Partial<ComponentsDashboardV2Props>) => {
     cy.mount(
@@ -85,7 +87,7 @@ describe('ComponentsDashboardV2', () => {
     );
   };
 
-  it('renders all six component cards with names, descriptions, and versions', () => {
+  it('renders all seven component cards with names, descriptions, and versions', () => {
     mountWithLandscaper({
       crossplaneData: crossplaneInstalled,
       fluxData: fluxInstalled,
@@ -93,15 +95,17 @@ describe('ComponentsDashboardV2', () => {
       esoData: esoInstalled,
       ocmData: ocmInstalled,
       kroData: kroInstalled,
+      metricsOperatorData: metricsOperatorInstalled,
     });
 
-    cy.get('.ui5-card-header').should('have.length', 6);
+    cy.get('.ui5-card-header').should('have.length', 7);
     cy.get('.ui5-card-header').eq(0).should('contain.text', 'Crossplane').and('contain.text', 'v1.2.3');
     cy.get('.ui5-card-header').eq(1).should('contain.text', 'Flux').and('contain.text', 'v2.0.0');
     cy.get('.ui5-card-header').eq(2).should('contain.text', 'Landscaper').and('contain.text', 'v3.0.0');
     cy.get('.ui5-card-header').eq(3).should('contain.text', 'External Secrets Operator').and('contain.text', 'v4.0.0');
     cy.get('.ui5-card-header').eq(4).should('contain.text', 'OCM').and('contain.text', 'v5.0.0');
     cy.get('.ui5-card-header').eq(5).should('contain.text', 'KRO').and('contain.text', 'v6.0.0');
+    cy.get('.ui5-card-header').eq(6).should('contain.text', 'Metrics Operator').and('contain.text', 'v7.0.0');
   });
 
   it('does not render the yamlViewButton slot before the status query has resolved a resource', () => {
@@ -173,5 +177,26 @@ describe('ComponentsDashboardV2', () => {
     cy.get('[data-cy="delete-menu-item"]').click();
 
     cy.contains('Delete KRO').should('be.visible');
+  });
+
+  it('opens the Metrics Operator install dialog from the Install button', () => {
+    mount();
+
+    cy.get('[data-cy="component-card-metrics-operator"]').within(() => {
+      cy.get('[data-cy="install-button"]').click();
+    });
+
+    cy.contains('Install Metrics Operator').should('be.visible');
+  });
+
+  it('opens the delete confirmation dialog for Metrics Operator from the actions menu', () => {
+    mount({ metricsOperatorData: metricsOperatorInstalled });
+
+    cy.get('[data-cy="component-card-metrics-operator"]').within(() => {
+      cy.get('[data-cy="actions-menu-button"]').click();
+    });
+    cy.get('[data-cy="delete-menu-item"]').click();
+
+    cy.contains('Delete Metrics Operator').should('be.visible');
   });
 });

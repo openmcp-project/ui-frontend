@@ -41,6 +41,7 @@ import { useEsoQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useEs
 import { useFluxQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useFluxQuery.ts';
 import { useKroQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useKroQuery.ts';
 import { useLandscaperQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useLandscaperQuery.ts';
+import { useMetricsOperatorQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMetricsOperatorQuery.ts';
 import { useOcmQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useOcmQuery.ts';
 import {
   buildRoleBindingsForProviderMembers,
@@ -55,18 +56,21 @@ import { useCreateEso as _useCreateEso } from '../../../spaces/mcp/hooks/useCrea
 import { useCreateFlux as _useCreateFlux } from '../../../spaces/mcp/hooks/useCreateFlux.ts';
 import { useCreateKro as _useCreateKro } from '../../../spaces/mcp/hooks/useCreateKro.ts';
 import { useCreateLandscaper as _useCreateLandscaper } from '../../../spaces/mcp/hooks/useCreateLandscaper.ts';
+import { useCreateMetricsOperator as _useCreateMetricsOperator } from '../../../spaces/mcp/hooks/useCreateMetricsOperator.ts';
 import { useCreateOcm as _useCreateOcm } from '../../../spaces/mcp/hooks/useCreateOcm.ts';
 import { useDeleteCrossplane as _useDeleteCrossplane } from '../../../spaces/mcp/hooks/useDeleteCrossplane.ts';
 import { useDeleteEso as _useDeleteEso } from '../../../spaces/mcp/hooks/useDeleteEso.ts';
 import { useDeleteFlux as _useDeleteFlux } from '../../../spaces/mcp/hooks/useDeleteFlux.ts';
 import { useDeleteKro as _useDeleteKro } from '../../../spaces/mcp/hooks/useDeleteKro.ts';
 import { useDeleteLandscaper as _useDeleteLandscaper } from '../../../spaces/mcp/hooks/useDeleteLandscaper.ts';
+import { useDeleteMetricsOperator as _useDeleteMetricsOperator } from '../../../spaces/mcp/hooks/useDeleteMetricsOperator.ts';
 import { useDeleteOcm as _useDeleteOcm } from '../../../spaces/mcp/hooks/useDeleteOcm.ts';
 import { useUpdateCrossplane as _useUpdateCrossplane } from '../../../spaces/mcp/hooks/useUpdateCrossplane.ts';
 import { useUpdateEso as _useUpdateEso } from '../../../spaces/mcp/hooks/useUpdateEso.ts';
 import { useUpdateFlux as _useUpdateFlux } from '../../../spaces/mcp/hooks/useUpdateFlux.ts';
 import { useUpdateKro as _useUpdateKro } from '../../../spaces/mcp/hooks/useUpdateKro.ts';
 import { useUpdateLandscaper as _useUpdateLandscaper } from '../../../spaces/mcp/hooks/useUpdateLandscaper.ts';
+import { useUpdateMetricsOperator as _useUpdateMetricsOperator } from '../../../spaces/mcp/hooks/useUpdateMetricsOperator.ts';
 import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpdateOcm.ts';
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
@@ -107,6 +111,9 @@ type CreateManagedControlPlaneV2WizardContainerProps = {
   useCreateKro?: typeof _useCreateKro;
   useUpdateKro?: typeof _useUpdateKro;
   useDeleteKro?: typeof _useDeleteKro;
+  useCreateMetricsOperator?: typeof _useCreateMetricsOperator;
+  useUpdateMetricsOperator?: typeof _useUpdateMetricsOperator;
+  useDeleteMetricsOperator?: typeof _useDeleteMetricsOperator;
 };
 
 export type WizardStepType = 'metadata' | 'members' | 'componentSelection' | 'summarize' | 'success';
@@ -144,6 +151,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   useCreateKro = _useCreateKro,
   useUpdateKro = _useUpdateKro,
   useDeleteKro = _useDeleteKro,
+  useCreateMetricsOperator = _useCreateMetricsOperator,
+  useUpdateMetricsOperator = _useUpdateMetricsOperator,
+  useDeleteMetricsOperator = _useDeleteMetricsOperator,
 }) => {
   const { t } = useTranslation();
   const telemetry = useTelemetry();
@@ -293,6 +303,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { esoData, isLoading: isEsoKpiLoading } = useEsoQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
   const { ocmData, isLoading: isOcmKpiLoading } = useOcmQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
   const { kroData, isLoading: isKroKpiLoading } = useKroQuery(skipKpi ? '' : editName, skipKpi ? '' : editNs);
+  const { metricsOperatorData, isLoading: isMetricsOperatorKpiLoading } = useMetricsOperatorQuery(
+    skipKpi ? '' : editName,
+    skipKpi ? '' : editNs,
+  );
 
   // Gates submission so it never reads stale "was this installed" data.
   const isKpiLoading =
@@ -302,7 +316,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       isLandscaperKpiLoading ||
       isEsoKpiLoading ||
       isOcmKpiLoading ||
-      isKroKpiLoading);
+      isKroKpiLoading ||
+      isMetricsOperatorKpiLoading);
 
   // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward nav.
   const hasPrefilledServicesRef = useRef(false);
@@ -327,8 +342,22 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       externalSecretsOperator: esoData ? { selected: esoData.isInstalled, version: esoData.version ?? '' } : undefined,
       ocm: ocmData ? { selected: ocmData.isInstalled, version: ocmData.version ?? '' } : undefined,
       kro: kroData ? { selected: kroData.isInstalled, version: kroData.version ?? '' } : undefined,
+      metricsOperator: metricsOperatorData
+        ? { selected: metricsOperatorData.isInstalled, version: metricsOperatorData.version ?? '' }
+        : undefined,
     });
-  }, [isEditMode, skipKpi, isKpiLoading, crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData]);
+  }, [
+    isEditMode,
+    skipKpi,
+    isKpiLoading,
+    crossplaneData,
+    fluxData,
+    landscaperData,
+    esoData,
+    ocmData,
+    kroData,
+    metricsOperatorData,
+  ]);
 
   // Service create/update/delete hooks (always called per rules of hooks)
   const { create: createCrossplane } = useCreateCrossplane();
@@ -349,6 +378,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const { deleteEso } = useDeleteEso();
   const { deleteOcm } = useDeleteOcm();
   const { deleteKro } = useDeleteKro();
+  const { create: createMetricsOperator } = useCreateMetricsOperator();
+  const { update: updateMetricsOperator } = useUpdateMetricsOperator();
+  const { deleteMetricsOperator } = useDeleteMetricsOperator();
   const name = useWatch({ control, name: 'name' });
   const displayName = useWatch({ control, name: 'displayName' });
   const members = useWatch({ control, name: 'members' });
@@ -549,6 +581,33 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         servicePromises.push({ name: 'KRO', promise: deleteKro({ name: cpName, namespace: cpNamespace }) });
       }
 
+      const metricsOperatorAction = resolveServiceMutationAction(
+        isEditMode,
+        !!metricsOperatorData?.isInstalled,
+        !!services.metricsOperator?.selected,
+      );
+      if (metricsOperatorAction === 'create' || metricsOperatorAction === 'update') {
+        const vars = makeServiceObject(
+          cpName,
+          services.metricsOperator?.version ?? '',
+          cpNamespace,
+          'metrics.services.open-control-plane.io/v1alpha1',
+          'MetricsOperator',
+        );
+        servicePromises.push({
+          name: 'MetricsOperator',
+          promise:
+            metricsOperatorAction === 'update'
+              ? updateMetricsOperator({ ...vars, name: cpName })
+              : createMetricsOperator(vars),
+        });
+      } else if (metricsOperatorAction === 'delete') {
+        servicePromises.push({
+          name: 'MetricsOperator',
+          promise: deleteMetricsOperator({ name: cpName, namespace: cpNamespace }),
+        });
+      }
+
       const settledServices = await Promise.allSettled(servicePromises.map((s) => s.promise));
       const failedServices = settledServices
         .map((result, index) =>
@@ -606,6 +665,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     deleteEso,
     deleteOcm,
     deleteKro,
+    metricsOperatorData,
+    createMetricsOperator,
+    updateMetricsOperator,
+    deleteMetricsOperator,
   ]);
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
