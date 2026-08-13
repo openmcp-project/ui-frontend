@@ -49,7 +49,7 @@ function actionToClassName(action: ServiceMutationAction): string | undefined {
 function actionToIcon(action: ServiceMutationAction): string {
   if (action === 'create') return 'add';
   if (action === 'delete') return 'decline';
-  return 'edit';
+  return 'feeder-arrow';
 }
 
 export const SummarizeStepV2: FC<SummarizeStepProps> = ({
