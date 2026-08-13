@@ -56,7 +56,7 @@
     "description": "Kubernetes Resource Orchestrator — compose and deploy complex resource topologies"
   },
   "componentCardMetricsOperator": {
-    "description": "Metrics Operator — collect and expose metrics around ressources running in control plane"
+    "description": "Metrics Operator — collect and expose metrics around resources running in control plane"
   },
   "Kpi": {
     "installed": "Installed",
