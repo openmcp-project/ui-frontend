@@ -1,7 +1,4 @@
 import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
-import '@ui5/webcomponents-icons/dist/add.js';
-import '@ui5/webcomponents-icons/dist/decline.js';
-import '@ui5/webcomponents-icons/dist/edit.js';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
