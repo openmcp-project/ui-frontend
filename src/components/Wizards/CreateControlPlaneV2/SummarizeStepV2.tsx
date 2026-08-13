@@ -94,13 +94,20 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
       .filter((s): s is NonNullable<typeof s> => s !== null);
   }, [services, initialServices, isEditMode, t]);
 
-  const showProviders = !!services?.crossplane?.selected && !!services.crossplane.providers?.length;
+  const crossplaneAction = useMemo(
+    () =>
+      resolveServiceMutationAction(isEditMode, initialServices?.crossplane ?? false, !!services?.crossplane?.selected),
+    [isEditMode, initialServices?.crossplane, services?.crossplane?.selected],
+  );
+
+  const showProviders =
+    crossplaneAction !== 'delete' && !!services?.crossplane?.selected && !!services.crossplane.providers?.length;
 
   const removedProviders = useMemo(() => {
-    if (!isEditMode || !initialCrossplaneProviders) return [];
+    if (!isEditMode || !initialCrossplaneProviders || crossplaneAction === 'delete') return [];
     const currentNames = new Set((services?.crossplane?.providers ?? []).map((p) => p.name));
     return initialCrossplaneProviders.filter((p) => !currentNames.has(p.name));
-  }, [isEditMode, initialCrossplaneProviders, services?.crossplane?.providers]);
+  }, [isEditMode, initialCrossplaneProviders, crossplaneAction, services?.crossplane?.providers]);
 
   return (
     <div className={styles.wrapper}>

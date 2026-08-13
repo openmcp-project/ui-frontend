@@ -58,7 +58,7 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     // is currently disabled). Append it as a read-only-looking option so the form
     // pre-fills correctly instead of showing a blank selection.
     const existing = MemberRolesDetailed[editedRole];
-    return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole }];
+    return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
   }, [roleOptions, memberToEdit]);
   const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
   const { t } = useTranslation();
