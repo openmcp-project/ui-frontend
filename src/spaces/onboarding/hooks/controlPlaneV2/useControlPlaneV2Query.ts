@@ -38,6 +38,14 @@ export const GET_MCP_V2_QUERY = graphql(`
                   }
                 }
                 extraProviders {
+                  name
+                  issuer
+                  clientID
+                  usernameClaim
+                  usernamePrefix
+                  groupsClaim
+                  groupsPrefix
+                  extraScopes
                   roleBindings {
                     roleRefs {
                       kind

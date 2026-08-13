@@ -11,10 +11,15 @@ import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;
+  isDefaultProviderEnabled?: boolean;
   services?: ServiceSelection;
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, services }) => {
+export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
+  rawInput,
+  isDefaultProviderEnabled = true,
+  services,
+}) => {
   const { t } = useTranslation();
 
   const { yamlString, apiGroupName, apiVersion } = useMemo(() => {
@@ -24,6 +29,10 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
       ...parseResourceApiInfo(res as unknown as Resource),
     };
   }, [rawInput]);
+
+  const defaultMembersHeaderText = isDefaultProviderEnabled
+    ? t('common.members')
+    : `${t('common.members')} ${t('IdentityProviders.disabledBadge')}`;
 
   const selectedServices = useMemo(() => {
     if (!services) return [];
@@ -36,6 +45,8 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
         label: t('ServiceSelectionStep.externalSecretsOperator'),
         entry: services.externalSecretsOperator,
       },
+      { key: 'ocm', label: t('ServiceSelectionStep.ocm'), entry: services.ocm },
+      { key: 'kro', label: t('ServiceSelectionStep.kro'), entry: services.kro },
     ].filter((s) => s.entry?.selected);
   }, [services, t]);
 
@@ -48,7 +59,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
             <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
           </List>
           <br />
-          <List headerText={t('common.members')}>
+          <List headerText={defaultMembersHeaderText}>
             {rawInput.roleBindings
               .flatMap((rb) =>
                 rb.subjects.map((subject) => ({
@@ -64,6 +75,27 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({ rawInput, servic
                 />
               ))}
           </List>
+          {rawInput.extraProviders.map((provider) => (
+            <div key={provider.name}>
+              <br />
+              <List headerText={provider.name}>
+                {provider.roleBindings
+                  .flatMap((rb) =>
+                    rb.subjects.map((subject) => ({
+                      ...subject,
+                      role: rb.roleRefs[0]?.name ?? '',
+                    })),
+                  )
+                  .map((subject) => (
+                    <ListItemStandard
+                      key={`${provider.name}:${subject.kind}:${subject.name}:${subject.role}`}
+                      text={subject.name}
+                      additionalText={`${subject.kind} · ${subject.role}`}
+                    />
+                  ))}
+              </List>
+            </div>
+          ))}
           {selectedServices.length > 0 && (
             <>
               <br />

@@ -7,32 +7,23 @@ export enum MemberRoles {
 }
 
 export const memberRolesOptions: RadioButtonsSelectOption[] = [
-  { label: 'Viewer', value: MemberRoles.view, icon: 'employee' },
-  { label: 'Admin', value: MemberRoles.admin, icon: 'key-user-settings' },
+  { label: 'Viewer', value: MemberRoles.view, icon: 'show' },
+  { label: 'Admin', value: MemberRoles.admin, icon: 'shield' },
 ];
 
 export const MCP_V2_DEFAULT_ROLE = 'cluster-admin';
 export const MCP_V2_VIEWER_ROLE = 'viewer';
 
 export const mcpV2RoleOptions: RadioButtonsSelectOption[] = [
-  { value: 'cluster-admin', label: 'Cluster Admin', icon: 'key-user-settings' },
-  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'employee' },
+  { value: 'cluster-admin', label: 'Cluster Admin', icon: 'badge' },
+  { value: MCP_V2_VIEWER_ROLE, label: 'Viewer', icon: 'show' },
 ];
 
 export const MemberRolesDetailed: Record<string, { value: string; displayValue: string }> = {
   [MemberRoles.view]: { value: MemberRoles.view, displayValue: 'Viewer' },
-  [MemberRoles.admin]: {
-    value: MemberRoles.admin,
-    displayValue: 'Administrator',
-  },
-  [MCP_V2_DEFAULT_ROLE]: {
-    value: MCP_V2_DEFAULT_ROLE,
-    displayValue: 'Cluster Admin',
-  },
-  [MCP_V2_VIEWER_ROLE]: {
-    value: MCP_V2_VIEWER_ROLE,
-    displayValue: 'Viewer',
-  },
+  [MemberRoles.admin]: { value: MemberRoles.admin, displayValue: 'Administrator' },
+  [MCP_V2_DEFAULT_ROLE]: { value: MCP_V2_DEFAULT_ROLE, displayValue: 'Cluster Admin' },
+  [MCP_V2_VIEWER_ROLE]: { value: MCP_V2_VIEWER_ROLE, displayValue: 'Viewer' },
 };
 
 export enum MemberKind {
@@ -44,7 +35,17 @@ export const MemberSchema = z.object({
   name: z.string(),
   roles: z.array(z.string()),
   namespace: z.string().optional(),
+  // V2-only: extraProviders[] entry name; undefined = default provider.
+  provider: z.string().optional(),
 });
+
+// Marks members from an unnamed extra provider so dedup doesn't merge them with each other
+// or the default provider — see convertRoleBindingsToMembers.
+export const UNNAMED_PROVIDER_PREFIX = '__unnamed-provider-';
+
+export function isUnnamedProvider(provider?: string): boolean {
+  return !!provider?.startsWith(UNNAMED_PROVIDER_PREFIX);
+}
 
 export function areMembersEqual(a: Member, b?: Member): boolean {
   return (
@@ -52,6 +53,7 @@ export function areMembersEqual(a: Member, b?: Member): boolean {
     a.kind === b.kind &&
     a.name === b.name &&
     a.namespace === b.namespace &&
+    a.provider === b.provider &&
     a.roles.length === b.roles.length &&
     a.roles.every((r) => b.roles.includes(r))
   );

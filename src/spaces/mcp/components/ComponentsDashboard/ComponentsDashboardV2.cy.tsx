@@ -6,7 +6,9 @@ import { ToastProvider } from '../../../../context/ToastContext.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
+import type { KroData } from '../../types/Kro.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
+import type { OcmData } from '../../types/Ocm.ts';
 import { ComponentsDashboardV2, ComponentsDashboardV2Props } from './ComponentsDashboardV2.tsx';
 
 const frontendConfig = {
@@ -26,6 +28,8 @@ describe('ComponentsDashboardV2', () => {
   const fluxInstalled: FluxData = { isInstalled: true, version: '2.0.0' };
   const landscaperInstalled: LandscaperData = { isInstalled: true, version: '3.0.0' };
   const esoInstalled: EsoData = { isInstalled: true, version: '4.0.0' };
+  const ocmInstalled: OcmData = { isInstalled: true, version: '5.0.0' };
+  const kroInstalled: KroData = { isInstalled: true, version: '6.0.0' };
 
   const mount = (props?: Partial<ComponentsDashboardV2Props>) => {
     cy.mount(
@@ -38,6 +42,8 @@ describe('ComponentsDashboardV2', () => {
                 landscaperData={null}
                 fluxData={null}
                 esoData={null}
+                ocmData={null}
+                kroData={null}
                 mcpName="my-mcp"
                 mcpNamespace="project-foo--ws-bar"
                 onNavigateToMcpSection={() => {}}
@@ -62,6 +68,8 @@ describe('ComponentsDashboardV2', () => {
                 landscaperData={null}
                 fluxData={null}
                 esoData={null}
+                ocmData={null}
+                kroData={null}
                 mcpName="my-mcp"
                 mcpNamespace="project-foo--ws-bar"
                 onNavigateToMcpSection={() => {}}
@@ -75,19 +83,23 @@ describe('ComponentsDashboardV2', () => {
     );
   };
 
-  it('renders all four component cards with names, descriptions, and versions', () => {
+  it('renders all six component cards with names, descriptions, and versions', () => {
     mountWithLandscaper({
       crossplaneData: crossplaneInstalled,
       fluxData: fluxInstalled,
       landscaperData: landscaperInstalled,
       esoData: esoInstalled,
+      ocmData: ocmInstalled,
+      kroData: kroInstalled,
     });
 
-    cy.get('.ui5-card-header').should('have.length', 4);
+    cy.get('.ui5-card-header').should('have.length', 6);
     cy.get('.ui5-card-header').eq(0).should('contain.text', 'Crossplane').and('contain.text', 'v1.2.3');
     cy.get('.ui5-card-header').eq(1).should('contain.text', 'Flux').and('contain.text', 'v2.0.0');
     cy.get('.ui5-card-header').eq(2).should('contain.text', 'Landscaper').and('contain.text', 'v3.0.0');
     cy.get('.ui5-card-header').eq(3).should('contain.text', 'External Secrets Operator').and('contain.text', 'v4.0.0');
+    cy.get('.ui5-card-header').eq(4).should('contain.text', 'OCM').and('contain.text', 'v5.0.0');
+    cy.get('.ui5-card-header').eq(5).should('contain.text', 'KRO').and('contain.text', 'v6.0.0');
   });
 
   it('does not render the yamlViewButton slot before the status query has resolved a resource', () => {
@@ -138,5 +150,26 @@ describe('ComponentsDashboardV2', () => {
     cy.get('[data-cy="delete-menu-item"]').click();
 
     cy.contains('Delete External Secrets Operator').should('be.visible');
+  });
+
+  it('opens the OCM install dialog from the Install button', () => {
+    mount();
+
+    cy.get('[data-cy="component-card-ocm"]').within(() => {
+      cy.get('[data-cy="install-button"]').click();
+    });
+
+    cy.contains('Install OCM').should('be.visible');
+  });
+
+  it('opens the delete confirmation dialog for KRO from the actions menu', () => {
+    mount({ kroData: kroInstalled });
+
+    cy.get('[data-cy="component-card-kro"]').within(() => {
+      cy.get('[data-cy="actions-menu-button"]').click();
+    });
+    cy.get('[data-cy="delete-menu-item"]').click();
+
+    cy.contains('Delete KRO').should('be.visible');
   });
 });

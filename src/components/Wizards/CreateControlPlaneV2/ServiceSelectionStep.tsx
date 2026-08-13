@@ -11,7 +11,9 @@ import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
+import LogoKro from '../../../assets/images/logo-kro.svg';
 import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
+import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
 
 type ServiceKey = keyof ServiceSelection;
@@ -33,6 +35,8 @@ const SERVICES: ServiceDef[] = [
     logo: LogoEso,
     serviceName: 'external-secrets-operator',
   },
+  { key: 'ocm', labelKey: 'ServiceSelectionStep.ocm', logo: LogoOcm, serviceName: 'ocm' },
+  { key: 'kro', labelKey: 'ServiceSelectionStep.kro', logo: LogoKro, serviceName: 'kro' },
 ];
 
 interface ServiceSelectionStepProps {

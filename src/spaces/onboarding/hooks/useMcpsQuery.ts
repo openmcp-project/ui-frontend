@@ -99,6 +99,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
                     }
                   }
                   extraProviders {
+                    name
                     roleBindings {
                       roleRefs {
                         kind

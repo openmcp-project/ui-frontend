@@ -4,6 +4,8 @@ import { defineConfig as defineViteConfig } from 'vite';
 
 import react from '@vitejs/plugin-react';
 
+import { monacoWorkerAlias, monacoOptimizeDepsExclude } from './vite.monaco.js';
+
 const viteConfig = defineViteConfig({
   plugins: [react()],
   define: {
@@ -11,12 +13,11 @@ const viteConfig = defineViteConfig({
     global: 'globalThis',
   },
   resolve: {
-    alias: {
-      path: 'path-browserify',
-    },
+    alias: [{ find: 'path', replacement: 'path-browserify' }, monacoWorkerAlias],
   },
   optimizeDeps: {
     include: ['path-browserify'],
+    exclude: monacoOptimizeDepsExclude,
     rolldownOptions: {
       define: {
         global: 'globalThis',
