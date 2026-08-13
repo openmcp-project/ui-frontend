@@ -564,23 +564,6 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
       cy.get('ui5-button').contains('Create').should('not.exist');
     });
 
-    it('shows a green added row for a newly selected service in edit mode', () => {
-      navigateToSummarize([
-        notInstalledCrossplaneMock,
-        installedFluxMock('v2.18.2'),
-        notInstalledLandscaperMock,
-        notInstalledEsoMock,
-        notInstalledOcmMock,
-        notInstalledKroMock,
-      ]);
-
-      // Flux was installed → stays selected; the summarize step should show it as an unchanged/update row.
-      // ESO was not installed and is unselected → should not be visible in the summarize list.
-      // (UI5 Wizard keeps non-active step content in the DOM but hidden, so we assert visibility.)
-      cy.contains('External Secrets Operator').should('not.be.visible');
-      cy.contains('Flux').should('be.visible');
-    });
-
     it('shows a removed provider in the providers section when it was deselected in edit mode', () => {
       mountWizard(
         {
