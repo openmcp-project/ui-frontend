@@ -7,15 +7,6 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 CONTEXT="kind-headlamp-dev"
 NAMESPACE="headlamp"
 
-# @kinvolk/headlamp-plugin uses yargs which is incompatible with Node 26+.
-# Use nvm to pin to Node 22 for both plugin builds.
-BUILD_NODE_CMD="node"
-if command -v nvm &>/dev/null || [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
-  # shellcheck source=/dev/null
-  [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ] && source "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
-  BUILD_NODE_CMD="nvm exec 22"
-fi
-
 POD=$(kubectl --context "$CONTEXT" get pod -n "$NAMESPACE" -l app.kubernetes.io/name=headlamp -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 if [[ -z "$POD" ]]; then
   echo "error: no headlamp pod found in namespace '${NAMESPACE}' (context: ${CONTEXT})" >&2
@@ -24,7 +15,7 @@ if [[ -z "$POD" ]]; then
 fi
 
 echo "→ building crossplane plugin..."
-(cd "${ROOT_DIR}/../crossplane-headlamp-plugin" && $BUILD_NODE_CMD npm run build 2>&1 | tail -3)
+(cd "${ROOT_DIR}/../crossplane-headlamp-plugin" && npm run build 2>&1 | tail -3)
 
 echo "→ syncing to pod ${POD}:/headlamp/plugins/headlamp_crossplane/ ..."
 kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/headlamp_crossplane
@@ -33,7 +24,7 @@ kubectl --context "$CONTEXT" cp "${ROOT_DIR}/../crossplane-headlamp-plugin/packa
 echo "✓ crossplane plugin deployed"
 
 echo "→ building ocp plugin..."
-(cd "${ROOT_DIR}/../opencontrolplane-headlamp-plugin" && $BUILD_NODE_CMD npm run build 2>&1 | tail -3)
+(cd "${ROOT_DIR}/../opencontrolplane-headlamp-plugin" && npm run build 2>&1 | tail -3)
 
 echo "→ syncing to pod ${POD}:/headlamp/plugins/opencontrolplane/ ..."
 kubectl --context "$CONTEXT" exec -n "$NAMESPACE" "$POD" -- mkdir -p /headlamp/plugins/opencontrolplane

@@ -46,4 +46,3 @@ cypress/screenshots/
 
 # Local GraphQL schema introspection dump
 schema.introspection.json
-.claude/worktrees/
