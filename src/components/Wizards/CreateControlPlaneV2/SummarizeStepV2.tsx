@@ -1,24 +1,61 @@
-import { Grid, List, ListItemStandard } from '@ui5/webcomponents-react';
-import { useMemo } from 'react';
+import { Grid, Icon, List, ListItemStandard } from '@ui5/webcomponents-react';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
+import {
+  resolveServiceMutationAction,
+  ServiceMutationAction,
+} from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { parseResourceApiInfo } from '../../../utils/parseResourceApiInfo.ts';
 import { Resource } from '../../../utils/removeManagedFieldsAndFilterData.ts';
 import styles from '../CreateManagedControlPlane/SummarizeStep.module.css';
+import { YamlDiff } from '../CreateManagedControlPlane/YamlDiff.tsx';
 import YamlSummarize from '../CreateManagedControlPlane/YamlSummarize.tsx';
+
+interface InitialServiceState {
+  crossplane: boolean;
+  flux: boolean;
+  landscaper: boolean;
+  externalSecretsOperator: boolean;
+  ocm: boolean;
+  kro: boolean;
+}
+
+interface CrossplaneProviderSnapshot {
+  name: string;
+  version: string | null;
+}
 
 interface SummarizeStepProps {
   rawInput: McpV2Input;
-  isDefaultProviderEnabled?: boolean;
   services?: ServiceSelection;
+  isEditMode?: boolean;
+  originalYamlString?: string;
+  initialServices?: InitialServiceState;
+  initialCrossplaneProviders?: CrossplaneProviderSnapshot[];
 }
 
-export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
+function actionToClassName(action: ServiceMutationAction): string | undefined {
+  if (action === 'create') return styles.addedItem;
+  if (action === 'delete') return styles.removedItem;
+  return undefined;
+}
+
+function actionToIcon(action: ServiceMutationAction): string {
+  if (action === 'create') return 'add';
+  if (action === 'delete') return 'decline';
+  return 'feeder-arrow';
+}
+
+export const SummarizeStepV2: FC<SummarizeStepProps> = ({
   rawInput,
-  isDefaultProviderEnabled = true,
   services,
+  isEditMode = false,
+  originalYamlString = '',
+  initialServices,
+  initialCrossplaneProviders,
 }) => {
   const { t } = useTranslation();
 
@@ -30,25 +67,44 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
     };
   }, [rawInput]);
 
-  const defaultMembersHeaderText = isDefaultProviderEnabled
-    ? t('common.members')
-    : `${t('common.members')} ${t('IdentityProviders.disabledBadge')}`;
-
-  const selectedServices = useMemo(() => {
+  const serviceEntries = useMemo(() => {
     if (!services) return [];
-    return [
-      { key: 'crossplane', label: t('ServiceSelectionStep.crossplane'), entry: services.crossplane },
-      { key: 'flux', label: t('ServiceSelectionStep.flux'), entry: services.flux },
-      { key: 'landscaper', label: t('ServiceSelectionStep.landscaper'), entry: services.landscaper },
-      {
-        key: 'externalSecretsOperator',
-        label: t('ServiceSelectionStep.externalSecretsOperator'),
-        entry: services.externalSecretsOperator,
-      },
-      { key: 'ocm', label: t('ServiceSelectionStep.ocm'), entry: services.ocm },
-      { key: 'kro', label: t('ServiceSelectionStep.kro'), entry: services.kro },
-    ].filter((s) => s.entry?.selected);
-  }, [services, t]);
+
+    const defs = [
+      { key: 'crossplane' as const, label: t('ServiceSelectionStep.crossplane') },
+      { key: 'flux' as const, label: t('ServiceSelectionStep.flux') },
+      { key: 'landscaper' as const, label: t('ServiceSelectionStep.landscaper') },
+      { key: 'externalSecretsOperator' as const, label: t('ServiceSelectionStep.externalSecretsOperator') },
+      { key: 'ocm' as const, label: t('ServiceSelectionStep.ocm') },
+      { key: 'kro' as const, label: t('ServiceSelectionStep.kro') },
+    ];
+
+    return defs
+      .map(({ key, label }) => {
+        const entry = services[key];
+        const wasInstalled = initialServices?.[key] ?? false;
+        const isSelected = entry?.selected ?? false;
+        const action = resolveServiceMutationAction(isEditMode, wasInstalled, isSelected);
+        if (action === 'skip') return null;
+        return { key, label, entry, action };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
+  }, [services, initialServices, isEditMode, t]);
+
+  const crossplaneAction = useMemo(
+    () =>
+      resolveServiceMutationAction(isEditMode, initialServices?.crossplane ?? false, !!services?.crossplane?.selected),
+    [isEditMode, initialServices?.crossplane, services?.crossplane?.selected],
+  );
+
+  const showProviders =
+    crossplaneAction !== 'delete' && !!services?.crossplane?.selected && !!services.crossplane.providers?.length;
+
+  const removedProviders = useMemo(() => {
+    if (!isEditMode || !initialCrossplaneProviders || crossplaneAction === 'delete') return [];
+    const currentNames = new Set((services?.crossplane?.providers ?? []).map((p) => p.name));
+    return initialCrossplaneProviders.filter((p) => !currentNames.has(p.name));
+  }, [isEditMode, initialCrossplaneProviders, crossplaneAction, services?.crossplane?.providers]);
 
   return (
     <div className={styles.wrapper}>
@@ -59,7 +115,7 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
             <ListItemStandard text={t('common.namespace')} additionalText={rawInput.namespace} />
           </List>
           <br />
-          <List headerText={defaultMembersHeaderText}>
+          <List headerText={t('common.members')}>
             {rawInput.roleBindings
               .flatMap((rb) =>
                 rb.subjects.map((subject) => ({
@@ -96,42 +152,68 @@ export const SummarizeStepV2: React.FC<SummarizeStepProps> = ({
               </List>
             </div>
           ))}
-          {selectedServices.length > 0 && (
+          {serviceEntries.length > 0 && (
             <>
               <br />
-              <List headerText={t('ServiceSelectionStep.stepTitle')}>
-                {selectedServices.map(({ key, label, entry }) => (
-                  <ListItemStandard
-                    key={key}
-                    text={label}
-                    additionalText={entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
-                  />
+              <div className={styles.coloredList}>
+                <div className={styles.coloredListHeader}>{t('ServiceSelectionStep.stepTitle')}</div>
+                {serviceEntries.map(({ key, label, entry, action }) => (
+                  <div key={key} className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}>
+                    <Icon name={actionToIcon(action)} />
+                    <span className={styles.coloredListItemText}>{label}</span>
+                    <span className={styles.coloredListItemVersion}>
+                      {entry?.version || t('ServiceSelectionStep.versionPlaceholder')}
+                    </span>
+                  </div>
                 ))}
-              </List>
-              {!!services?.crossplane?.selected && services.crossplane.providers?.length ? (
+              </div>
+              {(showProviders || removedProviders.length > 0) && (
                 <>
                   <br />
-                  <List headerText={t('ComponentInstallDialog.providers')}>
-                    {services.crossplane.providers.map((provider) => (
-                      <ListItemStandard
-                        key={provider.name}
-                        text={provider.name}
-                        additionalText={provider.version || t('ServiceSelectionStep.versionPlaceholder')}
-                      />
+                  <div className={styles.coloredList}>
+                    <div className={styles.coloredListHeader}>{t('ComponentInstallDialog.providers')}</div>
+                    {(services?.crossplane?.providers ?? []).map((provider) => {
+                      const wasInstalled = initialCrossplaneProviders?.some((p) => p.name === provider.name) ?? false;
+                      const action = resolveServiceMutationAction(isEditMode, wasInstalled, true);
+                      return (
+                        <div
+                          key={provider.name}
+                          className={`${styles.coloredListItem} ${actionToClassName(action) ?? ''}`.trim()}
+                        >
+                          <Icon name={actionToIcon(action)} />
+                          <span className={styles.coloredListItemText}>{provider.name}</span>
+                          <span className={styles.coloredListItemVersion}>
+                            {provider.version || t('ServiceSelectionStep.versionPlaceholder')}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {removedProviders.map((p) => (
+                      <div key={`removed-${p.name}`} className={`${styles.coloredListItem} ${styles.removedItem}`}>
+                        <Icon name="decline" />
+                        <span className={styles.coloredListItemText}>{p.name}</span>
+                        <span className={styles.coloredListItemVersion}>
+                          {p.version || t('ServiceSelectionStep.versionPlaceholder')}
+                        </span>
+                      </div>
                     ))}
-                  </List>
+                  </div>
                 </>
-              ) : null}
+              )}
             </>
           )}
         </div>
         <div>
-          <YamlSummarize
-            yamlString={yamlString}
-            filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
-            apiVersion={apiVersion}
-            apiGroupName={apiGroupName}
-          />
+          {isEditMode ? (
+            <YamlDiff originalYaml={originalYamlString} modifiedYaml={yamlString} absolutePosition />
+          ) : (
+            <YamlSummarize
+              yamlString={yamlString}
+              filename={`mcp_${rawInput.namespace}_${rawInput.name}`}
+              apiVersion={apiVersion}
+              apiGroupName={apiGroupName}
+            />
+          )}
         </div>
       </Grid>
     </div>

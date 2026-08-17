@@ -19,6 +19,7 @@ import {
 } from '@ui5/webcomponents-react';
 
 import { Trans, useTranslation } from 'react-i18next';
+import { stringify } from 'yaml';
 import { APIError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { MCP_V2_DEFAULT_ROLE, Member } from '../../../lib/api/types/shared/members.ts';
@@ -46,6 +47,7 @@ import {
   buildRoleBindingsForProviderMembers,
   normalizeMcpV2Role,
 } from '../../../spaces/controlPlaneV2/helpers/buildRoleBindingsForProviderMembers.ts';
+import { buildMcpV2GraphQLInput } from '../../../spaces/controlPlaneV2/helpers/controlPlaneV2GraphQLInput.ts';
 import { extractMcpV2FormState } from '../../../spaces/controlPlaneV2/helpers/extractMcpV2FormState.ts';
 import { hasAssignedIamMember } from '../../../spaces/controlPlaneV2/helpers/hasAssignedIamMember.ts';
 import { useCreateControlPlaneV2GraphQL as _useCreateManagedControlPlaneV2GraphQL } from '../../../spaces/controlPlaneV2/hooks/useCreateControlPlaneV2GraphQL.ts';
@@ -152,7 +154,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const [selectedStep, setSelectedStep] = useState<WizardStepType>(initialSection ?? 'metadata');
   const [metadataFormKey, setMetadataFormKey] = useState(0);
   const [extraProviders, setExtraProviders] = useState<ExtraProviderMetadata[]>([]);
-  const [isDefaultProviderEnabled, setIsDefaultProviderEnabled] = useState(true);
 
   const normalizeChargingTargetType = useCallback((val?: string | null) => (val ?? '').trim().toLowerCase(), []);
   // Here we will use OnboardingAPI to get all available templates
@@ -262,7 +263,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setExtraProviders([]);
-      setIsDefaultProviderEnabled(true);
     }
     if (!isOpen) {
       clearFormFields();
@@ -354,14 +354,14 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   const members = useWatch({ control, name: 'members' });
 
   const hasNoAssignedMembers = useMemo(
-    () => !hasAssignedIamMember(members ?? [], extraProviders, isDefaultProviderEnabled),
-    [members, extraProviders, isDefaultProviderEnabled],
+    () => !hasAssignedIamMember(members ?? [], extraProviders),
+    [members, extraProviders],
   );
 
   const rawInput = useMemo<McpV2Input>(() => {
     const { finalName } = buildNameWithPrefixesAndSuffixes(name, displayName, templateAffixes);
     const defaultProviderMembers = (members ?? []).filter((m) => !m.provider);
-    const roleBindings = isDefaultProviderEnabled ? buildRoleBindingsForProviderMembers(defaultProviderMembers) : [];
+    const roleBindings = buildRoleBindingsForProviderMembers(defaultProviderMembers);
     const extraProvidersInput = extraProviders.map((p) => ({
       ...p,
       roleBindings: buildRoleBindingsForProviderMembers((members ?? []).filter((m) => m.provider === p.name)),
@@ -372,16 +372,43 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       roleBindings,
       extraProviders: extraProvidersInput,
     };
-  }, [
-    name,
-    displayName,
-    templateAffixes,
-    projectName,
-    workspaceName,
-    members,
-    extraProviders,
-    isDefaultProviderEnabled,
-  ]);
+  }, [name, displayName, templateAffixes, projectName, workspaceName, members, extraProviders]);
+
+  const originalYamlString = useMemo(() => {
+    if (!isEditMode || !initialData) return '';
+    const { members: initMembers, extraProviders: initExtraProviders } = extractMcpV2FormState(initialData);
+    const initDefaultMembers = initMembers.filter((m) => !m.provider);
+    const originalInput: McpV2Input = {
+      name: initialData.metadata.name,
+      namespace: initialData.metadata.namespace,
+      roleBindings: buildRoleBindingsForProviderMembers(initDefaultMembers),
+      extraProviders: initExtraProviders.map((p) => ({
+        ...p,
+        roleBindings: buildRoleBindingsForProviderMembers(initMembers.filter((m) => m.provider === p.name)),
+      })),
+    };
+    return stringify(buildMcpV2GraphQLInput(originalInput));
+  }, [isEditMode, initialData]);
+
+  const initialServices = useMemo(
+    () => ({
+      crossplane: !!crossplaneData?.isInstalled,
+      flux: !!fluxData?.isInstalled,
+      landscaper: !!landscaperData?.isInstalled,
+      externalSecretsOperator: !!esoData?.isInstalled,
+      ocm: !!ocmData?.isInstalled,
+      kro: !!kroData?.isInstalled,
+    }),
+    [crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData],
+  );
+
+  const initialCrossplaneProviders = useMemo(
+    () =>
+      (crossplaneData?.providers ?? [])
+        .filter((p): p is { name: string; version: string | null } => !!p.name)
+        .map((p) => ({ name: p.name, version: p.version ?? null })),
+    [crossplaneData],
+  );
 
   const handleCreateManagedControlPlane = useCallback(async (): Promise<boolean> => {
     try {
@@ -703,11 +730,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   // Prefill form when editing
   useEffect(() => {
     if (!isOpen || !initialData) return;
-    const {
-      members,
-      extraProviders: prefilledProviders,
-      isDefaultProviderEnabled: prefilledEnabled,
-    } = extractMcpV2FormState(initialData);
+    const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
     reset({
@@ -720,7 +743,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setExtraProviders(prefilledProviders);
-    setIsDefaultProviderEnabled(prefilledEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEditMode]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
@@ -880,13 +902,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             <IdentityProvidersStep
               members={members}
               providers={extraProviders}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
               isValidationError={!!errors.members}
               workspaceName={workspaceName}
               projectName={projectName}
               onMembersChange={setMembers}
               onProvidersChange={setExtraProviders}
-              onDefaultProviderEnabledChange={setIsDefaultProviderEnabled}
             />
           </WizardStep>
 
@@ -909,8 +929,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           >
             <SummarizeStepV2
               rawInput={rawInput}
-              isDefaultProviderEnabled={isDefaultProviderEnabled}
               services={services}
+              isEditMode={isEditMode}
+              originalYamlString={originalYamlString}
+              initialServices={isEditMode ? initialServices : undefined}
+              initialCrossplaneProviders={isEditMode ? initialCrossplaneProviders : undefined}
             />
           </WizardStep>
           <WizardStep

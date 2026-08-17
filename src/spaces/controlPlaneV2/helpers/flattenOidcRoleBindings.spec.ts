@@ -101,4 +101,11 @@ describe('flattenOidcRoleBindings', () => {
     });
     expect(result).toEqual([{ role: 'viewer', subjects: [], provider: undefined }]);
   });
+
+  it('returns an empty array when roleBindings contains only null entries', () => {
+    const result = flattenOidcRoleBindings({
+      defaultProvider: { roleBindings: [null, null] },
+    });
+    expect(result).toEqual([]);
+  });
 });
