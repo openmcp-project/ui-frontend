@@ -4,7 +4,7 @@ import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { Member, MemberRoles, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
+import { Member, MemberRoles, MemberRolesDetailed, memberRolesOptions } from '../../lib/api/types/shared/members.ts';
 import { useLink } from '../../lib/shared/useLink.ts';
 import { RadioButtonsSelect, RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
@@ -49,7 +49,17 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
     () => allowedAccountTypes.includes('Group') && !allowedAccountTypes.includes('ServiceAccount'),
     [allowedAccountTypes],
   );
-  const effectiveRoleOptions = roleOptions ?? memberRolesOptions;
+  const effectiveRoleOptions = useMemo((): RadioButtonsSelectOption[] => {
+    const base = roleOptions ?? memberRolesOptions;
+    if (!memberToEdit) return base;
+    const editedRole = memberToEdit.roles?.[0];
+    if (!editedRole || base.some((o) => o.value === editedRole)) return base;
+    // The member has a role that is no longer offered in the picker (e.g. 'viewer'
+    // is currently disabled). Append it as a read-only-looking option so the form
+    // pre-fills correctly instead of showing a blank selection.
+    const existing = MemberRolesDetailed[editedRole];
+    return [...base, { value: editedRole, label: existing?.displayValue ?? editedRole, disabled: true }];
+  }, [roleOptions, memberToEdit]);
   const effectiveDefaultRole = defaultRole ?? MemberRoles.view;
   const { t } = useTranslation();
   const isEdit = !!memberToEdit;
