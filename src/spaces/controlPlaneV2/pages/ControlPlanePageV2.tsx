@@ -34,6 +34,7 @@ import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -418,19 +419,7 @@ export default function ControlPlanePageV2() {
       ? (mcp.metadata.annotations as Record<string, string | undefined>)[DISPLAY_NAME_ANNOTATION]
       : undefined;
 
-  const roleBindings = useMemo(() => {
-    const oidc = mcp?.spec?.iam?.oidc;
-    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
-    return allProviders.flatMap((provider) =>
-      (provider?.roleBindings ?? []).flatMap((binding) => {
-        if (!binding) return [];
-        const subjects = (binding.subjects ?? []).flatMap((subject) =>
-          subject?.kind && subject?.name ? [{ kind: subject.kind, name: subject.name }] : [],
-        );
-        return (binding.roleRefs ?? []).flatMap((roleRef) => (roleRef?.name ? [{ role: roleRef.name, subjects }] : []));
-      }),
-    );
-  }, [mcp?.spec?.iam?.oidc]);
+  const roleBindings = useMemo(() => flattenOidcRoleBindings(mcp?.spec?.iam?.oidc), [mcp?.spec?.iam?.oidc]);
 
   const handleEditManagedControlPlaneWizardClose = () => {
     setIsEditManagedControlPlaneWizardOpen(false);
