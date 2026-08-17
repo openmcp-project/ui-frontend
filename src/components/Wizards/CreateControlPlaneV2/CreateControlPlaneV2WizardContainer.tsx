@@ -430,8 +430,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       externalSecretsOperator: !!esoData?.isInstalled,
       ocm: !!ocmData?.isInstalled,
       kro: !!kroData?.isInstalled,
+      metricsOperator: !!metricsOperatorData?.isInstalled,
     }),
-    [crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData],
+    [crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData, metricsOperatorData],
   );
 
   const initialCrossplaneProviders = useMemo(
