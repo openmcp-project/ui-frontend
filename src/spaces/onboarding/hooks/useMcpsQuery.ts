@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { type DocumentNode, NetworkStatus } from '@apollo/client';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { NetworkStatus } from '@apollo/client';
 import { useQuery, useSubscription } from '@apollo/client/react';
 import { z } from 'zod';
 
@@ -124,8 +124,6 @@ const GET_MCPS_LIST_QUERY = graphql(`
 `);
 
 // Minimal query — only name + annotations, used for search filtering on collapsed workspaces.
-// NOTE: After adding this query, run `npm run generate-graphql-types` to regenerate types.
-// Cast is needed until codegen registers this document; remove after running codegen.
 const GET_MCPS_NAMES_QUERY = graphql(`
   query GetMCPsNames($workspaceNamespace: String!) {
     core_openmcp_cloud {
@@ -155,7 +153,7 @@ const GET_MCPS_NAMES_QUERY = graphql(`
       }
     }
   }
-`) as unknown as DocumentNode;
+`)
 
 type V1Item = NonNullable<
   NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']
@@ -256,23 +254,29 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
     skip: skipAll || mode !== 'full' || !enableMcpV2 || !isReadyForSubscriptions,
   });
 
+  // Single debounce timer shared by both subscriptions — coalesces burst events from
+  // simultaneous v1 + v2 changes into one refetch instead of two.
+  const refetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleRefetch = useCallback(() => {
+    if (refetchTimerRef.current !== null) clearTimeout(refetchTimerRef.current);
+    refetchTimerRef.current = setTimeout(() => refetch(), 300);
+  }, [refetch]);
+
   useEffect(() => {
     if (!v1SubData?.core_openmcp_cloud_v1alpha1_managedcontrolplanes) return;
-    const timer = setTimeout(() => refetch(), 300);
-    return () => clearTimeout(timer);
-  }, [v1SubData, refetch]);
+    scheduleRefetch();
+  }, [v1SubData, scheduleRefetch]);
 
   useEffect(() => {
     if (!v2SubData?.core_open_control_plane_io_v2alpha1_controlplanes) return;
-    const timer = setTimeout(() => refetch(), 300);
-    return () => clearTimeout(timer);
-  }, [v2SubData, refetch]);
+    scheduleRefetch();
+  }, [v2SubData, scheduleRefetch]);
 
   const activeData = mode === 'full' ? queryResult.data : namesResult.data;
 
   // Both queries share the same nested structure; cast to the full type since V1Item/V2Item
   // fields missing from the names query are simply absent at runtime and handled by Zod parsing.
-  const typedData = activeData as typeof queryResult.data;
+  const typedData = activeData as unknown as typeof queryResult.data;
   const v1Items = typedData?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;
   const v2Items = typedData?.core_open_control_plane_io?.v2alpha1?.ControlPlanes?.items;
 
@@ -294,5 +298,6 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
     (mode === 'full' && queryResult.loading && queryResult.networkStatus === NetworkStatus.loading) ||
     (mode === 'minimal' && namesResult.loading && namesResult.networkStatus === NetworkStatus.loading);
 
-  return { data: controlPlanes, error: queryResult.error, isPending, isReadyForSubscriptions };
+  const activeError = mode === 'full' ? queryResult.error : namesResult.error;
+  return { data: controlPlanes, error: activeError, isPending, isReadyForSubscriptions };
 }

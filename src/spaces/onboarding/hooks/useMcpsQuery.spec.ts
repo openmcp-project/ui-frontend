@@ -334,4 +334,140 @@ describe('useMcpsQuery', () => {
 
     expect(result.current.data).toEqual([]);
   });
+
+  it('returns isReadyForSubscriptions as false before the first query resolves', () => {
+    useQueryMock.mockReturnValue({ ...baseQueryResult, data: undefined });
+
+    const { result } = renderHook(() => useMcpsQuery('ns'));
+
+    expect(result.current.isReadyForSubscriptions).toBe(false);
+  });
+
+  it('returns isReadyForSubscriptions as true once query data is available', () => {
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
+        core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items: [] } } },
+      },
+    } as ReturnType<typeof useQuery>);
+
+    const { result } = renderHook(() => useMcpsQuery('ns'));
+
+    expect(result.current.isReadyForSubscriptions).toBe(true);
+  });
+
+  it('refetches when the v1 subscription receives an event', () => {
+    vi.useFakeTimers();
+    const refetch = vi.fn();
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
+        core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items: [] } } },
+      },
+      refetch,
+    } as unknown as ReturnType<typeof useQuery>);
+    useSubscriptionMock
+      .mockReturnValueOnce({
+        data: { core_openmcp_cloud_v1alpha1_managedcontrolplanes: { type: 'MODIFIED' } },
+      } as ReturnType<typeof useSubscription>)
+      .mockReturnValueOnce({} as ReturnType<typeof useSubscription>);
+
+    renderHook(() => useMcpsQuery('ns'));
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('refetches when the v2 subscription receives an event', () => {
+    vi.useFakeTimers();
+    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false, showLandscaperCard: false });
+    const refetch = vi.fn();
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
+        core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items: [] } } },
+      },
+      refetch,
+    } as unknown as ReturnType<typeof useQuery>);
+    useSubscriptionMock
+      .mockReturnValueOnce({} as ReturnType<typeof useSubscription>)
+      .mockReturnValueOnce({
+        data: { core_open_control_plane_io_v2alpha1_controlplanes: { type: 'ADDED' } },
+      } as ReturnType<typeof useSubscription>);
+
+    renderHook(() => useMcpsQuery('ns'));
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('coalesces simultaneous v1 and v2 subscription events into a single refetch', () => {
+    vi.useFakeTimers();
+    useFeatureToggleMock.mockReturnValue({ enableMcpV2: true, markMcpV1asDeprecated: false, showLandscaperCard: false });
+    const refetch = vi.fn();
+    useQueryMock.mockReturnValue({
+      ...baseQueryResult,
+      data: {
+        core_openmcp_cloud: { v1alpha1: { ManagedControlPlanes: { items: [] } } },
+        core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items: [] } } },
+      },
+      refetch,
+    } as unknown as ReturnType<typeof useQuery>);
+    useSubscriptionMock
+      .mockReturnValueOnce({
+        data: { core_openmcp_cloud_v1alpha1_managedcontrolplanes: { type: 'MODIFIED' } },
+      } as ReturnType<typeof useSubscription>)
+      .mockReturnValueOnce({
+        data: { core_open_control_plane_io_v2alpha1_controlplanes: { type: 'MODIFIED' } },
+      } as ReturnType<typeof useSubscription>);
+
+    renderHook(() => useMcpsQuery('ns'));
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns data from the names query in minimal mode', () => {
+    useQueryMock
+      .mockReturnValueOnce(baseQueryResult)
+      .mockReturnValueOnce({
+        ...baseQueryResult,
+        data: {
+          core_openmcp_cloud: {
+            v1alpha1: {
+              ManagedControlPlanes: {
+                items: [{ metadata: { name: 'mcp-1', namespace: 'ns', annotations: {} } }],
+              },
+            },
+          },
+          core_open_control_plane_io: { v2alpha1: { ControlPlanes: { items: [] } } },
+        },
+      } as ReturnType<typeof useQuery>);
+
+    const { result } = renderHook(() => useMcpsQuery('ns', { mode: 'minimal' }));
+
+    expect(result.current.data).toHaveLength(1);
+    expect(result.current.data[0].metadata.name).toBe('mcp-1');
+  });
+
+  it('surfaces namesResult error in minimal mode', () => {
+    const namesError = {
+      name: 'ApolloError',
+      message: 'Names query failed',
+      networkError: null,
+    } as unknown as ReturnType<typeof useQuery>['error'];
+    useQueryMock
+      .mockReturnValueOnce(baseQueryResult)
+      .mockReturnValueOnce({ ...baseQueryResult, error: namesError } as ReturnType<typeof useQuery>);
+
+    const { result } = renderHook(() => useMcpsQuery('ns', { mode: 'minimal' }));
+
+    expect(result.current.error?.message).toBe('Names query failed');
+  });
 });

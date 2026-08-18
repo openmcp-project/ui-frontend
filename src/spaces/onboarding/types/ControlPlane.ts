@@ -46,7 +46,7 @@ const StatusSchema = z.object({
 const MetadataSchema = z.object({
   name: z.string(),
   namespace: z.string(),
-  creationTimestamp: z.string(),
+  creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
 });
 

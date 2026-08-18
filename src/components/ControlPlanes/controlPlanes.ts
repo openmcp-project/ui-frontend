@@ -2,8 +2,7 @@ import { ControlPlaneListItem } from '../../spaces/onboarding/types/ControlPlane
 
 export const canConnectToMCP = (controlPlane: ControlPlaneListItem): boolean => {
   if (controlPlane.version === 'v2') {
-    const phase = controlPlane.status?.phase ?? controlPlane.status?.status;
-    return phase === 'Ready';
+    return controlPlane.status?.status === 'Ready';
   }
 
   const conditions = controlPlane.status?.conditions ?? [];
