@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { NetworkStatus } from '@apollo/client';
+import { type DocumentNode, NetworkStatus } from '@apollo/client';
 import { useQuery, useSubscription } from '@apollo/client/react';
 import { z } from 'zod';
 
@@ -7,6 +7,8 @@ import { graphql } from '../../../types/__generated__/graphql';
 import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
+
+export type McpsQueryMode = 'full' | 'minimal' | 'skip';
 
 const GET_MCPS_LIST_QUERY = graphql(`
   query GetMCPsList($workspaceNamespace: String!) {
@@ -121,6 +123,40 @@ const GET_MCPS_LIST_QUERY = graphql(`
   }
 `);
 
+// Minimal query — only name + annotations, used for search filtering on collapsed workspaces.
+// NOTE: After adding this query, run `npm run generate-graphql-types` to regenerate types.
+// Cast is needed until codegen registers this document; remove after running codegen.
+const GET_MCPS_NAMES_QUERY = graphql(`
+  query GetMCPsNames($workspaceNamespace: String!) {
+    core_openmcp_cloud {
+      v1alpha1 {
+        ManagedControlPlanes(namespace: $workspaceNamespace) {
+          items {
+            metadata {
+              name
+              namespace
+              annotations
+            }
+          }
+        }
+      }
+    }
+    core_open_control_plane_io {
+      v2alpha1 {
+        ControlPlanes(namespace: $workspaceNamespace) {
+          items {
+            metadata {
+              name
+              namespace
+              annotations
+            }
+          }
+        }
+      }
+    }
+  }
+`) as unknown as DocumentNode;
+
 type V1Item = NonNullable<
   NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']
 >['ManagedControlPlanes']['items'][number];
@@ -185,12 +221,20 @@ const MCP_V2_SUBSCRIPTION = graphql(`
   }
 `);
 
-export function useMcpsQuery(workspaceNamespace?: string) {
+export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: McpsQueryMode }) {
   const { enableMcpV2 } = useFeatureToggle();
+  const mode = options?.mode ?? 'full';
+  const skipAll = !workspaceNamespace || mode === 'skip';
 
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
-    skip: !workspaceNamespace,
+    skip: skipAll || mode !== 'full',
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const namesResult = useQuery(GET_MCPS_NAMES_QUERY, {
+    variables: { workspaceNamespace: workspaceNamespace ?? '' },
+    skip: skipAll || mode !== 'minimal',
     notifyOnNetworkStatusChange: true,
   });
 
@@ -200,16 +244,16 @@ export function useMcpsQuery(workspaceNamespace?: string) {
   // HTTP/1.1 connection pool before the initial query can get a connection.
   // All workspaces expanding simultaneously would open 16+ SSE streams (8 × 2),
   // blocking GetMCPsList queries for ~30 s until streams timeout.
-  const isReadyForSubscriptions = queryResult.data !== undefined;
+  const isReadyForSubscriptions = mode === 'full' && queryResult.data !== undefined;
 
   const { data: v1SubData } = useSubscription(MCP_V1_SUBSCRIPTION, {
     variables: { namespace: workspaceNamespace ?? '' },
-    skip: !workspaceNamespace || !isReadyForSubscriptions,
+    skip: skipAll || mode !== 'full' || !isReadyForSubscriptions,
   });
 
   const { data: v2SubData } = useSubscription(MCP_V2_SUBSCRIPTION, {
     variables: { namespace: workspaceNamespace ?? '' },
-    skip: !workspaceNamespace || !enableMcpV2 || !isReadyForSubscriptions,
+    skip: skipAll || mode !== 'full' || !enableMcpV2 || !isReadyForSubscriptions,
   });
 
   useEffect(() => {
@@ -224,8 +268,13 @@ export function useMcpsQuery(workspaceNamespace?: string) {
     return () => clearTimeout(timer);
   }, [v2SubData, refetch]);
 
-  const v1Items = queryResult.data?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;
-  const v2Items = queryResult.data?.core_open_control_plane_io?.v2alpha1?.ControlPlanes?.items;
+  const activeData = mode === 'full' ? queryResult.data : namesResult.data;
+
+  // Both queries share the same nested structure; cast to the full type since V1Item/V2Item
+  // fields missing from the names query are simply absent at runtime and handled by Zod parsing.
+  const typedData = activeData as typeof queryResult.data;
+  const v1Items = typedData?.core_openmcp_cloud?.v1alpha1?.ManagedControlPlanes?.items;
+  const v2Items = typedData?.core_open_control_plane_io?.v2alpha1?.ControlPlanes?.items;
 
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);
@@ -241,7 +290,9 @@ export function useMcpsQuery(workspaceNamespace?: string) {
     });
   }, [v1Items, v2Items, enableMcpV2]);
 
-  const isPending = queryResult.loading && queryResult.networkStatus === NetworkStatus.loading;
+  const isPending =
+    (mode === 'full' && queryResult.loading && queryResult.networkStatus === NetworkStatus.loading) ||
+    (mode === 'minimal' && namesResult.loading && namesResult.networkStatus === NetworkStatus.loading);
 
   return { data: controlPlanes, error: queryResult.error, isPending, isReadyForSubscriptions };
 }
