@@ -3,14 +3,10 @@ import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
 import { Member } from '../../../lib/api/types/shared/members';
 import { useTranslation } from 'react-i18next';
-import {
-  CHARGING_TARGET_LABEL,
-  CHARGING_TARGET_TYPE_LABEL,
-  DISPLAY_NAME_ANNOTATION,
-} from '../../../lib/api/types/shared/keyNames';
+import { CHARGING_TARGET_LABEL, CHARGING_TARGET_TYPE_LABEL } from '../../../lib/api/types/shared/keyNames';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
-import { CreateProjectParams } from './useCreateProject';
+import { buildProjectAnnotations, CreateProjectParams } from './useCreateProject';
 
 const UpdateProjectMutation = graphql(`
   mutation UpdateProject($name: String!, $object: CoreOpenmcpCloudV1alpha1Project_Input!, $dryRun: Boolean) {
@@ -32,9 +28,7 @@ function buildUpdateProjectInput(params: CreateProjectParams): ProjectInput {
     kind: 'Project',
     metadata: {
       name: params.name,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',

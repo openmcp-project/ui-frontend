@@ -7,6 +7,10 @@ import {
   CHARGING_TARGET_LABEL,
   CHARGING_TARGET_TYPE_LABEL,
   DISPLAY_NAME_ANNOTATION,
+  SUPPORT_LANDSCAPE_ANNOTATION,
+  SUPPORT_OPS_CONTACTS_ANNOTATION,
+  SUPPORT_SECURITY_CONTACTS_ANNOTATION,
+  SUPPORT_SERVICE_IDS_ANNOTATION,
 } from '../../../lib/api/types/shared/keyNames';
 import { CoreOpenmcpCloudV1alpha1Project_Input as ProjectInput } from '../../../types/__generated__/graphql/graphql';
 import { graphql } from '../../../types/__generated__/graphql/index';
@@ -17,6 +21,20 @@ export interface CreateProjectParams {
   chargingTarget?: string;
   chargingTargetType?: string;
   members: Member[];
+  supportServiceIds?: string;
+  supportLandscape?: string;
+  supportSecurityContacts?: string;
+  supportOpsContacts?: string;
+}
+
+export function buildProjectAnnotations(params: CreateProjectParams): Record<string, string> {
+  return {
+    [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
+    [SUPPORT_SERVICE_IDS_ANNOTATION]: params.supportServiceIds ?? '',
+    [SUPPORT_LANDSCAPE_ANNOTATION]: params.supportLandscape ?? '',
+    [SUPPORT_SECURITY_CONTACTS_ANNOTATION]: params.supportSecurityContacts ?? '',
+    [SUPPORT_OPS_CONTACTS_ANNOTATION]: params.supportOpsContacts ?? '',
+  };
 }
 
 function buildProjectInput(params: CreateProjectParams): ProjectInput {
@@ -25,9 +43,7 @@ function buildProjectInput(params: CreateProjectParams): ProjectInput {
     kind: 'Project',
     metadata: {
       name: params.name,
-      annotations: {
-        [DISPLAY_NAME_ANNOTATION]: params.displayName ?? '',
-      },
+      annotations: buildProjectAnnotations(params),
       labels: {
         [CHARGING_TARGET_TYPE_LABEL]: params.chargingTargetType ?? '',
         [CHARGING_TARGET_LABEL]: params.chargingTarget ?? '',

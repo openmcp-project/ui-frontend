@@ -350,7 +350,8 @@
     "createdHeader": "Created",
     "namespaceHeader": "Namespace",
     "deleteConfirmationDialog": "Project deletion triggered. The list will refresh automatically once completed.",
-    "setDefaultProject": "Set selected project as default"
+    "setDefaultProject": "Set selected project as default",
+    "metadataHeader": "Support"
   },
   "ResourceSearchBar": {
     "placeholder": "Search"
@@ -716,5 +717,28 @@
       },
       "backToWorkspaces": "Back to Workspaces"
     }
+  },
+  "SupportInfo": {
+    "popoverTitle": "Support Annotations",
+    "popoverIntro": "This metadata helps organize projects and lets support engineers triage issues faster. No runtime impact.",
+    "wizardStepTitle": "Support Info",
+    "wizardIntro": "Optional metadata to help support engineers triage issues. No runtime impact.",
+    "unknown": "Unknown",
+    "pleaseSet": "n/a",
+    "purposeLabel": "Purpose",
+    "landscapeLabel": "Landscape",
+    "landscape": {
+      "production": "Production",
+      "validation": "Validation",
+      "testing": "Testing"
+    },
+    "serviceIds": "Service Reference",
+    "serviceIdsPlaceholder": "Enter an ID or name of service(s)/app(s)/landscape(s) this project empowers",
+    "contacts": "Contacts",
+    "contactsPlaceholder": "Enter e-mail address(es) of responsible contact(s)",
+    "contextSection": "Region & Service",
+    "securityContacts": "Security Contacts",
+    "opsContacts": "Ops Contacts",
+    "editButton": "Edit"
   }
 }
