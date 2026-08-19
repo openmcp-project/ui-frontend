@@ -3,7 +3,7 @@ import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoSearchResults.js';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
@@ -53,6 +53,17 @@ export default function ControlPlaneListAllWorkspaces({
     });
   }
 
+  const [forbiddenWorkspaces, setForbiddenWorkspaces] = useState<Set<string>>(new Set());
+
+  const handleForbiddenDetected = useCallback((workspaceName: string) => {
+    setForbiddenWorkspaces((prev) => {
+      if (prev.has(workspaceName)) return prev;
+      const next = new Set(prev);
+      next.add(workspaceName);
+      return next;
+    });
+  }, []);
+
   if (workspaces.length === 0) {
     return (
       <FlexBox direction="Column" alignItems="Center">
@@ -83,7 +94,10 @@ export default function ControlPlaneListAllWorkspaces({
           />
         </FlexBox>
       )}
-      {workspaces.map((workspace) => (
+      {[
+        ...workspaces.filter((ws) => !forbiddenWorkspaces.has(ws.metadata.name)),
+        ...workspaces.filter((ws) => forbiddenWorkspaces.has(ws.metadata.name)),
+      ].map((workspace) => (
         <ControlPlaneListWorkspaceGridTile
           key={`${projectName}-${workspace.metadata.name}`}
           projectName={projectName}
@@ -92,6 +106,7 @@ export default function ControlPlaneListAllWorkspaces({
           isExpanded={expandedWorkspaces.has(workspace.metadata.name)}
           useMcpsQuery={useMcpsQuery}
           useDeleteWorkspace={useDeleteWorkspace}
+          onForbiddenDetected={() => handleForbiddenDetected(workspace.metadata.name)}
           onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
           onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
         />
