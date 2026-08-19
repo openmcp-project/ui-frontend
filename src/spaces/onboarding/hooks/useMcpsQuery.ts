@@ -153,7 +153,7 @@ const GET_MCPS_NAMES_QUERY = graphql(`
       }
     }
   }
-`)
+`);
 
 type V1Item = NonNullable<
   NonNullable<GetMcPsListQuery['core_openmcp_cloud']>['v1alpha1']

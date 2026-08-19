@@ -191,7 +191,11 @@ describe('ConnectButton', () => {
       cy.mount(
         <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }])}>
           <MemoryRouter>
-            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+            <ConnectButton
+              {...defaultProps}
+              useNavigate={mockUseNavigate}
+              useTelemetry={mockUseTelemetryWith(trackSpy)}
+            />
           </MemoryRouter>
         </MockedProvider>,
       );
@@ -209,7 +213,11 @@ describe('ConnectButton', () => {
       cy.mount(
         <MockedProvider mocks={kubeconfigMock([{ user: 'custom-user' }])}>
           <MemoryRouter>
-            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+            <ConnectButton
+              {...defaultProps}
+              useNavigate={mockUseNavigate}
+              useTelemetry={mockUseTelemetryWith(trackSpy)}
+            />
           </MemoryRouter>
         </MockedProvider>,
       );
@@ -227,7 +235,11 @@ describe('ConnectButton', () => {
       cy.mount(
         <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }, { user: 'custom-user' }])}>
           <MemoryRouter>
-            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+            <ConnectButton
+              {...defaultProps}
+              useNavigate={mockUseNavigate}
+              useTelemetry={mockUseTelemetryWith(trackSpy)}
+            />
           </MemoryRouter>
         </MockedProvider>,
       );
