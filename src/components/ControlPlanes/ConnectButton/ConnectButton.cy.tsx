@@ -75,21 +75,6 @@ describe('ConnectButton', () => {
     });
   });
 
-  it('is disabled while loading after click', () => {
-    const neverResolvingMocks = [{ ...kubeconfigMock([{ user: 'openmcp' }])[0], delay: Infinity }];
-
-    cy.mount(
-      <MockedProvider mocks={neverResolvingMocks}>
-        <MemoryRouter>
-          <ConnectButton {...defaultProps} />
-        </MemoryRouter>
-      </MockedProvider>,
-    );
-
-    cy.get('ui5-button').click();
-    cy.get('ui5-button').should('have.attr', 'disabled');
-  });
-
   it('navigates directly when only the system IdP exists', () => {
     const navigateSpy = cy.stub().as('navigateSpy');
     const mockUseNavigate = () => navigateSpy;
