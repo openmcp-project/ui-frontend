@@ -1,9 +1,9 @@
+import { MockedProvider } from '@apollo/client/testing/react';
 import { MemoryRouter } from 'react-router-dom';
 import ConnectButton from './ConnectButton';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
+import { GET_KUBECONFIG_QUERY } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import '@ui5/webcomponents-cypress-commands';
-import { APIError } from '../../../lib/api/error.ts';
 
 const generateKubeconfigYaml = (contexts: { user: string }[]) => `
 apiVersion: v1
@@ -21,6 +21,26 @@ ${contexts
   .join('')}
 `;
 
+function kubeconfigMock(contexts: { user: string }[]) {
+  return [
+    {
+      request: {
+        query: GET_KUBECONFIG_QUERY,
+        variables: { kubeConfigName: 'my-secret', namespaceName: 'my-namespace' },
+      },
+      result: {
+        data: {
+          v1: {
+            Secret: {
+              data: { kubeconfig: btoa(generateKubeconfigYaml(contexts)) },
+            },
+          },
+        },
+      },
+    },
+  ];
+}
+
 describe('ConnectButton', () => {
   const defaultProps = {
     projectName: 'my-project',
@@ -31,63 +51,55 @@ describe('ConnectButton', () => {
     secretKey: 'kubeconfig',
   };
 
-  it('renders in disabled loading state', () => {
-    const useApiResourceMockLoading: typeof useApiResource = () => {
-      return {
-        data: undefined,
-        error: undefined,
-        isLoading: true, // < loading
-        isValidating: false,
-      };
-    };
+  it('is enabled on mount — does NOT fire GetKubeconfig until clicked', () => {
+    let requestCount = 0;
+    const mocks = kubeconfigMock([{ user: 'openmcp' }]).map((m) => ({
+      ...m,
+      result: () => {
+        requestCount++;
+        return m.result;
+      },
+    }));
 
     cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={useApiResourceMockLoading} />
-      </MemoryRouter>,
+      <MockedProvider mocks={mocks}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} />
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
+    cy.get('ui5-button').should('not.have.attr', 'disabled');
+    cy.wait(200).then(() => {
+      expect(requestCount).to.equal(0);
+    });
+  });
+
+  it('is disabled while loading after click', () => {
+    cy.mount(
+      <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }])}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} />
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+
+    cy.get('ui5-button').click();
     cy.get('ui5-button').should('have.attr', 'disabled');
   });
 
-  it('renders in error state', () => {
-    const fakeUseApiResourceError: typeof useApiResource = () => {
-      return {
-        data: undefined,
-        error: new APIError('Failed to load', 500), // < error
-        isLoading: false,
-        isValidating: false,
-      };
-    };
-
-    cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={fakeUseApiResourceError} />
-      </MemoryRouter>,
-    );
-
-    cy.get('ui5-button').should('have.attr', 'disabled');
-  });
-
-  it('renders direct navigation button when only the system IdP exists', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
-      return {
-        data: generateKubeconfigYaml([{ user: 'openmcp' }]), // < system IdP
-        error: undefined,
-        isLoading: false,
-      };
-    };
+  it('navigates directly when only the system IdP exists', () => {
     const navigateSpy = cy.stub().as('navigateSpy');
     const mockUseNavigate = () => navigateSpy;
 
     cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={fakeUseApiResourceSingle} useNavigate={mockUseNavigate} />
-      </MemoryRouter>,
+      <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }])}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} />
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
-    cy.get('ui5-button').should('not.have.attr', 'disabled');
     cy.get('ui5-button').click();
 
     cy.get('@navigateSpy').should('have.been.calledOnce');
@@ -97,25 +109,18 @@ describe('ConnectButton', () => {
     );
   });
 
-  it('renders direct navigation button when a single custom IdP exists', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
-      return {
-        data: generateKubeconfigYaml([{ user: 'custom-user' }]), // < single custom IdP
-        error: undefined,
-        isLoading: false,
-      };
-    };
+  it('navigates directly when a single custom IdP exists', () => {
     const navigateSpy = cy.stub().as('navigateSpy');
     const mockUseNavigate = () => navigateSpy;
 
     cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={fakeUseApiResourceSingle} useNavigate={mockUseNavigate} />
-      </MemoryRouter>,
+      <MockedProvider mocks={kubeconfigMock([{ user: 'custom-user' }])}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} />
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
-    cy.get('ui5-button').should('not.have.attr', 'disabled');
     cy.get('ui5-button').click();
 
     cy.get('@navigateSpy').should('have.been.calledOnce');
@@ -125,23 +130,16 @@ describe('ConnectButton', () => {
     );
   });
 
-  it('renders dropdown menu when multiple IdPs exist', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fakeUseApiResourceMultiple: typeof useApiResource = (): any => {
-      return {
-        data: generateKubeconfigYaml([{ user: 'openmcp' }, { user: 'custom-user' }]), // < system IdP + custom IdP
-        error: undefined,
-        isLoading: false,
-      };
-    };
-
+  it('shows a dropdown menu when multiple IdPs exist', () => {
     const navigateSpy = cy.stub().as('navigateSpy');
     const mockUseNavigate = () => navigateSpy;
 
     cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={fakeUseApiResourceMultiple} useNavigate={mockUseNavigate} />
-      </MemoryRouter>,
+      <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }, { user: 'custom-user' }])}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} />
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
     cy.get('ui5-button').click();
@@ -151,7 +149,6 @@ describe('ConnectButton', () => {
       cy.contains('custom-user').should('be.visible');
     });
 
-    // First item: default IdP
     cy.get('ui5-menu-item').eq(0).click();
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
@@ -159,10 +156,8 @@ describe('ConnectButton', () => {
       '/projects/my-project/workspaces/my-workspace/managedcontrolplane/my-mcp',
     );
 
-    // Reset spy for next assertion
     cy.get('@navigateSpy').invoke('resetHistory');
 
-    // Second item: custom IdP
     cy.get('ui5-button').click();
     cy.get('ui5-menu-item').eq(1).click();
     cy.get('@navigateSpy').should('have.been.calledOnce');
@@ -172,20 +167,13 @@ describe('ConnectButton', () => {
     );
   });
 
-  it('renders in disabled state when there are no IdPs', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const useApiResourceMockNoIdPs: typeof useApiResource = (): any => {
-      return {
-        data: generateKubeconfigYaml([]), // < no IdPs
-        error: undefined,
-        isLoading: false,
-      };
-    };
-
+  it('is disabled when required props are missing', () => {
     cy.mount(
-      <MemoryRouter>
-        <ConnectButton {...defaultProps} useApiResource={useApiResourceMockNoIdPs} />
-      </MemoryRouter>,
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <ConnectButton {...defaultProps} secretKey="" />
+        </MemoryRouter>
+      </MockedProvider>,
     );
 
     cy.get('ui5-button').should('have.attr', 'disabled');
@@ -197,26 +185,15 @@ describe('ConnectButton', () => {
     };
 
     it('tracks controlplane.connected with idp=system when connecting via system IdP', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
-        return {
-          data: generateKubeconfigYaml([{ user: 'openmcp' }]),
-          error: undefined,
-          isLoading: false,
-        };
-      };
       const trackSpy = cy.stub().as('trackSpy');
       const mockUseNavigate = () => cy.stub();
 
       cy.mount(
-        <MemoryRouter>
-          <ConnectButton
-            {...defaultProps}
-            useApiResource={fakeUseApiResourceSingle}
-            useNavigate={mockUseNavigate}
-            useTelemetry={mockUseTelemetryWith(trackSpy)}
-          />
-        </MemoryRouter>,
+        <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }])}>
+          <MemoryRouter>
+            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+          </MemoryRouter>
+        </MockedProvider>,
       );
 
       cy.get('ui5-button').click();
@@ -226,26 +203,15 @@ describe('ConnectButton', () => {
     });
 
     it('tracks controlplane.connected with idp=custom when connecting via custom IdP', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fakeUseApiResourceSingle: typeof useApiResource = (): any => {
-        return {
-          data: generateKubeconfigYaml([{ user: 'custom-user' }]),
-          error: undefined,
-          isLoading: false,
-        };
-      };
       const trackSpy = cy.stub().as('trackSpy');
       const mockUseNavigate = () => cy.stub();
 
       cy.mount(
-        <MemoryRouter>
-          <ConnectButton
-            {...defaultProps}
-            useApiResource={fakeUseApiResourceSingle}
-            useNavigate={mockUseNavigate}
-            useTelemetry={mockUseTelemetryWith(trackSpy)}
-          />
-        </MemoryRouter>,
+        <MockedProvider mocks={kubeconfigMock([{ user: 'custom-user' }])}>
+          <MemoryRouter>
+            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+          </MemoryRouter>
+        </MockedProvider>,
       );
 
       cy.get('ui5-button').click();
@@ -255,39 +221,24 @@ describe('ConnectButton', () => {
     });
 
     it('tracks the selected idp when picking from the menu with multiple IdPs', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fakeUseApiResourceMultiple: typeof useApiResource = (): any => {
-        return {
-          data: generateKubeconfigYaml([{ user: 'openmcp' }, { user: 'custom-user' }]),
-          error: undefined,
-          isLoading: false,
-        };
-      };
       const trackSpy = cy.stub().as('trackSpy');
       const mockUseNavigate = () => cy.stub();
 
       cy.mount(
-        <MemoryRouter>
-          <ConnectButton
-            {...defaultProps}
-            useApiResource={fakeUseApiResourceMultiple}
-            useNavigate={mockUseNavigate}
-            useTelemetry={mockUseTelemetryWith(trackSpy)}
-          />
-        </MemoryRouter>,
+        <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }, { user: 'custom-user' }])}>
+          <MemoryRouter>
+            <ConnectButton {...defaultProps} useNavigate={mockUseNavigate} useTelemetry={mockUseTelemetryWith(trackSpy)} />
+          </MemoryRouter>
+        </MockedProvider>,
       );
 
-      // Open menu and pick the system IdP
       cy.get('ui5-button').click();
       cy.get('ui5-menu-item').eq(0).click();
-
       cy.get('@trackSpy').should('have.been.calledOnce');
       cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
 
-      // Open menu again and pick the custom IdP
       cy.get('ui5-button').click();
       cy.get('ui5-menu-item').eq(1).click();
-
       cy.get('@trackSpy').should('have.been.calledTwice');
       cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
     });

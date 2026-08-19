@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../types/__generated__/graphql';
 
-const GET_KUBECONFIG_QUERY = graphql(`
+export const GET_KUBECONFIG_QUERY = graphql(`
   query GetKubeconfig($kubeConfigName: String!, $namespaceName: String) {
     v1 {
       Secret(name: $kubeConfigName, namespace: $namespaceName) {
@@ -19,6 +19,23 @@ const GET_KUBECONFIG_QUERY = graphql(`
 const KubeconfigDataSchema = z.record(z.string(), z.string());
 
 type KubeconfigData = z.infer<typeof KubeconfigDataSchema> | undefined;
+
+export function decodeKubeconfigYaml(rawData: unknown, secretKey: string): string | undefined {
+  if (!rawData) return undefined;
+  const result = KubeconfigDataSchema.safeParse(rawData);
+  if (!result.success) {
+    console.warn('[decodeKubeconfigYaml] Validation failed:', z.treeifyError(result.error));
+    return undefined;
+  }
+  const base64 = result.data[secretKey];
+  if (!base64) return undefined;
+  try {
+    return atob(base64);
+  } catch (error) {
+    console.warn(`[decodeKubeconfigYaml] Failed to decode secret value for key "${secretKey}"`, error);
+    return undefined;
+  }
+}
 
 export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: string, secretKey?: string) {
   const queryResult = useQuery(GET_KUBECONFIG_QUERY, {
