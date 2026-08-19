@@ -46,13 +46,33 @@ const StatusSchema = z.object({
 const MetadataSchema = z.object({
   name: z.string(),
   namespace: z.string(),
-  creationTimestamp: z.string(),
+  creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
 });
+
+const ComponentSchema = z.object({ __typename: z.string() }).nullish();
+
+const SpecComponentsSchema = z
+  .object({
+    crossplane: ComponentSchema,
+    flux: ComponentSchema,
+    landscaper: ComponentSchema,
+    kyverno: ComponentSchema,
+    externalSecretsOperator: ComponentSchema,
+    btpServiceOperator: ComponentSchema,
+  })
+  .nullish();
+
+const SpecSchema = z
+  .object({
+    components: SpecComponentsSchema,
+  })
+  .nullish();
 
 const ControlPlaneV1Schema = z.object({
   version: z.literal('v1'),
   metadata: MetadataSchema,
+  spec: SpecSchema,
   status: StatusSchema.nullish(),
 });
 

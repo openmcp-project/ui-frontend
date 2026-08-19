@@ -6,7 +6,9 @@ import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schem
 import { CreateManagedControlPlaneV2Mutation } from './useCreateControlPlaneV2Mutation.ts';
 
 export function useCreateControlPlaneV2GraphQL() {
-  const [createMutation, { loading, error }] = useMutation(CreateManagedControlPlaneV2Mutation);
+  const [createMutation, { loading, error }] = useMutation(CreateManagedControlPlaneV2Mutation, {
+    refetchQueries: ['GetMCPsList'],
+  });
 
   const createMcp = useCallback(
     async (rawInput: McpV2Input) => {

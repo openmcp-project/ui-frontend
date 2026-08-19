@@ -2,9 +2,9 @@ import { Button, Menu, MenuItem, MenuSeparator } from '@ui5/webcomponents-react'
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
-import { useConnectOptions, type ConnectOption } from './useConnectOptions.ts';
-import { useApiResource as _useApiResource } from '../../../lib/api/useApiResource.ts';
-import { GetKubeconfig } from '../../../lib/api/types/crate/getKubeconfig.ts';
+import { useLazyQuery } from '@apollo/client/react';
+import { buildConnectOptions, type ConnectOption } from './useConnectOptions.ts';
+import { GET_KUBECONFIG_QUERY, decodeKubeconfigYaml } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 interface ConnectButtonProps {
@@ -15,7 +15,6 @@ interface ConnectButtonProps {
   namespace: string;
   secretKey: string;
   disabled?: boolean;
-  useApiResource?: typeof _useApiResource;
   useNavigate?: typeof _useNavigate;
   useTelemetry?: typeof _useTelemetry;
 }
@@ -28,65 +27,52 @@ export default function ConnectButton({
   namespace,
   secretKey,
   disabled,
-  useApiResource = _useApiResource,
   useNavigate = _useNavigate,
   useTelemetry = _useTelemetry,
 }: ConnectButtonProps) {
   const navigate = useNavigate();
   const buttonId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [connectionTargets, setConnectionTargets] = useState<ConnectOption[]>([]);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
 
-  const skipFetch = !secretKey || !secretName || !namespace;
-
-  const {
-    data: kubeconfigResource,
-    error,
-    isLoading,
-  } = useApiResource(GetKubeconfig(secretKey, secretName, namespace), undefined, undefined, skipFetch);
-
-  const connectionTargets = useConnectOptions(kubeconfigResource, projectName, workspaceName, controlPlaneName);
+  const [fetchKubeconfig, { loading }] = useLazyQuery(GET_KUBECONFIG_QUERY);
 
   const connectTo = (target: ConnectOption) => {
     telemetry.track({ name: 'controlplane.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
     navigate(target.url);
   };
 
-  const handleMenuAction = (event: CustomEvent) => {
-    const { target } = event.detail.item.dataset;
-
-    if (target) {
-      const selected = connectionTargets.find((option) => option.url === target);
-      if (!selected) return;
-      connectTo(selected);
-      setIsMenuOpen(false);
+  const handleClick = () => {
+    if (connectionTargets.length > 1) {
+      setIsMenuOpen((prev) => !prev);
       return;
     }
+    void fetchKubeconfig({ variables: { kubeConfigName: secretName, namespaceName: namespace } }).then((result) => {
+      if (!result.data) return;
+      const kubeconfigYaml = decodeKubeconfigYaml(result.data.v1?.Secret?.data, secretKey);
+      const targets = buildConnectOptions(kubeconfigYaml, projectName, workspaceName, controlPlaneName);
+
+      if (targets.length === 1) {
+        connectTo(targets[0]);
+      } else if (targets.length > 1) {
+        setConnectionTargets(targets);
+        setIsMenuOpen(true);
+      }
+    });
   };
 
-  if (isLoading || error || connectionTargets.length === 0) {
-    return (
-      <Button data-testid="connect-button" design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
-        {t('ConnectButton.buttonText')}
-      </Button>
-    );
-  }
+  const handleMenuAction = (event: CustomEvent) => {
+    const { target } = event.detail.item.dataset;
+    if (!target) return;
+    const selected = connectionTargets.find((option) => option.url === target);
+    if (!selected) return;
+    connectTo(selected);
+    setIsMenuOpen(false);
+  };
 
-  if (connectionTargets.length === 1) {
-    const directTarget = connectionTargets[0];
-    return (
-      <Button
-        data-testid="connect-button"
-        design="Emphasized"
-        endIcon="navigation-right-arrow"
-        disabled={disabled}
-        onClick={() => connectTo(directTarget)}
-      >
-        {t('ConnectButton.buttonText')}
-      </Button>
-    );
-  }
+  const isDisabled = disabled || loading || !secretKey || !secretName || !namespace;
 
   return (
     <div>
@@ -94,35 +80,37 @@ export default function ConnectButton({
         data-testid="connect-button"
         design="Emphasized"
         id={buttonId}
-        disabled={disabled}
-        endIcon="slim-arrow-down"
-        onClick={() => setIsMenuOpen((prev) => !prev)}
+        endIcon={connectionTargets.length > 1 ? 'slim-arrow-down' : 'navigation-right-arrow'}
+        disabled={isDisabled}
+        onClick={handleClick}
       >
         {t('ConnectButton.buttonText')}
       </Button>
-      <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
-        {connectionTargets
-          .filter((t) => t.isSystemIdP)
-          .map((target) => (
-            <MenuItem
-              key={target.name}
-              text={target.user}
-              data-target={target.url}
-              additionalText={t('ConnectButton.defaultIdP')}
-            />
-          ))}
-        {connectionTargets.some((t) => !t.isSystemIdP) && <MenuSeparator />}
-        {connectionTargets
-          .filter((t) => !t.isSystemIdP)
-          .map((target) => (
-            <MenuItem
-              key={target.name}
-              text={target.user}
-              data-target={target.url}
-              additionalText={t('ConnectButton.customIdP')}
-            />
-          ))}
-      </Menu>
+      {connectionTargets.length > 1 && (
+        <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
+          {connectionTargets
+            .filter((target) => target.isSystemIdP)
+            .map((target) => (
+              <MenuItem
+                key={target.name}
+                text={target.user}
+                data-target={target.url}
+                additionalText={t('ConnectButton.defaultIdP')}
+              />
+            ))}
+          {connectionTargets.some((target) => !target.isSystemIdP) && <MenuSeparator />}
+          {connectionTargets
+            .filter((target) => !target.isSystemIdP)
+            .map((target) => (
+              <MenuItem
+                key={target.name}
+                text={target.user}
+                data-target={target.url}
+                additionalText={t('ConnectButton.customIdP')}
+              />
+            ))}
+        </Menu>
+      )}
     </div>
   );
 }
