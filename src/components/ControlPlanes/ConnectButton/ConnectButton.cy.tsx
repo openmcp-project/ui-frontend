@@ -76,8 +76,10 @@ describe('ConnectButton', () => {
   });
 
   it('is disabled while loading after click', () => {
+    const neverResolvingMocks = [{ ...kubeconfigMock([{ user: 'openmcp' }])[0], delay: Infinity }];
+
     cy.mount(
-      <MockedProvider mocks={kubeconfigMock([{ user: 'openmcp' }])}>
+      <MockedProvider mocks={neverResolvingMocks}>
         <MemoryRouter>
           <ConnectButton {...defaultProps} />
         </MemoryRouter>
