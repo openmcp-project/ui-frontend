@@ -9,6 +9,7 @@ import { useFluxYamlQuery } from '../../spaces/mcp/hooks/useFluxYamlQuery.ts';
 import { useKroYamlQuery } from '../../spaces/mcp/hooks/useKroYamlQuery.ts';
 import { useLandscaperYamlQuery } from '../../spaces/mcp/hooks/useLandscaperYamlQuery.ts';
 import { useOcmYamlQuery } from '../../spaces/mcp/hooks/useOcmYamlQuery.ts';
+import { useMetricsOperatorYamlQuery } from '../../spaces/mcp/hooks/useMetricsOperatorYamlQuery.ts';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 import { buildYamlFilename } from './buildYamlFilename.ts';
 import { YamlSidePanel } from './YamlSidePanel.tsx';
@@ -27,7 +28,7 @@ export function YamlSidePanelWithGraphqlLoader({
 }: YamlSidePanelWithGraphqlLoaderProps) {
   const { t } = useTranslation();
 
-  // All six hooks are called unconditionally (rules of hooks); exactly one
+  // All seven hooks are called unconditionally (rules of hooks); exactly one
   // is not skipped, so only one network request actually fires.
   const crossplane = useCrossplaneYamlQuery(mcpName, mcpNamespace, component !== 'crossplane');
   const flux = useFluxYamlQuery(mcpName, mcpNamespace, component !== 'flux');
@@ -35,8 +36,17 @@ export function YamlSidePanelWithGraphqlLoader({
   const eso = useEsoYamlQuery(mcpName, mcpNamespace, component !== 'eso');
   const ocm = useOcmYamlQuery(mcpName, mcpNamespace, component !== 'ocm');
   const kro = useKroYamlQuery(mcpName, mcpNamespace, component !== 'kro');
+  const metricsOperator = useMetricsOperatorYamlQuery(mcpName, mcpNamespace, component !== 'metrics-operator');
 
-  const { yaml, isLoading, error } = { crossplane, flux, landscaper, eso, ocm, kro }[component];
+  const { yaml, isLoading, error } = {
+    crossplane,
+    flux,
+    landscaper,
+    eso,
+    ocm,
+    kro,
+    'metrics-operator': metricsOperator,
+  }[component];
 
   if (isLoading) return <Loading />;
   if (error || !yaml) return <IllustratedError details={t('common.cannotLoadData')} />;

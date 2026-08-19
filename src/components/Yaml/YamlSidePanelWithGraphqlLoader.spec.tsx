@@ -8,6 +8,7 @@ import { useLandscaperYamlQuery } from '../../spaces/mcp/hooks/useLandscaperYaml
 import { useEsoYamlQuery } from '../../spaces/mcp/hooks/useEsoYamlQuery.ts';
 import { useOcmYamlQuery } from '../../spaces/mcp/hooks/useOcmYamlQuery.ts';
 import { useKroYamlQuery } from '../../spaces/mcp/hooks/useKroYamlQuery.ts';
+import { useMetricsOperatorYamlQuery } from '../../spaces/mcp/hooks/useMetricsOperatorYamlQuery.ts';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -18,6 +19,7 @@ vi.mock('../../spaces/mcp/hooks/useLandscaperYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useEsoYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useOcmYamlQuery.ts');
 vi.mock('../../spaces/mcp/hooks/useKroYamlQuery.ts');
+vi.mock('../../spaces/mcp/hooks/useMetricsOperatorYamlQuery.ts');
 vi.mock('../Shared/Loading.tsx', () => ({
   default: () => <div data-testid="loading" />,
 }));
@@ -40,6 +42,7 @@ const useLandscaperYamlQueryMock = vi.mocked(useLandscaperYamlQuery);
 const useEsoYamlQueryMock = vi.mocked(useEsoYamlQuery);
 const useOcmYamlQueryMock = vi.mocked(useOcmYamlQuery);
 const useKroYamlQueryMock = vi.mocked(useKroYamlQuery);
+const useMetricsOperatorYamlQueryMock = vi.mocked(useMetricsOperatorYamlQuery);
 
 describe('YamlSidePanelWithGraphqlLoader', () => {
   beforeEach(() => {
@@ -49,13 +52,14 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
     useEsoYamlQueryMock.mockReturnValue(idle);
     useOcmYamlQueryMock.mockReturnValue(idle);
     useKroYamlQueryMock.mockReturnValue(idle);
+    useMetricsOperatorYamlQueryMock.mockReturnValue(idle);
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  it('skips the five non-matching hooks for the selected component', () => {
+  it('skips the six non-matching hooks for the selected component', () => {
     render(<YamlSidePanelWithGraphqlLoader component="crossplane" mcpName="my-mcp" mcpNamespace="my-ns" />);
 
     expect(useCrossplaneYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', false);
@@ -64,6 +68,7 @@ describe('YamlSidePanelWithGraphqlLoader', () => {
     expect(useEsoYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
     expect(useOcmYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
     expect(useKroYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
+    expect(useMetricsOperatorYamlQueryMock).toHaveBeenCalledWith('my-mcp', 'my-ns', true);
   });
 
   it('renders a loading state while the query is in flight', () => {

@@ -69,6 +69,7 @@ export const ServiceSelectionSchema = z.object({
   externalSecretsOperator: ServiceEntrySchema.optional(),
   ocm: ServiceEntrySchema.optional(),
   kro: ServiceEntrySchema.optional(),
+  metricsOperator: ServiceEntrySchema.optional(),
 });
 
 export type ServiceSelection = z.infer<typeof ServiceSelectionSchema>;
