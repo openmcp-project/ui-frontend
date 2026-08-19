@@ -87,6 +87,12 @@ const MOCK_MANAGED_SERVICE: ManagedServiceResource = {
         versions: [{ version: 'v0.3.0' }],
       },
       {
+        name: 'metrics-operator',
+        kind: 'MetricsOperator',
+        apiVersion: 'metrics.services.open-control-plane.io/v1alpha1',
+        versions: [{ version: 'v0.1.0' }],
+      },
+      {
         name: 'velero',
         kind: 'Velero',
         apiVersion: 'velero.services.open-control-plane.io/v1alpha1',

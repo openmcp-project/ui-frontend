@@ -15,7 +15,7 @@ import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import styles from './YamlViewButton.module.css';
 
-export type McpComponentKind = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro';
+export type McpComponentKind = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro' | 'metrics-operator';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';

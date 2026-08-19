@@ -21,6 +21,7 @@ interface InitialServiceState {
   externalSecretsOperator: boolean;
   ocm: boolean;
   kro: boolean;
+  metricsOperator: boolean;
 }
 
 interface CrossplaneProviderSnapshot {
@@ -77,6 +78,7 @@ export const SummarizeStepV2: FC<SummarizeStepProps> = ({
       { key: 'externalSecretsOperator' as const, label: t('ServiceSelectionStep.externalSecretsOperator') },
       { key: 'ocm' as const, label: t('ServiceSelectionStep.ocm') },
       { key: 'kro' as const, label: t('ServiceSelectionStep.kro') },
+      { key: 'metricsOperator' as const, label: t('ServiceSelectionStep.metricsOperator') },
     ];
 
     return defs
