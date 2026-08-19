@@ -21,7 +21,7 @@ const workspace: Workspace = {
     namespace: 'project-webapp-playground--ws-workspaceName',
     annotations: {},
   },
-  spec: { members: [] },
+  spec: { members: [{ kind: 'User', name: 'test@example.com', roles: ['admin'] }] },
   status: { namespace: 'project-webapp-playground--ws-workspaceName' },
 };
 
@@ -57,6 +57,15 @@ const fakeManagedControlPlanes: ControlPlaneListItem[] = [
     status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
   },
 ];
+
+const fakeUseAuthOnboarding: typeof useAuthOnboarding = () => ({
+  user: { sub: 'u0', email: 'test@example.com' },
+  isPending: false,
+  isAuthenticated: true,
+  error: null,
+  login: cy.stub() as never,
+  logout: cy.stub() as never,
+});
 
 const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
   data: fakeManagedControlPlanes,
@@ -103,6 +112,7 @@ function mountTile({
                 isExpanded={isExpanded}
                 useMcpsQuery={fakeUseMCPsListQuery}
                 useDeleteWorkspace={deleteWorkspace}
+                useAuthOnboardingHook={fakeUseAuthOnboarding}
                 onToggleExpanded={onToggle}
               />
             </FeatureToggleProvider>
@@ -254,7 +264,10 @@ describe('ControlPlaneListWorkspaceGridTile — access control', () => {
     mountAccessTile({ useAuthOnboardingHook: nonMemberUser });
 
     cy.get('[id^="forbidden-btn"]').should('exist');
-    cy.get('[data-testid="workspace-panel-workspaceName"]').find('button[aria-expanded]').should('not.exist');
+    cy.get('[data-testid="workspace-panel-workspaceName"]')
+      .find('button[aria-expanded]')
+      .not('[id^="forbidden-btn"]')
+      .should('not.exist');
   });
 
   it('opens a popover with the permission error message when locked icon is clicked', () => {

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
 
@@ -17,6 +18,7 @@ interface Props {
   search?: string;
   expandedWorkspaces: Set<string>;
   onToggleWorkspace: (workspaceName: string) => void;
+  useAuthOnboardingHook?: typeof useAuthOnboarding;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
 }
@@ -27,6 +29,7 @@ export default function ControlPlaneListAllWorkspaces({
   search = '',
   expandedWorkspaces,
   onToggleWorkspace,
+  useAuthOnboardingHook = useAuthOnboarding,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
 }: Props) {
@@ -104,6 +107,7 @@ export default function ControlPlaneListAllWorkspaces({
           workspace={workspace}
           search={search}
           isExpanded={expandedWorkspaces.has(workspace.metadata.name)}
+          useAuthOnboardingHook={useAuthOnboardingHook}
           useMcpsQuery={useMcpsQuery}
           useDeleteWorkspace={useDeleteWorkspace}
           onForbiddenDetected={() => handleForbiddenDetected(workspace.metadata.name)}
