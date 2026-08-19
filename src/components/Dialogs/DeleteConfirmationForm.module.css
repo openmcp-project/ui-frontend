@@ -1,20 +1,46 @@
 .dialogContent {
   display: flex;
   flex-direction: column;
-  margin-block-end: 1rem;
-  align-items: flex-start;
+  gap: 0.75rem;
+  margin-block-end: 0.5rem;
 }
 
 .message {
   color: var(--sapContent_LabelColor);
+  line-height: 1.5;
+}
+
+.nameChip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem 0.5rem 0.875rem;
+  background: var(--sapNeutralBackground);
+  border: 1px solid var(--sapNeutralBorderColor);
+  border-radius: var(--sapElement_BorderCornerRadius);
+  min-width: 0;
+}
+
+.nameText {
+  font-family: var(--sapFontFamily);
+  font-size: var(--sapFontSize);
+  font-weight: 600;
+  color: var(--sapTextColor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .confirmLabel {
-  margin-block-start: 1rem;
-  font-weight: bold;
+  color: var(--sapContent_LabelColor);
+  font-size: var(--sapFontSmallSize);
 }
 
 .confirmationInput {
   width: 100%;
 }
+
 

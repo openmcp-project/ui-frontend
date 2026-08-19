@@ -115,7 +115,7 @@
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "permissionErrorMessageSubtitle": "Ask a workspace or project admin to grant you access.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
@@ -244,8 +244,9 @@
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
-    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
-    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
+    "deleteMessage": "You are about to delete the resource",
+    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below",
+    "typeToConfirm": "Type the name to confirm"
   },
   "Loading": {
     "title": "Getting Ready",
