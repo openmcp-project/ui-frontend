@@ -76,7 +76,7 @@ export function useKubeconfigQuery(kubeConfigName?: string, namespaceName?: stri
       });
       return undefined;
     }
-  }, [data, secretKey]);
+  }, [data, secretKey, telemetry]);
 
   return {
     data,
