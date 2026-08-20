@@ -2,15 +2,19 @@ import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/IllustrationMessageType.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/locked.js';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { Button, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
-import { useEffect, useMemo, useState } from 'react';
+import { BusyIndicator, Button, FlexBox, Icon, ObjectPageSection, Popover, Title } from '@ui5/webcomponents-react';
+import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { isForbiddenError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
+import { MemberKind } from '../../../lib/api/types/shared/members.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
+import { useAuthOnboarding } from '../../../spaces/onboarding/auth/AuthContextOnboarding.tsx';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { McpsQueryMode, useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
@@ -36,10 +40,12 @@ interface Props {
   workspace: Workspace;
   search?: string;
   isExpanded?: boolean;
+  onForbiddenDetected?: () => void;
   onToggleExpanded?: () => void;
   onVisibilityChange?: (isVisible: boolean) => void;
-  useMcpsQuery?: typeof _useMcpsQuery;
+  useAuthOnboardingHook?: typeof useAuthOnboarding;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpsQuery?: typeof _useMcpsQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
@@ -47,10 +53,12 @@ export function ControlPlaneListWorkspaceGridTile({
   workspace,
   search = '',
   isExpanded,
+  onForbiddenDetected,
   onToggleExpanded,
   onVisibilityChange,
-  useMcpsQuery = _useMcpsQuery,
+  useAuthOnboardingHook = useAuthOnboarding,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpsQuery = _useMcpsQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
@@ -62,16 +70,37 @@ export function ControlPlaneListWorkspaceGridTile({
 
   const { t } = useTranslation();
   const { enableMcpV2 } = useFeatureToggle();
+  const { user, isPending: authPending } = useAuthOnboardingHook();
+
+  const isMember: boolean | null =
+    authPending || !user
+      ? null
+      : (workspace.spec.members ?? []).some(
+          (m) =>
+            m.kind.toLowerCase() === MemberKind.User.toLowerCase() && m.name.toLowerCase() === user.email.toLowerCase(),
+        );
 
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
-  const fetchMode: McpsQueryMode = isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
+  const fetchMode: McpsQueryMode =
+    isMember === false ? 'skip' : isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
   const {
     data: managedControlPlanes,
     error: cpsError,
     isPending,
   } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`, { mode: fetchMode });
+
+  const isForbidden = isMember === false || (!!cpsError && isForbiddenError(cpsError));
+  const [forbiddenPopoverOpen, setForbiddenPopoverOpen] = useState(false);
+  const forbiddenButtonId = `forbidden-btn-${workspaceName}`;
+
+  const hasFiredForbidden = useRef(false);
+  useEffect(() => {
+    if (!isForbidden || hasFiredForbidden.current) return;
+    hasFiredForbidden.current = true;
+    onForbiddenDetected?.();
+  }, [isForbidden, onForbiddenDetected]);
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
@@ -86,9 +115,8 @@ export function ControlPlaneListWorkspaceGridTile({
       : managedControlPlanes;
 
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
-  // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
-  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+  const shouldCollapsePanel = isForbidden || (query ? !(workspaceMatches || hasMcpMatch) : !isExpanded);
 
   useEffect(() => {
     onVisibilityChange?.(!hidden);
@@ -97,34 +125,21 @@ export function ControlPlaneListWorkspaceGridTile({
   const { deleteWorkspace } = useDeleteWorkspace(projectNamespace, workspaceName);
   const telemetry = useTelemetry();
   const { mcpCreationGuide } = useLink();
-  const errorView = createErrorView(cpsError);
+
+  const errorView = (() => {
+    if (!cpsError || isForbidden) return null;
+    return <IllustratedError title={t('ControlPlaneListWorkspaceGridTile.loadingErrorMessage')} />;
+  })();
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
-  }
-
-  function createErrorView(error: Error | undefined) {
-    if (error) {
-      if (isForbiddenError(error)) {
-        return (
-          <IllustratedError
-            title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
-            details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
-            compact={true}
-          />
-        );
-      } else {
-        return <IllustratedError title={t('ControlPlaneListWorkspaceGridTile.loadingErrorMessage')} />;
-      }
-    }
-    return null;
   }
 
   const uniqueMembers = useMemo(() => {
     const seenKeys = new Set<string>();
     const fallbackNamespace = workspace.status?.namespace ?? '';
 
-    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string }) => {
+    return (workspace.spec.members ?? []).filter((member: { name?: string; namespace?: string | null }) => {
       const memberNamespace = member?.namespace ?? fallbackNamespace;
       const memberName = String(member?.name ?? '')
         .trim()
@@ -150,31 +165,72 @@ export function ControlPlaneListWorkspaceGridTile({
       >
         <section className={styles.workspaceSection} data-testid={`workspace-panel-${workspaceName}`}>
           <div className={styles.workspaceHeader}>
-            <button
-              type="button"
-              className={styles.workspaceToggle}
-              aria-expanded={!shouldCollapsePanel}
-              onClick={onToggleExpanded}
-            >
-              <Icon
-                name="slim-arrow-right"
-                className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
-              />
-              <Icon name="product" className={styles.workspaceIcon} />
-              <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
-              <Title level="H3" className={styles.workspaceTitle}>
-                {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
-                {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
-              </Title>
-            </button>
+            {isForbidden ? (
+              <>
+                <button
+                  id={forbiddenButtonId}
+                  type="button"
+                  className={styles.workspaceToggle}
+                  aria-expanded={false}
+                  onClick={() => setForbiddenPopoverOpen((o) => !o)}
+                >
+                  <Icon name="locked" className={styles.workspaceIcon} />
+                  <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                  <Title level="H3" className={styles.workspaceTitle}>
+                    {showDisplayName ? workspaceDisplayName : workspaceName}
+                  </Title>
+                </button>
+                <Popover
+                  open={forbiddenPopoverOpen}
+                  opener={forbiddenButtonId}
+                  placement={PopoverPlacement.Bottom}
+                  onClose={() => setForbiddenPopoverOpen(false)}
+                >
+                  <div style={{ padding: '0.5rem 1rem' }}>
+                    <p>{t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}</p>
+                    <p style={{ color: 'var(--sapContent_LabelColor)', fontSize: '0.875rem' }}>
+                      {t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
+                    </p>
+                  </div>
+                </Popover>
+              </>
+            ) : isMember === null ? (
+              <div className={styles.workspaceToggle}>
+                <BusyIndicator active delay={0} size="S" />
+                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                <Title level="H3" className={styles.workspaceTitle}>
+                  {showDisplayName ? workspaceDisplayName : workspaceName}
+                </Title>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.workspaceToggle}
+                aria-expanded={!shouldCollapsePanel}
+                onClick={onToggleExpanded}
+              >
+                <Icon
+                  name="slim-arrow-right"
+                  className={`${styles.chevron} ${shouldCollapsePanel ? '' : styles.chevronOpen}`}
+                />
+                <Icon name="product" className={styles.workspaceIcon} />
+                <span className={`${styles.workspaceEyebrow} mono-font`}>{t('Entities.Workspace')} ·</span>
+                <Title level="H3" className={styles.workspaceTitle}>
+                  {showDisplayName ? workspaceDisplayName : workspaceName}{' '}
+                  {!isWorkspaceReady(workspace) ? '(Loading)' : ''}
+                </Title>
+              </button>
+            )}
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <MembersAvatarView
-              members={uniqueMembers}
-              project={projectName}
-              workspace={workspaceName}
-              source="workspace-grid"
-            />
+            {!shouldCollapsePanel && (
+              <MembersAvatarView
+                members={uniqueMembers}
+                project={projectName}
+                workspace={workspaceName}
+                source="workspace-grid"
+              />
+            )}
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               <YamlViewButton
                 variant="loader"
