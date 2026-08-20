@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { LandscaperData, LandscaperSchema } from '../../../mcp/types/Landscaper.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_LANDSCAPER_QUERY = graphql(`
   query GetLandscaper($name: String!, $namespace: String) {
@@ -33,6 +34,7 @@ const GET_LANDSCAPER_QUERY = graphql(`
 `);
 
 export function useLandscaperQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_LANDSCAPER_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -45,7 +47,10 @@ export function useLandscaperQuery(name?: string, namespace?: string) {
     if (!rawLandscaper) return null;
     const result = LandscaperSchema.safeParse(rawLandscaper);
     if (!result.success) {
-      console.warn('[useLandscaperQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid Landscaper data — schema mismatch',
+        context: { item: rawLandscaper, issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const { spec } = result.data;
@@ -54,7 +59,7 @@ export function useLandscaperQuery(name?: string, namespace?: string) {
       isInstalled: !!version,
       version,
     };
-  }, [rawLandscaper]);
+  }, [rawLandscaper, telemetry]);
 
   return {
     landscaperData,

@@ -8,5 +8,6 @@ export interface TelemetryUser {
 export interface Telemetry {
   track: (feature: TelemetryFeature) => void;
   report: (error: unknown, options?: { message?: string; context?: Record<string, unknown> }) => void;
+  breadcrumb: (message: string, options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }) => void;
   identify: (user: TelemetryUser | null) => void;
 }

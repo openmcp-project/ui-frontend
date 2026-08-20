@@ -21,6 +21,15 @@ export class SentryAdapter implements Telemetry {
     });
   }
 
+  breadcrumb(message: string, options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }): void {
+    Sentry.addBreadcrumb({
+      message,
+      level: options?.level ?? 'info',
+      category: 'diagnostic',
+      ...(options?.context !== undefined && { data: options.context }),
+    });
+  }
+
   identify(user: TelemetryUser | null): void {
     Sentry.setUser(user ? { id: user.id, ...(user.email !== undefined && { email: user.email }) } : null);
     Sentry.addBreadcrumb({
