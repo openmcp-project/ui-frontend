@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql';
 import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../../types/ControlPlane.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 export const GET_MCP_V2_QUERY = graphql(`
   query GetMCPv2($name: String!, $namespace: String) {
@@ -97,6 +98,7 @@ export const GET_MCP_V2_QUERY = graphql(`
 `);
 
 export function useControlPlaneV2Query(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_MCP_V2_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -110,11 +112,14 @@ export function useControlPlaneV2Query(name?: string, namespace?: string) {
     if (!rawItem) return undefined;
     const result = ManagedControlPlaneV2Schema.safeParse(rawItem);
     if (!result.success) {
-      console.warn('[useMcpV2Query] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid ManagedControlPlaneV2 data — schema mismatch',
+        context: { item: rawItem, issues: z.treeifyError(result.error) },
+      });
       return undefined;
     }
     return result.data;
-  }, [rawItem]);
+  }, [rawItem, telemetry]);
 
   return {
     data,

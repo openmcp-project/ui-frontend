@@ -8,6 +8,11 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 
 const baseQueryResult = {
@@ -47,6 +52,7 @@ describe('useCrossplaneQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useQueryMock.mockReturnValue(baseQueryResult);
+    reportMock.mockReset();
   });
 
   it('skips the query when name is undefined', () => {
@@ -122,16 +128,14 @@ describe('useCrossplaneQuery', () => {
     expect(result.current.isLoading).toBe(true);
   });
 
-  it('returns null crossplaneData and warns when Crossplane data fails schema validation', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('returns null crossplaneData and reports to telemetry when Crossplane data fails schema validation', () => {
     // metadata is required by CrossplaneSchema — omitting it triggers a validation failure
     useQueryMock.mockReturnValue(makeQueryResult({ kind: 'Crossplane', spec: { version: '1.14.0' } }));
 
     const { result } = renderHook(() => useCrossplaneQuery('my-cp', 'project-foo--ws-bar'));
 
     expect(result.current.crossplaneData).toBeNull();
-    expect(warnSpy).toHaveBeenCalledWith('[useCrossplaneQuery] Validation failed:', expect.anything());
-    warnSpy.mockRestore();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the Apollo error from the query result', () => {

@@ -1,14 +1,22 @@
-import { renderHook } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import { useConnectOptions } from './useConnectOptions';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { buildConnectOptions } from './buildConnectOptions';
 
-describe('useConnectOptions', () => {
+const reportMock = vi.fn();
+vi.mock('../../../lib/telemetry/telemetry.ts', () => ({
+  telemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
+describe('buildConnectOptions', () => {
   const PROJECT_NAME = 'test-project';
   const WORKSPACE_NAME = 'project-test-project--ws-test-workspace';
   const CONTROL_PLANE_NAME = 'test-mcp';
 
-  const renderTestHook = (kubeconfig: string | undefined) =>
-    renderHook(() => useConnectOptions(kubeconfig, PROJECT_NAME, WORKSPACE_NAME, CONTROL_PLANE_NAME));
+  const build = (kubeconfig: string | undefined) =>
+    buildConnectOptions(kubeconfig, PROJECT_NAME, WORKSPACE_NAME, CONTROL_PLANE_NAME);
+
+  beforeEach(() => {
+    reportMock.mockReset();
+  });
 
   it('should correctly parse system IdP (without custom IdPs)', () => {
     // ARRANGE
@@ -21,9 +29,7 @@ contexts:
 `;
 
     // ACT
-    const { result } = renderTestHook(kubeconfig);
-
-    const options = result.current;
+    const options = build(kubeconfig);
 
     // ASSERT
     expect(options).toHaveLength(1);
@@ -39,22 +45,16 @@ contexts:
   });
 
   it('should return an empty array when kubeconfig is undefined', () => {
-    // ACT
-    const { result } = renderTestHook(undefined);
-
-    // ASSERT
-    expect(result.current).toEqual([]);
+    // ACT & ASSERT
+    expect(build(undefined)).toEqual([]);
   });
 
   it('should return an empty array when kubeconfig is invalid YAML', () => {
     // ARRANGE
     const invalidYaml = 'invalid: yaml: : content';
 
-    // ACT
-    const { result } = renderTestHook(invalidYaml);
-
-    // ASSERT
-    expect(result.current).toEqual([]);
+    // ACT & ASSERT
+    expect(build(invalidYaml)).toEqual([]);
   });
 
   it('should correctly parse system IdP and custom IdPs and sort them correctly', () => {
@@ -74,9 +74,7 @@ contexts:
     `;
 
     // ACT
-    const { result } = renderTestHook(kubeconfig);
-
-    const options = result.current;
+    const options = build(kubeconfig);
 
     // ASSERT
     expect(options).toHaveLength(3);
@@ -113,13 +111,13 @@ contexts:
     `;
 
     // ACT
-    const { result } = renderTestHook(kubeconfig);
+    const options = build(kubeconfig);
 
     // ASSERT
-    expect(result.current).toHaveLength(1);
-    expect(result.current[0].isSystemIdP).toBe(false);
-    expect(result.current[0].user).toBe('custom-user');
-    expect(result.current[0].url).toBe(
+    expect(options).toHaveLength(1);
+    expect(options[0].isSystemIdP).toBe(false);
+    expect(options[0].user).toBe('custom-user');
+    expect(options[0].url).toBe(
       '/projects/test-project/workspaces/test-workspace/managedcontrolplane/test-mcp?idp=custom-user',
     );
   });
@@ -131,10 +129,7 @@ apiVersion: v1
 clusters: []
     `;
 
-    // ACT
-    const { result } = renderTestHook(kubeconfig);
-
-    // ASSERT
-    expect(result.current).toEqual([]);
+    // ACT & ASSERT
+    expect(build(kubeconfig)).toEqual([]);
   });
 });

@@ -8,6 +8,11 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 
 const baseQueryResult = {
@@ -40,6 +45,7 @@ describe('useKroQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useQueryMock.mockReturnValue(baseQueryResult);
+    reportMock.mockReset();
   });
 
   it('skips the query when name is undefined', () => {
@@ -123,5 +129,15 @@ describe('useKroQuery', () => {
 
     expect(result.current.error).toBe(apolloError);
     expect(result.current.kroData).toBeNull();
+  });
+
+  it('reports a schema mismatch to telemetry and returns null', () => {
+    // metadata.name is required by KroSchema — omitting metadata triggers a validation failure
+    useQueryMock.mockReturnValue(makeQueryResult({ spec: { version: '0.2.0' } }));
+
+    const { result } = renderHook(() => useKroQuery('my-cp', 'project-foo--ws-bar'));
+
+    expect(result.current.kroData).toBeNull();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 });

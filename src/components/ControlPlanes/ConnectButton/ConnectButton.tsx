@@ -3,7 +3,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { useLazyQuery } from '@apollo/client/react';
-import { buildConnectOptions, type ConnectOption } from './useConnectOptions.ts';
+import { buildConnectOptions, type ConnectOption } from './buildConnectOptions.ts';
 import { GET_KUBECONFIG_QUERY, decodeKubeconfigYaml } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
