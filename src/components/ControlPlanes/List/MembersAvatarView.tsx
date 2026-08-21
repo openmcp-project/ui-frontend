@@ -18,12 +18,7 @@ interface Props {
   maxWidth?: string;
 }
 
-export function MembersAvatarView({
-  members,
-  hideNamespaceColumn = false,
-  source,
-  maxWidth = '200px',
-}: Props) {
+export function MembersAvatarView({ members, hideNamespaceColumn = false, source, maxWidth = '200px' }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();

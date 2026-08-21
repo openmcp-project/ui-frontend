@@ -14,14 +14,7 @@ export function McpMembersAvatarView({ roleBindings, compact = false }: Props) {
   const { t } = useTranslation();
 
   if (compact) {
-    return (
-      <MembersAvatarView
-        members={members}
-        hideNamespaceColumn
-        source="controlplane-card"
-        maxWidth="7rem"
-      />
-    );
+    return <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-card" maxWidth="7rem" />;
   }
 
   return (
@@ -29,11 +22,7 @@ export function McpMembersAvatarView({ roleBindings, compact = false }: Props) {
       <Text className={styles.membersTitle}>
         {t('common.members')} ({members.length}):
       </Text>
-      <MembersAvatarView
-        members={members}
-        hideNamespaceColumn
-        source="controlplane-detail"
-      />
+      <MembersAvatarView members={members} hideNamespaceColumn source="controlplane-detail" />
     </FlexBox>
   );
 }
