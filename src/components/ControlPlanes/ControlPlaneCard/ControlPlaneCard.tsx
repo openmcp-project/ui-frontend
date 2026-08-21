@@ -285,6 +285,7 @@ export const ControlPlaneCard = ({
                 workspaceName={workspace.metadata.name ?? ''}
                 access={controlPlane.status?.access}
                 disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                loading={!controlPlane.status}
               />
             ) : (
               <ConnectButton

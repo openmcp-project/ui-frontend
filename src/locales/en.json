@@ -150,7 +150,9 @@
     "buttonText": "View",
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
-    "downloadKubeconfig": "Download Kubeconfig"
+    "downloadKubeconfig": "Download Kubeconfig",
+    "noContextsError": "No connection context found in kubeconfig",
+    "noAccessTitle": "No connection configured"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
