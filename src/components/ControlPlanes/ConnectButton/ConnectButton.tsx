@@ -6,6 +6,7 @@ import { useLazyQuery } from '@apollo/client/react';
 import { buildConnectOptions, type ConnectOption } from './useConnectOptions.ts';
 import { GET_KUBECONFIG_QUERY, decodeKubeconfigYaml } from '../../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { useToast } from '../../../context/ToastContext.tsx';
 
 interface ConnectButtonProps {
   projectName: string;
@@ -36,6 +37,7 @@ export default function ConnectButton({
   const [connectionTargets, setConnectionTargets] = useState<ConnectOption[]>([]);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
+  const toast = useToast();
 
   const [fetchKubeconfig, { loading }] = useLazyQuery(GET_KUBECONFIG_QUERY);
 
@@ -45,6 +47,10 @@ export default function ConnectButton({
   };
 
   const handleClick = () => {
+    if (connectionTargets.length === 1) {
+      connectTo(connectionTargets[0]);
+      return;
+    }
     if (connectionTargets.length > 1) {
       setIsMenuOpen((prev) => !prev);
       return;
@@ -54,9 +60,12 @@ export default function ConnectButton({
       const kubeconfigYaml = decodeKubeconfigYaml(result.data.v1?.Secret?.data, secretKey);
       const targets = buildConnectOptions(kubeconfigYaml, projectName, workspaceName, controlPlaneName);
 
-      if (targets.length === 1) {
+      if (targets.length === 0) {
+        toast.show(t('ConnectButton.noContextsError'));
+      } else if (targets.length === 1) {
+        setConnectionTargets(targets);
         connectTo(targets[0]);
-      } else if (targets.length > 1) {
+      } else {
         setConnectionTargets(targets);
         setIsMenuOpen(true);
       }
@@ -72,7 +81,7 @@ export default function ConnectButton({
     setIsMenuOpen(false);
   };
 
-  const isDisabled = disabled || loading || !secretKey || !secretName || !namespace;
+  const isDisabled = disabled || !secretKey || !secretName || !namespace;
 
   return (
     <div>
@@ -82,6 +91,7 @@ export default function ConnectButton({
         id={buttonId}
         endIcon={connectionTargets.length > 1 ? 'slim-arrow-down' : 'navigation-right-arrow'}
         disabled={isDisabled}
+        loading={loading}
         onClick={handleClick}
       >
         {t('ConnectButton.buttonText')}

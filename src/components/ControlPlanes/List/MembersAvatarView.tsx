@@ -1,7 +1,7 @@
 import { Avatar, AvatarGroup, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Member } from '../../../lib/api/types/shared/members';
 import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -12,27 +12,28 @@ import styles from './MembersAvatarView.module.css';
 type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
 
 interface Props {
-  project?: string;
-  workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
   source: MembersViewedSource;
   maxWidth?: string;
 }
 
-export function MembersAvatarView({
-  members,
-  project,
-  workspace,
-  hideNamespaceColumn = false,
-  source,
-  maxWidth = '200px',
-}: Props) {
+export function MembersAvatarView({ members, hideNamespaceColumn = false, source, maxWidth = '200px' }: Props) {
   const openerId = useId();
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
 
-  if (members.length === 0) return null;
+  const dedupedAvatarMembers = useMemo(() => {
+    const seen = new Set<string>();
+    return members.filter((member) => {
+      const k = `${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, [members]);
+
+  if (dedupedAvatarMembers.length === 0) return null;
 
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -47,9 +48,9 @@ export function MembersAvatarView({
           }
         }}
       >
-        {members.map((member) => (
+        {dedupedAvatarMembers.map((member) => (
           <Avatar
-            key={`${project}-${workspace}-${member.name}`}
+            key={`${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`}
             colorScheme={avatarColorSchemeForEmail(member.name)}
             initials={generateInitialsForEmail(member.name)}
             accessibleName={member.name}

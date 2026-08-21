@@ -68,12 +68,16 @@ export function useWorkspacesQuery(projectName?: string) {
   }, [subscriptionData, refetch]);
 
   const workspaces = useMemo<Workspace[]>(() => {
+    const seen = new Set<string>();
     return (query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items ?? []).flatMap((item) => {
       const result = WorkspaceSchema.safeParse(item);
       if (!result.success) {
         console.warn('Invalid workspace data:', z.treeifyError(result.error), item);
         return [];
       }
+      const key = `${result.data.metadata.namespace}/${result.data.metadata.name}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
       return [result.data];
     });
   }, [query.data?.core_openmcp_cloud?.v1alpha1?.Workspaces?.items]);
