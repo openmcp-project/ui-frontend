@@ -451,8 +451,6 @@ export default function ManagedControlPlanePage() {
                     />
                     <McpMembersAvatarView
                       roleBindings={mcp.spec?.authorization?.roleBindings}
-                      project={projectName}
-                      workspace={workspaceName}
                     />
                     {markMcpV1asDeprecated && (
                       <span className={styles.deprecatedWrapper}>

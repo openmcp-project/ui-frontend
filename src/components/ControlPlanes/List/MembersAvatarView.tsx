@@ -1,7 +1,7 @@
 import { Avatar, AvatarGroup, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Member } from '../../../lib/api/types/shared/members';
 import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
@@ -12,8 +12,6 @@ import styles from './MembersAvatarView.module.css';
 type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
 
 interface Props {
-  project?: string;
-  workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
   source: MembersViewedSource;
@@ -30,13 +28,15 @@ export function MembersAvatarView({
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
 
-  const seenAvatarKeys = new Set<string>();
-  const dedupedAvatarMembers = members.filter((member) => {
-    const k = `${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`;
-    if (seenAvatarKeys.has(k)) return false;
-    seenAvatarKeys.add(k);
-    return true;
-  });
+  const dedupedAvatarMembers = useMemo(() => {
+    const seen = new Set<string>();
+    return members.filter((member) => {
+      const k = `${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, [members]);
 
   if (dedupedAvatarMembers.length === 0) return null;
 

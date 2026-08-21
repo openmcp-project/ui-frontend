@@ -5,13 +5,11 @@ import { convertRoleBindingsToMembers } from '../../../utils/convertRoleBindings
 import styles from './McpMembersAvatarView.module.css';
 
 interface Props {
-  project?: string;
-  workspace?: string;
   roleBindings?: { role: string; subjects: { kind: string; name: string }[]; provider?: string }[];
   compact?: boolean;
 }
 
-export function McpMembersAvatarView({ roleBindings, project, workspace, compact = false }: Props) {
+export function McpMembersAvatarView({ roleBindings, compact = false }: Props) {
   const members = convertRoleBindingsToMembers(roleBindings);
   const { t } = useTranslation();
 
@@ -19,8 +17,6 @@ export function McpMembersAvatarView({ roleBindings, project, workspace, compact
     return (
       <MembersAvatarView
         members={members}
-        project={project}
-        workspace={workspace}
         hideNamespaceColumn
         source="controlplane-card"
         maxWidth="7rem"
@@ -35,8 +31,6 @@ export function McpMembersAvatarView({ roleBindings, project, workspace, compact
       </Text>
       <MembersAvatarView
         members={members}
-        project={project}
-        workspace={workspace}
         hideNamespaceColumn
         source="controlplane-detail"
       />

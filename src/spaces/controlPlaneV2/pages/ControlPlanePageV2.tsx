@@ -536,7 +536,7 @@ export default function ControlPlanePageV2() {
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
+                    <McpMembersAvatarView roleBindings={roleBindings} />
                   </FlexBox>
                 </ObjectPageHeader>
               }

@@ -56,6 +56,12 @@ export default function ConnectButtonV2({
   const directTarget = connectionTargets.length === 1 ? connectionTargets[0] : undefined;
   const hasTargets = connectionTargets.length > 0;
 
+  const handleClick = isMultiTarget
+    ? () => setIsMenuOpen((prev) => !prev)
+    : directTarget
+      ? () => connectTo(directTarget)
+      : undefined;
+
   return (
     <>
       <Button
@@ -66,13 +72,7 @@ export default function ConnectButtonV2({
         disabled={!hasTargets || !!disabled}
         loading={loading}
         title={!hasTargets && !loading ? t('ConnectButton.noAccessTitle') : undefined}
-        onClick={
-          isMultiTarget
-            ? () => setIsMenuOpen((prev) => !prev)
-            : directTarget
-              ? () => connectTo(directTarget)
-              : undefined
-        }
+        onClick={handleClick}
       >
         {t('ConnectButton.buttonText')}
       </Button>
