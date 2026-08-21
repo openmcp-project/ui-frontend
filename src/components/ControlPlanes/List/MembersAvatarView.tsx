@@ -22,8 +22,6 @@ interface Props {
 
 export function MembersAvatarView({
   members,
-  project,
-  workspace,
   hideNamespaceColumn = false,
   source,
   maxWidth = '200px',
@@ -32,7 +30,15 @@ export function MembersAvatarView({
   const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
 
-  if (members.length === 0) return null;
+  const seenAvatarKeys = new Set<string>();
+  const dedupedAvatarMembers = members.filter((member) => {
+    const k = `${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`;
+    if (seenAvatarKeys.has(k)) return false;
+    seenAvatarKeys.add(k);
+    return true;
+  });
+
+  if (dedupedAvatarMembers.length === 0) return null;
 
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center' }}>
@@ -47,9 +53,9 @@ export function MembersAvatarView({
           }
         }}
       >
-        {members.map((member) => (
+        {dedupedAvatarMembers.map((member) => (
           <Avatar
-            key={`${project}-${workspace}-${member.name}`}
+            key={`${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`}
             colorScheme={avatarColorSchemeForEmail(member.name)}
             initials={generateInitialsForEmail(member.name)}
             accessibleName={member.name}
