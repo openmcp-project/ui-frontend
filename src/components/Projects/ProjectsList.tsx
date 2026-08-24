@@ -17,7 +17,6 @@ import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import Loading from '../Shared/Loading.tsx';
 import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
@@ -259,16 +258,13 @@ export default function ProjectsList({
     [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
-  if (isLoading) {
-    return <Loading />;
-  }
   if (error) {
     return <IllustratedError details={error.message} />;
   }
 
   return (
     <FadeIn>
-      {data.length > 0 && (
+      {!isLoading && data.length > 0 && (
         <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       )}
       <div ref={tableContainerRef}>
@@ -284,6 +280,7 @@ export default function ProjectsList({
           className={styles.table}
           columns={columns}
           data={rows}
+          loading={isLoading}
           minRows={10}
         />
       </div>
