@@ -16,6 +16,7 @@ import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
 import LogoMetricsOperator from '../../../assets/images/logo-metrics.svg';
 import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
+import { ProviderRecommendations } from './ProviderRecommendations.tsx';
 
 type ServiceKey = keyof ServiceSelection;
 
@@ -147,6 +148,23 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     }
   }, [services, crossplaneProviders, onServicesChange]);
 
+  // Builds the flat list of selected service names to pass to the recommendations widget.
+  // Uses the serviceName field (e.g. "crossplane") as identifier since that matches
+  // what the support-dashboard stores in its association rules.
+  const selectedServiceNames = useMemo(
+    () => SERVICES.filter(({ key }) => services[key]?.selected).map(({ serviceName }) => serviceName),
+    [services],
+  );
+
+  // When the recommendations widget suggests a provider, select it exactly like clicking
+  // the checkbox would — reuse the existing toggle() function.
+  const handleAddRecommendedService = (providerName: string) => {
+    const match = SERVICES.find((s) => s.serviceName === providerName || s.key === providerName);
+    if (match && !services[match.key]?.selected) {
+      toggle(match.key, true);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
@@ -208,6 +226,10 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
           );
         })}
       </div>
+      <ProviderRecommendations
+        selectedServiceNames={selectedServiceNames}
+        onAddService={handleAddRecommendedService}
+      />
     </div>
   );
 }

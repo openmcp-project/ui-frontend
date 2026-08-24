@@ -54,6 +54,7 @@ const FrontendConfigSchema = z.object({
   githubBaseUrl: z.string(),
   landscape: z.optional(z.nativeEnum(Landscape)),
   mcp2DocsUrl: z.string().optional(),
+  supportDashboardUrl: z.string().optional(),
   featureToggles: z
     .object({
       markMcpV1asDeprecated: z.boolean().default(false),
