@@ -35,7 +35,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
     GetKubeconfig(secretKey, secretName, namespace),
     undefined,
     undefined,
-    !hasAccessInfo,
+    !hasAccessInfo || !menuIsOpen,
   );
 
   const handleOpenerClick = () => {

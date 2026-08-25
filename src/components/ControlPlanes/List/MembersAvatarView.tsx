@@ -1,13 +1,14 @@
 import { Avatar, AvatarGroup, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useId, useState } from 'react';
+import { lazy, Suspense, useId, useState } from 'react';
 import { Member } from '../../../lib/api/types/shared/members';
 import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
-import { MemberTable } from '../../Members/MemberTable.tsx';
 import styles from './MembersAvatarView.module.css';
+
+const MemberTable = lazy(() => import('../../Members/MemberTable.tsx').then((m) => ({ default: m.MemberTable })));
 
 type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
 
@@ -65,7 +66,9 @@ export function MembersAvatarView({
         onClose={() => setPopoverIsOpen(false)}
       >
         <div className={styles.content}>
-          <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+          <Suspense>
+            <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+          </Suspense>
         </div>
       </ResponsivePopover>
     </div>
