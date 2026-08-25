@@ -23,4 +23,6 @@ export class MatomoAdapter implements Telemetry {
       window._paq.push(['resetUserId']);
     }
   }
+
+  breadcrumb(_message: string, _options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }) { }
 }
