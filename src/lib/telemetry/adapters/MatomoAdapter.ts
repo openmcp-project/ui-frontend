@@ -24,5 +24,5 @@ export class MatomoAdapter implements Telemetry {
     }
   }
 
-  breadcrumb(_message: string, _options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }) { }
+  breadcrumb(_message: string, _options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }) {}
 }
