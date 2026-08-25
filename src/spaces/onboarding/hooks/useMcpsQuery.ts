@@ -7,6 +7,7 @@ import { graphql } from '../../../types/__generated__/graphql';
 import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export type McpsQueryMode = 'full' | 'minimal' | 'skip';
 
@@ -223,6 +224,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
   const { enableMcpV2 } = useFeatureToggle();
   const mode = options?.mode ?? 'full';
   const skipAll = !workspaceNamespace || mode === 'skip';
+  const telemetry = useTelemetry();
 
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
@@ -287,7 +289,10 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
     return [...v1, ...v2].flatMap((item) => {
       const result = ControlPlaneListItemSchema.safeParse(item);
       if (!result.success) {
-        console.warn('Invalid control plane data:', z.treeifyError(result.error), item);
+        telemetry.report(result.error, {
+          message: 'Invalid control plane data — schema mismatch',
+          context: { item, issues: z.treeifyError(result.error) },
+        });
         return [];
       }
       const key = `${result.data.metadata.namespace}/${result.data.metadata.name}`;
@@ -295,7 +300,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
       seen.add(key);
       return [result.data];
     });
-  }, [v1Items, v2Items, enableMcpV2]);
+  }, [v1Items, v2Items, enableMcpV2, telemetry]);
 
   const isPending =
     (mode === 'full' && queryResult.loading && queryResult.networkStatus === NetworkStatus.loading) ||

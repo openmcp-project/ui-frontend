@@ -20,6 +20,10 @@ Node `^24.0.0` and npm `^11.0.0` are required (`package.json` `engines`).
 - **Routing: `react-router-dom` v7** in HashRouter mode (`src/AppRouter.tsx`). Sentry-wrapped routes via `SentryRoutes` from `src/mount.ts`.
 - **Two auth spaces.** `AuthContextOnboarding` (top level: projects/workspaces, GraphQL) and `AuthContextMcp` (drilled-in MCP page, REST). Each has its own `tokenRefresh.ts`; the shared `SWRConfigWithTokenRefresh` wires both refreshers into SWR's error handling. There are V1 (`McpPage`) and V2 (`McpPageV2`, GraphQL-driven) MCP pages — both routes exist; V2 is the migration target.
 - **Observability.** Sentry on client + server (source maps uploaded via `@sentry/vite-plugin` — `build.sourcemap: true` is required). OpenTelemetry must be the **first import** in `server.ts` (`./server/opentelemetry-init.js`) or instrumentation breaks.
+  - **Telemetry axes — do not conflate:**
+    1. **Programming errors / crashes → `telemetry().report()`** fans out to Sentry (`captureException`) + Dynatrace (`dtrum.reportError`). Use for things a dev must act on.
+    2. **Network errors (4xx/5xx) → do NOT call `report()`**. Dynatrace picks them up automatically via the injected RUM script; Sentry records them as breadcrumbs (not errors) via its injected script. A routine failed `fetch` must not call `report()`.
+    4. **Backend/runtime states (neither a dev bug nor user action) → `telemetry().breadcrumb(message, { level?, context? })`** (default level `info`). Fan-out: Sentry `addBreadcrumb` with `category: 'diagnostic'`; Dynatrace no-op; Console `debug`.
 - **Dynamic config.** `frontend-config.json` (backend URL etc.) is loaded at runtime. Locally that's `public/frontend-config.json` (gitignored); in prod NGINX writes it from the `BACKEND_CONFIG` env var. Read it via `FrontendConfigContext` — never hardcode URLs.
 
 ## Layout

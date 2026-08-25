@@ -83,7 +83,7 @@ export default function ProjectsList({
   onProjectSelect,
 }: Props = {}) {
   const navigate = useLuigiNavigate();
-  const { data, error, isLoading } = useProjectsQuery();
+  const { data, error, isPending } = useProjectsQuery();
   const timestampsRef = useRef<Map<string, string>>(new Map());
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
@@ -259,7 +259,7 @@ export default function ProjectsList({
     [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
-  if (isLoading) {
+  if (isPending) {
     return <Loading />;
   }
   if (error) {

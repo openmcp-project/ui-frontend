@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { FluxData, FluxSchema } from '../../../mcp/types/Flux.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_FLUX_QUERY = graphql(`
   query GetFlux($name: String!, $namespace: String) {
@@ -32,6 +33,7 @@ const GET_FLUX_QUERY = graphql(`
 `);
 
 export function useFluxQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_FLUX_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -44,7 +46,10 @@ export function useFluxQuery(name?: string, namespace?: string) {
     if (!rawFlux) return null;
     const result = FluxSchema.safeParse(rawFlux);
     if (!result.success) {
-      console.warn('[useFluxQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid Flux data — schema mismatch',
+        context: { item: rawFlux, issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const { spec } = result.data;
@@ -53,7 +58,7 @@ export function useFluxQuery(name?: string, namespace?: string) {
       isInstalled: !!version,
       version,
     };
-  }, [rawFlux]);
+  }, [rawFlux, telemetry]);
 
   return {
     fluxData,

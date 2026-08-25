@@ -26,6 +26,8 @@ export class DynatraceAdapter implements Telemetry {
     window.dtrum.reportError(`${prefix}: ${cause}`);
   }
 
+  breadcrumb(): void {}
+
   identify(user: TelemetryUser | null): void {
     if (!window.dtrum) return;
 

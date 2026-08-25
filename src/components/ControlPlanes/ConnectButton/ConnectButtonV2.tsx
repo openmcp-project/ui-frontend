@@ -3,7 +3,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate as _useNavigate } from 'react-router-dom';
 import { buildConnectOptionsV2 } from './buildConnectOptionsV2.ts';
-import type { ConnectOption } from './useConnectOptions.ts';
+import type { ConnectOption } from './buildConnectOptions.ts';
 import type { ControlPlaneStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { useTelemetry as _useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 

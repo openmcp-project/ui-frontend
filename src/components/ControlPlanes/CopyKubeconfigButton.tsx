@@ -5,7 +5,7 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useTranslation } from 'react-i18next';
-import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
+import { telemetry, useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export default function CopyKubeconfigButton() {
   const popoverRef = useRef(null);
@@ -79,6 +79,9 @@ export function DownloadKubeconfig(config: any, displayName: string) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error(error);
+    telemetry().report(error, {
+      message: 'Could not download Kubeconfig',
+      context: { config, displayName },
+    });
   }
 }
