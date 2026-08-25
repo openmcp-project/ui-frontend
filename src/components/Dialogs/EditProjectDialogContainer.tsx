@@ -12,7 +12,7 @@ import { useGetProject as _useGetProject, ProjectData } from '../../spaces/onboa
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
 
-type ProjectEditedSource = Extract<TelemetryFeature, { name: 'project.edited' }>['source'];
+type ProjectEditedSource = Extract<TelemetryFeature, { category: 'project'; action: 'edited' }>['source'];
 
 function EditProjectForm({
   projectData,
@@ -108,7 +108,7 @@ export function EditProjectDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'project.edited', source });
+      telemetry.track({ category: 'project', action: 'edited', source });
       setIsOpen(false);
       return true;
     } catch (e) {

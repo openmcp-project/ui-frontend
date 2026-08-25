@@ -113,7 +113,7 @@ export function EditWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'workspace.edited' });
+      telemetry.track({ category: 'workspace', action: 'edited' });
       setIsOpen(false);
       return true;
     } catch (e) {

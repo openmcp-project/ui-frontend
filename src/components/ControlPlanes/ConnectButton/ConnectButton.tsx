@@ -42,7 +42,7 @@ export default function ConnectButton({
   const [fetchKubeconfig, { loading }] = useLazyQuery(GET_KUBECONFIG_QUERY);
 
   const connectTo = (target: ConnectOption) => {
-    telemetry.track({ name: 'controlplane.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    telemetry.track({ category: 'controlplane', action: 'connected', idp: target.isSystemIdP ? 'system' : 'custom' });
     navigate(target.url);
   };
 

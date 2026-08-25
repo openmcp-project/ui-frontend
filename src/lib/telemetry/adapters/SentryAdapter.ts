@@ -5,7 +5,7 @@ import type { TelemetryFeature } from '../features';
 export class SentryAdapter implements Telemetry {
   track(feature: TelemetryFeature): void {
     Sentry.addBreadcrumb({
-      message: feature.name,
+      message: `Feature used: ${feature.category}.${feature.action}`,
       data: feature,
       category: 'ui',
       level: 'info',

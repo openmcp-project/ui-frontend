@@ -37,7 +37,7 @@ export default function ConnectButtonV2({
   const connectionTargets = buildConnectOptionsV2(access, projectName, workspaceName, controlPlaneName);
 
   const connectTo = (target: ConnectOption) => {
-    telemetry.track({ name: 'controlplane.connected', idp: target.isSystemIdP ? 'system' : 'custom' });
+    telemetry.track({ category: 'controlplane', action: 'connected', idp: target.isSystemIdP ? 'system' : 'custom' });
     navigate(target.url);
   };
 

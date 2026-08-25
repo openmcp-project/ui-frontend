@@ -264,7 +264,7 @@ export function ControlPlaneListWorkspaceGridTile({
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {
-          telemetry.track({ name: 'workspace.deleted', source: 'card' });
+          telemetry.track({ category: 'workspace', action: 'deleted', source: 'card' });
           await deleteWorkspace();
         }}
       />

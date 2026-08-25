@@ -117,7 +117,8 @@ export function ShellBarComponent({
                     const next = e.target.checked ? 'open-source' : 'beginner';
                     setMode(next);
                     telemetry.track({
-                      name: 'view-mode.toggled',
+                      category: 'view-mode',
+                      action: 'toggled',
                       mode: next === 'open-source' ? 'headlamp' : 'legacy',
                     });
                   }}
@@ -181,10 +182,10 @@ function KubeconfigShellBarButton() {
           const action = event.detail.item.dataset.action;
           if (action === 'download' && kubeconfig && mcpName) {
             DownloadKubeconfig(kubeconfig, mcpName);
-            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-shellbar' });
+            telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-shellbar' });
           } else if (action === 'copy' && kubeconfig) {
             void copyToClipboard(kubeconfig);
-            telemetry.track({ name: 'kubeconfig.copied', source: 'controlplane-shellbar' });
+            telemetry.track({ category: 'kubeconfig', action: 'copied', source: 'controlplane-shellbar' });
           }
           setKubeconfigMenuOpen(false);
         }}
@@ -287,7 +288,7 @@ const ProfilePopover = ({
       }
 
       setFeedbackSent(true);
-      telemetry.track({ name: 'feedback.submitted' });
+      telemetry.track({ category: 'feedback', action: 'submitted' });
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -307,7 +308,7 @@ const ProfilePopover = ({
     setRating(0);
     setFeedbackSent(false);
     setFeedbackPopoverOpen(true);
-    telemetry.track({ name: 'feedback.opened' });
+    telemetry.track({ category: 'feedback', action: 'opened' });
   };
 
   return (
@@ -328,7 +329,7 @@ const ProfilePopover = ({
               icon="bookmark"
               onClick={() => {
                 clearRememberedProject();
-                telemetry.track({ name: 'project.remembered-cleared', source: 'shellbar-menu' });
+                telemetry.track({ category: 'project', action: 'remembered-cleared', source: 'shellbar-menu' });
                 setOpen(false);
               }}
             >
@@ -339,7 +340,7 @@ const ProfilePopover = ({
             icon="log"
             onClick={() => {
               setOpen(false);
-              telemetry.track({ name: 'user.signed-out' });
+              telemetry.track({ category: 'user', action: 'signed-out' });
               void auth.logout();
             }}
           >

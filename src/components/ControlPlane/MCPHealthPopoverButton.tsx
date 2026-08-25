@@ -64,7 +64,7 @@ const MCPHealthPopoverButton = ({
       // Prefer explicit button ref as opener (works reliably); fall back to event.target
       (popoverRef.current as unknown as { opener: EventTarget | null }).opener = buttonRef.current ?? event.target;
       setOpen((prev) => {
-        if (!prev) telemetry.track({ name: 'controlplane.status-viewed', source });
+        if (!prev) telemetry.track({ category: 'controlplane', action: 'status-viewed', source });
         return !prev;
       });
     }
