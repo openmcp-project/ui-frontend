@@ -283,13 +283,16 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);
     const v2 = enableMcpV2 ? (v2Items ?? []).map(toV2Input) : [];
-
+    const seen = new Set<string>();
     return [...v1, ...v2].flatMap((item) => {
       const result = ControlPlaneListItemSchema.safeParse(item);
       if (!result.success) {
         console.warn('Invalid control plane data:', z.treeifyError(result.error), item);
         return [];
       }
+      const key = `${result.data.metadata.namespace}/${result.data.metadata.name}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
       return [result.data];
     });
   }, [v1Items, v2Items, enableMcpV2]);

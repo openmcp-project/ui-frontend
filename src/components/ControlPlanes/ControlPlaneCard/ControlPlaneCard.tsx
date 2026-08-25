@@ -269,12 +269,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView
-              roleBindings={isV2 ? v2RoleBindings : roleBindings}
-              project={projectName}
-              workspace={workspace.metadata.name}
-              compact
-            />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : roleBindings} compact />
           </div>
 
           <div className={styles.footerRight}>
@@ -285,6 +280,7 @@ export const ControlPlaneCard = ({
                 workspaceName={workspace.metadata.name ?? ''}
                 access={controlPlane.status?.access}
                 disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                loading={!controlPlane.status}
               />
             ) : (
               <ConnectButton

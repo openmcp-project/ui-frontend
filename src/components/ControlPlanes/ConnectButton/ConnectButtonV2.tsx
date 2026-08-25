@@ -13,6 +13,7 @@ interface ConnectButtonProps {
   controlPlaneName: string;
   access: ControlPlaneStatus['access'] | undefined;
   disabled?: boolean;
+  loading?: boolean;
   useNavigate?: typeof _useNavigate;
   useTelemetry?: typeof _useTelemetry;
 }
@@ -23,6 +24,7 @@ export default function ConnectButtonV2({
   controlPlaneName,
   access,
   disabled,
+  loading,
   useNavigate = _useNavigate,
   useTelemetry = _useTelemetry,
 }: ConnectButtonProps) {
@@ -50,65 +52,56 @@ export default function ConnectButtonV2({
     setIsMenuOpen(false);
   };
 
-  if (connectionTargets.length === 0) {
-    return (
-      <Button data-testid="connect-button" design="Emphasized" endIcon="navigation-right-arrow" disabled={true}>
-        {t('ConnectButton.buttonText')}
-      </Button>
-    );
-  }
+  const isMultiTarget = connectionTargets.length > 1;
+  const directTarget = connectionTargets.length === 1 ? connectionTargets[0] : undefined;
+  const hasTargets = connectionTargets.length > 0;
 
-  if (connectionTargets.length === 1) {
-    const directTarget = connectionTargets[0];
-    return (
-      <Button
-        data-testid="connect-button"
-        design="Emphasized"
-        endIcon="navigation-right-arrow"
-        disabled={disabled}
-        onClick={() => connectTo(directTarget)}
-      >
-        {t('ConnectButton.buttonText')}
-      </Button>
-    );
-  }
+  const handleClick = isMultiTarget
+    ? () => setIsMenuOpen((prev) => !prev)
+    : directTarget
+      ? () => connectTo(directTarget)
+      : undefined;
 
   return (
-    <div>
+    <>
       <Button
         data-testid="connect-button"
         design="Emphasized"
-        id={buttonId}
-        disabled={disabled}
-        endIcon="slim-arrow-down"
-        onClick={() => setIsMenuOpen((prev) => !prev)}
+        id={isMultiTarget ? buttonId : undefined}
+        endIcon={isMultiTarget ? 'slim-arrow-down' : 'navigation-right-arrow'}
+        disabled={!hasTargets || !!disabled}
+        loading={loading}
+        title={!hasTargets && !loading ? t('ConnectButton.noAccessTitle') : undefined}
+        onClick={handleClick}
       >
         {t('ConnectButton.buttonText')}
       </Button>
-      <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
-        {connectionTargets
-          .filter((target) => target.isSystemIdP)
-          .map((target) => (
-            <MenuItem
-              key={target.name}
-              text={target.user}
-              data-target={target.url}
-              additionalText={t('ConnectButton.defaultIdP')}
-            />
-          ))}
-        {connectionTargets.some((target) => target.isSystemIdP) &&
-          connectionTargets.some((target) => !target.isSystemIdP) && <MenuSeparator />}
-        {connectionTargets
-          .filter((target) => !target.isSystemIdP)
-          .map((target) => (
-            <MenuItem
-              key={target.name}
-              text={target.user}
-              data-target={target.url}
-              additionalText={t('ConnectButton.customIdP')}
-            />
-          ))}
-      </Menu>
-    </div>
+      {isMultiTarget && (
+        <Menu opener={buttonId} open={isMenuOpen} onItemClick={handleMenuAction} onClose={() => setIsMenuOpen(false)}>
+          {connectionTargets
+            .filter((target) => target.isSystemIdP)
+            .map((target) => (
+              <MenuItem
+                key={target.name}
+                text={target.user}
+                data-target={target.url}
+                additionalText={t('ConnectButton.defaultIdP')}
+              />
+            ))}
+          {connectionTargets.some((target) => target.isSystemIdP) &&
+            connectionTargets.some((target) => !target.isSystemIdP) && <MenuSeparator />}
+          {connectionTargets
+            .filter((target) => !target.isSystemIdP)
+            .map((target) => (
+              <MenuItem
+                key={target.name}
+                text={target.user}
+                data-target={target.url}
+                additionalText={t('ConnectButton.customIdP')}
+              />
+            ))}
+        </Menu>
+      )}
+    </>
   );
 }

@@ -169,12 +169,7 @@ export function ControlPlaneListWorkspaceGridTile({
             </button>
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <MembersAvatarView
-              members={uniqueMembers}
-              project={projectName}
-              workspace={workspaceName}
-              source="workspace-grid"
-            />
+            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               <YamlViewButton
                 variant="loader"

@@ -57,7 +57,7 @@ export function ShellBarComponent({
   const [profilePopoverOpen, setProfilePopoverOpen] = useState(false);
   const { mode, setMode, headlampAvailable } = useViewMode();
   const telemetry = useTelemetry();
-  const { roleBindings, project, workspace, navigateBack, mcpName, mcpDisplayName } = useShellBarMcpActions();
+  const { roleBindings, navigateBack, mcpName, mcpDisplayName } = useShellBarMcpActions();
 
   const onLogoClick = () => {
     window.location.hash = Routes.Home;
@@ -100,8 +100,6 @@ export function ShellBarComponent({
                 <span className={styles.membersLabel}>{t('ShellBar.membersLabel')}</span>
                 <MembersAvatarView
                   members={convertRoleBindingsToMembers(roleBindings)}
-                  project={project}
-                  workspace={workspace}
                   hideNamespaceColumn
                   source="controlplane-detail"
                 />
