@@ -29,7 +29,11 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
-  const { kubeconfigDecoded } = useKubeconfigQuery(oidcOpenmcpSecretName, mcpNamespace, 'kubeconfig');
+  const { kubeconfigDecoded, isPending: isKubeconfigLoading } = useKubeconfigQuery(
+    oidcOpenmcpSecretName,
+    mcpNamespace,
+    'kubeconfig',
+  );
 
   return (
     <>
@@ -68,7 +72,12 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
           disabled={isDeleteMcpButtonDisabled}
         />
         <MenuSeparator />
-        <MenuItem data-action="downloadKubeconfig" icon="download" text={t('ConnectButton.downloadKubeconfig')} />
+        <MenuItem
+          data-action="downloadKubeconfig"
+          disabled={!kubeconfigDecoded}
+          icon={isKubeconfigLoading ? 'pending' : 'download'}
+          text={t('ConnectButton.downloadKubeconfig')}
+        />
       </Menu>
     </>
   );
