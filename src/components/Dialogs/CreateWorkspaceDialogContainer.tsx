@@ -97,7 +97,7 @@ export function CreateWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'workspace.created' });
+      telemetry.track({ category: 'workspace', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {

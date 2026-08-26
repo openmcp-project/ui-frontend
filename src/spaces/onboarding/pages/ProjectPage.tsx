@@ -70,7 +70,7 @@ export default function ProjectPage() {
       if (value === '' && hasFiredSearchedRef.current) {
         hasFiredSearchedRef.current = false;
       } else if (value !== '' && !hasFiredSearchedRef.current) {
-        telemetry.track({ name: 'workspace-list.searched' });
+        telemetry.track({ category: 'workspace-list', action: 'searched' });
         hasFiredSearchedRef.current = true;
       }
       setSearch(value);
@@ -82,7 +82,7 @@ export default function ProjectPage() {
     (e: React.KeyboardEvent) => {
       if (e.key !== 'Enter') return;
       if (search.trim() === '') return;
-      telemetry.track({ name: 'workspace-list.search-enter-pressed' });
+      telemetry.track({ category: 'workspace-list', action: 'search-enter-pressed' });
 
       const allViewButtons = document.querySelectorAll<HTMLElement>('ui5-button[data-testid="connect-button"]');
       const activeViewButton = Array.from(allViewButtons).find(
@@ -177,10 +177,10 @@ export default function ProjectPage() {
                   onClick={() => {
                     if (isProjectRemembered) {
                       clearRemembered();
-                      telemetry.track({ name: 'project.remembered-cleared', source: 'detail-header' });
+                      telemetry.track({ category: 'project', action: 'remembered-cleared', source: 'detail-header' });
                     } else if (projectName) {
                       setRememberedProject(projectName);
-                      telemetry.track({ name: 'project.remembered', source: 'detail-header' });
+                      telemetry.track({ category: 'project', action: 'remembered', source: 'detail-header' });
                     }
                   }}
                 />

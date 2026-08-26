@@ -6,9 +6,9 @@ export class DynatraceAdapter implements Telemetry {
   track(feature: TelemetryFeature): void {
     if (!window.dtrum) return;
 
-    const actionId = window.dtrum.enterAction(feature.name, 'feature');
+    const actionId = window.dtrum.enterAction(`${feature.category}.${feature.action}`, 'feature');
     try {
-      const { name: _, ...rest } = feature;
+      const { category: _, action: __, ...rest } = feature;
       const stringProps = Object.fromEntries(Object.entries(rest).map(([k, v]) => [k, String(v)]));
       if (Object.keys(stringProps).length > 0) {
         window.dtrum.addActionProperties(actionId, undefined, undefined, stringProps);

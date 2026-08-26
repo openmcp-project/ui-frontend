@@ -190,7 +190,11 @@ describe('ConnectButton', () => {
       cy.get('ui5-button').click();
 
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'system',
+      });
     });
 
     it('tracks controlplane.connected with idp=custom when connecting via custom IdP', () => {
@@ -212,7 +216,11 @@ describe('ConnectButton', () => {
       cy.get('ui5-button').click();
 
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'custom',
+      });
     });
 
     it('tracks the selected idp when picking from the menu with multiple IdPs', () => {
@@ -234,12 +242,20 @@ describe('ConnectButton', () => {
       cy.get('ui5-button').click();
       cy.get('ui5-menu-item').eq(0).click();
       cy.get('@trackSpy').should('have.been.calledOnce');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'system' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'system',
+      });
 
       cy.get('ui5-button').click();
       cy.get('ui5-menu-item').eq(1).click();
       cy.get('@trackSpy').should('have.been.calledTwice');
-      cy.get('@trackSpy').should('have.been.calledWith', { name: 'controlplane.connected', idp: 'custom' });
+      cy.get('@trackSpy').should('have.been.calledWith', {
+        category: 'controlplane',
+        action: 'connected',
+        idp: 'custom',
+      });
     });
   });
 });

@@ -9,7 +9,7 @@ import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../../Helpe
 import { MemberTable } from '../../Members/MemberTable.tsx';
 import styles from './MembersAvatarView.module.css';
 
-type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
+type MembersViewedSource = Extract<TelemetryFeature, { category: 'members'; action: 'viewed' }>['source'];
 
 interface Props {
   members: Member[];
@@ -43,7 +43,7 @@ export function MembersAvatarView({ members, hideNamespaceColumn = false, source
         type={AvatarGroupType.Group}
         onClick={() => {
           if (!popoverIsOpen) {
-            telemetry.track({ name: 'members.viewed', source });
+            telemetry.track({ category: 'members', action: 'viewed', source });
             setPopoverIsOpen(true);
           }
         }}

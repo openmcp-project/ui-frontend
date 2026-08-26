@@ -3,8 +3,8 @@ import type { TelemetryFeature } from '../features';
 
 export class ConsoleAdapter implements Telemetry {
   track(feature: TelemetryFeature): void {
-    const { name, ...rest } = feature;
-    console.info('[Telemetry] track', name, rest);
+    const { category, action, ...rest } = feature;
+    console.info('[Telemetry] track', `${category}.${action}`, rest);
   }
 
   report(error: unknown, options?: { message?: string; context?: Record<string, unknown> }): void {

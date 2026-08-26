@@ -68,7 +68,7 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
           }
           if (action === 'downloadKubeconfig') {
             DownloadKubeconfig(kubeconfigResource, controlPlaneName);
-            telemetry.track({ name: 'kubeconfig.downloaded', source: 'controlplane-card' });
+            telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-card' });
           }
 
           setMenuIsOpen(false);
