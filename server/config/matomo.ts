@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -234,27 +235,16 @@ const EXCLUDED_QUERY_PARAMS = [
   'zipcode',
 ];
 
-export function injectMatomoTag(matomoUrl: string, siteId: string): void {
+export function injectMatomoTag(matomoUrl: string, siteId: string): string | null {
   const indexPath = join(process.cwd(), 'dist/client/index.html');
   console.log(`[Matomo] Injecting tracker for site ${siteId} into "${indexPath}".`);
 
-  let html: string;
-  try {
-    html = readFileSync(indexPath, 'utf-8');
-  } catch (err) {
-    console.error(`[Matomo] Failed to read ${indexPath}.`, err);
-    return;
-  }
-
-  if (html.includes('window._paq')) {
-    console.log('[Matomo] Bootstrap already present, skipping.');
-    return;
-  }
-
   const excludedParams = JSON.stringify(EXCLUDED_QUERY_PARAMS);
   const u = matomoUrl.endsWith('/') ? matomoUrl : `${matomoUrl}/`;
-  const scriptTag = `<!-- Matomo -->
-  <script>
+  // scriptBody is the exact text between <script> and </script>. Its sha256 is
+  // returned so server.ts can whitelist it in the strict CSP script-src — the
+  // hash must match the browser's view of the element's textContent byte-for-byte.
+  const scriptBody = `
     var _paq = window._paq = window._paq || [];
     _paq.push(["setExcludedQueryParams", ${excludedParams}]);
     _paq.push(['trackPageView']);
@@ -265,17 +255,35 @@ export function injectMatomoTag(matomoUrl: string, siteId: string): void {
       _paq.push(['setSiteId', '${siteId}']);
       var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
       g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-    })();
-  </script>
-  <!-- End Matomo Code -->`;
+    })();`;
+  const scriptHash = `sha256-${createHash('sha256').update(scriptBody).digest('base64')}`;
+
+  let html: string;
+  try {
+    html = readFileSync(indexPath, 'utf-8');
+  } catch (err) {
+    console.error(`[Matomo] Failed to read ${indexPath}.`, err);
+    return null;
+  }
+
+  // Bootstrap already injected (warm restart): return the hash so the CSP still
+  // gets it, but skip re-writing the file.
+  if (html.includes('window._paq')) {
+    console.log('[Matomo] Bootstrap already present, skipping injection.');
+    return scriptHash;
+  }
+
+  const scriptTag = `<!-- Matomo -->
+  <script>${scriptBody}</script>`;
 
   const headClose = /<\/head>/i;
   if (!headClose.test(html)) {
     console.error('[Matomo] </head> tag not found, aborting.');
-    return;
+    return null;
   }
   html = html.replace(headClose, `  ${scriptTag}\n</head>`);
 
   writeFileSync(indexPath, html, 'utf-8');
   console.log('[Matomo] Bootstrap injected successfully.');
+  return scriptHash;
 }

@@ -16,8 +16,9 @@ const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
 }
+let matomoScriptHash: string | null = null;
 if (MATOMO_URL && MATOMO_SITE_ID) {
-  injectMatomoTag(MATOMO_URL, MATOMO_SITE_ID);
+  matomoScriptHash = injectMatomoTag(MATOMO_URL, MATOMO_SITE_ID);
 }
 
 if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
@@ -162,6 +163,12 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     .filter(Boolean)
     .join(' ');
   const telemetryOrigins = [sentryHost, dynatraceOrigin, matomoOrigin].filter(Boolean).join(' ');
+  // The Matomo bootstrap is an inline <script>; a strict script-src blocks it unless
+  // its exact sha256 is whitelisted. Scoped to script-src only (a script hash is
+  // meaningless in connect-src/img-src, which also consume telemetryOrigins).
+  const scriptSrcSources = [telemetryOrigins, matomoScriptHash ? `'${matomoScriptHash}'` : '']
+    .filter(Boolean)
+    .join(' ');
   const csp = [
     "default-src 'self'",
     "style-src 'self' 'unsafe-inline'",
@@ -169,7 +176,7 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${telemetryOrigins}`,
     isLocalDev
       ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${telemetryOrigins}`
-      : `script-src 'self' ${telemetryOrigins}`,
+      : `script-src 'self' ${scriptSrcSources}`,
     "frame-src 'self'",
     `frame-ancestors 'self'${frameAncestors ? ` ${frameAncestors}` : ''}`,
     "base-uri 'self'",
