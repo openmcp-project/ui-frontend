@@ -17,12 +17,14 @@ function EditWorkspaceForm({
   setIsOpen,
   errorDialogRef,
   onUpdate,
+  projectName,
 }: {
   workspaceData: WorkspaceData;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   onUpdate: (payload: OnCreatePayload) => Promise<boolean>;
+  projectName?: string;
 }) {
   const { t } = useTranslation();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
@@ -58,6 +60,7 @@ function EditWorkspaceForm({
       setValue={setValue}
       type={'workspace'}
       isEditMode
+      projectName={projectName}
       onCreate={handleSubmit(onUpdate)}
     />
   );
@@ -87,6 +90,7 @@ export function EditWorkspaceDialogContainer({
     error: fetchError,
   } = useGetWorkspace(isOpen ? workspaceName : undefined, isOpen ? namespace : undefined);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
+  const projectName = namespace.startsWith('project-') ? namespace.slice('project-'.length) : namespace;
 
   useEffect(() => {
     if (fetchError) {
@@ -109,7 +113,7 @@ export function EditWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'workspace.edited' });
+      telemetry.track({ category: 'workspace', action: 'edited' });
       setIsOpen(false);
       return true;
     } catch (e) {
@@ -144,6 +148,7 @@ export function EditWorkspaceDialogContainer({
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           errorDialogRef={errorDialogRef}
+          projectName={projectName}
           onUpdate={handleWorkspaceUpdate}
         />
       )}

@@ -230,7 +230,7 @@ export function ComponentsDashboardV2({
         scheduleRefetch(metricsOperatorYaml.refetch);
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
-      telemetry.track({ name: 'component.uninstalled', componentName });
+      telemetry.track({ category: 'component', action: 'uninstalled', componentName });
     } catch (error) {
       console.error(`${componentName} delete failed`, error);
       toast.show(t('ComponentCard.deleteErrorMessage', { component: componentName }));

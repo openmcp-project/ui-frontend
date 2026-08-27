@@ -649,7 +649,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         throw new Error(`Failed to apply changes for service(s): ${details}`);
       }
 
-      telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v2' });
+      telemetry.track({ category: 'controlplane', action: isEditMode ? 'edited' : 'created', source: 'v2' });
       setSelectedStep('success');
       return true;
     } catch (e) {

@@ -17,6 +17,7 @@ import { projectnameToNamespace } from '../../utils';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
 import { CopyButton } from '../Shared/CopyButton.tsx';
 import IllustratedError from '../Shared/IllustratedError.tsx';
+import Loading from '../Shared/Loading.tsx';
 import { ResourceSearchBar } from '../Shared/ResourceSearchBar.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 import { FadeIn } from '../Ui/FadeIn/FadeIn.tsx';
@@ -82,7 +83,7 @@ export default function ProjectsList({
   onProjectSelect,
 }: Props = {}) {
   const navigate = useLuigiNavigate();
-  const { data, error, isLoading } = useProjectsQuery();
+  const { data, error, isPending } = useProjectsQuery();
   const timestampsRef = useRef<Map<string, string>>(new Map());
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
@@ -102,7 +103,7 @@ export default function ProjectsList({
       if (value === '' && hasFiredSearchedRef.current) {
         hasFiredSearchedRef.current = false;
       } else if (value !== '' && !hasFiredSearchedRef.current) {
-        telemetry.track({ name: 'project-list.searched' });
+        telemetry.track({ category: 'project-list', action: 'searched' });
         hasFiredSearchedRef.current = true;
       }
       setSearch(value);
@@ -147,13 +148,13 @@ export default function ProjectsList({
       if (rows.length === 1) {
         const { projectName } = rows[0];
         if (setAsDefaultRef.current) {
-          telemetry.track({ name: 'project-list.set-as-default', trigger: 'keyboard' });
+          telemetry.track({ category: 'project-list', action: 'set-as-default', trigger: 'keyboard' });
           setRememberedProject(projectName);
         }
         onProjectSelect?.(projectName);
         navigate(`/projects/${projectName}`);
       } else if (rows.length > 1) {
-        telemetry.track({ name: 'project-list.search-enter-pressed' });
+        telemetry.track({ category: 'project-list', action: 'search-enter-pressed' });
         tableContainerRef.current?.querySelector<HTMLElement>('ui5-link')?.focus();
       }
     },
@@ -175,10 +176,10 @@ export default function ProjectsList({
                 onClick={() => {
                   if (setAsDefaultRef.current) {
                     setRememberedProject(projectName);
-                    telemetry.track({ name: 'project.remembered', source: 'list' });
-                    telemetry.track({ name: 'project-list.set-as-default', trigger: 'click' });
+                    telemetry.track({ category: 'project', action: 'remembered', source: 'list' });
+                    telemetry.track({ category: 'project-list', action: 'set-as-default', trigger: 'click' });
                   }
-                  telemetry.track({ name: 'project-list.navigated', trigger: 'click' });
+                  telemetry.track({ category: 'project-list', action: 'navigated', trigger: 'click' });
                   onProjectSelect?.(projectName);
                   navigate(`/projects/${projectName}`);
                 }}
@@ -258,13 +259,16 @@ export default function ProjectsList({
     [navigate, useProjectMembers, onProjectSelect, setRememberedProject, telemetry],
   );
 
+  if (isPending) {
+    return <Loading />;
+  }
   if (error) {
     return <IllustratedError details={error.message} />;
   }
 
   return (
     <FadeIn>
-      {!isLoading && data.length > 0 && (
+      {!isPending && data.length > 0 && (
         <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       )}
       <div ref={tableContainerRef}>
@@ -280,7 +284,7 @@ export default function ProjectsList({
           className={styles.table}
           columns={columns}
           data={rows}
-          loading={isLoading}
+          loading={isPending}
           minRows={10}
         />
       </div>

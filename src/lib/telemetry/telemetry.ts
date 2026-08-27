@@ -2,6 +2,7 @@ import { TelemetryService } from './TelemetryService';
 import { ConsoleAdapter } from './adapters/ConsoleAdapter';
 import { DynatraceAdapter } from './adapters/DynatraceAdapter';
 import { SentryAdapter } from './adapters/SentryAdapter';
+import { MatomoAdapter } from './adapters/MatomoAdapter.ts';
 import type { Telemetry } from './types';
 
 const buildAdapters = (): Telemetry[] => {
@@ -9,6 +10,7 @@ const buildAdapters = (): Telemetry[] => {
     // ── Telemetry providers ─────────────────────────────
     new SentryAdapter(),
     new DynatraceAdapter(),
+    new MatomoAdapter(),
   ];
 
   if (import.meta.env.DEV) {

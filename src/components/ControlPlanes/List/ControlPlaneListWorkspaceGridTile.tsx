@@ -169,12 +169,7 @@ export function ControlPlaneListWorkspaceGridTile({
             </button>
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <MembersAvatarView
-              members={uniqueMembers}
-              project={projectName}
-              workspace={workspaceName}
-              source="workspace-grid"
-            />
+            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               <YamlViewButton
                 variant="loader"
@@ -269,7 +264,7 @@ export function ControlPlaneListWorkspaceGridTile({
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {
-          telemetry.track({ name: 'workspace.deleted', source: 'card' });
+          telemetry.track({ category: 'workspace', action: 'deleted', source: 'card' });
           await deleteWorkspace();
         }}
       />

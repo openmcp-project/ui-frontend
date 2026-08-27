@@ -128,7 +128,8 @@ export function ComponentInstallDialog({
             : t('ComponentInstallDialog.successMessage', { component: componentName }),
         );
         telemetry.track({
-          name: mode === 'edit' ? 'component.updated' : 'component.installed',
+          category: 'component',
+          action: mode === 'edit' ? 'updated' : 'installed',
           componentName,
         });
         onSuccess?.(mode);

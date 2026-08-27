@@ -84,7 +84,7 @@ export function CreateProjectDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'project.created' });
+      telemetry.track({ category: 'project', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
