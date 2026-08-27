@@ -49,6 +49,7 @@ export default function CopyKubeconfigButton() {
       >
         <MenuItem
           key={'download'}
+          disabled={!mcp.kubeconfig}
           text={t('CopyKubeconfigButton.menuDownload')}
           data-action="download"
           icon="download"
@@ -59,8 +60,9 @@ export default function CopyKubeconfigButton() {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function DownloadKubeconfig(config: any, displayName: string) {
+export function DownloadKubeconfig(config: string | undefined, displayName: string) {
+  if (!config) return;
+
   const filename = 'kubeconfig-' + displayName + '.yaml';
 
   try {
