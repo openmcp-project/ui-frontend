@@ -16,7 +16,7 @@ const viteConfig = defineViteConfig({
     alias: [{ find: 'path', replacement: 'path-browserify' }, monacoWorkerAlias],
   },
   optimizeDeps: {
-    include: ['path-browserify'],
+    include: ['path-browserify', '@sentry/react'],
     exclude: monacoOptimizeDepsExclude,
     rolldownOptions: {
       define: {
