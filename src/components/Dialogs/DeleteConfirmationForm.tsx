@@ -8,7 +8,6 @@ interface DeleteConfirmationFormProps {
   confirmationText: string;
   onConfirmationInputChange: (event: Ui5CustomEvent<InputDomRef>) => void;
   deleteMessageKey: string;
-  deleteConfirmationLabel?: string;
 }
 
 export function DeleteConfirmationForm({
@@ -22,7 +21,7 @@ export function DeleteConfirmationForm({
   return (
     <div className={styles.dialogContent}>
       <span className={styles.message}>
-        <Trans i18nKey={deleteMessageKey} values={{ resourceName }} components={{ b: <b /> }} />
+        <Trans i18nKey={deleteMessageKey} />
       </span>
 
       <div className={styles.nameChip}>

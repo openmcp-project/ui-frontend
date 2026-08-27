@@ -233,7 +233,6 @@
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
     "deleteMessage": "You are about to delete the resource",
-    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below",
     "typeToConfirm": "Type the name to confirm"
   },
   "Loading": {

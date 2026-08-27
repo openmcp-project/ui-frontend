@@ -108,6 +108,25 @@ describe('DeleteConfirmationDialog', () => {
     cy.contains('Type the name to confirm').should('be.visible');
   });
 
+  it('should copy the resource name to clipboard when the copy button is clicked', () => {
+    cy.window().then((win) => {
+      const writeTextStub = cy.stub().resolves();
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: { writeText: writeTextStub, readText: cy.stub().resolves('') },
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    mountDialog({ resourceName: 'custom-resource' });
+
+    cy.get('ui5-button[icon="copy"]').click();
+
+    cy.window().then((win) => {
+      expect(win.navigator.clipboard.writeText).to.have.been.calledWith('custom-resource');
+    });
+  });
+
   describe('kubectl learn button dialogs', () => {
     it('opens Delete Workspace kubectl dialog only after clicking Learn button', () => {
       cy.mount(
