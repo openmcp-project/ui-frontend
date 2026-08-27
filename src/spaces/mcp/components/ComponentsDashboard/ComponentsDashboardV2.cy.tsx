@@ -1,51 +1,111 @@
 import { MockedProvider } from '@apollo/client/testing/react';
 
+import { FrontendConfigContext, Landscape } from '../../../../context/FrontendConfigContext.tsx';
+import { FeatureToggleProvider } from '../../../../context/FeatureToggleContext.tsx';
 import { ToastProvider } from '../../../../context/ToastContext.tsx';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
 import type { EsoData } from '../../types/Eso.ts';
 import type { FluxData } from '../../types/Flux.ts';
+import type { KroData } from '../../types/Kro.ts';
 import type { LandscaperData } from '../../types/Landscaper.ts';
+import type { MetricsOperatorData } from '../../types/MetricsOperator.ts';
+import type { OcmData } from '../../types/Ocm.ts';
 import { ComponentsDashboardV2, ComponentsDashboardV2Props } from './ComponentsDashboardV2.tsx';
+
+const frontendConfig = {
+  landscape: Landscape.Local,
+  documentationBaseUrl: '',
+  githubBaseUrl: '',
+  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: true, enableHeadlamp: false, showLandscaperCard: false },
+};
+
+const frontendConfigWithLandscaper = {
+  ...frontendConfig,
+  featureToggles: { ...frontendConfig.featureToggles, showLandscaperCard: true },
+};
 
 describe('ComponentsDashboardV2', () => {
   const crossplaneInstalled: CrossplaneData = { isInstalled: true, version: '1.2.3', providers: [] };
   const fluxInstalled: FluxData = { isInstalled: true, version: '2.0.0' };
   const landscaperInstalled: LandscaperData = { isInstalled: true, version: '3.0.0' };
   const esoInstalled: EsoData = { isInstalled: true, version: '4.0.0' };
+  const ocmInstalled: OcmData = { isInstalled: true, version: '5.0.0' };
+  const kroInstalled: KroData = { isInstalled: true, version: '6.0.0' };
+  const metricsOperatorInstalled: MetricsOperatorData = { isInstalled: true, version: '7.0.0' };
 
   const mount = (props?: Partial<ComponentsDashboardV2Props>) => {
     cy.mount(
-      <MockedProvider mocks={[]}>
-        <ToastProvider>
-          <ComponentsDashboardV2
-            crossplaneData={null}
-            landscaperData={null}
-            fluxData={null}
-            esoData={null}
-            mcpName="my-mcp"
-            mcpNamespace="project-foo--ws-bar"
-            onNavigateToMcpSection={() => {}}
-            {...props}
-          />
-        </ToastProvider>
-      </MockedProvider>,
+      <FrontendConfigContext.Provider value={frontendConfig}>
+        <MockedProvider mocks={[]}>
+          <FeatureToggleProvider>
+            <ToastProvider>
+              <ComponentsDashboardV2
+                crossplaneData={null}
+                landscaperData={null}
+                fluxData={null}
+                esoData={null}
+                ocmData={null}
+                kroData={null}
+                metricsOperatorData={null}
+                mcpName="my-mcp"
+                mcpNamespace="project-foo--ws-bar"
+                onNavigateToMcpSection={() => {}}
+                {...props}
+              />
+            </ToastProvider>
+          </FeatureToggleProvider>
+        </MockedProvider>
+      </FrontendConfigContext.Provider>,
       {},
     );
   };
 
-  it('renders all four component cards with names, descriptions, and versions', () => {
-    mount({
+  const mountWithLandscaper = (props?: Partial<ComponentsDashboardV2Props>) => {
+    cy.mount(
+      <FrontendConfigContext.Provider value={frontendConfigWithLandscaper}>
+        <MockedProvider mocks={[]}>
+          <FeatureToggleProvider>
+            <ToastProvider>
+              <ComponentsDashboardV2
+                crossplaneData={null}
+                landscaperData={null}
+                fluxData={null}
+                esoData={null}
+                ocmData={null}
+                kroData={null}
+                metricsOperatorData={null}
+                mcpName="my-mcp"
+                mcpNamespace="project-foo--ws-bar"
+                onNavigateToMcpSection={() => {}}
+                {...props}
+              />
+            </ToastProvider>
+          </FeatureToggleProvider>
+        </MockedProvider>
+      </FrontendConfigContext.Provider>,
+      {},
+    );
+  };
+
+  it('renders all seven component cards with names, descriptions, and versions', () => {
+    mountWithLandscaper({
       crossplaneData: crossplaneInstalled,
       fluxData: fluxInstalled,
       landscaperData: landscaperInstalled,
       esoData: esoInstalled,
+      ocmData: ocmInstalled,
+      kroData: kroInstalled,
+      metricsOperatorData: metricsOperatorInstalled,
     });
 
-    cy.get('.ui5-card-header').should('have.length', 4);
+    cy.get('.ui5-card-header').should('have.length', 7);
     cy.get('.ui5-card-header').eq(0).should('contain.text', 'Crossplane').and('contain.text', 'v1.2.3');
     cy.get('.ui5-card-header').eq(1).should('contain.text', 'Flux').and('contain.text', 'v2.0.0');
     cy.get('.ui5-card-header').eq(2).should('contain.text', 'Landscaper').and('contain.text', 'v3.0.0');
     cy.get('.ui5-card-header').eq(3).should('contain.text', 'External Secrets Operator').and('contain.text', 'v4.0.0');
+    cy.get('.ui5-card-header').eq(4).should('contain.text', 'OCM').and('contain.text', 'v5.0.0');
+    cy.get('.ui5-card-header').eq(5).should('contain.text', 'KRO').and('contain.text', 'v6.0.0');
+    cy.get('.ui5-card-header').eq(6).should('contain.text', 'Metrics Operator').and('contain.text', 'v7.0.0');
   });
 
   it('does not render the yamlViewButton slot before the status query has resolved a resource', () => {
@@ -77,7 +137,7 @@ describe('ComponentsDashboardV2', () => {
   });
 
   it('opens the Landscaper edit dialog from the actions menu when installed', () => {
-    mount({ landscaperData: landscaperInstalled });
+    mountWithLandscaper({ landscaperData: landscaperInstalled });
 
     cy.get('[data-cy="component-card-landscaper"]').within(() => {
       cy.get('[data-cy="actions-menu-button"]').click();
@@ -96,5 +156,47 @@ describe('ComponentsDashboardV2', () => {
     cy.get('[data-cy="delete-menu-item"]').click();
 
     cy.contains('Delete External Secrets Operator').should('be.visible');
+  });
+
+  it('opens the OCM install dialog from the Install button', () => {
+    mount();
+
+    cy.get('[data-cy="component-card-ocm"]').within(() => {
+      cy.get('[data-cy="install-button"]').click();
+    });
+
+    cy.contains('Install OCM').should('be.visible');
+  });
+
+  it('opens the delete confirmation dialog for KRO from the actions menu', () => {
+    mount({ kroData: kroInstalled });
+
+    cy.get('[data-cy="component-card-kro"]').within(() => {
+      cy.get('[data-cy="actions-menu-button"]').click();
+    });
+    cy.get('[data-cy="delete-menu-item"]').click();
+
+    cy.contains('Delete KRO').should('be.visible');
+  });
+
+  it('opens the Metrics Operator install dialog from the Install button', () => {
+    mount();
+
+    cy.get('[data-cy="component-card-metrics-operator"]').within(() => {
+      cy.get('[data-cy="install-button"]').click();
+    });
+
+    cy.contains('Install Metrics Operator').should('be.visible');
+  });
+
+  it('opens the delete confirmation dialog for Metrics Operator from the actions menu', () => {
+    mount({ metricsOperatorData: metricsOperatorInstalled });
+
+    cy.get('[data-cy="component-card-metrics-operator"]').within(() => {
+      cy.get('[data-cy="actions-menu-button"]').click();
+    });
+    cy.get('[data-cy="delete-menu-item"]').click();
+
+    cy.contains('Delete Metrics Operator').should('be.visible');
   });
 });

@@ -11,7 +11,10 @@ import { getHighestVersion } from '../../../utils/componentsVersions.ts';
 import LogoCrossplane from '../../../assets/images/logo-crossplane.svg';
 import LogoEso from '../../../assets/images/logo-eso.svg';
 import LogoFlux from '../../../assets/images/logo-flux.svg';
+import LogoKro from '../../../assets/images/logo-kro.svg';
 import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
+import LogoMetricsOperator from '../../../assets/images/logo-metrics.svg';
+import LogoOcm from '../../../assets/images/logo-ocm.svg';
 import styles from './ServiceSelectionStep.module.css';
 
 type ServiceKey = keyof ServiceSelection;
@@ -32,6 +35,14 @@ const SERVICES: ServiceDef[] = [
     labelKey: 'ServiceSelectionStep.externalSecretsOperator',
     logo: LogoEso,
     serviceName: 'external-secrets-operator',
+  },
+  { key: 'ocm', labelKey: 'ServiceSelectionStep.ocm', logo: LogoOcm, serviceName: 'ocm' },
+  { key: 'kro', labelKey: 'ServiceSelectionStep.kro', logo: LogoKro, serviceName: 'kro' },
+  {
+    key: 'metricsOperator',
+    labelKey: 'ServiceSelectionStep.metricsOperator',
+    logo: LogoMetricsOperator,
+    serviceName: 'metrics-operator',
   },
 ];
 
@@ -144,6 +155,11 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
           const entry = services[key];
           const selected = entry?.selected ?? false;
           const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];
+          const currentVersion = entry?.version ?? '';
+          const versionOptions =
+            currentVersion && !versions.some((v) => v.version === currentVersion)
+              ? [{ version: currentVersion }, ...versions]
+              : versions;
           return (
             <div key={key} className={styles.row}>
               <FlexBox alignItems="Center" gap={12}>
@@ -168,7 +184,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
                       setVersion(key, e.detail.selectedOption.getAttribute('value') ?? '')
                     }
                   >
-                    {versions.map(({ version: v }) => (
+                    {versionOptions.map(({ version: v }) => (
                       <Option key={v} value={v}>
                         {v}
                       </Option>

@@ -61,6 +61,7 @@ const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
   data: fakeManagedControlPlanes,
   error: undefined,
   isPending: false,
+  isReadyForSubscriptions: true,
 });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({
@@ -71,7 +72,13 @@ const frontendConfig = {
   documentationBaseUrl: '',
   githubBaseUrl: '',
   githubApps: [],
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false, enableGitHub: false },
+  featureToggles: {
+    markMcpV1asDeprecated: false,
+    enableMcpV2: false,
+    enableHeadlamp: false,
+    enableGitHub: false,
+    showLandscaperCard: false,
+  },
 };
 
 function mountTile({

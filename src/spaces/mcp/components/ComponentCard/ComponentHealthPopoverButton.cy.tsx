@@ -54,7 +54,8 @@ describe('ComponentHealthPopoverButton', () => {
 
     cy.get('[data-cy="component-health-button"] ui5-button').click();
     cy.get('@track').should('have.been.calledOnceWith', {
-      name: 'component.status-viewed',
+      category: 'component',
+      action: 'status-viewed',
       componentName: 'Crossplane',
     });
 

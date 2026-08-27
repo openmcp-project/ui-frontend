@@ -15,7 +15,7 @@ import { ResourceType } from '../../lib/api/types/crate/resourceObject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import styles from './YamlViewButton.module.css';
 
-export type McpComponentKind = 'crossplane' | 'flux' | 'landscaper' | 'eso';
+export type McpComponentKind = 'crossplane' | 'flux' | 'landscaper' | 'eso' | 'ocm' | 'kro' | 'metrics-operator';
 
 export interface YamlViewButtonResourceProps {
   variant: 'resource';
@@ -54,7 +54,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
         : variant === 'mcp-component'
           ? (props as YamlViewButtonMcpComponentProps).component
           : 'resource';
-    telemetry.track({ name: 'yaml.viewed', resourceType: String(resourceType) });
+    telemetry.track({ category: 'yaml', action: 'viewed', resourceType: String(resourceType) });
     switch (variant) {
       case 'resource': {
         const { resource, toolbarContent, withoutApiConfig } = props as YamlViewButtonResourceProps;

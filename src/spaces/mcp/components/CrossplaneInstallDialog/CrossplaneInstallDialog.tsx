@@ -50,8 +50,26 @@ export function CrossplaneInstallDialog({
 
   const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
   const crossplaneVersions = useMemo(() => crossplaneService?.versions ?? [], [crossplaneService]);
+  const crossplaneDisplayVersions = useMemo(() => {
+    const installedVersion = initialData?.version;
+    if (mode === 'edit' && installedVersion && !crossplaneVersions.some((v) => v.version === installedVersion)) {
+      return [...crossplaneVersions, { version: installedVersion }];
+    }
+    return crossplaneVersions;
+  }, [crossplaneVersions, mode, initialData?.version]);
   const crossplaneApiVersion = crossplaneService?.apiVersion ?? 'crossplane.services.open-control-plane.io/v1alpha1';
   const crossplaneKind = crossplaneService?.kind ?? 'Crossplane';
+
+  const augmentedProviderCatalog = useMemo(() => {
+    if (mode !== 'edit' || !initialData) return crossplaneProviders;
+    return crossplaneProviders.map((catalogProvider) => {
+      const installed = initialData.providers.find((ip) => ip.name === catalogProvider.name);
+      if (!installed?.version || catalogProvider.versions.some((v) => v.version === installed.version)) {
+        return catalogProvider;
+      }
+      return { ...catalogProvider, versions: [...catalogProvider.versions, { version: installed.version }] };
+    });
+  }, [crossplaneProviders, mode, initialData]);
 
   const schema = useMemo(() => createCrossplaneInstallSchema(t), [t]);
   const {
@@ -252,7 +270,7 @@ export function CrossplaneInstallDialog({
             valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            {crossplaneVersions.map(({ version }) => (
+            {crossplaneDisplayVersions.map(({ version }) => (
               <Option key={version} value={version}>
                 {version}
               </Option>
@@ -264,7 +282,7 @@ export function CrossplaneInstallDialog({
           </Title>
           <CrossplaneProviderPicker
             providers={providerStates}
-            catalog={crossplaneProviders}
+            catalog={augmentedProviderCatalog}
             disabled={!crossplaneVersion}
             getError={getProviderVersionError}
             onToggle={handleProviderToggle}
