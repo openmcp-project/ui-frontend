@@ -1,5 +1,5 @@
 // Initialize OpenTelemetry instrumentation FIRST
-import './server/opentelemetry-init.js';
+import './server/telemetry/bootstrap/opentelemetry-init.js';
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
@@ -9,9 +9,9 @@ import path from 'node:path';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
-import * as Sentry from '@sentry/node';
-import { injectDynatraceTag } from './server/config/dynatrace.js';
-import { injectMatomoTag } from './server/config/matomo.js';
+import { initSentry, setupSentryErrorHandler } from './server/telemetry/bootstrap/sentry.js';
+import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
+import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
 const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
@@ -21,24 +21,7 @@ if (MATOMO_URL && MATOMO_SITE_ID) {
   matomoScriptHash = injectMatomoTag(MATOMO_URL, MATOMO_SITE_ID);
 }
 
-if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
-  console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
-} else {
-  Sentry.init({
-    dsn: process.env.BFF_SENTRY_DSN,
-    environment: process.env.FRONTEND_SENTRY_ENVIRONMENT,
-    beforeSend(event) {
-      if (event.request && event.request.cookies) {
-        event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
-          // @ts-ignore
-          acc[key] = '';
-          return acc;
-        }, {});
-      }
-      return event;
-    },
-  });
-}
+initSentry();
 
 const isLocalDev = process.argv.includes('--local-dev');
 
@@ -72,7 +55,7 @@ const fastify = Fastify({
   requestTimeout: 30_000,
 });
 
-Sentry.setupFastifyErrorHandler(fastify);
+setupSentryErrorHandler(fastify);
 await fastify.register(envPlugin);
 
 fastify.register(cors, {
