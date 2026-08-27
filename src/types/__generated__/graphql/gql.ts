@@ -14,6 +14,9 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+  '\n  query GetManagedComponents {\n    core_openmcp_cloud {\n      v1alpha1 {\n        ManagedComponents {\n          items {\n            metadata {\n              name\n            }\n            status {\n              versions\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetManagedComponentsDocument;
+  '\n  mutation CreateManagedControlPlane(\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createManagedControlPlane(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.CreateManagedControlPlaneDocument;
+  '\n  mutation UpdateManagedControlPlane(\n    $name: String!\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateManagedControlPlane(name: $name, namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n': typeof types.UpdateManagedControlPlaneDocument;
   '\n  query GetCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        Crossplane(name: $name, namespace: $namespace) {\n          kind\n          metadata {\n            name\n            namespace\n          }\n          spec {\n            version\n            providers {\n              name\n              version\n            }\n          }\n          status {\n            conditions {\n              type\n              status\n              reason\n              message\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetCrossplaneDocument;
   '\n  query GetExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperator(name: $name, namespace: $namespace) {\n          metadata {\n            name\n            namespace\n          }\n          spec {\n            version\n          }\n          status {\n            conditions {\n              type\n              status\n              reason\n              message\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetExternalSecretsOperatorDocument;
   '\n  query GetFlux($name: String!, $namespace: String) {\n    flux_services_open_control_plane_io {\n      v1alpha1 {\n        Flux(name: $name, namespace: $namespace) {\n          metadata {\n            name\n            namespace\n          }\n          spec {\n            version\n          }\n          status {\n            conditions {\n              type\n              status\n              reason\n              message\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.GetFluxDocument;
@@ -72,6 +75,12 @@ type Documents = {
   '\n  subscription WorkspacesSubscription($namespace: String!) {\n    core_openmcp_cloud_v1alpha1_workspaces(namespace: $namespace) {\n      type\n    }\n  }\n': typeof types.WorkspacesSubscriptionDocument;
 };
 const documents: Documents = {
+  '\n  query GetManagedComponents {\n    core_openmcp_cloud {\n      v1alpha1 {\n        ManagedComponents {\n          items {\n            metadata {\n              name\n            }\n            status {\n              versions\n            }\n          }\n        }\n      }\n    }\n  }\n':
+    types.GetManagedComponentsDocument,
+  '\n  mutation CreateManagedControlPlane(\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createManagedControlPlane(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
+    types.CreateManagedControlPlaneDocument,
+  '\n  mutation UpdateManagedControlPlane(\n    $name: String!\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateManagedControlPlane(name: $name, namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n':
+    types.UpdateManagedControlPlaneDocument,
   '\n  query GetCrossplane($name: String!, $namespace: String) {\n    crossplane_services_open_control_plane_io {\n      v1alpha1 {\n        Crossplane(name: $name, namespace: $namespace) {\n          kind\n          metadata {\n            name\n            namespace\n          }\n          spec {\n            version\n            providers {\n              name\n              version\n            }\n          }\n          status {\n            conditions {\n              type\n              status\n              reason\n              message\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.GetCrossplaneDocument,
   '\n  query GetExternalSecretsOperator($name: String!, $namespace: String) {\n    external_secrets_services_open_control_plane_io {\n      v1alpha1 {\n        ExternalSecretsOperator(name: $name, namespace: $namespace) {\n          metadata {\n            name\n            namespace\n          }\n          spec {\n            version\n          }\n          status {\n            conditions {\n              type\n              status\n              reason\n              message\n            }\n          }\n        }\n      }\n    }\n  }\n':
@@ -200,6 +209,24 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetManagedComponents {\n    core_openmcp_cloud {\n      v1alpha1 {\n        ManagedComponents {\n          items {\n            metadata {\n              name\n            }\n            status {\n              versions\n            }\n          }\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetManagedComponents {\n    core_openmcp_cloud {\n      v1alpha1 {\n        ManagedComponents {\n          items {\n            metadata {\n              name\n            }\n            status {\n              versions\n            }\n          }\n        }\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation CreateManagedControlPlane(\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createManagedControlPlane(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation CreateManagedControlPlane(\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        createManagedControlPlane(namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation UpdateManagedControlPlane(\n    $name: String!\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateManagedControlPlane(name: $name, namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation UpdateManagedControlPlane(\n    $name: String!\n    $namespace: String\n    $object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input!\n  ) {\n    core_openmcp_cloud {\n      v1alpha1 {\n        updateManagedControlPlane(name: $name, namespace: $namespace, object: $object) {\n          metadata {\n            name\n            namespace\n          }\n        }\n      }\n    }\n  }\n'];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
