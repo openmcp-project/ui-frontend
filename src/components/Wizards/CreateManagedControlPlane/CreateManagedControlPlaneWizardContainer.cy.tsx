@@ -294,6 +294,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
         useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
+        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
         isOpen={true}
@@ -352,6 +353,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
         useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
+        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
         isOpen={true}
@@ -554,6 +556,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
+        useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
         useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
@@ -671,6 +674,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
+        useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
         useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
