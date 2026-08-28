@@ -35,9 +35,7 @@ export function useComponentsQuery(): GetComponentsHookResult {
     ? {
         items: rawList.items.map((item) => ({
           metadata: item.metadata ? { name: item.metadata.name ?? undefined } : undefined,
-          status: item.status
-            ? { versions: item.status.versions?.flatMap((v) => (v ? [v] : [])) }
-            : undefined,
+          status: item.status ? { versions: item.status.versions?.flatMap((v) => (v ? [v] : [])) } : undefined,
         })),
       }
     : undefined;
