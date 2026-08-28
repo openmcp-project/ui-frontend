@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import { ApplicationError } from '../../errors.js';
 
 export function initSentry(): void {
   if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
@@ -12,7 +13,16 @@ export function initSentry(): void {
     integrations(defaultIntegrations) {
       return [
         ...defaultIntegrations.filter((integration) => integration.name !== 'Fastify'),
-        Sentry.fastifyIntegration(),
+        Sentry.fastifyIntegration({
+          shouldHandleError(error, _request, reply) {
+            if (error instanceof ApplicationError) {
+              // Application errors are handled explicitly by the HTTP error
+              // boundary so their safe context can be included exactly once.
+              return false;
+            }
+            return reply.statusCode >= 500 || reply.statusCode <= 299;
+          },
+        }),
       ];
     },
     beforeSend(event) {

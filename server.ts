@@ -13,6 +13,7 @@ import { initSentry } from './server/telemetry/bootstrap/sentry.js';
 import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
 import serverTelemetryPlugin from './server/telemetry/telemetry.js';
+import errorHandlerPlugin from './server/plugins/error-handler.js';
 const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
@@ -57,6 +58,7 @@ const fastify = Fastify({
 });
 
 await fastify.register(serverTelemetryPlugin);
+await fastify.register(errorHandlerPlugin);
 await fastify.register(envPlugin);
 
 fastify.register(cors, {

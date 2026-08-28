@@ -1,31 +1,134 @@
 import fp from 'fastify-plugin';
 import crypto from 'node:crypto';
-import type { ServerTelemetry } from '../telemetry/types.js';
+import {
+  AuthConfigurationError,
+  AuthUpstreamError,
+  ExpectedAuthError,
+  createOAuthAuthorizationError,
+  createOAuthEndpointError,
+  type OAuthOperation,
+} from '../auth/errors.js';
 
-export class AuthenticationError extends Error {
-  // @ts-ignore
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    // @ts-ignore
-    this.code = 'ERR_AUTHENTICATION';
-    Error.captureStackTrace(this, this.constructor);
-  }
+interface OAuthTokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  id_token?: string;
 }
 
-async function getRemoteOpenIdConfiguration(issuerBaseUrl: string, telemetry: ServerTelemetry) {
-  const url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
+async function getRemoteOpenIdConfiguration(issuerBaseUrl: string) {
+  let url: string;
   try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new AuthenticationError(`OIDC discovery failed: ${res.status} ${res.statusText}`);
-    }
-    return res.json();
-  } catch (err) {
-    telemetry.report(err, { context: { url } });
-    throw err;
+    url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
+  } catch (cause) {
+    throw new AuthConfigurationError('OIDC issuer URL is invalid.', {
+      code: 'invalid_oidc_issuer',
+      context: { issuer: issuerBaseUrl },
+      cause,
+    });
   }
+
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (cause) {
+    throw new AuthUpstreamError('OIDC discovery endpoint is unavailable.', {
+      code: 'oidc_discovery_unavailable',
+      statusCode: 503,
+      context: { issuer: issuerBaseUrl },
+      cause,
+    });
+  }
+
+  if (!res.ok) {
+    const context = { issuer: issuerBaseUrl, upstreamStatus: res.status };
+    if (res.status === 429 || res.status >= 500) {
+      throw new AuthUpstreamError(`OIDC discovery failed with status ${res.status}.`, {
+        code: res.status === 429 ? 'oidc_discovery_rate_limited' : 'oidc_discovery_upstream_failure',
+        statusCode: res.status === 429 ? 503 : 502,
+        context,
+      });
+    }
+    throw new AuthConfigurationError(`OIDC discovery was rejected with status ${res.status}.`, {
+      code: 'oidc_discovery_rejected',
+      context,
+    });
+  }
+
+  let remoteConfiguration: unknown;
+  try {
+    remoteConfiguration = await res.json();
+  } catch (cause) {
+    throw new AuthUpstreamError('OIDC discovery returned invalid JSON.', {
+      code: 'invalid_oidc_discovery_response',
+      context: { issuer: issuerBaseUrl, upstreamStatus: res.status },
+      cause,
+    });
+  }
+
+  if (
+    typeof remoteConfiguration !== 'object' ||
+    remoteConfiguration === null ||
+    !('authorization_endpoint' in remoteConfiguration) ||
+    typeof remoteConfiguration.authorization_endpoint !== 'string' ||
+    !('token_endpoint' in remoteConfiguration) ||
+    typeof remoteConfiguration.token_endpoint !== 'string'
+  ) {
+    throw new AuthUpstreamError('OIDC discovery response is missing required endpoints.', {
+      code: 'invalid_oidc_discovery_response',
+      context: { issuer: issuerBaseUrl, upstreamStatus: res.status },
+    });
+  }
+
+  return {
+    authorizationEndpoint: remoteConfiguration.authorization_endpoint,
+    tokenEndpoint: remoteConfiguration.token_endpoint,
+  };
 }
+
+const readOAuthResponseBody = async (response: Response, operation: OAuthOperation): Promise<string> => {
+  try {
+    return await response.text();
+  } catch (cause) {
+    throw new AuthUpstreamError(`Could not read OAuth ${operation} response.`, {
+      code: 'unreadable_oauth_response',
+      context: { operation, upstreamStatus: response.status },
+      cause,
+    });
+  }
+};
+
+const parseOAuthTokenResponse = (
+  responseBody: string,
+  operation: OAuthOperation,
+  upstreamStatus: number,
+): OAuthTokenResponse => {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(responseBody);
+  } catch (cause) {
+    throw new AuthUpstreamError(`OAuth ${operation} returned invalid JSON.`, {
+      code: 'invalid_oauth_response',
+      context: { operation, upstreamStatus },
+      cause,
+    });
+  }
+
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    !('access_token' in parsed) ||
+    typeof parsed.access_token !== 'string' ||
+    parsed.access_token.length === 0
+  ) {
+    throw new AuthUpstreamError(`OAuth ${operation} response is missing an access token.`, {
+      code: 'invalid_oauth_response',
+      context: { operation, upstreamStatus },
+    });
+  }
+
+  return parsed as unknown as OAuthTokenResponse;
+};
 
 // @ts-ignore
 function isAllowedRedirectTo(value) {
@@ -36,34 +139,13 @@ function isAllowedRedirectTo(value) {
 
 // @ts-ignore
 async function authUtilsPlugin(fastify) {
-  fastify.decorate(
-    'discoverIssuerConfiguration',
-    async (issuerBaseUrl: string, telemetry: ServerTelemetry = fastify.telemetry) => {
-      fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
-
-      const remoteConfiguration = (await getRemoteOpenIdConfiguration(issuerBaseUrl, telemetry)) as any; // ToDo: proper typing
-
-      const requiredConfiguration = {
-        authorizationEndpoint: remoteConfiguration.authorization_endpoint,
-        tokenEndpoint: remoteConfiguration.token_endpoint,
-      };
-
-      fastify.log.info({ issuer: issuerBaseUrl, requiredConfiguration }, 'OpenId configuration discovered.');
-
-      return requiredConfiguration;
-    },
-  );
+  fastify.decorate('discoverIssuerConfiguration', async (issuerBaseUrl: string) => {
+    return getRemoteOpenIdConfiguration(issuerBaseUrl);
+  });
 
   fastify.decorate(
     'refreshAuthTokens',
-    async (
-      currentRefreshToken: string,
-      oidcConfig: { clientId: string; scopes: string },
-      tokenEndpoint: string,
-      telemetry: ServerTelemetry = fastify.telemetry,
-    ) => {
-      fastify.log.info('Refreshing tokens.');
-
+    async (currentRefreshToken: string, oidcConfig: { clientId: string; scopes: string }, tokenEndpoint: string) => {
       const { clientId, scopes } = oidcConfig;
 
       const body = new URLSearchParams({
@@ -73,31 +155,36 @@ async function authUtilsPlugin(fastify) {
         scope: scopes,
       });
 
-      const response = await fetch(tokenEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Accept: 'application/json',
-        },
-        body: body.toString(),
-      });
-      const responseBodyText = await response.text();
-      if (!response.ok) {
-        const error = new AuthenticationError('Token refresh failed.');
-        telemetry.report(error, {
-          message: 'Token refresh failed.',
-          context: { status: response.status, tokenEndpoint, idpResponseBody: responseBodyText },
+      let response: Response;
+      try {
+        response = await fetch(tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+          },
+          body: body.toString(),
         });
-        throw error;
+      } catch (cause) {
+        throw new AuthUpstreamError('OAuth token refresh endpoint is unavailable.', {
+          code: 'oauth_refresh_unavailable',
+          statusCode: 503,
+          context: { operation: 'refresh' },
+          cause,
+        });
       }
 
-      const newTokens = JSON.parse(responseBodyText);
-      fastify.log.info('Token refresh successful; received new tokens.');
+      const responseBodyText = await readOAuthResponseBody(response, 'refresh');
+      if (!response.ok) {
+        throw createOAuthEndpointError('refresh', response.status, responseBodyText);
+      }
+
+      const newTokens = parseOAuthTokenResponse(responseBodyText, 'refresh', response.status);
 
       return {
         accessToken: newTokens.access_token,
-        refreshToken: newTokens.refresh_token,
-        expiresIn: newTokens.expires_in,
+        refreshToken: typeof newTokens.refresh_token === 'string' ? newTokens.refresh_token : undefined,
+        expiresIn: typeof newTokens.expires_in === 'number' ? newTokens.expires_in : undefined,
       };
     },
   );
@@ -111,8 +198,11 @@ async function authUtilsPlugin(fastify) {
 
     const { redirectTo } = request.query;
     if (!isAllowedRedirectTo(redirectTo)) {
-      request.log.error(`Invalid redirectTo: "${redirectTo}".`);
-      throw new AuthenticationError('Invalid redirectTo.');
+      throw new ExpectedAuthError('Invalid post-login redirect target.', {
+        code: 'invalid_redirect_target',
+        statusCode: 400,
+        publicMessage: 'Invalid redirect target.',
+      });
     }
     await request.encryptedSession.set('postLoginRedirectRoute', redirectTo);
 
@@ -155,14 +245,35 @@ async function authUtilsPlugin(fastify) {
 
     const { clientId, redirectUri } = oidcConfig;
 
-    const { code, state } = request.query;
-    if (!code) {
-      request.log.error('Missing authorization code in callback.');
-      throw new AuthenticationError('Missing code in callback.');
+    const { code, state, error: callbackError } = request.query;
+    const expectedState = request.encryptedSession.get(stateKey);
+    if (typeof state !== 'string' || typeof expectedState !== 'string' || state !== expectedState) {
+      throw new ExpectedAuthError('OIDC callback state did not match the session.', {
+        code: 'invalid_oauth_state',
+        statusCode: 400,
+        publicMessage: 'Invalid OAuth state.',
+        logLevel: 'warn',
+      });
     }
-    if (state !== request.encryptedSession.get(stateKey)) {
-      request.log.error('Invalid state in callback.');
-      throw new AuthenticationError('Invalid state in callback.');
+    if (typeof callbackError === 'string') {
+      throw createOAuthAuthorizationError(callbackError);
+    }
+    if (typeof code !== 'string' || code.length === 0) {
+      throw new ExpectedAuthError('Authorization code is missing from OIDC callback.', {
+        code: 'missing_callback_code',
+        statusCode: 400,
+        publicMessage: 'Missing authorization code.',
+      });
+    }
+
+    const codeVerifier = request.encryptedSession.get('codeVerifier');
+    if (typeof codeVerifier !== 'string' || codeVerifier.length === 0) {
+      throw new ExpectedAuthError('PKCE code verifier is missing from the session.', {
+        code: 'missing_code_verifier',
+        statusCode: 400,
+        publicMessage: 'Invalid OAuth session.',
+        logLevel: 'warn',
+      });
     }
 
     const body = new URLSearchParams({
@@ -170,20 +281,34 @@ async function authUtilsPlugin(fastify) {
       code,
       redirect_uri: redirectUri,
       client_id: clientId,
-      code_verifier: request.encryptedSession.get('codeVerifier'),
+      code_verifier: codeVerifier,
     });
 
-    const response = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body,
-    });
-    if (!response.ok) {
-      request.log.error({ status: response.status, body: await response.text() }, 'Token exchange failed.');
-      throw new AuthenticationError('Token exchange failed.');
+    let response: Response;
+    try {
+      response = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          accept: 'application/json',
+        },
+        body,
+      });
+    } catch (cause) {
+      throw new AuthUpstreamError('OAuth token exchange endpoint is unavailable.', {
+        code: 'oauth_token_exchange_unavailable',
+        statusCode: 503,
+        context: { operation: 'token_exchange' },
+        cause,
+      });
     }
 
-    const tokens = (await response.json()) as any; // ToDo: proper typing
+    const responseBodyText = await readOAuthResponseBody(response, 'token_exchange');
+    if (!response.ok) {
+      throw createOAuthEndpointError('token_exchange', response.status, responseBodyText);
+    }
+
+    const tokens = parseOAuthTokenResponse(responseBodyText, 'token_exchange', response.status);
 
     const result = {
       accessToken: tokens.access_token,
@@ -201,7 +326,7 @@ async function authUtilsPlugin(fastify) {
 
     request.telemetry.breadcrumb('OIDC callback succeeded; tokens retrieved.', {
       level: 'info',
-      context: { userEmail: result.userInfo?.email ?? 'unknown email address' },
+      context: { hasUserInfo: result.userInfo !== null },
     });
     return result;
   });
@@ -212,15 +337,30 @@ function extractUserInfoFromIdToken(request, idToken) {
   request.log.info('Extracting user info from ID token.');
 
   if (!idToken) {
-    request.log.error('No ID token provided.');
     return null;
   }
 
   const payloadBase64 = idToken.split('.')[1];
-  const decodedPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
+  if (typeof payloadBase64 !== 'string' || payloadBase64.length === 0) {
+    throw new AuthUpstreamError('ID token is not a well-formed JWT.', {
+      code: 'malformed_id_token',
+      context: { operation: 'token_exchange' },
+    });
+  }
+
+  let decodedPayload;
+  try {
+    decodedPayload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
+  } catch (cause) {
+    throw new AuthUpstreamError('ID token payload could not be decoded.', {
+      code: 'malformed_id_token',
+      context: { operation: 'token_exchange' },
+      cause,
+    });
+  }
 
   if (typeof decodedPayload.sub !== 'string' || decodedPayload.sub.length === 0) {
-    request.log.error('ID token missing sub claim.');
+    request.log.warn('ID token missing sub claim.');
     return null;
   }
 

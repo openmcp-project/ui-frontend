@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin';
-import { AuthenticationError } from '../plugins/auth-utils.js';
+import { isExpiredSessionError } from '../auth/errors.js';
 import {
   COOKIE_OPTIONS,
   ENCRYPTED_COOKIE_REQUEST_DECORATOR,
@@ -44,39 +44,30 @@ async function authPlugin(fastify) {
 
   // @ts-ignore
   fastify.get('/auth/onboarding/callback', { config: authRateLimit }, async function (req, reply) {
-    try {
-      const callbackResult = await fastify.handleOidcCallback(
-        req,
-        {
-          clientId: OIDC_CLIENT_ID,
-          redirectUri: OIDC_REDIRECT_URI,
-        },
-        issuerConfiguration.tokenEndpoint,
-        stateSessionKey,
-      );
+    const callbackResult = await fastify.handleOidcCallback(
+      req,
+      {
+        clientId: OIDC_CLIENT_ID,
+        redirectUri: OIDC_REDIRECT_URI,
+      },
+      issuerConfiguration.tokenEndpoint,
+      stateSessionKey,
+    );
 
-      // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
-      await req.encryptedSession.regenerate();
+    // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
+    await req.encryptedSession.regenerate();
 
-      await req.encryptedSession.set('onboarding_accessToken', callbackResult.accessToken);
-      await req.encryptedSession.set('onboarding_refreshToken', callbackResult.refreshToken);
-      await req.encryptedSession.set('onboarding_userInfo', callbackResult.userInfo);
+    await req.encryptedSession.set('onboarding_accessToken', callbackResult.accessToken);
+    await req.encryptedSession.set('onboarding_refreshToken', callbackResult.refreshToken);
+    await req.encryptedSession.set('onboarding_userInfo', callbackResult.userInfo);
 
-      if (callbackResult.expiresAt) {
-        await req.encryptedSession.set('onboarding_tokenExpiresAt', callbackResult.expiresAt);
-      } else {
-        await req.encryptedSession.delete('onboarding_tokenExpiresAt');
-      }
-
-      return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
-    } catch (error) {
-      if (error instanceof AuthenticationError) {
-        req.log.error('AuthenticationError during OIDC callback: %s', error);
-        return reply.serviceUnavailable('Error during OIDC callback.');
-      } else {
-        throw error;
-      }
+    if (callbackResult.expiresAt) {
+      await req.encryptedSession.set('onboarding_tokenExpiresAt', callbackResult.expiresAt);
+    } else {
+      await req.encryptedSession.delete('onboarding_tokenExpiresAt');
     }
+
+    return reply.redirect(POST_LOGIN_REDIRECT + callbackResult.postLoginRedirectRoute);
   });
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
@@ -94,55 +85,47 @@ async function authPlugin(fastify) {
   fastify.post('/auth/onboarding/refresh', { config: authRateLimit }, async function (req, reply) {
     const refreshToken = req.encryptedSession.get('onboarding_refreshToken');
     if (!refreshToken) {
-      req.log.error('Missing refresh token; deleting encryptedSession.');
       await req.encryptedSession.clear();
       return reply.unauthorized('Session expired without token refresh capability.');
     }
 
     req.log.info('Attempting onboarding token refresh');
 
-    try {
-      const issuerConfiguration = fastify.issuerConfiguration;
+    const issuerConfiguration = fastify.issuerConfiguration;
 
-      const refreshedTokenData = await fastify.refreshAuthTokens(
+    let refreshedTokenData;
+    try {
+      refreshedTokenData = await fastify.refreshAuthTokens(
         refreshToken,
         {
           clientId: OIDC_CLIENT_ID,
           scopes: OIDC_SCOPES,
         },
         issuerConfiguration.tokenEndpoint,
-        req.telemetry,
       );
-      if (!refreshedTokenData || !refreshedTokenData.accessToken) {
-        req.log.error('Token refresh failed (no access token); deleting session.');
-        await req.encryptedSession.clear();
-        return reply.unauthorized('Session expired and token refresh failed.');
-      }
-
-      req.log.info('Token refresh successful; updating the session.');
-
-      await req.encryptedSession.set('onboarding_accessToken', refreshedTokenData.accessToken);
-      if (refreshedTokenData.refreshToken) {
-        await req.encryptedSession.set('onboarding_refreshToken', refreshedTokenData.refreshToken);
-      } else {
-        await req.encryptedSession.delete('onboarding_refreshToken');
-      }
-      if (refreshedTokenData.expiresIn) {
-        const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
-        await req.encryptedSession.set('onboarding_tokenExpiresAt', newExpiresAt);
-      } else {
-        await req.encryptedSession.delete('onboarding_tokenExpiresAt');
-      }
-
-      req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
     } catch (error) {
-      if (error instanceof AuthenticationError) {
-        req.log.error('AuthenticationError during token refresh: %s', error);
-        return reply.unauthorized('Error during token refresh.');
-      } else {
-        throw error;
+      if (isExpiredSessionError(error)) {
+        await req.encryptedSession.clear();
       }
+      throw error;
     }
+
+    req.log.info('Token refresh successful; updating the session.');
+
+    await req.encryptedSession.set('onboarding_accessToken', refreshedTokenData.accessToken);
+    if (refreshedTokenData.refreshToken) {
+      await req.encryptedSession.set('onboarding_refreshToken', refreshedTokenData.refreshToken);
+    } else {
+      await req.encryptedSession.delete('onboarding_refreshToken');
+    }
+    if (refreshedTokenData.expiresIn) {
+      const newExpiresAt = Date.now() + refreshedTokenData.expiresIn * 1000;
+      await req.encryptedSession.set('onboarding_tokenExpiresAt', newExpiresAt);
+    } else {
+      await req.encryptedSession.delete('onboarding_tokenExpiresAt');
+    }
+
+    req.log.info('Token refresh successful and session updated; continuing with the HTTP request.');
 
     return reply.send({ success: true });
   });
