@@ -53,7 +53,10 @@ async function authPlugin(fastify) {
       if (!idpConfig.issuer || !idpConfig.clientID) {
         throw new AuthenticationError(`Identity Provider '${idpName}' is incompletely configured`);
       }
-      const issuerConfiguration = await fastify.discoverIssuerConfiguration(idpConfig.issuer);
+      const issuerConfiguration = await fastify.discoverIssuerConfiguration(
+        idpConfig.issuer,
+        req.telemetry,
+      );
 
       return {
         clientId: idpConfig.clientID,
@@ -67,7 +70,10 @@ async function authPlugin(fastify) {
     if (!idpConfig) {
       throw new Error(`Identity Provider '${idpName}' not found in MCP configuration`);
     }
-    const issuerConfiguration = await fastify.discoverIssuerConfiguration(idpConfig.issuerURL);
+    const issuerConfiguration = await fastify.discoverIssuerConfiguration(
+      idpConfig.issuerURL,
+      req.telemetry,
+    );
 
     return {
       clientId: idpConfig.clientID,
@@ -255,6 +261,7 @@ async function authPlugin(fastify) {
           scopes,
         },
         issuerConfiguration.tokenEndpoint,
+        req.telemetry,
       );
       if (!refreshedTokenData || !refreshedTokenData.accessToken) {
         req.log.error('Token refresh failed (no access token); deleting session.');

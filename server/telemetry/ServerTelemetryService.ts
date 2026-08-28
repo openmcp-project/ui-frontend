@@ -1,7 +1,7 @@
 import type { ServerTelemetry } from './types.js';
 
 export class ServerTelemetryService implements ServerTelemetry {
-  constructor(private readonly adapters: ServerTelemetry[]) {}
+  constructor(private readonly adapters: readonly ServerTelemetry[]) {}
 
   report(error: unknown, options?: { message?: string; context?: Record<string, unknown> }): void {
     this.dispatch('report', (a) => a.report(error, options));

@@ -9,9 +9,10 @@ import path from 'node:path';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
-import { initSentry, setupSentryErrorHandler } from './server/telemetry/bootstrap/sentry.js';
+import { initSentry } from './server/telemetry/bootstrap/sentry.js';
 import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
 import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
+import serverTelemetryPlugin from './server/telemetry/telemetry.js';
 const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
@@ -55,7 +56,7 @@ const fastify = Fastify({
   requestTimeout: 30_000,
 });
 
-setupSentryErrorHandler(fastify);
+await fastify.register(serverTelemetryPlugin);
 await fastify.register(envPlugin);
 
 fastify.register(cors, {

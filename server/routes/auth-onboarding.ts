@@ -111,6 +111,7 @@ async function authPlugin(fastify) {
           scopes: OIDC_SCOPES,
         },
         issuerConfiguration.tokenEndpoint,
+        req.telemetry,
       );
       if (!refreshedTokenData || !refreshedTokenData.accessToken) {
         req.log.error('Token refresh failed (no access token); deleting session.');

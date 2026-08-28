@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import crypto from 'node:crypto';
-import * as Sentry from '@sentry/node';
+import type { ServerTelemetry } from '../telemetry/types.js';
 
 export class AuthenticationError extends Error {
   // @ts-ignore
@@ -13,8 +13,7 @@ export class AuthenticationError extends Error {
   }
 }
 
-// @ts-ignore
-async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
+async function getRemoteOpenIdConfiguration(issuerBaseUrl: string, telemetry: ServerTelemetry) {
   const url = new URL('/.well-known/openid-configuration', issuerBaseUrl).toString();
   try {
     const res = await fetch(url);
@@ -23,7 +22,7 @@ async function getRemoteOpenIdConfiguration(issuerBaseUrl) {
     }
     return res.json();
   } catch (err) {
-    Sentry.captureException(err, { extra: { url } });
+    telemetry.report(err, { context: { url } });
     throw err;
   }
 }
@@ -37,65 +36,71 @@ function isAllowedRedirectTo(value) {
 
 // @ts-ignore
 async function authUtilsPlugin(fastify) {
-  // @ts-ignore
-  fastify.decorate('discoverIssuerConfiguration', async (issuerBaseUrl) => {
-    fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
+  fastify.decorate(
+    'discoverIssuerConfiguration',
+    async (issuerBaseUrl: string, telemetry: ServerTelemetry = fastify.telemetry) => {
+      fastify.log.info({ issuer: issuerBaseUrl }, 'Discovering OpenId configuration.');
 
-    const remoteConfiguration = (await getRemoteOpenIdConfiguration(issuerBaseUrl)) as any; // ToDo: proper typing
+      const remoteConfiguration = (await getRemoteOpenIdConfiguration(issuerBaseUrl, telemetry)) as any; // ToDo: proper typing
 
-    const requiredConfiguration = {
-      authorizationEndpoint: remoteConfiguration.authorization_endpoint,
-      tokenEndpoint: remoteConfiguration.token_endpoint,
-    };
+      const requiredConfiguration = {
+        authorizationEndpoint: remoteConfiguration.authorization_endpoint,
+        tokenEndpoint: remoteConfiguration.token_endpoint,
+      };
 
-    fastify.log.info({ issuer: issuerBaseUrl, requiredConfiguration }, 'OpenId configuration discovered.');
+      fastify.log.info({ issuer: issuerBaseUrl, requiredConfiguration }, 'OpenId configuration discovered.');
 
-    return requiredConfiguration;
-  });
+      return requiredConfiguration;
+    },
+  );
 
-  // @ts-ignore
-  fastify.decorate('refreshAuthTokens', async (currentRefreshToken, oidcConfig, tokenEndpoint) => {
-    fastify.log.info('Refreshing tokens.');
+  fastify.decorate(
+    'refreshAuthTokens',
+    async (
+      currentRefreshToken: string,
+      oidcConfig: { clientId: string; scopes: string },
+      tokenEndpoint: string,
+      telemetry: ServerTelemetry = fastify.telemetry,
+    ) => {
+      fastify.log.info('Refreshing tokens.');
 
-    const { clientId, scopes } = oidcConfig;
+      const { clientId, scopes } = oidcConfig;
 
-    const body = new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: currentRefreshToken,
-      client_id: clientId,
-      scope: scopes,
-    });
-
-    const response = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Accept: 'application/json',
-      },
-      body: body.toString(),
-    });
-    const responseBodyText = await response.text();
-    if (!response.ok) {
-      const error = new AuthenticationError('Token refresh failed.');
-      Sentry.captureException(error, {
-        extra: {
-          status: response.status,
-          tokenEndpoint,
-        },
+      const body = new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: currentRefreshToken,
+        client_id: clientId,
+        scope: scopes,
       });
-      fastify.log.error({ status: response.status, idpResponseBody: responseBodyText }, 'Token refresh failed.');
-      throw error;
-    }
 
-    const newTokens = JSON.parse(responseBodyText);
-    fastify.log.info('Token refresh successful; received new tokens.');
+      const response = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: body.toString(),
+      });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        const error = new AuthenticationError('Token refresh failed.');
+        telemetry.report(error, {
+          message: 'Token refresh failed.',
+          context: { status: response.status, tokenEndpoint, idpResponseBody: responseBodyText },
+        });
+        throw error;
+      }
 
-    return {
-      accessToken: newTokens.access_token,
-      refreshToken: newTokens.refresh_token,
-      expiresIn: newTokens.expires_in,
-    };
-  });
+      const newTokens = JSON.parse(responseBodyText);
+      fastify.log.info('Token refresh successful; received new tokens.');
+
+      return {
+        accessToken: newTokens.access_token,
+        refreshToken: newTokens.refresh_token,
+        expiresIn: newTokens.expires_in,
+      };
+    },
+  );
 
   // @ts-ignore
   fastify.decorate('prepareOidcLoginRedirect', async (request, oidcConfig, authorizationEndpoint, stateKey) => {
@@ -194,13 +199,10 @@ async function authUtilsPlugin(fastify) {
       result.expiresAt = expiresAt;
     }
 
-    Sentry.addBreadcrumb({
-      category: 'auth',
-      message: 'Successfully authenticated user: ' + (result.userInfo?.email ?? 'unknown email address'),
+    request.telemetry.breadcrumb('OIDC callback succeeded; tokens retrieved.', {
       level: 'info',
+      context: { userEmail: result.userInfo?.email ?? 'unknown email address' },
     });
-
-    request.log.info('OIDC callback succeeded; tokens retrieved.');
     return result;
   });
 }
