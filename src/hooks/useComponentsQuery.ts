@@ -31,7 +31,16 @@ export function useComponentsQuery(): GetComponentsHookResult {
   const { data, error, loading } = useQuery(GetManagedComponentsQuery);
 
   const rawList = data?.core_openmcp_cloud?.v1alpha1?.ManagedComponents;
-  const components = rawList ? (rawList as unknown as ManagedComponentList) : undefined;
+  const components: ManagedComponentList | undefined = rawList
+    ? {
+        items: rawList.items.map((item) => ({
+          metadata: item.metadata ? { name: item.metadata.name ?? undefined } : undefined,
+          status: item.status
+            ? { versions: item.status.versions?.flatMap((v) => (v ? [v] : [])) }
+            : undefined,
+        })),
+      }
+    : undefined;
 
   return {
     components,

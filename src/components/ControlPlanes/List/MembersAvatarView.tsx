@@ -1,4 +1,4 @@
-import { Avatar, AvatarGroup, ResponsivePopover } from '@ui5/webcomponents-react';
+import { Avatar, AvatarGroup, BusyIndicator, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
 import { lazy, Suspense, useId, useMemo, useState } from 'react';
@@ -67,7 +67,7 @@ export function MembersAvatarView({ members, hideNamespaceColumn = false, source
         onClose={() => setPopoverIsOpen(false)}
       >
         <div className={styles.content}>
-          <Suspense>
+          <Suspense fallback={<BusyIndicator active />}>
             <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
           </Suspense>
         </div>
