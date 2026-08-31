@@ -67,7 +67,6 @@ if (
 
 const fastify = Fastify({
   logger: true,
-  trustProxy: 1,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
@@ -201,10 +200,12 @@ await fastify.register(FastifyVite, {
   dev: isLocalDev,
   spa: true,
   // Vite content-hashes all assets in /assets/ — safe to cache indefinitely
-  fastifyStaticOptions: isLocalDev ? undefined : {
-    maxAge: '1y',
-    immutable: true,
-  },
+  fastifyStaticOptions: isLocalDev
+    ? undefined
+    : {
+        maxAge: '1y',
+        immutable: true,
+      },
 });
 
 fastify.get('/sentry', function (req, reply) {
