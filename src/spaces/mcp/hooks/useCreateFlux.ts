@@ -1,10 +1,11 @@
 import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
 import { useCallback } from 'react';
+import { graphql } from '../../../types/__generated__/graphql';
+import type { CreateFluxMutationVariables } from '../../../types/__generated__/graphql/graphql';
 
-const CreateFluxMutation = gql`
-  mutation CreateFlux($namespace: String, $object: FluxServicesOpenmcpCloudV1alpha1Flux_Input!) {
-    flux_services_openmcp_cloud {
+const CreateFluxMutation = graphql(`
+  mutation CreateFlux($namespace: String, $object: FluxServicesOpenControlPlaneIoV1alpha1Flux_Input!) {
+    flux_services_open_control_plane_io {
       v1alpha1 {
         createFlux(namespace: $namespace, object: $object) {
           metadata {
@@ -15,7 +16,7 @@ const CreateFluxMutation = gql`
       }
     }
   }
-`;
+`);
 
 export function useCreateFlux() {
   const [createMutation, { loading, error }] = useMutation(CreateFluxMutation, {
@@ -23,9 +24,8 @@ export function useCreateFlux() {
   });
 
   const create = useCallback(
-    // TODO: replace `object: unknown` with the generated `FluxInput` type once GraphQL codegen is restored.
     async (variables: { namespace: string; object: unknown }) => {
-      return createMutation({ variables });
+      return createMutation({ variables: variables as CreateFluxMutationVariables });
     },
     [createMutation],
   );

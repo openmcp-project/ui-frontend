@@ -1,3 +1,15 @@
+.formLayout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.column {
+  flex: 1;
+  min-width: 16rem;
+}
+
 .affixRow {
   display: flex;
   gap: 8px;
@@ -6,13 +18,4 @@
 
 .input {
   width: 100%;
-  margin-bottom: 2rem;
-  max-width: 40ch;
-}
-
-.wrapper {
-  position: relative;
-  flex-direction: column;
-  display: flex;
-  overflow: hidden;
 }

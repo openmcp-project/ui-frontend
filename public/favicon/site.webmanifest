@@ -1,6 +1,6 @@
 {
-  "name": "ManagedControlPlane UI",
-  "short_name": "MCP UI",
+  "name": "Control Plane UI",
+  "short_name": "CP UI",
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",

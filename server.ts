@@ -11,9 +11,14 @@ import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
 import * as Sentry from '@sentry/node';
 import { injectDynatraceTag } from './server/config/dynatrace.js';
-const { DYNATRACE_SCRIPT_URL } = process.env;
+import { injectMatomoTag } from './server/config/matomo.js';
+const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
+}
+let matomoScriptHash: string | null = null;
+if (MATOMO_URL && MATOMO_SITE_ID) {
+  matomoScriptHash = injectMatomoTag(MATOMO_URL, MATOMO_SITE_ID);
 }
 
 if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
@@ -62,7 +67,6 @@ if (
 
 const fastify = Fastify({
   logger: true,
-  trustProxy: 1,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
@@ -118,38 +122,73 @@ if (DYNATRACE_SCRIPT_URL) {
   }
 }
 
+let matomoOrigin = '';
+if (MATOMO_URL) {
+  try {
+    matomoOrigin = new URL(MATOMO_URL).origin;
+  } catch {
+    console.error('MATOMO_URL is not a valid URL');
+  }
+}
+
 fastify.register(helmet, {
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      // styleSrc: unsafe-inline is needed for our styling
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:'],
-      'connect-src': [
-        "'self'",
-        'sdk.openui5.org',
-        // Headlamp uses iconify for icons — these CDNs are fetched by the iframe (same-origin via BFF proxy)
-        'api.iconify.design',
-        'api.simplesvg.com',
-        'api.unisvg.com',
-        sentryHost,
-        dynatraceOrigin,
-      ],
-      'script-src': isLocalDev
-        ? ["'self'", "'unsafe-inline'", "'unsafe-eval'", sentryHost, dynatraceOrigin]
-        : ["'self'", sentryHost, dynatraceOrigin],
-      'frame-src': ["'self'"],
-      // @ts-ignore
-      // 'self' is required so the app can embed Headlamp via same-origin iframe (/api/headlamp/*)
-      'frame-ancestors': ["'self'", ...fastify.config.FRAME_ANCESTORS.split(',')],
-    },
-  },
+  // CSP is managed manually below so we can suppress it for /api/headlamp/* paths.
+  // Headlamp's inline bootstrap scripts are blocked by script-src 'self', and the header
+  // must simply be absent for those responses — Helmet does not support per-request directives.
+  contentSecurityPolicy: false,
+  // frame-ancestors in the manual CSP below handles framing policy; this would add a
+  // conflicting X-Frame-Options: SAMEORIGIN header that overrides it and breaks portal embedding.
+  xFrameOptions: false,
   // Needed for https enforcement
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true,
   },
+});
+
+// Strip BFF CSP for Headlamp proxy responses — Helmet's script-src 'self' blocks inline scripts.
+// Headlamp's own CSP is already removed by rewriteHeaders in http-proxy.ts.
+fastify.addHook('onSend', async (req, reply, payload) => {
+  const pathname = req.url.split('?')[0];
+  if (pathname === '/api/headlamp' || pathname.startsWith('/api/headlamp/')) {
+    return payload;
+  }
+  // FRAME_ANCESTORS is a comma-separated env list; CSP separates sources by whitespace,
+  // so a raw comma turns every entry after the first into one invalid token the browser drops.
+  const frameAncestors = ((fastify as any).config?.FRAME_ANCESTORS ?? '')
+    .split(',')
+    .map((origin: string) => origin.trim())
+    .filter(Boolean)
+    .join(' ');
+  const telemetryOrigins = [sentryHost, dynatraceOrigin, matomoOrigin].filter(Boolean).join(' ');
+  // The Matomo bootstrap is an inline <script>; a strict script-src blocks it unless
+  // its exact sha256 is whitelisted. Scoped to script-src only (a script hash is
+  // meaningless in connect-src/img-src, which also consume telemetryOrigins).
+  const scriptSrcSources = [telemetryOrigins, matomoScriptHash ? `'${matomoScriptHash}'` : '']
+    .filter(Boolean)
+    .join(' ');
+  const csp = [
+    "default-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' data:${matomoOrigin ? ` ${matomoOrigin}` : ''}`,
+    `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${telemetryOrigins}`,
+    isLocalDev
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${telemetryOrigins}`
+      : `script-src 'self' ${scriptSrcSources}`,
+    "frame-src 'self'",
+    `frame-ancestors 'self'${frameAncestors ? ` ${frameAncestors}` : ''}`,
+    "base-uri 'self'",
+    "font-src 'self' https: data:",
+    "form-action 'self'",
+    "object-src 'none'",
+    "script-src-attr 'none'",
+    'upgrade-insecure-requests',
+  ]
+    .filter(Boolean)
+    .join(';');
+  reply.header('content-security-policy', csp);
+  return payload;
 });
 
 fastify.register(proxy, {
@@ -160,6 +199,13 @@ await fastify.register(FastifyVite, {
   root: __dirname,
   dev: isLocalDev,
   spa: true,
+  // Vite content-hashes all assets in /assets/ — safe to cache indefinitely
+  fastifyStaticOptions: isLocalDev
+    ? undefined
+    : {
+        maxAge: '1y',
+        immutable: true,
+      },
 });
 
 fastify.get('/sentry', function (req, reply) {

@@ -58,16 +58,16 @@ export interface ControlPlaneComponentsSpecType {
 }
 
 export interface ControlPlaneStatusType {
-  status: ReadyStatus;
+  status: string;
   conditions: ControlPlaneStatusCondition[];
   access:
-    | {
+    | ({
         key: string | undefined;
         name: string | undefined;
         namespace: string | undefined;
         kubeconfig: string | undefined;
-        oidc_openmcp: { name: string | undefined } | undefined;
-      }
+        oidc_openmcp: { name?: string } | undefined;
+      } & { [key: `oidc_${string}`]: { name?: string } | undefined })
     | undefined;
 }
 
@@ -79,20 +79,17 @@ export interface ControlPlaneStatusCondition {
   lastTransitionTime: string;
 }
 
-export enum ReadyStatus {
-  Ready = 'Ready',
-  NotReady = 'Not Ready',
-  InDeletion = 'Deleting',
-}
-
 export const ControlPlane = (
   projectName?: string,
   workspaceName?: string,
   controlPlaneName?: string,
   isV2 = false,
 ): Resource<ControlPlaneType> => {
+  const apiGroup = isV2 ? 'core.open-control-plane.io' : 'core.openmcp.cloud';
+  const apiVersion = isV2 ? 'v2alpha1' : 'v1alpha1';
+  const resource = isV2 ? 'controlplanes' : 'managedcontrolplanes';
   return {
-    path: `/apis/core.openmcp.cloud/${isV2 ? 'v2alpha1' : 'v1alpha1'}/namespaces/project-${projectName}--ws-${workspaceName}/${isV2 ? 'managedcontrolplanev2s' : 'managedcontrolplanes'}/${controlPlaneName}`,
+    path: `/apis/${apiGroup}/${apiVersion}/namespaces/project-${projectName}--ws-${workspaceName}/${resource}/${controlPlaneName}`,
     jq: isV2
       ? undefined
       : '{ spec: .spec | {components, authorization}, metadata: .metadata | {name, namespace, creationTimestamp, annotations}, status: { conditions: [.status.conditions[] | {type: .type, status: .status, message: .message, reason: .reason, lastTransitionTime: .lastTransitionTime}],  access: .status.components.authentication.access, status: .status.status }}',

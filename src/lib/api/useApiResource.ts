@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import useSWR, { SWRConfiguration, useSWRConfig } from 'swr';
-import * as Sentry from '@sentry/react';
 import { fetchApiServerJson } from './fetch';
 import { ApiConfigContext } from '../../components/Shared/k8s';
 import { APIError } from './error';
@@ -10,6 +9,7 @@ import useSWRMutation, { SWRMutationConfiguration } from 'swr/mutation';
 import { MutatorOptions } from 'swr/_internal';
 import { CRDRequest, CRDResponse } from './types/crossplane/CRDList';
 import { ProviderConfigs, ProviderConfigsData, ProviderConfigsDataForRequest } from '../shared/types';
+import { useTelemetry } from '../telemetry/telemetry';
 
 export const useApiResource = <T>(
   resource: Resource<T>,
@@ -131,38 +131,25 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
   const providerConfigs: ProviderConfigs[] = [];
 
   const fetchProviderConfigs = async () => {
-    try {
-      // Create an array of promises for each fetch call
-      const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
-        const data = await fetchApiServerJson<ProviderConfigs>(
-          `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
-          apiConfig,
-          CRDRequest.jq,
-          CRDRequest.method,
-          CRDRequest.body,
-        );
-        data.provider = item.provider;
-        return data; // Return fetched data
-      });
+    const fetchPromises = providerConfigsDataForRequest.map(async (item) => {
+      const data = await fetchApiServerJson<ProviderConfigs>(
+        `/apis/${item.url ?? ''}/${item.version}/providerconfigs`,
+        apiConfig,
+        CRDRequest.jq,
+        CRDRequest.method,
+        CRDRequest.body,
+      );
+      data.provider = item.provider;
+      return data;
+    });
 
-      // Wait for all fetch operations to complete
-      const providerConfigs = await Promise.all(fetchPromises);
-
-      // Filter out any null/undefined values and return the valid data
-      return providerConfigs.filter((config) => config !== null);
-    } catch (error) {
-      console.error('Error fetching provider configs:', error);
-      Sentry.captureException(error, {
-        extra: {
-          context: 'useProvidersConfigResource:fetchProviderConfigs',
-          requestCount: providerConfigsDataForRequest.length,
-        },
-      });
-      return []; // Return an empty array in case of error
-    }
+    const providerConfigs = await Promise.all(fetchPromises);
+    return providerConfigs.filter((config) => config !== null);
   };
+
   const [configs, setConfigs] = useState<ProviderConfigs[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<APIError | null>(null);
   const initialLoaded = useRef(false);
 
   useEffect(() => {
@@ -173,11 +160,13 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
         const finalData = await fetchProviderConfigs();
 
         setConfigs(finalData);
+        setFetchError(null);
         if (!initialLoaded.current) {
           setIsLoading(false);
           initialLoaded.current = true;
         }
-      } catch (_) {
+      } catch (err) {
+        setFetchError(err as APIError);
         setIsLoading(false);
       }
     };
@@ -188,7 +177,7 @@ export const useProvidersConfigResource = (config?: SWRConfiguration) => {
 
   return {
     data: configs,
-    error: error as APIError,
+    error: (error ?? fetchError) as APIError,
     isLoading: isLoading,
     isValidating: isValidating,
   };
@@ -250,6 +239,7 @@ export function useMultipleApiResources<T>(
   getResource: (namespace: string) => { path: string | null },
 ) {
   const apiConfig = useContext(ApiConfigContext);
+  const telemetry = useTelemetry();
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -269,13 +259,6 @@ export function useMultipleApiResources<T>(
         const results = await fetchMultipleResources<T>(namespaces, getResource, apiConfig);
         setData(results);
       } catch (err) {
-        console.error('Error fetching multiple resources:', err);
-        Sentry.captureException(err, {
-          extra: {
-            context: 'useMultipleApiResources',
-            namespacesCount: namespaces.length,
-          },
-        });
         setError(err as Error);
         setData([]);
       } finally {
@@ -284,7 +267,7 @@ export function useMultipleApiResources<T>(
     };
 
     fetchData();
-  }, [namespaces, getResource, apiConfig]);
+  }, [namespaces, getResource, apiConfig, telemetry]);
 
   return { data, isLoading, error };
 }

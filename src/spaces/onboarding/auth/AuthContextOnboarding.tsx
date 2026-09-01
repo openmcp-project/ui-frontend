@@ -4,6 +4,7 @@ import { STORAGE_KEY_AUTH_FLOW } from '../../../common/auth/AuthCallbackHandler.
 import * as Sentry from '@sentry/react';
 import { getRedirectSuffix } from '../../../common/auth/getRedirectSuffix.ts';
 import { registerRefreshFn, refreshToken } from './tokenRefresh';
+import { useTelemetry } from '../../../lib/telemetry/telemetry';
 
 interface AuthContextOnboardingType {
   isPending: boolean;
@@ -24,6 +25,7 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
+  const telemetry = useTelemetry();
 
   const refreshAuthStatus = useCallback(async (isBackground: boolean) => {
     // Only show loading spinner for user-initiated auth checks, not background token refreshes
@@ -60,12 +62,6 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
 
       const validTokenExpiry = apiTokenExpiresAt && apiTokenExpiresAt > Date.now() ? apiTokenExpiresAt : null;
       setTokenExpiry(validTokenExpiry);
-
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Authenticated user ' + apiUser?.email,
-        level: 'info',
-      });
     } catch (err) {
       Sentry.captureException(err, {
         extra: {
@@ -89,35 +85,42 @@ export function AuthProviderOnboarding({ children }: { children: ReactNode }) {
     void refreshAuthStatus(false);
   }, [refreshAuthStatus]);
 
-  const ensureFreshToken = useCallback(async () => {
-    if (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS) {
-      return true; // Token still valid
-    }
+  useEffect(() => {
+    telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
+  }, [user, telemetry]);
 
-    try {
-      const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
-      if (response.ok) {
-        await refreshAuthStatus(true);
-        return true;
+  const ensureFreshToken = useCallback(
+    async (force = false) => {
+      if (!force && (!tokenExpiry || tokenExpiry - Date.now() >= REFRESH_BUFFER_MS)) {
+        return true; // Token still valid
       }
 
-      if (response.status === 401) {
-        setIsAuthenticated(false);
-        setUser(null);
-        setTokenExpiry(null);
-      }
+      try {
+        const response = await fetch('/api/auth/onboarding/refresh', { method: 'POST' });
+        if (response.ok) {
+          await refreshAuthStatus(true);
+          return true;
+        }
 
-      return false;
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'auth',
-        message: 'Background token refresh failed',
-        level: 'warning',
-        ...(error instanceof Error && { data: { error: error.message } }),
-      });
-      return false;
-    }
-  }, [tokenExpiry, refreshAuthStatus]);
+        if (response.status === 401) {
+          setIsAuthenticated(false);
+          setUser(null);
+          setTokenExpiry(null);
+        }
+
+        return false;
+      } catch (error) {
+        Sentry.addBreadcrumb({
+          category: 'auth',
+          message: 'Background token refresh failed',
+          level: 'warning',
+          ...(error instanceof Error && { data: { error: error.message } }),
+        });
+        return false;
+      }
+    },
+    [tokenExpiry, refreshAuthStatus],
+  );
 
   // Register with tokenRefresh module to ensure only one refresh runs at a time across the app
   useEffect(() => {

@@ -26,7 +26,7 @@ describe('useCreateProject', () => {
 
   beforeEach(() => {
     mutateMock = vi.fn();
-    useMutationMock.mockReturnValue([mutateMock] as unknown as ReturnType<typeof useMutation>);
+    useMutationMock.mockReturnValue([mutateMock, { loading: false }] as unknown as ReturnType<typeof useMutation>);
   });
 
   afterEach(() => {

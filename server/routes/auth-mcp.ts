@@ -22,10 +22,15 @@ async function authPlugin(fastify) {
    * Helper function to fetch custom IdP configuration via internal proxy.
    */
   // @ts-ignore
-  const fetchCustomIdpConfig = async (req, namespace, mcpName, idpName) => {
+  const fetchCustomIdpConfig = async (req, namespace, mcpName, idpName, version) => {
+    const isV2 = version === 'v2';
+    const url = isV2
+      ? `/api/onboarding/apis/core.open-control-plane.io/v2alpha1/namespaces/${namespace}/controlplanes/${mcpName}`
+      : `/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}`;
+
     const proxyResponse = await fastify.inject({
       method: 'GET',
-      url: `/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${mcpName}`,
+      url,
       headers: {
         ...req.headers, // passing the original headers (cookies), so the proxy can read the session
         'x-use-crate': 'true',
@@ -38,6 +43,25 @@ async function authPlugin(fastify) {
     }
 
     const mcpDetails = proxyResponse.json();
+
+    if (isV2) {
+      // @ts-ignore
+      const idpConfig = mcpDetails.spec?.iam?.oidc?.extraProviders?.find((config) => config.name === idpName);
+      if (!idpConfig) {
+        throw new Error(`Identity Provider '${idpName}' not found in MCP configuration`);
+      }
+      if (!idpConfig.issuer || !idpConfig.clientID) {
+        throw new AuthenticationError(`Identity Provider '${idpName}' is incompletely configured`);
+      }
+      const issuerConfiguration = await fastify.discoverIssuerConfiguration(idpConfig.issuer);
+
+      return {
+        clientId: idpConfig.clientID,
+        extraScopes: idpConfig.extraScopes ?? [],
+        issuerConfiguration,
+      };
+    }
+
     // @ts-ignore
     const idpConfig = mcpDetails.spec.authentication.identityProviders?.find((config) => config.name === idpName);
     if (!idpConfig) {
@@ -56,10 +80,10 @@ async function authPlugin(fastify) {
    * Resolves the IdP configuration (system IdP or a custom IdP).
    */
   // @ts-ignore
-  const resolveIdpConfig = async (req, { namespace, mcpName, idpName }) => {
+  const resolveIdpConfig = async (req, { namespace, mcpName, idpName, version }) => {
     const isCustomIdp = !isSystemIdpRequest(idpName);
     if (isCustomIdp) {
-      const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName);
+      const customIdpConfig = await fetchCustomIdpConfig(req, namespace, mcpName, idpName, version);
 
       // Merge default scopes with any extra scopes from custom IdP config
       const defaultScopes = OIDC_SCOPES.split(' ');
@@ -95,9 +119,14 @@ async function authPlugin(fastify) {
   // @ts-ignore
   fastify.get('/auth/mcp/login', { config: authRateLimit }, async function (req, reply) {
     try {
-      const { namespace, mcp: mcpName, idp: idpName } = req.query;
+      const { namespace, mcp: mcpName, idp: idpName, version } = req.query;
 
-      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+      const { clientId, issuerConfiguration, scopes } = await resolveIdpConfig(req, {
+        namespace,
+        mcpName,
+        idpName,
+        version,
+      });
 
       const redirectUri = await fastify.prepareOidcLoginRedirect(
         req,
@@ -123,10 +152,10 @@ async function authPlugin(fastify) {
 
   // @ts-ignore
   fastify.get('/auth/mcp/callback', { config: authRateLimit }, async function (req, reply) {
-    const { namespace, mcp: mcpName, idp: idpName } = req.query;
+    const { namespace, mcp: mcpName, idp: idpName, version } = req.query;
 
     try {
-      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName });
+      const { clientId, issuerConfiguration } = await resolveIdpConfig(req, { namespace, mcpName, idpName, version });
 
       const callbackResult = await fastify.handleOidcCallback(
         req,
@@ -137,6 +166,9 @@ async function authPlugin(fastify) {
         issuerConfiguration.tokenEndpoint,
         stateSessionKey,
       );
+
+      // Regenerate session ID and encryption key to prevent session fixation (CWE-384)
+      await req.encryptedSession.regenerate();
 
       await req.encryptedSession.set('mcp_accessToken', callbackResult.accessToken);
       await req.encryptedSession.set('mcp_refreshToken', callbackResult.refreshToken);
@@ -192,7 +224,7 @@ async function authPlugin(fastify) {
 
   // @ts-expect-error - Fastify plugin route handler typing needs refinement
   fastify.post('/auth/mcp/refresh', { config: authRateLimit }, async function (req, reply) {
-    const { namespace, mcp, idp } = req.query;
+    const { namespace, mcp, idp, version } = req.query;
 
     const refreshToken = req.encryptedSession.get('mcp_refreshToken');
     if (!refreshToken) {
@@ -213,6 +245,7 @@ async function authPlugin(fastify) {
         namespace,
         mcpName: mcp,
         idpName: idp,
+        version,
       });
 
       const refreshedTokenData = await fastify.refreshAuthTokens(

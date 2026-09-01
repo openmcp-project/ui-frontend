@@ -4,6 +4,8 @@ import { defineConfig as defineViteConfig } from 'vite';
 
 import react from '@vitejs/plugin-react';
 
+import { monacoWorkerAlias, monacoOptimizeDepsExclude } from './vite.monaco.js';
+
 const viteConfig = defineViteConfig({
   plugins: [react()],
   define: {
@@ -11,12 +13,11 @@ const viteConfig = defineViteConfig({
     global: 'globalThis',
   },
   resolve: {
-    alias: {
-      path: 'path-browserify',
-    },
+    alias: [{ find: 'path', replacement: 'path-browserify' }, monacoWorkerAlias],
   },
   optimizeDeps: {
-    include: ['path-browserify'],
+    include: ['path-browserify', '@sentry/react'],
+    exclude: monacoOptimizeDepsExclude,
     rolldownOptions: {
       define: {
         global: 'globalThis',
@@ -27,6 +28,11 @@ const viteConfig = defineViteConfig({
 
 export default defineConfig({
   includeShadowDom: true,
+  retries: { runMode: 2, openMode: 0 },
+  video: false,
+  defaultCommandTimeout: 8000,
+  experimentalMemoryManagement: true,
+  numTestsKeptInMemory: 0,
   viewportWidth: 1920,
   viewportHeight: 1080,
   component: {

@@ -1,34 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Bar,
-  Button,
-  CheckBox,
-  CheckBoxDomRef,
-  Dialog,
-  FlexBox,
-  Option,
-  Select,
-  SelectDomRef,
-  Title,
-  Ui5CustomEvent,
-} from '@ui5/webcomponents-react';
+import { Bar, Button, Dialog, Option, Select, SelectDomRef, Title, Ui5CustomEvent } from '@ui5/webcomponents-react';
 import ButtonDesign from '@ui5/webcomponents/dist/types/ButtonDesign.js';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
+import { CrossplaneProviderPicker } from '../../../../components/Shared/CrossplaneProviderPicker/CrossplaneProviderPicker.tsx';
 import { YamlViewer } from '../../../../components/Yaml/YamlViewer.tsx';
 import { useToast } from '../../../../context/ToastContext.tsx';
 import { useCreateCrossplane as _useCreateCrossplane } from '../../hooks/useCreateCrossplane.ts';
 import { useManagedServicesQuery as _useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 import { useUpdateCrossplane as _useUpdateCrossplane } from '../../hooks/useUpdateCrossplane.ts';
 import type { CrossplaneData } from '../../types/Crossplane.ts';
+import { getHighestVersion } from '../../../../utils/componentsVersions.ts';
 import styles from './CrossplaneInstallDialog.module.css';
 import { createCrossplaneInstallSchema, CrossplaneInstallFormValues } from './CrossplaneInstallDialog.schema.ts';
 
 interface CrossplaneInstallDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (mode: 'install' | 'edit') => void;
   mcpName: string;
   mcpNamespace: string;
   mode?: 'install' | 'edit';
@@ -41,6 +32,7 @@ interface CrossplaneInstallDialogProps {
 export function CrossplaneInstallDialog({
   open,
   onClose,
+  onSuccess,
   mcpName,
   mcpNamespace,
   mode = 'install',
@@ -58,8 +50,26 @@ export function CrossplaneInstallDialog({
 
   const crossplaneService = useMemo(() => services.find((s) => s.name === 'crossplane'), [services]);
   const crossplaneVersions = useMemo(() => crossplaneService?.versions ?? [], [crossplaneService]);
-  const crossplaneApiVersion = crossplaneService?.apiVersion ?? 'crossplane.services.openmcp.cloud/v1alpha1';
+  const crossplaneDisplayVersions = useMemo(() => {
+    const installedVersion = initialData?.version;
+    if (mode === 'edit' && installedVersion && !crossplaneVersions.some((v) => v.version === installedVersion)) {
+      return [...crossplaneVersions, { version: installedVersion }];
+    }
+    return crossplaneVersions;
+  }, [crossplaneVersions, mode, initialData?.version]);
+  const crossplaneApiVersion = crossplaneService?.apiVersion ?? 'crossplane.services.open-control-plane.io/v1alpha1';
   const crossplaneKind = crossplaneService?.kind ?? 'Crossplane';
+
+  const augmentedProviderCatalog = useMemo(() => {
+    if (mode !== 'edit' || !initialData) return crossplaneProviders;
+    return crossplaneProviders.map((catalogProvider) => {
+      const installed = initialData.providers.find((ip) => ip.name === catalogProvider.name);
+      if (!installed?.version || catalogProvider.versions.some((v) => v.version === installed.version)) {
+        return catalogProvider;
+      }
+      return { ...catalogProvider, versions: [...catalogProvider.versions, { version: installed.version }] };
+    });
+  }, [crossplaneProviders, mode, initialData]);
 
   const schema = useMemo(() => createCrossplaneInstallSchema(t), [t]);
   const {
@@ -88,7 +98,7 @@ export function CrossplaneInstallDialog({
       });
     } else {
       reset({
-        crossplaneVersion: '',
+        crossplaneVersion: getHighestVersion(crossplaneVersions.map((v) => v.version)) ?? '',
         providerStates: crossplaneProviders.map((p) => ({ name: p.name, isSelected: false, selectedVersion: '' })),
       });
     }
@@ -113,22 +123,25 @@ export function CrossplaneInstallDialog({
   );
 
   const handleProviderToggle = useCallback(
-    (e: Ui5CustomEvent<CheckBoxDomRef, { checked: boolean }>) => {
-      const name = e.target.id;
+    (name: string) => {
       setValue(
         'providerStates',
-        providerStates.map((p) => (p.name === name ? { ...p, isSelected: !p.isSelected } : p)),
+        providerStates.map((p) => {
+          if (p.name !== name) return p;
+          const isSelected = !p.isSelected;
+          if (!isSelected || p.selectedVersion) return { ...p, isSelected };
+          const providerVersions = crossplaneProviders.find((cp) => cp.name === name)?.versions ?? [];
+          const highestVersion = getHighestVersion(providerVersions.map((v) => v.version));
+          return { ...p, isSelected, selectedVersion: highestVersion ?? p.selectedVersion };
+        }),
         { shouldValidate: isSubmitted },
       );
     },
-    [setValue, providerStates, isSubmitted],
+    [setValue, providerStates, isSubmitted, crossplaneProviders],
   );
 
   const handleProviderVersionChange = useCallback(
-    (e: Ui5CustomEvent<SelectDomRef, { selectedOption: HTMLElement }>) => {
-      const select = e.target as HTMLElement;
-      const name = select.dataset.name ?? '';
-      const version = (e.detail.selectedOption as HTMLElement).getAttribute('value') ?? '';
+    (name: string, version: string) => {
       setValue(
         'providerStates',
         providerStates.map((p) => (p.name === name ? { ...p, selectedVersion: version } : p)),
@@ -136,6 +149,14 @@ export function CrossplaneInstallDialog({
       );
     },
     [setValue, providerStates, isSubmitted],
+  );
+
+  const getProviderVersionError = useCallback(
+    (name: string) => {
+      const index = providerStates.findIndex((p) => p.name === name);
+      return index === -1 ? undefined : errors.providerStates?.[index]?.selectedVersion?.message;
+    },
+    [providerStates, errors.providerStates],
   );
 
   const onSubmit = useCallback(
@@ -162,6 +183,7 @@ export function CrossplaneInstallDialog({
             ? t('ComponentInstallDialog.successMessageEdit', { component: 'Crossplane' })
             : t('ComponentInstallDialog.successMessage', { component: 'Crossplane' }),
         );
+        onSuccess?.(mode);
         handleClose();
       } catch (error) {
         console.error('Crossplane mutation failed', error);
@@ -172,7 +194,19 @@ export function CrossplaneInstallDialog({
         );
       }
     },
-    [create, update, mode, mcpName, mcpNamespace, t, toast, handleClose, crossplaneApiVersion, crossplaneKind],
+    [
+      create,
+      update,
+      mode,
+      mcpName,
+      mcpNamespace,
+      t,
+      toast,
+      onSuccess,
+      handleClose,
+      crossplaneApiVersion,
+      crossplaneKind,
+    ],
   );
 
   const handleApply = useCallback(() => {
@@ -236,8 +270,7 @@ export function CrossplaneInstallDialog({
             valueStateMessage={errors.crossplaneVersion ? <span>{errors.crossplaneVersion.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
-            {crossplaneVersions.map(({ version }) => (
+            {crossplaneDisplayVersions.map(({ version }) => (
               <Option key={version} value={version}>
                 {version}
               </Option>
@@ -247,46 +280,14 @@ export function CrossplaneInstallDialog({
           <Title level="H5" className={styles.sectionTitle}>
             {t('ComponentInstallDialog.providers')}
           </Title>
-          <div className={styles.providerList}>
-            {providerStates.map((provider, index) => {
-              const providerVersions = crossplaneProviders.find((p) => p.name === provider.name)?.versions ?? [];
-              const versionError = errors.providerStates?.[index]?.selectedVersion;
-              return (
-                <FlexBox
-                  key={provider.name}
-                  justifyContent="SpaceBetween"
-                  alignItems="Center"
-                  className={styles.providerRow}
-                >
-                  <CheckBox
-                    id={provider.name}
-                    text={provider.name}
-                    checked={provider.isSelected}
-                    disabled={!crossplaneVersion}
-                    onChange={handleProviderToggle}
-                  />
-                  <Select
-                    data-cy={`provider-version-select-${provider.name}`}
-                    data-name={provider.name}
-                    className={styles.providerVersionSelect}
-                    accessibleName={t('ComponentInstallDialog.providerVersionLabel', { provider: provider.name })}
-                    disabled={!provider.isSelected}
-                    value={provider.selectedVersion}
-                    valueState={versionError ? 'Negative' : 'None'}
-                    valueStateMessage={versionError ? <span>{versionError.message}</span> : undefined}
-                    onChange={handleProviderVersionChange}
-                  >
-                    <Option value="">{t('ComponentsSelection.chooseVersion')}</Option>
-                    {providerVersions.map(({ version }) => (
-                      <Option key={version} value={version}>
-                        {version}
-                      </Option>
-                    ))}
-                  </Select>
-                </FlexBox>
-              );
-            })}
-          </div>
+          <CrossplaneProviderPicker
+            providers={providerStates}
+            catalog={augmentedProviderCatalog}
+            disabled={!crossplaneVersion}
+            getError={getProviderVersionError}
+            onToggle={handleProviderToggle}
+            onVersionChange={handleProviderVersionChange}
+          />
         </div>
         <div className={styles.yamlColumn}>
           <Title level="H5" className={styles.sectionTitle}>

@@ -40,3 +40,9 @@ public/frontend-config.json
 .ctf/
 
 .claude/settings.local.json
+
+# Cypress
+cypress/screenshots/
+
+# Local GraphQL schema introspection dump
+schema.introspection.json

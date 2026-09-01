@@ -1,0 +1,23 @@
+import type { Telemetry, TelemetryUser } from '../types';
+import type { TelemetryFeature } from '../features';
+
+export class ConsoleAdapter implements Telemetry {
+  track(feature: TelemetryFeature): void {
+    const { category, action, ...rest } = feature;
+    console.info('[Telemetry] track', `${category}.${action}`, rest);
+  }
+
+  report(error: unknown, options?: { message?: string; context?: Record<string, unknown> }): void {
+    console.error('[Telemetry] report', options?.message ?? 'Error', error, options?.context ?? {});
+  }
+
+  breadcrumb(message: string, options?: { level?: 'info' | 'warning'; context?: Record<string, unknown> }): void {
+    console.debug('[Telemetry] breadcrumb', message, options?.level ?? 'info', options?.context ?? {});
+  }
+
+  identify(user: TelemetryUser | null): void {
+    if (user) {
+      console.info('[Telemetry] identify ', user);
+    }
+  }
+}

@@ -1,0 +1,18 @@
+.nameCell {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.nameLink {
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.centeredCell {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

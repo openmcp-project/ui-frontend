@@ -16,16 +16,18 @@ import {
 } from '@ui5/webcomponents-react';
 
 import { AnalyticalTableColumnDefinition } from '@ui5/webcomponents-react/wrappers';
-import { Member, MemberRoles, MemberRolesDetailed } from '../../lib/api/types/shared/members';
-import { ACCOUNT_TYPES } from './EditMembers.tsx';
+import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members';
+import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
+import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 
 import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
 import { useApiResource } from '../../lib/api/useApiResource.ts';
 import { useTranslation } from 'react-i18next';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { TFunction } from 'i18next';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
-type FilteredFor = 'All' | 'Users' | 'ServiceAccounts';
+type FilteredFor = 'All' | 'Users' | 'Groups' | 'ServiceAccounts';
 type SourceType = 'Workspace' | 'Project';
 type TableRow = {
   email: string;
@@ -40,6 +42,7 @@ export interface ImportMembersDialogProps {
   onImport: (members: Member[]) => void;
   projectName: string;
   workspaceName?: string;
+  accountTypeOptions?: RadioButtonsSelectOption[];
 }
 export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   isOpen,
@@ -47,12 +50,31 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   workspaceName,
   onClose,
   onImport,
+  accountTypeOptions,
 }) => {
   const [filteredFor, setFilteredFor] = useState<FilteredFor>('All');
   const [sourceType, setSourceType] = useState<SourceType>('Project');
   const [selectedRowIds, setSelectedRowIds] = useState<AnalyticalTablePropTypes['selectedRowIds']>({});
 
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
+  const effectiveAccountTypeOptions = accountTypeOptions ?? ACCOUNT_TYPES;
+  const allowedKinds = useMemo(
+    () => new Set(effectiveAccountTypeOptions.map(({ value }) => value as AccountType)),
+    [effectiveAccountTypeOptions],
+  );
+
+  const availableFilters = useMemo(
+    () => [
+      { id: 'All' as const, label: t('common.all') },
+      ...(allowedKinds.has('User') ? [{ id: 'Users' as const, label: t('Entities.Users') }] : []),
+      ...(allowedKinds.has('Group') ? [{ id: 'Groups' as const, label: t('Entities.Groups') }] : []),
+      ...(allowedKinds.has('ServiceAccount')
+        ? [{ id: 'ServiceAccounts' as const, label: t('Entities.ServiceAccounts') }]
+        : []),
+    ],
+    [allowedKinds, t],
+  );
 
   const {
     isLoading,
@@ -71,18 +93,24 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
 
   const tableData: TableRow[] = useMemo(() => {
     const members = parentResourceData?.spec?.members ?? [];
-    const showUsers = filteredFor !== 'ServiceAccounts';
-    const showServiceAccounts = filteredFor !== 'Users';
+    const showUsers = filteredFor === 'All' || filteredFor === 'Users';
+    const showGroups = filteredFor === 'All' || filteredFor === 'Groups';
+    const showServiceAccounts = filteredFor === 'All' || filteredFor === 'ServiceAccounts';
 
     return members
-      .filter(({ kind }) => (kind === 'User' && showUsers) || (kind === 'ServiceAccount' && showServiceAccounts))
+      .filter(
+        ({ kind }) =>
+          (kind === 'User' && showUsers && allowedKinds.has('User')) ||
+          (kind === 'Group' && showGroups && allowedKinds.has('Group')) ||
+          (kind === 'ServiceAccount' && showServiceAccounts && allowedKinds.has('ServiceAccount')),
+      )
       .map((m) => ({
         email: m.name,
-        role: MemberRolesDetailed[m.roles?.[0] as MemberRoles]?.displayValue,
+        role: MemberRolesDetailed[m.roles?.[0] ?? '']?.displayValue ?? m.roles?.[0] ?? '',
         kind: m.kind,
         _member: m,
       }));
-  }, [parentResourceData, filteredFor]);
+  }, [parentResourceData, filteredFor, allowedKinds]);
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
@@ -93,7 +121,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         width: 145,
         Cell: (instance) => {
           const original = instance.cell.row.original as TableRow;
-          const kind = ACCOUNT_TYPES.find(({ value }) => value === original.kind);
+          const kind = effectiveAccountTypeOptions.find(({ value }) => value === original.kind);
           return (
             <FlexBox gap={'0.5rem'} wrap={'NoWrap'}>
               <Icon name={kind?.icon} accessibleName={kind?.label} showTooltip />
@@ -104,7 +132,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
       },
       { Header: t('MemberTable.columnRoleHeader'), accessor: 'role', width: 120 },
     ],
-    [t],
+    [t, effectiveAccountTypeOptions],
   );
 
   useEffect(() => {
@@ -112,11 +140,24 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
     setSelectedRowIds({});
   }, [isOpen]);
 
+  useEffect(() => {
+    if (filteredFor === 'All') {
+      return;
+    }
+
+    const isCurrentFilterAvailable = availableFilters.some(({ id }) => id === filteredFor);
+    if (!isCurrentFilterAvailable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFilteredFor('All');
+    }
+  }, [availableFilters, filteredFor]);
+
   const handleAddMembers = () => {
     const selectedMembers = Object.entries(selectedRowIds ?? {})
       .filter(([, isSelected]) => isSelected)
       .map(([idx]) => tableData[Number(idx)]._member);
 
+    telemetry.track({ category: 'member', action: 'added', scope: workspaceName ? 'workspace' : 'project' });
     onImport(selectedMembers);
     onClose();
   };
@@ -178,15 +219,11 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
                   setSelectedRowIds({});
                 }}
               >
-                <SegmentedButtonItem data-id="All" selected={filteredFor === 'All'}>
-                  {t('common.all')}
-                </SegmentedButtonItem>
-                <SegmentedButtonItem data-id="Users" selected={filteredFor === 'Users'}>
-                  {t('Entities.Users')}
-                </SegmentedButtonItem>
-                <SegmentedButtonItem data-id="ServiceAccounts" selected={filteredFor === 'ServiceAccounts'}>
-                  {t('Entities.ServiceAccounts')}
-                </SegmentedButtonItem>
+                {availableFilters.map((filter) => (
+                  <SegmentedButtonItem key={filter.id} data-id={filter.id} selected={filteredFor === filter.id}>
+                    {filter.label}
+                  </SegmentedButtonItem>
+                ))}
               </SegmentedButton>
             </div>
           </div>
@@ -225,5 +262,7 @@ function getAddMembersButtonText(selectedMembersCount: number, t: TFunction) {
 }
 
 interface SpecMembers {
-  spec?: { members: { name: string; roles: string[]; kind: 'User' | 'ServiceAccount'; namespace?: string }[] };
+  spec?: {
+    members: { name: string; roles: string[]; kind: 'User' | 'Group' | 'ServiceAccount'; namespace?: string }[];
+  };
 }

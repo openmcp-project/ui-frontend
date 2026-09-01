@@ -109,6 +109,7 @@ describe('useWorkspacesQuery', () => {
   });
 
   it('refetches query when subscription receives data', () => {
+    vi.useFakeTimers();
     const refetch = vi.fn();
     useQueryMock.mockReturnValue({
       data: undefined,
@@ -123,6 +124,8 @@ describe('useWorkspacesQuery', () => {
     } as ReturnType<typeof useSubscription>);
 
     renderHook(() => useWorkspacesQuery('demo'));
+    vi.runAllTimers();
+    vi.useRealTimers();
 
     expect(refetch).toHaveBeenCalled();
   });

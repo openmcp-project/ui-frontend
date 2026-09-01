@@ -22,7 +22,7 @@ export function PathAwareBreadcrumbs({
   const breadcrumbItems: { label: string; path: string }[] = [
     {
       label: `[${frontendConfig.landscape}] ${t('PathAwareBreadcrumbs.projectsLabel')}`,
-      path: Routes.Home,
+      path: `${Routes.Projects}?noRedirect=true`,
     },
   ];
 

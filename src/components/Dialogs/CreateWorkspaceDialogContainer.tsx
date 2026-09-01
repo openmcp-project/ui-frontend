@@ -10,6 +10,7 @@ import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export type CreateDialogProps = {
   name: string;
@@ -34,17 +35,19 @@ export function CreateWorkspaceDialogContainer({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     register,
     handleSubmit,
     resetField,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     control,
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaProjectWorkspace),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       displayName: '',
@@ -59,7 +62,7 @@ export function CreateWorkspaceDialogContainer({
   const username = user?.email;
   const namespace = projectnameToNamespace(project);
 
-  const { createWorkspace } = useCreateWorkspace(namespace);
+  const { createWorkspace, isLoading } = useCreateWorkspace(namespace);
   const errorDialogRef = useRef<ErrorDialogHandle>(null);
 
   const clearForm = useCallback(() => {
@@ -67,11 +70,12 @@ export function CreateWorkspaceDialogContainer({
     resetField('chargingTarget');
     resetField('displayName');
     resetField('chargingTargetType');
+    resetField('members');
   }, [resetField]);
 
   useEffect(() => {
     if (username) {
-      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }]);
+      setValue('members', [{ name: username, roles: [MemberRoles.admin], kind: 'User' }], { shouldValidate: true });
     }
     if (!isOpen) {
       clearForm();
@@ -93,6 +97,7 @@ export function CreateWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
+      telemetry.track({ category: 'workspace', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
@@ -109,11 +114,14 @@ export function CreateWorkspaceDialogContainer({
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       errorDialogRef={errorDialogRef}
-      titleText="Create Workspace"
+      titleText={t('CreateProjectWorkspaceDialog.createWorkspaceTitle')}
       members={members}
       register={register}
       errors={errors}
       setValue={setValue}
+      handleSubmit={handleSubmit}
+      isMetadataValid={isValid}
+      isLoading={isLoading}
       type={'workspace'}
       projectName={project}
       // eslint-disable-next-line react-hooks/refs

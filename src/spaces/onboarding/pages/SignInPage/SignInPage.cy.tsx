@@ -17,7 +17,8 @@ describe('SignInPage', () => {
   it('renders the SignInPage', () => {
     cy.mount(<SignInPage useAuthOnboarding={fakeUseAuthOnboarding} />);
 
-    cy.get('ui5-title').should('exist');
+    cy.get('img[alt="Open Control Plane"]').should('exist');
+    cy.get('ui5-button').should('contain', 'Sign In');
   });
 
   it('calls the login function when the user clicks the "Sign In" button', () => {
@@ -34,9 +35,9 @@ describe('SignInPage', () => {
     });
   });
 
-  it('contains a link to the documentation', () => {
+  it('contains a link to contribute on GitHub', () => {
     const fakeUseLink = (() => ({
-      documentationHomepage: 'https://link-to-documentation.com',
+      contributeLink: 'https://github.com/openmcp-project',
     })) as typeof useLink;
 
     cy.mount(<SignInPage useAuthOnboarding={fakeUseAuthOnboarding} useLink={fakeUseLink} />);
@@ -44,6 +45,6 @@ describe('SignInPage', () => {
     cy.get('a')
       .should('have.attr', 'target', '_blank')
       .and('have.attr', 'rel', 'noreferrer')
-      .and('have.attr', 'href', 'https://link-to-documentation.com');
+      .and('have.attr', 'href', 'https://github.com/openmcp-project');
   });
 });

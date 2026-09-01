@@ -71,7 +71,7 @@ describe('ComponentCard', () => {
     cy.get('@onInstall').should('have.been.called');
   });
 
-  it('renders an edit button in the kpi container when installed and onEditButtonClick is provided', () => {
+  it('renders an actions menu with edit option in the kpi container when installed and onEditButtonClick is provided', () => {
     const props: ComponentCardProps = {
       name: 'COMPONENT NAME',
       description: 'COMPONENT DESCRIPTION',
@@ -86,15 +86,16 @@ describe('ComponentCard', () => {
 
     mount(props);
 
-    cy.get('[data-cy="kpi-container"] [data-cy="edit-button"]').should('be.visible');
+    cy.get('[data-cy="kpi-container"] [data-cy="actions-menu-button"]').should('be.visible');
     cy.contains('v1.2.3').should('be.visible');
 
-    cy.get('[data-cy="edit-button"]').click();
+    cy.get('[data-cy="actions-menu-button"]').click();
+    cy.get('[data-cy="edit-menu-item"]').click();
     cy.get('@onEdit').should('have.been.calledOnce');
     cy.get('@onNavigate').should('not.have.been.called');
   });
 
-  it('does not render an edit button when onEditButtonClick is not provided', () => {
+  it('does not render an actions menu button when no action callbacks are provided', () => {
     const props: ComponentCardProps = {
       name: 'COMPONENT NAME',
       description: 'COMPONENT DESCRIPTION',
@@ -108,7 +109,7 @@ describe('ComponentCard', () => {
 
     mount(props);
 
-    cy.get('[data-cy="edit-button"]').should('not.exist');
+    cy.get('[data-cy="actions-menu-button"]').should('not.exist');
     cy.contains('v1.2.3').should('be.visible');
   });
 });
