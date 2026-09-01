@@ -3,7 +3,6 @@ import { Button, FlexBox } from '@ui5/webcomponents-react';
 import styles from './YamlSummarize.module.css';
 import { useTranslation } from 'react-i18next';
 import { useCopyToClipboard } from '../../../hooks/useCopyToClipboard.ts';
-import { SHOW_DOWNLOAD_BUTTON } from '../../Yaml/YamlSidePanel.tsx';
 import { YamlResourceEditorSchemaLoader } from '../../Yaml/YamlResourceEditorSchemaLoader.tsx';
 
 type YamlPanelProps = {
@@ -34,11 +33,9 @@ const YamlSummarize: FC<YamlPanelProps> = ({ yamlString, filename, apiVersion, a
         <Button icon="copy" onClick={() => copyToClipboard(yamlString)}>
           {t('buttons.copy')}
         </Button>
-        {SHOW_DOWNLOAD_BUTTON && (
-          <Button icon="download" onClick={downloadYaml}>
-            {t('buttons.download')}
-          </Button>
-        )}
+        <Button icon="download" onClick={downloadYaml}>
+          {t('buttons.download')}
+        </Button>
       </FlexBox>
       <YamlResourceEditorSchemaLoader
         apiGroupName={apiGroupName}

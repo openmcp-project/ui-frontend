@@ -1,5 +1,34 @@
+.panelWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.panelWrapper:hover .floatingActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .panel {
   width: 100%;
+  height: 100%;
+}
+
+.floatingActions {
+  position: absolute;
+  bottom: 1.75rem;
+  right: 1.75rem; /* offset from scrollbar */
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 100;
+  background: var(--sapGroup_TitleBackground);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: var(--sapContent_Shadow1);
 }
 
 .content {
