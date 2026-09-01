@@ -27,12 +27,9 @@ import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   ComponentsListItem,
   CreateManagedControlPlane,
-  CreateManagedControlPlaneResource,
-  CreateManagedControlPlaneType,
   replaceComponentsName,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
@@ -240,9 +237,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [user?.email, isOpen, setValue, clearFormFields]);
 
-  const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    CreateManagedControlPlaneResource(projectName, workspaceName),
-  );
   const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
   const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
     projectName,
@@ -308,7 +302,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trigger, projectName, workspaceName, componentsList, templateAffixes],
+    [projectName, workspaceName, componentsList, templateAffixes],
   );
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {
