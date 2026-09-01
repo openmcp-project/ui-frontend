@@ -394,6 +394,421 @@ export type CoreOpenControlPlaneIoV2alpha1ControlPlane_Input = {
   status?: CoreOpenControlPlaneIoV2alpha1ControlPlaneStatus_Input | null | undefined;
 };
 
+/**
+ * ClientSecret is a references to a secret containing the client secret.
+ * The client secret will be added to the generated kubeconfig with the "--oidc-client-secret" flag.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfigClientSecret_Input =
+  {
+    /** Key is the key inside the secret. */
+    key?: string | null | undefined;
+    /** Name is the secret name. */
+    name?: string | null | undefined;
+  };
+
+/** ClientAuthentication contains configuration for OIDC clients */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfig_Input = {
+  /**
+   * ClientSecret is a references to a secret containing the client secret.
+   * The client secret will be added to the generated kubeconfig with the "--oidc-client-secret" flag.
+   */
+  clientSecret?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfigClientSecret_Input
+    | null
+    | undefined;
+  /**
+   * ExtraConfig is added to the client configuration in the kubeconfig.
+   * Can either be a single string value, a list of string values or no value.
+   * Must not contain any of the following keys:
+   * - "client-id"
+   * - "client-secret"
+   * - "issuer-url"
+   */
+  extraConfig?: unknown;
+};
+
+/** IdentityProvider contains the configuration for an OpenID Connect identity provider */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProviders_Input = {
+  /**
+   * CABundle: When set, the OpenID server's certificate will be verified by one of the authorities in the bundle.
+   * Otherwise, the host's root CA set will be used.
+   */
+  caBundle?: string | null | undefined;
+  /** ClientAuthentication contains configuration for OIDC clients */
+  clientConfig?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProvidersClientConfig_Input | null | undefined;
+  /** ClientID is the client ID of the identity provider. */
+  clientID?: string | null | undefined;
+  /** GroupsClaim is the claim that contains the groups. */
+  groupsClaim?: string | null | undefined;
+  /** IssuerURL is the issuer URL of the identity provider. */
+  issuerURL?: string | null | undefined;
+  /**
+   * Name is the name of the identity provider.
+   * The name must be unique among all identity providers.
+   * The name must only contain lowercase letters.
+   * The length must not exceed 63 characters.
+   */
+  name?: string | null | undefined;
+  /** RequiredClaims is a map of required claims. If set, the identity provider must provide these claims in the ID token. */
+  requiredClaims?: unknown;
+  /** SigningAlgs is the list of allowed JOSE asymmetric signing algorithms. */
+  signingAlgs?: Array<string | null | undefined> | null | undefined;
+  /** UsernameClaim is the claim that contains the username. */
+  usernameClaim?: string | null | undefined;
+};
+
+/** Authentication contains the configuration for the enabled OpenID Connect identity providers */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthentication_Input = {
+  enableSystemIdentityProvider?: boolean | null | undefined;
+  identityProviders?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthenticationIdentityProviders_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/**
+ * Subject describes an object that is assigned to a role and
+ * which can be used to authenticate against the control plane.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindingsSubjects_Input = {
+  /** APIGroup is the API group of the subject */
+  apiGroup?: string | null | undefined;
+  /** Kind is the kind of the subject */
+  kind?: string | null | undefined;
+  /** Name is the name of the subject */
+  name?: string | null | undefined;
+  /** Namespace is the namespace of the subject */
+  namespace?: string | null | undefined;
+};
+
+/** RoleBinding contains the role and the subjects assigned to the role */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindings_Input = {
+  /** Role is the name of the role */
+  role?: string | null | undefined;
+  /** Subjects is a list of subjects assigned to the role */
+  subjects?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindingsSubjects_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/** Authorization contains the configuration of the subjects assigned to control plane roles */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorization_Input = {
+  /** RoleBindings is a list of role bindings */
+  roleBindings?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorizationRoleBindings_Input | null | undefined>
+    | null
+    | undefined;
+};
+
+/** PolicyRef is the reference to the policy containing the configuration for the audit log service. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogPolicyRef_Input = {
+  /**
+   * Name of the referent.
+   * This field is effectively required, but due to backwards compatibility is
+   * allowed to be empty. Instances of this type with an empty value here are
+   * almost certainly wrong.
+   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+   */
+  name?: string | null | undefined;
+};
+
+/** SecretRef is the reference to the secret containing the credentials for the audit log service. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogSecretRef_Input = {
+  /**
+   * Name of the referent.
+   * This field is effectively required, but due to backwards compatibility is
+   * allowed to be empty. Instances of this type with an empty value here are
+   * almost certainly wrong.
+   * More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+   */
+  name?: string | null | undefined;
+};
+
+/** AuditLogConfig defines the AuditLog configuration for the ManagedControlPlane cluster. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLog_Input = {
+  /** PolicyRef is the reference to the policy containing the configuration for the audit log service. */
+  policyRef?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogPolicyRef_Input
+    | null
+    | undefined;
+  /** SecretRef is the reference to the secret containing the credentials for the audit log service. */
+  secretRef?:
+    | CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLogSecretRef_Input
+    | null
+    | undefined;
+  /** ServiceURL is the URL from the Service Keys. */
+  serviceURL?: string | null | undefined;
+  /** TenantID is the tenant ID of the BTP Subaccount. Can be seen in the BTP Cockpit dashboard. */
+  tenantID?: string | null | undefined;
+  /** Type is the type of the audit log. */
+  type?: string | null | undefined;
+};
+
+/** EncryptionConfig contains customizable encryption configuration of the API server. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerEncryptionConfig_Input = {
+  /**
+   * Resources contains the list of resources that shall be encrypted in addition to secrets.
+   * Each item is a Kubernetes resource name in plural (resource or resource.group) that should be encrypted.
+   * Example: ["configmaps", "statefulsets.apps", "flunders.emxample.com"]
+   */
+  resources?: Array<string | null | undefined> | null | undefined;
+};
+
+/** HighAvailabilityConfig specifies the HA configuration for the API server. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerHighAvailability_Input = {
+  /**
+   * FailureToleranceType specifies failure tolerance mode for the API server.
+   * Allowed values are: node, zone
+   * node: The API server is tolerant to node failures within a single zone.
+   * zone: The API server is tolerant to zone failures.
+   */
+  failureToleranceType?: string | null | undefined;
+};
+
+/**
+ * GardenerConfig contains configuration for a Gardener APIServer.
+ * Must be set if type is 'Gardener', is ignored otherwise.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardener_Input = {
+  /** AuditLogConfig defines the AuditLog configuration for the ManagedControlPlane cluster. */
+  auditLog?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerAuditLog_Input | null | undefined;
+  /** EncryptionConfig contains customizable encryption configuration of the API server. */
+  encryptionConfig?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerEncryptionConfig_Input | null | undefined;
+  /** HighAvailabilityConfig specifies the HA configuration for the API server. */
+  highAvailability?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardenerHighAvailability_Input | null | undefined;
+  /**
+   * Region is the region to be used for the Shoot cluster.
+   * This is usually derived from the ManagedControlPlane's common configuration, but can be overwritten here.
+   */
+  region?: string | null | undefined;
+};
+
+/** APIServerConfiguration contains the configuration which is required for setting up a k8s cluster to be used as APIServer. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServer_Input = {
+  /**
+   * GardenerConfig contains configuration for a Gardener APIServer.
+   * Must be set if type is 'Gardener', is ignored otherwise.
+   */
+  gardener?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServerGardener_Input | null | undefined;
+  /**
+   * Type is the type of APIServer. This determines which other configuration fields need to be specified.
+   * Valid values are:
+   * - Gardener
+   * - GardenerDedicated
+   */
+  type?: string | null | undefined;
+};
+
+/** BTPServiceOperator defines the configuration for setting up the BTPServiceOperator component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator_Input = {
+  /** The Version of BTP Service Operator to install. */
+  version?: string | null | undefined;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplaneProviders_Input = {
+  /**
+   * Name of the provider.
+   * Using a well-known name will automatically configure the "package" field.
+   */
+  name?: string | null | undefined;
+  /** Version of the provider to install. */
+  version?: string | null | undefined;
+};
+
+/** Crossplane defines the configuration for setting up the Crossplane component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane_Input = {
+  providers?:
+    | Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplaneProviders_Input | null | undefined>
+    | null
+    | undefined;
+  /** The Version of Crossplane to install. */
+  version?: string | null | undefined;
+};
+
+/** ExternalSecretsOperator defines the configuration for setting up the ExternalSecretsOperator component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator_Input = {
+  /** The Version of External Secrets Operator to install. */
+  version?: string | null | undefined;
+};
+
+/** Flux defines the configuration for setting up the Flux component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux_Input = {
+  /** The Version of Flux to install. */
+  version?: string | null | undefined;
+};
+
+/** Kyverno defines the configuration for setting up the Kyverno component in a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno_Input = {
+  /** The Version of Kyverno to install. */
+  version?: string | null | undefined;
+};
+
+/** LandscaperConfiguration contains the configuration which is required for setting up a LaaS instance. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper_Input = {
+  /** Deployers is the list of deployers that should be installed. */
+  deployers?: Array<string | null | undefined> | null | undefined;
+};
+
+/** Components contains the configuration for Components like APIServer, Landscaper, CloudOrchestrator. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponents_Input = {
+  /** APIServerConfiguration contains the configuration which is required for setting up a k8s cluster to be used as APIServer. */
+  apiServer?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsApiServer_Input | null | undefined;
+  /** BTPServiceOperator defines the configuration for setting up the BTPServiceOperator component in a ManagedControlPlane. */
+  btpServiceOperator?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator_Input | null | undefined;
+  /** Crossplane defines the configuration for setting up the Crossplane component in a ManagedControlPlane. */
+  crossplane?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane_Input | null | undefined;
+  /** ExternalSecretsOperator defines the configuration for setting up the ExternalSecretsOperator component in a ManagedControlPlane. */
+  externalSecretsOperator?:
+    CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator_Input | null | undefined;
+  /** Flux defines the configuration for setting up the Flux component in a ManagedControlPlane. */
+  flux?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux_Input | null | undefined;
+  /** Kyverno defines the configuration for setting up the Kyverno component in a ManagedControlPlane. */
+  kyverno?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno_Input | null | undefined;
+  /** LandscaperConfiguration contains the configuration which is required for setting up a LaaS instance. */
+  landscaper?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper_Input | null | undefined;
+};
+
+/** DesiredRegion allows customers to specify a desired region proximity. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecDesiredRegion_Input = {
+  /** Direction is the direction within the region. */
+  direction?: string | null | undefined;
+  /** Name is the name of the region. */
+  name?: string | null | undefined;
+};
+
+/** ManagedControlPlaneSpec defines the desired state of ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpec_Input = {
+  /** Authentication contains the configuration for the enabled OpenID Connect identity providers */
+  authentication?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthentication_Input | null | undefined;
+  /** Authorization contains the configuration of the subjects assigned to control plane roles */
+  authorization?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecAuthorization_Input | null | undefined;
+  /** Components contains the configuration for Components like APIServer, Landscaper, CloudOrchestrator. */
+  components?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponents_Input | null | undefined;
+  /** DesiredRegion allows customers to specify a desired region proximity. */
+  desiredRegion?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecDesiredRegion_Input | null | undefined;
+  /**
+   * DisabledComponents contains a list of component types.
+   * The resources for these components will still be generated, but they will get the ignore operation annotation, so they should not be processed by their respective controllers.
+   */
+  disabledComponents?: Array<string | null | undefined> | null | undefined;
+};
+
+/**
+ * ExternalAPIServerStatus contains the status of the API server / ManagedControlPlane cluster. The Kuberenetes can act as an OIDC
+ * compatible provider in a sense that they serve OIDC issuer endpoint URL so that other system can validate tokens that have been
+ * issued by the external party.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsApiServer_Input = {
+  /** Endpoint represents the Kubernetes API server endpoint */
+  endpoint?: string | null | undefined;
+  /** ServiceAccountIssuer represents the OpenIDConnect issuer URL that can be used to verify service account tokens. */
+  serviceAccountIssuer?: string | null | undefined;
+};
+
+/**
+ * UserAccess reference the secret containing the kubeconfig
+ * for the APIServer which is to be used by the customer.
+ */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthenticationAccess_Input = {
+  /** Key is the key inside the secret. */
+  key?: string | null | undefined;
+  /** Name is the object's name. */
+  name?: string | null | undefined;
+  /** Namespace is the object's namespace. */
+  namespace?: string | null | undefined;
+};
+
+/** ExternalAuthenticationStatus contains the status of the  authentication component. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthentication_Input = {
+  /**
+   * UserAccess reference the secret containing the kubeconfig
+   * for the APIServer which is to be used by the customer.
+   */
+  access?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthenticationAccess_Input | null | undefined;
+};
+
+/** ManagedControlPlaneComponentsStatus contains the status of the components of a ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponents_Input = {
+  /**
+   * ExternalAPIServerStatus contains the status of the API server / ManagedControlPlane cluster. The Kuberenetes can act as an OIDC
+   * compatible provider in a sense that they serve OIDC issuer endpoint URL so that other system can validate tokens that have been
+   * issued by the external party.
+   */
+  apiServer?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsApiServer_Input | null | undefined;
+  /** ExternalAuthenticationStatus contains the status of the  authentication component. */
+  authentication?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponentsAuthentication_Input | null | undefined;
+  /** ExternalAuthorizationStatus contains the status of the external authorization component */
+  authorization?: unknown;
+  /** ExternalCloudOrchestratorStatus contains the status of the CloudOrchestrator component. */
+  cloudOrchestrator?: unknown;
+  /** ExternalLandscaperStatus contains the status of a LaaS instance. */
+  landscaper?: unknown;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusConditions_Input = {
+  /** LastTransitionTime specifies the time when this condition's status last changed. */
+  lastTransitionTime?: string | null | undefined;
+  /** ManagedBy contains the information which component manages this condition. */
+  managedBy?: string | null | undefined;
+  /**
+   * Message contains further details regarding the condition.
+   * It is meant for human users, Reason should be used for programmatic evaluation instead.
+   * It is optional, but should be filled at least when Status is not "True".
+   */
+  message?: string | null | undefined;
+  /**
+   * Reason is expected to contain a CamelCased string that provides further information regarding the condition.
+   * It should have a fixed value set (like an enum) to be machine-readable. The value set depends on the condition type.
+   * It is optional, but should be filled at least when Status is not "True".
+   */
+  reason?: string | null | undefined;
+  /** Status is the status of the condition. */
+  status?: string | null | undefined;
+  /**
+   * Type is the type of the condition.
+   * This is a unique identifier and each type of condition is expected to be managed by exactly one component controller.
+   */
+  type?: string | null | undefined;
+};
+
+/** ManagedControlPlaneStatus defines the observed state of ManagedControlPlane. */
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatus_Input = {
+  /** ManagedControlPlaneComponentsStatus contains the status of the components of a ManagedControlPlane. */
+  components?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusComponents_Input | null | undefined;
+  /** Conditions collects the conditions of all components. */
+  conditions?:
+    Array<CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatusConditions_Input | null | undefined> | null | undefined;
+  /** Message contains an optional message. */
+  message?: string | null | undefined;
+  /** ObservedGeneration is the last generation of this resource that has successfully been reconciled. */
+  observedGeneration?: number | null | undefined;
+  /**
+   * Status is the current status of the ManagedControlPlane.
+   * It is "Deleting" if the ManagedControlPlane is being deleted.
+   * It is "Ready" if all conditions are true, and "Not Ready" otherwise.
+   */
+  status?: string | null | undefined;
+};
+
+export type CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input = {
+  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+  apiVersion?: string | null | undefined;
+  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+  kind?: string | null | undefined;
+  /** Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
+  /** ManagedControlPlaneSpec defines the desired state of ManagedControlPlane. */
+  spec?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpec_Input | null | undefined;
+  /** ManagedControlPlaneStatus defines the observed state of ManagedControlPlane. */
+  status?: CoreOpenmcpCloudV1alpha1ManagedControlPlaneStatus_Input | null | undefined;
+};
+
 export type CoreOpenmcpCloudV1alpha1ProjectSpecMembers_Input = {
   /** Kind of object being referenced. Can be "User", "Group", or "ServiceAccount". */
   kind?: string | null | undefined;
@@ -1310,6 +1725,77 @@ export type Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_OwnerReferenceOwnerReferences_I
   name?: string | null | undefined;
   /** UID of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids */
   uid?: string | null | undefined;
+};
+
+export type ProjectYamlQueryVariables = Exact<{
+  name: string;
+}>;
+
+export type ProjectYamlQuery = { core_openmcp_cloud: { v1alpha1: { ProjectYaml: string } | null } | null };
+
+export type WorkspaceYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type WorkspaceYamlQuery = { core_openmcp_cloud: { v1alpha1: { WorkspaceYaml: string } | null } | null };
+
+export type McpYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type McpYamlQuery = { core_openmcp_cloud: { v1alpha1: { ManagedControlPlaneYaml: string } | null } | null };
+
+export type ControlPlaneYamlQueryVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+}>;
+
+export type ControlPlaneYamlQuery = {
+  core_open_control_plane_io: { v2alpha1: { ControlPlaneYaml: string } | null } | null;
+};
+
+export type GetManagedComponentsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetManagedComponentsQuery = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      ManagedComponents: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          status: { versions: Array<string | null> | null } | null;
+        }>;
+      };
+    } | null;
+  } | null;
+};
+
+export type CreateManagedControlPlaneMutationVariables = Exact<{
+  namespace?: string | null | undefined;
+  object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input;
+}>;
+
+export type CreateManagedControlPlaneMutation = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      createManagedControlPlane: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
+};
+
+export type UpdateManagedControlPlaneMutationVariables = Exact<{
+  name: string;
+  namespace?: string | null | undefined;
+  object: CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input;
+}>;
+
+export type UpdateManagedControlPlaneMutation = {
+  core_openmcp_cloud: {
+    v1alpha1: {
+      updateManagedControlPlane: { metadata: { name: string | null; namespace: string | null } | null } | null;
+    } | null;
+  } | null;
 };
 
 export type GetCrossplaneQueryVariables = Exact<{
@@ -2235,6 +2721,483 @@ export type WorkspacesSubscriptionSubscription = {
   core_openmcp_cloud_v1alpha1_workspaces: { type: WatchEventType } | null;
 };
 
+export const ProjectYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ProjectYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ProjectYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProjectYamlQuery, ProjectYamlQueryVariables>;
+export const WorkspaceYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'WorkspaceYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'WorkspaceYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WorkspaceYamlQuery, WorkspaceYamlQueryVariables>;
+export const McpYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'McpYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedControlPlaneYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<McpYamlQuery, McpYamlQueryVariables>;
+export const ControlPlaneYamlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ControlPlaneYaml' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_open_control_plane_io' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v2alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ControlPlaneYaml' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ControlPlaneYamlQuery, ControlPlaneYamlQueryVariables>;
+export const GetManagedComponentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetManagedComponents' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'ManagedComponents' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'metadata' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'versions' } }],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedComponentsQuery, GetManagedComponentsQueryVariables>;
+export const CreateManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateManagedControlPlaneMutation, CreateManagedControlPlaneMutationVariables>;
+export const UpdateManagedControlPlaneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateManagedControlPlane' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CoreOpenmcpCloudV1alpha1ManagedControlPlane_Input' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'core_openmcp_cloud' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'v1alpha1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'updateManagedControlPlane' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'name' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'namespace' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'namespace' } },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'object' },
+                            value: { kind: 'Variable', name: { kind: 'Name', value: 'object' } },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'metadata' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateManagedControlPlaneMutation, UpdateManagedControlPlaneMutationVariables>;
 export const GetCrossplaneDocument = {
   kind: 'Document',
   definitions: [

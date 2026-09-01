@@ -268,7 +268,7 @@ export default function ProjectsList({
 
   return (
     <FadeIn>
-      {data.length > 0 && (
+      {!isPending && data.length > 0 && (
         <ResourceSearchBar focusOnMount value={search} onChange={handleSearchChange} onKeyDown={handleSearchKeyDown} />
       )}
       <div ref={tableContainerRef}>
@@ -284,6 +284,7 @@ export default function ProjectsList({
           className={styles.table}
           columns={columns}
           data={rows}
+          loading={isPending}
           minRows={10}
         />
       </div>

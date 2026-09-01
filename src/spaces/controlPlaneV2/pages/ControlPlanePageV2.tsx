@@ -463,6 +463,8 @@ export default function ControlPlanePageV2() {
           name: controlPlaneName,
         }}
         isV2
+        preloadedAccess={mcp.status?.access}
+        preloadedNamespace={mcp.metadata?.namespace}
       >
         <AuthProviderMcp>
           <WithinManagedControlPlane>
@@ -488,6 +490,8 @@ export default function ControlPlanePageV2() {
         name: controlPlaneName,
       }}
       isV2
+      preloadedAccess={mcp.status?.access}
+      preloadedNamespace={mcp.metadata?.namespace}
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>

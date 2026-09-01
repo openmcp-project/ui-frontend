@@ -30,8 +30,8 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
   const { t } = useTranslation();
   const telemetry = useTelemetry();
   const { kubeconfigDecoded, isPending: isKubeconfigLoading } = useKubeconfigQuery(
-    oidcOpenmcpSecretName,
-    mcpNamespace,
+    menuIsOpen ? oidcOpenmcpSecretName : undefined,
+    menuIsOpen ? mcpNamespace : undefined,
     'kubeconfig',
   );
 

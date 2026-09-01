@@ -31,8 +31,8 @@ export const ControlPlaneCardMenu: FC<ControlPlanesListMenuProps> = ({
   const telemetry = useTelemetry();
   const hasAccessInfo = !!(secretKey && secretName && namespace);
   const { kubeconfigDecoded: kubeconfigResource, isPending: isKubeconfigLoading } = useKubeconfigQuery(
-    hasAccessInfo ? secretName : undefined,
-    hasAccessInfo ? namespace : undefined,
+    hasAccessInfo && menuIsOpen ? secretName : undefined,
+    hasAccessInfo && menuIsOpen ? namespace : undefined,
     secretKey,
   );
 
