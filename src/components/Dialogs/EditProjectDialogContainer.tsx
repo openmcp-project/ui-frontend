@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { BusyIndicator, Dialog } from '@ui5/webcomponents-react';
 import { ErrorDialog, ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
-import { CreateProjectWorkspaceDialog, OnCreatePayload } from './CreateProjectWorkspaceDialog.tsx';
+import { CreateProjectWorkspaceDialog, OnCreatePayload, Step } from './CreateProjectWorkspaceDialog.tsx';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -20,12 +20,14 @@ function EditProjectForm({
   setIsOpen,
   errorDialogRef,
   onUpdate,
+  initialStep,
 }: {
   projectData: ProjectData;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   errorDialogRef: React.RefObject<ErrorDialogHandle | null>;
   onUpdate: (payload: OnCreatePayload) => Promise<boolean>;
+  initialStep?: Step;
 }) {
   const { t } = useTranslation();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
@@ -44,6 +46,10 @@ function EditProjectForm({
       chargingTarget: projectData.chargingTarget,
       chargingTargetType: projectData.chargingTargetType?.toLowerCase() || 'btp',
       members: projectData.members,
+      supportServiceIds: projectData.supportServiceIds,
+      supportLandscape: projectData.supportLandscape,
+      supportSecurityContacts: projectData.supportSecurityContacts,
+      supportOpsContacts: projectData.supportOpsContacts,
     },
   });
   const members = useWatch({ control, name: 'members' });
@@ -61,6 +67,7 @@ function EditProjectForm({
       setValue={setValue}
       type={'project'}
       isEditMode
+      initialStep={initialStep}
       onCreate={handleSubmit(onUpdate)}
     />
   );
@@ -70,6 +77,7 @@ export function EditProjectDialogContainer({
   isOpen,
   setIsOpen,
   projectName,
+  initialStep,
   source,
   useUpdateProject = _useUpdateProject,
   useGetProject = _useGetProject,
@@ -77,6 +85,7 @@ export function EditProjectDialogContainer({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   projectName: string;
+  initialStep?: Step;
   source: ProjectEditedSource;
   useUpdateProject?: typeof _useUpdateProject;
   useGetProject?: typeof _useGetProject;
@@ -99,6 +108,10 @@ export function EditProjectDialogContainer({
     displayName,
     chargingTargetType,
     members,
+    supportServiceIds,
+    supportLandscape,
+    supportSecurityContacts,
+    supportOpsContacts,
   }: OnCreatePayload): Promise<boolean> => {
     try {
       await updateProject({
@@ -107,6 +120,10 @@ export function EditProjectDialogContainer({
         chargingTarget,
         chargingTargetType,
         members,
+        supportServiceIds,
+        supportLandscape,
+        supportSecurityContacts,
+        supportOpsContacts,
       });
       telemetry.track({ category: 'project', action: 'edited', source });
       setIsOpen(false);
@@ -140,6 +157,7 @@ export function EditProjectDialogContainer({
       {showForm && (
         <EditProjectForm
           projectData={projectData!}
+          initialStep={initialStep}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           errorDialogRef={errorDialogRef}
