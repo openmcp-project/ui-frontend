@@ -27,8 +27,7 @@ export function initSentry(): void {
     },
     beforeSend(event) {
       if (event.request && event.request.cookies) {
-        event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
-          // @ts-ignore
+        event.request.cookies = Object.keys(event.request.cookies).reduce<Record<string, string>>((acc, key) => {
           acc[key] = '';
           return acc;
         }, {});
