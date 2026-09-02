@@ -2,6 +2,7 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import '@ui5/webcomponents-cypress-commands';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
+import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
@@ -184,6 +185,195 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
 
       cy.get('[data-testid="workspace-panel-workspaceName"]').find('button').first().click();
       cy.get('@onToggle').should('have.been.calledOnce');
+    });
+  });
+
+  describe('subscription-driven UI updates', () => {
+    // Helper: a React wrapper that lets us swap useMcpsQuery return value after mount.
+    // Simulates what happens when a subscription event fires → refetch resolves with new data.
+    function MountWithUpdatableQuery({
+      initial,
+      onRegisterUpdate,
+    }: {
+      initial: ReturnType<typeof useMcpsQuery>;
+      onRegisterUpdate: (update: (next: ReturnType<typeof useMcpsQuery>) => void) => void;
+    }) {
+      const [queryResult, setQueryResult] = React.useState(initial);
+      React.useEffect(() => {
+        onRegisterUpdate(setQueryResult);
+      }, [onRegisterUpdate]);
+      return (
+        <MockedProvider mocks={[]}>
+          <MemoryRouter>
+            <FrontendConfigContext.Provider value={frontendConfig}>
+              <SplitterProvider>
+                <FeatureToggleProvider>
+                  <ControlPlaneListWorkspaceGridTile
+                    workspace={workspace}
+                    projectName="some-project"
+                    isExpanded={true}
+                    useMcpsQuery={() => queryResult}
+                    useDeleteWorkspace={fakeUseDeleteWorkspace}
+                    onToggleExpanded={cy.stub()}
+                  />
+                </FeatureToggleProvider>
+              </SplitterProvider>
+            </FrontendConfigContext.Provider>
+          </MemoryRouter>
+        </MockedProvider>
+      );
+    }
+
+    it('new control plane card appears after ADDED subscription event triggers refetch', () => {
+      const initial: ReturnType<typeof useMcpsQuery> = {
+        data: [
+          {
+            version: 'v1',
+            metadata: {
+              name: 'cp-original',
+              namespace: 'project-some-project--ws-workspaceName',
+              creationTimestamp: '2024-01-01T00:00:00Z',
+              annotations: {},
+            },
+            status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+          },
+        ],
+        error: undefined,
+        isPending: false,
+      };
+
+      let triggerUpdate: ((next: ReturnType<typeof useMcpsQuery>) => void) | undefined;
+
+      cy.mount(
+        <MountWithUpdatableQuery
+          initial={initial}
+          onRegisterUpdate={(fn) => {
+            triggerUpdate = fn;
+          }}
+        />,
+      );
+
+      cy.contains('cp-original').should('exist');
+      cy.contains('cp-new').should('not.exist');
+
+      // Simulate subscription ADDED event → refetch returns two control planes
+      cy.then(() => {
+        triggerUpdate?.({
+          data: [
+            ...initial.data,
+            {
+              version: 'v1',
+              metadata: {
+                name: 'cp-new',
+                namespace: 'project-some-project--ws-workspaceName',
+                creationTimestamp: '2024-01-02T00:00:00Z',
+                annotations: {},
+              },
+              status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+            },
+          ],
+          error: undefined,
+          isPending: false,
+        });
+      });
+
+      cy.contains('cp-original').should('exist');
+      cy.contains('cp-new').should('exist');
+    });
+
+    it('control plane card disappears after DELETED subscription event triggers refetch', () => {
+      const initial: ReturnType<typeof useMcpsQuery> = {
+        data: [
+          {
+            version: 'v1',
+            metadata: {
+              name: 'cp-keep',
+              namespace: 'project-some-project--ws-workspaceName',
+              creationTimestamp: '2024-01-01T00:00:00Z',
+              annotations: {},
+            },
+            status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+          },
+          {
+            version: 'v1',
+            metadata: {
+              name: 'cp-gone',
+              namespace: 'project-some-project--ws-workspaceName',
+              creationTimestamp: '2024-01-01T00:00:00Z',
+              annotations: {},
+            },
+            status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+          },
+        ],
+        error: undefined,
+        isPending: false,
+      };
+
+      let triggerUpdate: ((next: ReturnType<typeof useMcpsQuery>) => void) | undefined;
+
+      cy.mount(
+        <MountWithUpdatableQuery
+          initial={initial}
+          onRegisterUpdate={(fn) => {
+            triggerUpdate = fn;
+          }}
+        />,
+      );
+
+      cy.contains('cp-keep').should('exist');
+      cy.contains('cp-gone').should('exist');
+
+      // Simulate subscription DELETED event → refetch returns only cp-keep
+      cy.then(() => {
+        triggerUpdate?.({
+          data: [initial.data[0]],
+          error: undefined,
+          isPending: false,
+        });
+      });
+
+      cy.contains('cp-keep').should('exist');
+      cy.contains('cp-gone').should('not.exist');
+    });
+
+    it('empty state shown when last control plane is deleted via subscription', () => {
+      const initial: ReturnType<typeof useMcpsQuery> = {
+        data: [
+          {
+            version: 'v1',
+            metadata: {
+              name: 'cp-last',
+              namespace: 'project-some-project--ws-workspaceName',
+              creationTimestamp: '2024-01-01T00:00:00Z',
+              annotations: {},
+            },
+            status: { status: ReadyStatus.Ready, conditions: [], access: undefined },
+          },
+        ],
+        error: undefined,
+        isPending: false,
+      };
+
+      let triggerUpdate: ((next: ReturnType<typeof useMcpsQuery>) => void) | undefined;
+
+      cy.mount(
+        <MountWithUpdatableQuery
+          initial={initial}
+          onRegisterUpdate={(fn) => {
+            triggerUpdate = fn;
+          }}
+        />,
+      );
+
+      cy.contains('cp-last').should('exist');
+
+      cy.then(() => {
+        triggerUpdate?.({ data: [], error: undefined, isPending: false });
+      });
+
+      cy.contains('cp-last').should('not.exist');
+      // Empty state banner should appear
+      cy.get('ui5-illustrated-message').should('exist');
     });
   });
 });
