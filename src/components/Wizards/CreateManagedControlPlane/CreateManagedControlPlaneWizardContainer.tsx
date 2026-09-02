@@ -295,8 +295,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
       } catch (e) {
         if (e instanceof APIError && errorDialogRef.current) {
           errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        } else {
-          console.error(e);
         }
         return false;
       }

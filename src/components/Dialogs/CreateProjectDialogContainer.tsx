@@ -88,7 +88,6 @@ export function CreateProjectDialogContainer({
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       const message =
         e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);
