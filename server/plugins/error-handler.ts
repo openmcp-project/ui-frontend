@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import type { FastifyPluginAsync } from 'fastify';
 import { ApplicationError } from '../errors.js';
+import '../telemetry/telemetry.js';
 
 const isFastifyClientError = (error: unknown): boolean => {
   if (typeof error !== 'object' || error === null) {
