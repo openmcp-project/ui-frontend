@@ -6,6 +6,7 @@ import { Edge, Node } from '@xyflow/react';
 import { ColorBy, NodeData } from './types';
 import { Graph, LayoutDirection } from './Graph.model';
 import { ManagedResourceItem } from '../../lib/shared/types';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export type { EdgePoint, LayoutDirection } from './Graph.model';
 
@@ -15,6 +16,7 @@ export function useGraph(
   selectedLabelKey?: string,
   layoutDirection: LayoutDirection = 'TB',
 ) {
+  const telemetry = useTelemetry();
   const {
     data: managedResources,
     isLoading: managedResourcesLoading,
@@ -69,7 +71,7 @@ export function useGraph(
         setEdges(laid.edges);
       })
       .catch((err) => {
-        console.error('Graph layout failed', err);
+        telemetry.report(err, { message: 'Graph layout failed' });
         if (cancelled) return;
         setNodes([]);
         setEdges([]);
@@ -77,7 +79,7 @@ export function useGraph(
     return () => {
       cancelled = true;
     };
-  }, [graph, colorBy, colorMap, labelKey, layoutDirection]);
+  }, [graph, colorBy, colorMap, labelKey, layoutDirection, telemetry]);
 
   return { nodes, edges, colorMap, labelKey, availableLabelKeys, loading, error };
 }

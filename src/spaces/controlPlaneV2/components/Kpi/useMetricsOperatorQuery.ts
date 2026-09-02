@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { MetricsOperatorData, MetricsOperatorSchema } from '../../../mcp/types/MetricsOperator.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_METRICS_OPERATOR_QUERY = graphql(`
   query GetMetricsOperator($name: String!, $namespace: String) {
@@ -32,6 +33,7 @@ const GET_METRICS_OPERATOR_QUERY = graphql(`
 `);
 
 export function useMetricsOperatorQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_METRICS_OPERATOR_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -44,12 +46,15 @@ export function useMetricsOperatorQuery(name?: string, namespace?: string) {
     if (!rawMetricsOperator) return null;
     const result = MetricsOperatorSchema.safeParse(rawMetricsOperator);
     if (!result.success) {
-      console.warn('[useMetricsOperatorQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid MetricsOperator data — schema mismatch',
+        context: { issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const version = result.data.spec?.version ?? null;
     return { isInstalled: !!version, version };
-  }, [rawMetricsOperator]);
+  }, [rawMetricsOperator, telemetry]);
 
   return { metricsOperatorData, isLoading: queryResult.loading, error: queryResult.error };
 }

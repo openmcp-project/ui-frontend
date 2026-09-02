@@ -185,8 +185,7 @@ export function CrossplaneInstallDialog({
         );
         onSuccess?.(mode);
         handleClose();
-      } catch (error) {
-        console.error('Crossplane mutation failed', error);
+      } catch {
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.errorMessageEdit', { component: 'Crossplane' })

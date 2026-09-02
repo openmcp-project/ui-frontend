@@ -112,7 +112,6 @@ export function EditProjectDialogContainer({
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       errorDialogRef.current?.showErrorDialog(e instanceof Error ? e.message : String(e));
       return false;
     }

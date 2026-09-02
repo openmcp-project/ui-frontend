@@ -134,8 +134,7 @@ export function ComponentInstallDialog({
         });
         onSuccess?.(mode);
         handleClose();
-      } catch (error) {
-        console.error(`${componentName} mutation failed`, error);
+      } catch {
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.errorMessageEdit', { component: componentName })

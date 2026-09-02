@@ -231,8 +231,7 @@ export function ComponentsDashboardV2({
       }
       toast.show(t('ComponentCard.deleteSuccessMessage', { component: componentName }));
       telemetry.track({ category: 'component', action: 'uninstalled', componentName });
-    } catch (error) {
-      console.error(`${componentName} delete failed`, error);
+    } catch {
       toast.show(t('ComponentCard.deleteErrorMessage', { component: componentName }));
     }
   }, [

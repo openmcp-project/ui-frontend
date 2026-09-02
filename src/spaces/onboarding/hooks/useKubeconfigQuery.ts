@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { z } from 'zod';
 
 import { graphql } from '../../../types/__generated__/graphql';
-import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { telemetry, useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export const GET_KUBECONFIG_QUERY = graphql(`
   query GetKubeconfig($kubeConfigName: String!, $namespaceName: String) {
@@ -25,7 +25,10 @@ export function decodeKubeconfigYaml(rawData: unknown, secretKey: string): strin
   if (!rawData) return undefined;
   const result = KubeconfigDataSchema.safeParse(rawData);
   if (!result.success) {
-    console.warn('[decodeKubeconfigYaml] Validation failed:', z.treeifyError(result.error));
+    telemetry().report(result.error, {
+      message: 'Invalid kubeconfig Secret data — schema mismatch',
+      context: { issues: z.treeifyError(result.error) },
+    });
     return undefined;
   }
   const base64 = result.data[secretKey];
@@ -33,7 +36,10 @@ export function decodeKubeconfigYaml(rawData: unknown, secretKey: string): strin
   try {
     return atob(base64);
   } catch (error) {
-    console.warn(`[decodeKubeconfigYaml] Failed to decode secret value for key "${secretKey}"`, error);
+    telemetry().report(error, {
+      message: `Failed to decode secret value for key "${secretKey}"`,
+      context: { item: base64 },
+    });
     return undefined;
   }
 }

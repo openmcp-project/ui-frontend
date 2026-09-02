@@ -658,7 +658,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       if (errorDialogRef.current) {
         errorDialogRef.current.showErrorDialog(message);
       }
-      console.error(e);
       return false;
     }
   }, [
