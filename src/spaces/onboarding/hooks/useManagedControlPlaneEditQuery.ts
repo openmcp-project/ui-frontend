@@ -4,11 +4,8 @@ import type { ErrorLike } from '@apollo/client';
 
 import { graphql } from '../../../types/__generated__/graphql';
 import type { GetManagedControlPlaneForEditQuery } from '../../../types/__generated__/graphql/graphql';
-import type {
-  ManagedControlPlaneInterface,
-  MCPComponentsSpec,
-  MCPRoleBinding,
-} from '../../../lib/api/types/mcpResource';
+import type { ManagedControlPlaneInterface, MCPComponentsSpec } from '../../../lib/api/types/mcpResource';
+import { flattenV1RoleBindings } from '../types/ControlPlane.ts';
 
 /**
  * Full ManagedControlPlane (v1) fetch for the edit/duplicate wizard — the GraphQL replacement
@@ -81,17 +78,7 @@ type RawManagedControlPlane = NonNullable<
 function mapToManagedControlPlane(raw: RawManagedControlPlane | undefined): ManagedControlPlaneInterface | undefined {
   if (!raw?.metadata?.name) return undefined;
 
-  const roleBindings: MCPRoleBinding[] = (raw.spec?.authorization?.roleBindings ?? []).flatMap((rb) => {
-    if (!rb?.role) return [];
-    return [
-      {
-        role: rb.role,
-        subjects: (rb.subjects ?? []).flatMap((s) =>
-          s?.name && s?.kind ? [{ kind: s.kind, name: s.name, namespace: s.namespace ?? undefined }] : [],
-        ),
-      },
-    ];
-  });
+  const roleBindings = flattenV1RoleBindings(raw.spec?.authorization?.roleBindings);
 
   const rawComponents = raw.spec?.components;
   const components: MCPComponentsSpec = {};

@@ -1,3 +1,7 @@
+// CODEGEN REQUIRED: this file adds a field (`spec.components.<name>.version`, so installed
+// component versions actually render — see CODE_REVIEW.md finding #1) to an existing operation
+// (`GetManagedControlPlane`). It will not type-check until
+// `npm run generate-graphql-types -- <token>` is run.
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
 import type { ErrorLike } from '@apollo/client';
@@ -9,6 +13,7 @@ import type {
   ControlPlaneComponentsType,
   ControlPlaneStatusType,
 } from '../../../lib/api/types/crate/controlPlanes';
+import { flattenV1RoleBindings } from '../types/ControlPlane.ts';
 
 /**
  * Single ManagedControlPlane (v1) fetch — the GraphQL replacement for the crate-scoped
@@ -34,21 +39,26 @@ const GET_MCP_V1_QUERY = graphql(`
             components {
               crossplane {
                 __typename
+                version
               }
               flux {
                 __typename
+                version
               }
               landscaper {
                 __typename
               }
               kyverno {
                 __typename
+                version
               }
               externalSecretsOperator {
                 __typename
+                version
               }
               btpServiceOperator {
                 __typename
+                version
               }
             }
             authorization {
@@ -93,15 +103,7 @@ type RawManagedControlPlane = NonNullable<
 function mapToControlPlaneType(raw: RawManagedControlPlane | undefined): ControlPlaneType | undefined {
   if (!raw) return undefined;
 
-  const roleBindings = (raw.spec?.authorization?.roleBindings ?? []).flatMap((rb) => {
-    if (!rb) return [];
-    return [
-      {
-        role: rb.role ?? '',
-        subjects: (rb.subjects ?? []).flatMap((s) => (s?.name && s?.kind ? [{ kind: s.kind, name: s.name }] : [])),
-      },
-    ];
-  });
+  const roleBindings = flattenV1RoleBindings(raw.spec?.authorization?.roleBindings);
 
   const access = raw.status?.components?.authentication?.access;
 
@@ -140,7 +142,8 @@ function mapToControlPlaneType(raw: RawManagedControlPlane | undefined): Control
       creationTimestamp: raw.metadata?.creationTimestamp ?? '',
       annotations: (raw.metadata?.annotations as ControlPlaneType['metadata']['annotations']) ?? undefined,
     },
-    // Only presence of each component is read downstream; cast the `{ __typename }` shape.
+    // Presence (`__typename`) and `version` are read downstream (ComponentList/ComponentsDashboard);
+    // landscaper has no `version` field in the schema, hence its narrower selection above.
     spec: {
       authentication: { enableSystemIdentityProvider: undefined },
       components: (raw.spec?.components as ControlPlaneComponentsType | undefined) ?? undefined,
@@ -172,6 +175,5 @@ export function useManagedControlPlaneQuery(
     data: mapped,
     error: error as ErrorLike | undefined,
     isLoading: loading,
-    isValidating: loading,
   };
 }

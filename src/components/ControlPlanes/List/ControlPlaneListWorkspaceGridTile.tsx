@@ -70,7 +70,22 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
   const mcpNamespace = `project-${projectName}--ws-${workspaceName}`;
-  const fetchMode: McpsQueryMode = isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
+
+  // `query`/`workspaceMatches` only depend on props, not on fetched data, so they're available
+  // before the fetch-mode decision below.
+  const query = search.trim().toLowerCase();
+  const workspaceMatches =
+    query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
+
+  // Whether an MCP *name* (not just the workspace name) matches can only be known once the
+  // 'minimal' search fetch has returned — so a workspace that expands purely because one of its
+  // MCPs matched by name starts in 'minimal' mode and upgrades to 'full' once that's discovered.
+  // Without this upgrade, cards would render with the minimal query's payload (no `spec`, no V2
+  // component data) and show a false "nothing installed" state instead of the real data.
+  const [needsFullMcpData, setNeedsFullMcpData] = useState(false);
+
+  const shouldRenderCardsWithFullData = isExpanded || workspaceMatches || needsFullMcpData;
+  const fetchMode: McpsQueryMode = shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
   const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
 
   // One combined query for every V2 control plane's component status in this workspace instead
@@ -80,9 +95,6 @@ export function ControlPlaneListWorkspaceGridTile({
     !enableMcpV2 || fetchMode !== 'full',
   );
 
-  const query = search.trim().toLowerCase();
-  const workspaceMatches =
-    query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
   const visibleMcps =
     query && !workspaceMatches
       ? (managedControlPlanes ?? []).filter(
@@ -95,7 +107,21 @@ export function ControlPlaneListWorkspaceGridTile({
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
   // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
-  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+  // `needsFullMcpData` (not just `hasMcpMatch`) keeps the panel expanded through the 'minimal' →
+  // 'full' fetch-mode upgrade below — `hasMcpMatch` momentarily goes back to `false` while the
+  // upgraded 'full' query is loading (isPending flips true again), which would otherwise collapse
+  // the panel right as it should be settling into showing real data.
+  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded;
+
+  // Adjust state during rendering (not in an effect — avoids an extra render/fetch cascade) once
+  // `hasMcpMatch` becomes derivable from this render's data. Each branch only fires once per
+  // transition since the guard condition becomes false immediately after the update is applied.
+  if (hasMcpMatch && !needsFullMcpData) {
+    setNeedsFullMcpData(true);
+  } else if (!query && needsFullMcpData) {
+    // Search cleared — drop back to on-demand fetching unless manually expanded.
+    setNeedsFullMcpData(false);
+  }
 
   useEffect(() => {
     onVisibilityChange?.(!hidden);
@@ -252,7 +278,17 @@ export function ControlPlaneListWorkspaceGridTile({
                           controlPlane={mcp}
                           projectName={projectName}
                           workspace={workspace}
-                          v2Components={mcp.version === 'v2' ? v2ComponentsByName[mcp.metadata.name] : undefined}
+                          // A CP with nothing installed never gets a `componentsByName` entry (see
+                          // indexByName in useMcpV2ComponentsListQuery), which is indistinguishable
+                          // from "not fetched yet" by key presence alone — so once the workspace-level
+                          // fetch has actually finished, default a missing entry to `{}` here rather
+                          // than leaving it `undefined` (which ControlPlaneCard reads as "still
+                          // loading" and never shows the add-component button for).
+                          v2Components={
+                            mcp.version === 'v2'
+                              ? (v2ComponentsByName[mcp.metadata.name] ?? (isLoadingV2ComponentsList ? undefined : {}))
+                              : undefined
+                          }
                           isLoadingV2Components={mcp.version === 'v2' && isLoadingV2ComponentsList}
                         />
                       </ObservableCard>

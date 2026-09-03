@@ -1,3 +1,6 @@
+// CODEGEN REQUIRED: this file adds a field (`metadata.uid`, for Apollo cache normalization) to
+// an existing operation (`CreateProject`). It will not type-check until
+// `npm run generate-graphql-types -- <token>` is run.
 import { useCallback } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { useToast } from '../../../context/ToastContext';
@@ -50,6 +53,7 @@ const CreateProjectMutation = graphql(`
       v1alpha1 {
         createProject(object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
           }
         }

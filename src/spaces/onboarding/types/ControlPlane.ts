@@ -65,10 +65,15 @@ const SpecComponentsSchema = z
   .nullish();
 
 // Simpler than the V2 IAM role binding shape (no roleRefs/apiGroup) — matches what the
-// list & detail V1 queries actually select for member-avatar display.
+// list & detail V1 queries actually select for member-avatar display. `namespace` is optional
+// since the list/card-display queries don't select it (only the edit-wizard query does).
 const V1RoleBindingSchema = z.object({
   role: z.string().nullish(),
-  subjects: z.array(z.object({ kind: z.string().nullish(), name: z.string().nullish() }).nullable()).nullish(),
+  subjects: z
+    .array(
+      z.object({ kind: z.string().nullish(), name: z.string().nullish(), namespace: z.string().nullish() }).nullable(),
+    )
+    .nullish(),
 });
 
 const SpecSchema = z
@@ -158,13 +163,19 @@ export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
 export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
 export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
 
-/** Flattens a V1 control plane's `spec.authorization.roleBindings` into `McpMembersAvatarView`'s input shape. */
+/**
+ * Flattens a V1 control plane's `spec.authorization.roleBindings` into `McpMembersAvatarView`'s
+ * input shape. `namespace` is carried through per-subject when the query selected it (only the
+ * edit-wizard query does); other consumers can ignore the extra optional field.
+ */
 export function flattenV1RoleBindings(
   roleBindings: (z.infer<typeof V1RoleBindingSchema> | null)[] | null | undefined,
-): { role: string; subjects: { kind: string; name: string }[] }[] {
+): { role: string; subjects: { kind: string; name: string; namespace?: string }[] }[] {
   return (roleBindings ?? []).flatMap((rb) => {
     if (!rb?.role) return [];
-    const subjects = (rb.subjects ?? []).flatMap((s) => (s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : []));
+    const subjects = (rb.subjects ?? []).flatMap((s) =>
+      s?.kind && s?.name ? [{ kind: s.kind, name: s.name, namespace: s.namespace ?? undefined }] : [],
+    );
     return [{ role: rb.role, subjects }];
   });
 }

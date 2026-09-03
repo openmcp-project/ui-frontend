@@ -278,11 +278,7 @@ export default function ManagedControlPlanePage() {
 
   const showBreadcrumbs = searchParams.get('showBreadcrumbs') !== 'false';
 
-  const {
-    data: mcp,
-    error,
-    isLoading,
-  } = useManagedControlPlaneQuery(projectName, workspaceName, controlPlaneName);
+  const { data: mcp, error, isLoading } = useManagedControlPlaneQuery(projectName, workspaceName, controlPlaneName);
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
