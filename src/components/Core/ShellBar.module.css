@@ -1,5 +1,7 @@
 .logo {
   height: 1.5rem;
+  width: auto;
+  aspect-ratio: 92 / 45;
 }
 
 /* Wrapper placed in ShellBar's content slot — pushed right by the preceding ShellBarSpacer */

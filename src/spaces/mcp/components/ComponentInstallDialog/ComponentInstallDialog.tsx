@@ -62,6 +62,12 @@ export function ComponentInstallDialog({
 
   const service = useMemo(() => services.find((s) => s.name === serviceName), [services, serviceName]);
   const versions = useMemo(() => service?.versions ?? [], [service]);
+  const displayVersions = useMemo(() => {
+    if (mode === 'edit' && initialVersion && !versions.some((v) => v.version === initialVersion)) {
+      return [...versions, { version: initialVersion }];
+    }
+    return versions;
+  }, [versions, mode, initialVersion]);
   const apiVersion = service?.apiVersion ?? '';
   const kind = service?.kind ?? '';
 
@@ -122,13 +128,13 @@ export function ComponentInstallDialog({
             : t('ComponentInstallDialog.successMessage', { component: componentName }),
         );
         telemetry.track({
-          name: mode === 'edit' ? 'component.updated' : 'component.installed',
+          category: 'component',
+          action: mode === 'edit' ? 'updated' : 'installed',
           componentName,
         });
         onSuccess?.(mode);
         handleClose();
-      } catch (error) {
-        console.error(`${componentName} mutation failed`, error);
+      } catch {
         toast.show(
           mode === 'edit'
             ? t('ComponentInstallDialog.errorMessageEdit', { component: componentName })
@@ -207,7 +213,7 @@ export function ComponentInstallDialog({
             valueStateMessage={errors.version ? <span>{errors.version.message}</span> : undefined}
             onChange={handleVersionChange}
           >
-            {versions.map(({ version: v }) => (
+            {displayVersions.map(({ version: v }) => (
               <Option key={v} value={v}>
                 {v}
               </Option>

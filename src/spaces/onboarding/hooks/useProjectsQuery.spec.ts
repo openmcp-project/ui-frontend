@@ -85,7 +85,7 @@ describe('useProjectsQuery', () => {
     await waitFor(() => {
       expect(result.current.data).toEqual(['project-a', 'project-b', 'project-c']);
     });
-    expect(result.current.isLoading).toBe(false);
+    expect(result.current.isPending).toBe(false);
     expect(result.current.error).toBeNull();
   });
 
@@ -117,5 +117,63 @@ describe('useProjectsQuery', () => {
     });
 
     expect(result.current.error?.message).toBe('Failed to fetch projects from API');
+  });
+
+  it('is pending on the initial load and stays settled across background polls', async () => {
+    // Apollo reports loading=true for every mutation, including each 30s poll.
+    useMutationMock.mockReturnValue([mutateMock, { loading: true, error: null }] as unknown as ReturnType<
+      typeof useMutation
+    >);
+    mutateMock.mockResolvedValue({
+      data: {
+        authorization_k8s_io: {
+          v1: {
+            createSelfSubjectRulesReview: {
+              status: {
+                resourceRules: [
+                  {
+                    apiGroups: ['core.openmcp.cloud'],
+                    resources: ['projects'],
+                    verbs: ['get'],
+                    resourceNames: ['project-a'],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useProjectsQuery());
+
+    // First render: loading, nothing loaded yet.
+    expect(result.current.isPending).toBe(true);
+
+    // After the first successful load it settles — and a subsequent poll,
+    // which keeps loading=true, must NOT flip it back to pending.
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+    expect(result.current.data).toEqual(['project-a']);
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+    expect(result.current.isPending).toBe(false);
+  });
+
+  it('settles after loading zero projects (empty result is not pending)', async () => {
+    useMutationMock.mockReturnValue([mutateMock, { loading: true, error: null }] as unknown as ReturnType<
+      typeof useMutation
+    >);
+    mutateMock.mockResolvedValue({ data: {} });
+
+    const { result } = renderHook(() => useProjectsQuery());
+
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+    expect(result.current.data).toEqual([]);
   });
 });

@@ -19,7 +19,7 @@
   },
   "ComponentCard": {
     "actionsMenu": "Actions",
-    "deleteButton": "Delete",
+    "deleteButton": "Uninstall",
     "deleteErrorMessage": "Failed to uninstall {{component}}. Please try again.",
     "deleteSuccessMessage": "{{component}} has been successfully uninstalled.",
     "editButton": "Edit",
@@ -48,6 +48,15 @@
   },
   "componentCardEso": {
     "description": "Manage credentials from your secret store"
+  },
+  "componentCardOcm": {
+    "description": "Open Component Model — transport and describe software components across environments"
+  },
+  "componentCardKro": {
+    "description": "Kubernetes Resource Orchestrator — compose and deploy complex resource topologies"
+  },
+  "componentCardMetricsOperator": {
+    "description": "Metrics Operator — collect and expose metrics around resources running in control plane"
   },
   "Kpi": {
     "installed": "Installed",
@@ -106,7 +115,7 @@
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "permissionErrorMessageSubtitle": "Ask a workspace or project admin to grant you access.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
@@ -124,7 +133,10 @@
     "crossplane": "Crossplane",
     "flux": "Flux",
     "landscaper": "Landscaper",
-    "externalSecretsOperator": "External Secrets Operator"
+    "externalSecretsOperator": "External Secrets Operator",
+    "ocm": "OCM",
+    "kro": "KRO",
+    "metricsOperator": "Metrics Operator"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -138,7 +150,9 @@
     "buttonText": "View",
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
-    "downloadKubeconfig": "Download Kubeconfig"
+    "downloadKubeconfig": "Download Kubeconfig",
+    "noContextsError": "No connection context found in kubeconfig",
+    "noAccessTitle": "No connection configured"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -232,8 +246,8 @@
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
-    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
-    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
+    "deleteMessage": "You are about to delete the resource",
+    "typeToConfirm": "Type the name to confirm"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -243,7 +257,12 @@
     "columnNameHeader": "Name",
     "columnRoleHeader": "Role",
     "columnTypeHeader": "Type",
-    "columnNamespaceHeader": "Namespace"
+    "columnNamespaceHeader": "Namespace",
+    "defaultProviderValue": "Default",
+    "customProviderValue": "Custom",
+    "searchPlaceholder": "Search members",
+    "editMemberButton": "Edit member",
+    "deleteMemberButton": "Delete member"
   },
   "IllustratedError": {
     "titleText": "Something went wrong",
@@ -270,7 +289,7 @@
     "addButtonUserGroup": "Add User or Group",
     "editHeader": "Edit User or ServiceAccount",
     "editHeaderUserGroup": "Edit User or Group",
-    "addHeader": "Add User or ServiceAccount",
+    "addHeader": "Add Member",
     "addHeaderUserGroup": "Add User or Group",
     "saveButton": "Save changes",
     "defaultNamespaceInfo": "Leave empty to use <span>default</span> namespace",
@@ -281,6 +300,34 @@
     "membersToastAddedN": "{{count}} members added.",
     "membersToastChanged1": "1 member changed.",
     "membersToastChangedN": "{{count}} members changed."
+  },
+  "IdentityProviders": {
+    "docsLinkInfo": "Learn more about configuring identity providers in our <link1>documentation</link1>.",
+    "defaultProviderGroupTitle": "Default identity provider",
+    "noMembersError": "At least one member must be assigned to the default identity provider or to a custom identity provider before you can continue.",
+    "addProviderButton": "Add Identity Provider",
+    "editProviderButtonTooltip": "Edit identity provider",
+    "deleteProviderButtonTooltip": "Delete identity provider",
+    "addDialogTitle": "Add Identity Provider",
+    "editDialogTitle": "Edit Identity Provider",
+    "issuerLabel": "Issuer URL",
+    "clientIdLabel": "Client ID",
+    "advancedSettings": "Advanced settings",
+    "usernameClaimLabel": "Username Claim",
+    "usernamePrefixLabel": "Username Prefix",
+    "disableUsernamePrefixCheckbox": "Disable username prefix",
+    "groupsClaimLabel": "Groups Claim",
+    "groupsPrefixLabel": "Groups Prefix",
+    "disableGroupsPrefixCheckbox": "Disable groups prefix",
+    "extraScopesLabel": "Extra Scopes",
+    "addScopeButton": "Add scope",
+    "renameWarning": "Renaming this provider changes the effective identity of its {{count}} existing member(s), unless a custom prefix is set.",
+    "deleteConfirmTitle": "Delete Identity Provider",
+    "deleteConfirmMessageNoMembers": "Are you sure you want to delete the identity provider '{{providerName}}'? It has no members.",
+    "deleteConfirmMessage1": "Are you sure you want to delete the identity provider '{{providerName}}'? Its 1 member will also be removed.",
+    "deleteConfirmMessageN": "Are you sure you want to delete the identity provider '{{providerName}}'? Its {{count}} members will also be removed.",
+    "deleteConfirmButton": "Delete",
+    "yamlPreviewTitle": "YAML preview"
   },
   "ProjectPage": {
     "backToProjects": "Go to all projects"
@@ -459,7 +506,11 @@
     "userExists": "User with this name already exists!",
     "atLeastOneUser": "You need to have at least one member assigned.",
     "notValidChargingTargetFormat": "Use lowercase letters a-f, numbers 0-9, and hyphens (-) in the format: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    "urlFormat": "Must be a valid HTTPS URL"
+    "urlFormat": "Must be a valid HTTPS URL",
+    "issuerUrlFormat": "Must be a valid URL (e.g. https://example.com)",
+    "reservedProviderName": "'system' is a reserved identity provider name.",
+    "duplicateProviderName": "An identity provider with this name already exists.",
+    "invalidProviderName": "Use lowercase letters, numbers, hyphens (-), and dots (.); must start and end with a letter or number."
   },
   "common": {
     "or": "or",
@@ -532,7 +583,6 @@
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
-    "panelTitle": "YAML",
     "applySuccess2": "The control plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",

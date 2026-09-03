@@ -27,6 +27,7 @@ import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import { useMcpComponents } from './useMcpComponents.ts';
 import { useMcpV2Components } from './useMcpV2Components.ts';
+import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -37,6 +38,8 @@ import LogoFlux from '../../../assets/images/logo-flux.svg';
 import LogoLandscaper from '../../../assets/images/logo-landscaper.svg';
 import LogoKyverno from '../../../assets/images/logo-kyverno.png';
 import LogoEso from '../../../assets/images/logo-eso.svg';
+import LogoOcm from '../../../assets/images/logo-ocm.svg';
+import LogoKro from '../../../assets/images/logo-kro.svg';
 
 interface Props {
   controlPlane: ControlPlaneListItem;
@@ -112,21 +115,9 @@ export const ControlPlaneCard = ({
     !isV2,
   );
 
-  // Flatten v2 IAM roleBindings (roleRefs[] + subjects[]) into the flat shape
-  // expected by McpMembersAvatarView: { role: string; subjects: { kind, name }[] }[]
   const v2RoleBindings = useMemo(() => {
     if (!isV2) return undefined;
-    const oidc = controlPlane.spec?.iam?.oidc;
-    const allProviders = [oidc?.defaultProvider, ...(oidc?.extraProviders ?? [])];
-    return allProviders.flatMap((provider) =>
-      (provider?.roleBindings ?? []).flatMap((binding) => {
-        if (!binding) return [];
-        const subjects = (binding.subjects ?? []).flatMap((s) =>
-          s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : [],
-        );
-        return (binding.roleRefs ?? []).flatMap((ref) => (ref?.name ? [{ role: ref.name, subjects }] : []));
-      }),
-    );
+    return flattenOidcRoleBindings(controlPlane.spec?.iam?.oidc);
   }, [isV2, controlPlane]);
 
   const components = useMemo<ComponentInfo[]>(() => {
@@ -136,6 +127,8 @@ export const ControlPlaneCard = ({
         { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux },
         { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpV2Components?.landscaper },
         { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpV2Components?.externalSecretsOperator },
+        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm },
+        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro },
       ];
     }
     return [
@@ -276,12 +269,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView
-              roleBindings={isV2 ? v2RoleBindings : roleBindings}
-              project={projectName}
-              workspace={workspace.metadata.name}
-              compact
-            />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : roleBindings} compact />
           </div>
 
           <div className={styles.footerRight}>
@@ -290,6 +278,9 @@ export const ControlPlaneCard = ({
                 controlPlaneName={name}
                 projectName={projectName}
                 workspaceName={workspace.metadata.name ?? ''}
+                access={controlPlane.status?.access}
+                disabled={controlPlane.status?.status !== ReadyStatus.Ready}
+                loading={!controlPlane.status}
               />
             ) : (
               <ConnectButton
@@ -321,7 +312,7 @@ export const ControlPlaneCard = ({
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
           onDeletionConfirmed={async () => {
-            telemetry.track({ name: 'controlplane.deleted', source: 'v1-card' });
+            telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v1-card' });
             await deleteManagedControlPlane();
           }}
         />
@@ -332,7 +323,7 @@ export const ControlPlaneCard = ({
           isOpen={dialogDeleteMcpIsOpen}
           setIsOpen={setDialogDeleteMcpIsOpen}
           onDeletionConfirmed={async () => {
-            telemetry.track({ name: 'controlplane.deleted', source: 'v2-card' });
+            telemetry.track({ category: 'controlplane', action: 'deleted', source: 'v2-card' });
             await deleteManagedControlPlaneV2();
           }}
         />

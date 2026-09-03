@@ -13,13 +13,19 @@ const frontendConfig = {
   landscape: Landscape.Local,
   documentationBaseUrl: 'http://localhost:3000',
   githubBaseUrl: 'https://github.com/example/repo',
-  featureToggles: { markMcpV1asDeprecated: false, enableMcpV2: false, enableHeadlamp: false },
+  featureToggles: {
+    markMcpV1asDeprecated: false,
+    enableMcpV2: false,
+    enableHeadlamp: false,
+    showLandscaperCard: false,
+  },
 };
 
 const fakeUseMcpsQuery: typeof useMcpsQuery = () => ({
   data: [],
   error: undefined,
   isPending: false,
+  isReadyForSubscriptions: true,
 });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({

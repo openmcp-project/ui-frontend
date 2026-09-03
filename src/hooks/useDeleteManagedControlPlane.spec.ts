@@ -1,4 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
+import { MockedProvider } from '@apollo/client/testing/react';
+import React from 'react';
 import { describe, it, expect, vi, afterEach, Mock } from 'vitest';
 import { assertNonNullish, assertString } from '../utils/test/vitest-utils.ts';
 
@@ -25,7 +27,9 @@ describe('useDeleteManagedControlPlane', () => {
     global.fetch = fetchMock;
 
     // ACT
-    const renderHookResult = renderHook(() => useDeleteManagedControlPlane('namespace', 'mcpName'));
+    const renderHookResult = renderHook(() => useDeleteManagedControlPlane('namespace', 'mcpName'), {
+      wrapper: ({ children }) => React.createElement(MockedProvider, null, children),
+    });
     const { deleteManagedControlPlane } = renderHookResult.result.current;
 
     await act(async () => {

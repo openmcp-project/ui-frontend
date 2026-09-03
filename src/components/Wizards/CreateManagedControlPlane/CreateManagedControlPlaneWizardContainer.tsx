@@ -27,12 +27,9 @@ import { ErrorDialog, ErrorDialogHandle } from '../../Shared/ErrorMessageBox.tsx
 import { CreateDialogProps } from '../../Dialogs/CreateWorkspaceDialogContainer.tsx';
 import { createManagedControlPlaneSchema } from '../../../lib/api/validations/schemas.ts';
 import { Member, MemberRoles } from '../../../lib/api/types/shared/members.ts';
-import { useApiResourceMutation } from '../../../lib/api/useApiResource.ts';
 import {
   ComponentsListItem,
   CreateManagedControlPlane,
-  CreateManagedControlPlaneResource,
-  CreateManagedControlPlaneType,
   replaceComponentsName,
 } from '../../../lib/api/types/crate/createManagedControlPlane.ts';
 import {
@@ -240,9 +237,6 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [user?.email, isOpen, setValue, clearFormFields]);
 
-  const { trigger } = useApiResourceMutation<CreateManagedControlPlaneType>(
-    CreateManagedControlPlaneResource(projectName, workspaceName),
-  );
   const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
   const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
     projectName,
@@ -295,20 +289,18 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             ),
           );
         }
-        telemetry.track({ name: isEditMode ? 'controlplane.edited' : 'controlplane.created', source: 'v1' });
+        telemetry.track({ category: 'controlplane', action: isEditMode ? 'edited' : 'created', source: 'v1' });
         setSelectedStep('success');
         return true;
       } catch (e) {
         if (e instanceof APIError && errorDialogRef.current) {
           errorDialogRef.current.showErrorDialog(`${e.message}: ${JSON.stringify(e.info)}`);
-        } else {
-          console.error(e);
         }
         return false;
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [trigger, projectName, workspaceName, componentsList, templateAffixes],
+    [projectName, workspaceName, componentsList, templateAffixes],
   );
 
   const handleStepChange = useCallback((e: Ui5CustomEvent<WizardDomRef, WizardStepChangeEventDetail>) => {

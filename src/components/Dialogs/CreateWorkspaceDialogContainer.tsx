@@ -97,11 +97,10 @@ export function CreateWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'workspace.created' });
+      telemetry.track({ category: 'workspace', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       const message = e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);
       return false;

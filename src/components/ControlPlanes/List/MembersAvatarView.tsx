@@ -1,59 +1,77 @@
-import { Avatar, AvatarGroup, Popover } from '@ui5/webcomponents-react';
+import { Avatar, AvatarGroup, BusyIndicator, ResponsivePopover } from '@ui5/webcomponents-react';
 import AvatarGroupType from '@ui5/webcomponents/dist/types/AvatarGroupType.js';
 import PopoverPlacement from '@ui5/webcomponents/dist/types/PopoverPlacement.js';
-import { useId, useState } from 'react';
+import { lazy, Suspense, useId, useMemo, useState } from 'react';
 import { Member } from '../../../lib/api/types/shared/members';
 import type { TelemetryFeature } from '../../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
-import { generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
-import { MemberTable } from '../../Members/MemberTable.tsx';
+import { avatarColorSchemeForEmail, generateInitialsForEmail } from '../../Helper/generateInitialsForEmail.ts';
+import styles from './MembersAvatarView.module.css';
 
-type MembersViewedSource = Extract<TelemetryFeature, { name: 'members.viewed' }>['source'];
+const MemberTable = lazy(() => import('../../Members/MemberTable.tsx').then((m) => ({ default: m.MemberTable })));
+
+type MembersViewedSource = Extract<TelemetryFeature, { category: 'members'; action: 'viewed' }>['source'];
 
 interface Props {
-  project?: string;
-  workspace?: string;
   members: Member[];
   hideNamespaceColumn?: boolean;
   source: MembersViewedSource;
   maxWidth?: string;
 }
 
-export function MembersAvatarView({
-  members,
-  project,
-  workspace,
-  hideNamespaceColumn = false,
-  source,
-  maxWidth = '200px',
-}: Props) {
+export function MembersAvatarView({ members, hideNamespaceColumn = false, source, maxWidth = '200px' }: Props) {
   const openerId = useId();
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [popoverIsOpen, setPopoverIsOpen] = useState(false);
   const telemetry = useTelemetry();
 
-  const handleClick = () => {
-    setIsPopoverOpen(true);
-    telemetry.track({ name: 'members.viewed', source });
-  };
+  const dedupedAvatarMembers = useMemo(() => {
+    const seen = new Set<string>();
+    return members.filter((member) => {
+      const k = `${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }, [members]);
 
-  const handleClose = () => {
-    setIsPopoverOpen(false);
-  };
+  if (dedupedAvatarMembers.length === 0) return null;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <AvatarGroup id={openerId} style={{ maxWidth }} type={AvatarGroupType.Group} onClick={handleClick}>
-        {members.map((member, index) => (
+    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+      <AvatarGroup
+        id={openerId}
+        style={{ maxWidth }}
+        type={AvatarGroupType.Group}
+        onClick={() => {
+          if (!popoverIsOpen) {
+            telemetry.track({ category: 'members', action: 'viewed', source });
+            setPopoverIsOpen(true);
+          }
+        }}
+      >
+        {dedupedAvatarMembers.map((member) => (
           <Avatar
-            key={`project-${project}-ws-${workspace}-${member.kind}-${member.namespace ?? ''}-${member.name}-${index}`}
+            key={`${member.name}-${member.namespace ?? ''}-${member.provider ?? ''}`}
+            colorScheme={avatarColorSchemeForEmail(member.name)}
             initials={generateInitialsForEmail(member.name)}
+            accessibleName={member.name}
             size="XS"
           />
         ))}
       </AvatarGroup>
-      <Popover opener={openerId} placement={PopoverPlacement.Bottom} open={isPopoverOpen} onClose={handleClose}>
-        <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
-      </Popover>
+      <ResponsivePopover
+        opener={openerId}
+        open={popoverIsOpen}
+        placement={PopoverPlacement.Bottom}
+        className={styles.popover}
+        onClose={() => setPopoverIsOpen(false)}
+      >
+        <div className={styles.content}>
+          <Suspense fallback={<BusyIndicator active />}>
+            <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+          </Suspense>
+        </div>
+      </ResponsivePopover>
     </div>
   );
 }
