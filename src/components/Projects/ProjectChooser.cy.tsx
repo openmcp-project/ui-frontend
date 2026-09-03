@@ -5,14 +5,14 @@ import ProjectChooser from './ProjectChooser.tsx';
 
 const fakeUseProjectsQuery: typeof _useProjectsQuery = () => ({
   data: ['alpha-project', 'beta-project', 'gamma-project'],
-  isLoading: false,
+  isPending: false,
   error: null,
   refetch: () => Promise.resolve([] as string[]),
 });
 
 const fakeUseProjectsQueryError: typeof _useProjectsQuery = () => ({
   data: [],
-  isLoading: false,
+  isPending: false,
   error: new Error('Failed to load projects'),
   refetch: () => Promise.resolve([] as string[]),
 });
