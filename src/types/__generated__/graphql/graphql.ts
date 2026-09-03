@@ -1779,7 +1779,9 @@ export type CreateManagedControlPlaneMutationVariables = Exact<{
 export type CreateManagedControlPlaneMutation = {
   core_openmcp_cloud: {
     v1alpha1: {
-      createManagedControlPlane: { metadata: { name: string | null; namespace: string | null } | null } | null;
+      createManagedControlPlane: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
     } | null;
   } | null;
 };
@@ -1809,7 +1811,9 @@ export type UpdateManagedControlPlaneMutationVariables = Exact<{
 export type UpdateManagedControlPlaneMutation = {
   core_openmcp_cloud: {
     v1alpha1: {
-      updateManagedControlPlane: { metadata: { name: string | null; namespace: string | null } | null } | null;
+      updateManagedControlPlane: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
     } | null;
   } | null;
 };
@@ -2040,7 +2044,7 @@ export type CreateManagedControlPlaneV2Mutation = {
   core_open_control_plane_io: {
     v2alpha1: {
       createControlPlane: {
-        metadata: { name: string | null; namespace: string | null } | null;
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
         status: { phase: string | null } | null;
       } | null;
     } | null;
@@ -2068,7 +2072,7 @@ export type UpdateManagedControlPlaneV2Mutation = {
   core_open_control_plane_io: {
     v2alpha1: {
       updateControlPlane: {
-        metadata: { name: string | null; namespace: string | null } | null;
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
         status: { phase: string | null } | null;
       } | null;
     } | null;
@@ -2464,7 +2468,7 @@ export type CreateProjectMutationVariables = Exact<{
 
 export type CreateProjectMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { createProject: { metadata: { name: string | null } | null } | null } | null;
+    v1alpha1: { createProject: { metadata: { uid: string | null; name: string | null } | null } | null } | null;
   } | null;
 };
 
@@ -2476,7 +2480,11 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { createWorkspace: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+    v1alpha1: {
+      createWorkspace: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
   } | null;
 };
 
@@ -2616,15 +2624,26 @@ export type GetManagedControlPlaneQuery = {
         } | null;
         spec: {
           components: {
-            crossplane: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane' } | null;
-            flux: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux' } | null;
+            crossplane: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsCrossplane';
+              version: string | null;
+            } | null;
+            flux: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsFlux';
+              version: string | null;
+            } | null;
             landscaper: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsLandscaper' } | null;
-            kyverno: { __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno' } | null;
+            kyverno: {
+              __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsKyverno';
+              version: string | null;
+            } | null;
             externalSecretsOperator: {
               __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsExternalSecretsOperator';
+              version: string | null;
             } | null;
             btpServiceOperator: {
               __typename: 'CoreOpenmcpCloudV1alpha1ManagedControlPlaneSpecComponentsBtpServiceOperator';
+              version: string | null;
             } | null;
           } | null;
           authorization: {
@@ -2840,7 +2859,7 @@ export type UpdateProjectMutationVariables = Exact<{
 
 export type UpdateProjectMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { updateProject: { metadata: { name: string | null } | null } | null } | null;
+    v1alpha1: { updateProject: { metadata: { uid: string | null; name: string | null } | null } | null } | null;
   } | null;
 };
 
@@ -2853,7 +2872,11 @@ export type UpdateWorkspaceMutationVariables = Exact<{
 
 export type UpdateWorkspaceMutation = {
   core_openmcp_cloud: {
-    v1alpha1: { updateWorkspace: { metadata: { name: string | null; namespace: string | null } | null } | null } | null;
+    v1alpha1: {
+      updateWorkspace: {
+        metadata: { uid: string | null; name: string | null; namespace: string | null } | null;
+      } | null;
+    } | null;
   } | null;
 };
 
@@ -3257,6 +3280,7 @@ export const CreateManagedControlPlaneDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -3457,6 +3481,7 @@ export const UpdateManagedControlPlaneDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -4690,6 +4715,7 @@ export const CreateManagedControlPlaneV2Document = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -4872,6 +4898,7 @@ export const UpdateManagedControlPlaneV2Document = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -7364,7 +7391,10 @@ export const CreateProjectDocument = {
                               name: { kind: 'Name', value: 'metadata' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
                               },
                             },
                           ],
@@ -7452,6 +7482,7 @@ export const CreateWorkspaceDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
@@ -8135,6 +8166,7 @@ export const GetManagedControlPlaneDocument = {
                                             kind: 'SelectionSet',
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                                             ],
                                           },
                                         },
@@ -8145,6 +8177,7 @@ export const GetManagedControlPlaneDocument = {
                                             kind: 'SelectionSet',
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                                             ],
                                           },
                                         },
@@ -8165,6 +8198,7 @@ export const GetManagedControlPlaneDocument = {
                                             kind: 'SelectionSet',
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                                             ],
                                           },
                                         },
@@ -8175,6 +8209,7 @@ export const GetManagedControlPlaneDocument = {
                                             kind: 'SelectionSet',
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                                             ],
                                           },
                                         },
@@ -8185,6 +8220,7 @@ export const GetManagedControlPlaneDocument = {
                                             kind: 'SelectionSet',
                                             selections: [
                                               { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                                             ],
                                           },
                                         },
@@ -9196,7 +9232,10 @@ export const UpdateProjectDocument = {
                               name: { kind: 'Name', value: 'metadata' },
                               selectionSet: {
                                 kind: 'SelectionSet',
-                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
                               },
                             },
                           ],
@@ -9294,6 +9333,7 @@ export const UpdateWorkspaceDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'uid' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                 ],
