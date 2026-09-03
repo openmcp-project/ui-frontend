@@ -175,6 +175,10 @@ const errorLink = new ErrorLink(({ error, operation, forward }) => {
 
 const client = new ApolloClient({
   link: ApolloLink.from([errorLink, tokenRefreshLink, splitLink]),
+  // Explicit even though it's the default: several list views (e.g. ProjectsList) mount the
+  // same query+variables from multiple sibling components on the same render, relying on
+  // Apollo coalescing concurrent identical requests into a single network call.
+  queryDeduplication: true,
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -188,6 +192,16 @@ const client = new ApolloClient({
       CoreOpenControlPlaneIoQuery: { merge: true },
       CoreOpenControlPlaneIoV2alpha1Query: { merge: true },
       V1Query: { merge: true },
+      // Normalize K8s entities by `metadata.uid` so the same object fetched via different
+      // queries (e.g. GetMCPsList vs GetManagedControlPlane, GetProject vs GetProjectMembers)
+      // shares one cache entry instead of each query caching its own disconnected copy.
+      // Every query that selects one of these types must include `metadata { uid }` — a query
+      // that omits it degrades gracefully to a one-off, non-normalized cache write for that
+      // response (Apollo warns, it doesn't throw).
+      CoreOpenmcpCloudV1alpha1ManagedControlPlane: { keyFields: ['metadata', ['uid']] },
+      CoreOpenmcpCloudV1alpha1Project: { keyFields: ['metadata', ['uid']] },
+      CoreOpenmcpCloudV1alpha1Workspace: { keyFields: ['metadata', ['uid']] },
+      CoreOpenControlPlaneIoV2alpha1ControlPlane: { keyFields: ['metadata', ['uid']] },
     },
   }),
 });

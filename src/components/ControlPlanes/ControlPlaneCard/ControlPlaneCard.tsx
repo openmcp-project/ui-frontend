@@ -7,7 +7,11 @@ import ConnectButton from '../ConnectButton/ConnectButton.tsx';
 import TitleLevel from '@ui5/webcomponents/dist/types/TitleLevel.js';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ControlPlaneListItem, ReadyStatus } from '../../../spaces/onboarding/types/ControlPlane.ts';
+import {
+  ControlPlaneListItem,
+  ReadyStatus,
+  flattenV1RoleBindings,
+} from '../../../spaces/onboarding/types/ControlPlane.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import MCPHealthPopoverButton from '../../ControlPlane/MCPHealthPopoverButton.tsx';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
@@ -25,8 +29,7 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
 import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
-import { useMcpComponents } from './useMcpComponents.ts';
-import { useMcpV2Components } from './useMcpV2Components.ts';
+import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
@@ -47,8 +50,11 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
-  useMcpComponentsHook?: typeof useMcpComponents;
-  useMcpV2ComponentsHook?: typeof useMcpV2Components;
+  /** V2 only: component-install status for this card, pre-fetched once per workspace by the
+   * parent grid tile via `useMcpV2ComponentsListQuery` (see `ControlPlaneListWorkspaceGridTile`).
+   * `undefined` while the workspace-level fetch is still loading. */
+  v2Components?: McpV2Components;
+  isLoadingV2Components?: boolean;
 }
 
 type MCPWizardState = {
@@ -68,8 +74,8 @@ export const ControlPlaneCard = ({
   projectName,
   useDeleteManagedControlPlane = _useDeleteManagedControlPlane,
   useDeleteManagedControlPlaneV2GraphQL = _useDeleteManagedControlPlaneV2GraphQL,
-  useMcpComponentsHook = useMcpComponents,
-  useMcpV2ComponentsHook = useMcpV2Components,
+  v2Components,
+  isLoadingV2Components = false,
 }: Props) => {
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
@@ -103,17 +109,16 @@ export const ControlPlaneCard = ({
   const isV2 = controlPlane.version === 'v2';
   const navigate = useNavigate();
 
-  const {
-    components: mcpComponents,
-    roleBindings,
-    isLoading: isLoadingComponents,
-    hasError: hasComponentsError,
-  } = useMcpComponentsHook(projectName, workspace.metadata.name, name);
-  const { components: mcpV2Components, isLoading: isLoadingV2Components } = useMcpV2ComponentsHook(
-    name,
-    namespace,
-    !isV2,
-  );
+  // V1 component-install status and role bindings are already in the `GetMCPsList` result that
+  // produced `controlPlane` — no per-card fetch needed (unlike V2, whose component status lives
+  // in separate CRs the list query can't see).
+  const v1Spec = controlPlane.version === 'v1' ? controlPlane.spec : undefined;
+  const mcpComponents = v1Spec?.components;
+  const v1RoleBindings = useMemo(() => flattenV1RoleBindings(v1Spec?.authorization?.roleBindings), [v1Spec]);
+  // V2's install status is pre-fetched once per workspace by the parent grid tile (see
+  // ControlPlaneListWorkspaceGridTile) and passed down — mirrors the V1 approach above.
+  // `undefined` means the workspace-level fetch hasn't resolved yet (same signal `null` used to be).
+  const mcpV2Components = v2Components;
 
   const v2RoleBindings = useMemo(() => {
     if (!isV2) return undefined;
@@ -170,7 +175,7 @@ export const ControlPlaneCard = ({
         <div className={styles.cardBody}>
           <div className={styles.componentsRow}>
             <div className={styles.componentIcons}>
-              {(isV2 ? isLoadingV2Components : isLoadingComponents) ? (
+              {isV2 && isLoadingV2Components ? (
                 <>
                   <div
                     className={`${styles.componentIcon} ${styles.componentIconSkeleton}`}
@@ -203,11 +208,10 @@ export const ControlPlaneCard = ({
                       <img src={component.logo} alt={component.name} className={styles.componentLogo} />
                     </button>
                   ))}
-                  {installedComponents.length === 0 && (isV2 ? mcpV2Components !== null : mcpComponents !== null) && (
+                  {installedComponents.length === 0 && (isV2 ? mcpV2Components !== undefined : true) && (
                     <button
-                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder} ${!isV2 && hasComponentsError ? styles.addComponentPlaceholderDisabled : ''}`}
+                      className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
                       data-testid="add-component-button"
-                      disabled={!isV2 && hasComponentsError}
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
@@ -269,7 +273,7 @@ export const ControlPlaneCard = ({
               resourceName={controlPlane.metadata.name}
               resourceType={isV2 ? 'controlplanes' : 'managedcontrolplanes'}
             />
-            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : roleBindings} compact />
+            <McpMembersAvatarView roleBindings={isV2 ? v2RoleBindings : v1RoleBindings} compact />
           </div>
 
           <div className={styles.footerRight}>

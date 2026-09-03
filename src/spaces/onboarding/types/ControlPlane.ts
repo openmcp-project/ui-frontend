@@ -44,6 +44,7 @@ const StatusSchema = z.object({
 });
 
 const MetadataSchema = z.object({
+  uid: z.string().optional(),
   name: z.string(),
   namespace: z.string(),
   creationTimestamp: z.string().catch(''),
@@ -63,9 +64,21 @@ const SpecComponentsSchema = z
   })
   .nullish();
 
+// Simpler than the V2 IAM role binding shape (no roleRefs/apiGroup) — matches what the
+// list & detail V1 queries actually select for member-avatar display.
+const V1RoleBindingSchema = z.object({
+  role: z.string().nullish(),
+  subjects: z.array(z.object({ kind: z.string().nullish(), name: z.string().nullish() }).nullable()).nullish(),
+});
+
 const SpecSchema = z
   .object({
     components: SpecComponentsSchema,
+    authorization: z
+      .object({
+        roleBindings: z.array(V1RoleBindingSchema.nullable()).nullish(),
+      })
+      .nullish(),
   })
   .nullish();
 
@@ -144,6 +157,17 @@ export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
 export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
 export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
 export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
+
+/** Flattens a V1 control plane's `spec.authorization.roleBindings` into `McpMembersAvatarView`'s input shape. */
+export function flattenV1RoleBindings(
+  roleBindings: (z.infer<typeof V1RoleBindingSchema> | null)[] | null | undefined,
+): { role: string; subjects: { kind: string; name: string }[] }[] {
+  return (roleBindings ?? []).flatMap((rb) => {
+    if (!rb?.role) return [];
+    const subjects = (rb.subjects ?? []).flatMap((s) => (s?.kind && s?.name ? [{ kind: s.kind, name: s.name }] : []));
+    return [{ role: rb.role, subjects }];
+  });
+}
 
 // ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
 

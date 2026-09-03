@@ -13,6 +13,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { McpsQueryMode, useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
@@ -40,6 +41,7 @@ interface Props {
   onVisibilityChange?: (isVisible: boolean) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
@@ -51,6 +53,7 @@ export function ControlPlaneListWorkspaceGridTile({
   onVisibilityChange,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
@@ -66,12 +69,16 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
+  const mcpNamespace = `project-${projectName}--ws-${workspaceName}`;
   const fetchMode: McpsQueryMode = isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
-  const {
-    data: managedControlPlanes,
-    error: cpsError,
-    isPending,
-  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`, { mode: fetchMode });
+  const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
+
+  // One combined query for every V2 control plane's component status in this workspace instead
+  // of each ControlPlaneCard firing its own 6 queries — see useMcpV2ComponentsListQuery.
+  const { componentsByName: v2ComponentsByName, isLoading: isLoadingV2ComponentsList } = useMcpV2ComponentsListQuery(
+    mcpNamespace,
+    !enableMcpV2 || fetchMode !== 'full',
+  );
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
@@ -241,7 +248,13 @@ export function ControlPlaneListWorkspaceGridTile({
                   <div className={styles.grid}>
                     {visibleMcps?.map((mcp) => (
                       <ObservableCard key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}>
-                        <ControlPlaneCard controlPlane={mcp} projectName={projectName} workspace={workspace} />
+                        <ControlPlaneCard
+                          controlPlane={mcp}
+                          projectName={projectName}
+                          workspace={workspace}
+                          v2Components={mcp.version === 'v2' ? v2ComponentsByName[mcp.metadata.name] : undefined}
+                          isLoadingV2Components={mcp.version === 'v2' && isLoadingV2ComponentsList}
+                        />
                       </ObservableCard>
                     ))}
                   </div>

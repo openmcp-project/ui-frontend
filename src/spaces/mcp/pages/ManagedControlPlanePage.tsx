@@ -22,10 +22,9 @@ import { Providers } from '../../../components/ControlPlane/Providers.tsx';
 import { ProvidersConfig } from '../../../components/ControlPlane/ProvidersConfig.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
-import { ControlPlane as ControlPlaneResource } from '../../../lib/api/types/crate/controlPlanes.ts';
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
+import { useManagedControlPlaneQuery } from '../../../spaces/onboarding/hooks/useManagedControlPlaneQuery.ts';
 
 import { Landscapers } from '../../../components/ControlPlane/Landscapers.tsx';
 import Graph from '../../../components/Graphs/Graph.tsx';
@@ -283,7 +282,7 @@ export default function ManagedControlPlanePage() {
     data: mcp,
     error,
     isLoading,
-  } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+  } = useManagedControlPlaneQuery(projectName, workspaceName, controlPlaneName);
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
