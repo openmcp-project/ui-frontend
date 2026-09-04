@@ -163,8 +163,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
     });
 
     it('renders ControlPlaneCards when workspace is expanded', () => {
-      cy.intercept('GET', '**/managedcontrolplanes/**').as('mcpComponentsRest');
-
       mountTile({ isExpanded: true });
 
       cy.get('[data-testid="workspace-panel-workspaceName"]')
@@ -174,8 +172,6 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
         .should('eq', 'true');
 
       cy.contains('mcp-a').should('exist');
-
-      cy.get('@mcpComponentsRest.all').should('have.length.greaterThan', 0);
     });
 
     it('calls onToggleExpanded when the header button is clicked', () => {

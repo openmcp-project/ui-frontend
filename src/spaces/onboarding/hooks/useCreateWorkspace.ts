@@ -51,6 +51,7 @@ const CreateWorkspaceMutation = graphql(`
       v1alpha1 {
         createWorkspace(namespace: $namespace, object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
             namespace
           }

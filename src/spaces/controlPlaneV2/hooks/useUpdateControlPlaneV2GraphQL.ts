@@ -8,7 +8,12 @@ import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export function useUpdateControlPlaneV2GraphQL() {
   const telemetry = useTelemetry();
-  const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation);
+  const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation, {
+    // The response only selects `metadata`/`status.phase`, not the updated `spec`, so spec changes
+    // (role bindings, IAM config) won't reach other open views without a refetch — as in the
+    // sibling create/delete hooks.
+    refetchQueries: ['GetMCPsList', 'GetMCPv2'],
+  });
 
   const updateMcp = useCallback(
     async (rawInput: McpV2Input) => {

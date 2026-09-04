@@ -4,8 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import { ApiConfigProvider } from '../../components/Shared/k8s';
 import { useAuthMcp } from '../../spaces/mcp/auth/AuthContextMcp.tsx';
 import { useKubeconfigQuery } from '../../spaces/onboarding/hooks/useKubeconfigQuery.ts';
-import { ControlPlane as ManagedControlPlaneResource, RoleBinding } from '../api/types/crate/controlPlanes.ts';
-import { useApiResource } from '../api/useApiResource.ts';
+import { useManagedControlPlaneQuery } from '../../spaces/onboarding/hooks/useManagedControlPlaneQuery.ts';
+import { useControlPlaneV2Query } from '../../spaces/onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
+import { RoleBinding } from '../api/types/crate/controlPlanes.ts';
 
 interface Mcp {
   project: string;
@@ -56,24 +57,32 @@ export const McpContextProvider = ({
   const idpName = searchParams.get('idp');
 
   const skipRestFetch = isV2 && preloadedAccess !== undefined;
-  const mcp = useApiResource(
-    ManagedControlPlaneResource(context.project, context.workspace, context.name, isV2),
-    undefined,
-    undefined,
-    skipRestFetch,
+
+  // Crate-scoped control-plane fetch. V1 and V2 have separate GraphQL queries; each is
+  // skipped unless it matches the active version (and unless access is preloaded).
+  const v1 = useManagedControlPlaneQuery(context.project, context.workspace, context.name, isV2 || skipRestFetch);
+  const v2Namespace = `project-${context.project}--ws-${context.workspace}`;
+  const v2 = useControlPlaneV2Query(
+    isV2 && !skipRestFetch ? context.name : undefined,
+    isV2 && !skipRestFetch ? v2Namespace : undefined,
   );
+
+  const activeLoading = isV2 ? v2.isPending : v1.isLoading;
+  const activeError = (isV2 ? v2.error : v1.error) as Error | undefined;
+  // V2 role bindings live under spec.iam, so `spec.authorization.roleBindings` is V1-only.
+  const roleBindings = v1.data?.spec?.authorization?.roleBindings;
 
   // V2 exposes one access entry per IdP, keyed `oidc_<providerName>`. The system IdP is
   // `oidc_openmcp` (used when no `idp` query param is present); a custom IdP is `oidc_<idp>`.
   const accessKey: `oidc_${string}` = idpName ? `oidc_${idpName}` : 'oidc_openmcp';
   const accessSource: AccessMap | null | undefined = skipRestFetch
     ? preloadedAccess
-    : (mcp.data?.status?.access as AccessMap | null | undefined);
+    : ((isV2 ? v2.data?.status?.access : v1.data?.status?.access) as AccessMap | null | undefined);
   const secretNamespace = isV2
-    ? (preloadedNamespace ?? mcp.data?.metadata?.namespace)
-    : mcp.data?.status?.access?.namespace;
-  const secretName = isV2 ? accessSource?.[accessKey]?.name : mcp.data?.status?.access?.name;
-  const secretKey = isV2 ? 'kubeconfig' : mcp.data?.status?.access?.key;
+    ? (preloadedNamespace ?? v2.data?.metadata?.namespace)
+    : v1.data?.status?.access?.namespace;
+  const secretName = isV2 ? accessSource?.[accessKey]?.name : v1.data?.status?.access?.name;
+  const secretKey = isV2 ? 'kubeconfig' : v1.data?.status?.access?.key;
 
   const kubeconfigQuery = useKubeconfigQuery(secretName, secretNamespace, secretKey);
 
@@ -81,13 +90,13 @@ export const McpContextProvider = ({
   // constant, so `secretName` is the meaningful signal for whether the chosen IdP has access.
   const hasAccessInfo = !!secretName && !!secretKey;
 
-  const loading = (skipRestFetch ? false : mcp.isLoading) || kubeconfigQuery.isPending;
+  const loading = (skipRestFetch ? false : activeLoading) || kubeconfigQuery.isPending;
   const error: Error | string | null = useMemo(
     () =>
-      (skipRestFetch ? null : mcp.error) ??
+      (skipRestFetch ? null : (activeError ?? null)) ??
       kubeconfigQuery.error ??
       (!hasAccessInfo && !loading ? new Error('Control plane has no kubeconfig access information yet') : null),
-    [skipRestFetch, mcp.error, kubeconfigQuery.error, hasAccessInfo, loading],
+    [skipRestFetch, activeError, kubeconfigQuery.error, hasAccessInfo, loading],
   );
   const ready = !loading && !error && hasAccessInfo;
 
@@ -95,17 +104,16 @@ export const McpContextProvider = ({
     onState?.({ loading, error, ready });
   }, [loading, error, ready, onState]);
 
-  // When access data is preloaded (V2 page), render children immediately so that
-  // components that don't depend on McpContext (e.g. ComponentsDashboardV2) are
-  // not blocked by the kubeconfig fetch. WithinManagedControlPlane gates on
-  // mcp.kubeconfig itself before providing the downstream ApiConfigProvider.
+  // With preloaded access (V2 page), render children immediately so components that don't need
+  // McpContext (e.g. ComponentsDashboardV2) aren't blocked by the kubeconfig fetch.
+  // WithinManagedControlPlane gates on mcp.kubeconfig before providing ApiConfigProvider.
   if (skipRestFetch) {
     const enrichedContext: Mcp = {
       ...context,
       isV2,
       idp: idpName ?? undefined,
       kubeconfig: kubeconfigQuery.kubeconfigDecoded,
-      roleBindings: mcp.data?.spec?.authorization?.roleBindings,
+      roleBindings,
     };
     return <McpContext.Provider value={enrichedContext}>{children}</McpContext.Provider>;
   }
@@ -127,7 +135,7 @@ export const McpContextProvider = ({
     isV2,
     idp: idpName ?? undefined,
     kubeconfig: kubeconfigQuery.kubeconfigDecoded,
-    roleBindings: mcp.data?.spec?.authorization?.roleBindings,
+    roleBindings,
   };
   return <McpContext.Provider value={enrichedContext}>{children}</McpContext.Provider>;
 };

@@ -50,6 +50,7 @@ const CreateProjectMutation = graphql(`
       v1alpha1 {
         createProject(object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
           }
         }

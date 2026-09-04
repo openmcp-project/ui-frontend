@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { ControlPlaneListWorkspaceGridTile } from './ControlPlaneListWorkspaceGridTile.tsx';
@@ -19,6 +20,7 @@ interface Props {
   onToggleWorkspace: (workspaceName: string) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
 }
 
 export default function ControlPlaneListAllWorkspaces({
@@ -29,6 +31,7 @@ export default function ControlPlaneListAllWorkspaces({
   onToggleWorkspace,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
   const { workspaceCreationGuide } = useLink();
   const { t } = useTranslation();
@@ -92,6 +95,7 @@ export default function ControlPlaneListAllWorkspaces({
           isExpanded={expandedWorkspaces.has(workspace.metadata.name)}
           useMcpsQuery={useMcpsQuery}
           useDeleteWorkspace={useDeleteWorkspace}
+          useMcpV2ComponentsListQuery={useMcpV2ComponentsListQuery}
           onToggleExpanded={() => onToggleWorkspace(workspace.metadata.name)}
           onVisibilityChange={(isVisible) => handleVisibilityChange(workspace.metadata.name, isVisible)}
         />

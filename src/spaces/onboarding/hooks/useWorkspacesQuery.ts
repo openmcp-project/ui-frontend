@@ -16,6 +16,7 @@ const GetWorkspacesQuery = graphql(`
             apiVersion
             kind
             metadata {
+              uid
               name
               namespace
               annotations

@@ -15,6 +15,7 @@ export const GET_MCP_V2_QUERY = graphql(`
         ControlPlane(name: $name, namespace: $namespace) {
           kind
           metadata {
+            uid
             name
             namespace
             annotations

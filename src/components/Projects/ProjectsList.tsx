@@ -227,7 +227,9 @@ export default function ProjectsList({
         width: 220,
         disableFilters: true,
         disableSortBy: true,
-        Cell: (instance) => <ProjectMembersCell projectName={getProjectName(instance)} />,
+        Cell: (instance) => (
+          <ProjectMembersCell projectName={getProjectName(instance)} useProjectMembers={useProjectMembers} />
+        ),
       },
       {
         Header: t('yaml.YAML'),

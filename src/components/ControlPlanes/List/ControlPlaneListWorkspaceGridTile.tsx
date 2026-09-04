@@ -13,6 +13,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
 import { McpsQueryMode, useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { useMcpV2ComponentsListQuery as _useMcpV2ComponentsListQuery } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
@@ -40,6 +41,7 @@ interface Props {
   onVisibilityChange?: (isVisible: boolean) => void;
   useMcpsQuery?: typeof _useMcpsQuery;
   useDeleteWorkspace?: typeof _useDeleteWorkspace;
+  useMcpV2ComponentsListQuery?: typeof _useMcpV2ComponentsListQuery;
 }
 
 export function ControlPlaneListWorkspaceGridTile({
@@ -51,6 +53,7 @@ export function ControlPlaneListWorkspaceGridTile({
   onVisibilityChange,
   useMcpsQuery = _useMcpsQuery,
   useDeleteWorkspace = _useDeleteWorkspace,
+  useMcpV2ComponentsListQuery = _useMcpV2ComponentsListQuery,
 }: Props) {
   const [isCreateManagedControlPlaneWizardOpen, setIsCreateManagedControlPlaneWizardOpen] = useState(false);
   const [isCreateManagedControlPlaneWizardOpenV2, setIsCreateManagedControlPlaneWizardOpenV2] = useState(false);
@@ -66,16 +69,29 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
-  const fetchMode: McpsQueryMode = isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
-  const {
-    data: managedControlPlanes,
-    error: cpsError,
-    isPending,
-  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`, { mode: fetchMode });
+  const mcpNamespace = `project-${projectName}--ws-${workspaceName}`;
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
     query && (workspaceName.toLowerCase().includes(query) || workspaceDisplayName.toLowerCase().includes(query));
+
+  // A match on an MCP *name* (not the workspace name) is only known after the 'minimal' fetch
+  // returns. Such a workspace starts in 'minimal' mode and upgrades to 'full' once discovered —
+  // otherwise its cards render from the minimal payload (no spec/V2 data) and show a false
+  // "nothing installed" state.
+  const [needsFullMcpData, setNeedsFullMcpData] = useState(false);
+
+  const shouldRenderCardsWithFullData = isExpanded || workspaceMatches || needsFullMcpData;
+  const fetchMode: McpsQueryMode = shouldRenderCardsWithFullData ? 'full' : query ? 'minimal' : 'skip';
+  const { data: managedControlPlanes, error: cpsError, isPending } = useMcpsQuery(mcpNamespace, { mode: fetchMode });
+
+  // One combined query for all V2 component status in this workspace, instead of each card
+  // firing its own 6 queries — see useMcpV2ComponentsListQuery.
+  const { componentsByName: v2ComponentsByName, isLoading: isLoadingV2ComponentsList } = useMcpV2ComponentsListQuery(
+    mcpNamespace,
+    !enableMcpV2 || fetchMode !== 'full',
+  );
+
   const visibleMcps =
     query && !workspaceMatches
       ? (managedControlPlanes ?? []).filter(
@@ -88,7 +104,19 @@ export function ControlPlaneListWorkspaceGridTile({
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
   // Hide tile when searching and nothing matches (workspace name/displayName or any CP name)
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
-  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch) : !isExpanded;
+  // Keep the panel expanded via `needsFullMcpData` through the 'minimal'→'full' upgrade:
+  // `hasMcpMatch` briefly flips false while the 'full' query reloads, which would otherwise
+  // collapse the panel just as it should settle into showing real data.
+  const shouldCollapsePanel = query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded;
+
+  // Adjust state during render (not in an effect — avoids an extra render/fetch cascade) once
+  // `hasMcpMatch` is derivable. Each branch fires once: its guard turns false right after.
+  if (hasMcpMatch && !needsFullMcpData) {
+    setNeedsFullMcpData(true);
+  } else if (!query && needsFullMcpData) {
+    // Search cleared — drop back to on-demand fetching unless manually expanded.
+    setNeedsFullMcpData(false);
+  }
 
   useEffect(() => {
     onVisibilityChange?.(!hidden);
@@ -241,7 +269,21 @@ export function ControlPlaneListWorkspaceGridTile({
                   <div className={styles.grid}>
                     {visibleMcps?.map((mcp) => (
                       <ObservableCard key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}>
-                        <ControlPlaneCard controlPlane={mcp} projectName={projectName} workspace={workspace} />
+                        <ControlPlaneCard
+                          controlPlane={mcp}
+                          projectName={projectName}
+                          workspace={workspace}
+                          // A CP with nothing installed gets no `componentsByName` entry, which by
+                          // key presence alone looks the same as "not fetched yet". Once the fetch
+                          // finishes, default a missing entry to `{}` (ControlPlaneCard reads
+                          // `undefined` as "still loading" and hides the add-component button).
+                          v2Components={
+                            mcp.version === 'v2'
+                              ? (v2ComponentsByName[mcp.metadata.name] ?? (isLoadingV2ComponentsList ? undefined : {}))
+                              : undefined
+                          }
+                          isLoadingV2Components={mcp.version === 'v2' && isLoadingV2ComponentsList}
+                        />
                       </ObservableCard>
                     ))}
                   </div>

@@ -107,15 +107,42 @@ export function useProjectsQuery(): PollingQueryResult<string[]> {
   }, [fetchMutation, t, telemetry]);
 
   useEffect(() => {
+    let intervalId: number | undefined;
+
+    const startInterval = () => {
+      if (intervalId !== undefined) return;
+      intervalId = window.setInterval(() => {
+        void fetch();
+      }, PROJECTS_REFRESH_INTERVAL_MS);
+    };
+    const stopInterval = () => {
+      if (intervalId === undefined) return;
+      window.clearInterval(intervalId);
+      intervalId = undefined;
+    };
+
+    // Don't poll a backgrounded tab; refresh immediately (not on the next stale
+    // tick) once it's foregrounded again so the list doesn't look frozen.
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        stopInterval();
+        return;
+      }
+      void fetch();
+      startInterval();
+    };
+
     // false positive: fetch() only calls setState after an await, not synchronously — see facebook/react#34905
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetch();
-    const intervalId = window.setInterval(() => {
-      void fetch();
-    }, PROJECTS_REFRESH_INTERVAL_MS);
+    if (document.visibilityState !== 'hidden') {
+      startInterval();
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      stopInterval();
     };
   }, [fetch]);
 
