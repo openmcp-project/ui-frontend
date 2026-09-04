@@ -136,7 +136,8 @@
     "externalSecretsOperator": "External Secrets Operator",
     "ocm": "OCM",
     "kro": "KRO",
-    "metricsOperator": "Metrics Operator"
+    "metricsOperator": "Metrics Operator",
+    "updateAvailableTooltip": "{{version}} available — consider upgrading"
   },
   "ControlPlaneListAllWorkspaces": {
     "emptyListTitleMessage": "No Workspaces created yet",
@@ -187,6 +188,10 @@
     "successMessageEdit": "{{component}} has been successfully updated.",
     "errorMessageEdit": "Failed to update {{component}}. Please try again.",
     "yamlPreview": "YAML Preview"
+  },
+  "CrossplaneProviderPicker": {
+    "updateAvailableTooltip": "{{version}} available — consider upgrading",
+    "testingDisclaimer": "Should be tested in a non-production environment — check provider changelogs for details."
   },
   "IllustratedBanner": {
     "titleMessage": "No Control Planes found",
@@ -481,7 +486,8 @@
     "tableHeaderName": "Name",
     "tableHeaderCreated": "Created",
     "tableHeaderInstalled": "Installed",
-    "tableHeaderHealthy": "Healthy"
+    "tableHeaderHealthy": "Healthy",
+    "updateAvailable": "{{version}} available — consider upgrading"
   },
   "Graphs": {
     "colorsProvider": "Provider",
