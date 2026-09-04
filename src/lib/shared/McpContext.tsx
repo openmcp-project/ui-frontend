@@ -69,8 +69,7 @@ export const McpContextProvider = ({
 
   const activeLoading = isV2 ? v2.isPending : v1.isLoading;
   const activeError = (isV2 ? v2.error : v1.error) as Error | undefined;
-  // V2 role bindings live under spec.iam (not spec.authorization); as with the previous REST
-  // object, `spec.authorization.roleBindings` is only populated for V1.
+  // V2 role bindings live under spec.iam, so `spec.authorization.roleBindings` is V1-only.
   const roleBindings = v1.data?.spec?.authorization?.roleBindings;
 
   // V2 exposes one access entry per IdP, keyed `oidc_<providerName>`. The system IdP is
@@ -105,10 +104,9 @@ export const McpContextProvider = ({
     onState?.({ loading, error, ready });
   }, [loading, error, ready, onState]);
 
-  // When access data is preloaded (V2 page), render children immediately so that
-  // components that don't depend on McpContext (e.g. ComponentsDashboardV2) are
-  // not blocked by the kubeconfig fetch. WithinManagedControlPlane gates on
-  // mcp.kubeconfig itself before providing the downstream ApiConfigProvider.
+  // With preloaded access (V2 page), render children immediately so components that don't need
+  // McpContext (e.g. ComponentsDashboardV2) aren't blocked by the kubeconfig fetch.
+  // WithinManagedControlPlane gates on mcp.kubeconfig before providing ApiConfigProvider.
   if (skipRestFetch) {
     const enrichedContext: Mcp = {
       ...context,

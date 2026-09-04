@@ -50,9 +50,8 @@ interface Props {
   projectName: string;
   useDeleteManagedControlPlane?: typeof _useDeleteManagedControlPlane;
   useDeleteManagedControlPlaneV2GraphQL?: typeof _useDeleteManagedControlPlaneV2GraphQL;
-  /** V2 only: component-install status for this card, pre-fetched once per workspace by the
-   * parent grid tile via `useMcpV2ComponentsListQuery` (see `ControlPlaneListWorkspaceGridTile`).
-   * `undefined` while the workspace-level fetch is still loading. */
+  /** V2 only: component-install status, pre-fetched per workspace by the parent grid tile.
+   * `undefined` while that fetch is still loading. */
   v2Components?: McpV2Components;
   isLoadingV2Components?: boolean;
 }
@@ -109,15 +108,12 @@ export const ControlPlaneCard = ({
   const isV2 = controlPlane.version === 'v2';
   const navigate = useNavigate();
 
-  // V1 component-install status and role bindings are already in the `GetMCPsList` result that
-  // produced `controlPlane` — no per-card fetch needed (unlike V2, whose component status lives
-  // in separate CRs the list query can't see).
+  // V1 components and role bindings come with the `GetMCPsList` result — no per-card fetch
+  // (unlike V2, whose component status lives in separate CRs).
   const v1Spec = controlPlane.version === 'v1' ? controlPlane.spec : undefined;
   const mcpComponents = v1Spec?.components;
   const v1RoleBindings = useMemo(() => flattenV1RoleBindings(v1Spec?.authorization?.roleBindings), [v1Spec]);
-  // V2's install status is pre-fetched once per workspace by the parent grid tile (see
-  // ControlPlaneListWorkspaceGridTile) and passed down — mirrors the V1 approach above.
-  // `undefined` means the workspace-level fetch hasn't resolved yet (same signal `null` used to be).
+  // V2 install status is pre-fetched by the parent grid tile; `undefined` = not yet resolved.
   const mcpV2Components = v2Components;
 
   const v2RoleBindings = useMemo(() => {
@@ -215,8 +211,7 @@ export const ControlPlaneCard = ({
                       title={t('ControlPlaneCard.installComponents')}
                       onClick={() => {
                         if (isV2) {
-                          // V2 edit doesn't support adding components yet — send the
-                          // user to the MCP page (same as view) so they can install there.
+                          // V2 edit can't add components yet — route to the MCP page to install there.
                           navigate(
                             generatePath(Routes.McpV2, {
                               projectName,

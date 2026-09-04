@@ -4,9 +4,8 @@ import { useToast } from '../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { graphql } from '../types/__generated__/graphql';
 
-// Sets the deletion-confirmation annotation via server-side apply. Mirrors the previous REST
-// PATCH (`confirmation.openmcp.cloud/deletion: "true"`) — sending only metadata merges the
-// annotation without a read-modify-write round-trip.
+// Sets the deletion-confirmation annotation via server-side apply — sending only metadata
+// merges the annotation without a read-modify-write round-trip.
 const SetDeletionConfirmationMutation = graphql(`
   mutation SetManagedControlPlaneDeletionConfirmation($yaml: String!) {
     applyYaml(yaml: $yaml)

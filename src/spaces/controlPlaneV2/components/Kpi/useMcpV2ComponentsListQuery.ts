@@ -5,13 +5,9 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 
 /**
  * One combined query for every V2 control plane's component-install status in a workspace,
- * replacing what would otherwise be 6 separate per-control-plane queries
- * (`useCrossplaneQuery`/`useFluxQuery`/`useLandscaperQuery`/`useEsoQuery`/`useOcmQuery`/
- * `useKroQuery`) fired once per card in the control-plane grid. All V2 control planes in a
- * workspace share the same `mcpNamespace`, so one list-per-service-per-workspace fetch (instead
- * of one get-per-service-per-card) covers every card — `6` requests total per workspace instead
- * of `6 × cards`. Only `metadata.name` + `spec.version` are selected: that's all `installed`
- * status needs, and it keeps this query cheap even for a workspace with many control planes.
+ * replacing 6 per-control-plane queries fired once per card. All V2 control planes in a workspace
+ * share the same `mcpNamespace`, so this is 6 requests per workspace instead of 6 × cards.
+ * Only `metadata.name` + `spec.version` are selected — all that `installed` status needs.
  */
 const GET_MCP_V2_COMPONENTS_LIST_QUERY = graphql(`
   query GetMcpV2ComponentsList($namespace: String) {

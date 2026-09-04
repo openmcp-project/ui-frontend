@@ -251,10 +251,8 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
 
   const { refetch } = queryResult;
 
-  // Gate subscriptions on isReadyForSubscriptions to avoid SSE streams exhausting the
-  // HTTP/1.1 connection pool before the initial query can get a connection.
-  // All workspaces expanding simultaneously would open 16+ SSE streams (8 × 2),
-  // blocking GetMCPsList queries for ~30 s until streams timeout.
+  // Gate subscriptions until the initial query has data — SSE streams otherwise exhaust the
+  // HTTP/1.1 pool (16+ streams if all workspaces expand at once), blocking GetMCPsList for ~30s.
   const isReadyForSubscriptions = mode === 'full' && queryResult.data !== undefined;
 
   const { data: v1SubData } = useSubscription(MCP_V1_SUBSCRIPTION, {

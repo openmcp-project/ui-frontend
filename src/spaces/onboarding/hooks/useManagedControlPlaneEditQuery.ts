@@ -9,10 +9,9 @@ import { flattenV1RoleBindings } from '../types/ControlPlane.ts';
 
 /**
  * Full ManagedControlPlane (v1) fetch for the edit/duplicate wizard — the GraphQL replacement
- * for the crate-scoped REST `ResourceObject<ManagedControlPlaneInterface>(...)` fetch used by
- * `EditManagedControlPlaneWizardDataLoader`. Unlike `useManagedControlPlaneQuery` (which only
- * needs component *presence* for display), the wizard needs full component config (versions,
- * providers, deployers) plus labels/annotations to prefill the form.
+ * for the REST `ResourceObject<ManagedControlPlaneInterface>` fetch. Unlike
+ * `useManagedControlPlaneQuery` (component presence only), the wizard needs full component config
+ * (versions, providers, deployers) plus labels/annotations to prefill the form.
  */
 const GET_MCP_V1_FOR_EDIT_QUERY = graphql(`
   query GetManagedControlPlaneForEdit($name: String!, $namespace: String!) {
@@ -102,8 +101,8 @@ function mapToManagedControlPlane(raw: RawManagedControlPlane | undefined): Mana
   if (rawComponents?.landscaper) {
     components.landscaper = { deployers: (rawComponents.landscaper.deployers ?? []).filter((d) => !!d) as string[] };
   }
-  // btpServiceOperator / kyverno aren't in MCPComponentsSpec's typed fields but are read
-  // generically downstream via Object.keys(...) — attach them the same way REST did.
+  // btpServiceOperator / kyverno aren't typed in MCPComponentsSpec but are read generically
+  // downstream via Object.keys(...) — attach them as REST did.
   if (rawComponents?.btpServiceOperator) {
     (components as Record<string, unknown>).btpServiceOperator = {
       version: rawComponents.btpServiceOperator.version ?? undefined,

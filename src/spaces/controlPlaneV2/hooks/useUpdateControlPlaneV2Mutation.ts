@@ -1,6 +1,3 @@
-// CODEGEN REQUIRED: this file adds a field (`metadata.uid`, for Apollo cache normalization) to
-// an existing operation (`UpdateManagedControlPlaneV2`). It will not type-check until
-// `npm run generate-graphql-types -- <token>` is run.
 import { graphql } from '../../../types/__generated__/graphql';
 
 export const UpdateManagedControlPlaneV2Mutation = graphql(`
