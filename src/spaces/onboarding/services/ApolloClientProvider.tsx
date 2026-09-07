@@ -195,10 +195,27 @@ const client = new ApolloClient({
       // shares one cache entry instead of a disconnected copy per query. Every query selecting one
       // of these types must include `metadata { uid }`; omitting it degrades to a non-normalized
       // write for that response (Apollo warns, doesn't throw).
-      CoreOpenmcpCloudV1alpha1ManagedControlPlane: { keyFields: ['metadata', ['uid']] },
-      CoreOpenmcpCloudV1alpha1Project: { keyFields: ['metadata', ['uid']] },
-      CoreOpenmcpCloudV1alpha1Workspace: { keyFields: ['metadata', ['uid']] },
-      CoreOpenControlPlaneIoV2alpha1ControlPlane: { keyFields: ['metadata', ['uid']] },
+      //
+      // `metadata` uses merge:true so that two queries selecting different subsets of metadata
+      // fields (e.g. one selects creationTimestamp, another selects labels) accumulate into one
+      // complete object instead of replacing each other — which would cause cache thrash and a
+      // re-fetch loop when both queries are active simultaneously (e.g. MCP page + edit wizard).
+      CoreOpenmcpCloudV1alpha1ManagedControlPlane: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenmcpCloudV1alpha1Project: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenmcpCloudV1alpha1Workspace: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
+      CoreOpenControlPlaneIoV2alpha1ControlPlane: {
+        keyFields: ['metadata', ['uid']],
+        fields: { metadata: { merge: true } },
+      },
     },
   }),
 });
