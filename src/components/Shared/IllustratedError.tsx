@@ -21,7 +21,6 @@ export default function IllustratedError({ title, details, compact, button }: Pr
       title={title ?? t('IllustratedError.titleText')}
       subtitle={details ?? t('IllustratedError.subtitleText')}
       compact={compact}
-      button={button}
     />
   );
 }
