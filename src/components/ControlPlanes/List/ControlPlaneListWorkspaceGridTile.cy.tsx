@@ -131,6 +131,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
                 <ControlPlaneListWorkspaceGridTile
                   workspace={ws}
                   projectName="some-project"
+                  isExpanded={true}
                   useMcpsQuery={fakeUseMCPsForbiddenQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
                 />
