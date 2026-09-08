@@ -8,7 +8,7 @@ import {
 
 import '@ui5/webcomponents-icons/dist/copy';
 import { t } from 'i18next';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useRememberedProject } from '../../hooks/useRememberedProject.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import { useProjectMembers as _useProjectMembers } from '../../spaces/onboarding/hooks/useProjectMembers';
@@ -77,13 +77,18 @@ interface Props {
   onProjectSelect?: (projectName: string) => void;
 }
 
-export default function ProjectsList({
-  useProjectsQuery = _useProjectsQuery,
-  useProjectMembers = _useProjectMembers,
-  onProjectSelect,
-}: Props = {}) {
+export interface ProjectsListHandle {
+  refetch: () => Promise<string[]>;
+}
+
+const ProjectsList = forwardRef<ProjectsListHandle, Props>(function ProjectsList(
+  { useProjectsQuery = _useProjectsQuery, useProjectMembers = _useProjectMembers, onProjectSelect }: Props = {},
+  ref,
+) {
   const navigate = useLuigiNavigate();
-  const { data, error, isPending } = useProjectsQuery();
+  const { data, error, isPending, refetch } = useProjectsQuery();
+
+  useImperativeHandle(ref, () => ({ refetch }), [refetch]);
   const timestampsRef = useRef<Map<string, string>>(new Map());
   const displayNamesRef = useRef<Map<string, string>>(new Map());
   const [search, setSearch] = useState('');
@@ -306,4 +311,6 @@ export default function ProjectsList({
       </div>
     </FadeIn>
   );
-}
+});
+
+export default ProjectsList;

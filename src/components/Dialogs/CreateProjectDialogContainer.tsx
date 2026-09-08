@@ -15,11 +15,13 @@ import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 export function CreateProjectDialogContainer({
   isOpen,
   setIsOpen,
+  onProjectCreated,
   useCreateProject = _useCreateProject,
   useAuthOnboarding = _useAuthOnboarding,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  onProjectCreated?: () => void;
   useCreateProject?: typeof _useCreateProject;
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
@@ -86,6 +88,7 @@ export function CreateProjectDialogContainer({
       });
       telemetry.track({ category: 'project', action: 'created' });
       setIsOpen(false);
+      onProjectCreated?.();
       return true;
     } catch (e) {
       const message =
