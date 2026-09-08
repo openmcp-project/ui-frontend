@@ -61,6 +61,7 @@ const fakeUseMCPsListQuery: typeof useMcpsQuery = () => ({
   data: fakeManagedControlPlanes,
   error: undefined,
   isPending: false,
+  isReadyForSubscriptions: true,
 });
 
 const fakeUseDeleteWorkspace: typeof useDeleteWorkspace = () => ({

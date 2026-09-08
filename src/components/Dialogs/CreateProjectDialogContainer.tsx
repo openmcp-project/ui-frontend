@@ -84,11 +84,10 @@ export function CreateProjectDialogContainer({
         chargingTargetType,
         members,
       });
-      telemetry.track({ name: 'project.created' });
+      telemetry.track({ category: 'project', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       const message =
         e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);

@@ -8,7 +8,7 @@ import type { TelemetryFeature } from '../../lib/telemetry/features.ts';
 import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 import styles from './CopyButton.module.css';
 
-type CopySource = Extract<TelemetryFeature, { name: 'clipboard.copied' }>['source'];
+type CopySource = Extract<TelemetryFeature, { category: 'clipboard'; action: 'copied' }>['source'];
 
 interface CopyButtonProps extends Omit<ButtonPropTypes, 'children'> {
   text: string;
@@ -30,7 +30,7 @@ export const CopyButton = ({ text, source, style = {}, collapsible = false, ...b
     const success = await copyToClipboard(text, { showToastOnSuccess: false });
     if (success) {
       setActiveCopyId(uniqueId);
-      telemetry.track({ name: 'clipboard.copied', source });
+      telemetry.track({ category: 'clipboard', action: 'copied', source });
     }
   };
 

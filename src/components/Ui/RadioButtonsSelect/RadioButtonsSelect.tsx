@@ -5,6 +5,7 @@ export type RadioButtonsSelectOption = {
   label: string;
   value: string;
   icon?: string;
+  disabled?: boolean;
 };
 
 type RadioButtonsSelectProps = {
@@ -19,7 +20,7 @@ export const RadioButtonsSelect = ({ selectedValue, options, handleOnClick, labe
     <FlexBox aria-labelledby={label} role="radiogroup" direction={'Column'}>
       <Label className={styles.label}>{label} </Label>
       <FlexBox>
-        {options.map(({ value, label, icon }, index) => (
+        {options.map(({ value, label, icon, disabled }, index) => (
           <ToggleButton
             key={value}
             className={clsx(
@@ -33,6 +34,7 @@ export const RadioButtonsSelect = ({ selectedValue, options, handleOnClick, labe
               { [styles.left]: index > 0 },
             )}
             design={'Transparent'}
+            disabled={disabled}
             style={{
               color:
                 value === selectedValue ? 'var(--sapContent_Selected_ForegroundColor)' : 'var(--sapContent_LabelColor)',

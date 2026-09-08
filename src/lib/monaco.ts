@@ -4,8 +4,6 @@ import * as monaco from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
 import type { MonacoYaml, MonacoYamlOptions, SchemasSettings } from 'monaco-yaml';
 
-import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
-
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 import YamlWorker from 'monaco-yaml/yaml.worker?worker';
@@ -94,10 +92,10 @@ export const configureMonaco = () => {
     };
   }
 
-  // monaco-worker-manager calls createWebWorker with the pre-0.55 shape (label/moduleId/createData).
-  // Monaco 0.55+ only accepts { worker: Worker }. We intercept yaml calls, spawn the worker
-  // ourselves, and prime it with createData before Monaco sends its own '-please-ignore-' message
-  // so the compat shim in monaco-worker-manager-compat.ts can read it.
+  // monaco-worker-manager (via monaco-yaml) still calls createWebWorker with the pre-0.53 shape
+  // { moduleId, label, createData }; Monaco 0.53 (microsoft/vscode#244117) made it require a ready
+  // { worker }. Without this adapter the yaml worker never wires up and calls fail with
+  // "Missing requestHandler or method: …". Pattern from remcohaszing/monaco-yaml#272.
   type LegacyWebWorkerOptions = monaco.editor.IInternalWebWorkerOptions & {
     label?: string;
     moduleId?: string;
@@ -106,12 +104,20 @@ export const configureMonaco = () => {
   type CreateWebWorker = <T extends object>(opts: LegacyWebWorkerOptions) => monaco.editor.MonacoWebWorker<T>;
   const originalCreateWebWorker = monaco.editor.createWebWorker.bind(monaco.editor) as CreateWebWorker;
   (monaco.editor as unknown as { createWebWorker: CreateWebWorker }).createWebWorker = (opts) => {
-    if (opts.label === 'yaml') {
-      const worker = new YamlWorker();
-      worker.postMessage(opts.createData ?? {});
-      return originalCreateWebWorker({ worker });
+    if ('worker' in opts && opts.worker) {
+      return originalCreateWebWorker(opts);
     }
-    return originalCreateWebWorker(opts);
+    const spawned = window.MonacoEnvironment?.getWorker?.(opts.moduleId ?? '', opts.label ?? 'editorWorkerService');
+    if (!spawned) {
+      return originalCreateWebWorker(opts);
+    }
+    const worker = Promise.resolve(spawned).then((w) => {
+      // Handshake order: discard message first, then createData (see monaco-worker-manager#272).
+      w.postMessage('ignore');
+      w.postMessage(opts.createData ?? {});
+      return w;
+    });
+    return originalCreateWebWorker({ ...opts, worker });
   };
 
   // Initialize the YAML language service before any editor mounts.

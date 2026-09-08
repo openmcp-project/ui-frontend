@@ -4,7 +4,7 @@ import IllustrationMessageType from '@ui5/webcomponents-fiori/dist/types/Illustr
 import '@ui5/webcomponents-icons/dist/delete';
 import '@ui5/webcomponents-icons/dist/product';
 import '@ui5/webcomponents-icons/dist/slim-arrow-right';
-import { Button, BusyIndicator, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
+import { Button, FlexBox, Icon, ObjectPageSection, Title } from '@ui5/webcomponents-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext.tsx';
@@ -12,7 +12,7 @@ import { isForbiddenError } from '../../../lib/api/error.ts';
 import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.ts';
 import { useLink } from '../../../lib/shared/useLink.ts';
 import { useDeleteWorkspace as _useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
-import { useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
+import { McpsQueryMode, useMcpsQuery as _useMcpsQuery } from '../../../spaces/onboarding/hooks/useMcpsQuery.ts';
 import { Workspace } from '../../../spaces/onboarding/types/Workspace.ts';
 import { DeleteConfirmationDialog } from '../../Dialogs/DeleteConfirmationDialog.tsx';
 import { EditWorkspaceDialogContainer } from '../../Dialogs/EditWorkspaceDialogContainer.tsx';
@@ -24,6 +24,8 @@ import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControl
 import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
 import { YamlViewButton } from '../../Yaml/YamlViewButton.tsx';
 import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard.tsx';
+import { ControlPlaneCardSkeleton } from '../ControlPlaneCard/ControlPlaneCardSkeleton.tsx';
+import { ObservableCard } from './ObservableCard.tsx';
 import { ControlPlanesListMenu } from '../ControlPlanesListMenu.tsx';
 import { MembersAvatarView } from './MembersAvatarView.tsx';
 import styles from './WorkspacesList.module.css';
@@ -64,11 +66,12 @@ export function ControlPlaneListWorkspaceGridTile({
   const [dialogDeleteWsIsOpen, setDialogDeleteWsIsOpen] = useState(false);
   const [dialogEditWsIsOpen, setDialogEditWsIsOpen] = useState(false);
 
+  const fetchMode: McpsQueryMode = isExpanded ? 'full' : search.trim() ? 'minimal' : 'skip';
   const {
     data: managedControlPlanes,
     error: cpsError,
     isPending,
-  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`);
+  } = useMcpsQuery(`project-${projectName}--ws-${workspaceName}`, { mode: fetchMode });
 
   const query = search.trim().toLowerCase();
   const workspaceMatches =
@@ -166,12 +169,7 @@ export function ControlPlaneListWorkspaceGridTile({
             </button>
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            <MembersAvatarView
-              members={uniqueMembers}
-              project={projectName}
-              workspace={workspaceName}
-              source="workspace-grid"
-            />
+            <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               <YamlViewButton
                 variant="loader"
@@ -194,7 +192,13 @@ export function ControlPlaneListWorkspaceGridTile({
               {errorView ? (
                 errorView
               ) : isPending ? (
-                <BusyIndicator active delay={0} size="M" />
+                <div className={styles.wrapper}>
+                  <div className={styles.grid}>
+                    <ControlPlaneCardSkeleton />
+                    <ControlPlaneCardSkeleton />
+                    <ControlPlaneCardSkeleton />
+                  </div>
+                </div>
               ) : managedControlPlanes?.length === 0 ? (
                 <IllustratedBanner
                   title={t('IllustratedBanner.titleMessage')}
@@ -236,12 +240,9 @@ export function ControlPlaneListWorkspaceGridTile({
                 <div className={styles.wrapper}>
                   <div className={styles.grid}>
                     {visibleMcps?.map((mcp) => (
-                      <ControlPlaneCard
-                        key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}
-                        controlPlane={mcp}
-                        projectName={projectName}
-                        workspace={workspace}
-                      />
+                      <ObservableCard key={`${mcp.metadata.name}--${mcp.metadata.namespace}`}>
+                        <ControlPlaneCard controlPlane={mcp} projectName={projectName} workspace={workspace} />
+                      </ObservableCard>
                     ))}
                   </div>
                 </div>
@@ -263,7 +264,7 @@ export function ControlPlaneListWorkspaceGridTile({
         isOpen={dialogDeleteWsIsOpen}
         setIsOpen={setDialogDeleteWsIsOpen}
         onDeletionConfirmed={async () => {
-          telemetry.track({ name: 'workspace.deleted', source: 'card' });
+          telemetry.track({ category: 'workspace', action: 'deleted', source: 'card' });
           await deleteWorkspace();
         }}
       />

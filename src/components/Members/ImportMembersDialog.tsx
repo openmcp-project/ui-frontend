@@ -157,7 +157,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
       .filter(([, isSelected]) => isSelected)
       .map(([idx]) => tableData[Number(idx)]._member);
 
-    telemetry.track({ name: 'member.added', scope: workspaceName ? 'workspace' : 'project' });
+    telemetry.track({ category: 'member', action: 'added', scope: workspaceName ? 'workspace' : 'project' });
     onImport(selectedMembers);
     onClose();
   };

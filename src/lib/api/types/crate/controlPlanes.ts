@@ -61,13 +61,13 @@ export interface ControlPlaneStatusType {
   status: string;
   conditions: ControlPlaneStatusCondition[];
   access:
-    | {
+    | ({
         key: string | undefined;
         name: string | undefined;
         namespace: string | undefined;
         kubeconfig: string | undefined;
-        oidc_openmcp: { name: string | undefined } | undefined;
-      }
+        oidc_openmcp: { name?: string } | undefined;
+      } & { [key: `oidc_${string}`]: { name?: string } | undefined })
     | undefined;
 }
 

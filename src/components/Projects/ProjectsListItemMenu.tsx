@@ -79,7 +79,7 @@ export const ProjectsListItemMenu: FC<ProjectsListItemMenuProps> = ({
           isOpen={dialogDeleteProjectIsOpen}
           setIsOpen={setDialogDeleteProjectIsOpen}
           onDeletionConfirmed={async () => {
-            telemetry.track({ name: 'project.deleted', source: 'list' });
+            telemetry.track({ category: 'project', action: 'deleted', source: 'list' });
             await deleteProject();
           }}
         />

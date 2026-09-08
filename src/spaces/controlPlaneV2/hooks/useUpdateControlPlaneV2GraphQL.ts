@@ -4,15 +4,20 @@ import { z } from 'zod';
 import { buildMcpV2GraphQLInput } from '../helpers/controlPlaneV2GraphQLInput.ts';
 import { McpV2Input, McpV2InputSchema } from '../../mcp/schemas/mcpV2Input.schema.ts';
 import { UpdateManagedControlPlaneV2Mutation } from './useUpdateControlPlaneV2Mutation.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export function useUpdateControlPlaneV2GraphQL() {
+  const telemetry = useTelemetry();
   const [updateMutation, { loading, error }] = useMutation(UpdateManagedControlPlaneV2Mutation);
 
   const updateMcp = useCallback(
     async (rawInput: McpV2Input) => {
       const parsed = McpV2InputSchema.safeParse(rawInput);
       if (!parsed.success) {
-        console.warn('Invalid McpV2 input:', z.treeifyError(parsed.error));
+        telemetry.report(parsed.error, {
+          message: 'Invalid ManagedControlPlaneV2 input — schema mismatch',
+          context: { issues: z.treeifyError(parsed.error) },
+        });
         throw new Error('Invalid ManagedControlPlaneV2 input');
       }
 
@@ -33,7 +38,7 @@ export function useUpdateControlPlaneV2GraphQL() {
 
       return updated;
     },
-    [updateMutation],
+    [updateMutation, telemetry],
   );
 
   return { updateMcp, loading, error };

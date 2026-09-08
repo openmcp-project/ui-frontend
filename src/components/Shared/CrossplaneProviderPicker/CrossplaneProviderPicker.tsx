@@ -32,6 +32,11 @@ export function CrossplaneProviderPicker({
     <div className={styles.providerList}>
       {providers.map((provider) => {
         const providerVersions = catalog.find((p) => p.name === provider.name)?.versions ?? [];
+        const currentVersion = provider.selectedVersion;
+        const versionOptions =
+          currentVersion && !providerVersions.some((v) => v.version === currentVersion)
+            ? [{ version: currentVersion }, ...providerVersions]
+            : providerVersions;
         const versionError = getError?.(provider.name);
         return (
           <FlexBox key={provider.name} justifyContent="SpaceBetween" alignItems="Center" className={styles.providerRow}>
@@ -55,7 +60,7 @@ export function CrossplaneProviderPicker({
                 onVersionChange(provider.name, e.detail.selectedOption.getAttribute('value') ?? '')
               }
             >
-              {providerVersions.map(({ version }) => (
+              {versionOptions.map(({ version }) => (
                 <Option key={version} value={version}>
                   {version}
                 </Option>

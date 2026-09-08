@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { EsoData, EsoSchema } from '../../../mcp/types/Eso.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_ESO_QUERY = graphql(`
   query GetExternalSecretsOperator($name: String!, $namespace: String) {
@@ -32,6 +33,7 @@ const GET_ESO_QUERY = graphql(`
 `);
 
 export function useEsoQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_ESO_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -44,7 +46,10 @@ export function useEsoQuery(name?: string, namespace?: string) {
     if (!rawEso) return null;
     const result = EsoSchema.safeParse(rawEso);
     if (!result.success) {
-      console.warn('[useEsoQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid ExternalSecretsOperator data — schema mismatch',
+        context: { item: rawEso, issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const { spec } = result.data;
@@ -53,7 +58,7 @@ export function useEsoQuery(name?: string, namespace?: string) {
       isInstalled: !!version,
       version,
     };
-  }, [rawEso]);
+  }, [rawEso, telemetry]);
 
   return {
     esoData,

@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
-import { graphql } from '../../../types/__generated__/graphql/index.ts';
-import { Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input as ResourceRule } from '../../../types/__generated__/graphql/graphql.ts';
+import { graphql } from '../../../types/__generated__/graphql';
+import { Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input as ResourceRule } from '../../../types/__generated__/graphql/graphql';
 import { useTranslation } from 'react-i18next';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import type { Telemetry } from '../../../lib/telemetry/types.ts';
+import type { PollingQueryResult } from './types.ts';
 
 const PROJECTS_REFRESH_INTERVAL_MS = 30_000;
 
@@ -46,19 +48,36 @@ function parseProjectNamesFromRules(rules: (ResourceRule | null)[] | null | unde
   return Array.from(new Set(names.filter((name): name is string => Boolean(name))));
 }
 
-export function useProjectsQuery() {
+type RulesReviewStatus =
+  | {
+      evaluationError?: string | null;
+      incomplete?: boolean | null;
+    }
+  | null
+  | undefined;
+
+function reportStatusConditions(status: RulesReviewStatus, telemetry: Telemetry): void {
+  if (status?.evaluationError) {
+    telemetry.breadcrumb('SelfSubjectRulesReview evaluationError', {
+      level: 'warning',
+      context: { evaluationError: status.evaluationError },
+    });
+  }
+  if (status?.incomplete) {
+    telemetry.breadcrumb('SelfSubjectRulesReview result is incomplete', { level: 'warning' });
+  }
+}
+
+export function useProjectsQuery(): PollingQueryResult<string[]> {
   const [data, setData] = useState<string[]>([]);
   const [localError, setLocalError] = useState<Error | null>(null);
   const [fetchMutation, { loading, error }] = useMutation(CreateSelfSubjectRulesReview);
   const { t } = useTranslation();
   const telemetry = useTelemetry();
-  const hasReportedEvaluationErrorRef = useRef(false);
-  const hasReportedIncompleteRef = useRef(false);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   const fetch = useCallback(async () => {
     try {
-      setLocalError((previousError) => (previousError ? null : previousError));
-
       const res = await fetchMutation({
         variables: {
           object: {
@@ -73,50 +92,34 @@ export function useProjectsQuery() {
       });
 
       const status = res.data?.authorization_k8s_io?.v1?.createSelfSubjectRulesReview?.status;
-      // These fields fire on every 30s refetch when the platform's webhook
-      // authorizer can't fully resolve rules — that's a normal fallback
-      // path, not a user-visible failure. Route them through telemetry so
-      // Sentry still captures them with context, but the browser console
-      // stays clean. Reported at most once per hook lifetime to avoid
-      // spamming Sentry every refetch interval.
-      if (status?.evaluationError && !hasReportedEvaluationErrorRef.current) {
-        hasReportedEvaluationErrorRef.current = true;
-        telemetry.report(new Error(status.evaluationError), {
-          message: 'SelfSubjectRulesReview evaluationError',
-        });
-      }
-      if (status?.incomplete && !hasReportedIncompleteRef.current) {
-        hasReportedIncompleteRef.current = true;
-        telemetry.report(new Error('SelfSubjectRulesReview result is incomplete'), {
-          message: 'SelfSubjectRulesReview incomplete',
-        });
-      }
+      reportStatusConditions(status, telemetry);
 
-      const rules = status?.resourceRules;
-      const names = parseProjectNamesFromRules(rules);
+      const names = parseProjectNamesFromRules(status?.resourceRules);
       setData(names);
+      setLocalError(null);
+      setHasLoadedOnce(true);
       return names;
     } catch (e) {
       const err = e instanceof Error ? e : new Error(t('ProjectsListView.fetchError'));
-      console.error(err);
       setLocalError(err);
       return [];
     }
   }, [fetchMutation, t, telemetry]);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void fetch();
-    }, 0);
+    // false positive: fetch() only calls setState after an await, not synchronously — see facebook/react#34905
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetch();
     const intervalId = window.setInterval(() => {
       void fetch();
     }, PROJECTS_REFRESH_INTERVAL_MS);
 
     return () => {
-      window.clearTimeout(timeoutId);
       window.clearInterval(intervalId);
     };
   }, [fetch]);
 
-  return { data, isLoading: loading, error: localError ?? error ?? null, refetch: fetch } as const;
+  const isPending = loading && !hasLoadedOnce;
+
+  return { data, isPending, error: localError ?? error ?? null, refetch: fetch };
 }

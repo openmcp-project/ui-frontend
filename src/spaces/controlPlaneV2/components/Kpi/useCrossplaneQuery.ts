@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { CrossplaneData, CrossplaneSchema } from '../../../mcp/types/Crossplane.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_CROSSPLANE_QUERY = graphql(`
   query GetCrossplane($name: String!, $namespace: String) {
@@ -37,6 +38,7 @@ const GET_CROSSPLANE_QUERY = graphql(`
 `);
 
 export function useCrossplaneQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_CROSSPLANE_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -49,7 +51,10 @@ export function useCrossplaneQuery(name?: string, namespace?: string) {
     if (!rawCrossplane) return null;
     const result = CrossplaneSchema.safeParse(rawCrossplane);
     if (!result.success) {
-      console.warn('[useCrossplaneQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid Crossplane data — schema mismatch',
+        context: { item: rawCrossplane, issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const { spec } = result.data;
@@ -61,7 +66,7 @@ export function useCrossplaneQuery(name?: string, namespace?: string) {
         p ? [{ name: p.name ?? null, version: p.version ?? null }] : [],
       ),
     };
-  }, [rawCrossplane]);
+  }, [rawCrossplane, telemetry]);
 
   return {
     crossplaneData,
