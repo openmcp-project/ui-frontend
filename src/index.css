@@ -2,7 +2,12 @@
   height: 144px;
 }
 
-html,
+html {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 body {
   height: 100%;
   overflow: hidden;
@@ -121,4 +126,8 @@ ui5-toast {
 .infobox {
   margin: 1rem auto;
   max-width: 80%;
+}
+
+ui5-shellbar {
+  --_ui5-shellbar_separator-color: transparent;
 }

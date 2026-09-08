@@ -1,4 +1,5 @@
 import { Button, FlexBox } from '@ui5/webcomponents-react';
+import { clsx } from 'clsx';
 import { TFunction } from 'i18next';
 import { FC, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,12 @@ export interface EditMembersProps {
   workspaceName?: string;
   type: 'workspace' | 'project' | 'mcp';
   isV2?: boolean;
+  showImportButton?: boolean;
+  fitContentAddButton?: boolean;
+  // V2-only: stamped onto saved members (undefined = default provider).
+  providerName?: string;
+  // Scopes data-testid so multiple instances can be mounted at once.
+  testIdPrefix?: string;
 }
 
 export const ACCOUNT_TYPES: RadioButtonsSelectOption[] = [
@@ -56,6 +63,10 @@ export const EditMembers: FC<EditMembersProps> = ({
   projectName,
   type,
   isV2 = false,
+  showImportButton = true,
+  fitContentAddButton = false,
+  providerName,
+  testIdPrefix,
 }) => {
   const { t } = useTranslation();
   const accountTypeOptions = useMemo(() => (isV2 ? V2_ACCOUNT_TYPES : V1_ACCOUNT_TYPES), [isV2]);
@@ -147,23 +158,21 @@ export const EditMembers: FC<EditMembersProps> = ({
 
   const handleSaveMember = useCallback(
     (member: Member, isEdit: boolean) => {
+      const normalizedMember: Member = {
+        ...member,
+        provider: providerName,
+        namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined,
+      };
       let updatedMembers: Member[];
       if (isEdit) {
-        updatedMembers = members.map((m) =>
-          m.name === memberToEdit?.name
-            ? { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined }
-            : m,
-        );
+        updatedMembers = members.map((m) => (m.name === memberToEdit?.name ? normalizedMember : m));
       } else {
-        updatedMembers = [
-          ...members,
-          { ...member, namespace: member.kind === 'ServiceAccount' ? member.namespace?.trim() : undefined },
-        ];
+        updatedMembers = [...members, normalizedMember];
       }
       onMemberChanged(updatedMembers);
       setIsMemberDialogOpen(false);
     },
-    [members, onMemberChanged, memberToEdit],
+    [members, onMemberChanged, memberToEdit, providerName],
   );
 
   const computedProjectName = useMemo(
@@ -171,22 +180,27 @@ export const EditMembers: FC<EditMembersProps> = ({
     [type, projectName],
   );
 
+  const withTestId = useCallback(
+    (testId: string) => (testIdPrefix ? `${testIdPrefix}-${testId}` : testId),
+    [testIdPrefix],
+  );
+
   return (
     <FlexBox direction="Column" gap={8}>
       <FlexBox gap={8} justifyContent="SpaceBetween">
         <Button
-          className={styles.addButton}
-          data-testid="add-member-button"
+          className={clsx(styles.addButton, fitContentAddButton && styles.addButtonFitContent)}
+          data-testid={withTestId('add-member-button')}
           design="Emphasized"
           icon={'sap-icon://add-employee'}
           onClick={handleOpenMemberFormDialog}
         >
           {t(usesUserGroupAccountTypes ? 'EditMembers.addButtonUserGroup' : 'EditMembers.addButton')}
         </Button>
-        {type !== 'project' && (
+        {type !== 'project' && showImportButton && (
           <Button
             className={styles.narrowButton}
-            data-testid="import-members-button"
+            data-testid={withTestId('import-members-button')}
             icon={'cause'}
             onClick={handleOpenImportDialog}
           >
@@ -199,12 +213,13 @@ export const EditMembers: FC<EditMembersProps> = ({
         existingMembers={members}
         memberToEdit={memberToEdit}
         accountTypeOptions={accountTypeOptions}
+        testIdPrefix={testIdPrefix}
         {...(isV2 && { roleOptions: mcpV2RoleOptions, defaultRole: MCP_V2_DEFAULT_ROLE })}
         onClose={handleCloseMemberFormDialog}
         onSave={handleSaveMember}
       />
 
-      {computedProjectName && (
+      {computedProjectName && showImportButton && (
         <ImportMembersDialog
           isOpen={isImportDialogOpen}
           workspaceName={workspaceName}

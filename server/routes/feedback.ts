@@ -1,5 +1,4 @@
 import fp from 'fastify-plugin';
-import * as Sentry from '@sentry/node';
 
 const VALID_RATINGS = ['1', '2', '3', '4', '5'];
 const MAX_MESSAGE_LENGTH = 2000; // keep in sync with FeedbackButton.tsx
@@ -68,8 +67,8 @@ async function feedbackRoute(fastify) {
 
       if (!res.ok) {
         const error = new Error(`Slack API error: ${res.status} ${res.statusText}`);
-        Sentry.captureException(error, {
-          extra: {
+        request.telemetry.report(error, {
+          context: {
             status: res.status,
             statusText: res.statusText,
             user,
@@ -84,13 +83,13 @@ async function feedbackRoute(fastify) {
 
       return reply.send({ message: 'Feedback sent.' });
     } catch (err) {
-      Sentry.captureException(err, {
-        extra: {
+      request.telemetry.report(err, {
+        message: 'Slack request failed.',
+        context: {
           user,
           environment,
         },
       });
-      fastify.log.error('Slack error:', err);
       return reply.status(500).send({ error: 'Request failed' });
     }
   });

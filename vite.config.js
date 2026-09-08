@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import { viteFastify } from '@fastify/vite/plugin';
 import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { monacoWorkerAlias, monacoOptimizeDepsExclude } from './vite.monaco.js';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -31,13 +32,12 @@ export default defineConfig({
   ],
 
   resolve: {
-    alias: {
-      path: 'path-browserify',
-    },
+    alias: [{ find: 'path', replacement: 'path-browserify' }, monacoWorkerAlias],
   },
 
   optimizeDeps: {
     include: ['path-browserify'],
+    exclude: monacoOptimizeDepsExclude,
     rolldownOptions: {
       define: {
         global: 'globalThis',

@@ -5,12 +5,14 @@ import '@ui5/webcomponents-icons/dist/copy';
 import '@ui5/webcomponents-icons/dist/accept';
 import { useMcp } from '../../lib/shared/McpContext.tsx';
 import { useTranslation } from 'react-i18next';
+import { telemetry, useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export default function CopyKubeconfigButton() {
   const popoverRef = useRef(null);
   const [open, setOpen] = useState(false);
   const { copyToClipboard } = useCopyToClipboard();
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenerClick = (e: any) => {
@@ -34,10 +36,12 @@ export default function CopyKubeconfigButton() {
         onItemClick={(event) => {
           if (event.detail.item.dataset.action === 'download') {
             DownloadKubeconfig(mcp.kubeconfig, mcp.name);
+            telemetry.track({ category: 'kubeconfig', action: 'downloaded', source: 'controlplane-detail' });
             return;
           }
           if (event.detail.item.dataset.action === 'copy') {
             void copyToClipboard(mcp.kubeconfig ?? '');
+            telemetry.track({ category: 'kubeconfig', action: 'copied', source: 'controlplane-detail' });
           }
 
           setOpen(false);
@@ -45,6 +49,7 @@ export default function CopyKubeconfigButton() {
       >
         <MenuItem
           key={'download'}
+          disabled={!mcp.kubeconfig}
           text={t('CopyKubeconfigButton.menuDownload')}
           data-action="download"
           icon="download"
@@ -55,8 +60,9 @@ export default function CopyKubeconfigButton() {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function DownloadKubeconfig(config: any, displayName: string) {
+export function DownloadKubeconfig(config: string | undefined, displayName: string) {
+  if (!config) return;
+
   const filename = 'kubeconfig-' + displayName + '.yaml';
 
   try {
@@ -75,7 +81,9 @@ export function DownloadKubeconfig(config: any, displayName: string) {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error(error);
+    telemetry().report(error, {
+      message: 'Could not download Kubeconfig',
+      context: { config, displayName },
+    });
   }
-  // dynaLeaveAction(id);
 }

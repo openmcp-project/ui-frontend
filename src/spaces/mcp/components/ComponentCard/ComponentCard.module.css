@@ -15,6 +15,10 @@
   display: flex;
 }
 
+.contentTightBottom {
+  padding-bottom: 0.75rem;
+}
+
 .kpiContainer {
   width: 100%;
   display: flex;

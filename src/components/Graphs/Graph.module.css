@@ -1,8 +1,15 @@
 .graphContainer {
   display: flex;
   height: 600px;
-  padding: 2px; 
+  padding: 2px;
   font-family: var(--sapFontFamily);
+}
+
+.graphContainer:fullscreen {
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  background-color: var(--sapTile_Background, #fff);
 }
 
 .graphColumn {

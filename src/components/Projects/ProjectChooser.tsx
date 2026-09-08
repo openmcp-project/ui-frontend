@@ -1,17 +1,15 @@
 import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
-import { CopyButton } from '../Shared/CopyButton.tsx';
-import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery.ts';
 import IllustratedError from '../Shared/IllustratedError.tsx';
-import { useApiResource } from '../../lib/api/useApiResource';
-import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { projectnameToNamespace } from '../../utils';
+import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 
 interface Props {
   currentProjectName: string;
+  useProjectsQuery?: typeof _useProjectsQuery;
 }
 
-export default function ProjectChooser({ currentProjectName }: Props) {
-  const { data, error } = useApiResource(ListProjectNames);
+export default function ProjectChooser({ currentProjectName, useProjectsQuery = _useProjectsQuery }: Props) {
+  const { data, error } = useProjectsQuery();
   const navigate = useLuigiNavigate();
 
   if (error) {
@@ -28,7 +26,7 @@ export default function ProjectChooser({ currentProjectName }: Props) {
         closeOnItemSelect
         placement="Bottom"
         onSelect={(e) => {
-          navigate(`/mcp/projects/${e.detail.selectedVariant.children}`);
+          navigate(`/projects/${e.detail.selectedVariant.children}`);
         }}
       >
         {data?.map((p) => (
@@ -37,7 +35,6 @@ export default function ProjectChooser({ currentProjectName }: Props) {
           </VariantItem>
         ))}
       </VariantManagement>
-      <CopyButton collapsible text={projectnameToNamespace(currentProjectName)} />
     </>
   );
 }

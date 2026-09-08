@@ -58,16 +58,16 @@ export interface ControlPlaneComponentsSpecType {
 }
 
 export interface ControlPlaneStatusType {
-  status: ReadyStatus;
+  status: string;
   conditions: ControlPlaneStatusCondition[];
   access:
-    | {
+    | ({
         key: string | undefined;
         name: string | undefined;
         namespace: string | undefined;
         kubeconfig: string | undefined;
-        oidc_openmcp: { name: string | undefined } | undefined;
-      }
+        oidc_openmcp: { name?: string } | undefined;
+      } & { [key: `oidc_${string}`]: { name?: string } | undefined })
     | undefined;
 }
 
@@ -77,12 +77,6 @@ export interface ControlPlaneStatusCondition {
   reason: string;
   message: string;
   lastTransitionTime: string;
-}
-
-export enum ReadyStatus {
-  Ready = 'Ready',
-  NotReady = 'Not Ready',
-  InDeletion = 'Deleting',
 }
 
 export const ControlPlane = (

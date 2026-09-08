@@ -10,20 +10,11 @@ export interface CustomNodeProps {
   label: string;
   type?: string;
   status: string;
-  transitionTime?: string;
-  statusMessage?: string;
   onYamlClick: () => void;
   conditions: ControlPlaneStatusCondition[];
 }
 
-const CustomNode: React.FC<CustomNodeProps> = ({
-  conditions,
-  label,
-  type,
-  status,
-
-  onYamlClick,
-}) => {
+const CustomNode: React.FC<CustomNodeProps> = ({ conditions, label, type, status, onYamlClick }) => {
   return (
     <div className={styles.nodeContainer}>
       <Handle type="target" position={Position.Top} className={styles.handleHidden} />

@@ -10,6 +10,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.ts';
 import { CreateDialogProps } from './CreateWorkspaceDialogContainer.tsx';
 import { useCreateProject as _useCreateProject } from '../../spaces/onboarding/hooks/useCreateProject.ts';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export function CreateProjectDialogContainer({
   isOpen,
@@ -23,6 +24,7 @@ export function CreateProjectDialogContainer({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     watch,
@@ -82,10 +84,10 @@ export function CreateProjectDialogContainer({
         chargingTargetType,
         members,
       });
+      telemetry.track({ category: 'project', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       const message =
         e instanceof APIError ? `${e.message}: ${JSON.stringify(e.info)}` : e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);

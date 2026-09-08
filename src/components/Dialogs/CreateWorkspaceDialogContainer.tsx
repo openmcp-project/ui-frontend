@@ -10,6 +10,7 @@ import { createProjectWorkspaceSchema } from '../../lib/api/validations/schemas.
 import { ComponentsListItem } from '../../lib/api/types/crate/createManagedControlPlane.ts';
 import { useCreateWorkspace as _useCreateWorkspace } from '../../spaces/onboarding/hooks/useCreateWorkspace.ts';
 import { ErrorDialogHandle } from '../Shared/ErrorMessageBox.tsx';
+import { useTelemetry } from '../../lib/telemetry/telemetry.ts';
 
 export type CreateDialogProps = {
   name: string;
@@ -34,6 +35,7 @@ export function CreateWorkspaceDialogContainer({
   useAuthOnboarding?: typeof _useAuthOnboarding;
 }) {
   const { t } = useTranslation();
+  const telemetry = useTelemetry();
   const validationSchemaProjectWorkspace = useMemo(() => createProjectWorkspaceSchema(t), [t]);
   const {
     register,
@@ -95,10 +97,10 @@ export function CreateWorkspaceDialogContainer({
         chargingTargetType,
         members,
       });
+      telemetry.track({ category: 'workspace', action: 'created' });
       setIsOpen(false);
       return true;
     } catch (e) {
-      console.error(e);
       const message = e instanceof Error ? e.message : String(e);
       errorDialogRef.current?.showErrorDialog(message);
       return false;

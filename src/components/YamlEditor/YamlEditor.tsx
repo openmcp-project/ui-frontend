@@ -1,17 +1,18 @@
 import { Editor } from '@monaco-editor/react';
 import { Button, Panel, Toolbar } from '@ui5/webcomponents-react';
 import * as monaco from 'monaco-editor';
-import type { JSONSchema } from 'monaco-yaml';
-import { configureMonacoYaml } from 'monaco-yaml';
+import type { SchemasSettings } from 'monaco-yaml';
 import type { ComponentProps } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseDocument } from 'yaml';
 import { useTheme } from '../../hooks/useTheme';
-import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT } from '../../lib/monaco.ts';
+import { GITHUB_DARK_DEFAULT, GITHUB_LIGHT_DEFAULT, updateYamlSchemas } from '../../lib/monaco.ts';
 import styles from './YamlEditor.module.css';
 
 import type { JSONSchema4 } from 'json-schema';
+
+const KUBERNETES_SCHEMA_URI = 'https://kubernetesjsonschema.dev/master-standalone/all.json';
 
 export type YamlEditorProps = Omit<ComponentProps<typeof Editor>, 'language'> & {
   isEdit?: boolean;
@@ -41,22 +42,10 @@ export const YamlEditor = (props: YamlEditorProps) => {
   const [applyAttempted, setApplyAttempted] = useState(false);
 
   useEffect(() => {
-    const { dispose } = configureMonacoYaml(monaco, {
-      isKubernetes: true,
-      enableSchemaRequest: true,
-      hover: true,
-      completion: true,
-      validate: true,
-      format: { enable: true },
-      schemas: [
-        {
-          schema: schema as JSONSchema,
-          fileMatch: ['*'],
-          uri: 'https://kubernetesjsonschema.dev/master-standalone/all.json',
-        },
-      ],
-    });
-    return () => dispose();
+    const schemas: SchemasSettings[] = schema
+      ? [{ schema: schema as SchemasSettings['schema'], fileMatch: ['*'], uri: KUBERNETES_SCHEMA_URI }]
+      : [];
+    updateYamlSchemas(schemas);
   }, [schema]);
 
   const enforcedOptions: monaco.editor.IStandaloneEditorConstructionOptions = useMemo(

@@ -16,6 +16,7 @@ export default function IllustratedError({ title, details, compact, button }: Pr
 
   return (
     <IllustratedBanner
+      button={button}
       illustrationName={IllustrationMessageType.SimpleError}
       title={title ?? t('IllustratedError.titleText')}
       subtitle={details ?? t('IllustratedError.subtitleText')}

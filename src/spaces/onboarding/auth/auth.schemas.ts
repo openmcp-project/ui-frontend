@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const UserSchema = z.object({
-  email: z.string().email('Invalid email format.'),
+  sub: z.string().min(1, 'sub claim is required.'),
+  email: z.email('Invalid email format.'),
 });
 
 /**

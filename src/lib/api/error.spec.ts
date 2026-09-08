@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isNotFoundError, isForbiddenError, APIError } from './error';
+import { isNotFoundError, isForbiddenError, isUnauthorizedError, APIError } from './error';
 import { ErrorLike } from '@apollo/client';
 
 describe('error', () => {
@@ -62,6 +62,28 @@ describe('error', () => {
       expect(isForbiddenError(new APIError('', 500))).toBe(false);
       expect(isForbiddenError(undefined)).toBe(false);
       expect(isForbiddenError(null)).toBe(false);
+    });
+  });
+
+  describe('isUnauthorizedError', () => {
+    it('should return true for APIError with status 401', () => {
+      expect(isUnauthorizedError(new APIError('Session expired', 401))).toBe(true);
+    });
+
+    it('should return true for ErrorLike networkError with statusCode 401', () => {
+      expect(isUnauthorizedError({ networkError: { statusCode: 401 } } as unknown as ErrorLike)).toBe(true);
+    });
+
+    it('should return true when the message carries "status code 401" (Apollo-style)', () => {
+      const error = new Error('Response not successful: Received status code 401');
+      expect(isUnauthorizedError(error as unknown as ErrorLike)).toBe(true);
+    });
+
+    it('should return false for other statuses / nullish', () => {
+      expect(isUnauthorizedError(new APIError('', 403))).toBe(false);
+      expect(isUnauthorizedError(new APIError('', 500))).toBe(false);
+      expect(isUnauthorizedError(undefined)).toBe(false);
+      expect(isUnauthorizedError(null)).toBe(false);
     });
   });
 });

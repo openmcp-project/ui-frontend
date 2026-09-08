@@ -20,6 +20,8 @@ import { ApolloClientProvider } from './spaces/onboarding/services/ApolloClientP
 import './utils/i18n/i18n.ts';
 import './utils/i18n/timeAgo';
 import { FeatureToggleProvider } from './context/FeatureToggleContext.tsx';
+import { ViewModeProvider } from './context/ViewModeContext.tsx';
+import { ShellBarMcpActionsProvider } from './context/ShellBarMcpActionsContext.tsx';
 
 configureMonaco();
 
@@ -61,22 +63,26 @@ export function createApp() {
         <Suspense fallback={<BusyIndicator active />}>
           <FrontendConfigProvider>
             <FeatureToggleProvider>
-              <AuthCallbackHandler>
-                <AuthProviderOnboarding>
-                  <ThemeProvider>
-                    <ToastProvider>
-                      <CopyButtonProvider>
-                        <SWRConfigWithTokenRefresh>
-                          <ApolloClientProvider>
-                            <App />
-                          </ApolloClientProvider>
-                          <ThemeManager />
-                        </SWRConfigWithTokenRefresh>
-                      </CopyButtonProvider>
-                    </ToastProvider>
-                  </ThemeProvider>
-                </AuthProviderOnboarding>
-              </AuthCallbackHandler>
+              <ViewModeProvider>
+                <ShellBarMcpActionsProvider>
+                  <AuthCallbackHandler>
+                    <AuthProviderOnboarding>
+                      <ThemeProvider>
+                        <ToastProvider>
+                          <CopyButtonProvider>
+                            <SWRConfigWithTokenRefresh>
+                              <ApolloClientProvider>
+                                <App />
+                              </ApolloClientProvider>
+                              <ThemeManager />
+                            </SWRConfigWithTokenRefresh>
+                          </CopyButtonProvider>
+                        </ToastProvider>
+                      </ThemeProvider>
+                    </AuthProviderOnboarding>
+                  </AuthCallbackHandler>
+                </ShellBarMcpActionsProvider>
+              </ViewModeProvider>
             </FeatureToggleProvider>
           </FrontendConfigProvider>
         </Suspense>

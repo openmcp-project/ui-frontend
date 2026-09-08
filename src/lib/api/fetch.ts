@@ -1,5 +1,4 @@
 import { APIError } from './error';
-import * as Sentry from '@sentry/react';
 import { ApiConfig } from './types/apiConfig';
 import { redirectToLogin } from '../../common/auth/redirectToLogin';
 import { refreshToken as refreshOnboardingToken } from '../../spaces/onboarding/auth/tokenRefresh';
@@ -10,6 +9,7 @@ const projectNameHeader = 'X-project';
 const workspaceNameHeader = 'X-workspace';
 const mcpNameHeader = 'X-mcp';
 const mcpVersionHeader = 'X-mcp-version';
+const mcpIdpHeader = 'X-mcp-idp';
 const jqHeader = 'X-jq';
 const contentTypeHeader = 'Content-Type';
 
@@ -76,42 +76,42 @@ export const fetchApiServer = async (
     if (config.mcpConfig.isV2) {
       headers[mcpVersionHeader] = 'v2';
     }
+    if (config.mcpConfig.idp) {
+      headers[mcpIdpHeader] = config.mcpConfig.idp;
+    }
   } else {
     headers[useCrateClusterHeader] = 'true';
   }
 
-  let res: Response;
-  try {
-    res = await fetch(`/api/onboarding${path}`, {
-      headers,
-      method: httpMethod,
-      body,
-    });
-  } catch (error) {
-    Sentry.captureException(error, {
-      extra: {
+  let res = await fetch(`/api/onboarding${path}`, {
+    headers,
+    method: httpMethod,
+    body,
+  });
+
+  // The client thought the token was valid but the server rejected it (clock
+  // skew, backgrounded tab, revoked session). Force a refresh and retry once
+  // before giving up and redirecting to sign-in.
+  if (res.status === 401) {
+    const refreshed = isMcpRequest ? await refreshMcpToken(true) : await refreshOnboardingToken(true);
+    if (refreshed) {
+      res = await fetch(`/api/onboarding${path}`, {
+        headers,
         method: httpMethod,
-        path: `/api/onboarding${path}`,
-      },
-    });
-    throw error;
+        body,
+      });
+    }
+
+    if (res.status === 401) {
+      redirectToLogin(isMcpRequest ? 'mcp' : 'onboarding');
+      const error = new APIError('Session expired', 401);
+      throw error;
+    }
   }
 
   if (!res.ok) {
-    if (res.status === 401) {
-      redirectToLogin(isMcpRequest ? 'mcp' : 'onboarding');
-    }
     const error = new APIError('An error occurred while fetching the data.', res.status);
     error.info = await parseJsonOrText(res);
-
-    Sentry.captureException(error, {
-      extra: {
-        method: httpMethod,
-        path: `/api/onboarding${path}`,
-        status: res.status,
-        responseBody: error.info,
-      },
-    });
 
     throw error;
   }

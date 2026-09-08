@@ -9,8 +9,9 @@ import { Center } from '../Center/Center.tsx';
 
 export interface NotFoundBannerProps {
   entityType: string;
+  homePath?: string;
 }
-export function NotFoundBanner({ entityType }: NotFoundBannerProps) {
+export function NotFoundBanner({ entityType, homePath = '/' }: NotFoundBannerProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -20,14 +21,14 @@ export function NotFoundBanner({ entityType }: NotFoundBannerProps) {
         illustrationName={IllustrationMessageType.PageNotFound}
         title={t('NotFoundBanner.titleMessage', { entityType })}
         subtitle={
-          <div className={styles.subtitleContainer}>
-            <span>
-              <Trans i18nKey="NotFoundBanner.subtitleMessage" values={{ entityType }} />
-            </span>
-            <Button className={styles.button} onClick={() => navigate('/')}>
-              {t('NotFoundBanner.navigateHome')}
-            </Button>
-          </div>
+          <span>
+            <Trans i18nKey="NotFoundBanner.subtitleMessage" values={{ entityType }} />
+          </span>
+        }
+        button={
+          <Button className={styles.button} onClick={() => navigate(homePath)}>
+            {t('NotFoundBanner.navigateHome')}
+          </Button>
         }
       />
     </Center>

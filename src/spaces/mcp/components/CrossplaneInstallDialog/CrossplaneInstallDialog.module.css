@@ -40,26 +40,3 @@
   width: 100%;
   margin-bottom: 1.5rem;
 }
-
-.providerList {
-  border: 1px solid var(--sapList_BorderColor);
-  border-radius: var(--sapElement_BorderCornerRadius);
-}
-
-.providerRow {
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--sapList_BorderColor);
-}
-
-.providerRow:last-child {
-  border-bottom: none;
-}
-
-.providerRow:hover {
-  background: var(--sapList_Hover_Background);
-}
-
-.providerVersionSelect {
-  width: 11.25rem;
-  flex-shrink: 0;
-}

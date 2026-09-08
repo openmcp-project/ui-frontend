@@ -1,40 +1,151 @@
-import { ObjectPage, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/collapse-all.js';
+import '@ui5/webcomponents-icons/dist/expand-all.js';
+import '@ui5/webcomponents-icons/dist/pushpin-off';
+import '@ui5/webcomponents-icons/dist/pushpin-on';
+import { Button, FlexBox, ObjectPage, ObjectPageSection, ObjectPageTitle, Title } from '@ui5/webcomponents-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ControlPlaneListAllWorkspaces from '../../../components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx';
 import { ControlPlaneListToolbar } from '../../../components/ControlPlanes/List/ControlPlaneListToolbar.tsx';
 import { BreadcrumbFeedbackHeader } from '../../../components/Core/BreadcrumbFeedbackHeader.tsx';
 import ProjectChooser from '../../../components/Projects/ProjectChooser.tsx';
+import { CopyButton } from '../../../components/Shared/CopyButton.tsx';
 import IllustratedError from '../../../components/Shared/IllustratedError.tsx';
 import Loading from '../../../components/Shared/Loading.tsx';
+import { ResourceSearchBar } from '../../../components/Shared/ResourceSearchBar.tsx';
 import { Center } from '../../../components/Ui/Center/Center.tsx';
 import { NotFoundBanner } from '../../../components/Ui/NotFoundBanner/NotFoundBanner.tsx';
-import { isNotFoundError } from '../../../lib/api/error.ts';
+import { useRememberedProject } from '../../../hooks/useRememberedProject.ts';
+import { isNotFoundError, isUnauthorizedError } from '../../../lib/api/error.ts';
+import { redirectToLogin } from '../../../common/auth/redirectToLogin.ts';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
+import { Routes } from '../../../Routes.ts';
+import { getExpandedWorkspaces, setExpandedWorkspaces } from '../../../utils/expandedWorkspace.ts';
+import { projectnameToNamespace } from '../../../utils/index.ts';
 import { useWorkspacesQuery } from '../hooks/useWorkspacesQuery.ts';
+import styles from './ProjectPage.module.css';
 
 export default function ProjectPage() {
   const { projectName } = useParams();
   const { data: workspaces, error, isPending } = useWorkspacesQuery(projectName);
   const { t } = useTranslation();
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+  const { rememberedProject, setRememberedProject, clearRememberedProject: clearRemembered } = useRememberedProject();
+  const isProjectRemembered = rememberedProject === projectName;
+  const telemetry = useTelemetry();
+
+  const [expandedWorkspaces, setExpandedWorkspacesState] = useState<Set<string>>(() =>
+    getExpandedWorkspaces(projectName ?? ''),
+  );
+
+  const isInitialRender = useRef(true);
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    setExpandedWorkspaces(projectName ?? '', expandedWorkspaces);
+  }, [projectName, expandedWorkspaces]);
+
+  function handleToggleWorkspace(workspaceName: string) {
+    setExpandedWorkspacesState((prev) => {
+      const next = new Set(prev);
+      if (next.has(workspaceName)) {
+        next.delete(workspaceName);
+      } else {
+        next.add(workspaceName);
+      }
+      return next;
+    });
+  }
+
+  // Fire `workspace-list.searched` only once per "search session" — from the
+  // first non-empty character until the user clears the field — so we
+  // measure adoption, not keystrokes.
+  const hasFiredSearchedRef = useRef(false);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (value === '' && hasFiredSearchedRef.current) {
+        hasFiredSearchedRef.current = false;
+      } else if (value !== '' && !hasFiredSearchedRef.current) {
+        telemetry.track({ category: 'workspace-list', action: 'searched' });
+        hasFiredSearchedRef.current = true;
+      }
+      setSearch(value);
+    },
+    [telemetry],
+  );
+
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key !== 'Enter') return;
+      if (search.trim() === '') return;
+      telemetry.track({ category: 'workspace-list', action: 'search-enter-pressed' });
+
+      const allViewButtons = document.querySelectorAll<HTMLElement>('ui5-button[data-testid="connect-button"]');
+      const activeViewButton = Array.from(allViewButtons).find(
+        (btn) => !btn.hasAttribute('disabled') && btn.offsetParent !== null,
+      );
+      if (activeViewButton) {
+        requestAnimationFrame(() => activeViewButton.focus());
+        return;
+      }
+
+      const allHealthButtons = document.querySelectorAll<HTMLElement>('ui5-button[data-testid="mcp-health-button"]');
+      const visibleHealthButton = Array.from(allHealthButtons).find((btn) => btn.offsetParent !== null);
+      if (visibleHealthButton) {
+        requestAnimationFrame(() => visibleHealthButton.focus());
+      }
+    },
+    [search, telemetry],
+  );
 
   if (isPending) {
     return <Loading />;
   }
 
   if (isNotFoundError(error)) {
+    if (isProjectRemembered) {
+      clearRemembered();
+    }
     return (
       <Center>
-        <NotFoundBanner entityType={t('Entities.Project')} />
+        <NotFoundBanner entityType={t('Entities.Project')} homePath={`${Routes.Projects}?noRedirect=true`} />
       </Center>
     );
   }
 
   if (error || !workspaces || !projectName) {
+    // Backstop: a 401 that slipped past the Apollo error link / REST retry
+    // should send the user to re-auth, not a dead-end error screen.
+    if (isUnauthorizedError(error)) {
+      redirectToLogin('onboarding');
+      return <Loading />;
+    }
     return (
       <Center>
-        <IllustratedError details={error?.message} />
+        <IllustratedError
+          button={
+            <Button onClick={() => navigate(`${Routes.Projects}?noRedirect=true`)}>
+              {t('ProjectPage.backToProjects')}
+            </Button>
+          }
+          details={error?.message}
+        />
       </Center>
     );
+  }
+
+  const allExpanded = workspaces.length > 0 && workspaces.every((ws) => expandedWorkspaces.has(ws.metadata.name));
+
+  function handleExpandAll() {
+    setExpandedWorkspacesState(new Set(workspaces!.map((ws) => ws.metadata.name)));
+  }
+
+  function handleCollapseAll() {
+    setExpandedWorkspacesState(new Set());
   }
 
   return (
@@ -56,17 +167,78 @@ export default function ProjectPage() {
                   alignItems: 'center',
                 }}
               >
-                <p style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</p>
+                <span style={{ marginRight: '0.5rem' }}>{t('ProjectsPage.projectHeader')}</span>
                 <ProjectChooser currentProjectName={projectName ?? ''} />
+                <Button
+                  data-testid="pin-button"
+                  design="Transparent"
+                  icon={isProjectRemembered ? 'pushpin-on' : 'pushpin-off'}
+                  tooltip={isProjectRemembered ? t('ProjectsPage.unpinProject') : t('ProjectsPage.pinProject')}
+                  onClick={() => {
+                    if (isProjectRemembered) {
+                      clearRemembered();
+                      telemetry.track({ category: 'project', action: 'remembered-cleared', source: 'detail-header' });
+                    } else if (projectName) {
+                      setRememberedProject(projectName);
+                      telemetry.track({ category: 'project', action: 'remembered', source: 'detail-header' });
+                    }
+                  }}
+                />
+                <CopyButton collapsible text={projectnameToNamespace(projectName)} source="project-namespace" />
               </div>
             }
             breadcrumbs={<BreadcrumbFeedbackHeader />}
-            actionsBar={<ControlPlaneListToolbar projectName={projectName ?? ''} />}
+            actionsBar={
+              <FlexBox alignItems="Baseline" gap="0.5rem">
+                <ControlPlaneListToolbar projectName={projectName ?? ''} />
+              </FlexBox>
+            }
           />
         }
         //TODO: project chooser should be part of the breadcrumb section if possible?
       >
-        <ControlPlaneListAllWorkspaces projectName={projectName} workspaces={workspaces} />
+        <ObjectPageSection id="workspaces" titleText="Workspaces" hideTitleText>
+          {workspaces.length > 0 && (
+            <FlexBox alignItems="Center" justifyContent="SpaceBetween" gap="0.5rem" className={styles.searchBar}>
+              <ResourceSearchBar
+                focusOnMount
+                value={search}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
+              />
+              {allExpanded ? (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="collapse-all"
+                  tooltip={t('ControlPlaneListAllWorkspaces.collapseAll')}
+                  onClick={handleCollapseAll}
+                >
+                  {t('ControlPlaneListAllWorkspaces.collapseAll')}
+                </Button>
+              ) : (
+                <Button
+                  className={styles.expandCollapseButton}
+                  design="Transparent"
+                  disabled={!!search}
+                  icon="expand-all"
+                  tooltip={t('ControlPlaneListAllWorkspaces.expandAll')}
+                  onClick={handleExpandAll}
+                >
+                  {t('ControlPlaneListAllWorkspaces.expandAll')}
+                </Button>
+              )}
+            </FlexBox>
+          )}
+          <ControlPlaneListAllWorkspaces
+            projectName={projectName}
+            workspaces={workspaces}
+            search={search}
+            expandedWorkspaces={expandedWorkspaces}
+            onToggleWorkspace={handleToggleWorkspace}
+          />
+        </ObjectPageSection>
       </ObjectPage>
     </>
   );

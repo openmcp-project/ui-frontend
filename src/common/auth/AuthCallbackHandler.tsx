@@ -19,6 +19,7 @@ export const STORAGE_KEY_AUTH_FLOW = 'auth:post-callback-flow';
 export const STORAGE_KEY_AUTH_NAMESPACE = 'auth:post-callback-namespace';
 export const STORAGE_KEY_AUTH_MCP = 'auth:post-callback-mcp';
 export const STORAGE_KEY_AUTH_IDP = 'auth:post-callback-idp';
+export const STORAGE_KEY_AUTH_VERSION = 'auth:post-callback-version';
 
 function useAuthCallback() {
   const params = new URLSearchParams(window.location.search);
@@ -29,6 +30,7 @@ function useAuthCallback() {
   const namespace = sessionStorage.getItem(STORAGE_KEY_AUTH_NAMESPACE);
   const mcp = sessionStorage.getItem(STORAGE_KEY_AUTH_MCP);
   const idp = sessionStorage.getItem(STORAGE_KEY_AUTH_IDP);
+  const version = sessionStorage.getItem(STORAGE_KEY_AUTH_VERSION);
 
   const potentialAuthFlow = sessionStorage.getItem(STORAGE_KEY_AUTH_FLOW);
 
@@ -60,6 +62,9 @@ function useAuthCallback() {
       if (idp) {
         forwardUrl.searchParams.append('idp', idp);
       }
+      if (version) {
+        forwardUrl.searchParams.append('version', version);
+      }
     }
 
     if (iss) {
@@ -70,8 +75,9 @@ function useAuthCallback() {
     sessionStorage.removeItem(STORAGE_KEY_AUTH_NAMESPACE);
     sessionStorage.removeItem(STORAGE_KEY_AUTH_MCP);
     sessionStorage.removeItem(STORAGE_KEY_AUTH_IDP);
+    sessionStorage.removeItem(STORAGE_KEY_AUTH_VERSION);
     window.location.replace(forwardUrl.toString());
-  }, [isCallbackInProgress, potentialAuthFlow, code, state, iss, namespace, mcp, idp]);
+  }, [isCallbackInProgress, potentialAuthFlow, code, state, iss, namespace, mcp, idp, version]);
 
   return {
     isLoading: isCallbackInProgress,

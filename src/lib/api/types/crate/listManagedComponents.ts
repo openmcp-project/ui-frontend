@@ -1,5 +1,3 @@
-import { Resource } from '../resource';
-
 export interface ManagedComponentList {
   apiVersion?: string;
   kind?: string;
@@ -40,10 +38,3 @@ export interface ManagedField {
   subresource?: string;
   [key: string]: unknown;
 }
-
-export const ListManagedComponents = (): Resource<ManagedComponentList> => {
-  return {
-    path: `/apis/core.openmcp.cloud/v1alpha1/managedcomponents`,
-    jq: undefined,
-  };
-};
