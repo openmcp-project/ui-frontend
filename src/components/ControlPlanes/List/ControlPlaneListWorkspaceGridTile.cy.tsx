@@ -236,7 +236,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
       cy.contains('test-cp-b').should('not.exist');
 
       cy.get('@mcpComponentsRest.all').should('have.length', 0);
-      cy.then(() => expect(kpiRequestCount).to.equal(0));
+      cy.wrap(null).should(() => expect(kpiRequestCount).to.equal(0));
     });
 
     it('renders ControlPlaneCards when workspace is expanded', () => {

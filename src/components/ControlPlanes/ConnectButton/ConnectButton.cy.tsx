@@ -70,9 +70,7 @@ describe('ConnectButton', () => {
     );
 
     cy.get('ui5-button').should('not.have.attr', 'disabled');
-    cy.wait(200).then(() => {
-      expect(requestCount).to.equal(0);
-    });
+    cy.then(() => expect(requestCount).to.equal(0));
   });
 
   it('navigates directly when only the system IdP exists', () => {
@@ -146,6 +144,7 @@ describe('ConnectButton', () => {
     cy.get('@navigateSpy').invoke('resetHistory');
 
     cy.get('ui5-button').click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.get('ui5-menu-item').eq(1).click();
     cy.get('@navigateSpy').should('have.been.calledOnce');
     cy.get('@navigateSpy').should(
@@ -240,6 +239,7 @@ describe('ConnectButton', () => {
       );
 
       cy.get('ui5-button').click();
+      cy.get('ui5-menu[open]').should('exist');
       cy.get('ui5-menu-item').eq(0).click();
       cy.get('@trackSpy').should('have.been.calledOnce');
       cy.get('@trackSpy').should('have.been.calledWith', {
@@ -249,6 +249,7 @@ describe('ConnectButton', () => {
       });
 
       cy.get('ui5-button').click();
+      cy.get('ui5-menu[open]').should('exist');
       cy.get('ui5-menu-item').eq(1).click();
       cy.get('@trackSpy').should('have.been.calledTwice');
       cy.get('@trackSpy').should('have.been.calledWith', {

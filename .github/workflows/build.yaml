@@ -43,8 +43,10 @@ jobs:
       matrix:
         include:
           - shard: 1
-            spec: 'src/components/**/*.cy.{js,ts,jsx,tsx}'
+            spec: 'src/components/{ControlPlane,ControlPlanes,Core,Members,Shared,Ui}/**/*.cy.{js,ts,jsx,tsx}'
           - shard: 2
+            spec: 'src/components/{Dialogs,Graphs,Projects,Wizards}/**/*.cy.{js,ts,jsx,tsx}'
+          - shard: 3
             spec: 'src/spaces/**/*.cy.{js,ts,jsx,tsx}'
     steps:
       - name: Checkout code
@@ -56,12 +58,19 @@ jobs:
           node-version: 24
           cache: 'npm'
 
+      - name: Cache Cypress binary
+        uses: actions/cache@v4 # pin to SHA like other actions once version is chosen
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-binary-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run Cypress Tests (shard ${{ matrix.shard }})
         env:
           CYPRESS_defaultCommandTimeout: '12000'
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run test:cy -- --spec '${{ matrix.spec }}'
 
       - name: Upload Cypress Screenshots
