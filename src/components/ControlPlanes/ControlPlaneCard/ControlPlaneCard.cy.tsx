@@ -247,6 +247,7 @@ describe('ControlPlaneCard', () => {
     );
 
     cy.get("[data-testid='ControlPlaneCardMenu-opener']").click();
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Delete').click({ force: true });
     cy.get('ui5-dialog[open]').find('ui5-input').typeIntoUi5Input('mcp-name');
     cy.then(() => cy.wrap(deleteCalled).should('equal', false));
