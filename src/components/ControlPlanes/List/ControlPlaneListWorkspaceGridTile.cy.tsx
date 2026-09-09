@@ -3,6 +3,7 @@ import '@ui5/webcomponents-cypress-commands';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { MemoryRouter } from 'react-router-dom';
+import { APIError } from '../../../lib/api/error.ts';
 import { FeatureToggleProvider } from '../../../context/FeatureToggleContext.tsx';
 import { FrontendConfigContext } from '../../../context/FrontendConfigContext.tsx';
 import { useDeleteWorkspace } from '../../../spaces/onboarding/hooks/useDeleteWorkspace.ts';
@@ -113,6 +114,82 @@ function mountTile({
 }
 
 describe('ControlPlaneListWorkspaceGridTile', () => {
+  const fakeUseMCPsForbiddenQuery: typeof useMcpsQuery = () => ({
+    data: [],
+    error: new APIError('Forbidden', 403),
+    isPending: false,
+    isReadyForSubscriptions: true,
+  });
+
+  function mountForbiddenTile(ws: Workspace) {
+    cy.mount(
+      <MockedProvider mocks={[]}>
+        <MemoryRouter>
+          <FrontendConfigContext.Provider value={frontendConfig}>
+            <SplitterProvider>
+              <FeatureToggleProvider>
+                <ControlPlaneListWorkspaceGridTile
+                  workspace={ws}
+                  projectName="some-project"
+                  isExpanded={true}
+                  useMcpsQuery={fakeUseMCPsForbiddenQuery}
+                  useDeleteWorkspace={fakeUseDeleteWorkspace}
+                />
+              </FeatureToggleProvider>
+            </SplitterProvider>
+          </FrontendConfigContext.Provider>
+        </MemoryRouter>
+      </MockedProvider>,
+    );
+  }
+
+  it('shows Request access button with admin member email as mailto recipient on 403', () => {
+    const ws: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground',
+        annotations: {},
+      },
+      spec: {
+        members: [{ kind: 'User', name: 'admin@example.com', roles: ['admin'] }],
+      },
+    };
+
+    mountForbiddenTile(ws);
+
+    cy.contains('Request access')
+      .closest('a')
+      .should('have.attr', 'href')
+      .and('include', 'mailto:admin@example.com')
+      .and('include', 'workspaceName')
+      .and('include', 'some-project');
+  });
+
+  it('falls back to created-by annotation when no admin members present on 403', () => {
+    const ws: Workspace = {
+      metadata: {
+        name: 'workspaceName',
+        namespace: 'project-webapp-playground',
+        annotations: { 'core.openmcp.cloud/created-by': 'creator@example.com' },
+      },
+      spec: { members: [] },
+    };
+
+    mountForbiddenTile(ws);
+
+    cy.contains('Request access').closest('a').should('have.attr', 'href').and('include', 'mailto:creator@example.com');
+  });
+
+  it('shows Request access button with empty mailto when no emails available on 403', () => {
+    const ws: Workspace = {
+      metadata: { name: 'workspaceName', namespace: 'project-webapp-playground', annotations: {} },
+      spec: { members: [] },
+    };
+
+    mountForbiddenTile(ws);
+
+    cy.contains('Request access').should('exist');
+  });
   it('deletes the workspace', () => {
     let deleteWorkspaceCalled = false;
     mountTile({

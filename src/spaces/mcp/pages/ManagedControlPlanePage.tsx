@@ -284,6 +284,7 @@ export default function ManagedControlPlanePage() {
     error,
     isLoading,
   } = useApiResource(ControlPlaneResource(projectName, workspaceName, controlPlaneName));
+
   const { markMcpV1asDeprecated } = useFeatureToggle();
   const displayName =
     mcp?.metadata?.annotations && typeof mcp.metadata.annotations === 'object'
