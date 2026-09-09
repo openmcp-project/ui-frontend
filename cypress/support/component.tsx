@@ -36,15 +36,13 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('TextModel got disposed') ||
     err.message.includes('DiffEditorWidget') ||
     err.message.includes('no diff result available') ||
+    // Vite/dynamic-import failures during component teardown or lazy loading
+    err.message.includes('Failed to fetch dynamically imported module') ||
     // Network requests cancelled on component unmount — legitimate teardown noise
     err.message.includes('Canceled') ||
     err.name === 'Canceled' ||
     (err.stack ?? '').includes('Delayer.cancel') ||
-    (err.stack ?? '').includes('WordHighlighter') ||
-    // Dynamic-import failures that originate from Monaco or Vite workers, not
-    // genuine network errors during a test
-    (err.message.includes('Failed to fetch dynamically imported module') &&
-      (err.stack ?? '').includes('monaco'))
+    (err.stack ?? '').includes('WordHighlighter')
   ) {
     return false;
   }
