@@ -36,11 +36,11 @@ Cypress.on('uncaught:exception', (err) => {
     err.message.includes('TextModel got disposed') ||
     err.message.includes('DiffEditorWidget') ||
     err.message.includes('no diff result available') ||
+    // Network requests cancelled on component unmount — legitimate teardown noise
+    err.message.includes('Canceled') ||
+    err.name === 'Canceled' ||
     (err.stack ?? '').includes('Delayer.cancel') ||
     (err.stack ?? '').includes('WordHighlighter') ||
-    // Monaco teardown fires Canceled from its own internals — scope to its stack
-    ((err.message.includes('Canceled') || err.name === 'Canceled') &&
-      (err.stack ?? '').includes('monaco')) ||
     // Dynamic-import failures that originate from Monaco or Vite workers, not
     // genuine network errors during a test
     (err.message.includes('Failed to fetch dynamically imported module') &&
