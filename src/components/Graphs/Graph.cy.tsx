@@ -107,8 +107,6 @@ describe('Graph viewport culling', () => {
     // significantly fewer than 500 nodes — that's the whole point of
     // `onlyRenderVisibleElements`. Use should() so Cypress retries until
     // ReactFlow applies virtualization after the final zoom.
-    cy.get('.react-flow__node')
-      .should('have.length.lessThan', 300)
-      .and('have.length.greaterThan', 0);
+    cy.get('.react-flow__node').should('have.length.lessThan', 300).and('have.length.greaterThan', 0);
   });
 });
