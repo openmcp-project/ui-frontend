@@ -20,8 +20,8 @@ import { Member, MemberRolesDetailed } from '../../lib/api/types/shared/members'
 import { ACCOUNT_TYPES, AccountType } from './EditMembers.tsx';
 import { RadioButtonsSelectOption } from '../Ui/RadioButtonsSelect/RadioButtonsSelect.tsx';
 
-import { ResourceObject } from '../../lib/api/types/crate/resourceObject.ts';
-import { useApiResource } from '../../lib/api/useApiResource.ts';
+import { useGetProject as _useGetProject } from '../../spaces/onboarding/hooks/useGetProject.ts';
+import { useGetWorkspace as _useGetWorkspace } from '../../spaces/onboarding/hooks/useGetWorkspace.ts';
 import { useTranslation } from 'react-i18next';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import { TFunction } from 'i18next';
@@ -43,6 +43,8 @@ export interface ImportMembersDialogProps {
   projectName: string;
   workspaceName?: string;
   accountTypeOptions?: RadioButtonsSelectOption[];
+  useGetProject?: typeof _useGetProject;
+  useGetWorkspace?: typeof _useGetWorkspace;
 }
 export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   isOpen,
@@ -51,6 +53,8 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
   onClose,
   onImport,
   accountTypeOptions,
+  useGetProject = _useGetProject,
+  useGetWorkspace = _useGetWorkspace,
 }) => {
   const [filteredFor, setFilteredFor] = useState<FilteredFor>('All');
   const [sourceType, setSourceType] = useState<SourceType>('Project');
@@ -76,28 +80,35 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
     [allowedKinds, t],
   );
 
+  // Both hooks are called unconditionally; each skips its query when its name arg is
+  // undefined (dialog closed, or the other source is active).
   const {
-    isLoading,
-    data: parentResourceData,
-    error,
-  } = useApiResource(
-    sourceType === 'Project'
-      ? ResourceObject<SpecMembers>('', 'projects', projectName)
-      : ResourceObject<SpecMembers>(`project-${projectName}`, 'workspaces', workspaceName ?? ''),
-    undefined,
-    null,
-    !isOpen,
+    projectData,
+    isLoading: isProjectLoading,
+    error: projectError,
+  } = useGetProject(isOpen && sourceType === 'Project' ? projectName : undefined);
+  const {
+    workspaceData,
+    isLoading: isWorkspaceLoading,
+    error: workspaceError,
+  } = useGetWorkspace(
+    isOpen && sourceType === 'Workspace' ? workspaceName : undefined,
+    workspaceName ? `project-${projectName}` : undefined,
   );
+
+  const members = sourceType === 'Project' ? projectData?.members : workspaceData?.members;
+  const isLoading = sourceType === 'Project' ? isProjectLoading : isWorkspaceLoading;
+  const error = sourceType === 'Project' ? projectError : workspaceError;
 
   const selectedMembersCount = Object.keys(selectedRowIds ?? {}).length;
 
   const tableData: TableRow[] = useMemo(() => {
-    const members = parentResourceData?.spec?.members ?? [];
+    const sourceMembers = members ?? [];
     const showUsers = filteredFor === 'All' || filteredFor === 'Users';
     const showGroups = filteredFor === 'All' || filteredFor === 'Groups';
     const showServiceAccounts = filteredFor === 'All' || filteredFor === 'ServiceAccounts';
 
-    return members
+    return sourceMembers
       .filter(
         ({ kind }) =>
           (kind === 'User' && showUsers && allowedKinds.has('User')) ||
@@ -110,7 +121,7 @@ export const ImportMembersDialog: FC<ImportMembersDialogProps> = ({
         kind: m.kind,
         _member: m,
       }));
-  }, [parentResourceData, filteredFor, allowedKinds]);
+  }, [members, filteredFor, allowedKinds]);
 
   const columns: AnalyticalTableColumnDefinition[] = useMemo(
     () => [
@@ -259,10 +270,4 @@ function getAddMembersButtonText(selectedMembersCount: number, t: TFunction) {
     default:
       return t('ImportMembersDialog.addMembersButtonN', { count: selectedMembersCount });
   }
-}
-
-interface SpecMembers {
-  spec?: {
-    members: { name: string; roles: string[]; kind: 'User' | 'Group' | 'ServiceAccount'; namespace?: string }[];
-  };
 }

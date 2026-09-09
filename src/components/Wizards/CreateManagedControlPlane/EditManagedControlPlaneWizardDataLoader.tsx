@@ -1,6 +1,5 @@
 import { FC } from 'react';
-import { useApiResource } from '../../../lib/api/useApiResource.ts';
-import { ResourceObject } from '../../../lib/api/types/crate/resourceObject.ts';
+import { useManagedControlPlaneEditQuery } from '../../../spaces/onboarding/hooks/useManagedControlPlaneEditQuery.ts';
 import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 
 import {
@@ -10,7 +9,6 @@ import {
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
 
 import { BusyIndicator } from '@ui5/webcomponents-react';
-import { ManagedControlPlaneInterface } from '../../../lib/api/types/mcpResource.ts';
 
 export type EditManagedControlPlaneWizardDataLoaderProps = {
   workspaceName?: string;
@@ -29,12 +27,7 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   initialSection,
   mode = 'edit',
 }) => {
-  const { isLoading, data, error } = useApiResource(
-    ResourceObject<ManagedControlPlaneInterface>(workspaceName ?? '', 'managedcontrolplanes', resourceName),
-    undefined,
-    null,
-    !isOpen,
-  );
+  const { isLoading, data, error } = useManagedControlPlaneEditQuery(workspaceName, resourceName, !isOpen);
 
   if (isLoading) {
     return (

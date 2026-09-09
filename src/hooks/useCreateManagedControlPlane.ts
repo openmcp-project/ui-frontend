@@ -10,6 +10,7 @@ const CreateManagedControlPlaneMutation = graphql(`
       v1alpha1 {
         createManagedControlPlane(namespace: $namespace, object: $object) {
           metadata {
+            uid
             name
             namespace
           }

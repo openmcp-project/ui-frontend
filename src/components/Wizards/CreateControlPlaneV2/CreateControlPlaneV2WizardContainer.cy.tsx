@@ -34,6 +34,7 @@ describe('CreateManagedControlPlaneV2WizardContainer', () => {
 
   const mockMutationResult = (input: McpV2Input) => ({
     metadata: {
+      uid: null,
       name: input.name,
       namespace: input.namespace,
     },

@@ -13,6 +13,7 @@ const GetWorkspaceQuery = graphql(`
       v1alpha1 {
         Workspace(name: $name, namespace: $namespace) {
           metadata {
+            uid
             name
             namespace
             annotations

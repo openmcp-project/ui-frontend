@@ -14,6 +14,7 @@ const UpdateManagedControlPlaneMutation = graphql(`
       v1alpha1 {
         updateManagedControlPlane(name: $name, namespace: $namespace, object: $object) {
           metadata {
+            uid
             name
             namespace
           }

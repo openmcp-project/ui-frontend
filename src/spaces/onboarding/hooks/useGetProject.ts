@@ -13,6 +13,7 @@ const GetProjectQuery = graphql(`
       v1alpha1 {
         Project(name: $name) {
           metadata {
+            uid
             name
             annotations
             labels

@@ -142,19 +142,6 @@
   transform: translateY(-1px);
 }
 
-.addComponentPlaceholderDisabled {
-  border-color: var(--sapButton_Disabled_BorderColor, #d9d9d9);
-  color: var(--sapButton_Disabled_TextColor, #a9a9a9);
-  cursor: not-allowed;
-  --sapContent_IconColor: var(--sapButton_Disabled_TextColor, #a9a9a9);
-}
-
-.addComponentPlaceholderDisabled:hover {
-  background: none;
-  border-color: var(--sapButton_Disabled_BorderColor, #d9d9d9);
-  transform: none;
-}
-
 .addComponentIcon {
   width: 100%;
   height: 100%;
