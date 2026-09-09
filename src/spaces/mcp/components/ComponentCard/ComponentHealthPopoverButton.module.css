@@ -1,0 +1,15 @@
+.statusPositive {
+  color: var(--sapPositiveColor);
+}
+
+.statusCritical {
+  color: var(--sapCriticalColor);
+}
+
+.statusNegative {
+  color: var(--sapNegativeColor);
+}
+
+.statusNeutral {
+  color: var(--sapNeutralColor);
+}

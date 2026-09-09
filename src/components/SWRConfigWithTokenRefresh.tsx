@@ -15,7 +15,8 @@ export function SWRConfigWithTokenRefresh({ children }: { children: ReactNode })
     <SWRConfig
       value={{
         refreshInterval: 10000,
-        // component re-renders on refresh state changes, so the closure is not stale
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
         isPaused: () => isRefreshing,
       }}
     >

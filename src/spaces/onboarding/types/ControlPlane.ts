@@ -21,12 +21,20 @@ const ConditionsSchema = z
   .default([])
   .transform((items) => (items ?? []).flatMap((item) => (item ? [item] : [])));
 
-const AccessSchema = z.object({
-  key: z.string().optional(),
-  name: z.string().optional(),
-  namespace: z.string().optional(),
-  kubeconfig: z.string().optional(),
-});
+const AccessEntrySchema = z.object({ name: z.string().optional() });
+
+// `.catchall` captures dynamic `oidc_<providerName>` keys (V2). `.catch(undefined)` on the
+// catchall value tolerates non-object siblings (e.g. GraphQL `__typename`) instead of failing
+// the whole parse — otherwise every control plane carrying such a key would be dropped.
+const AccessSchema = z
+  .object({
+    key: z.string().optional(),
+    name: z.string().optional(),
+    namespace: z.string().optional(),
+    kubeconfig: z.string().optional(),
+    oidc_openmcp: AccessEntrySchema.optional(),
+  })
+  .catchall(AccessEntrySchema.optional().catch(undefined));
 
 const StatusSchema = z.object({
   status: z.string(),
@@ -38,32 +46,37 @@ const StatusSchema = z.object({
 const MetadataSchema = z.object({
   name: z.string(),
   namespace: z.string(),
-  creationTimestamp: z.string(),
+  creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
 });
+
+const ComponentSchema = z.object({ __typename: z.string() }).nullish();
+
+const SpecComponentsSchema = z
+  .object({
+    crossplane: ComponentSchema,
+    flux: ComponentSchema,
+    landscaper: ComponentSchema,
+    kyverno: ComponentSchema,
+    externalSecretsOperator: ComponentSchema,
+    btpServiceOperator: ComponentSchema,
+  })
+  .nullish();
+
+const SpecSchema = z
+  .object({
+    components: SpecComponentsSchema,
+  })
+  .nullish();
 
 const ControlPlaneV1Schema = z.object({
   version: z.literal('v1'),
   metadata: MetadataSchema,
+  spec: SpecSchema,
   status: StatusSchema.nullish(),
 });
 
-const ControlPlaneV2Schema = z.object({
-  version: z.literal('v2'),
-  metadata: MetadataSchema,
-  status: StatusSchema.nullish(),
-});
-
-export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema]);
-
-export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
-export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
-export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
-export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
-export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
-
-// ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
-
+// Shared IAM schemas used by both list and detail types
 const SubjectSchema = z.object({
   apiGroup: z.string().nullish(),
   kind: z.string().nullish(),
@@ -86,6 +99,54 @@ const OidcProviderSchema = z.object({
   roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
 });
 
+// List items only query `name` and `roleBindings`; the rest is detail-page only.
+const ExtraOidcProviderListSchema = z.object({
+  name: z.string().nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
+const ExtraOidcProviderSchema = z.object({
+  name: z.string().nullish(),
+  issuer: z.string().nullish(),
+  clientID: z.string().nullish(),
+  usernameClaim: z.string().nullish(),
+  usernamePrefix: z.string().nullish(),
+  groupsClaim: z.string().nullish(),
+  groupsPrefix: z.string().nullish(),
+  extraScopes: z.array(z.string().nullable()).nullish(),
+  roleBindings: z.array(IamRoleBindingSchema.nullable()).nullish(),
+});
+
+const ControlPlaneV2Schema = z.object({
+  version: z.literal('v2'),
+  metadata: MetadataSchema,
+  status: StatusSchema.nullish(),
+  spec: z
+    .object({
+      iam: z
+        .object({
+          oidc: z
+            .object({
+              defaultProvider: OidcProviderSchema.nullish(),
+              extraProviders: z.array(ExtraOidcProviderListSchema.nullable()).nullish(),
+            })
+            .nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
+});
+
+export const ControlPlaneListItemSchema = z.discriminatedUnion('version', [ControlPlaneV1Schema, ControlPlaneV2Schema]);
+
+export type ControlPlaneListItem = z.infer<typeof ControlPlaneListItemSchema>;
+export type ControlPlaneV1ListItem = z.infer<typeof ControlPlaneV1Schema>;
+export type ControlPlaneV2ListItem = z.infer<typeof ControlPlaneV2Schema>;
+export type ControlPlaneStatus = z.infer<typeof StatusSchema>;
+export type ControlPlaneCondition = z.infer<typeof ConditionSchema>;
+
+// ---- ManagedControlPlaneV2 detail type (used by GetMcpServiceV2) ----
+
 const AccessV2Schema = z.preprocess(
   (val) => {
     if (typeof val === 'string') {
@@ -103,8 +164,9 @@ const AccessV2Schema = z.preprocess(
       name: z.string().optional(),
       namespace: z.string().optional(),
       kubeconfig: z.string().optional(),
-      oidc_openmcp: z.object({ name: z.string().optional() }).optional(),
+      oidc_openmcp: AccessEntrySchema.optional(),
     })
+    .catchall(AccessEntrySchema.optional().catch(undefined))
     .optional(),
 );
 
@@ -120,7 +182,7 @@ const SpecV2Schema = z.object({
       oidc: z
         .object({
           defaultProvider: OidcProviderSchema.nullish(),
-          extraProviders: z.array(OidcProviderSchema.nullable()).nullish(),
+          extraProviders: z.array(ExtraOidcProviderSchema.nullable()).nullish(),
         })
         .nullish(),
       tokens: z
@@ -175,3 +237,4 @@ export type ManagedControlPlaneV2 = z.infer<typeof ManagedControlPlaneV2Schema>;
 export type ManagedControlPlaneV2Status = z.infer<typeof StatusV2Schema>;
 export type ManagedControlPlaneV2Condition = z.infer<typeof ConditionSchema>;
 export type IamRoleBinding = z.infer<typeof IamRoleBindingSchema>;
+export type ExtraOidcProvider = z.infer<typeof ExtraOidcProviderSchema>;
