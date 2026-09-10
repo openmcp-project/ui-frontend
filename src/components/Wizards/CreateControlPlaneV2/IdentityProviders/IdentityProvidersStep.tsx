@@ -1,5 +1,5 @@
 import { Button, FlexBox, Link, MessageStrip, Text } from '@ui5/webcomponents-react';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, memo, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 import { useCopyToClipboard } from '../../../../hooks/useCopyToClipboard.ts';
@@ -15,6 +15,38 @@ import { AddEditProviderDialog } from './AddEditProviderDialog.tsx';
 import { DeleteProviderConfirmationDialog } from './DeleteProviderConfirmationDialog.tsx';
 import styles from './IdentityProviders.module.css';
 import { ProviderGroup } from './ProviderGroup.tsx';
+
+const EMPTY_MEMBERS: Member[] = [];
+
+interface ProviderEditMembersProps {
+  provider: ExtraProviderMetadata;
+  members: Member[];
+  isValidationError: boolean;
+  onProviderMembersChange: (providerName: string, updatedSlice: Member[]) => void;
+}
+
+const ProviderEditMembers: FC<ProviderEditMembersProps> = memo(
+  ({ provider, members, isValidationError, onProviderMembersChange }) => {
+    const handleChange = useCallback(
+      (updatedSlice: Member[]) => onProviderMembersChange(provider.name, updatedSlice),
+      [provider.name, onProviderMembersChange],
+    );
+    return (
+      <EditMembers
+        members={members}
+        isValidationError={isValidationError}
+        requireAtLeastOneMember={false}
+        type="mcp"
+        isV2
+        showImportButton={false}
+        fitContentAddButton
+        providerName={provider.name}
+        testIdPrefix={`provider-${provider.name}`}
+        onMemberChanged={handleChange}
+      />
+    );
+  },
+);
 
 export interface IdentityProvidersStepProps {
   members: Member[];
@@ -185,17 +217,11 @@ export const IdentityProvidersStep: FC<IdentityProvidersStepProps> = ({
                 </>
               }
             >
-              <EditMembers
-                members={membersByProvider.get(provider.name) ?? []}
+              <ProviderEditMembers
+                provider={provider}
+                members={membersByProvider.get(provider.name) ?? EMPTY_MEMBERS}
                 isValidationError={isValidationError}
-                requireAtLeastOneMember={false}
-                type="mcp"
-                isV2
-                showImportButton={false}
-                fitContentAddButton
-                providerName={provider.name}
-                testIdPrefix={`provider-${provider.name}`}
-                onMemberChanged={(updatedSlice) => handleProviderMembersChange(provider.name, updatedSlice)}
+                onProviderMembersChange={handleProviderMembersChange}
               />
             </ProviderGroup>
           ))}
