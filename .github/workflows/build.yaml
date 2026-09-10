@@ -59,7 +59,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache Cypress binary
-        uses: actions/cache@v4 # pin to SHA like other actions once version is chosen
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6 # pin to SHA like other actions once version is chosen
         with:
           path: ~/.cache/Cypress
           key: cypress-binary-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
