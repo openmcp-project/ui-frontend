@@ -1,5 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bar, Button, Dialog, FlexBox, Input, Label, Link, MessageStrip } from '@ui5/webcomponents-react';
+import {
+  Bar,
+  Button,
+  Dialog,
+  FlexBox,
+  Input,
+  InputDomRef,
+  Label,
+  Link,
+  MessageStrip,
+  Ui5CustomEvent,
+} from '@ui5/webcomponents-react';
 import { Activity, FC, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
@@ -122,6 +133,8 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
 
   const accountType = useWatch({ control, name: 'accountType' });
   const role = useWatch({ control, name: 'role' });
+  const nameValue = useWatch({ control, name: 'name' });
+  const namespaceValue = useWatch({ control, name: 'namespace' });
 
   useEffect(() => {
     if (open) {
@@ -203,14 +216,18 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
         <FlexBox direction="Column" alignItems="Stretch" className={styles.wrapper}>
           {/* id kept static: an existing cy test selects #member-email-input directly. */}
           <Label for="member-email-input">{t('common.name')}</Label>
+          <input type="hidden" {...register('name')} value={nameValue} readOnly />
           <Input
             className={styles.input}
             id="member-email-input"
             type={accountType === 'User' ? 'Email' : 'Text'}
-            {...register('name')}
+            value={nameValue}
             valueState={errors.name ? 'Negative' : 'None'}
             valueStateMessage={<span>{errors.name?.message}</span>}
             data-testid={withTestId('member-email-input')}
+            onInput={(e: Ui5CustomEvent<InputDomRef, never>) =>
+              setValue('name', e.target.value, { shouldValidate: true, shouldDirty: true })
+            }
           />
         </FlexBox>
         <FlexBox alignItems="Stretch" direction={'Column'}>
@@ -230,12 +247,19 @@ export const AddEditMemberDialog: FC<AddEditMemberDialogProps> = ({
               <div>
                 <FlexBox direction="Column">
                   <Label for="namespace-input">{t('common.namespace')}</Label>
+                  <input type="hidden" {...register('namespace')} value={namespaceValue} readOnly />
                   <Input
-                    type="Text"
-                    {...register('namespace')}
                     className={styles.input}
-                    data-testid={withTestId('namespace-input')}
                     id="namespace-input"
+                    type="Text"
+                    value={namespaceValue}
+                    data-testid={withTestId('namespace-input')}
+                    onInput={(e: Ui5CustomEvent<InputDomRef, never>) =>
+                      setValue('namespace', e.target.value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
                   />
                 </FlexBox>
               </div>
