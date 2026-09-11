@@ -84,6 +84,23 @@ const toRow = (m: Member): MemberTableRow => {
 const MAX_VISIBLE_ROWS = 10;
 const rowCount = (count: number) => Math.min(Math.max(count, 1), MAX_VISIBLE_ROWS);
 
+// Disable react-table's auto-reset behaviours. Without these, each measure pass
+// the AnalyticalTable virtualizer triggers can re-dispatch reducer actions,
+// feeding a measure→setState→re-measure loop ("Maximum update depth exceeded"),
+// especially when several member tables render/animate at once. Mirrors the
+// shared ConfiguredAnalyticsTable wrapper.
+const reactTableOptions = {
+  autoResetHiddenColumns: false,
+  autoResetPage: false,
+  autoResetExpanded: false,
+  autoResetGroupBy: false,
+  autoResetSelectedRows: false,
+  autoResetSortBy: false,
+  autoResetFilters: false,
+  autoResetRowState: false,
+  autoResetResize: false,
+};
+
 export const MemberTable: FC<MemberTableProps> = ({
   members,
   onDeleteMember,
@@ -244,6 +261,7 @@ export const MemberTable: FC<MemberTableProps> = ({
             data={rows}
             visibleRows={rowCount(rows.length)}
             minRows={rowCount(rows.length)}
+            reactTableOptions={reactTableOptions}
           />
         </FlexBox>
       ))}
