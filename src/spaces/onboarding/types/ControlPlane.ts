@@ -260,6 +260,7 @@ const MetadataV2Schema = z.object({
   namespace: z.string().catch(''),
   creationTimestamp: z.string().catch(''),
   annotations: z.record(z.string(), z.string()).catch({}),
+  deletionTimestamp: z.string().nullish(),
 });
 
 export const ManagedControlPlaneV2Schema = z.object({

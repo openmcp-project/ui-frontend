@@ -35,6 +35,7 @@ import { DISPLAY_NAME_ANNOTATION } from '../../../lib/api/types/shared/keyNames.
 import { McpContextProvider, WithinManagedControlPlane, useMcp } from '../../../lib/shared/McpContext.tsx';
 import { useControlPlaneV2Query } from '../../onboarding/hooks/controlPlaneV2/useControlPlaneV2Query.ts';
 import { flattenOidcRoleBindings } from '../helpers/flattenOidcRoleBindings.ts';
+import { ReadyStatus } from '../../onboarding/types/ControlPlane.ts';
 
 import { GitRepositories } from '../../../components/ControlPlane/GitRepositories.tsx';
 import { Kustomizations } from '../../../components/ControlPlane/Kustomizations.tsx';
@@ -535,7 +536,11 @@ export default function ControlPlanePageV2() {
                   <FlexBox alignItems={'Baseline'} gap={'2.5rem'}>
                     <McpHeader mcp={mcp} />
                     <McpStatusSection
-                      mcpStatus={mcp?.status}
+                      mcpStatus={
+                        mcp?.metadata?.deletionTimestamp
+                          ? { status: ReadyStatus.InDeletion, conditions: mcp.status?.conditions ?? [] }
+                          : mcp?.status
+                      }
                       projectName={projectName}
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
