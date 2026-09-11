@@ -184,9 +184,11 @@ export function flattenV1RoleBindings(
 
 const AccessV2Schema = z.preprocess(
   (val) => {
+    if (val == null) return undefined;
     if (typeof val === 'string') {
       try {
-        return JSON.parse(val);
+        const parsed = JSON.parse(val);
+        return parsed ?? undefined;
       } catch {
         return undefined;
       }

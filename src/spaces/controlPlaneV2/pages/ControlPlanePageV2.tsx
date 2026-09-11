@@ -518,6 +518,7 @@ export default function ControlPlanePageV2() {
                       <CopyKubeconfigButton />
                       <ControlPlanePageMenu
                         setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+                        isEditDisabled={!!mcp?.metadata?.deletionTimestamp}
                       />
                       <EditControlPlaneV2WizardDataLoader
                         isOpen={isEditManagedControlPlaneWizardOpen}
