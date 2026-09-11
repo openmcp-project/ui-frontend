@@ -68,7 +68,10 @@ export function MembersAvatarView({ members, hideNamespaceColumn = false, source
       >
         <div className={styles.content}>
           <Suspense fallback={<BusyIndicator active />}>
-            <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+            {/* Only mount the table when it's open. AnalyticalTable virtualizer loops when measuring a hidden popover */}
+            {popoverIsOpen && (
+              <MemberTable members={members} requireAtLeastOneMember={false} hideNamespaceColumn={hideNamespaceColumn} />
+            )}
           </Suspense>
         </div>
       </ResponsivePopover>
