@@ -4,6 +4,7 @@ import {
   AnalyticalTable,
   AnalyticalTableColumnDefinition,
   AnalyticalTableScaleWidthMode,
+  Icon,
   Panel,
   Title,
   Toolbar,
@@ -15,11 +16,14 @@ import IllustratedError from '../Shared/IllustratedError';
 import { ProvidersListRequest } from '../../lib/api/types/crossplane/listProviders';
 import { resourcesInterval } from '../../lib/shared/constants';
 import { formatDateAsTimeAgo } from '../../utils/i18n/timeAgo';
+import { latestAvailableVersion } from '../../utils/componentsVersions.ts';
+import { useManagedServicesQuery } from '../../spaces/mcp/hooks/useManagedServicesQuery.ts';
 
 import { YamlViewButton } from '../Yaml/YamlViewButton.tsx';
 
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
 import '@ui5/webcomponents-icons/dist/sys-cancel-2';
+import '@ui5/webcomponents-icons/dist/trend-up';
 import StatusFilter from '../Shared/StatusFilter/StatusFilter.tsx';
 import { ResourceStatusCell } from '../Shared/ResourceStatusCell.tsx';
 import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
@@ -27,6 +31,7 @@ import { Resource } from '../../utils/removeManagedFieldsAndFilterData.ts';
 type ProvidersRow = {
   name: string;
   version: string;
+  latestAvailable: string | undefined;
   healthy: string;
   healthyTransitionTime: string;
   healthyMessage: string;
@@ -39,6 +44,7 @@ type ProvidersRow = {
 
 export function Providers() {
   const { t } = useTranslation();
+  const { crossplaneProviders } = useManagedServicesQuery();
 
   const {
     data: providers,
@@ -57,6 +63,21 @@ export function Providers() {
       {
         Header: t('Providers.tableHeaderVersion'),
         accessor: 'version',
+        Cell: (cellData) => {
+          const row = cellData.cell.row.original as ProvidersRow;
+          return (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              {row.version}
+              {row.latestAvailable && (
+                <Icon
+                  name="trend-up"
+                  title={t('Providers.updateAvailable', { version: row.latestAvailable })}
+                  style={{ color: 'var(--sapPositiveColor)', cursor: 'default', fontSize: '0.875rem' }}
+                />
+              )}
+            </span>
+          );
+        },
       },
       {
         Header: t('Providers.tableHeaderCreated'),
@@ -117,6 +138,9 @@ export function Providers() {
       providers?.items?.map((item) => {
         const installed = item.status?.conditions?.find((condition) => condition.type === 'Installed');
         const healthy = item.status?.conditions?.find((condition) => condition.type === 'Healthy');
+        const version = item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '';
+        const catalogEntry = crossplaneProviders.find((p) => p.name === item.metadata.name);
+        const catalogVersions = catalogEntry?.versions.map((v) => v.version) ?? [];
         return {
           name: item.metadata.name,
           created: formatDateAsTimeAgo(item.metadata.creationTimestamp),
@@ -124,13 +148,14 @@ export function Providers() {
           installedTransitionTime: installed?.lastTransitionTime ?? '',
           healthy: healthy?.status === 'True' ? 'true' : 'false',
           healthyTransitionTime: healthy?.lastTransitionTime ?? '',
-          version: item.spec.package.match(/\d+(\.\d+)+/g)?.toString() ?? '',
+          version,
+          latestAvailable: latestAvailableVersion(version, catalogVersions),
           item: item,
           healthyMessage: healthy?.message ?? healthy?.reason ?? '',
           installedMessage: installed?.message ?? installed?.reason ?? '',
         };
       }) ?? [],
-    [providers?.items],
+    [providers?.items, crossplaneProviders],
   );
 
   const tableOptions = useMemo(

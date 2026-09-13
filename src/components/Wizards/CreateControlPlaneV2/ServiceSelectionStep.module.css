@@ -45,3 +45,10 @@
   display: block;
   margin-bottom: 0.5rem;
 }
+
+.updateHint {
+  font-size: 0.75rem;
+  color: var(--sapPositiveColor);
+  white-space: nowrap;
+  cursor: default;
+}

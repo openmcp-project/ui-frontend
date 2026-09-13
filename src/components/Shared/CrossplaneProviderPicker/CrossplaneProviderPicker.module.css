@@ -20,3 +20,18 @@
   width: 11.25rem;
   flex-shrink: 0;
 }
+
+.updateHint {
+  font-size: 0.75rem;
+  color: var(--sapPositiveColor);
+  white-space: nowrap;
+  cursor: default;
+}
+
+.disclaimer {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--sapContent_LabelColor);
+  border-top: 1px solid var(--sapList_BorderColor);
+}
