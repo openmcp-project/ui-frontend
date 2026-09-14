@@ -8,6 +8,11 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 
 const baseQueryResult = {
@@ -40,6 +45,7 @@ describe('useFluxQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useQueryMock.mockReturnValue(baseQueryResult);
+    reportMock.mockReset();
   });
 
   it('skips the query when name is undefined', () => {
@@ -123,5 +129,15 @@ describe('useFluxQuery', () => {
 
     expect(result.current.error).toBe(apolloError);
     expect(result.current.fluxData).toBeNull();
+  });
+
+  it('reports a schema mismatch to telemetry and returns null', () => {
+    // metadata.name is required by FluxSchema — omitting metadata triggers a validation failure
+    useQueryMock.mockReturnValue(makeQueryResult({ spec: { version: '2.3.0' } }));
+
+    const { result } = renderHook(() => useFluxQuery('my-cp', 'project-foo--ws-bar'));
+
+    expect(result.current.fluxData).toBeNull();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 });

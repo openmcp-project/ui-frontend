@@ -94,8 +94,8 @@ describe('Graph viewport culling', () => {
     // instant in CI.
     cy.get('.react-flow__node', { timeout: 30000 }).should('have.length.greaterThan', 0);
 
-    // Let fitView's 200 ms animation finish so all nodes are settled in the
-    // viewport.
+    // Let fitView's 200 ms animation finish before zooming — otherwise zoom
+    // clicks fire mid-animation and the final viewport position is undefined.
     cy.wait(500);
 
     // At minZoom=0.05 with fitView, the entire 500-node graph fits in 1280x800
@@ -107,10 +107,9 @@ describe('Graph viewport culling', () => {
       cy.get('.react-flow__controls-zoomin').click({ force: true });
     }
 
-    // Give ReactFlow a frame to apply virtualization after the final zoom.
-    cy.wait(300);
-
-    cy.get('.react-flow__node').then(($nodes) => {
+    // Use the should() callback form so Cypress retries the assertions until
+    // ReactFlow applies virtualization after the final zoom.
+    cy.get('.react-flow__node').should(($nodes) => {
       // With the graph zoomed well past fitView, the active DOM should hold
       // significantly fewer than 500 nodes — that's the whole point of
       // `onlyRenderVisibleElements`.

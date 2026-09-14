@@ -1,15 +1,15 @@
 import { VariantItem, VariantManagement } from '@ui5/webcomponents-react';
-import { ListProjectNames } from '../../lib/api/types/crate/listProjectNames';
-import { useApiResource } from '../../lib/api/useApiResource';
+import { useProjectsQuery as _useProjectsQuery } from '../../spaces/onboarding/hooks/useProjectsQuery.ts';
 import IllustratedError from '../Shared/IllustratedError.tsx';
 import useLuigiNavigate from '../Shared/useLuigiNavigate.tsx';
 
 interface Props {
   currentProjectName: string;
+  useProjectsQuery?: typeof _useProjectsQuery;
 }
 
-export default function ProjectChooser({ currentProjectName }: Props) {
-  const { data, error } = useApiResource(ListProjectNames);
+export default function ProjectChooser({ currentProjectName, useProjectsQuery = _useProjectsQuery }: Props) {
+  const { data, error } = useProjectsQuery();
   const navigate = useLuigiNavigate();
 
   if (error) {

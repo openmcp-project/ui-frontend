@@ -111,6 +111,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Delete').click({ force: true });
 
     // Type confirmation text and verify it was accepted
@@ -148,11 +149,13 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Delete').click({ force: true });
 
-    // Wait for dialog open animation to complete (onOpen fires resetForm which clears state)
+    // Wait for dialog open animation to complete (onOpen fires resetForm which clears state).
+    // Assert the input is empty — that confirms onOpen+resetForm have run.
     cy.get('ui5-dialog[open]').should('be.visible');
-    cy.wait(500);
+    cy.get('ui5-dialog[open]').find('ui5-input').should('have.prop', 'value', '');
 
     // Expand Advanced section and enable force deletion checkbox
     cy.contains('Advanced').click();
@@ -196,6 +199,7 @@ describe('ManagedResources - Delete Resource', () => {
 
     // Open actions menu and click Delete
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Delete').click({ force: true });
 
     // Delete button should be disabled initially
@@ -310,14 +314,15 @@ describe('ManagedResources - Edit Resource', () => {
 
     // Open actions menu and click Edit
     cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
     cy.contains('Edit').click({ force: true });
 
     // Wait for YAML panel and Monaco editor to fully load (schema loader async re-renders)
-    cy.contains('YAML').should('be.visible');
-    cy.get('.monaco-editor', { timeout: 10000 }).should('exist');
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
+    cy.get('.monaco-editor', { timeout: 10000 }).should('be.visible');
 
     // Click Apply button — use force to avoid detached-DOM race from SWR revalidation re-renders
-    cy.get('[data-testid="yaml-apply-button"]').click({ force: true });
+    cy.get('[data-testid="yaml-apply-button"]').should('be.visible').click({ force: true });
 
     // Confirm in dialog
     cy.get('[data-testid="yaml-confirm-button"]', { timeout: 10000 }).should('be.visible').click({ force: true });
@@ -328,6 +333,57 @@ describe('ManagedResources - Edit Resource', () => {
     // Verify patch was called
     cy.wrap(null).should(() => expect(patchCalled).to.equal(true));
     cy.wrap(null).should(() => expect(patchedItem).to.not.be.null);
+  });
+
+  it('shows copy and download buttons in the panel', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
+    cy.contains('Edit').click({ force: true });
+
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible');
+    cy.get('[data-testid="yaml-copy-button"]').should('exist');
+    cy.get('[data-testid="yaml-download-button"]').should('exist');
+  });
+
+  it('closes the panel when the close button is clicked', () => {
+    cy.mount(
+      <MemoryRouter>
+        <SplitterProvider>
+          <SplitterLayout>
+            <ManagedResources
+              useHandleResourcePatch={fakeUseHandleResourcePatch}
+              useApiResource={fakeUseApiResource}
+              useResourcePluralNames={fakeUseResourcePluralNames}
+              useHasMcpAdminRights={fakeUseHasMcpAdminRights}
+            />
+          </SplitterLayout>
+        </SplitterProvider>
+      </MemoryRouter>,
+    );
+
+    cy.get('button[aria-label*="xpand"]').first().click({ force: true });
+    cy.get('[data-testid="ActionsMenu-opener"]').first().click({ force: true });
+    cy.get('ui5-menu[open]').should('exist');
+    cy.contains('Edit').click({ force: true });
+
+    cy.get('[data-testid="yaml-close-button"]').should('be.visible').click({ force: true });
+    cy.get('[data-testid="yaml-close-button"]').should('not.exist');
   });
 });
 

@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { OcmData, OcmSchema } from '../../../mcp/types/Ocm.ts';
+import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 const GET_OCM_QUERY = graphql(`
   query GetOCM($name: String!, $namespace: String) {
@@ -32,6 +33,7 @@ const GET_OCM_QUERY = graphql(`
 `);
 
 export function useOcmQuery(name?: string, namespace?: string) {
+  const telemetry = useTelemetry();
   const queryResult = useQuery(GET_OCM_QUERY, {
     variables: { name: name ?? '', namespace },
     skip: !name || !namespace,
@@ -44,12 +46,15 @@ export function useOcmQuery(name?: string, namespace?: string) {
     if (!rawOcm) return null;
     const result = OcmSchema.safeParse(rawOcm);
     if (!result.success) {
-      console.warn('[useOcmQuery] Validation failed:', z.treeifyError(result.error));
+      telemetry.report(result.error, {
+        message: 'Invalid OCM data — schema mismatch',
+        context: { item: rawOcm, issues: z.treeifyError(result.error) },
+      });
       return null;
     }
     const version = result.data.spec?.version ?? null;
     return { isInstalled: !!version, version };
-  }, [rawOcm]);
+  }, [rawOcm, telemetry]);
 
   return { ocmData, isLoading: queryResult.loading, error: queryResult.error };
 }

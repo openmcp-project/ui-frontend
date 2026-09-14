@@ -72,7 +72,6 @@ export const ManagedResourceDeleteDialog: FC<Props> = ({ open, onClose, item, on
           resourceName={resourceName}
           confirmationText={confirmationText}
           deleteMessageKey="DeleteConfirmationDialog.deleteMessage"
-          deleteConfirmationLabel={t('DeleteConfirmationDialog.deleteConfirmation', { resourceName })}
           onConfirmationInputChange={onConfirmationInputChange}
         />
 

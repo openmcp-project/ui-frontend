@@ -1,5 +1,5 @@
 // Initialize OpenTelemetry instrumentation FIRST
-import './server/opentelemetry-init.js';
+import './server/telemetry/bootstrap/opentelemetry-init.js';
 import Fastify from 'fastify';
 import FastifyVite from '@fastify/vite';
 import cors from '@fastify/cors';
@@ -9,31 +9,21 @@ import path from 'node:path';
 import proxy from './server/app.js';
 import envPlugin from './server/config/env.js';
 import { copyFileSync } from 'node:fs';
-import * as Sentry from '@sentry/node';
-import { injectDynatraceTag } from './server/config/dynatrace.js';
-const { DYNATRACE_SCRIPT_URL } = process.env;
+import { initSentry } from './server/telemetry/bootstrap/sentry.js';
+import { injectDynatraceTag } from './server/telemetry/client-injection/dynatrace.js';
+import { injectMatomoTag } from './server/telemetry/client-injection/matomo.js';
+import serverTelemetryPlugin from './server/telemetry/telemetry.js';
+import errorHandlerPlugin from './server/plugins/error-handler.js';
+const { DYNATRACE_SCRIPT_URL, MATOMO_URL, MATOMO_SITE_ID } = process.env;
 if (DYNATRACE_SCRIPT_URL) {
   injectDynatraceTag(DYNATRACE_SCRIPT_URL);
 }
-
-if (!process.env.BFF_SENTRY_DSN || process.env.BFF_SENTRY_DSN.trim() === '') {
-  console.error('Error: Sentry DSN is not provided. Sentry will not be initialized.');
-} else {
-  Sentry.init({
-    dsn: process.env.BFF_SENTRY_DSN,
-    environment: process.env.FRONTEND_SENTRY_ENVIRONMENT,
-    beforeSend(event) {
-      if (event.request && event.request.cookies) {
-        event.request.cookies = Object.keys(event.request.cookies).reduce((acc, key) => {
-          // @ts-ignore
-          acc[key] = '';
-          return acc;
-        }, {});
-      }
-      return event;
-    },
-  });
+let matomoScriptHash: string | null = null;
+if (MATOMO_URL && MATOMO_SITE_ID) {
+  matomoScriptHash = injectMatomoTag(MATOMO_URL, MATOMO_SITE_ID);
 }
+
+initSentry();
 
 const isLocalDev = process.argv.includes('--local-dev');
 
@@ -62,12 +52,12 @@ if (
 
 const fastify = Fastify({
   logger: true,
-  trustProxy: 1,
   connectionTimeout: 30_000,
   requestTimeout: 30_000,
 });
 
-Sentry.setupFastifyErrorHandler(fastify);
+await fastify.register(serverTelemetryPlugin);
+await fastify.register(errorHandlerPlugin);
 await fastify.register(envPlugin);
 
 fastify.register(cors, {
@@ -118,6 +108,15 @@ if (DYNATRACE_SCRIPT_URL) {
   }
 }
 
+let matomoOrigin = '';
+if (MATOMO_URL) {
+  try {
+    matomoOrigin = new URL(MATOMO_URL).origin;
+  } catch {
+    console.error('MATOMO_URL is not a valid URL');
+  }
+}
+
 fastify.register(helmet, {
   // CSP is managed manually below so we can suppress it for /api/headlamp/* paths.
   // Headlamp's inline bootstrap scripts are blocked by script-src 'self', and the header
@@ -148,14 +147,21 @@ fastify.addHook('onSend', async (req, reply, payload) => {
     .map((origin: string) => origin.trim())
     .filter(Boolean)
     .join(' ');
+  const telemetryOrigins = [sentryHost, dynatraceOrigin, matomoOrigin].filter(Boolean).join(' ');
+  // The Matomo bootstrap is an inline <script>; a strict script-src blocks it unless
+  // its exact sha256 is whitelisted. Scoped to script-src only (a script hash is
+  // meaningless in connect-src/img-src, which also consume telemetryOrigins).
+  const scriptSrcSources = [telemetryOrigins, matomoScriptHash ? `'${matomoScriptHash}'` : '']
+    .filter(Boolean)
+    .join(' ');
   const csp = [
     "default-src 'self'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data:",
-    `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${sentryHost} ${dynatraceOrigin}`,
+    `img-src 'self' data:${matomoOrigin ? ` ${matomoOrigin}` : ''}`,
+    `connect-src 'self' sdk.openui5.org api.iconify.design api.simplesvg.com api.unisvg.com ${telemetryOrigins}`,
     isLocalDev
-      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${sentryHost} ${dynatraceOrigin}`
-      : `script-src 'self' ${sentryHost} ${dynatraceOrigin}`,
+      ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${telemetryOrigins}`
+      : `script-src 'self' ${scriptSrcSources}`,
     "frame-src 'self'",
     `frame-ancestors 'self'${frameAncestors ? ` ${frameAncestors}` : ''}`,
     "base-uri 'self'",
@@ -180,10 +186,12 @@ await fastify.register(FastifyVite, {
   dev: isLocalDev,
   spa: true,
   // Vite content-hashes all assets in /assets/ — safe to cache indefinitely
-  fastifyStaticOptions: isLocalDev ? undefined : {
-    maxAge: '1y',
-    immutable: true,
-  },
+  fastifyStaticOptions: isLocalDev
+    ? undefined
+    : {
+        maxAge: '1y',
+        immutable: true,
+      },
 });
 
 fastify.get('/sentry', function (req, reply) {

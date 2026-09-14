@@ -1,9 +1,16 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach, Mock } from 'vitest';
-import { assertNonNullish, assertString } from '../utils/test/vitest-utils.ts';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { useUpdateManagedControlPlane } from './useUpdateManagedControlPlane.ts';
-import { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
+import type { CreateManagedControlPlaneType } from '../lib/api/types/crate/createManagedControlPlane.ts';
+
+const { mockUpdateMutation } = vi.hoisted(() => ({
+  mockUpdateMutation: vi.fn().mockResolvedValue({ data: {} }),
+}));
+
+vi.mock('@apollo/client/react', () => ({
+  useMutation: () => [mockUpdateMutation, {}],
+}));
 
 describe('useUpdateManagedControlPlane', () => {
   afterEach(() => {
@@ -72,14 +79,6 @@ describe('useUpdateManagedControlPlane', () => {
       },
     };
 
-    const fetchMock: Mock<typeof fetch> = vi.fn();
-    fetchMock.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: vi.fn().mockResolvedValue({}),
-    } as unknown as Response);
-    global.fetch = fetchMock;
-
     // ACT
     const renderHookResult = renderHook(() => useUpdateManagedControlPlane('projectName', 'workspaceName', 'mcpName'));
     const { mutate: update } = renderHookResult.result.current;
@@ -89,28 +88,13 @@ describe('useUpdateManagedControlPlane', () => {
     });
 
     // ASSERT
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const call = fetchMock.mock.calls[0];
-    const [url, init] = call;
-    assertNonNullish(init);
-    const { method, headers, body } = init;
-
-    // URL should include namespace and the specific resource name
-    expect(url).toContain(
-      '/api/onboarding/apis/core.openmcp.cloud/v1alpha1/namespaces/projectName--ws-workspaceName/managedcontrolplanes/mcpName',
-    );
-
-    expect(method).toBe('PATCH');
-
-    expect(headers).toEqual(
-      expect.objectContaining({
-        'Content-Type': 'application/merge-patch+json',
-        'X-use-crate': 'true',
-      }),
-    );
-
-    assertString(body);
-    const parsedBody = JSON.parse(body);
-    expect(parsedBody).toEqual(mockData);
+    expect(mockUpdateMutation).toHaveBeenCalledTimes(1);
+    expect(mockUpdateMutation).toHaveBeenCalledWith({
+      variables: {
+        name: 'mcpName',
+        namespace: 'projectName--ws-workspaceName',
+        object: mockData,
+      },
+    });
   });
 });

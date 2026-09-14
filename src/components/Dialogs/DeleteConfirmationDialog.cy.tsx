@@ -29,7 +29,8 @@ describe('DeleteConfirmationDialog', () => {
 
     cy.contains('Delete test-resource').should('be.visible');
 
-    cy.contains('You are about to delete the resource test-resource').should('be.visible');
+    cy.contains('You are about to delete the resource').should('be.visible');
+    cy.contains('test-resource').should('be.visible');
   });
 
   it('should not be visible when isOpen is false', () => {
@@ -101,9 +102,29 @@ describe('DeleteConfirmationDialog', () => {
   it('should display correct resource name in all labels', () => {
     mountDialog({ resourceName: 'custom-resource' });
 
-    cy.contains('You are about to delete the resource custom-resource.').should('be.visible');
+    cy.contains('You are about to delete the resource').should('be.visible');
+    cy.contains('custom-resource').should('be.visible');
 
-    cy.contains('To confirm, type “custom-resource” in the box below').should('be.visible');
+    cy.contains('Type the name to confirm').should('be.visible');
+  });
+
+  it('should copy the resource name to clipboard when the copy button is clicked', () => {
+    cy.window().then((win) => {
+      const writeTextStub = cy.stub().resolves();
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: { writeText: writeTextStub, readText: cy.stub().resolves('') },
+        writable: true,
+        configurable: true,
+      });
+    });
+
+    mountDialog({ resourceName: 'custom-resource' });
+
+    cy.get('ui5-button[icon="copy"]').click();
+
+    cy.window().then((win) => {
+      expect(win.navigator.clipboard.writeText).to.have.been.calledWith('custom-resource');
+    });
   });
 
   describe('kubectl learn button dialogs', () => {

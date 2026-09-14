@@ -115,7 +115,10 @@
   "ControlPlaneListWorkspaceGridTile": {
     "deleteConfirmationDialog": "Workspace deletion triggered. The list will refresh automatically once completed.",
     "permissionErrorMessage": "Not permitted to list control planes in workspace",
-    "permissionErrorMessageSubtitle": "Ask a workspace admin to grant you access.",
+    "permissionErrorMessageSubtitle": "You need workspace membership to see control planes here.",
+    "askAdminButton": "Request access",
+    "accessRequestSubject": "Access request: workspace {{workspaceName}} in project {{projectName}}",
+    "accessRequestBody": "Hi,\n\nI would like to request access to the workspace \"{{workspaceName}}\" in project \"{{projectName}}\".\n\nCould you please add me as a member?\n\nThank you.",
     "loadingErrorMessage": "Failed to list control planes in workspace"
   },
   "ControlPlaneCard": {
@@ -157,7 +160,9 @@
     "buttonText": "View",
     "defaultIdP": "default IdP",
     "customIdP": "custom IdP",
-    "downloadKubeconfig": "Download Kubeconfig"
+    "downloadKubeconfig": "Download Kubeconfig",
+    "noContextsError": "No connection context found in kubeconfig",
+    "noAccessTitle": "No connection configured"
   },
   "MCPHealthPopoverButton": {
     "statusHeader": "Status",
@@ -251,8 +256,8 @@
     "deleteButton": "Delete",
     "cancelButton": "Cancel",
     "header": "Delete {{resourceName}}",
-    "deleteMessage": "You are about to delete the resource <b>{{resourceName}}</b>.",
-    "deleteConfirmation": "To confirm, type “{{resourceName}}” in the box below"
+    "deleteMessage": "You are about to delete the resource",
+    "typeToConfirm": "Type the name to confirm"
   },
   "Loading": {
     "title": "Getting Ready",
@@ -588,7 +593,6 @@
   "yaml": {
     "YAML": "File",
     "showOnlyImportant": "Show only important fields",
-    "panelTitle": "YAML",
     "applySuccess2": "The control plane will reconcile this resource shortly.",
     "applySuccess": "Update submitted ",
     "diffConfirmTitle": "Review changes",

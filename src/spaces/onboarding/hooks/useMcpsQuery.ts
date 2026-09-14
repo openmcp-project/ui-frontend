@@ -7,6 +7,7 @@ import { graphql } from '../../../types/__generated__/graphql';
 import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
 import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
+import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
 export type McpsQueryMode = 'full' | 'minimal' | 'skip';
 
@@ -17,6 +18,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
         ManagedControlPlanes(namespace: $workspaceNamespace) {
           items {
             metadata {
+              uid
               name
               namespace
               creationTimestamp
@@ -41,6 +43,15 @@ const GET_MCPS_LIST_QUERY = graphql(`
                 }
                 btpServiceOperator {
                   __typename
+                }
+              }
+              authorization {
+                roleBindings {
+                  role
+                  subjects {
+                    kind
+                    name
+                  }
                 }
               }
             }
@@ -72,6 +83,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
         ControlPlanes(namespace: $workspaceNamespace) {
           items {
             metadata {
+              uid
               name
               namespace
               creationTimestamp
@@ -166,7 +178,7 @@ function toV1Input(item: V1Item) {
   return {
     version: 'v1' as const,
     metadata: item.metadata,
-    spec: item.spec ? { components: item.spec.components } : null,
+    spec: item.spec ? { components: item.spec.components, authorization: item.spec.authorization } : null,
     status: item.status
       ? {
           status: item.status.status,
@@ -223,6 +235,7 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
   const { enableMcpV2 } = useFeatureToggle();
   const mode = options?.mode ?? 'full';
   const skipAll = !workspaceNamespace || mode === 'skip';
+  const telemetry = useTelemetry();
 
   const queryResult = useQuery(GET_MCPS_LIST_QUERY, {
     variables: { workspaceNamespace: workspaceNamespace ?? '' },
@@ -238,10 +251,8 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
 
   const { refetch } = queryResult;
 
-  // Gate subscriptions on isReadyForSubscriptions to avoid SSE streams exhausting the
-  // HTTP/1.1 connection pool before the initial query can get a connection.
-  // All workspaces expanding simultaneously would open 16+ SSE streams (8 × 2),
-  // blocking GetMCPsList queries for ~30 s until streams timeout.
+  // Gate subscriptions until the initial query has data — SSE streams otherwise exhaust the
+  // HTTP/1.1 pool (16+ streams if all workspaces expand at once), blocking GetMCPsList for ~30s.
   const isReadyForSubscriptions = mode === 'full' && queryResult.data !== undefined;
 
   const { data: v1SubData } = useSubscription(MCP_V1_SUBSCRIPTION, {
@@ -283,16 +294,22 @@ export function useMcpsQuery(workspaceNamespace?: string, options?: { mode?: Mcp
   const controlPlanes = useMemo<ControlPlaneListItem[]>(() => {
     const v1 = (v1Items ?? []).map(toV1Input);
     const v2 = enableMcpV2 ? (v2Items ?? []).map(toV2Input) : [];
-
+    const seen = new Set<string>();
     return [...v1, ...v2].flatMap((item) => {
       const result = ControlPlaneListItemSchema.safeParse(item);
       if (!result.success) {
-        console.warn('Invalid control plane data:', z.treeifyError(result.error), item);
+        telemetry.report(result.error, {
+          message: 'Invalid control plane data — schema mismatch',
+          context: { item, issues: z.treeifyError(result.error) },
+        });
         return [];
       }
+      const key = `${result.data.metadata.namespace}/${result.data.metadata.name}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
       return [result.data];
     });
-  }, [v1Items, v2Items, enableMcpV2]);
+  }, [v1Items, v2Items, enableMcpV2, telemetry]);
 
   const isPending =
     (mode === 'full' && queryResult.loading && queryResult.networkStatus === NetworkStatus.loading) ||

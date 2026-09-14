@@ -9,6 +9,11 @@ vi.mock('@apollo/client/react', () => ({
   useQuery: vi.fn(),
 }));
 
+const reportMock = vi.fn();
+vi.mock('../../../lib/telemetry/telemetry.ts', () => ({
+  useTelemetry: () => ({ track: vi.fn(), report: reportMock, breadcrumb: vi.fn(), identify: vi.fn() }),
+}));
+
 const useQueryMock = vi.mocked(useQuery);
 
 const baseQueryResult = {
@@ -39,6 +44,7 @@ describe('useKubeconfigQuery', () => {
   beforeEach(() => {
     useQueryMock.mockReset();
     useQueryMock.mockReturnValue(baseQueryResult);
+    reportMock.mockReset();
   });
 
   it('skips the query when kubeConfigName is undefined', () => {
@@ -112,6 +118,7 @@ describe('useKubeconfigQuery', () => {
     const { result } = renderHook(() => useKubeconfigQuery('my-kubeconfig', 'my-namespace'));
 
     expect(result.current.data).toBeUndefined();
+    expect(reportMock).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the Apollo error from the query result', () => {

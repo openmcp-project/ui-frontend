@@ -254,18 +254,18 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     ],
     apiVersion: 'core.openmcp.cloud/v1alpha1',
   };
-  const fakeUseCreateManagedControlPlane: typeof useCreateManagedControlPlane = () => ({
-    mutate: async (data: CreateManagedControlPlaneType): Promise<CreateManagedControlPlaneType> => {
+  const fakeUseCreateManagedControlPlane: typeof useCreateManagedControlPlane = (() => ({
+    mutate: async (data: CreateManagedControlPlaneType) => {
       createMutationPayload = data;
       return data;
     },
-  });
-  const fakeUseUpdateManagedControlPlane: typeof useUpdateManagedControlPlane = () => ({
-    mutate: async (data: CreateManagedControlPlaneType): Promise<CreateManagedControlPlaneType> => {
+  })) as unknown as typeof useCreateManagedControlPlane;
+  const fakeUseUpdateManagedControlPlane: typeof useUpdateManagedControlPlane = (() => ({
+    mutate: async (data: CreateManagedControlPlaneType) => {
       updateMutationPayload = data;
       return data;
     },
-  });
+  })) as unknown as typeof useUpdateManagedControlPlane;
   const fakeUseComponentsQuery: typeof useComponentsQuery = () => ({
     components: fakeComponents,
     error: undefined,
@@ -294,6 +294,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
         useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
+        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
         isOpen={true}
@@ -352,6 +353,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
         useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
+        useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
         isOpen={true}
@@ -554,6 +556,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
+        useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
         useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}
@@ -671,6 +674,7 @@ describe('CreateManagedControlPlaneWizardContainer', () => {
 
     cy.mount(
       <CreateManagedControlPlaneWizardContainer
+        useCreateManagedControlPlane={fakeUseCreateManagedControlPlane}
         useUpdateManagedControlPlane={fakeUseUpdateManagedControlPlane}
         useAuthOnboarding={fakeUseAuthOnboarding}
         useComponentsQuery={fakeUseComponentsQuery}

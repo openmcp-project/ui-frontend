@@ -11,6 +11,7 @@ export const UpdateManagedControlPlaneV2Mutation = graphql(`
       v2alpha1 {
         updateControlPlane(name: $name, namespace: $namespace, object: $object, dryRun: $dryRun) {
           metadata {
+            uid
             name
             namespace
           }

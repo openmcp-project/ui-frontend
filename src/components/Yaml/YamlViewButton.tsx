@@ -54,7 +54,7 @@ export function YamlViewButton({ variant, ...props }: YamlViewButtonProps) {
         : variant === 'mcp-component'
           ? (props as YamlViewButtonMcpComponentProps).component
           : 'resource';
-    telemetry.track({ name: 'yaml.viewed', resourceType: String(resourceType) });
+    telemetry.track({ category: 'yaml', action: 'viewed', resourceType: String(resourceType) });
     switch (variant) {
       case 'resource': {
         const { resource, toolbarContent, withoutApiConfig } = props as YamlViewButtonResourceProps;

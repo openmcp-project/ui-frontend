@@ -187,7 +187,7 @@ function OpenSourceHeadlamp({
     registerKubeconfigWithBff(mcp.kubeconfig, clusterAlias, controller.signal)
       .then(() => {
         if (!controller.signal.aborted)
-          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : baseSrc);
+          setIframeSrc(sanitisedInitialPath ? `${baseSrc}${sanitisedInitialPath}` : `${baseSrc}/ocp/overview`);
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(true);
@@ -463,6 +463,8 @@ export default function ControlPlanePageV2() {
           name: controlPlaneName,
         }}
         isV2
+        preloadedAccess={mcp.status?.access}
+        preloadedNamespace={mcp.metadata?.namespace}
       >
         <AuthProviderMcp>
           <WithinManagedControlPlane>
@@ -488,6 +490,8 @@ export default function ControlPlanePageV2() {
         name: controlPlaneName,
       }}
       isV2
+      preloadedAccess={mcp.status?.access}
+      preloadedNamespace={mcp.metadata?.namespace}
     >
       <AuthProviderMcp>
         <WithinManagedControlPlane>
@@ -536,7 +540,7 @@ export default function ControlPlanePageV2() {
                       workspaceName={workspaceName}
                       mcpName={controlPlaneName}
                     />
-                    <McpMembersAvatarView roleBindings={roleBindings} project={projectName} workspace={workspaceName} />
+                    <McpMembersAvatarView roleBindings={roleBindings} />
                   </FlexBox>
                 </ObjectPageHeader>
               }
