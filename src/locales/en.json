@@ -612,7 +612,8 @@
     "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
     "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>",
     "updating": "Updating Managed Control Plane...",
-    "updatingControlPlane": "Updating Control Plane..."
+    "updatingControlPlane": "Updating Control Plane...",
+    "loadingServices": "Loading installed services..."
   },
   "discardChangesDialog": {
     "title": "Discard changes?",

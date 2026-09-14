@@ -756,12 +756,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
-        // Block entering Components until it's been seeded with the real installed state at
-        // least once — otherwise a late-arriving prefill can silently re-select a service the
-        // user meant to leave unchecked, and it never gets deleted. Only gates the *first* entry
-        // per edit session (`hasPrefilledServices`); a later background KPI refetch (e.g. from an
-        // unrelated mutation elsewhere) must not re-block navigation once that's already happened.
-        if (isEditMode && !skipKpi && !hasPrefilledServices) return;
         setSelectedStep('componentSelection');
         break;
       case 'componentSelection':
@@ -780,9 +774,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         break;
     }
   }, [
-    isEditMode,
-    skipKpi,
-    hasPrefilledServices,
     selectedStep,
     hasNoAssignedMembers,
     handleSubmit,
@@ -956,7 +947,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   design="Emphasized"
                   disabled={
                     isSubmitting ||
-                    (isEditMode && selectedStep === 'members' && !skipKpi && !hasPrefilledServices) ||
+                    (isEditMode && selectedStep === 'componentSelection' && !skipKpi && !hasPrefilledServices) ||
                     (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
                   }
                   onClick={onNextClick}
@@ -978,7 +969,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         />
         <Dialog open={isSubmitting} onClose={() => undefined}>
           <div className={styles.loadingModal}>
-            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
+            <Icon name={isEditMode ? 'request' : 'create-entry-time'} className={styles.loadingModalIcon} />
             <BusyIndicator
               active
               text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
@@ -1052,7 +1043,11 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             selected={selectedStep === 'componentSelection'}
             data-step="componentSelection"
           >
-            <ServiceSelectionStep services={services} onServicesChange={setServices} />
+            {isEditMode && !skipKpi && isKpiLoading ? (
+              <BusyIndicator active delay={0} text={t('editMCP.loadingServices')} />
+            ) : (
+              <ServiceSelectionStep services={services} onServicesChange={setServices} />
+            )}
           </WizardStep>
 
           <WizardStep
