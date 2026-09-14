@@ -614,6 +614,12 @@
     "updating": "Updating Managed Control Plane...",
     "updatingControlPlane": "Updating Control Plane..."
   },
+  "discardChangesDialog": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. If you close now, they will be lost.",
+    "confirmButton": "Discard changes",
+    "cancelButton": "Keep editing"
+  },
   "componentsSelection": {
     "selectComponents": "Select Components",
     "selectedComponents": "Selected Components",

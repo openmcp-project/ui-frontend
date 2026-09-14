@@ -59,6 +59,7 @@ import {
 import { stringify } from 'yaml';
 import { useComponentsSelectionData } from './useComponentsSelectionData.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
+import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import styles from './CreateManagedControlPlaneWizardContainer.module.css';
 import { useCreateManagedControlPlane as _useCreateManagedControlPlane } from '../../../hooks/useCreateManagedControlPlane.ts';
 import { useUpdateManagedControlPlane as _useUpdateManagedControlPlane } from '../../../hooks/useUpdateManagedControlPlane.ts';
@@ -172,7 +173,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     getValues,
     control,
 
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
@@ -186,21 +187,25 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     mode: 'onChange',
   });
 
+  // Only reacts to the template *selection actually changing* (tracked via a ref, since re-entering
+  // the metadata step via Back/Next must not remount the form or touch the charging-target fields).
+  const appliedTemplateRef = useRef<ManagedControlPlaneTemplate | undefined>(undefined);
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
+    if (appliedTemplateRef.current === selectedTemplate) return;
+    appliedTemplateRef.current = selectedTemplate;
 
     if (selectedTemplate) {
-      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+      // `shouldValidate` only on the second call: setValue always writes the field immediately,
+      // so by the time validation runs both fields are already set — no transient invalid window
+      // where `chargingTargetType` is set but `chargingTarget` is still empty.
+      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, { shouldDirty: true });
       setValue('chargingTargetType', normalizeChargingTargetType(selectedTemplate.spec.meta.chargingTarget.type), {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 
@@ -223,6 +228,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     setIsOpen(false);
   }, [reset, setIsOpen]);
 
+  // Escape/backdrop and the footer Close buttons all route through here so an accidental close
+  // can't silently discard an in-progress edit — only resetFormAndClose() actually tears down state.
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+  const requestClose = useCallback(() => {
+    if (isDirty) {
+      setIsDiscardConfirmOpen(true);
+      return;
+    }
+    resetFormAndClose();
+  }, [isDirty, resetFormAndClose]);
+  const confirmDiscardAndClose = useCallback(() => {
+    setIsDiscardConfirmOpen(false);
+    resetFormAndClose();
+  }, [resetFormAndClose]);
+
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -230,14 +250,19 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     resetField('displayName');
   }, [resetField]);
 
+  // Seed a fresh create-mode form with the current user as the sole member. In edit mode the
+  // prefill effect below runs after this one in the same commit and overwrites `members` with
+  // the real role bindings, so it's excluded here to avoid a redundant, momentarily-wrong write.
   useEffect(() => {
-    if (user?.email && isOpen) {
-      setValue('members', [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }]);
-    }
-    if (!isOpen) {
-      clearFormFields();
-    }
-  }, [user?.email, isOpen, setValue, clearFormFields]);
+    if (isEditMode || !user?.email || !isOpen) return;
+    setValue('members', [{ name: user.email, roles: [MemberRoles.admin], kind: 'User' }]);
+  }, [isEditMode, user?.email, isOpen, setValue]);
+
+  // Clear transient metadata fields on close so a reopen starts blank.
+  useEffect(() => {
+    if (isOpen) return;
+    clearFormFields();
+  }, [isOpen, clearFormFields]);
 
   const { mutate: createManagedControlPlane, loading: isCreatingMcp } = useCreateManagedControlPlane(
     projectName,
@@ -433,9 +458,22 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     return selection;
   }, [isEditMode, isDuplicateMode, initialData]);
 
-  // Prefill form when editing
+  // Prefill form when editing. Keyed off the resource's identity rather than its object
+  // reference, and reset when closed, so: (a) a background refetch of the *same* resource
+  // (new `initialData` object, same name+namespace) can't clobber in-progress edits, but
+  // (b) a genuine reopen — even for the same resource — always re-prefills from live data.
+  const editResourceKey = initialData
+    ? `${initialData.metadata?.namespace ?? ''}/${initialData.metadata?.name ?? ''}`
+    : undefined;
+  const prefilledResourceRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (!isOpen || !initialData) return;
+    if (!isOpen || !initialData) {
+      prefilledResourceRef.current = undefined;
+      return;
+    }
+    if (prefilledResourceRef.current === editResourceKey) return;
+    prefilledResourceRef.current = editResourceKey;
+
     const roleBindings = initialData?.spec?.authorization?.roleBindings ?? [];
     const members: Member[] = roleBindings.flatMap((rb) =>
       (rb.subjects ?? []).map((s: MCPSubject) => ({
@@ -458,10 +496,9 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     };
     reset(data);
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInitialMcpDataWhenInEditMode(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode, isDuplicateMode]);
+  }, [isOpen, editResourceKey]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'serviceaccount' ? 'ServiceAccount' : 'User';
@@ -551,13 +588,13 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
-                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                  <Button disabled={isSubmitting} onClick={requestClose}>
                     {t('buttons.close')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                    <Button disabled={isSubmitting} onClick={requestClose}>
                       {t('buttons.close')}
                     </Button>
                   ) : (
@@ -573,9 +610,14 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
           />
         }
         data-testid="create-mcp-dialog"
-        onClose={resetFormAndClose}
+        onClose={requestClose}
       >
         <ErrorDialog ref={errorDialogRef} />
+        <DiscardChangesConfirmationDialog
+          open={isDiscardConfirmOpen}
+          onCancel={() => setIsDiscardConfirmOpen(false)}
+          onConfirm={confirmDiscardAndClose}
+        />
         <Dialog open={isSubmitting} onClose={() => undefined}>
           <div className={styles.loadingModal}>
             <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />

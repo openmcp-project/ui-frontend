@@ -1,7 +1,7 @@
 import { ComponentInstallDialog, UseCreateMutationResult, UseUpdateMutationResult } from './ComponentInstallDialog.tsx';
 import { UseManagedServicesQueryResult, useManagedServicesQuery } from '../../hooks/useManagedServicesQuery.ts';
 
-type CreateVariables = { namespace: string; object: unknown };
+type CreateVariables = { namespace: string; name: string; object: unknown };
 type UpdateVariables = { namespace: string; name: string; object: unknown };
 
 describe('ComponentInstallDialog', () => {
@@ -92,6 +92,7 @@ describe('ComponentInstallDialog', () => {
     cy.then(() =>
       cy.wrap(createPayload).deepEqualJson({
         namespace: 'test-namespace',
+        name: 'test-mcp',
         object: {
           ...baseObject,
           spec: { version: 'v2.17.0' },
