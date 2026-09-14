@@ -41,6 +41,26 @@ export class AuthUpstreamError extends ApplicationError {
   }
 }
 
+interface UpstreamUnavailableErrorOptions {
+  code: string;
+  statusCode?: 502 | 503 | 504;
+  publicMessage?: string;
+  context?: Readonly<Record<string, unknown>>;
+  cause?: unknown;
+}
+
+export class UpstreamUnavailableError extends ApplicationError {
+  constructor(message: string, options: UpstreamUnavailableErrorOptions) {
+    super(message, {
+      ...options,
+      statusCode: options.statusCode ?? 502,
+      publicMessage: options.publicMessage ?? 'Authentication service temporarily unavailable.',
+      logLevel: 'warn',
+      report: false,
+    });
+  }
+}
+
 interface AuthConfigurationErrorOptions {
   code: string;
   publicMessage?: string;
@@ -112,14 +132,14 @@ export const createOAuthEndpointError = (
   }
 
   if (upstreamStatus === 429) {
-    return new AuthUpstreamError(`OAuth ${operation} was rate limited by the identity provider.`, {
+    return new UpstreamUnavailableError(`OAuth ${operation} was rate limited by the identity provider.`, {
       code: 'oauth_upstream_rate_limited',
       statusCode: 503,
       context,
     });
   }
 
-  return new AuthUpstreamError(`OAuth ${operation} failed with an unexpected identity-provider response.`, {
+  return new UpstreamUnavailableError(`OAuth ${operation} failed with an unexpected identity-provider response.`, {
     code: 'oauth_upstream_rejected',
     statusCode: 502,
     context,
@@ -139,7 +159,7 @@ export const createOAuthAuthorizationError = (oauthError: string): ApplicationEr
   }
 
   if (oauthError === 'server_error' || oauthError === 'temporarily_unavailable') {
-    return new AuthUpstreamError('OIDC authorization provider reported a temporary failure.', {
+    return new UpstreamUnavailableError('OIDC authorization provider reported a temporary failure.', {
       code: 'oauth_authorization_upstream_failure',
       statusCode: 502,
       context,
@@ -183,7 +203,7 @@ export const createMcpConfigurationFetchError = (upstreamStatus: number): Applic
     });
   }
 
-  return new AuthUpstreamError('Could not load MCP configuration.', {
+  return new UpstreamUnavailableError('Could not load MCP configuration.', {
     code: upstreamStatus === 429 ? 'mcp_configuration_rate_limited' : 'mcp_configuration_upstream_failure',
     statusCode: upstreamStatus === 429 ? 503 : 502,
     publicMessage: 'Unable to load MCP configuration.',
