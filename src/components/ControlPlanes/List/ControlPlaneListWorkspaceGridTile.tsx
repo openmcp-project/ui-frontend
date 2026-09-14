@@ -340,24 +340,24 @@ export function ControlPlaneListWorkspaceGridTile({
         workspaceName={workspaceName}
         namespace={projectNamespace}
       />
-      {isCreateManagedControlPlaneWizardOpen ? (
-        <CreateManagedControlPlaneWizardContainer
-          isOpen={isCreateManagedControlPlaneWizardOpen}
-          setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
-          projectName={projectNamespace}
-          workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
-        />
-      ) : null}
-      {isCreateManagedControlPlaneWizardOpenV2 ? (
-        <CreateControlPlaneV2WizardContainer
-          isOpen={isCreateManagedControlPlaneWizardOpenV2}
-          setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
-          projectName={projectNamespace}
-          workspaceName={workspaceName}
-          initialTemplateName={initialTemplateName}
-        />
-      ) : null}
+      {/* Always mounted — `isOpen` is the single source of truth for open/closed (the wizard
+          itself renders null while closed). Conditionally mounting here too used to double-gate
+          the same boolean, so any parent re-render that briefly disagreed with the tile's own
+          state fully destroyed and rebuilt the wizard's internal form/step state. */}
+      <CreateManagedControlPlaneWizardContainer
+        isOpen={isCreateManagedControlPlaneWizardOpen}
+        setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+        projectName={projectNamespace}
+        workspaceName={workspaceName}
+        initialTemplateName={initialTemplateName}
+      />
+      <CreateControlPlaneV2WizardContainer
+        isOpen={isCreateManagedControlPlaneWizardOpenV2}
+        setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
+        projectName={projectNamespace}
+        workspaceName={workspaceName}
+        initialTemplateName={initialTemplateName}
+      />
     </div>
   );
 }

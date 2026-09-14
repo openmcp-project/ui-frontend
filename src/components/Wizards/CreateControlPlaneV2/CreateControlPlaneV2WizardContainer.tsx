@@ -8,8 +8,10 @@ import { useForm, useWatch } from 'react-hook-form';
 
 import {
   Bar,
+  BusyIndicator,
   Button,
   Dialog,
+  Icon,
   FlexBox,
   Text,
   Ui5CustomEvent,
@@ -77,6 +79,7 @@ import { useUpdateOcm as _useUpdateOcm } from '../../../spaces/mcp/hooks/useUpda
 import { ExtraProviderMetadata, McpV2Input, ServiceSelection } from '../../../spaces/mcp/schemas/mcpV2Input.schema.ts';
 import { resolveServiceMutationAction } from '../../../spaces/mcp/utils/resolveServiceMutationAction.ts';
 import { Infobox } from '../../Ui/Infobox/Infobox.tsx';
+import { DiscardChangesConfirmationDialog } from '../DiscardChangesConfirmationDialog.tsx';
 import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
 import { IdentityProvidersStep } from './IdentityProviders/IdentityProvidersStep.tsx';
 import { ServiceSelectionStep } from './ServiceSelectionStep.tsx';
@@ -212,7 +215,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     getValues,
     control,
 
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<CreateDialogProps>({
     resolver: zodResolver(validationSchemaCreateManagedControlPlane),
     defaultValues: {
@@ -226,21 +229,25 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     mode: 'onChange',
   });
 
+  // Only reacts to the template *selection actually changing* (tracked via a ref, since re-entering
+  // the metadata step via Back/Next must not remount the form or touch the charging-target fields).
+  const appliedTemplateRef = useRef<ManagedControlPlaneTemplate | undefined>(undefined);
   useEffect(() => {
     if (selectedStep !== 'metadata') return;
+    if (appliedTemplateRef.current === selectedTemplate) return;
+    appliedTemplateRef.current = selectedTemplate;
 
     if (selectedTemplate) {
-      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+      // `shouldValidate` only on the second call: setValue always writes the field immediately,
+      // so by the time validation runs both fields are already set — no transient invalid window
+      // where `chargingTargetType` is set but `chargingTarget` is still empty.
+      setValue('chargingTarget', selectedTemplate.spec.meta.chargingTarget.value, { shouldDirty: true });
       setValue('chargingTargetType', normalizeChargingTargetType(selectedTemplate.spec.meta.chargingTarget.type), {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMetadataFormKey((k) => k + 1);
   }, [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]);
 
@@ -261,6 +268,21 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     setIsOpen(false);
   }, [reset, setIsOpen]);
 
+  // Escape/backdrop and the footer Close buttons all route through here so an accidental close
+  // can't silently discard an in-progress edit — only resetFormAndClose() actually tears down state.
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+  const requestClose = useCallback(() => {
+    if (isDirty) {
+      setIsDiscardConfirmOpen(true);
+      return;
+    }
+    resetFormAndClose();
+  }, [isDirty, resetFormAndClose]);
+  const confirmDiscardAndClose = useCallback(() => {
+    setIsDiscardConfirmOpen(false);
+    resetFormAndClose();
+  }, [resetFormAndClose]);
+
   const clearFormFields = useCallback(() => {
     resetField('name');
     resetField('chargingTarget');
@@ -268,16 +290,19 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     resetField('displayName');
   }, [resetField]);
 
+  // Seed a fresh create-mode form with the current user as the sole member.
   useEffect(() => {
-    if (!isEditMode && user?.email && isOpen) {
-      setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setExtraProviders([]);
-    }
-    if (!isOpen) {
-      clearFormFields();
-    }
-  }, [user?.email, isOpen, isEditMode, setValue, clearFormFields]);
+    if (isEditMode || !user?.email || !isOpen) return;
+    setValue('members', [{ name: user.email, roles: [MCP_V2_DEFAULT_ROLE], kind: 'User' }]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExtraProviders([]);
+  }, [isEditMode, user?.email, isOpen, setValue]);
+
+  // Clear transient metadata fields on close so a reopen starts blank.
+  useEffect(() => {
+    if (isOpen) return;
+    clearFormFields();
+  }, [isOpen, clearFormFields]);
 
   const { createMcp, loading: isCreatingMcp } = useCreateManagedControlPlaneV2GraphQL();
   const { updateMcp, loading: isUpdatingMcp } = useUpdateManagedControlPlaneV2GraphQL();
@@ -308,7 +333,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     skipKpi ? '' : editNs,
   );
 
-  // Gates submission so it never reads stale "was this installed" data.
+  // Gates the Members → Components transition so it never reads stale "was this installed" data.
   const isKpiLoading =
     !skipKpi &&
     (isCrossplaneKpiLoading ||
@@ -319,11 +344,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       isKroKpiLoading ||
       isMetricsOperatorKpiLoading);
 
-  // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward nav.
-  const hasPrefilledServicesRef = useRef(false);
+  // Prefill once per edit session, not per visit to the step, so it can't wipe user edits on back/forward
+  // nav — and, being real state rather than a ref, a later background KPI refetch (e.g. triggered by an
+  // unrelated mutation elsewhere) can't re-block navigation once Components has already been seeded once.
+  const [hasPrefilledServices, setHasPrefilledServices] = useState(false);
+  // Reset when the wizard closes (or is reused for a different resource) so a fresh edit session
+  // re-seeds from live data instead of silently reusing the previous session's snapshot.
   useEffect(() => {
-    if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServicesRef.current) return;
-    hasPrefilledServicesRef.current = true;
+    if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasPrefilledServices(false);
+      setServices({});
+    }
+  }, [isOpen]);
+  useEffect(() => {
+    if (!isEditMode || skipKpi || isKpiLoading || hasPrefilledServices) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHasPrefilledServices(true);
 
     setServices({
       crossplane: crossplaneData
@@ -350,6 +387,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     isEditMode,
     skipKpi,
     isKpiLoading,
+    hasPrefilledServices,
     crossplaneData,
     fluxData,
     landscaperData,
@@ -501,7 +539,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         };
         servicePromises.push({
           name: 'Crossplane',
-          promise: crossplaneAction === 'update' ? updateCrossplane({ ...vars, name: cpName }) : createCrossplane(vars),
+          promise:
+            crossplaneAction === 'update'
+              ? updateCrossplane({ ...vars, name: cpName })
+              : createCrossplane({ ...vars, name: cpName }),
         });
       } else if (crossplaneAction === 'delete') {
         servicePromises.push({
@@ -521,7 +562,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'Flux',
-          promise: fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux(vars),
+          promise:
+            fluxAction === 'update' ? updateFlux({ ...vars, name: cpName }) : createFlux({ ...vars, name: cpName }),
         });
       } else if (fluxAction === 'delete') {
         servicePromises.push({ name: 'Flux', promise: deleteFlux({ name: cpName, namespace: cpNamespace }) });
@@ -542,7 +584,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'Landscaper',
-          promise: landscaperAction === 'update' ? updateLandscaper({ ...vars, name: cpName }) : createLandscaper(vars),
+          promise:
+            landscaperAction === 'update'
+              ? updateLandscaper({ ...vars, name: cpName })
+              : createLandscaper({ ...vars, name: cpName }),
         });
       } else if (landscaperAction === 'delete') {
         servicePromises.push({
@@ -566,7 +611,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'ExternalSecretsOperator',
-          promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso(vars),
+          promise: esoAction === 'update' ? updateEso({ ...vars, name: cpName }) : createEso({ ...vars, name: cpName }),
         });
       } else if (esoAction === 'delete') {
         servicePromises.push({
@@ -586,7 +631,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'OCM',
-          promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm(vars),
+          promise: ocmAction === 'update' ? updateOcm({ ...vars, name: cpName }) : createOcm({ ...vars, name: cpName }),
         });
       } else if (ocmAction === 'delete') {
         servicePromises.push({ name: 'OCM', promise: deleteOcm({ name: cpName, namespace: cpNamespace }) });
@@ -603,7 +648,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         );
         servicePromises.push({
           name: 'KRO',
-          promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro(vars),
+          promise: kroAction === 'update' ? updateKro({ ...vars, name: cpName }) : createKro({ ...vars, name: cpName }),
         });
       } else if (kroAction === 'delete') {
         servicePromises.push({ name: 'KRO', promise: deleteKro({ name: cpName, namespace: cpNamespace }) });
@@ -627,7 +672,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           promise:
             metricsOperatorAction === 'update'
               ? updateMetricsOperator({ ...vars, name: cpName })
-              : createMetricsOperator(vars),
+              : createMetricsOperator({ ...vars, name: cpName }),
         });
       } else if (metricsOperatorAction === 'delete') {
         servicePromises.push({
@@ -704,11 +749,6 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
   }, []);
 
   const onNextClick = useCallback(() => {
-    // Block all forward navigation in edit mode until the KPI queries resolve, so the Services
-    // step can never be reached (or left) before it's been prefilled with the real installed
-    // state — otherwise a late-arriving prefill can silently re-select a service the user meant
-    // to leave unchecked, and it never gets deleted.
-    if (isEditMode && isKpiLoading) return;
     // Mirrors the Next button's disabled state: no RBAC subject may end up assigned nowhere.
     if (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers) return;
     switch (selectedStep) {
@@ -716,6 +756,12 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         handleSubmit(() => setSelectedStep('members'))();
         break;
       case 'members':
+        // Block entering Components until it's been seeded with the real installed state at
+        // least once — otherwise a late-arriving prefill can silently re-select a service the
+        // user meant to leave unchecked, and it never gets deleted. Only gates the *first* entry
+        // per edit session (`hasPrefilledServices`); a later background KPI refetch (e.g. from an
+        // unrelated mutation elsewhere) must not re-block navigation once that's already happened.
+        if (isEditMode && !skipKpi && !hasPrefilledServices) return;
         setSelectedStep('componentSelection');
         break;
       case 'componentSelection':
@@ -735,7 +781,8 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     }
   }, [
     isEditMode,
-    isKpiLoading,
+    skipKpi,
+    hasPrefilledServices,
     selectedStep,
     hasNoAssignedMembers,
     handleSubmit,
@@ -790,9 +837,20 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
     }
   }, [selectedStep]);
 
-  // Prefill form when editing
+  // Prefill form when editing. Keyed off the resource's identity rather than its object
+  // reference, and reset when closed, so: (a) a background refetch of the *same* resource
+  // (new `initialData` object, same name+namespace) can't clobber in-progress edits, but
+  // (b) a genuine reopen — even for the same resource — always re-prefills from live data.
+  const editResourceKey = initialData ? `${initialData.metadata.namespace}/${initialData.metadata.name}` : undefined;
+  const prefilledResourceRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (!isOpen || !initialData) return;
+    if (!isOpen || !initialData) {
+      prefilledResourceRef.current = undefined;
+      return;
+    }
+    if (prefilledResourceRef.current === editResourceKey) return;
+    prefilledResourceRef.current = editResourceKey;
+
     const { members, extraProviders: prefilledProviders } = extractMcpV2FormState(initialData);
     const name = initialData.metadata.name;
     const annotations = initialData.metadata.annotations;
@@ -804,10 +862,10 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
       members,
       componentsList: [],
     });
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setExtraProviders(prefilledProviders);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isEditMode]);
+  }, [isOpen, editResourceKey]);
   const normalizeMemberKind = useCallback((kindInput?: string | null) => {
     const normalizedKind = (kindInput ?? '').toString().trim().toLowerCase();
     return normalizedKind === 'group' ? 'Group' : 'User';
@@ -880,13 +938,13 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
-                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                  <Button disabled={isSubmitting} onClick={requestClose}>
                     {t('buttons.close')}
                   </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                    <Button disabled={isSubmitting} onClick={requestClose}>
                       {t('buttons.close')}
                     </Button>
                   ) : (
@@ -898,7 +956,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
                   design="Emphasized"
                   disabled={
                     isSubmitting ||
-                    (isEditMode && isKpiLoading) ||
+                    (isEditMode && selectedStep === 'members' && !skipKpi && !hasPrefilledServices) ||
                     (selectedStep !== 'metadata' && selectedStep !== 'success' && hasNoAssignedMembers)
                   }
                   onClick={onNextClick}
@@ -910,9 +968,23 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           />
         }
         data-testid="create-mcp-dialog"
-        onClose={resetFormAndClose}
+        onClose={requestClose}
       >
         <ErrorDialog ref={errorDialogRef} />
+        <DiscardChangesConfirmationDialog
+          open={isDiscardConfirmOpen}
+          onCancel={() => setIsDiscardConfirmOpen(false)}
+          onConfirm={confirmDiscardAndClose}
+        />
+        <Dialog open={isSubmitting} onClose={() => undefined}>
+          <div className={styles.loadingModal}>
+            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
+            <BusyIndicator
+              active
+              text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
+            />
+          </div>
+        </Dialog>
         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
           <WizardStep
             icon="create-form"
