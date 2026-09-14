@@ -70,14 +70,20 @@ describe('useMcpV2ComponentsListQuery', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('indexes installed components by control plane name across all six services', () => {
+  it('indexes installed components by control plane name across all six services, capturing phase', () => {
     useQueryMock.mockReturnValue(
       makeQueryResult({
         crossplane_services_open_control_plane_io: {
-          v1alpha1: { Crossplanes: { items: [{ metadata: { name: 'cp-a' }, spec: { version: '1.14.0' } }] } },
+          v1alpha1: {
+            Crossplanes: {
+              items: [{ metadata: { name: 'cp-a' }, spec: { version: '1.14.0' }, status: { phase: 'Progressing' } }],
+            },
+          },
         },
         flux_services_open_control_plane_io: {
-          v1alpha1: { Fluxes: { items: [{ metadata: { name: 'cp-a' }, spec: { version: '2.3.0' } }] } },
+          v1alpha1: {
+            Fluxes: { items: [{ metadata: { name: 'cp-a' }, spec: { version: '2.3.0' }, status: { phase: 'Ready' } }] },
+          },
         },
         ocm_services_open_control_plane_io: {
           v1alpha1: { OCMs: { items: [{ metadata: { name: 'cp-b' }, spec: { version: 'v0.3.0' } }] } },
@@ -87,8 +93,12 @@ describe('useMcpV2ComponentsListQuery', () => {
 
     const { result } = renderHook(() => useMcpV2ComponentsListQuery('project-foo--ws-bar'));
 
-    expect(result.current.componentsByName['cp-a']).toEqual({ crossplane: true, flux: true });
-    expect(result.current.componentsByName['cp-b']).toEqual({ ocm: true });
+    expect(result.current.componentsByName['cp-a']).toEqual({
+      crossplane: { phase: 'Progressing' },
+      flux: { phase: 'Ready' },
+    });
+    // A service with no status reports a null phase (not installed elsewhere).
+    expect(result.current.componentsByName['cp-b']).toEqual({ ocm: { phase: null } });
     expect(result.current.componentsByName['cp-c']).toBeUndefined();
   });
 

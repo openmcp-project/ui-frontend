@@ -1,6 +1,7 @@
 import '@ui5/webcomponents-fiori/dist/illustrations/EmptyList.js';
 import '@ui5/webcomponents-fiori/dist/illustrations/NoData.js';
 import '@ui5/webcomponents-icons/dist/delete';
+import '@ui5/webcomponents-icons/dist/in-progress-2.js';
 import '@ui5/webcomponents-icons/dist/add.js';
 import { Card, FlexBox, Icon, Title } from '@ui5/webcomponents-react';
 import ConnectButton from '../ConnectButton/ConnectButton.tsx';
@@ -31,6 +32,7 @@ import { DeprecatedLabel } from '../../Ui/DeprecatedLabel/DeprecatedLabel.tsx';
 import ConnectButtonV2 from '../ConnectButton/ConnectButtonV2.tsx';
 import type { McpV2Components } from '../../../spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts';
 import { flattenOidcRoleBindings } from '../../../spaces/controlPlaneV2/helpers/flattenOidcRoleBindings.ts';
+import { getServiceLifecycle, SERVICE_LIFECYCLE_ICON } from './serviceLifecycleIndicator.ts';
 import { McpMembersAvatarView } from '../McpMembersAvatarView/McpMembersAvatarView.tsx';
 import styles from './ControlPlaneCard.module.css';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -65,6 +67,8 @@ interface ComponentInfo {
   name: string;
   logo: string;
   installed: boolean;
+  /** V2 only: raw `status.phase` of the service resource; drives the lifecycle badge. */
+  phase?: string | null;
 }
 
 export const ControlPlaneCard = ({
@@ -124,12 +128,27 @@ export const ControlPlaneCard = ({
   const components = useMemo<ComponentInfo[]>(() => {
     if (isV2) {
       return [
-        { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpV2Components?.crossplane },
-        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux },
-        { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpV2Components?.landscaper },
-        { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpV2Components?.externalSecretsOperator },
-        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm },
-        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro },
+        {
+          name: 'Crossplane',
+          logo: LogoCrossplane,
+          installed: !!mcpV2Components?.crossplane,
+          phase: mcpV2Components?.crossplane?.phase,
+        },
+        { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
+        {
+          name: 'Landscaper',
+          logo: LogoLandscaper,
+          installed: !!mcpV2Components?.landscaper,
+          phase: mcpV2Components?.landscaper?.phase,
+        },
+        {
+          name: 'External Secrets Operator',
+          logo: LogoEso,
+          installed: !!mcpV2Components?.externalSecretsOperator,
+          phase: mcpV2Components?.externalSecretsOperator?.phase,
+        },
+        { name: 'OCM', logo: LogoOcm, installed: !!mcpV2Components?.ocm, phase: mcpV2Components?.ocm?.phase },
+        { name: 'KRO', logo: LogoKro, installed: !!mcpV2Components?.kro, phase: mcpV2Components?.kro?.phase },
       ];
     }
     return [
@@ -188,22 +207,40 @@ export const ControlPlaneCard = ({
                 </>
               ) : (
                 <>
-                  {installedComponents.map((component) => (
-                    <button
-                      key={component.name}
-                      className={styles.componentIcon}
-                      title={component.name}
-                      onClick={() => {
-                        if (isV2) {
-                          setIsEditV2WizardOpen(true);
-                        } else {
-                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
-                        }
-                      }}
-                    >
-                      <img src={component.logo} alt={component.name} className={styles.componentLogo} />
-                    </button>
-                  ))}
+                  {installedComponents.map((component) => {
+                    const lifecycle = isV2 ? getServiceLifecycle(component.phase) : null;
+                    return (
+                      <button
+                        key={component.name}
+                        className={styles.componentIcon}
+                        title={component.name}
+                        onClick={() => {
+                          if (isV2) {
+                            setIsEditV2WizardOpen(true);
+                          } else {
+                            handleIsManagedControlPlaneWizardOpen(true, 'edit');
+                          }
+                        }}
+                      >
+                        <img src={component.logo} alt={component.name} className={styles.componentLogo} />
+                        {lifecycle && (
+                          <Icon
+                            name={SERVICE_LIFECYCLE_ICON[lifecycle]}
+                            className={`${styles.statusBadge} ${
+                              lifecycle === 'installing' ? styles.statusBadgeInstalling : styles.statusBadgeDeleting
+                            }`}
+                            data-testid={`service-status-${component.name}`}
+                            accessibleName={t(
+                              lifecycle === 'installing'
+                                ? 'ControlPlaneCard.serviceInstalling'
+                                : 'ControlPlaneCard.serviceDeleting',
+                            )}
+                            showTooltip
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
                   {installedComponents.length === 0 && (isV2 ? mcpV2Components !== undefined : true) && (
                     <button
                       className={`${styles.componentIcon} ${styles.addComponentPlaceholder}`}
