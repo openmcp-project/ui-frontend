@@ -8,8 +8,10 @@ import { useForm, useWatch } from 'react-hook-form';
 
 import {
   Bar,
+  BusyIndicator,
   Button,
   Dialog,
+  Icon,
   FlexBox,
   Form,
   FormGroup,
@@ -237,12 +239,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     }
   }, [user?.email, isOpen, setValue, clearFormFields]);
 
-  const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
-  const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
+  const { mutate: createManagedControlPlane, loading: isCreatingMcp } = useCreateManagedControlPlane(
+    projectName,
+    workspaceName,
+  );
+  const { mutate: updateManagedControlPlane, loading: isUpdatingMcp } = useUpdateManagedControlPlane(
     projectName,
     workspaceName,
     initialData?.metadata?.name ?? '',
   );
+  const isSubmitting = isEditMode ? isUpdatingMcp : isCreatingMcp;
   const componentsList = useWatch({ control, name: 'componentsList' });
   const watchedMembers = useWatch({ control, name: 'members' });
   const hasMissingComponentVersions = useMemo(() => {
@@ -323,7 +329,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         setSelectedStep('summarize');
         break;
       case 'summarize':
-        handleCreateManagedControlPlane(getValues());
+        if (isSubmitting) return;
+        void handleCreateManagedControlPlane(getValues());
         break;
       case 'success':
         resetFormAndClose();
@@ -339,6 +346,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
     getValues,
     resetFormAndClose,
     hasMissingComponentVersions,
+    isSubmitting,
   ]);
 
   const normalizeMemberRole = useCallback((roleInput?: string | null) => {
@@ -543,15 +551,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
             endContent={
               <div className={styles.footer}>
                 {selectedStep !== 'metadata' && isEditMode && (
-                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
+                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                    {t('buttons.close')}
+                  </Button>
                 )}
                 {selectedStep !== 'success' &&
                   (selectedStep === 'metadata' ? (
-                    <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
+                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
+                      {t('buttons.close')}
+                    </Button>
                   ) : (
-                    <Button onClick={onBackClick}>{t('buttons.back')}</Button>
+                    <Button disabled={isSubmitting} onClick={onBackClick}>
+                      {t('buttons.back')}
+                    </Button>
                   ))}
-                <Button design="Emphasized" onClick={onNextClick}>
+                <Button design="Emphasized" disabled={isSubmitting} onClick={onNextClick}>
                   {nextButtonText[selectedStep]}
                 </Button>
               </div>
@@ -562,6 +576,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
         onClose={resetFormAndClose}
       >
         <ErrorDialog ref={errorDialogRef} />
+        <Dialog open={isSubmitting} onClose={() => undefined}>
+          <div className={styles.loadingModal}>
+            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
+            <BusyIndicator active text={t(isEditMode ? 'editMCP.updating' : 'createMCP.creating')} />
+          </div>
+        </Dialog>
         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
           <WizardStep
             icon="create-form"

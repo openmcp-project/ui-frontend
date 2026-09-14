@@ -8,8 +8,10 @@ import { useForm, useWatch } from 'react-hook-form';
 
 import {
   Bar,
+  BusyIndicator,
   Button,
   Dialog,
+  Icon,
   FlexBox,
   Text,
   Ui5CustomEvent,
@@ -913,6 +915,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
         onClose={resetFormAndClose}
       >
         <ErrorDialog ref={errorDialogRef} />
+        <Dialog open={isSubmitting} onClose={() => undefined}>
+          <div className={styles.loadingModal}>
+            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
+            <BusyIndicator
+              active
+              text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
+            />
+          </div>
+        </Dialog>
         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
           <WizardStep
             icon="create-form"
