@@ -9,11 +9,11 @@ export type AuthorizationK8sIoV1SelfSubjectRulesReview_Input = {
   apiVersion?: string | null | undefined;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
   kind?: string | null | undefined;
-  /** Standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
+  /** metadata is the standard list metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata */
   metadata?: Io_K8s_Apimachinery_Pkg_Apis_Meta_V1_ObjectMetaMetadata_Input | null | undefined;
-  /** Spec holds information about the request being evaluated. */
+  /** spec holds information about the request being evaluated. */
   spec?: Io_K8s_Api_Authorization_V1_SelfSubjectRulesReviewSpecSpec_Input | null | undefined;
-  /** Status is filled in by the server and indicates the set of actions a user can perform. */
+  /** status is filled in by the server and indicates the set of actions a user can perform. */
   status?: Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input | null | undefined;
 };
 
@@ -1586,43 +1586,43 @@ export type WatchEventType = 'ADDED' | 'DELETED' | 'MODIFIED';
 
 /** NonResourceRule holds information that describes a rule for the non-resource */
 export type Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input = {
-  /** NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path.  "*" means all. */
+  /** nonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path.  "*" means all. */
   nonResourceURLs?: Array<string | null | undefined> | null | undefined;
-  /** Verb is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all. */
+  /** verbs is a list of kubernetes non-resource API verbs, like: get, post, put, delete, patch, head, options.  "*" means all. */
   verbs?: Array<string | null | undefined> | null | undefined;
 };
 
 /** ResourceRule is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
 export type Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input = {
-  /** APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.  "*" means all. */
+  /** apiGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of the enumerated resources in any API group will be allowed.  "*" means all. */
   apiGroups?: Array<string | null | undefined> | null | undefined;
-  /** ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all. */
+  /** resourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed.  "*" means all. */
   resourceNames?: Array<string | null | undefined> | null | undefined;
   /**
-   * Resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
+   * resources is a list of resources this rule applies to.  "*" means all in the specified apiGroups.
    *  "*\/foo" represents the subresource 'foo' for all resources in the specified apiGroups.
    */
   resources?: Array<string | null | undefined> | null | undefined;
-  /** Verb is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all. */
+  /** verbs is a list of kubernetes resource API verbs, like: get, list, watch, create, update, delete, proxy.  "*" means all. */
   verbs?: Array<string | null | undefined> | null | undefined;
 };
 
 /** SelfSubjectRulesReviewSpec defines the specification for SelfSubjectRulesReview. */
 export type Io_K8s_Api_Authorization_V1_SelfSubjectRulesReviewSpecSpec_Input = {
-  /** Namespace to evaluate rules for. Required. */
+  /** namespace to evaluate rules for. Required. */
   namespace?: string | null | undefined;
 };
 
 /** SubjectRulesReviewStatus contains the result of a rules check. This check can be incomplete depending on the set of authorizers the server is configured with and any errors experienced during evaluation. Because authorization rules are additive, if a rule appears in a list it's safe to assume the subject has that permission, even if that list is incomplete. */
 export type Io_K8s_Api_Authorization_V1_SubjectRulesReviewStatusStatus_Input = {
-  /** EvaluationError can appear in combination with Rules. It indicates an error occurred during rule evaluation, such as an authorizer that doesn't support rule evaluation, and that ResourceRules and/or NonResourceRules may be incomplete. */
+  /** evaluationError can appear in combination with Rules. It indicates an error occurred during rule evaluation, such as an authorizer that doesn't support rule evaluation, and that ResourceRules and/or NonResourceRules may be incomplete. */
   evaluationError?: string | null | undefined;
-  /** Incomplete is true when the rules returned by this call are incomplete. This is most commonly encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation. */
+  /** incomplete is true when the rules returned by this call are incomplete. This is most commonly encountered when an authorizer, such as an external authorizer, doesn't support rules evaluation. */
   incomplete?: boolean | null | undefined;
-  /** NonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
+  /** nonResourceRules is the list of actions the subject is allowed to perform on non-resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   nonResourceRules?:
     Array<Io_K8s_Api_Authorization_V1_NonResourceRuleNonResourceRules_Input | null | undefined> | null | undefined;
-  /** ResourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
+  /** resourceRules is the list of actions the subject is allowed to perform on resources. The list ordering isn't significant, may contain duplicates, and possibly be incomplete. */
   resourceRules?:
     Array<Io_K8s_Api_Authorization_V1_ResourceRuleResourceRules_Input | null | undefined> | null | undefined;
 };
@@ -1951,37 +1951,67 @@ export type GetMcpV2ComponentsListQuery = {
   crossplane_services_open_control_plane_io: {
     v1alpha1: {
       Crossplanes: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   flux_services_open_control_plane_io: {
     v1alpha1: {
-      Fluxes: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      Fluxes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
   landscaper_services_open_control_plane_io: {
     v1alpha2: {
       Landscapers: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   external_secrets_services_open_control_plane_io: {
     v1alpha1: {
       ExternalSecretsOperators: {
-        items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }>;
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
       };
     } | null;
   } | null;
   ocm_services_open_control_plane_io: {
     v1alpha1: {
-      OCMs: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      OCMs: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
   kro_services_open_control_plane_io: {
     v1alpha1: {
-      Kroes: { items: Array<{ metadata: { name: string | null } | null; spec: { version: string | null } | null }> };
+      Kroes: {
+        items: Array<{
+          metadata: { name: string | null } | null;
+          spec: { version: string | null } | null;
+          status: { phase: string | null } | null;
+        }>;
+      };
     } | null;
   } | null;
 };
@@ -4115,6 +4145,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4172,6 +4210,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],
@@ -4233,6 +4279,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4290,6 +4344,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],
@@ -4351,6 +4413,14 @@ export const GetMcpV2ComponentsListDocument = {
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
                                     },
                                   },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -4408,6 +4478,14 @@ export const GetMcpV2ComponentsListDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'status' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [{ kind: 'Field', name: { kind: 'Name', value: 'phase' } }],
                                     },
                                   },
                                 ],

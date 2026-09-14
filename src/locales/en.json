@@ -126,7 +126,9 @@
     "editMCP": "Edit",
     "duplicateMCP": "Duplicate",
     "deleteMCP": "Delete",
-    "installComponents": "Install components"
+    "installComponents": "Install components",
+    "serviceInstalling": "Installing",
+    "serviceDeleting": "Deleting"
   },
   "ServiceSelectionStep": {
     "stepTitle": "Services",

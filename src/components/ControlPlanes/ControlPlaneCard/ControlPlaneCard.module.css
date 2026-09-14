@@ -101,6 +101,7 @@
   cursor: pointer;
   appearance: none;
   box-sizing: border-box;
+  position: relative;
 }
 
 .componentIcon:hover {
@@ -124,6 +125,29 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Tiny per-service lifecycle badge overlaid on the bottom-right of a service icon (V2 only). */
+.statusBadge {
+  position: absolute;
+  right: -0.1875rem;
+  bottom: -0.1875rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0.125rem;
+  border-radius: 50%;
+  background: var(--sapBaseColor, #ffffff);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.statusBadgeInstalling {
+  color: var(--sapCriticalColor, #e76500);
+  --sapContent_IconColor: var(--sapCriticalColor, #e76500);
+}
+
+.statusBadgeDeleting {
+  color: var(--sapNegativeColor, #f53232);
+  --sapContent_IconColor: var(--sapNegativeColor, #f53232);
 }
 
 .addComponentPlaceholder {
