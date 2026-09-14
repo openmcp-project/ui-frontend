@@ -1,0 +1,1487 @@
+Analyze the logic errors on this page. Sometimes weird things happen like @src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx or @src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx getting refreshed or reopen or Next button inside these wizards in Disabled etc. Some thing are trigerring refetches of the page that are reseting the state of components. analyze how to fix it and how to refactor it and prepare a plan in .md file.
+
+
+
+Agent "Explore wizard state reset triggers" finished
+Agent "Explore ProjectPage render & data flow" finished
+<agent-message from="ad594a4a6efc03242">
+Done. Answers to your three points, with file:line refs.
+
+(1) KPI query hooks — NO subscriptions, NO polling, NOT SWR. All seven (useCrossplaneQuery/useFluxQuery/useEsoQuery/useKroQuery/useOcmQuery/useLandscaperQuery/useMetricsOperatorQuery) use Apollo `useQuery` with `skip: !name || !namespace` and `notifyOnNetworkStatusChange: true`, no `pollInterval` (e.g. useCrossplaneQuery.ts:42-46, useFluxQuery.ts:37-41, useEsoQuery.ts:37-41). They don't refetch on their own. BUT they refetch when a service mutation fires `refetchQueries: ['GetCrossplane']` etc. (useCreateCrossplane.ts:26; sibling create/update/delete hooks same pattern), and because `notifyOnNetworkStatusChange` is true, `loading` flips back to true on each refetch → `isKpiLoading` (CreateControlPlaneV2WizardContainer.tsx:314-322) re-enables → disables Next (line 903) and blocks onNextClick in edit mode (line 713).
+
+(2) useApiResource.ts (lib/api/useApiResource.ts:14-43) sets NO options itself — passes caller `config` straight to useSWR. Defaults come from global SWRConfig (SWRConfigWithTokenRefresh.tsx:16-21): refreshInterval 10000 (10s poll), revalidateOnFocus false, revalidateOnReconnect false, isPaused during token refresh; dedupingInterval NOT set → SWR default 2000ms. Note: the V2 wizard KPI + mutation hooks are Apollo, not SWR, so this 10s interval does NOT apply to them.
+
+(3) useEffects that re-run on parent re-render / could clobber state:
+- V2 lines 273-282: in create mode overwrites members to [current user] and setExtraProviders([]); deps [user?.email, isOpen, isEditMode, setValue, clearFormFields]. Re-fires on isOpen toggle.
+- V2 lines 796-812: edit prefill calls reset(...) + setExtraProviders; deps ONLY [isOpen, isEditMode] (exhaustive-deps disabled), reads initialData without depending on it — toggling isOpen re-runs reset() and wipes edits.
+- V2 lines 231-247: template effect fires two shouldValidate setValue calls + remounts MetadataForm via metadataFormKey; transient invalid window.
+- V2 lines 326-362: edit service prefill depends on all 7 *Data objects (identity changes on every Apollo refetch) — guarded by hasPrefilledServicesRef so writes once, but body re-evaluates each KPI change.
+- V1 lines 233-240 (members overwrite) and 437-464 (reset(data), initialData not in deps).
+- V1 useComponentsSelectionData.ts:216-226: setValue('componentsList',...) re-runs whenever JSON.stringify(data.items)/selectedTemplate/initialSelection change; initialSelection is a useMemo on [isEditMode,isDuplicateMode,initialData] (V1 410-434), so a new initialData identity on parent re-render overwrites componentsList and discards user version edits.
+
+Also relevant: AuthContextOnboarding.tsx:60 calls setUser(new object) on every background token refresh (timer at 131-146 → ensureFreshToken → refreshAuthStatus, line 101), re-rendering the whole wizard subtree; effects key on user?.email (primitive) so they don't clobber on identity alone. Both wizards return null when !isOpen (V2:870, V1:539) rather than unmounting, so state survives close only if the parent keeps them mounted. Apollo cache comment at ApolloClientProvider.tsx:200-202 warns of a refetch loop when MCP list + edit wizard are open together. Full report already delivered in my task output.
+</agent-message>
+Agent "Explore wizard state reset triggers" finished
+ProjectPage.tsx
+Analyze the logic errors on this page. Sometimes weird things happen like @src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx or @src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx getting refreshed or reopen or Next button inside these wizards in Disabled etc. Some thing are trigerring refetches of the page that are reseting the state of components. analyze how to fix it and how to refactor it and prepare a plan in .md file.
+Show less
+I'll start by exploring the ProjectPage and how it interacts with the wizards to understand what's triggering these refetches and state resets.
+
+Read ProjectPage.tsx
+Agent:Explore ProjectPage render & data flow
+IN
+I'm investigating a bug in the SAP ui-frontend React app where wizard dialogs (CreateControlPlaneV2WizardContainer and CreateManagedControlPlaneWizardContainer) get unexpectedly refreshed/reopened, or lose their internal state, because something triggers refetches/re-renders of the parent page.
+
+Explore thoroughly and report back with file:line references:
+
+1. Read /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/pages/ProjectPage.tsx fully. Describe its component tree: what state it holds, what hooks/queries it calls (Apollo useQuery, SWR useApiResource, polling intervals, subscriptions), and how/where the wizard containers are rendered.
+
+2. Trace where CreateControlPlaneV2WizardContainer and CreateManagedControlPlaneWizardContainer are mounted from ProjectPage (or its children). Note how `isOpen`/`setIsOpen` state is managed, whether the wizard is conditionally mounted vs always mounted, whether a `key` prop is passed that could change, and what props (initialData, projectName, workspaceName) come from queries that may refetch.
+
+3. Look for any Apollo `pollInterval`, SWR `refreshInterval`, `refetch`, `revalidateOnFocus`, or window focus refetching config anywhere in ProjectPage's subtree or the onboarding space that could cause periodic refetches resetting props.
+
+4. Identify whether parent re-renders would remount the wizard (e.g. new object/array identity for props, inline component definitions, unstable keys).
+
+Report a clear map of the render tree and every refetch/re-render trigger you find. Do NOT propose fixes — just gather facts with precise file:line references.
+Agent:Explore wizard state reset triggers
+IN
+I'm investigating why the wizard dialog CreateControlPlaneV2WizardContainer (and its V1 sibling CreateManagedControlPlaneWizardContainer) in the SAP ui-frontend React app sometimes resets internal state, disables its "Next" button unexpectedly, or reopens/refreshes.
+
+The wizard files are:
+- /Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+- /Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+
+Explore and report with file:line references:
+
+1. In CreateControlPlaneV2WizardContainer, the "Next" button disabled state depends on `isValid` (react-hook-form) and `hasNoAssignedMembers` and `isKpiLoading`. Trace how `isValid` is computed, what would cause the form to become invalid transiently, and how the KPI query hooks (useCrossplaneQuery, useEsoQuery, useFluxQuery, useKroQuery, useLandscaperQuery, useMetricsOperatorQuery, useOcmQuery) work — do they poll or revalidate? Read at least useCrossplaneQuery.ts and one other from /Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/components/Kpi/.
+
+2. Look at the useEffect hooks in both wizard files that call reset(), setValue(), setSelectedStep(), setExtraProviders(). Identify which ones depend on props/values that could change identity on parent re-render (e.g. `user`, `initialData`, `isOpen`) and could therefore re-run and clobber user state mid-wizard.
+
+3. Examine the KPI query hooks and the create/update/delete service hooks (useCreateCrossplane etc. in /Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/hooks/) and the GraphQL create/update hooks (useCreateControlPlaneV2GraphQL, useUpdateControlPlaneV2GraphQL) — do any of them use SWR/Apollo with revalidation, polling, or cache updates that would trigger re-renders?
+
+4. Check useApiResource.ts (/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/useApiResource.ts) for default SWR options: revalidateOnFocus, refreshInterval, dedupingInterval, revalidateOnReconnect. Report the defaults.
+
+Report findings as a factual list with file:line references. Do NOT propose fixes.
+I'll start by reading the ProjectPage.tsx file and locating the wizard containers in parallel.
+
+Read ProjectPage.tsx
+Bash Find wizard container files
+IN
+find . -type f \( -name "*.tsx" -o -name "*.ts" \) | grep -iE "CreateControlPlaneV2Wizard|CreateManagedControlPlaneWizard" | grep -v node_modules
+
+OUT
+./src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+./src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.cy.tsx
+./src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.cy.tsx
+./src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+Let me trace where the wizards are mounted and examine the relevant components and hooks in parallel.
+
+Bash Find usages of both wizard containers
+IN
+grep -rn "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer" src --include=*.tsx --include=*.ts | grep -v "\.cy\.tsx"
+
+OUT
+(eval):1: no matches found: --include=*.tsx
+Read useWorkspacesQuery.ts
+Read ControlPlaneListToolbar.tsx
+I'll investigate this systematically. Let me start by reading the key files in parallel.
+
+Read CreateControlPlaneV2WizardContainer.tsx
+Read useApiResource.ts
+Bash List KPI components directory
+IN
+ls -la /Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/components/Kpi/
+
+OUT
+total 184
+drwxr-xr-x@ 17 C5395097  staff   544 Sep 10 11:34 .
+drwxr-xr-x@  3 C5395097  staff    96 Sep  9 14:57 ..
+-rw-r--r--@  1 C5395097  staff  5374 Sep  9 14:57 useCrossplaneQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  2186 Sep  9 14:57 useCrossplaneQuery.ts
+-rw-r--r--@  1 C5395097  staff  4697 Sep  9 14:57 useEsoQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  1913 Sep  9 14:57 useEsoQuery.ts
+-rw-r--r--@  1 C5395097  staff  4693 Sep  9 14:57 useFluxQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  1828 Sep  9 14:57 useFluxQuery.ts
+-rw-r--r--@  1 C5395097  staff  4665 Sep  9 14:57 useKroQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  1753 Sep  9 14:57 useKroQuery.ts
+-rw-r--r--@  1 C5395097  staff  4891 Sep  9 14:57 useLandscaperQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  1972 Sep  9 14:57 useLandscaperQuery.ts
+-rw-r--r--@  1 C5395097  staff  4722 Sep 10 11:34 useMcpV2ComponentsListQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  4261 Sep 10 11:34 useMcpV2ComponentsListQuery.ts
+-rw-r--r--@  1 C5395097  staff  1965 Sep  9 14:57 useMetricsOperatorQuery.ts
+-rw-r--r--@  1 C5395097  staff  4665 Sep  9 14:57 useOcmQuery.spec.ts
+-rw-r--r--@  1 C5395097  staff  1753 Sep  9 14:57 useOcmQuery.ts
+Let me search for the wizard usages correctly and read the list component.
+
+Let me look at the query hook and where the wizards get mounted while the agents run.
+
+Bash Grep wizard container usages
+IN
+grep -rn "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer" /Users/C5395097/Documents/sap/ui-frontend/src | grep -v "\.cy\.tsx"
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:32:import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:47:import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx:25:import { CreateControlPlaneV2WizardContainer } from '../../Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx:26:import { CreateManagedControlPlaneWizardContainer } from '../../Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx:344:        <CreateManagedControlPlaneWizardContainer
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx:353:        <CreateControlPlaneV2WizardContainer
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx:6:import { CreateControlPlaneV2WizardContainer, WizardStepType } from './CreateControlPlaneV2WizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx:66:    <CreateControlPlaneV2WizardContainer
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx:82:import styles from '../CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.module.css';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx:127:export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2WizardContainerProps> = ({
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx:62:import styles from './CreateManagedControlPlaneWizardContainer.module.css';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx:78:type CreateManagedControlPlaneWizardContainerProps = {
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx:98:export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPlaneWizardContainerProps> = ({
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx:6:  CreateManagedControlPlaneWizardContainer,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx:8:} from './CreateManagedControlPlaneWizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx:46:        <CreateManagedControlPlaneWizardContainer
+Read useWorkspacesQuery.ts
+Read ControlPlaneListToolbar.tsx
+Read ControlPlaneListAllWorkspaces.tsx
+The wizards are mounted in ControlPlaneListWorkspaceGridTile.tsx. Let me read it along with the query hooks it uses.
+
+Read ControlPlaneListWorkspaceGridTile.tsx
+I'll continue read-only exploration. Let me read the KPI query hooks, GraphQL hooks, service hooks, and the V1 wizard in parallel.
+
+Read useCrossplaneQuery.ts
+The wizards aren't mounted here — this toolbar handles workspaces. Let me find where the MCP wizards are actually mounted and how the MCP-level data is fetched.
+
+Bash Find where wizard containers are mounted
+IN
+grep -rn "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer" src --include=*.tsx -l | grep -v ".cy.tsx"
+
+OUT
+(eval):1: no matches found: --include=*.tsx
+Read useFluxQuery.ts
+Read useEsoQuery.ts
+Read useCreateControlPlaneV2GraphQL.ts
+Read useUpdateControlPlaneV2GraphQL.ts
+Bash Find where wizard containers are mounted
+IN
+grep -rln "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer" src | grep -v ".cy.tsx"
+
+OUT
+src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx
+src/spaces/mcp/pages/ManagedControlPlanePage.tsx
+src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx
+src/components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx
+src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+src/components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx
+Now I have the mount site. Let me examine the query hooks and search for polling/refetch/focus configs across the subtree.
+
+Read useMcpsQuery.ts
+Read useMcpV2ComponentsListQuery.ts
+Now let me read the service create/update hooks, the V1 wizard, and check the validation schema and Apollo client config.
+
+Read useCreateCrossplane.ts
+Bash Search polling and focus refetch configs
+IN
+grep -rn "pollInterval\|refreshInterval\|revalidateOnFocus\|revalidateOnReconnect\|refetchOnWindowFocus\|focusThrottle\|refetchInterval" /Users/C5395097/Documents/sap/ui-frontend/src | grep -v "\.cy\." | grep -v "\.test\."
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/components/Kpi/useKpiFlux.ts:10:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/components/Kpi/useKpiCrossplane.ts:10:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/hooks/useYamlQuery.spec.ts:64:        pollInterval: 30_000,
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/hooks/useYamlQuery.ts:20:    pollInterval: 30_000,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/SWRConfigWithTokenRefresh.tsx:17:        refreshInterval: 10000,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/SWRConfigWithTokenRefresh.tsx:18:        revalidateOnFocus: false,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/SWRConfigWithTokenRefresh.tsx:19:        revalidateOnReconnect: false,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/HintsCardsRow/HintsCardsRow.tsx:36:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/Landscapers.tsx:24:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/ManagedResources.tsx:106:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/ProvidersConfig.tsx:48:    refreshInterval: 60000, // Resources are quite expensive to fetch, so we refresh every 60 seconds
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/Providers.tsx:48:    refreshInterval: resourcesInterval,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Yaml/YamlSidePanelWithLoader.tsx:75:    pollInterval: 30_000,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Graphs/useGraph.ts:24:  } = useApiResource(ManagedResourcesRequest, { refreshInterval: resourcesInterval });
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Graphs/useGraph.ts:29:  } = useProvidersConfigResource({ refreshInterval: resourcesInterval });
+/Users/C5395097/Documents/sap/ui-frontend/src/hooks/useResourcePluralNames.ts:11:    refreshInterval: resourcesInterval,
+Bash List crossplane and flux service hooks
+IN
+ls /Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/hooks/ | grep -Ei 'crossplane|flux' 
+
+OUT
+useCreateCrossplane.ts
+useCreateFlux.ts
+useCrossplaneYamlQuery.spec.ts
+useCrossplaneYamlQuery.ts
+useDeleteCrossplane.ts
+useDeleteFlux.ts
+useFluxYamlQuery.spec.ts
+useFluxYamlQuery.ts
+useUpdateCrossplane.ts
+useUpdateFlux.ts
+Bash Find schema definition location
+IN
+grep -rn "createManagedControlPlaneSchema" /Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/schemas.ts | head
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/schemas.ts:45:export function createManagedControlPlaneSchema(t: TFunction) {
+Bash Find SWR and Apollo global config locations
+IN
+grep -rn "refreshInterval\|revalidateOnFocus\|dedupingInterval\|revalidateOnReconnect\|refetchOnWindowFocus\|pollInterval\|SWRConfig\|ApolloClient\|nextFetchPolicy\|fetchPolicy" /Users/C5395097/Documents/sap/ui-frontend/src --include="*.ts" --include="*.tsx" -l | grep -vi spec | head -50
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/main.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/components/Kpi/useKpiFlux.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/components/Kpi/useKpiCrossplane.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/hooks/useYamlQuery.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useManagedControlPlaneEditQuery.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useGetWorkspace.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useGetProject.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useManagedControlPlaneQuery.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/services/ApolloClientProvider.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/HintsCardsRow/HintsCardsRow.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/SWRConfigWithTokenRefresh.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/Landscapers.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/ProvidersConfig.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/ManagedResources.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlane/Providers.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Yaml/YamlSidePanelWithLoader.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Graphs/useGraph.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/hooks/useResourcePluralNames.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/hooks/useDeleteManagedControlPlane.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/useApiResource.ts
+Read ControlPlaneListWorkspaceGridTile.tsx
+Let me read the SWR config, Apollo client config, the validation schema, and the V1 wizard.
+
+Read SWRConfigWithTokenRefresh.tsx
+Read ApolloClientProvider.tsx
+Read schemas.ts (lines 41-160)
+Now let me read the charging target validation and the V1 wizard.
+
+Read schemas.ts (lines 2-41)
+Bash Find charging target validator
+IN
+grep -rn "createValidateChargingTarget" /Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/ | head
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/schemas.ts:9:function createValidateChargingTarget<T extends { chargingTargetType?: string; chargingTarget?: string }>(
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/schemas.ts:42:    .superRefine(createValidateChargingTarget(t));
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/api/validations/schemas.ts:58:    .superRefine(createValidateChargingTarget(t));
+Read CreateManagedControlPlaneWizardContainer.tsx
+Now let me read the two wizard containers to see how they manage internal state and whether prop/refetch changes reset them.
+
+Read CreateManagedControlPlaneWizardContainer.tsx
+Let me read the V2 wizard container and the ObservableCard component.
+
+Read CreateControlPlaneV2WizardContainer.tsx
+Read ObservableCard.tsx
+Let me check the auth context for user identity stability and the V1 components-selection hook that calls setValue.
+
+Bash Inspect auth context user shape
+IN
+grep -n "user\b\|setUser\|const user\|user:\|useMemo\|useState\|value=" /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/auth/AuthContextOnboarding.tsx | head -40
+
+OUT
+1:import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
+12:  user: User | null;
+23:  const [isAuthenticated, setIsAuthenticated] = useState(false);
+24:  const [user, setUser] = useState<User | null>(null);
+25:  const [isPending, setIsPending] = useState(true);
+26:  const [error, setError] = useState<Error | null>(null);
+27:  const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
+31:    // Only show loading spinner for user-initiated auth checks, not background token refreshes
+57:        user: apiUser,
+60:      setUser(apiUser);
+74:      setUser(null);
+89:    telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
+90:  }, [user, telemetry]);
+107:          setUser(null);
+183:    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, login, logout }}>
+Read useComponentsSelectionData.ts
+The wizards live inside per-workspace tiles. The tile keeps wizard open-state in local useState, so a remount of the tile would close/reset the wizard. Let me check how the tiles are keyed/rendered by the parent list.
+
+Read ControlPlaneListAllWorkspaces.tsx
+Let me examine the auth context's user-refresh behavior, since periodic token refresh could change user identity.
+
+Read AuthContextOnboarding.tsx (lines 29-158)
+Let me check the remaining supporting pieces: the SWR global config, the V1 wizard's components query, and the auth context for prop stability.
+
+Read SWRConfigWithTokenRefresh.tsx
+Read useComponentsQuery.ts
+Bash Find resourcesInterval and components selection fetch config
+IN
+grep -rn "resourcesInterval" /Users/C5395097/Documents/sap/ui-frontend/src/lib /Users/C5395097/Documents/sap/ui-frontend/src/utils /Users/C5395097/Documents/sap/ui-frontend/src/constants* 2>/dev/null | head; echo "---useComponentsSelectionData---"; sed -n '1,60p' /Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/useComponentsSelectionData.ts 2>/dev/null | grep -n "refreshInterval\|useApiResource\|useQuery\|pollInterval\|useSWR" 
+
+OUT
+(eval):1: no matches found: /Users/C5395097/Documents/sap/ui-frontend/src/constants*
+---useComponentsSelectionData---
+Tile keys are stable, so a plain refetch re-renders but shouldn't remount tiles. Let me check the WIP changes (files are already modified) and the MCP/KPI query hooks' refetch behavior.
+
+Bash Show WIP diff for wizard containers
+IN
+git diff --stat && echo "=== V2 WIZARD DIFF ===" && git diff src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+
+OUT
+ server/encrypted-session.ts                        |  1 +
+ .../CreateControlPlaneV2WizardContainer.tsx        | 11 +++++++
+ ...teManagedControlPlaneWizardContainer.module.css | 12 ++++++++
+ .../CreateManagedControlPlaneWizardContainer.tsx   | 34 +++++++++++++++++-----
+ src/hooks/useCreateManagedControlPlane.ts          |  4 +--
+ src/hooks/useUpdateManagedControlPlane.ts          |  4 +--
+ src/locales/en.json                                |  8 +++--
+ 7 files changed, 61 insertions(+), 13 deletions(-)
+=== V2 WIZARD DIFF ===
+diff --git a/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx b/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+index e109563..71b539c 100644
+--- a/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
++++ b/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+@@ -8,8 +8,10 @@ import { useForm, useWatch } from 'react-hook-form';
+ 
+ import {
+   Bar,
++  BusyIndicator,
+   Button,
+   Dialog,
++  Icon,
+   FlexBox,
+   Text,
+   Ui5CustomEvent,
+@@ -913,6 +915,15 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
+         onClose={resetFormAndClose}
+       >
+         <ErrorDialog ref={errorDialogRef} />
++        <Dialog open={isSubmitting} onClose={() => undefined}>
++          <div className={styles.loadingModal}>
++            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
++            <BusyIndicator
++              active
++              text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
++            />
++          </div>
++        </Dialog>
+         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
+           <WizardStep
+             icon="create-form"
+diff --git a/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx b/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+index f50e3df..0e27554 100644
+--- a/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
++++ b/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+@@ -8,8 +8,10 @@ import { useForm, useWatch } from 'react-hook-form';
+ 
+ import {
+   Bar,
++  BusyIndicator,
+   Button,
+   Dialog,
++  Icon,
+   FlexBox,
+   Form,
+   FormGroup,
+@@ -237,12 +239,16 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
+     }
+   }, [user?.email, isOpen, setValue, clearFormFields]);
+ 
+-  const { mutate: createManagedControlPlane } = useCreateManagedControlPlane(projectName, workspaceName);
+-  const { mutate: updateManagedControlPlane } = useUpdateManagedControlPlane(
++  const { mutate: createManagedControlPlane, loading: isCreatingMcp } = useCreateManagedControlPlane(
++    projectName,
++    workspaceName,
++  );
++  const { mutate: updateManagedControlPlane, loading: isUpdatingMcp } = useUpdateManagedControlPlane(
+     projectName,
+     workspaceName,
+     initialData?.metadata?.name ?? '',
+   );
++  const isSubmitting = isEditMode ? isUpdatingMcp : isCreatingMcp;
+   const componentsList = useWatch({ control, name: 'componentsList' });
+   const watchedMembers = useWatch({ control, name: 'members' });
+   const hasMissingComponentVersions = useMemo(() => {
+@@ -323,7 +329,8 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
+         setSelectedStep('summarize');
+         break;
+       case 'summarize':
+-        handleCreateManagedControlPlane(getValues());
++        if (isSubmitting) return;
++        void handleCreateManagedControlPlane(getValues());
+         break;
+       case 'success':
+         resetFormAndClose();
+@@ -339,6 +346,7 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
+     getValues,
+     resetFormAndClose,
+     hasMissingComponentVersions,
++    isSubmitting,
+   ]);
+ 
+   const normalizeMemberRole = useCallback((roleInput?: string | null) => {
+@@ -543,15 +551,21 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
+             endContent={
+               <div className={styles.footer}>
+                 {selectedStep !== 'metadata' && isEditMode && (
+-                  <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
++                  <Button disabled={isSubmitting} onClick={resetFormAndClose}>
++                    {t('buttons.close')}
++                  </Button>
+                 )}
+                 {selectedStep !== 'success' &&
+                   (selectedStep === 'metadata' ? (
+-                    <Button onClick={resetFormAndClose}>{t('buttons.close')}</Button>
++                    <Button disabled={isSubmitting} onClick={resetFormAndClose}>
++                      {t('buttons.close')}
++                    </Button>
+                   ) : (
+-                    <Button onClick={onBackClick}>{t('buttons.back')}</Button>
++                    <Button disabled={isSubmitting} onClick={onBackClick}>
++                      {t('buttons.back')}
++                    </Button>
+                   ))}
+-                <Button design="Emphasized" onClick={onNextClick}>
++                <Button design="Emphasized" disabled={isSubmitting} onClick={onNextClick}>
+                   {nextButtonText[selectedStep]}
+                 </Button>
+               </div>
+@@ -562,6 +576,12 @@ export const CreateManagedControlPlaneWizardContainer: FC<CreateManagedControlPl
+         onClose={resetFormAndClose}
+       >
+         <ErrorDialog ref={errorDialogRef} />
++        <Dialog open={isSubmitting} onClose={() => undefined}>
++          <div className={styles.loadingModal}>
++            <Icon name={isEditMode ? 'synchronize' : 'add'} className={styles.loadingModalIcon} />
++            <BusyIndicator active text={t(isEditMode ? 'editMCP.updating' : 'createMCP.creating')} />
++          </div>
++        </Dialog>
+         <Wizard contentLayout="SingleStep" onStepChange={handleStepChange}>
+           <WizardStep
+             icon="create-form"
+Read useMcpsQuery.ts
+Let me check the V1 useComponentsQuery to see if it's SWR-backed (subject to the 10s refreshInterval) and thus re-runs the componentsList reset.
+
+Read useComponentsQuery.ts
+Bash Find resourcesInterval and auth user memoization
+IN
+grep -rn "export const resourcesInterval\|resourcesInterval =" /Users/C5395097/Documents/sap/ui-frontend/src | head; echo "---AuthContextOnboarding user---"; grep -n "user\|useMemo\|value=\|createContext\|return" /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/auth/AuthContextOnboarding.tsx | head -40
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/lib/shared/constants.ts:1:export const resourcesInterval = 100000;
+---AuthContextOnboarding user---
+1:import { createContext, useState, useEffect, ReactNode, use, useCallback } from 'react';
+12:  user: User | null;
+18:const AuthContextOnboarding = createContext<AuthContextOnboardingType | null>(null);
+24:  const [user, setUser] = useState<User | null>(null);
+31:    // Only show loading spinner for user-initiated auth checks, not background token refreshes
+57:        user: apiUser,
+89:    telemetry.identify(user?.sub ? { id: user.sub, email: user.email } : null);
+90:  }, [user, telemetry]);
+95:        return true; // Token still valid
+102:          return true;
+111:        return false;
+119:        return false;
+132:    if (!tokenExpiry || !isAuthenticated) return;
+140:      return;
+145:    return () => clearTimeout(timerId);
+182:  return (
+183:    <AuthContextOnboarding value={{ isPending, isAuthenticated, user, error, login, logout }}>
+194:  return context;
+Read AuthContextOnboarding.tsx (lines 121-195)
+The data layer is Apollo with GraphQL subscriptions that trigger debounced refetch() on every backend event. Let me check the Apollo client setup and token-refresh logic — a store reset there would flip isPending true and unmount the whole ProjectPage subtree (including an open wizard).
+
+Bash Find Apollo client setup and reset logic
+IN
+grep -rln "resetStore\|clearStore\|ApolloClient\|refetchQueries\|onError\|errorLink" src/spaces/onboarding src/lib 2>/dev/null | head -40
+
+OUT
+src/spaces/onboarding/hooks/useUpdateWorkspace.ts
+src/spaces/onboarding/hooks/useDeleteWorkspace.ts
+src/spaces/onboarding/hooks/useCreateWorkspace.ts
+src/spaces/onboarding/hooks/useUpdateProject.ts
+src/spaces/onboarding/hooks/useProjectsQuery.ts
+src/spaces/onboarding/services/ApolloClientProvider.tsx
+src/lib/api/error.ts
+src/lib/api/validations/schemas.ts
+Read ApolloClientProvider.tsx
+I have a comprehensive picture. Here are my findings, organized by your four questions.
+
+1. How isValid is computed and what makes the form transiently invalid
+isValid source (V2): CreateControlPlaneV2WizardContainer.tsx:217-229 — useForm with mode: 'onChange' and resolver: zodResolver(createManagedControlPlaneSchema(t)). isValid is read from formState and recomputed on every change.
+
+The schema (src/lib/api/validations/schemas.ts:45-59):
+
+name: required, regex managedControlPlaneNameRegex, max 36 (schemas.ts:48-52).
+members: z.array(member) — no .min/.refine(length>0) (schemas.ts:56). Note this differs from createProjectWorkspaceSchema which does enforce members.length > 0 (schemas.ts:40). So in V2, members do not affect isValid; member gating is done separately via hasNoAssignedMembers.
+.superRefine(createValidateChargingTarget(t)) (schemas.ts:58, validator at schemas.ts:9-27): if chargingTargetType is set but chargingTarget is empty → adds a required error on chargingTarget (schemas.ts:19-24); if both set but chargingTarget fails btpChargingTargetRegex → format error (schemas.ts:13-18).
+Transient-invalid triggers:
+
+Template-selection effect CreateControlPlaneV2WizardContainer.tsx:231-247: when on the metadata step it calls setValue('chargingTarget', …, {shouldValidate:true}) then setValue('chargingTargetType', …, {shouldValidate:true}) as two separate calls (lines 235-242), then bumps metadataFormKey (line 246). Between the two validating setValue calls the form can momentarily have chargingTargetType set with chargingTarget still empty → superRefine marks it invalid for that render.
+metadataFormKey remount: line 246 (setMetadataFormKey(k => k+1)) forces MetadataForm to remount via key={metadataFormKey} (line 938). Field re-registration on remount can transiently drop/re-evaluate validation state.
+Edit-mode prefill reset() at lines 801-808 resets chargingTarget/chargingTargetType to '' and re-runs validation; any re-run of this effect re-triggers a full revalidation pass.
+Because isValid gates isStepDisabled('members'|'componentSelection'|'summarize') (lines 765, 767-778) and the Next button indirectly, any transient false disables forward navigation.
+KPI query hooks — do they poll/revalidate? (useCrossplaneQuery.ts, useFluxQuery.ts, useEsoQuery.ts, and identically useKroQuery, useOcmQuery, useLandscaperQuery, useMetricsOperatorQuery):
+
+All use Apollo useQuery with skip: !name || !namespace and notifyOnNetworkStatusChange: true (e.g. useCrossplaneQuery.ts:42-46, useFluxQuery.ts:37-41, useEsoQuery.ts:37-41).
+No pollInterval → they do not poll on their own.
+They return isLoading: queryResult.loading (useCrossplaneQuery.ts:73). Because notifyOnNetworkStatusChange is true, loading flips back to true on any refetch of that query — and these queries are named GetCrossplane, GetFlux, etc., which are exactly the queries the service mutations refetch (see #3). So after a service create/update/delete, isKpiLoading (V2 lines 314-322) goes true again, which disables Next (line 903) and blocks onNextClick (line 713) in edit mode.
+The derived crossplaneData/fluxData/… objects are useMemo'd on the raw Apollo result (useCrossplaneQuery.ts:50-69) so their identity changes whenever the query result object changes (refetch, cache update).
+2. useEffects that can re-run and clobber user state
+V2 (CreateControlPlaneV2WizardContainer.tsx):
+
+Lines 273-282 — deps [user?.email, isOpen, isEditMode, setValue, clearFormFields]. In create mode with isOpen, this overwrites members to just the current user and calls setExtraProviders([]). user?.email is a primitive so a new user object (see below) alone won't re-fire it; but any change to isOpen, or to the clearFormFields identity, re-runs it and wipes member/provider edits.
+Lines 796-812 — edit-mode prefill: deps are only [isOpen, isEditMode] (exhaustive-deps disabled, line 811). It calls reset(...) and setExtraProviders(prefilledProviders) reading initialData. initialData is not in the deps, so a changed initialData won't re-run it — but toggling isOpen will re-run reset() and clobber everything the user typed.
+Lines 199-204 — deps [isOpen, initialTemplateName]: resets selectedTemplateValue whenever isOpen or the initialTemplateName prop changes.
+Lines 231-247 — deps [selectedTemplate, selectedStep, setValue, normalizeChargingTargetType]: selectedTemplate is a useMemo (lines 176-179); setValue+setMetadataFormKey re-run on each metadata-step visit, remounting MetadataForm.
+Lines 326-362 — edit-mode service prefill: deps include crossplaneData, fluxData, landscaperData, esoData, ocmData, kroData, metricsOperatorData, all of which change identity on Apollo refetch. Guarded by hasPrefilledServicesRef (lines 325, 327-328) so it only writes once per edit session — but the effect body still re-evaluates on every KPI data change.
+Lines 820-822 — resets appliedTemplateMembersRef on [selectedTemplateValue, isOpen].
+Lines 824-866 — members-step template merge; deps include user?.email, selectedTemplate, getValues, setValue; guarded by appliedTemplateMembersRef.
+user object identity: AuthContextOnboarding.tsx:60 calls setUser(apiUser) with a fresh object parsed from /me on every refreshAuthStatus, including background token refreshes (called from ensureFreshToken at line 101, fired by the refresh timer at lines 131-146). This re-renders every context consumer including the wizard. The context value is also an inline object recreated each render (AuthContextOnboarding.tsx:183). The wizard's effects key on user?.email (primitive), so they don't clobber on identity change alone — but the whole wizard subtree re-renders on each token refresh.
+
+Mount/unmount: both wizards return null when !isOpen (V2 line 870, V1 line 539) rather than unmounting themselves — so internal useState survives an open/close only if the parent keeps them mounted. If the parent conditionally mounts/unmounts the wizard, all wizard state (including selectedStep, services, extraProviders) is lost and the prefill/reset effects re-run from scratch.
+
+V1 (CreateManagedControlPlaneWizardContainer.tsx):
+
+Lines 233-240 — [user?.email, isOpen, setValue, clearFormFields]: overwrites members to just current user when open.
+Lines 437-464 — prefill on [isOpen, isEditMode] (initialData not in deps, exhaustive-deps disabled at 463): calls reset(data) + setInitialMcpDataWhenInEditMode.
+useComponentsSelectionData.ts:216-226 — this effect calls setValue('componentsList', sortedList, {shouldValidate:false}) (line 220) whenever JSON.stringify(data?.items), selectedTemplate, or initialSelection changes. initialSelection is a useMemo on [isEditMode, isDuplicateMode, initialData] (V1 lines 410-434) — if initialData identity changes on a parent re-render, initialSelection is recomputed (new object), which re-runs this effect and overwrites componentsList, discarding the user's version/selection edits.
+3. Mutation / query hooks: revalidation, polling, cache updates that cause re-renders
+GraphQL create useCreateControlPlaneV2GraphQL.ts:10-12: useMutation(..., { refetchQueries: ['GetMCPsList'] }).
+GraphQL update useUpdateControlPlaneV2GraphQL.ts:11-16: refetchQueries: ['GetMCPsList', 'GetMCPv2'] (comment explicitly notes the response omits spec, forcing a refetch).
+Service create hooks, e.g. useCreateCrossplane.ts:25-27: refetchQueries: ['GetCrossplane']. The sibling create/update/delete hooks follow the same pattern (useCreate*/useUpdate*/useDelete* in src/spaces/mcp/hooks/). These refetch the exact KPI queries (GetCrossplane, GetFlux, …) that the wizard subscribes to — so after any service mutation those KPI queries refetch, toggling loading (via notifyOnNetworkStatusChange) and changing *Data identity → isKpiLoading true again and re-render.
+KPI queries themselves: Apollo useQuery, no pollInterval, notifyOnNetworkStatusChange: true — no self-polling, but loading-state churn on every refetch/cache write.
+Apollo cache (ApolloClientProvider.tsx:181-220): InMemoryCache with queryDeduplication: true and merge: true typePolicies. K8s types are normalized by metadata.uid (lines 203-218) with metadata: { merge: true }; the comment at lines 200-202 explicitly warns that two overlapping queries can otherwise cause "cache thrash and a re-fetch loop when both queries are active simultaneously (e.g. MCP page + edit wizard)" — i.e. a known re-render/refetch interaction when the MCP list and the edit wizard are open together.
+4. useApiResource.ts SWR defaults
+useApiResource (src/lib/api/useApiResource.ts:14-43) sets no per-call SWR options of its own — it passes the caller's config straight through to useSWR (line 34). All defaults come from the global provider.
+
+Global SWRConfig (src/components/SWRConfigWithTokenRefresh.tsx:16-21):
+
+refreshInterval: 10000 (polls every 10 s)
+revalidateOnFocus: false
+revalidateOnReconnect: false
+isPaused: () => isRefreshing (pauses fetching during token refresh)
+dedupingInterval is not set → SWR library default (2000 ms).
+Note: the V2 wizard's KPI hooks and both GraphQL/service mutation hooks are Apollo-based, not SWR, so this 10 s refreshInterval does not apply to them. It applies to useApiResource/useSWR consumers elsewhere. The V1 wizard's useComponentsQuery (src/hooks/useComponentsQuery.ts:31) is also Apollo useQuery (no polling), so the componentsList-reset effect in #2 is driven by initialData/selectedTemplate identity changes rather than by SWR polling.
+
+I have a clear picture of the data/render architecture now. Let me wait for the two Explore agents to confirm the KPI-hook behavior and effect-dependency analysis before designing the plan.
+
+I've confirmed so far:
+
+Mount point: Both wizards live inside ControlPlaneListWorkspaceGridTile.tsx:343-360, one instance per workspace tile, with wizard open-state held in the tile's local useState.
+Two subscription-driven refetch layers: useWorkspacesQuery.ts:60-72 and useMcpsQuery.ts:271-284 both refetch() (300ms-debounced) on every backend SSE event, continuously re-rendering the whole ProjectPage subtree.
+Whole-subtree unmount hazard: ProjectPage.tsx:120-139 — a transient refetch error or an isPending flip swaps the entire tree for <Loading/>/error, unmounting any open wizard.
+Let me check on the agents.
+
+SendMessage
+IN
+{
+  "to": "ad594a4a6efc03242",
+  "message": "Quick status check — are you close to done? Please make sure to report: (1) whether the KPI query hooks (useCrossplaneQuery etc.) use subscriptions/polling/SWR revalidation, (2) the SWR defaults in useApiResource.ts, and (3) which useEffect hooks in the two wizard files re-run on parent re-render and could clobber user state. No need for fixes.",
+  "summary": "Check progress on wizard state-reset exploration",
+  "type": "message",
+  "recipient": "ad594a4a6efc03242",
+  "content": "Quick status check — are you close to done? Pleas…"
+}
+OUT
+{"success":true,"message":"Resuming agent ad594a4","resumedAgentId":"ad594a4a6efc03242","pin":{"id":"ad594a4a6efc03242","name":"ad594a4a6efc03242","ref":"a2b76a"}}
+
+I've completed the investigation. Let me send the status to the coordinator with the three requested points.
+
+I now have a complete picture. Here is the fact-map.
+
+1. ProjectPage.tsx — component tree, state, and queries
+File: /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/pages/ProjectPage.tsx
+
+State held (all local to ProjectPage):
+
+search string — useState('') (line 33)
+expandedWorkspaces Set<string> — useState lazily seeded from localStorage (lines 39-41)
+isInitialRender ref (line 43); hasFiredSearchedRef ref (line 67)
+Router: useParams() → projectName (line 30); useNavigate() (line 34)
+useRememberedProject() (line 35), useTelemetry() (line 37), useTranslation() (line 32)
+Data query: useWorkspacesQuery(projectName) (line 31) — this is the only data fetch in ProjectPage itself. See section 3 for its internals.
+
+Effects: persists expanded set to storage (lines 44-50, deps [projectName, expandedWorkspaces]).
+
+Render tree (lines 151-244):
+
+<ObjectPage> → <ObjectPageTitle> containing ProjectChooser (line 171), pin Button, CopyButton, BreadcrumbFeedbackHeader, and in actionsBar a <FlexBox> wrapping ControlPlaneListToolbar (line 193).
+<ObjectPageSection id="workspaces"> (line 200) → search/expand FlexBox (lines 201-233) → ControlPlaneListAllWorkspaces (lines 234-240) with props projectName, workspaces, search, expandedWorkspaces, onToggleWorkspace={handleToggleWorkspace}.
+The wizard containers are not rendered by ProjectPage directly. They are mounted deep in the subtree: ProjectPage → ControlPlaneListAllWorkspaces → ControlPlaneListWorkspaceGridTile (per workspace).
+
+2. Where the wizards are mounted
+File: /Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx
+
+Imports at lines 25-26; mounted at lines 343-360.
+Conditionally mounted (not always-mounted): {isCreateManagedControlPlaneWizardOpen ? <CreateManagedControlPlaneWizardContainer .../> : null} (lines 343-351) and {isCreateManagedControlPlaneWizardOpenV2 ? <CreateControlPlaneV2WizardContainer .../> : null} (lines 352-360). Note the containers themselves also early-return null when closed (V1 line 539, V2 line 870), so there are two gates.
+Open/close state is local to each grid tile:
+isCreateManagedControlPlaneWizardOpen — useState(false) (line 59)
+isCreateManagedControlPlaneWizardOpenV2 — useState(false) (line 60)
+initialTemplateName — useState<string|undefined> (line 61)
+Setters are passed to ControlPlanesListMenu (lines 233-238) and to the empty-state buttons (lines 271, 282). Nothing sets these true from an effect — only user clicks open them.
+No key prop is passed to either wizard. Props passed:
+projectName={projectNamespace} where projectNamespace = workspace.metadata.namespace (line 65) — a primitive string.
+workspaceName={workspaceName} where workspaceName = workspace.metadata.name (line 62) — primitive string.
+initialTemplateName={initialTemplateName} — local state string.
+All wizard props are primitive strings, so refetches that produce new workspace object identities do not change the prop values passed to the wizard.
+Keys along the mount path (all stable):
+
+ControlPlaneListAllWorkspaces list: key={${projectName}-${workspace.metadata.name}} (/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx line 91).
+Grid tile ObjectPageSection: key={${projectName}${workspaceName}} (grid tile line 198).
+Card list: key={${mcp.metadata.name}--${mcp.metadata.namespace}} (grid tile line 295).
+Because keys are stable and derived from names, ordinary parent re-renders (including data refetches) re-render the grid tile in place and preserve the wizard's open state and internal state; they do not remount it. A remount would occur only if a workspace disappears from and reappears in the refetched list (key vanishes), or if projectName/workspace.metadata.name changes.
+
+3. Refetch / polling / focus-refetch triggers in the subtree
+Apollo subscription-driven refetches (the main periodic re-render source):
+
+useWorkspacesQuery — /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useWorkspacesQuery.ts:
+
+useQuery(GetWorkspacesQuery, { notifyOnNetworkStatusChange: true }) (lines 53-57).
+useSubscription(WorkspacesSubscription, …) (lines 60-63).
+Effect refetches on every subscription event, debounced 300ms (lines 68-72). Each refetch yields new query.data, and the useMemo (lines 74-90) produces a new workspaces array with new per-workspace object identities → ProjectPage re-renders → whole workspaces subtree re-renders.
+No pollInterval.
+useMcpsQuery — /Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useMcpsQuery.ts (called once per grid tile, line 87 of the tile):
+
+Two useQuery (full + minimal) with notifyOnNetworkStatusChange: true (lines 240-250).
+Two useSubscription for v1 and v2 (lines 258-266), gated until initial data (line 256).
+Both subscriptions schedule a debounced (300ms) refetch() on every event via scheduleRefetch (lines 270-284). This re-renders the grid tile whenever any MCP/CP in that workspace changes — including as a side effect of creating one from the wizard.
+No pollInterval.
+useMcpV2ComponentsListQuery — /Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/components/Kpi/useMcpV2ComponentsListQuery.ts: plain useQuery with notifyOnNetworkStatusChange: true (lines 124-128), no polling/subscription. Only active when fetchMode === 'full' (tile lines 91-94).
+
+Global SWR config — /Users/C5395097/Documents/sap/ui-frontend/src/components/SWRConfigWithTokenRefresh.tsx lines 15-21: refreshInterval: 10000 (10s), revalidateOnFocus: false, revalidateOnReconnect: false. So window-focus refetching is disabled app-wide, but every SWR useApiResource hook polls every 10s by default.
+
+None of the create-mode wizard/tile code path uses SWR. The V1 create path fetches components via Apollo useComponentsQuery (/Users/C5395097/Documents/sap/ui-frontend/src/hooks/useComponentsQuery.ts) with no refresh.
+The V2 wizard's KPI hooks (useCrossplaneQuery, useFluxQuery, etc., lines 296-311) are skipped in create mode (skipKpi = !isEditMode || …, line 295); they only run in edit mode.
+Other refreshInterval/pollInterval usages (outside the create-wizard path, but in the broader onboarding/MCP spaces — none sit in the ProjectPage→wizard mount chain): useKpiFlux.ts:10, useKpiCrossplane.ts:10, useYamlQuery.ts:20 (30s), YamlSidePanelWithLoader.tsx:75 (30s), ControlPlane/* SWR hooks, useResourcePluralNames.ts:11, useGraph.ts:24,29, ProvidersConfig.tsx:48 (60s). resourcesInterval = 100000 defined at /Users/C5395097/Documents/sap/ui-frontend/src/lib/shared/constants.ts:1.
+
+4. Would parent re-renders remount the wizard / reset state?
+Remount: No, from ordinary re-renders — keys are stable (section 2). The wizard unmounts (losing all internal state) only if: (a) its owning grid tile's key disappears from the refetched workspaces list, or (b) the local open flag flips to false. A subscription refetch that briefly drops/re-adds a workspace (e.g., a Zod parse failure at lines 77-84 of useWorkspacesQuery.ts, or dedup at lines 85-88) would remount that tile and unmount an open wizard.
+
+In-wizard state-reset effects that fire on dependency change (not every render):
+
+V1 members reset: /Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx lines 233-240 — when isOpen true and user?.email set, overwrites members with just the current user; also clears fields when !isOpen. Deps [user?.email, isOpen, setValue, clearFormFields].
+V1 template/charging effect bumps metadataFormKey (remounting MetadataForm, keyed at line 596) — lines 189-205, deps include selectedTemplate, selectedStep.
+V1 template-select-on-open: lines 157-162 resets selectedTemplateValue on isOpen/initialTemplateName change.
+V2 equivalents: members reset lines 273-282; template/charging + metadataFormKey bump lines 231-247 (form remount keyed at line 938); template-on-open lines 199-204; edit-mode prefill lines 796-812; services prefill lines 326-362.
+These are all keyed on isOpen, user?.email, selectedTemplate/selectedTemplateValue, or selectedStep — primitive/stable values. They do not re-fire on a bare parent re-render, so subscription refetches alone will not wipe wizard state through these effects, provided user?.email and isOpen stay constant.
+
+Re-render amplifier (not a remount): AuthContextOnboarding provides an unmemoized context value object value={{ isPending, isAuthenticated, user, error, login, logout }} (/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/auth/AuthContextOnboarding.tsx line 183). Every provider render creates a new value object, so all useAuthOnboarding() consumers (both wizards, lines 115 / 164) re-render. There is also a token-refresh timer effect (lines 131-146) that periodically triggers auth state updates. user itself is useState (stable identity unless setUser runs), so user?.email remains stable and the members-reset effects are not re-triggered by these re-renders — but the re-renders themselves propagate.
+
+No inline component definitions in the mount path create new component types per render (the only inline functions are render props like DeleteConfirmationDialog's kubectlDialog={({isOpen,onClose}) => …} at grid tile lines 322-329 — a render prop, not a remounting component boundary).
+
+Summary map
+
+ProjectPage  ── useWorkspacesQuery (Apollo useQuery + useSubscription → debounced refetch on every WS event)
+  └ ObjectPage
+     ├ ObjectPageTitle → ControlPlaneListToolbar (own dialogs; no wizard)
+     └ ObjectPageSection#workspaces
+        └ ControlPlaneListAllWorkspaces  (stable key per workspace)
+           └ ControlPlaneListWorkspaceGridTile  (stable key; local open state)
+              ├ useMcpsQuery (Apollo useQuery×2 + useSubscription×2 → debounced refetch on every MCP/CP event)
+              ├ useMcpV2ComponentsListQuery (Apollo useQuery, no poll)
+              ├ [open?] CreateManagedControlPlaneWizardContainer  (props = strings; no key)
+              └ [open?] CreateControlPlaneV2WizardContainer       (props = strings; no key)
+Periodic/event re-render sources reaching the wizard's parent: (a) useWorkspacesQuery subscription refetch (300ms-debounced, every workspace event), (b) useMcpsQuery v1+v2 subscription refetches (300ms-debounced, every MCP/CP event, notably fired by the wizard's own create/update mutations), (c) unmemoized AuthContextOnboarding value plus its token-refresh timer, (d) global SWR refreshInterval: 10000 for any SWR hook (window-focus refetch is disabled). No pollInterval exists on the create-path Apollo queries.
+
+SendMessage
+IN
+{
+  "to": "main",
+  "summary": "Wizard investigation complete — findings",
+  "message": "Done. Answers to your three points, with file:line refs.\n\n(1) KPI query hooks — NO subscriptions, NO polling, NOT SWR. All seven (useCrossplaneQuery/useFluxQuery/useEsoQuery/useKroQuery/useOcmQuery/useLandscaperQuery/useMetricsOperatorQuery) use Apollo `useQuery` with `skip: !name || !namespace` and `notifyOnNetworkStatusChange: true`, no `pollInterval` (e.g. useCrossplaneQuery.ts:42-46, useFluxQuery.ts:37-41, useEsoQuery.ts:37-41). They don't refetch on their own. BUT they refetch when a service mutation fires `refetchQueries: ['GetCrossplane']` etc. (useCreateCrossplane.ts:26; sibling create/update/delete hooks same pattern), and because `notifyOnNetworkStatusChange` is true, `loading` flips back to true on each refetch → `isKpiLoading` (CreateControlPlaneV2WizardContainer.tsx:314-322) re-enables → disables Next (line 903) and blocks onNextClick in edit mode (line 713).\n\n(2) useApiResource.ts (lib/api/useApiResource.ts:14-43) sets NO options itself — passes caller `config` straight to useSWR. Defaults come from global SWRConfig (SWRConfigWithTokenRefresh.tsx:16-21): refreshInterval 10000 (10s poll), revalidateOnFocus false, revalidateOnReconnect false, isPaused during token refresh; dedupingInterval NOT set → SWR default 2000ms. Note: the V2 wizard KPI + mutation hooks are Apollo, not SWR, so this 10s interval does NOT apply to them.\n\n(3) useEffects that re-run on parent re-render / could clobber state:\n- V2 lines 273-282: in create mode overwrites members to [current user] and setExtraProviders([]); deps [user?.email, isOpen, isEditMode, setValue, clearFormFields]. Re-fires on isOpen toggle.\n- V2 lines 796-812: edit prefill calls reset(...) + setExtraProviders; deps ONLY [isOpen, isEditMode] (exhaustive-deps disabled), reads initialData without depending on it — toggling isOpen re-runs reset() and wipes edits.\n- V2 lines 231-247: template effect fires two shouldValidate setValue calls + remounts MetadataForm via metadataFormKey; transient invalid window.\n- V2 lines 326-362: edit service prefill depends on all 7 *Data objects (identity changes on every Apollo refetch) — guarded by hasPrefilledServicesRef so writes once, but body re-evaluates each KPI change.\n- V1 lines 233-240 (members overwrite) and 437-464 (reset(data), initialData not in deps).\n- V1 useComponentsSelectionData.ts:216-226: setValue('componentsList',...) re-runs whenever JSON.stringify(data.items)/selectedTemplate/initialSelection change; initialSelection is a useMemo on [isEditMode,isDuplicateMode,initialData] (V1 410-434), so a new initialData identity on parent re-render overwrites componentsList and discards user version edits.\n\nAlso relevant: AuthContextOnboarding.tsx:60 calls setUser(new object) on every background token refresh (timer at 131-146 → ensureFreshToken → refreshAuthStatus, line 101), re-rendering the whole wizard subtree; effects key on user?.email (primitive) so they don't clobber on identity alone. Both wizards return null when !isOpen (V2:870, V1:539) rather than unmounting, so state survives close only if the parent keeps them mounted. Apollo cache comment at ApolloClientProvider.tsx:200-202 warns of a refetch loop when MCP list + edit wizard are open together. Full report already delivered in my task output.",
+  "type": "message",
+  "recipient": "main",
+  "content": "Done. Answers to your three points, with file:lin…"
+}
+OUT
+{"success":true,"message":"Message queued for the main conversation's next turn."}
+
+Investigation complete. My full findings were delivered in the prior task output and I've now relayed the three coordinator-requested points. Summary of what I found:
+
+1. KPI query hooks — no subscriptions, no polling, not SWR. All seven use Apollo useQuery (skip on empty name/namespace, notifyOnNetworkStatusChange: true, no pollInterval). They only refetch when service mutations fire refetchQueries: ['GetCrossplane'] etc., and each refetch re-flips loading → re-triggers isKpiLoading, which disables Next and blocks onNextClick in edit mode.
+
+2. SWR defaults. useApiResource.ts sets none itself; the global SWRConfig gives refreshInterval: 10000, revalidateOnFocus: false, revalidateOnReconnect: false, dedupingInterval unset (2000 ms default). This applies only to SWR consumers — the V2 wizard's KPI/mutation hooks are Apollo, so it doesn't touch them.
+
+3. Clobber-prone effects. V2 lines 273-282 (members/extraProviders overwrite), 796-812 (edit prefill reset() keyed only on isOpen/isEditMode), 231-247 (validation churn + MetadataForm remount), 326-362 (service prefill, ref-guarded). V1 lines 233-240, 437-464, and useComponentsSelectionData.ts:216-226 (componentsList overwrite driven by initialData identity). Plus setUser(new object) on every token refresh re-renders the subtree, and both wizards render null instead of unmounting so state only survives if the parent keeps them mounted.
+
+No fixes proposed, per instructions.
+
+Agent 2's findings are comprehensive. Agent 1 (ProjectPage render tree) is still running. Let me deepen my understanding of the critical files while it finishes — the auth context (re-render source) and the V1 components prefill.
+
+Read AuthContextOnboarding.tsx
+Read useComponentsSelectionData.ts
+Both explorations are complete and corroborate a clear diagnosis. Let me have a Plan agent design the concrete implementation approach with this full context.
+
+Agent:Design fix plan for wizard resets
+IN
+Design a concrete implementation plan (no code edits — this is planning only) to fix a class of bugs in the SAP ui-frontend React 19 + Apollo Client 4 app. On the ProjectPage, the "Create Managed Control Plane" wizards sometimes get refreshed/reopened, lose their in-progress state, or have their "Next" button unexpectedly disabled. Root cause is refetch/re-render cascades resetting component state.
+
+## Confirmed architecture & root causes (from prior exploration — treat as facts)
+
+MOUNT PATH:
+- ProjectPage (src/spaces/onboarding/pages/ProjectPage.tsx) → ObjectPage → ObjectPageSection#workspaces → ControlPlaneListAllWorkspaces (src/components/ControlPlanes/List/ControlPlaneListAllWorkspaces.tsx) → ControlPlaneListWorkspaceGridTile (one per workspace).
+- Both wizards are mounted INSIDE each grid tile, conditionally: ControlPlaneListWorkspaceGridTile.tsx:343-360. Open-state is LOCAL useState in the tile (lines 59-61), opened from ControlPlanesListMenu / empty-state buttons. Wizard props are primitive strings (projectName, workspaceName, initialTemplateName). No key prop.
+- Keys along the path are stable (per workspace name), so ordinary re-renders preserve wizard state. BUT a workspace transiently dropping from the refetched list (Zod parse failure at useWorkspacesQuery.ts:77-84, dedup, or a transient refetch error) remounts the tile → unmounts the open wizard → total state loss ("reopen/refresh" symptom).
+
+REFETCH CASCADE:
+- useWorkspacesQuery (src/spaces/onboarding/hooks/useWorkspacesQuery.ts): Apollo useQuery + useSubscription; refetch()es on EVERY workspace SSE event, 300ms debounced (lines 60-72). notifyOnNetworkStatusChange: true.
+- useMcpsQuery (src/spaces/onboarding/hooks/useMcpsQuery.ts): useQuery×2 + useSubscription×2; debounced refetch on every MCP/CP event (lines 258-284). Critically, the wizard's OWN create/update mutation fires these subscription events → self-triggered refetch cascade.
+- ProjectPage render guard (ProjectPage.tsx:120-139): `if (error || !workspaces || !projectName)` renders a full-page error/Loading, UNMOUNTING the whole subtree incl. any open wizard. `workspaces` is always an array (useMemo returns [] ), so this branch fires on ANY Apollo `error` — including a transient refetch error while previous data is still present. isPending (ProjectPage.tsx:105) only true on initial load (networkStatus===loading), so that part is OK.
+- AuthContextOnboarding (src/spaces/onboarding/auth/AuthContextOnboarding.tsx:183) provides an UNMEMOIZED context value object; token-refresh timer (lines 131-146) calls setUser(new object) periodically → re-renders every consumer incl. both wizards.
+
+EDIT-MODE "NEXT DISABLED": V2 wizard KPI hooks (useCrossplaneQuery etc. in src/spaces/controlPlaneV2/components/Kpi/) use Apollo useQuery with notifyOnNetworkStatusChange:true, no polling. Service mutations fire refetchQueries:['GetCrossplane'] etc., so after a mutation `loading` re-flips true → isKpiLoading (CreateControlPlaneV2WizardContainer.tsx:314-322) re-enables → disables Next (line 903) and blocks onNextClick (line 713). Note: in CREATE mode skipKpi=true so KPI hooks are skipped (not the create-mode cause).
+
+STATE-CLOBBER EFFECTS (fire on dep change, and on any remount):
+- V2 CreateControlPlaneV2WizardContainer.tsx: members overwrite lines 273-282 (deps user?.email/isOpen); edit prefill lines 796-812 (deps ONLY [isOpen,isEditMode], reads initialData, calls reset()); template/charging effect lines 231-247 does TWO separate setValue(...,{shouldValidate:true}) calls then bumps metadataFormKey remounting MetadataForm (key at line 938) — transient-invalid window; services prefill lines 326-362 guarded by hasPrefilledServicesRef.
+- V1 CreateManagedControlPlaneWizardContainer.tsx: members overwrite 233-240; edit prefill 437-464 (initialData not in deps, calls reset()); componentsList prefill in useComponentsSelectionData.ts:216-226 re-runs setValue('componentsList',...) whenever JSON.stringify(data.items)/selectedTemplate/initialSelection change — initialSelection is a useMemo on [isEditMode,isDuplicateMode,initialData] (V1:410-434), so new initialData identity overwrites user's version edits (NOT ref-guarded like V2).
+- Note: `templates` is currently useMemo(()=>[]) so selectedTemplate is always undefined today; template effects are latent but will matter once templates load.
+
+## What I need from you
+
+Produce a prioritized, concrete implementation plan with these parts. For each, name exact files and the specific change, and reuse existing patterns/utilities where possible.
+
+1. PRIMARY REFACTOR — decouple wizard lifetime from the churning list subtree. Evaluate hoisting the create-wizard mounting + open-state OUT of ControlPlaneListWorkspaceGridTile to a stable owner at ProjectPage level (e.g. a React context "wizard controller" provided by ProjectPage that renders ONE instance of each wizard outside ControlPlaneListAllWorkspaces, exposing openCreateV1({projectName,workspaceName,templateName}) / openCreateV2(...)). Tiles call the context instead of holding local state. Confirm this is sound given the tile currently passes projectNamespace (workspace.metadata.namespace) and workspaceName, and that ControlPlanesListMenu receives the setters. Detail the context shape, where the provider/mounting goes, and how tiles/menu are rewired. Consider whether the same controller should also be used elsewhere the wizard is mounted (ControlPlanePageV2, ManagedControlPlanePage, EditControlPlaneV2WizardDataLoader) or kept ProjectPage-scoped.
+
+2. ProjectPage error-guard fix so a transient refetch error does not unmount the whole subtree once data has loaded (distinguish initial-load error from post-load refetch error). Propose the exact condition change and how useWorkspacesQuery should expose the needed signal.
+
+3. AuthContextOnboarding: memoize the context value (and confirm user identity stability) to cut re-render amplification.
+
+4. Harden the wizard reset/prefill effects so a stray re-render or remount cannot wipe user input: run reset/prefill exactly once per closed→open transition (prev-isOpen ref or equivalent), and add a once-per-open guard to V1 componentsList prefill mirroring V2's hasPrefilledServicesRef.
+
+5. Edit-mode Next-disabled fix: make isKpiLoading reflect INITIAL load only (e.g. loading && networkStatus===NetworkStatus.loading, or an isInitialLoading returned by the KPI hooks) so mutation-triggered refetches don't re-disable Next.
+
+6. Remove transient-invalid windows: batch chargingTarget/chargingTargetType into validation-once, and avoid remounting MetadataForm via metadataFormKey on every metadata visit.
+
+7. Optional hardening: suppress or pause the workspaces/MCP subscription refetch while a wizard is open (assess feasibility & risk), and/or ensure useWorkspacesQuery never drops a workspace on transient parse errors.
+
+For each item: risk, blast radius (what else mounts these wizards / uses these hooks), and a testing approach (Vitest for hooks, Cypress component tests — note the injectable-hooks convention). Rank items by impact-to-effort. Do NOT write code; return the design.
+I'll explore the key files to confirm the architecture and design a concrete plan. Let me start reading the critical files in parallel.
+
+Read ControlPlaneListWorkspaceGridTile.tsx
+Read ProjectPage.tsx
+While the Plan agent designs the approach, let me read the menu component and edit data loaders to understand the rewiring surface and blast radius.
+
+Read ControlPlanesListMenu.tsx
+I don't have a Write tool available (my toolset is read-only), so I'll return the plan directly as my final message per the subagent convention. Let me confirm the remaining facts by reading the key files.
+
+Read useWorkspacesQuery.ts
+Read useMcpsQuery.ts
+Read AuthContextOnboarding.tsx
+Read ControlPlanesListMenu.tsx
+The rewiring surface is small — ControlPlanesListMenu and the empty-state buttons just call setters. Before I finalize the plan, let me confirm scope with you, since it materially changes what I write.
+
+AskUserQuestion
+OUT
+Your questions have been answered: "How deep should this fix go? The root cause is that the wizards live inside per-workspace tiles that constantly refetch (two Apollo subscription layers) and can be remounted, and the whole page unmounts on any transient refetch error."="Structural refactor (recommended)", "The same wizards are also mounted on the drilled-in edit pages (ControlPlanePageV2, ManagedControlPlanePage, edit data loaders). Should the plan cover those too, or stay focused on the ProjectPage create flow?"="All wizard mount points". You can now continue with these answers in mind.
+Now the wizard containers and KPI/components hooks, plus the list wrapper and other mount points.
+
+Read CreateControlPlaneV2WizardContainer.tsx
+Read ControlPlaneListAllWorkspaces.tsx
+Now the V1 container, components selection hook, a KPI hook, and the other wizard mount points.
+
+Read CreateManagedControlPlaneWizardContainer.tsx
+Read useCrossplaneQuery.ts
+Now the components selection hook, the QueryResult type, and the other wizard mount points.
+
+Read useComponentsSelectionData.ts
+Read types.ts
+Bash Find wizard mount points
+IN
+grep -rln "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer\|EditControlPlaneV2WizardDataLoader" src --include=*.tsx --include=*.ts | grep -v ".test." | grep -v ".cy."
+
+OUT
+(eval):1: no matches found: --include=*.tsx
+Bash Find wizard mount points
+IN
+grep -rln "CreateControlPlaneV2WizardContainer\|CreateManagedControlPlaneWizardContainer\|EditControlPlaneV2WizardDataLoader" /Users/C5395097/Documents/sap/ui-frontend/src | grep -v -e ".test." -e ".cy."
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx
+Bash List KPI hooks and wizard test files
+IN
+ls /Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/components/Kpi/; echo "---INJECTABLE HOOKS CONVENTION (cy tests)---"; ls /Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/ 2>/dev/null; echo "---"; find /Users/C5395097/Documents/sap/ui-frontend/src -name "*.cy.tsx" | grep -i wizard | head
+
+OUT
+useCrossplaneQuery.spec.ts
+useCrossplaneQuery.ts
+useEsoQuery.spec.ts
+useEsoQuery.ts
+useFluxQuery.spec.ts
+useFluxQuery.ts
+useKroQuery.spec.ts
+useKroQuery.ts
+useLandscaperQuery.spec.ts
+useLandscaperQuery.ts
+useMcpV2ComponentsListQuery.spec.ts
+useMcpV2ComponentsListQuery.ts
+useMetricsOperatorQuery.ts
+useOcmQuery.spec.ts
+useOcmQuery.ts
+---INJECTABLE HOOKS CONVENTION (cy tests)---
+CreateControlPlaneV2WizardContainer.cy.tsx
+CreateControlPlaneV2WizardContainer.tsx
+EditControlPlaneV2WizardDataLoader.tsx
+IdentityProviders
+ServiceSelectionStep.module.css
+ServiceSelectionStep.tsx
+SummarizeStepV2.tsx
+---
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.cy.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.cy.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/IdentityProviders/AddEditProviderDialog.cy.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/IdentityProviders/DeleteProviderConfirmationDialog.cy.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/IdentityProviders/IdentityProvidersStep.cy.tsx
+Bash Inspect wizard mount usage in other pages
+IN
+grep -n "Wizard\|isOpen\|setIsOpen\|WizardContainer\|WizardDataLoader\|useState" /Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx /Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx /Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx
+
+OUT
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:8:import { useState, useMemo } from 'react';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:23:import { EditManagedControlPlaneWizardDataLoader } from '../../Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:24:import { EditControlPlaneV2WizardDataLoader } from '../../Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:59:type MCPWizardState = {
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:60:  isOpen: boolean;
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:80:  const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:81:  const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:82:  const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:83:    isOpen: false,
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:87:  const handleIsManagedControlPlaneWizardOpen = (isOpen: boolean, mode?: 'edit' | 'duplicate') => {
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:88:    setManagedControlPlaneWizardState({ isOpen, mode });
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:198:                          setIsEditV2WizardOpen(true);
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:200:                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:223:                          handleIsManagedControlPlaneWizardOpen(true, 'edit');
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:248:                setIsEditManagedControlPlaneWizardOpen={handleIsManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:259:                setIsEditManagedControlPlaneWizardOpen={setIsEditV2WizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:302:          kubectlDialog={({ isOpen, onClose }) => (
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:307:              isOpen={isOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:311:          isOpen={dialogDeleteMcpIsOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:312:          setIsOpen={setDialogDeleteMcpIsOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:322:          isOpen={dialogDeleteMcpIsOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:323:          setIsOpen={setDialogDeleteMcpIsOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:331:        data-testid={managedControlPlaneWizardState.isOpen ? 'v1-wizard-open' : undefined}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:334:        <EditManagedControlPlaneWizardDataLoader
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:335:          isOpen={managedControlPlaneWizardState.isOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:336:          setIsOpen={(isOpen) => handleIsManagedControlPlaneWizardOpen(isOpen)}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:339:          mode={managedControlPlaneWizardState.mode}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:343:        <div data-testid={isEditV2WizardOpen ? 'v2-wizard-open' : undefined} className={styles.wizardAnchor}>
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:344:          <EditControlPlaneV2WizardDataLoader
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:345:            isOpen={isEditV2WizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/ControlPlaneCard/ControlPlaneCard.tsx:346:            setIsOpen={setIsEditV2WizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:36:import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:47:import { WizardStepType } from '../../../components/Wizards/CreateManagedControlPlane/CreateManagedControlPlaneWizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:48:import { EditManagedControlPlaneWizardDataLoader } from '../../../components/Wizards/CreateManagedControlPlane/EditManagedControlPlaneWizardDataLoader.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:93:  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:94:  const [error, setError] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:95:  const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:259:  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:260:  const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:261:    undefined | WizardStepType
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:288:    setEditManagedControlPlaneWizardSection('componentSelection');
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:289:    setIsEditManagedControlPlaneWizardOpen(true);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:291:  const handleEditManagedControlPlaneWizardClose = () => {
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:292:    setIsEditManagedControlPlaneWizardOpen(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:293:    setEditManagedControlPlaneWizardSection(undefined);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:305:      if (data?.action !== 'openInstallWizard') return;
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:307:      setEditManagedControlPlaneWizardSection('componentSelection');
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:308:      setIsEditManagedControlPlaneWizardOpen(true);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:377:              <EditManagedControlPlaneWizardDataLoader
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:378:                isOpen={isEditManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:379:                setIsOpen={handleEditManagedControlPlaneWizardClose}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:382:                initialSection={editManagedControlPlaneWizardSection}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:423:                        setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:425:                      <EditManagedControlPlaneWizardDataLoader
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:426:                        isOpen={isEditManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:427:                        setIsOpen={handleEditManagedControlPlaneWizardClose}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/mcp/pages/ManagedControlPlanePage.tsx:430:                        initialSection={editManagedControlPlaneWizardSection}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:26:import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:32:import { WizardStepType } from '../../../components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:33:import { EditControlPlaneV2WizardDataLoader } from '../../../components/Wizards/CreateControlPlaneV2/EditControlPlaneV2WizardDataLoader.tsx';
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:106:  const [iframeSrc, setIframeSrc] = useState<string | null>(null);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:107:  const [error, setError] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:108:  const [headlampPath, setHeadlampPath] = useState<string>(sanitisedInitialPath);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:110:  const [installTarget, setInstallTarget] = useState<InstallTarget>(null);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:128:  const [optimistic, setOptimistic] = useState<Record<string, string | null>>({});
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:247:      if (data.action === 'openInstallWizard') {
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:379:  const [isEditManagedControlPlaneWizardOpen, setIsEditManagedControlPlaneWizardOpen] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:380:  const [editManagedControlPlaneWizardSection, setEditManagedControlPlaneWizardSection] = useState<
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:381:    undefined | WizardStepType
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:401:  const [graphReady, setGraphReady] = useState(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:424:  const handleEditManagedControlPlaneWizardClose = () => {
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:425:    setIsEditManagedControlPlaneWizardOpen(false);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:426:    setEditManagedControlPlaneWizardSection(undefined);
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:519:                        setIsEditManagedControlPlaneWizardOpen={setIsEditManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:521:                      <EditControlPlaneV2WizardDataLoader
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:522:                        isOpen={isEditManagedControlPlaneWizardOpen}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:523:                        setIsOpen={handleEditManagedControlPlaneWizardClose}
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx:526:                        initialSection={editManagedControlPlaneWizardSection}
+Read EditControlPlaneV2WizardDataLoader.tsx
+Got it — full structural refactor across all mount points. Let me read the other mount points (edit pages + data loaders) so the plan covers them accurately.
+
+Read EditControlPlaneV2WizardDataLoader.tsx
+Read EditManagedControlPlaneWizardDataLoader.tsx
+The edit flows confirm another concrete bug: in edit mode the data loaders pass a query-fetched initialData object whose identity changes on refetch, which re-runs V1's componentsList prefill (via the initialSelection memo) and wipes user edits. I'll fold this into the plan.
+
+Now I'll wait for the Plan agent's concrete design before finalizing.
+
+Read useControlPlaneV2Query.ts
+This is the same anti-pattern on the edit side: EditControlPlaneV2WizardDataLoader.tsx:46-61 swaps the wizard for a spinner/error whenever a refetch transiently invalidates data or errors, and feeds a new-identity initialData on every cache update. I now have the full picture across all mount points. Waiting on the Plan agent's design to finalize.
+
+I have confirmed all the facts I need. Here is the implementation plan.
+
+Implementation Plan: Stop refetch/re-render cascades from destroying MCP wizard state
+Confirmations from exploration (deltas / additions to the brief)
+QueryResult<T> (src/spaces/onboarding/hooks/types.ts) exposes only { data, error, isPending }. Item 2 needs a new field because data is always [] and cannot distinguish "loaded empty" from "never loaded".
+The edit wizards (EditManagedControlPlaneWizardDataLoader, EditControlPlaneV2WizardDataLoader) are mounted inside ControlPlaneCard (ControlPlaneCard.tsx:334-347), which lives inside the churning tile subtree — so they share the exact same remount vulnerability as the create wizards. The same edit wizards mounted in ControlPlanePageV2.tsx and ManagedControlPlanePage.tsx are at page/route level and are not in the churning list, so they are already safe. This is decisive for the scope question in item 1.
+KPI hooks (e.g. useCrossplaneQuery.ts:73) return isLoading: queryResult.loading with notifyOnNetworkStatusChange: true — so any refetch (including mutation-triggered refetchQueries) re-flips loading true. Confirmed root cause for item 5. None of them currently import NetworkStatus.
+ControlPlanesListMenu receives four setters + setInitialTemplateName as props (ControlPlanesListMenu.tsx:12-18) and is rendered from the tile at ControlPlaneListWorkspaceGridTile.tsx:232-238.
+The tile passes projectName={projectNamespace} (i.e. workspace.metadata.namespace) and workspaceName={workspaceName} into both create wizards (ControlPlaneListWorkspaceGridTile.tsx:347-348, 356-357). The controller must carry namespace (not the bare project display name) plus workspaceName and initialTemplateName. Confirmed sound.
+Ranked by impact-to-effort
+Rank	Item	Impact	Effort	Why
+1	#2 ProjectPage error-guard	Very high	Very low	3-line condition + 1 field. Eliminates the whole-page unmount on any transient refetch error.
+2	#3 AuthContext memoization	High	Very low	One useMemo. Cuts periodic re-render of every consumer incl. both open wizards.
+3	#5 Edit-mode Next-disabled	High	Low	The single confirmed cause of the "Next disabled in edit" symptom. Localized to KPI hooks.
+4	#4 Harden reset/prefill effects	High	Low-Med	Makes wizards resilient even if a remount slips through; defends V1 componentsList (currently unguarded).
+5	#1 Wizard controller hoist	Very high (root fix)	High	Structural; removes the remount vector entirely, but largest blast radius.
+6	#6 Remove transient-invalid windows	Medium (latent)	Low-Med	Only bites once templates load; templates is [] today.
+7	#7 Pause subscription refetch while wizard open	Medium	Med (risk)	Belt-and-suspenders; some staleness risk.
+Recommended sequencing: ship 1–4 first (they are low-risk, individually valuable, and make the app tolerant of remounts), then land #1 as the structural fix, then #6/#7 as hardening. Items 2–5 each independently reduce a distinct symptom, so they are worth landing even before the big refactor.
+
+Item 2 — ProjectPage transient-error guard (rank 1)
+Problem. ProjectPage.tsx:120 if (error || !workspaces || !projectName) renders a full-page IllustratedError, unmounting the entire ObjectPage subtree (including any open wizard) on any Apollo error, even a transient refetch error while query.data is still populated. isPending (line 105) is already correctly initial-load-only, so the fix is symmetric: the error branch must also be initial-load-only.
+
+Change.
+
+In useWorkspacesQuery.ts, add a field to the return that signals data has loaded at least once. Cleanest with least churn: derive hasLoadedOnce = query.data !== undefined and include it. Because QueryResult<T> is shared (types.ts), either (a) extend QueryResult with an optional hasLoadedOnce?: boolean, or (b) return an intersection type from this hook only. Prefer extending QueryResult with hasLoadedOnce?: boolean so useMcpsQuery can adopt the same signal later. data stays Workspace[] (always an array) to avoid a wide type migration.
+In ProjectPage.tsx:31, destructure hasLoadedOnce.
+Change the guard at line 120 to only full-page-error on initial failure:
+Keep the isNotFoundError (line 109) and isUnauthorizedError (line 123) backstops unchanged — those should still redirect/hard-error regardless.
+Change if (error || !workspaces || !projectName) to fire the dead-end error screen only when (!projectName) || ((error || !workspaces) && !hasLoadedOnce). Once data has loaded, a transient error is ignored at page level and the subtree (and any open wizard) stays mounted. Optionally surface the transient error non-destructively later (toast), but that is out of scope.
+Risk. Low. A genuinely persistent post-load error would now be silently swallowed at the page level (the stale list stays visible). Acceptable — the data is still the last-good snapshot, and the not-found/unauthorized backstops still fire.
+Blast radius. ProjectPage.tsx, useWorkspacesQuery.ts, types.ts (additive). No other consumer of QueryResult breaks (field is optional).
+Testing. Vitest on useWorkspacesQuery asserting hasLoadedOnce flips true after first successful result and stays true across a subsequent errored refetch (MockedProvider with a success then an error result). Cypress/RTL component test on ProjectPage (hooks are not injectable here — it calls useWorkspacesQuery directly, so drive it via MockedProvider mocks): mount, resolve workspaces, open a wizard, push an errored refetch, assert the wizard dialog is still in the DOM.
+
+Item 3 — AuthContextOnboarding memoization (rank 2)
+Problem. AuthContextOnboarding.tsx:183 passes a fresh object literal { isPending, isAuthenticated, user, error, login, logout } as the context value on every render. The token-refresh path calls setUser(apiUser) (line 60) periodically (timer at 131-146 → refreshToken → refreshAuthStatus(true) → setUser), re-rendering every consumer, including both open wizards, on each background refresh. login/logout are also re-created each render.
+
+Change.
+
+Wrap login and logout in useCallback (they close over stable setters / module-level fns; deps are effectively empty / stable).
+Wrap the provider value in useMemo(() => ({ isPending, isAuthenticated, user, error, login, logout }), [isPending, isAuthenticated, user, error, login, logout]).
+Confirm user identity stability: setUser(apiUser) always creates a new object from MeResponseSchema.parse, so user identity changes on every /me response even when the payload is unchanged. Two mitigations, both cheap:
+Wizards already depend on user?.email specifically (V2 line 282, V1 line 240), so a new-but-equal user object mostly does not re-trigger those effects. But it does re-render the components. To cut re-renders, memoize the value (above) — that limits re-render to actual value changes, and if user is a new object the memo still recomputes. So additionally: in refreshAuthStatus, only setUser when the parsed user differs (shallow compare of sub/email, or JSON.stringify equality) so a no-op background refresh does not churn identity. This is the change that actually stops the periodic re-render, not the useMemo alone.
+Risk. Very low. Equality-guarding setUser could theoretically skip a legitimately-changed nested field not covered by the comparison — compare the whole parsed object (JSON.stringify) to be safe.
+Blast radius. Every useAuthOnboarding consumer app-wide (grep shows wizards, telemetry identify effect at line 88, and app shell). Memoization is strictly a re-render reduction; no behavior change.
+Testing. Vitest: render AuthProviderOnboarding, spy a consumer's render count, fire a background refresh returning an identical /me body, assert consumer does not re-render (or context value identity is stable). Mock fetch.
+
+Item 5 — Edit-mode "Next disabled" fix (rank 3)
+Problem. In edit mode skipKpi=false; service mutations use refetchQueries:['GetCrossplane'] etc., which re-flip queryResult.loading true (KPI hooks return raw loading, notifyOnNetworkStatusChange:true). isKpiLoading (V2 container 314-322) then re-enables → the Next button disabled (line 903) re-disables and onNextClick early-returns (line 713) mid-flow.
+
+Change (in the KPI hooks — the reusable layer). Make each KPI hook expose an initial-load-only signal, mirroring useWorkspacesQuery.ts:92:
+
+In useCrossplaneQuery.ts and the six siblings (useFluxQuery, useLandscaperQuery, useEsoQuery, useOcmQuery, useKroQuery, useMetricsOperatorQuery), import NetworkStatus from @apollo/client and return isLoading: queryResult.loading && queryResult.networkStatus === NetworkStatus.loading. Preserve the existing key name isLoading so the container needs no rename, OR add a new isInitialLoading and update the container — prefer redefining isLoading to initial-load-only since these hooks are consumed only for the "is it installed yet" gate (the container is the only meaningful consumer of this flag for gating).
+Verify no other consumer depends on isLoading reflecting every refetch. If any card uses these for a spinner-on-refetch, add isInitialLoading as a separate field instead and switch the container's isKpiLoading (lines 314-322) to the new field, leaving isLoading untouched.
+Result. isKpiLoading becomes true only during the first fetch after the wizard opens; the once-per-open prefill guard (hasPrefilledServicesRef, lines 325-328) still correctly waits for that first load; mutation-triggered refetches no longer re-disable Next (line 903) or re-block onNextClick (line 713).
+
+Risk. Low-medium. The gate exists to prevent submitting on stale "was this installed" data (comment at 709-712). With initial-load-only, a manual user refetch mid-edit would no longer block — but nothing triggers such a refetch except the wizard's own mutation, after which we intentionally want Next usable (success step). Acceptable.
+Blast radius. All 7 KPI hooks and their consumers: the V2 wizard container, and any KPI cards under spaces/controlPlaneV2/components/Kpi/. Grep each hook's consumers before flipping isLoading in place; use the additive isInitialLoading variant if any consumer wants refetch-spinner semantics.
+Testing. Each KPI hook already has a .spec.ts (e.g. useCrossplaneQuery.spec.ts) — extend with a MockedProvider case: initial load → isLoading true, then a cache-triggered refetch → assert isLoading (or isInitialLoading) stays false. Cypress component test CreateControlPlaneV2WizardContainer.cy.tsx in edit mode (hooks ARE injectable here — the container accepts useCrossplaneQuery et al. via props? confirm; the container currently imports them directly, so injection is via the mutation/use* props already in Props). Simulate: open edit wizard, run a service mutation, assert Next stays enabled.
+
+Item 4 — Harden reset/prefill effects against stray re-render / remount (rank 4)
+Problem. These effects fire on dependency change and on any remount, so they can wipe user input:
+
+V2 members overwrite (CreateControlPlaneV2WizardContainer.tsx:273-282, deps user?.email/isOpen).
+V2 edit prefill (796-812, deps [isOpen, isEditMode], calls reset()).
+V1 members overwrite (CreateManagedControlPlaneWizardContainer.tsx:233-240).
+V1 edit prefill (437-464, deps [isOpen, isEditMode, isDuplicateMode], calls reset()).
+V1 componentsList prefill (useComponentsSelectionData.ts:216-226) re-runs setValue('componentsList', …) whenever JSON.stringify(data.items) / selectedTemplate / initialSelection change; initialSelection is a useMemo on [isEditMode, isDuplicateMode, initialData] (V1:410-434), so a new initialData identity (from a refetch) overwrites the user's edits — not ref-guarded, unlike V2's hasPrefilledServicesRef.
+Change — run reset/prefill exactly once per closed→open transition.
+
+Add a prevIsOpenRef (or hasInitializedForOpenRef) in each container. On each render compute justOpened = isOpen && !prevIsOpenRef.current; update the ref in an effect. Gate the members-overwrite and edit-prefill effects on justOpened rather than on isOpen alone, so a re-render (or a remount that starts with isOpen already true) does not re-run them. Reset the ref on close.
+Note the subtlety for a hoisted, never-unmounting wizard (item 1): a single persistent instance means the closed→open ref transition is the correct and only trigger — this pattern composes with item 1.
+V1 componentsList once-per-open guard. In useComponentsSelectionData.ts, add a hasPrefilledRef (mirroring V2's hasPrefilledServicesRef): the effect at 216-226 runs the initial setValue('componentsList', …) only once per open, then subsequent data.items/initialData identity changes do not clobber. Because the hook does not know isOpen, pass an isOpen/resetKey argument (or a hasPrefilledRef reset signal) from the V1 container so the guard resets on close. Keep the "add newly-available components without wiping selections" behavior by merging into current form value on later runs instead of overwriting (optional refinement).
+Keep shouldValidate:false on the componentsList prefill (already the case, line 220) so prefill never transiently flips isValid.
+Risk. Medium. Over-guarding could prevent a legitimately-needed re-prefill (e.g. initialData legitimately changing while open — does not happen for create; for edit the DataLoader remounts the container with fresh initialData only when reopened). The justOpened semantics match intended UX (prefill on open, never stomp edits after).
+Blast radius. Both create containers, useComponentsSelectionData (also consumed by V1 edit via ControlPlaneCard/EditManagedControlPlaneWizardDataLoader). Re-run existing .cy.tsx suites.
+Testing. Cypress component tests (CreateControlPlaneV2WizardContainer.cy.tsx, CreateManagedControlPlaneWizardContainer.cy.tsx): open wizard, type into name/members/components, force a re-render (drive an injected hook to emit new data identity), assert typed values persist. Vitest for useComponentsSelectionData: emit data.items twice with different array identities after a user edit; assert the second emit does not overwrite.
+
+Item 1 — Hoist wizard lifetime out of the churning list subtree (rank 5, structural root fix)
+Root cause recap. Open-state is local useState in ControlPlaneListWorkspaceGridTile (lines 59-61) and the wizard is mounted inside the tile (343-360). When a workspace transiently drops from the refetched list (Zod parse failure at useWorkspacesQuery.ts:77-84, dedup, or transient refetch), the tile unmounts → the open wizard unmounts → total state loss. Keys are stable per workspace name, so ordinary re-renders are fine; the killer is the transient list membership change.
+
+Design — a ProjectPage-level "wizard controller" context.
+
+Create src/spaces/onboarding/context/McpWizardControllerContext.tsx (new file; can only be authored during implementation, not now):
+
+Context shape:
+
+
+interface McpWizardController {
+  openCreateV1(args: { namespace: string; workspaceName: string; templateName?: string }): void;
+  openCreateV2(args: { namespace: string; workspaceName: string; templateName?: string }): void;
+  // optional, to also cover edit wizards mounted in ControlPlaneCard:
+  openEditV1(args: { namespace: string; resourceName: string; initialSection?: WizardStepType; mode?: 'edit'|'duplicate' }): void;
+  openEditV2(args: { namespace: string; resourceName: string; initialSection?: WizardStepType }): void;
+}
+Provider (McpWizardControllerProvider) holds the open-state and target args in useState, and renders one CreateManagedControlPlaneWizardContainer and one CreateControlPlaneV2WizardContainer (and, if adopted, one EditManagedControlPlaneWizardDataLoader + one EditControlPlaneV2WizardDataLoader) as its own children — outside ControlPlaneListAllWorkspaces. The controller value is memoized (useMemo/useCallback) so consumers do not re-render on unrelated churn.
+
+Mounting location. Place the provider in ProjectPage.tsx wrapping the ObjectPage return (lines 151-243), and render the single wizard instances as siblings after </ObjectPage> (inside the provider). ProjectPage is stable across list refetches (given item 2), so the wizards never unmount on list churn. Pass projectName down; the controller passes namespace/workspaceName into the wizard from the args captured at open time. Use a key on each singleton wizard derived from ${namespace}/${workspaceName} so switching which workspace's create wizard is open cleanly resets form state (desired), while re-renders within one open session preserve it.
+
+Rewiring tiles / menu:
+
+ControlPlaneListWorkspaceGridTile.tsx: delete local state (59-61), delete the two wizard mounts (343-360). The empty-state buttons (271, 282) call openCreateV1({ namespace: projectNamespace, workspaceName }) / openCreateV2(...) from useMcpWizardController().
+ControlPlanesListMenu.tsx: replace the five setter props (setIsCreateManagedControlPlaneWizardOpen, ...V2, setInitialTemplateName, plus keep setDialogDeleteWsIsOpen/setDialogEditWsIsOpen which are workspace-dialog local and stay in the tile) with controller calls. The menu needs namespace/workspaceName to pass into openCreateV1/V2; pass those as props from the tile (the tile has them), keeping the workspace-delete/edit dialogs local to the tile.
+ControlPlaneListAllWorkspaces.tsx: unchanged except it now runs inside the provider.
+Scope decision — should the controller also own the edit wizards? Yes for the ones in ControlPlaneCard (ControlPlaneCard.tsx:334-347), because those live inside the churning tile subtree and have the identical remount bug. Move EditManagedControlPlaneWizardDataLoader + EditControlPlaneV2WizardDataLoader mounting into the controller and have ControlPlaneCard's menu call openEditV1/openEditV2 with the MCP's namespace/name. Keep it ProjectPage-scoped: do NOT touch ControlPlanePageV2.tsx or ManagedControlPlanePage.tsx — their edit wizards are already at stable route level and are not in a churning list; folding them into a shared controller would add coupling for no benefit. So: one controller, provided by ProjectPage, owning create-V1/create-V2 and (recommended) the two edit loaders used by ControlPlaneCard.
+
+Risk. High (largest change). Watch:
+
+The wizard's projectName prop is actually the namespace (workspace.metadata.namespace) in the current tile wiring — the controller args must carry namespace, not the route projectName. Do not "simplify" this to the route param.
+data-testid anchors used by Cypress (ControlPlaneCard.tsx:331 v1-wizard-open, 343 v2-wizard-open, and create-mcp-dialog in the containers) move location; update tests / keep the testids on the singleton mounts.
+Focus/scroll behavior: the wizard Dialog is portalled, so DOM location does not matter visually; verify initialFocus="project-name-input" still works. Blast radius. ProjectPage.tsx, ControlPlaneListWorkspaceGridTile.tsx, ControlPlanesListMenu.tsx, ControlPlaneCard.tsx, new context file. Cypress suites for tile/card/menu and both wizard containers. Testing. Cypress component test at ProjectPage/list level: open create wizard, then simulate a workspace transiently dropping out of the useWorkspacesQuery result (drive the injected useMcpsQuery/MockedProvider to drop+re-add the workspace) and assert the wizard dialog stays open with entered state intact. Unit test the provider's openCreateV1/V2 state transitions. Reuse the injectable-hooks convention (useMcpsQuery, useDeleteWorkspace, useMcpV2ComponentsListQuery are already injectable through the tile/list props) to force list churn deterministically.
+Item 6 — Remove transient-invalid windows (rank 6, latent)
+Problem. The template/charging effect (V2 231-247, V1 189-205) does two separate setValue(…, { shouldValidate: true }) calls then setMetadataFormKey(k => k+1), remounting MetadataForm (V2 key at 938, V1 at 596) on every visit to the metadata step. Between the two setValues and across the remount there is a window where isValid can be transiently false (disabling Next / downstream steps) and the form loses focus/local state. Currently latent because templates is useMemo(() => []) (V2:172, V1:130) so selectedTemplate is always undefined and the if (selectedTemplate) block never runs — but setMetadataFormKey bump does run on every metadata visit today, remounting MetadataForm needlessly.
+
+Change.
+
+Batch the two charging setValue calls into a single validation pass: set chargingTarget with { shouldValidate: false, shouldDirty: true } and only the second (chargingTargetType) with { shouldValidate: true } — or call reset/setValue with a combined object then trigger() once. Eliminates the mid-update invalid frame.
+Stop remounting MetadataForm on every metadata visit. Bump metadataFormKey only when the applied template actually changes (guard with a ref holding the last-applied selectedTemplateValue), not on every effect run. Better: drive MetadataForm's prefix/suffix from props (already passed: namePrefix etc.) so it re-renders in place and the key remount is unnecessary — remove the metadataFormKey bump from this effect entirely and only remount when a genuine template switch requires clearing user-typed name/displayName.
+Risk. Low today (dead code path), medium once templates load. The MetadataForm remount may currently paper over a stale-defaults bug; verify prefixes/suffixes update reactively via props before removing the remount.
+Blast radius. Both containers + MetadataForm.tsx.
+Testing. Cypress: on the metadata step, type a name, navigate away and back, assert the field is preserved and Next never flickers disabled. When templates are wired later, add a template-switch test.
+
+Item 7 — Optional: pause subscription refetch while a wizard is open / never drop workspaces on parse errors (rank 7)
+Two independent hardening measures:
+
+7a. Pause refetch while a wizard is open. The self-triggered cascade: the wizard's own create/update mutation emits workspace/MCP SSE events → useWorkspacesQuery (68-72) and useMcpsQuery (276-284) refetch. With items 1–4 in place, a refetch no longer destroys the wizard, so this is belt-and-suspenders. If pursued: expose an isWizardOpen signal from the controller (item 1) and have the debounced refetch effects early-return (still record that a refetch is pending) while open, flushing one refetch on close. Feasibility: straightforward if the controller context is in place; the queries would read a lightweight "wizard open" context or receive a paused arg.
+
+Risk: staleness — the list won't reflect external changes while a wizard is open; and the success step benefits from a post-create refetch, so flush-on-close is important. Medium risk; only do this after items 1–4, and scope the pause to the specific query instances backing the list, not global.
+7b. Never drop a workspace on transient parse errors. useWorkspacesQuery.ts:74-90 drops any item that fails WorkspaceSchema.safeParse (returns [] for it), which removes the tile → unmounts an open wizard. Harden by keeping the last-good parsed workspace list across a refetch: retain a ref of previously-successfully-parsed workspaces keyed by namespace/name, and when a refetch yields a parse failure for a key that previously parsed, fall back to the retained value instead of dropping it (still telemetry.report the mismatch). This directly closes the "workspace transiently drops from the list" vector at the data layer — complementary to item 1 (item 1 stops the drop from destroying the wizard; 7b stops the drop from happening).
+
+Risk: low-medium; must not mask a workspace that was genuinely deleted (a delete arrives as a valid list omission, not a parse failure — so only fall back on parse failure, never on a clean absence). Bound the retained cache to the current project.
+Testing: Vitest — feed a valid list, then a refetch where one item fails Zod; assert the workspace is retained (from cache) and telemetry is reported; then feed a clean list omitting it; assert it is removed.
+Cross-cutting testing notes
+Injectable-hooks convention: the list/tile/card components accept useMcpsQuery, useDeleteWorkspace, useMcpV2ComponentsListQuery as props defaulting to the real hooks; both wizard containers accept all their mutation/query hooks as props. Use this in Cypress component tests to deterministically drive loading/error/refetch/churn without a live backend. ProjectPage and the KPI hooks are not injectable — test those via MockedProvider GraphQL mocks (Vitest for the KPI hooks, Cypress for ProjectPage).
+Add one integration-level Cypress test that reproduces the original bug end-to-end: open a create wizard, fire a subscription-driven refetch that drops+re-adds the host workspace, and assert the wizard dialog and its entered state survive. This test should fail before item 1 and pass after.
+Critical Files for Implementation
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/pages/ProjectPage.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/ControlPlanes/List/ControlPlaneListWorkspaceGridTile.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/hooks/useWorkspacesQuery.ts
+/Users/C5395097/Documents/sap/ui-frontend/src/spaces/onboarding/auth/AuthContextOnboarding.tsx
+Supporting (also touched): useMcpsQuery.ts, useComponentsSelectionData.ts, CreateManagedControlPlaneWizardContainer.tsx, ControlPlanesListMenu.tsx, ControlPlaneCard.tsx, the 7 Kpi/use*Query.ts hooks, hooks/types.ts, and a new McpWizardControllerContext.tsx.
+
+The Plan agent surfaced a key additional fact: the edit wizards are mounted inside ControlPlaneCard (also within the churning tile subtree), while the route-level mounts on ControlPlanePageV2/ManagedControlPlanePage are already stable. Let me confirm that mount point before writing the final plan.
+
+Read ControlPlaneCard.tsx (lines 301-370)
+Confirmed — the edit wizards are mounted inside ControlPlaneCard (lines 330-351) with open-state local to the card, so a card remount from list churn closes them just like the create wizards. I have everything I need. Writing the final plan.
+
+Write analyze-the-logic-errors-staged-wreath.md
+223 lines
+# Fix: MCP wizards on ProjectPage lose state / reopen / disable Next
+
+## Context
+
+On the Project page, the "Create Managed Control Plane" wizards (V1
+`CreateManagedControlPlaneWizardContainer`, V2 `CreateControlPlaneV2WizardContainer`)
+— and the corresponding **edit** wizards launched from a control-plane card —
+intermittently reset their in-progress state, close/reopen, or have the **Next**
+button unexpectedly disabled. The user experiences this as "something triggers a
+refetch that resets the wizard."
+
+The root cause is **not** a single bug but a fragile architecture: the wizards are
+mounted deep inside a subtree that is continuously re-rendered and occasionally
+**remounted** by two independent Apollo GraphQL-subscription refetch layers, and the
+whole page (or card) is torn down whenever a refetch transiently errors. Because
+wizard open-state and form state are local component state, any remount destroys them.
+
+Intended outcome: the wizard lifetime is decoupled from list refetches so a user can
+fill in a multi-step wizard uninterrupted, regardless of background data churn.
+
+### How the pieces fit today
+
+```
+ProjectPage ── useWorkspacesQuery (Apollo useQuery + useSubscription → refetch on every WS event, 300ms debounce)
+  └ ObjectPage
+     └ ObjectPageSection#workspaces
+        └ ControlPlaneListAllWorkspaces        (stable key per workspace)
+           └ ControlPlaneListWorkspaceGridTile (LOCAL open-state; wizards mounted here)
+              ├ useMcpsQuery (useQuery×2 + useSubscription×2 → refetch on every MCP/CP event)
+              ├ [create open?] CreateManagedControlPlaneWizardContainer  (V1)
+              ├ [create open?] CreateControlPlaneV2WizardContainer       (V2)
+              └ ControlPlaneCard
+                   └ EditManagedControlPlaneWizardDataLoader / EditControlPlaneV2WizardDataLoader
+                     (edit wizards; open-state LOCAL to the card)
+```
+
+### Confirmed root causes (file:line)
+
+1. **Whole-page unmount on transient refetch error.** `ProjectPage.tsx:120`
+   `if (error || !workspaces || !projectName)` renders a full-page error, unmounting
+   the entire subtree (incl. any open wizard) on *any* Apollo `error` — including a
+   transient refetch error while previous data is still present. (`isPending` at
+   `:105` is already correctly initial-load-only; the error branch is not.)
+2. **Wizard lifetime tied to a remountable tile/card.** Open-state is local
+   `useState` in `ControlPlaneListWorkspaceGridTile.tsx:59-61` (create) and in
+   `ControlPlaneCard` (edit, mounted at `ControlPlaneCard.tsx:330-351`). Keys are
+   stable, so *ordinary* re-renders preserve state — but a workspace transiently
+   dropping from the refetched list (Zod parse failure `useWorkspacesQuery.ts:77-84`,
+   dedup, or transient error) remounts the tile/card and destroys wizard state.
+3. **Self-triggered refetch cascade.** The wizard's own create/update mutation emits
+   workspace + MCP SSE events, which `useWorkspacesQuery.ts:60-72` and
+   `useMcpsQuery.ts:258-284` turn into debounced `refetch()`s that re-render the
+   wizard's ancestors.
+4. **Re-render amplifier.** `AuthContextOnboarding.tsx:183` provides an **unmemoized**
+   value object; the token-refresh timer (`:131-146`) calls `setUser(new object)`
+   periodically, re-rendering every consumer including open wizards.
+5. **Edit-mode "Next disabled".** V2 KPI hooks (`spaces/controlPlaneV2/components/Kpi/use*Query.ts`)
+   return raw `isLoading: queryResult.loading` with `notifyOnNetworkStatusChange:true`.
+   Service mutations fire `refetchQueries:['GetCrossplane']` etc., re-flipping `loading`
+   true → `isKpiLoading` (`CreateControlPlaneV2WizardContainer.tsx:314-322`) re-disables
+   Next (`:903`) and blocks `onNextClick` (`:713`).
+6. **State-clobbering prefill effects.** Effects keyed on `isOpen`/`initialData`
+   re-run `reset()`/`setValue()` on remount and on new `initialData` identity:
+   V2 `:273-282`, `:796-812`; V1 `:233-240`, `:437-464`; and V1 componentsList prefill
+   `useComponentsSelectionData.ts:216-226` (unguarded — a refetched `initialData`
+   identity change wipes the user's version edits).
+7. **Transient-invalid window (latent).** The template/charging effect
+   (V2 `:231-247`, V1 `:189-205`) does two separate `setValue(...,{shouldValidate:true})`
+   calls then remounts `MetadataForm` via `metadataFormKey` on every metadata visit —
+   a brief `isValid=false` frame. Latent today (`templates` is `[]`) but the
+   `MetadataForm` remount already runs needlessly.
+
+## Approach (approved: structural refactor, all vulnerable mount points)
+
+Ship items 1–4 first (low-risk, each fixes a distinct symptom and makes the app
+tolerant of remounts), then the structural hoist (item 5), then hardening (6–7).
+
+---
+
+### 1. ProjectPage error-guard — stop full-page unmount on transient refetch error
+**Files:** `useWorkspacesQuery.ts`, `hooks/types.ts`, `ProjectPage.tsx`
+
+- Add `hasLoadedOnce?: boolean` to `QueryResult<T>` (`hooks/types.ts`, additive/optional).
+- In `useWorkspacesQuery.ts`, return `hasLoadedOnce: query.data !== undefined`.
+- In `ProjectPage.tsx:120`, gate the dead-end error screen to *initial* failure only:
+  fire it when `!projectName || ((error || !workspaces) && !hasLoadedOnce)`. Keep the
+  `isNotFoundError` (`:109`) and `isUnauthorizedError` (`:123`) backstops unchanged.
+- Result: once data has loaded, a transient refetch error is ignored at page level and
+  the subtree (and any open wizard) stays mounted.
+
+### 2. AuthContextOnboarding — cut re-render amplification
+**File:** `AuthContextOnboarding.tsx`
+
+- Wrap `login`/`logout` in `useCallback`; wrap the provider value in `useMemo`.
+- In `refreshAuthStatus`, only `setUser(apiUser)` when the parsed user actually differs
+  (compare parsed object, e.g. `JSON.stringify`), so a no-op background `/me` refresh no
+  longer churns `user` identity. This is the change that actually stops the periodic
+  re-render (memoization alone doesn't, since a new `user` object recomputes the memo).
+
+### 3. Edit-mode Next-disabled — make KPI loading initial-load-only
+**Files:** the 7 `Kpi/use*Query.ts` hooks (`useCrossplaneQuery`, `useFluxQuery`,
+`useLandscaperQuery`, `useEsoQuery`, `useOcmQuery`, `useKroQuery`, `useMetricsOperatorQuery`)
+
+- Import `NetworkStatus` and return an initial-load-only flag:
+  `loading && networkStatus === NetworkStatus.loading` (mirrors `useWorkspacesQuery.ts:92`).
+- Prefer adding a separate `isInitialLoading` field and switch the container's
+  `isKpiLoading` (`CreateControlPlaneV2WizardContainer.tsx:314-322`) to it, leaving
+  existing `isLoading` semantics intact for any KPI card that wants refetch-spinner
+  behavior (grep each hook's consumers first).
+- The once-per-open prefill guard (`hasPrefilledServicesRef`, `:325-328`) still waits for
+  the first load; mutation-triggered refetches no longer re-disable Next.
+
+### 4. Harden reset/prefill effects — run once per closed→open transition
+**Files:** both wizard containers, `useComponentsSelectionData.ts`
+
+- Add a `prevIsOpenRef`/`hasInitializedForOpenRef` in each container; compute
+  `justOpened = isOpen && !prev`. Gate the members-overwrite and edit-prefill effects on
+  `justOpened` instead of bare `isOpen`, so a re-render/remount cannot re-run `reset()`
+  and wipe input. Reset the ref on close. (Composes cleanly with item 5: a single
+  never-unmounting wizard makes closed→open the correct and only trigger.)
+- Give V1 componentsList prefill a once-per-open guard mirroring V2's
+  `hasPrefilledServicesRef` (pass an `isOpen`/reset signal into `useComponentsSelectionData`
+  so it initializes `componentsList` once, then merges newly-available components into the
+  current form value on later runs instead of overwriting). Keep `shouldValidate:false`.
+
+### 5. Structural hoist — decouple wizard lifetime from the churning subtree (root fix)
+**New file:** `src/spaces/onboarding/context/McpWizardControllerContext.tsx`
+**Files:** `ProjectPage.tsx`, `ControlPlaneListWorkspaceGridTile.tsx`,
+`ControlPlanesListMenu.tsx`, `ControlPlaneCard.tsx`
+
+- Create an `McpWizardControllerProvider` + `useMcpWizardController()` hook. Controller
+  shape:
+  ```
+  openCreateV1({ namespace, workspaceName, templateName? })
+  openCreateV2({ namespace, workspaceName, templateName? })
+  openEditV1({ namespace, resourceName, initialSection?, mode? })
+  openEditV2({ namespace, resourceName, initialSection? })
+  ```
+- The provider holds open-state + target args in `useState` and renders **one** instance
+  each of the two create containers and the two edit data loaders (`EditManagedControlPlaneWizardDataLoader`,
+  `EditControlPlaneV2WizardDataLoader`) as its own children — **outside**
+  `ControlPlaneListAllWorkspaces`. Memoize the controller value.
+- Mount the provider in `ProjectPage.tsx` wrapping the `ObjectPage` return; render the
+  singleton wizards as siblings after `</ObjectPage>`. ProjectPage is stable across list
+  refetches (item 1), so the wizards never unmount on list churn.
+- Key each singleton wizard by `${namespace}/${workspaceName}` (or resource name for edit)
+  so switching *which* target is open cleanly resets the form (desired), while re-renders
+  within one session preserve it.
+- Rewire consumers to call the controller instead of holding local state:
+  - `ControlPlaneListWorkspaceGridTile.tsx`: delete local open-state (`:59-61`) and both
+    create mounts (`:343-360`); empty-state buttons (`:271`,`:282`) call `openCreateV1/V2`.
+  - `ControlPlanesListMenu.tsx`: replace the create/template setter props with controller
+    calls; keep the workspace delete/edit dialogs local to the tile. Pass `namespace`/
+    `workspaceName` so it can call `openCreateV1/V2`.
+  - `ControlPlaneCard.tsx`: replace local edit-wizard state and the two loader mounts
+    (`:330-351`) with `openEditV1/openEditV2` calls.
+- **Critical:** the wizard's `projectName` prop is actually the *namespace*
+  (`workspace.metadata.namespace`); controller args must carry `namespace`, not the route
+  `projectName`. Do not collapse them.
+- **Scope:** keep the controller ProjectPage-scoped. Do **not** touch
+  `ControlPlanePageV2.tsx` / `ManagedControlPlanePage.tsx` — their edit wizards are already
+  at stable route level (not inside a churning list) and need no change.
+- Preserve `data-testid` anchors used by Cypress (`create-mcp-dialog`, `v1-wizard-open`,
+  `v2-wizard-open`) by moving them onto the singleton mounts.
+
+### 6. Remove transient-invalid windows (hardening)
+**Files:** both wizard containers, `MetadataForm.tsx`
+
+- Batch the two charging `setValue` calls into a single validation pass (set
+  `chargingTarget` with `shouldValidate:false`, then `chargingTargetType` with
+  `shouldValidate:true`, or set both then `trigger()` once).
+- Stop remounting `MetadataForm` on every metadata visit: drive prefixes/suffixes via the
+  already-passed props so it re-renders in place; only bump `metadataFormKey` on a genuine
+  template switch (guard with a last-applied-template ref).
+
+### 7. Optional deeper hardening (only after 1–5)
+**Files:** `useWorkspacesQuery.ts` (7b), query hooks + controller (7a)
+
+- **7b (recommended):** in `useWorkspacesQuery.ts:74-90`, retain the last-good parsed
+  workspace per `namespace/name`; on a refetch where an item fails Zod, fall back to the
+  retained value (still `telemetry.report`) instead of dropping it — closes the
+  "workspace transiently drops out" vector at the data layer. Only fall back on *parse
+  failure*, never on clean absence (a real delete must still remove the tile).
+- **7a (belt-and-suspenders):** expose `isWizardOpen` from the controller and pause the
+  list/MCP debounced refetch while a wizard is open, flushing one refetch on close. Scope
+  the pause to the specific query instances; accept minor staleness. Lower priority once
+  1–5 land.
+
+## Reuse notes
+
+- Mirror the existing once-per-open ref pattern (`hasPrefilledServicesRef`,
+  `CreateControlPlaneV2WizardContainer.tsx:325`).
+- Mirror the initial-load-only pattern already in `useWorkspacesQuery.ts:92` and
+  `useControlPlaneV2Query.ts:109` for item 3.
+- Injectable-hooks convention: tile/list/card accept `useMcpsQuery`, `useDeleteWorkspace`,
+  `useMcpV2ComponentsListQuery`; both wizard containers accept their query/mutation hooks
+  as props — use these to drive churn deterministically in Cypress.
+
+## Verification
+
+- **Unit (Vitest):**
+  - `useWorkspacesQuery.spec` — `hasLoadedOnce` true after first success and stays true
+    across an errored refetch (`MockedProvider` success→error).
+  - KPI hook specs (e.g. `useCrossplaneQuery.spec`) — initial load `isInitialLoading:true`,
+    then a cache-triggered refetch keeps it `false`.
+  - `useComponentsSelectionData` — two `data.items` emits with different identities after a
+    user edit; second emit does not overwrite selections.
+  - `AuthContextOnboarding` — identical background `/me` refresh does not churn `user`
+    identity / re-render consumers.
+- **Cypress component tests:**
+  - Both wizard containers: type into fields, drive an injected hook to emit new data
+    identity, assert entered state persists and Next never flickers disabled.
+  - V2 edit: run a service mutation, assert Next stays enabled.
+  - Regression test (should fail before item 5, pass after): at list/`ProjectPage` level,
+    open a create wizard, simulate the host workspace dropping+re-adding in
+    `useWorkspacesQuery`/`useMcpsQuery` results, assert the `create-mcp-dialog` stays open
+    with entered state intact.
+- **Manual:** `npm run dev`, open a workspace, start a create wizard, fill step 1–2, and
+  trigger background changes (create/delete another MCP in the same workspace from a second
+  tab) to fire subscription refetches — the wizard must stay open with state intact.
+- **Gates:** `npm run type-check`, `npm run lint` (`--max-warnings 0`), affected
+  `npm run test:vi` / `npm run test:cy` specs.
+The plan is written. Here's the diagnosis and the fix strategy.
+
+What's actually going wrong
+The wizards aren't buggy in isolation — they're mounted in a fragile place. Both create wizards live inside each per-workspace tile, and both edit wizards live inside each control-plane card, with open-state held in local useState. That subtree is driven by two independent Apollo GraphQL-subscription refetch layers (useWorkspacesQuery and useMcpsQuery) that refetch() on every backend event — including events the wizard's own create/update mutation emits. So the wizard constantly re-renders its ancestors, and worse:
+
+The whole page tears down on a transient refetch error. ProjectPage.tsx:120 shows a full-page error on any Apollo error, even a momentary refetch failure while good data is still present — unmounting the open wizard.
+A workspace briefly dropping from the refetched list remounts the tile/card, destroying local wizard state (the "reopen/refresh" symptom).
+AuthContextOnboarding ships an unmemoized value and setUser(new object) on every background token refresh, re-rendering all consumers.
+Edit-mode "Next disabled": KPI hooks return raw loading, and service mutations refetch them (notifyOnNetworkStatusChange), so isKpiLoading re-disables Next after each mutation.
+Prefill effects keyed on isOpen/initialData re-run reset() on remount and wipe input (V1's componentsList prefill is entirely unguarded).
+The fix (per your choices: structural refactor, all vulnerable mount points)
+Sequenced low-risk-first: (1) make ProjectPage's error screen initial-load-only so transient refetch errors stop unmounting the tree; (2) memoize the auth context + equality-guard setUser; (3) make KPI loading initial-load-only so Next stops re-disabling; (4) run prefill/reset exactly once per open transition; then the root fix (5) — hoist all four wizard mounts out of the churning tiles/cards into a single stable McpWizardController context provided at ProjectPage level, so refetches can never remount them. The already-stable route-level edit mounts on ControlPlanePageV2/ManagedControlPlanePage are intentionally left alone. Items 6–7 are hardening (transient-invalid windows; retaining last-good workspaces on parse failure).
+
+Full detail, exact file/line targets, and the Vitest/Cypress verification plan (including a regression test that fails before the hoist and passes after) are in the plan file.
+
+Claude’s Plan analyze-the-logic-errors-staged-wreath.md
+User approved the plan
+Plan approved. Let me set up a todo list and start implementing, low-risk items first.
+
+Update Todos
+
+Item 1: ProjectPage error-guard (hasLoadedOnce in useWorkspacesQuery + QueryResult type + guard)
+
+Item 2: Memoize AuthContextOnboarding value + equality-guard setUser
+
+Item 3: KPI hooks initial-load-only isInitialLoading + wire into V2 container
+
+Item 4: Harden reset/prefill effects (justOpened guard) + V1 componentsList once-per-open guard
+
+Item 5: Structural hoist — McpWizardController context + rewire tile/menu/card/ProjectPage
+
+Item 6: Remove transient-invalid windows (batch setValue, stop MetadataForm remount)
+
+Item 7: Hardening — retain last-good workspaces on parse failure (7b)
+
+Verify: type-check, lint, affected tests
+Read types.ts
+Edit types.ts
+Added 6 lines
+Edit useWorkspacesQuery.ts
+Added 3 lines
+Now the ProjectPage guard:
+
+Edit ProjectPage.tsx
+Modified
+Now update the guard to only show the dead-end error on initial-load failure:
+
+Edit ProjectPage.tsx
+Added 5 lines
+Item 1 done. Now item 2 — memoize AuthContextOnboarding and equality-guard setUser.
+
+Edit AuthContextOnboarding.tsx
+Modified
+Edit AuthContextOnboarding.tsx
+Added 3 lines
+Edit AuthContextOnboarding.tsx
+Added 1 line
+Item 2 done. Now item 3 — KPI hooks. Let me read one and check who consumes their isLoading.
+
+Read useCrossplaneQuery.ts
+Bash Read KPI hook and find consumers
+IN
+ls src/spaces/controlPlaneV2/components/Kpi/ && echo "=== consumers of KPI query hooks isLoading ===" && grep -rn "useCrossplaneQuery\|useFluxQuery\|useEsoQuery\|useKroQuery\|useLandscaperQuery\|useMetricsOperatorQuery\|useOcmQuery" src --include=*.ts --include=*.tsx -l | grep -v ".spec." | grep -v "Kpi/use"
+
+OUT
+useCrossplaneQuery.spec.ts
+useCrossplaneQuery.ts
+useEsoQuery.spec.ts
+useEsoQuery.ts
+useFluxQuery.spec.ts
+useFluxQuery.ts
+useKroQuery.spec.ts
+useKroQuery.ts
+useLandscaperQuery.spec.ts
+useLandscaperQuery.ts
+useMcpV2ComponentsListQuery.spec.ts
+useMcpV2ComponentsListQuery.ts
+useMetricsOperatorQuery.ts
+useOcmQuery.spec.ts
+useOcmQuery.ts
+=== consumers of KPI query hooks isLoading ===
+(eval):1: no matches found: --include=*.ts
+Bash Find consumers of KPI query hooks
+IN
+grep -rln "useCrossplaneQuery\|useFluxQuery\|useEsoQuery\|useKroQuery\|useLandscaperQuery\|useMetricsOperatorQuery\|useOcmQuery" src | grep -v ".spec." | grep -v "Kpi/use"
+
+OUT
+src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx
+src/components/Wizards/CreateControlPlaneV2/CreateControlPlaneV2WizardContainer.tsx
+Bash Inspect ControlPlanePageV2 usage of KPI isLoading
+IN
+grep -n "useCrossplaneQuery\|useFluxQuery\|useEsoQuery\|useKroQuery\|useLandscaperQuery\|useMetricsOperatorQuery\|useOcmQuery\|isLoading\|isCrossplaneKpiLoading\|isLoadingCrossplane" src/spaces/controlPlaneV2/pages/ControlPlanePageV2.tsx | head -40
+
+OUT
+51:import { useCrossplaneQuery } from '../components/Kpi/useCrossplaneQuery.ts';
+52:import { useEsoQuery } from '../components/Kpi/useEsoQuery.ts';
+53:import { useFluxQuery } from '../components/Kpi/useFluxQuery.ts';
+54:import { useLandscaperQuery } from '../components/Kpi/useLandscaperQuery.ts';
+55:import { useOcmQuery } from '../components/Kpi/useOcmQuery.ts';
+56:import { useKroQuery } from '../components/Kpi/useKroQuery.ts';
+57:import { useMetricsOperatorQuery } from '../components/Kpi/useMetricsOperatorQuery.ts';
+390:  const { data: mcp, isPending: isLoading, error } = useControlPlaneV2Query(controlPlaneName, namespace);
+391:  const { crossplaneData, isLoading: isLoadingCrossplane } = useCrossplaneQuery(controlPlaneName, namespace);
+392:  const { fluxData, isLoading: isLoadingFlux } = useFluxQuery(controlPlaneName, namespace);
+393:  const { landscaperData, isLoading: isLoadingLandscaper } = useLandscaperQuery(controlPlaneName, namespace);
+394:  const { esoData, isLoading: isLoadingEso } = useEsoQuery(controlPlaneName, namespace);
+395:  const { ocmData } = useOcmQuery(controlPlaneName, namespace);
+396:  const { kroData } = useKroQuery(controlPlaneName, namespace);
+397:  const { metricsOperatorData } = useMetricsOperatorQuery(controlPlaneName, namespace);
+398:  const cardsReady = !isLoadingCrossplane && !isLoadingFlux && !isLoadingLandscaper && !isLoadingEso;
+433:  if (isLoading) {
+441:  if (!projectName || !workspaceName || !controlPlaneName || isNotFoundError(error) || (!isLoading && !mcp)) {
+ControlPlanePageV2 uses raw isLoading for cardsReady, so I'll add a separate isInitialLoading field to each KPI hook and wire only the wizard to it — leaving isLoading untouched. Let me check each hook's imports and return shape.
+
+Bash Inspect imports and returns of all KPI hooks
+IN
+cd src/spaces/controlPlaneV2/components/Kpi; for f in useCrossplaneQuery useFluxQuery useEsoQuery useKroQuery useLandscaperQuery useMetricsOperatorQuery useOcmQuery; do echo "=== $f ==="; grep -n "^import\|from '@apollo/client\|isLoading: queryResult.loading\|return {\|Data," $f.ts | head -20; done
+
+OUT
+=== useCrossplaneQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { CrossplaneData, CrossplaneSchema } from '../../../mcp/types/Crossplane.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+62:    return {
+71:  return {
+72:    crossplaneData,
+73:    isLoading: queryResult.loading,
+=== useFluxQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { FluxData, FluxSchema } from '../../../mcp/types/Flux.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+57:    return {
+63:  return {
+64:    fluxData,
+65:    isLoading: queryResult.loading,
+=== useEsoQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { EsoData, EsoSchema } from '../../../mcp/types/Eso.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+57:    return {
+63:  return {
+64:    esoData,
+65:    isLoading: queryResult.loading,
+=== useKroQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { KroData, KroSchema } from '../../../mcp/types/Kro.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+56:    return { isInstalled: !!version, version };
+59:  return { kroData, isLoading: queryResult.loading, error: queryResult.error };
+=== useLandscaperQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { LandscaperData, LandscaperSchema } from '../../../mcp/types/Landscaper.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+58:    return {
+64:  return {
+65:    landscaperData,
+66:    isLoading: queryResult.loading,
+=== useMetricsOperatorQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { MetricsOperatorData, MetricsOperatorSchema } from '../../../mcp/types/MetricsOperator.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+56:    return { isInstalled: !!version, version };
+59:  return { metricsOperatorData, isLoading: queryResult.loading, error: queryResult.error };
+=== useOcmQuery ===
+1:import { useQuery } from '@apollo/client/react';
+2:import { useMemo } from 'react';
+3:import { z } from 'zod';
+5:import { graphql } from '../../../../types/__generated__/graphql/index.ts';
+6:import { OcmData, OcmSchema } from '../../../mcp/types/Ocm.ts';
+7:import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
+56:    return { isInstalled: !!version, version };
+59:  return { ocmData, isLoading: queryResult.loading, error: queryResult.error };
+API Error: 402 Daily spending limit reached (€10.01 of €10.00). Requests are paused until the limit resets at UTC midnight. To resume now, increase the daily limit for this session in the Hyperspace LLM Proxy.
+
