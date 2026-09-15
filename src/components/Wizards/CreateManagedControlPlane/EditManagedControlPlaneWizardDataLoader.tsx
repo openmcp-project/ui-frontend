@@ -1,5 +1,5 @@
 import { BusyIndicator } from '@ui5/webcomponents-react';
-import { FC, useRef } from 'react';
+import { FC, useState } from 'react';
 import { useManagedControlPlaneEditQuery } from '../../../spaces/onboarding/hooks/useManagedControlPlaneEditQuery.ts';
 import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 
@@ -29,17 +29,18 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   const { isLoading, data } = useManagedControlPlaneEditQuery(workspaceName, resourceName, !isOpen);
 
   // Preserve the last successfully loaded data so the wizard stays mounted and retains
-  // its form state during Apollo background refetches. Cleared on close so the next
-  // open re-seeds from live data. A ref avoids triggering extra renders.
-  const cachedDataRef = useRef<typeof data>(undefined);
-  if (data) {
-    cachedDataRef.current = data;
-  }
-  if (!isOpen) {
-    cachedDataRef.current = undefined;
+  // its form state during Apollo background refetches (when `data` briefly goes undefined).
+  // Cleared on close so the next open re-seeds from live data.
+  const [cachedData, setCachedData] = useState<typeof data>(undefined);
+
+  // Derive the target cache value in one place so the "fill" and "clear" rules can't
+  // ping-pong across renders. Only cache while open; otherwise reset to undefined.
+  const nextCachedData = isOpen ? (data ?? cachedData) : undefined;
+  if (nextCachedData !== cachedData) {
+    setCachedData(nextCachedData);
   }
 
-  const stableData = data ?? cachedDataRef.current;
+  const stableData = data ?? cachedData;
 
   if (isLoading && !stableData) {
     return (
