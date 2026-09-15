@@ -340,24 +340,30 @@ export function ControlPlaneListWorkspaceGridTile({
         workspaceName={workspaceName}
         namespace={projectNamespace}
       />
-      {/* Always mounted — `isOpen` is the single source of truth for open/closed (the wizard
-          itself renders null while closed). Conditionally mounting here too used to double-gate
-          the same boolean, so any parent re-render that briefly disagreed with the tile's own
-          state fully destroyed and rebuilt the wizard's internal form/step state. */}
-      <CreateManagedControlPlaneWizardContainer
-        isOpen={isCreateManagedControlPlaneWizardOpen}
-        setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
-        projectName={projectNamespace}
-        workspaceName={workspaceName}
-        initialTemplateName={initialTemplateName}
-      />
-      <CreateControlPlaneV2WizardContainer
-        isOpen={isCreateManagedControlPlaneWizardOpenV2}
-        setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
-        projectName={projectNamespace}
-        workspaceName={workspaceName}
-        initialTemplateName={initialTemplateName}
-      />
+      {/* Mounted only while open. The open/closed flag lives in this tile's own `useState`, which
+          already survives parent re-renders, so conditional mounting doesn't lose form state — it
+          only unmounts on close (intended) or if this tile unmounts. Tiles are kept mounted across
+          transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizards
+          unconditionally would run their hooks (auth, GetManagedComponents query) on every tile even
+          while closed. */}
+      {isCreateManagedControlPlaneWizardOpen ? (
+        <CreateManagedControlPlaneWizardContainer
+          isOpen={isCreateManagedControlPlaneWizardOpen}
+          setIsOpen={setIsCreateManagedControlPlaneWizardOpen}
+          projectName={projectNamespace}
+          workspaceName={workspaceName}
+          initialTemplateName={initialTemplateName}
+        />
+      ) : null}
+      {isCreateManagedControlPlaneWizardOpenV2 ? (
+        <CreateControlPlaneV2WizardContainer
+          isOpen={isCreateManagedControlPlaneWizardOpenV2}
+          setIsOpen={setIsCreateManagedControlPlaneWizardOpenV2}
+          projectName={projectNamespace}
+          workspaceName={workspaceName}
+          initialTemplateName={initialTemplateName}
+        />
+      ) : null}
     </div>
   );
 }
