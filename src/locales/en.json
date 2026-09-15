@@ -106,8 +106,8 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane",
-    "createNewControlPlane": "Create Control Plane",
+    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
+    "createNewControlPlane": "Create Control Plane (v2)",
     "defaultBadge": "Default",
     "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
