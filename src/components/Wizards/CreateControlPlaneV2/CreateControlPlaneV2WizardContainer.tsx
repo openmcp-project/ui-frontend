@@ -928,7 +928,7 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
             design="Footer"
             endContent={
               <div className={styles.footer}>
-                {selectedStep !== 'metadata' && isEditMode && (
+                {selectedStep !== 'metadata' && selectedStep !== 'success' && isEditMode && (
                   <Button disabled={isSubmitting} onClick={requestClose}>
                     {t('buttons.close')}
                   </Button>

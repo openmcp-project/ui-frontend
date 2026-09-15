@@ -64,7 +64,12 @@ export const ControlPlaneCardMenuV2: FC<ControlPlaneCardMenuV2Props> = ({
         }}
         onClose={() => setMenuIsOpen(false)}
       >
-        <MenuItem text={t('ControlPlaneCard.editMCP')} data-action="editMcp" icon="edit" />
+        <MenuItem
+          text={t('ControlPlaneCard.editMCP')}
+          data-action="editMcp"
+          icon="edit"
+          disabled={isDeleteMcpButtonDisabled}
+        />
         <MenuItem
           text={t('ControlPlaneCard.deleteMCP')}
           data-action="deleteMcp"

@@ -1,7 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach, beforeEach, Mock } from 'vitest';
 import { useApolloClient, useMutation } from '@apollo/client/react';
+import { fetchApiServerJson } from '../lib/api/fetch.ts';
 import { useDeleteManagedControlPlane } from './useDeleteManagedControlPlane.ts';
+
+vi.mock('../lib/api/fetch.ts');
 
 const toastShowMock = vi.fn();
 
@@ -17,6 +20,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('../components/Shared/k8s/index', () => ({
+  ApiConfigContext: {
+    Provider: ({ children }: { children: React.ReactNode }) => children,
+  },
+}));
+
 const refetchQueriesMock = vi.fn();
 
 vi.mock('@apollo/client/react', () => ({
@@ -26,11 +35,13 @@ vi.mock('@apollo/client/react', () => ({
 
 describe('useDeleteManagedControlPlane', () => {
   let mutateMock: Mock;
+  let fetchMock: Mock;
   const useMutationMock = vi.mocked(useMutation);
   const useApolloClientMock = vi.mocked(useApolloClient);
 
   beforeEach(() => {
     mutateMock = vi.fn();
+    fetchMock = vi.mocked(fetchApiServerJson);
     useMutationMock.mockReturnValue([mutateMock] as unknown as ReturnType<typeof useMutation>);
     useApolloClientMock.mockReturnValue({ refetchQueries: refetchQueriesMock } as unknown as ReturnType<
       typeof useApolloClient
@@ -41,8 +52,9 @@ describe('useDeleteManagedControlPlane', () => {
     vi.clearAllMocks();
   });
 
-  it('sets the deletion-confirmation annotation, deletes, and refetches the MCP list', async () => {
+  it('sets the deletion-confirmation annotation via PATCH, deletes, and refetches the MCP list', async () => {
     // ARRANGE
+    fetchMock.mockResolvedValue(undefined);
     mutateMock.mockResolvedValue({});
 
     // ACT
@@ -51,17 +63,18 @@ describe('useDeleteManagedControlPlane', () => {
       await result.current.deleteManagedControlPlane();
     });
 
-    // ASSERT
-    expect(mutateMock).toHaveBeenCalledTimes(2);
+    // ASSERT — PATCH confirmation
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [patchUrl, , , patchMethod, patchBody] = fetchMock.mock.calls[0];
+    expect(patchUrl).toContain('namespaces/namespace/managedcontrolplanes/mcpName');
+    expect(patchMethod).toBe('PATCH');
+    expect(JSON.parse(patchBody as string)).toEqual({
+      metadata: { annotations: { 'confirmation.openmcp.cloud/deletion': 'true' } },
+    });
 
-    // First mutation: SetManagedControlPlaneDeletionConfirmation
-    const confirmationCall = mutateMock.mock.calls[0][0] as { variables: { yaml: string } };
-    expect(confirmationCall.variables.yaml).toContain('name: mcpName');
-    expect(confirmationCall.variables.yaml).toContain('namespace: namespace');
-    expect(confirmationCall.variables.yaml).toContain('confirmation.openmcp.cloud/deletion: "true"');
-
-    // Second mutation: DeleteManagedControlPlane
-    const deleteCall = mutateMock.mock.calls[1][0] as { variables: unknown };
+    // ASSERT — delete mutation
+    expect(mutateMock).toHaveBeenCalledTimes(1);
+    const deleteCall = mutateMock.mock.calls[0][0] as { variables: unknown };
     expect(deleteCall.variables).toEqual({ name: 'mcpName', namespace: 'namespace' });
 
     expect(refetchQueriesMock).toHaveBeenCalledWith({ include: ['GetMCPsList'] });
@@ -70,7 +83,7 @@ describe('useDeleteManagedControlPlane', () => {
 
   it('shows a toast and rethrows on failure', async () => {
     // ARRANGE
-    mutateMock.mockRejectedValue(new Error('API Error'));
+    fetchMock.mockRejectedValue(new Error('API Error'));
 
     // ACT
     const { result } = renderHook(() => useDeleteManagedControlPlane('namespace', 'mcpName'));
