@@ -14,7 +14,7 @@ import { createComponentInstallSchema, ComponentInstallFormValues } from './Comp
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
 export interface UseCreateMutationResult {
-  create: (variables: { namespace: string; object: unknown }) => Promise<unknown>;
+  create: (variables: { namespace: string; name: string; object: unknown }) => Promise<unknown>;
   loading: boolean;
 }
 
@@ -120,7 +120,7 @@ export function ComponentInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'

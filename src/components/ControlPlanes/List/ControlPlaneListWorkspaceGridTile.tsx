@@ -340,6 +340,12 @@ export function ControlPlaneListWorkspaceGridTile({
         workspaceName={workspaceName}
         namespace={projectNamespace}
       />
+      {/* Mounted only while open. The open/closed flag lives in this tile's own `useState`, which
+          already survives parent re-renders, so conditional mounting doesn't lose form state — it
+          only unmounts on close (intended) or if this tile unmounts. Tiles are kept mounted across
+          transient empty workspace responses by ControlPlaneListAllWorkspaces. Mounting the wizards
+          unconditionally would run their hooks (auth, GetManagedComponents query) on every tile even
+          while closed. */}
       {isCreateManagedControlPlaneWizardOpen ? (
         <CreateManagedControlPlaneWizardContainer
           isOpen={isCreateManagedControlPlaneWizardOpen}

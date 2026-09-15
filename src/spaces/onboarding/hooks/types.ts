@@ -5,6 +5,12 @@ export type QueryResult<T> = {
   data: T;
   error: ErrorLike | null;
   isPending: boolean;
+  /**
+   * True once the query has produced a result at least once. Lets consumers distinguish an
+   * initial-load failure (show a dead-end error) from a transient refetch failure while
+   * last-good data is still present (keep rendering it).
+   */
+  hasLoadedOnce?: boolean;
 };
 
 /** Result of an interval-polled query; refetch forces an immediate reload. */

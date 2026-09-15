@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
+import { GET_OCM_QUERY } from '../../controlPlaneV2/components/Kpi/useOcmQuery.ts';
 
 const DeleteOcmMutation = graphql(`
   mutation DeleteOCM($name: String!, $namespace: String) {
@@ -13,13 +14,14 @@ const DeleteOcmMutation = graphql(`
 `);
 
 export function useDeleteOcm() {
-  const [deleteMutation, { loading, error }] = useMutation(DeleteOcmMutation, {
-    refetchQueries: ['GetOCM'],
-  });
+  const [deleteMutation, { loading, error }] = useMutation(DeleteOcmMutation);
 
   const deleteOcm = useCallback(
     async (variables: { namespace: string; name: string }) => {
-      return deleteMutation({ variables });
+      return deleteMutation({
+        variables,
+        refetchQueries: [{ query: GET_OCM_QUERY, variables: { name: variables.name, namespace: variables.namespace } }],
+      });
     },
     [deleteMutation],
   );

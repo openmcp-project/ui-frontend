@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { LandscaperData, LandscaperSchema } from '../../../mcp/types/Landscaper.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_LANDSCAPER_QUERY = graphql(`
+export const GET_LANDSCAPER_QUERY = graphql(`
   query GetLandscaper($name: String!, $namespace: String) {
     landscaper_services_open_control_plane_io {
       v1alpha2 {
