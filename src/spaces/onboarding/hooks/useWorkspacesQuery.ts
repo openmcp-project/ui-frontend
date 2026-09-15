@@ -95,5 +95,8 @@ export function useWorkspacesQuery(projectName?: string): QueryResult<Workspace[
     data: workspaces,
     error: query.error ?? null,
     isPending,
+    // `query.data` becomes defined after the first successful result and Apollo retains it
+    // across later refetches, so this stays true even when a refetch subsequently errors.
+    hasLoadedOnce: query.data !== undefined,
   };
 }

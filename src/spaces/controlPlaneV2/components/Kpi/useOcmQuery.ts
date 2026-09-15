@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { OcmData, OcmSchema } from '../../../mcp/types/Ocm.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_OCM_QUERY = graphql(`
+export const GET_OCM_QUERY = graphql(`
   query GetOCM($name: String!, $namespace: String) {
     ocm_services_open_control_plane_io {
       v1alpha1 {

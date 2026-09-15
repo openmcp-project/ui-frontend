@@ -176,7 +176,7 @@ export function CrossplaneInstallDialog({
         if (mode === 'edit') {
           await update({ namespace: mcpNamespace, name: mcpName, object });
         } else {
-          await create({ namespace: mcpNamespace, object });
+          await create({ namespace: mcpNamespace, name: mcpName, object });
         }
         toast.show(
           mode === 'edit'

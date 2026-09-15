@@ -222,8 +222,12 @@ export const useComponentsSelectionData = (
     if (onComponentsInitialized && sortedList.length > 0) {
       onComponentsInitialized(sortedList);
     }
+    // Compares `initialSelection` by content, not object identity: it's a `useMemo` derived from
+    // `initialData`, which gets a new reference on every Apollo refetch of the same resource — a
+    // reference-based dependency would re-seed `componentsList` on every such refetch and discard
+    // any component/version edits the user already made.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(data?.items), selectedTemplate, initialSelection]);
+  }, [JSON.stringify(data?.items), selectedTemplate, JSON.stringify(initialSelection)]);
 
   const defaultsError = useMemo(() => {
     const items = data?.items ?? [];

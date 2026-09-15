@@ -21,7 +21,7 @@ const CreateManagedControlPlaneMutation = graphql(`
 `);
 
 export function useCreateManagedControlPlane(projectName: string, workspaceName: string) {
-  const [createMutation] = useMutation(CreateManagedControlPlaneMutation, {
+  const [createMutation, { loading }] = useMutation(CreateManagedControlPlaneMutation, {
     refetchQueries: ['GetMCPsList'],
   });
 
@@ -37,5 +37,5 @@ export function useCreateManagedControlPlane(projectName: string, workspaceName:
     [createMutation, projectName, workspaceName],
   );
 
-  return { mutate };
+  return { mutate, loading };
 }
