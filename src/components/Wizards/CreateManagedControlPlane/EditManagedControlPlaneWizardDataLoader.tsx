@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { BusyIndicator } from '@ui5/webcomponents-react';
+import { FC, useState } from 'react';
 import { useManagedControlPlaneEditQuery } from '../../../spaces/onboarding/hooks/useManagedControlPlaneEditQuery.ts';
 import styles from './EditManagedControlPlaneWizardDataLoader.module.css';
 
@@ -7,8 +8,6 @@ import {
   WizardStepType,
 } from './CreateManagedControlPlaneWizardContainer.tsx';
 import { PROJECT_NAME_LABEL, WORKSPACE_LABEL } from '../../../lib/api/types/shared/keyNames.ts';
-
-import { BusyIndicator } from '@ui5/webcomponents-react';
 
 export type EditManagedControlPlaneWizardDataLoaderProps = {
   workspaceName?: string;
@@ -27,16 +26,24 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
   initialSection,
   mode = 'edit',
 }) => {
-  const { isLoading, data, error } = useManagedControlPlaneEditQuery(workspaceName, resourceName, !isOpen);
+  const { isLoading, data } = useManagedControlPlaneEditQuery(workspaceName, resourceName, !isOpen);
 
-  if (isLoading) {
+  // Preserve the last successfully loaded data across SWR revalidations so the wizard
+  // stays mounted and retains its form state. Cleared on close so the next open re-seeds
+  // from live data. Adjusted during render (not an effect) — mirrors ControlPlaneListAllWorkspaces.tsx.
+  const [cachedData, setCachedData] = useState<typeof data>(undefined);
+  if (data && data !== cachedData) setCachedData(data);
+  if (!isOpen && cachedData !== undefined) setCachedData(undefined);
+  const stableData = data ?? cachedData;
+
+  if (isLoading && !stableData) {
     return (
       <div className={styles.absolute}>
         <BusyIndicator active />
       </div>
     );
   }
-  if (error || !data) {
+  if (!stableData) {
     return null;
   }
 
@@ -46,11 +53,11 @@ export const EditManagedControlPlaneWizardDataLoader: FC<EditManagedControlPlane
         <CreateManagedControlPlaneWizardContainer
           isOpen={isOpen}
           setIsOpen={setIsOpen}
-          projectName={`project-${data?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
-          workspaceName={data?.metadata?.labels?.[WORKSPACE_LABEL]}
+          projectName={`project-${stableData?.metadata?.labels?.[PROJECT_NAME_LABEL]}`}
+          workspaceName={stableData?.metadata?.labels?.[WORKSPACE_LABEL]}
           isEditMode={mode === 'edit'}
           isDuplicateMode={mode === 'duplicate'}
-          initialData={data}
+          initialData={stableData}
           initialSection={initialSection}
         />
       ) : null}
