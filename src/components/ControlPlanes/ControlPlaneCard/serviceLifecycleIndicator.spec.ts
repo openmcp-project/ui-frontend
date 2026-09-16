@@ -22,7 +22,7 @@ describe('getServiceLifecycle', () => {
   });
 
   it('exposes a static icon per lifecycle state', () => {
-    expect(SERVICE_LIFECYCLE_ICON.installing).toBe('in-progress-2');
+    expect(SERVICE_LIFECYCLE_ICON.installing).toBe('synchronize');
     expect(SERVICE_LIFECYCLE_ICON.deleting).toBe('delete');
   });
 });

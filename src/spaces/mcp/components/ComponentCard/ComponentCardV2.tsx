@@ -18,8 +18,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ClickBoundary } from '../../../../components/Ui/ClickBoundary/ClickBoundary.tsx';
 import type { ControlPlaneStatusCondition } from '../../../../lib/api/types/crate/controlPlanes.ts';
-import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 import styles from './ComponentCard.module.css';
+import { ComponentHealthPopoverButton } from './ComponentHealthPopoverButton.tsx';
 
 const prefixVersion = (version: string) => (version.includes('v') ? version : `v${version}`);
 
@@ -57,8 +57,8 @@ export interface ComponentPhaseVisual {
 // vocabularies aren't unified.
 export const PHASE_VISUALS: Record<InstancePhase, ComponentPhaseVisual> = {
   [InstancePhase.Ready]: { state: 'Positive', icon: 'sys-enter-2' },
-  [InstancePhase.Progressing]: { state: 'Critical', icon: 'in-progress-2' },
-  [InstancePhase.Terminating]: { state: 'Critical', icon: 'delete' },
+  [InstancePhase.Progressing]: { state: 'Critical', icon: 'synchronize' },
+  [InstancePhase.Terminating]: { state: 'Negative', icon: 'delete' },
 };
 
 // A phase string the backend reports that isn't one of the known InstancePhase values (e.g. a

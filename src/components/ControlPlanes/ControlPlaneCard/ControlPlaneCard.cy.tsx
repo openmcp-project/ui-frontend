@@ -527,7 +527,7 @@ describe('ControlPlaneCard', () => {
           </MemoryRouter>
         </MockedProvider>,
       );
-      cy.get('[data-testid="service-status-Crossplane"]').should('have.attr', 'name', 'in-progress-2');
+      cy.get('[data-testid="service-status-Crossplane"]').should('have.attr', 'name', 'synchronize');
       cy.get('[data-testid="service-status-Flux"]').should('have.attr', 'name', 'delete');
     });
 

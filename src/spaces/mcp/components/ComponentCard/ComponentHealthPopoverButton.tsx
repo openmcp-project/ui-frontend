@@ -1,8 +1,8 @@
 import '@ui5/webcomponents-icons/dist/delete';
-import '@ui5/webcomponents-icons/dist/in-progress-2';
 import '@ui5/webcomponents-icons/dist/message-warning';
 import '@ui5/webcomponents-icons/dist/pending';
 import '@ui5/webcomponents-icons/dist/sys-enter-2';
+import '@ui5/webcomponents-icons/dist/synchronize';
 import { ButtonDomRef, Icon, PopoverDomRef, ResponsivePopover } from '@ui5/webcomponents-react';
 import type { Ui5CustomEvent } from '@ui5/webcomponents-react-base';
 import type { ButtonClickEventDetail } from '@ui5/webcomponents/dist/Button.js';

@@ -19,6 +19,6 @@ export function getServiceLifecycle(phase?: string | null): ServiceLifecycle | n
 
 /** Static UI5 icon name per lifecycle state — matches the icons used by ComponentCardV2. */
 export const SERVICE_LIFECYCLE_ICON: Record<ServiceLifecycle, string> = {
-  installing: 'in-progress-2',
+  installing: 'synchronize',
   deleting: 'delete',
 };
