@@ -163,7 +163,6 @@ export function ControlPlaneListWorkspaceGridTile({
   }, [workspace.spec.members, workspace.metadata.annotations]);
 
   const requestAccessMailtoHref = (() => {
-    if (workspaceAdminEmails.length === 0) return null;
     const subject = encodeURIComponent(
       t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
     );
@@ -188,13 +187,11 @@ export function ControlPlaneListWorkspaceGridTile({
             details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
             compact={true}
             button={
-              requestAccessMailtoHref ? (
-                <a href={requestAccessMailtoHref}>
-                  <Button design="Transparent" icon="email">
-                    {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
-                  </Button>
-                </a>
-              ) : undefined
+              <a href={requestAccessMailtoHref}>
+                <Button design="Transparent" icon="email">
+                  {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                </Button>
+              </a>
             }
           />
         );
@@ -261,6 +258,11 @@ export function ControlPlaneListWorkspaceGridTile({
                     <p style={{ color: 'var(--sapContent_LabelColor)', fontSize: '0.875rem' }}>
                       {t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
                     </p>
+                    <a href={requestAccessMailtoHref}>
+                      <Button design="Transparent" icon="email">
+                        {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                      </Button>
+                    </a>
                   </div>
                 </Popover>
               </>
@@ -295,7 +297,7 @@ export function ControlPlaneListWorkspaceGridTile({
             <div className={styles.headerSpacer} />
             {!shouldCollapsePanel && <MembersAvatarView members={uniqueMembers} source="workspace-grid" />}
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
-              {isForbidden && requestAccessMailtoHref && (
+              {isForbidden && (
                 <a href={requestAccessMailtoHref}>
                   <Button design="Transparent" icon="email">
                     {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}

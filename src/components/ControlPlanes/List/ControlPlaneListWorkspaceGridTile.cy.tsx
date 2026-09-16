@@ -145,6 +145,7 @@ describe('ControlPlaneListWorkspaceGridTile', () => {
                   isExpanded={true}
                   useMcpsQuery={fakeUseMCPsForbiddenQuery}
                   useDeleteWorkspace={fakeUseDeleteWorkspace}
+                  useAuthOnboardingHook={fakeUseAuthOnboarding}
                 />
               </FeatureToggleProvider>
             </SplitterProvider>
