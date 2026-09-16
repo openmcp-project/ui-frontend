@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { useCallback } from 'react';
 import { graphql } from '../../../types/__generated__/graphql';
 import type { CreateOcmMutationVariables } from '../../../types/__generated__/graphql/graphql';
+import { GET_OCM_QUERY } from '../../controlPlaneV2/components/Kpi/useOcmQuery.ts';
 
 const CreateOcmMutation = graphql(`
   mutation CreateOCM($namespace: String, $object: OcmServicesOpenControlPlaneIoV1alpha1OCM_Input!) {
@@ -19,13 +20,15 @@ const CreateOcmMutation = graphql(`
 `);
 
 export function useCreateOcm() {
-  const [createMutation, { loading, error }] = useMutation(CreateOcmMutation, {
-    refetchQueries: ['GetOCM'],
-  });
+  const [createMutation, { loading, error }] = useMutation(CreateOcmMutation);
 
   const create = useCallback(
-    async (variables: { namespace: string; object: unknown }) => {
-      return createMutation({ variables: variables as CreateOcmMutationVariables });
+    async (variables: { namespace: string; name: string; object: unknown }) => {
+      const { name, namespace, object } = variables;
+      return createMutation({
+        variables: { namespace, object } as CreateOcmMutationVariables,
+        refetchQueries: [{ query: GET_OCM_QUERY, variables: { name, namespace } }],
+      });
     },
     [createMutation],
   );

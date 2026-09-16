@@ -6,7 +6,7 @@ import { graphql } from '../../../../types/__generated__/graphql/index.ts';
 import { KroData, KroSchema } from '../../../mcp/types/Kro.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
-const GET_KRO_QUERY = graphql(`
+export const GET_KRO_QUERY = graphql(`
   query GetKRO($name: String!, $namespace: String) {
     kro_services_open_control_plane_io {
       v1alpha1 {

@@ -38,6 +38,16 @@ export default function ControlPlaneListAllWorkspaces({
 
   const query = search.trim().toLowerCase();
 
+  // Remembers the last non-empty list so a transient empty response from a subscription-driven
+  // refetch (see useWorkspacesQuery) can't swap every tile out for the empty-state illustration —
+  // that would unmount any open create/edit wizard along with it. Adjusted during render (not an
+  // effect) to avoid an extra render pass, mirroring the pattern in ControlPlaneListWorkspaceGridTile.
+  const [lastNonEmptyWorkspaces, setLastNonEmptyWorkspaces] = useState<Workspace[]>(workspaces);
+  if (workspaces.length > 0 && workspaces !== lastNonEmptyWorkspaces) {
+    setLastNonEmptyWorkspaces(workspaces);
+  }
+  const displayWorkspaces = workspaces.length > 0 ? workspaces : lastNonEmptyWorkspaces;
+
   const [visibilityState, setVisibilityState] = useState<{ query: string; map: Record<string, boolean> }>({
     query: '',
     map: {},
@@ -56,7 +66,7 @@ export default function ControlPlaneListAllWorkspaces({
     });
   }
 
-  if (workspaces.length === 0) {
+  if (displayWorkspaces.length === 0) {
     return (
       <FlexBox direction="Column" alignItems="Center">
         <IllustratedMessage
@@ -86,7 +96,7 @@ export default function ControlPlaneListAllWorkspaces({
           />
         </FlexBox>
       )}
-      {workspaces.map((workspace) => (
+      {displayWorkspaces.map((workspace) => (
         <ControlPlaneListWorkspaceGridTile
           key={`${projectName}-${workspace.metadata.name}`}
           projectName={projectName}

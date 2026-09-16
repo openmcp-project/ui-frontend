@@ -3,8 +3,10 @@ import { useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 
 import { z } from 'zod';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 import { graphql } from '../../../../types/__generated__/graphql';
+import type { GetMcPv2Query, GetMcPv2QueryVariables } from '../../../../types/__generated__/graphql/graphql';
 import { ManagedControlPlaneV2, ManagedControlPlaneV2Schema } from '../../types/ControlPlane.ts';
 import { useTelemetry } from '../../../../lib/telemetry/telemetry.ts';
 
@@ -20,6 +22,7 @@ export const GET_MCP_V2_QUERY = graphql(`
             namespace
             annotations
             creationTimestamp
+            deletionTimestamp
           }
           spec {
             iam {
@@ -96,7 +99,7 @@ export const GET_MCP_V2_QUERY = graphql(`
       }
     }
   }
-`);
+`) as unknown as TypedDocumentNode<GetMcPv2Query, GetMcPv2QueryVariables>;
 
 export function useControlPlaneV2Query(name?: string, namespace?: string) {
   const telemetry = useTelemetry();

@@ -106,8 +106,8 @@
     "buttonText": "Workspace",
     "deleteWorkspace": "Delete workspace",
     "editWorkspace": "Edit workspace",
-    "createNewManagedControlPlane": "Create Managed Control Plane",
-    "createNewControlPlane": "Create Control Plane",
+    "createNewManagedControlPlane": "Create Managed Control Plane (v1)",
+    "createNewControlPlane": "Create Control Plane (v2)",
     "defaultBadge": "Default",
     "previewV2Badge": "Preview: V2",
     "deprecatedBadge": "Deprecated"
@@ -602,7 +602,9 @@
     "dialogTitleControlPlane": "Create Control Plane",
     "titleText": "Control Plane Created Successfully!",
     "subtitleText": "Your control plane is being set up. It will be ready to use in just a few minutes. You can safely close this window.",
-    "copySuffix": "-copy"
+    "copySuffix": "-copy",
+    "creating": "Creating Managed Control Plane...",
+    "creatingControlPlane": "Creating Control Plane..."
   },
   "editMCP": {
     "dialogTitle": "Edit Control Plane",
@@ -610,7 +612,16 @@
     "subtitleText": "Your control plane is being updated. It will be ready to use in just a few minutes. You can safely close this window.",
     "editComponents": "Edit components",
     "duplicatingMCPInfo1": "Duplicating a <span>control plane</span> will only create a <span>control plane</span> with the same configuration. ",
-    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>"
+    "duplicatingMCPInfo2": "<b>It will NOT copy the managed resources inside</b>",
+    "updating": "Updating Managed Control Plane...",
+    "updatingControlPlane": "Updating Control Plane...",
+    "loadingServices": "Loading installed services..."
+  },
+  "discardChangesDialog": {
+    "title": "Discard changes?",
+    "message": "You have unsaved changes. If you close now, they will be lost.",
+    "confirmButton": "Discard changes",
+    "cancelButton": "Keep editing"
   },
   "componentsSelection": {
     "selectComponents": "Select Components",

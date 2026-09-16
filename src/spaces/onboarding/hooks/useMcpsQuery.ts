@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { NetworkStatus } from '@apollo/client';
 import { useQuery, useSubscription } from '@apollo/client/react';
 import { z } from 'zod';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 import { graphql } from '../../../types/__generated__/graphql';
-import { GetMcPsListQuery } from '../../../types/__generated__/graphql/graphql';
-import { ControlPlaneListItem, ControlPlaneListItemSchema } from '../types/ControlPlane';
+import type { GetMcPsListQuery, GetMcPsListQueryVariables } from '../../../types/__generated__/graphql/graphql';
+import { ControlPlaneListItem, ControlPlaneListItemSchema, ReadyStatus } from '../types/ControlPlane';
 import { useFeatureToggle } from '../../../context/FeatureToggleContext';
 import { useTelemetry } from '../../../lib/telemetry/telemetry.ts';
 
@@ -88,6 +89,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
               namespace
               creationTimestamp
               annotations
+              deletionTimestamp
             }
             status {
               phase
@@ -133,7 +135,7 @@ const GET_MCPS_LIST_QUERY = graphql(`
       }
     }
   }
-`);
+`) as unknown as TypedDocumentNode<GetMcPsListQuery, GetMcPsListQueryVariables>;
 
 // Minimal query — only name + annotations, used for search filtering on collapsed workspaces.
 const GET_MCPS_NAMES_QUERY = graphql(`
@@ -200,17 +202,23 @@ function parseAccess(accessData: unknown): Record<string, unknown> | undefined {
   }
 }
 
+type V2RawMetadata = NonNullable<V2Item['metadata']> & { deletionTimestamp?: string | null };
+
 function toV2Input(item: V2Item) {
+  const metadata = item.metadata as V2RawMetadata | null;
+  const isBeingDeleted = !!metadata?.deletionTimestamp;
   return {
     version: 'v2' as const,
     metadata: item.metadata,
     status: item.status
       ? {
-          status: item.status.phase,
+          status: isBeingDeleted ? ReadyStatus.InDeletion : item.status.phase,
           conditions: item.status.conditions,
           access: parseAccess(item.status.access),
         }
-      : null,
+      : isBeingDeleted
+        ? { status: ReadyStatus.InDeletion, conditions: [], access: undefined }
+        : null,
     spec: item.spec ?? null,
   };
 }

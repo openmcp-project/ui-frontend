@@ -1,16 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import { useToast } from '../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { graphql } from '../types/__generated__/graphql';
-
-// Sets the deletion-confirmation annotation via server-side apply — sending only metadata
-// merges the annotation without a read-modify-write round-trip.
-const SetDeletionConfirmationMutation = graphql(`
-  mutation SetManagedControlPlaneDeletionConfirmation($yaml: String!) {
-    applyYaml(yaml: $yaml)
-  }
-`);
+import { ApiConfigContext } from '../components/Shared/k8s/index.ts';
+import { fetchApiServerJson } from '../lib/api/fetch.ts';
 
 const DeleteManagedControlPlaneMutation = graphql(`
   mutation DeleteManagedControlPlane($name: String!, $namespace: String!, $dryRun: Boolean) {
@@ -22,28 +16,26 @@ const DeleteManagedControlPlaneMutation = graphql(`
   }
 `);
 
-function deletionConfirmationYaml(namespace: string, name: string): string {
-  return [
-    'apiVersion: core.openmcp.cloud/v1alpha1',
-    'kind: ManagedControlPlane',
-    'metadata:',
-    `  name: ${name}`,
-    `  namespace: ${namespace}`,
-    '  annotations:',
-    '    confirmation.openmcp.cloud/deletion: "true"',
-  ].join('\n');
-}
+const deletionConfirmationPatchBody = JSON.stringify({
+  metadata: { annotations: { 'confirmation.openmcp.cloud/deletion': 'true' } },
+});
 
 export function useDeleteManagedControlPlane(namespace: string, name: string) {
   const apolloClient = useApolloClient();
-  const [setDeletionConfirmation] = useMutation(SetDeletionConfirmationMutation);
   const [deleteManagedControlPlaneMutation] = useMutation(DeleteManagedControlPlaneMutation);
   const { t } = useTranslation();
   const toast = useToast();
+  const apiConfig = useContext(ApiConfigContext);
 
   const deleteManagedControlPlane = useCallback(async (): Promise<void> => {
     try {
-      await setDeletionConfirmation({ variables: { yaml: deletionConfirmationYaml(namespace, name) } });
+      await fetchApiServerJson(
+        `/apis/core.openmcp.cloud/v1alpha1/namespaces/${namespace}/managedcontrolplanes/${name}`,
+        apiConfig,
+        undefined,
+        'PATCH',
+        deletionConfirmationPatchBody,
+      );
       await deleteManagedControlPlaneMutation({ variables: { name, namespace } });
       void apolloClient.refetchQueries({ include: ['GetMCPsList'] });
       toast.show(t('ControlPlaneCard.deleteConfirmationDialog'));
@@ -52,7 +44,7 @@ export function useDeleteManagedControlPlane(namespace: string, name: string) {
       toast.show(message);
       throw error;
     }
-  }, [apolloClient, deleteManagedControlPlaneMutation, name, namespace, setDeletionConfirmation, t, toast]);
+  }, [apiConfig, apolloClient, deleteManagedControlPlaneMutation, name, namespace, t, toast]);
 
   return {
     deleteManagedControlPlane,

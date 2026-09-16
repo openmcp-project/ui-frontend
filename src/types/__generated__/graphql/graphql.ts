@@ -1786,12 +1786,6 @@ export type CreateManagedControlPlaneMutation = {
   } | null;
 };
 
-export type SetManagedControlPlaneDeletionConfirmationMutationVariables = Exact<{
-  yaml: string;
-}>;
-
-export type SetManagedControlPlaneDeletionConfirmationMutation = { applyYaml: unknown };
-
 export type DeleteManagedControlPlaneMutationVariables = Exact<{
   name: string;
   namespace: string;
@@ -2426,6 +2420,7 @@ export type GetMcPv2Query = {
           namespace: string | null;
           annotations: unknown;
           creationTimestamp: string | null;
+          deletionTimestamp: string | null;
         } | null;
         spec: {
           iam: {
@@ -2768,6 +2763,7 @@ export type GetMcPsListQuery = {
             namespace: string | null;
             creationTimestamp: string | null;
             annotations: unknown;
+            deletionTimestamp: string | null;
           } | null;
           status: {
             phase: string | null;
@@ -3330,42 +3326,6 @@ export const CreateManagedControlPlaneDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateManagedControlPlaneMutation, CreateManagedControlPlaneMutationVariables>;
-export const SetManagedControlPlaneDeletionConfirmationDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'SetManagedControlPlaneDeletionConfirmation' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'yaml' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'applyYaml' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'yaml' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'yaml' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SetManagedControlPlaneDeletionConfirmationMutation,
-  SetManagedControlPlaneDeletionConfirmationMutationVariables
->;
 export const DeleteManagedControlPlaneDocument = {
   kind: 'Document',
   definitions: [
@@ -7160,6 +7120,7 @@ export const GetMcPv2Document = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'deletionTimestamp' } },
                                 ],
                               },
                             },
@@ -8684,6 +8645,7 @@ export const GetMcPsListDocument = {
                                         { kind: 'Field', name: { kind: 'Name', value: 'namespace' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'creationTimestamp' } },
                                         { kind: 'Field', name: { kind: 'Name', value: 'annotations' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'deletionTimestamp' } },
                                       ],
                                     },
                                   },
