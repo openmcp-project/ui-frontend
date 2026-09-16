@@ -133,7 +133,8 @@ export function ControlPlaneListWorkspaceGridTile({
   const hasMcpMatch = !isPending && query && !workspaceMatches && (visibleMcps ?? []).length > 0;
   const hidden = !isPending && query && !workspaceMatches && !hasMcpMatch;
 
-  const shouldCollapsePanel = isForbidden || (query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded);
+  const shouldCollapsePanel =
+    isForbidden || (query ? !(workspaceMatches || hasMcpMatch || needsFullMcpData) : !isExpanded);
 
   // Adjust state during render (not in an effect — avoids an extra render/fetch cascade) once
   // `hasMcpMatch` is derivable. Each branch fires once: its guard turns false right after.
@@ -292,9 +293,7 @@ export function ControlPlaneListWorkspaceGridTile({
             )}
             <CopyButton collapsible text={workspace.status?.namespace || '-'} source="workspace-namespace" />
             <div className={styles.headerSpacer} />
-            {!shouldCollapsePanel && (
-              <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
-            )}
+            {!shouldCollapsePanel && <MembersAvatarView members={uniqueMembers} source="workspace-grid" />}
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
               {isForbidden && requestAccessMailtoHref && (
                 <a href={requestAccessMailtoHref}>
