@@ -49,12 +49,17 @@ const SERVICES: ServiceDef[] = [
 interface ServiceSelectionStepProps {
   services: ServiceSelection;
   onServicesChange: (services: ServiceSelection) => void;
+  showLandscaper: boolean;
 }
 
-export function ServiceSelectionStep({ services, onServicesChange }: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({ services, onServicesChange, showLandscaper }: ServiceSelectionStepProps) {
   const { t } = useTranslation();
   const { services: managedServices, crossplaneProviders } = useManagedServicesQuery();
   const providerVersionMemory = useRef(new Map<string, string>());
+  const visibleServices = useMemo(
+    () => (showLandscaper ? SERVICES : SERVICES.filter((s) => s.key !== 'landscaper')),
+    [showLandscaper],
+  );
 
   const toggle = (key: ServiceKey, checked: boolean) => {
     const entry = services[key];
@@ -151,7 +156,7 @@ export function ServiceSelectionStep({ services, onServicesChange }: ServiceSele
     <div className={styles.container}>
       <p className={styles.intro}>{t('ServiceSelectionStep.intro')}</p>
       <div className={styles.grid}>
-        {SERVICES.map(({ key, labelKey, logo, serviceName }) => {
+        {visibleServices.map(({ key, labelKey, logo, serviceName }) => {
           const entry = services[key];
           const selected = entry?.selected ?? false;
           const versions = managedServices.find((s) => s.name === serviceName)?.versions ?? [];

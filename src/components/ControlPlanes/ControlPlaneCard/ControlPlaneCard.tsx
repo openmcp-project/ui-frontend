@@ -80,7 +80,7 @@ export const ControlPlaneCard = ({
   v2Components,
   isLoadingV2Components = false,
 }: Props) => {
-  const { markMcpV1asDeprecated } = useFeatureToggle();
+  const { markMcpV1asDeprecated, showLandscaperCard } = useFeatureToggle();
   const [dialogDeleteMcpIsOpen, setDialogDeleteMcpIsOpen] = useState(false);
   const [isEditV2WizardOpen, setIsEditV2WizardOpen] = useState(false);
   const [managedControlPlaneWizardState, setManagedControlPlaneWizardState] = useState<MCPWizardState>({
@@ -135,12 +135,16 @@ export const ControlPlaneCard = ({
           phase: mcpV2Components?.crossplane?.phase,
         },
         { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
-        {
-          name: 'Landscaper',
-          logo: LogoLandscaper,
-          installed: !!mcpV2Components?.landscaper,
-          phase: mcpV2Components?.landscaper?.phase,
-        },
+        ...(showLandscaperCard
+          ? [
+              {
+                name: 'Landscaper',
+                logo: LogoLandscaper,
+                installed: !!mcpV2Components?.landscaper,
+                phase: mcpV2Components?.landscaper?.phase,
+              },
+            ]
+          : []),
         {
           name: 'External Secrets Operator',
           logo: LogoEso,
@@ -154,11 +158,13 @@ export const ControlPlaneCard = ({
     return [
       { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpComponents?.crossplane },
       { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux },
-      { name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper },
+      ...(showLandscaperCard
+        ? [{ name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper }]
+        : []),
       { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },
       { name: 'External Secrets Operator', logo: LogoEso, installed: !!mcpComponents?.externalSecretsOperator },
     ];
-  }, [isV2, mcpComponents, mcpV2Components]);
+  }, [isV2, mcpComponents, mcpV2Components, showLandscaperCard]);
 
   const installedComponents = useMemo(() => components.filter((c) => c.installed), [components]);
 
