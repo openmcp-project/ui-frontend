@@ -15,6 +15,7 @@ type ControlPlanesListMenuProps = {
   setIsCreateManagedControlPlaneWizardOpen: Dispatch<SetStateAction<boolean>>;
   setIsCreateManagedControlPlaneWizardOpenV2: Dispatch<SetStateAction<boolean>>;
   setInitialTemplateName: Dispatch<SetStateAction<string | undefined>>;
+  disabled?: boolean;
 };
 
 export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
@@ -23,6 +24,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
   setIsCreateManagedControlPlaneWizardOpen,
   setInitialTemplateName,
   setIsCreateManagedControlPlaneWizardOpenV2,
+  disabled = false,
 }) => {
   const popoverRef = useRef<MenuDomRef>(null);
   const [open, setOpen] = useState(false);
@@ -47,6 +49,7 @@ export const ControlPlanesListMenu: FC<ControlPlanesListMenuProps> = ({
         icon="overflow"
         icon-end
         data-testid="ControlPlanesListMenu-opener"
+        disabled={disabled}
         onClick={handleOpenerClick}
       />
       <Menu

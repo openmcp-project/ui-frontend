@@ -35,7 +35,7 @@ export const MemberSchema = z.object({
   kind: z.string(),
   name: z.string(),
   roles: z.array(z.string()),
-  namespace: z.string().optional(),
+  namespace: z.string().nullish(),
   // V2-only: extraProviders[] entry name; undefined = default provider.
   provider: z.string().optional(),
 });
