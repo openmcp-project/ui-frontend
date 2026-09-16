@@ -135,7 +135,7 @@ export const ControlPlaneCard = ({
           phase: mcpV2Components?.crossplane?.phase,
         },
         { name: 'Flux', logo: LogoFlux, installed: !!mcpV2Components?.flux, phase: mcpV2Components?.flux?.phase },
-        ...(showLandscaperCard
+        ...(showLandscaperCard || !!mcpV2Components?.landscaper
           ? [
               {
                 name: 'Landscaper',
@@ -158,7 +158,7 @@ export const ControlPlaneCard = ({
     return [
       { name: 'Crossplane', logo: LogoCrossplane, installed: !!mcpComponents?.crossplane },
       { name: 'Flux', logo: LogoFlux, installed: !!mcpComponents?.flux },
-      ...(showLandscaperCard
+      ...(showLandscaperCard || !!mcpComponents?.landscaper
         ? [{ name: 'Landscaper', logo: LogoLandscaper, installed: !!mcpComponents?.landscaper }]
         : []),
       { name: 'Kyverno', logo: LogoKyverno, installed: !!mcpComponents?.kyverno },

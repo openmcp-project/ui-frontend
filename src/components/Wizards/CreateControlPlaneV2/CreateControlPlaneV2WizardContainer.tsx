@@ -984,10 +984,9 @@ export const CreateControlPlaneV2WizardContainer: FC<CreateManagedControlPlaneV2
           onConfirm={confirmDiscardAndClose}
         />
         <Dialog open={isSubmitting} onClose={() => undefined}>
-          <div>
+          <div className={styles.loadingModal}>
             <Icon name={isEditMode ? 'request' : 'create-entry-time'} className={styles.loadingModalIcon} />
             <BusyIndicator
-              className={styles.loadingModal}
               active
               text={t(isEditMode ? 'editMCP.updatingControlPlane' : 'createMCP.creatingControlPlane')}
             />
