@@ -160,34 +160,40 @@ export function ControlPlaneListWorkspaceGridTile({
     const createdBy = workspace.metadata.annotations?.[CREATED_BY_ANNOTATION];
     return createdBy ? [createdBy] : [];
   }, [workspace.spec.members, workspace.metadata.annotations]);
-  const errorView = createErrorView(cpsError, workspaceAdminEmails);
+
+  const requestAccessMailtoHref = (() => {
+    if (workspaceAdminEmails.length === 0) return null;
+    const subject = encodeURIComponent(
+      t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
+    );
+    const body = encodeURIComponent(
+      t('ControlPlaneListWorkspaceGridTile.accessRequestBody', { workspaceName, projectName }),
+    );
+    return `mailto:${workspaceAdminEmails.join(',')}?subject=${subject}&body=${body}`;
+  })();
+
+  const errorView = createErrorView(cpsError);
 
   function isWorkspaceReady(currentWorkspace: Workspace): boolean {
     return currentWorkspace.status != null && currentWorkspace.status.namespace != null;
   }
 
-  function createErrorView(error: Error | undefined, adminEmails: string[]) {
+  function createErrorView(error: Error | undefined) {
     if (error) {
       if (isForbiddenError(error)) {
-        const subject = encodeURIComponent(
-          t('ControlPlaneListWorkspaceGridTile.accessRequestSubject', { workspaceName, projectName }),
-        );
-        const body = encodeURIComponent(
-          t('ControlPlaneListWorkspaceGridTile.accessRequestBody', { workspaceName, projectName }),
-        );
-        const mailtoHref = `mailto:${adminEmails.join(',')}?subject=${subject}&body=${body}`;
-
         return (
           <IllustratedError
             title={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessage')}
             details={t('ControlPlaneListWorkspaceGridTile.permissionErrorMessageSubtitle')}
             compact={true}
             button={
-              <a href={mailtoHref}>
-                <Button design="Transparent" icon="email">
-                  {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
-                </Button>
-              </a>
+              requestAccessMailtoHref ? (
+                <a href={requestAccessMailtoHref}>
+                  <Button design="Transparent" icon="email">
+                    {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                  </Button>
+                </a>
+              ) : undefined
             }
           />
         );
@@ -290,6 +296,13 @@ export function ControlPlaneListWorkspaceGridTile({
               <MembersAvatarView members={uniqueMembers} source="workspace-grid" />
             )}
             <FlexBox justifyContent={'SpaceBetween'} gap={10}>
+              {isForbidden && requestAccessMailtoHref && (
+                <a href={requestAccessMailtoHref}>
+                  <Button design="Transparent" icon="email">
+                    {t('ControlPlaneListWorkspaceGridTile.askAdminButton')}
+                  </Button>
+                </a>
+              )}
               <YamlViewButton
                 variant="loader"
                 workspaceName={workspace.metadata.namespace}
@@ -302,6 +315,7 @@ export function ControlPlaneListWorkspaceGridTile({
                 setIsCreateManagedControlPlaneWizardOpen={setIsCreateManagedControlPlaneWizardOpen}
                 setInitialTemplateName={setInitialTemplateName}
                 setIsCreateManagedControlPlaneWizardOpenV2={setIsCreateManagedControlPlaneWizardOpenV2}
+                disabled={isForbidden}
               />
             </FlexBox>
           </div>
